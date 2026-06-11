@@ -1,0 +1,44 @@
+---
+name: dashboard-output-review
+description: Use when reviewing static dashboard JSON, HTML rendering, mobile readability, and whether economic-cycle explanations are clear and non-misleading.
+---
+
+## Purpose
+
+Review whether the GitHub Pages dashboard is readable, explainable, and safe for investment decision support.
+
+## Review checklist
+
+Check:
+
+- iPhone readability
+- concise phase summary
+- four phase scores visible
+- transition radar visible
+- confidence visible
+- data freshness visible
+- indicator explanations available
+- no API key exposure
+- no private investment data
+- no direct buy/sell command
+- no opaque model-generated phase decision
+- charts are readable on mobile
+- missing/stale data is visible
+
+## Wording rules
+
+Prefer:
+
+- "配置思考"
+- "轉折風險"
+- "觀察訊號"
+- "資料信心"
+- "目前證據顯示"
+
+Avoid:
+
+- "一定會衰退"
+- "必買"
+- "必賣"
+- "保證"
+- "精準預測"

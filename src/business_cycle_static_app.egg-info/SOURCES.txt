@@ -1,0 +1,6 @@
+pyproject.toml
+src/business_cycle_static_app.egg-info/PKG-INFO
+src/business_cycle_static_app.egg-info/SOURCES.txt
+src/business_cycle_static_app.egg-info/dependency_links.txt
+src/business_cycle_static_app.egg-info/requires.txt
+src/business_cycle_static_app.egg-info/top_level.txt

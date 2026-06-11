@@ -1,0 +1,2 @@
+"""Static dashboard rendering placeholders."""
+

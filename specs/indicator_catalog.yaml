@@ -1,0 +1,455 @@
+indicators:
+  - indicator_id: initial_jobless_claims
+    display_name_zh: 初領失業救濟金人數
+    description_zh: 衡量每週新申請失業救濟的人數，用於觀察裁員壓力是否從衰退高點緩和。
+    provider: fred
+    candidate_fred_series:
+      - series_id: ICSA
+        title: Initial Claims
+        reason: 每週初領失業救濟金，常作為勞動市場轉折的高頻領先觀察。
+        frequency: weekly
+        seasonal_adjustment: seasonally_adjusted
+        units: persons
+        source_institution: U.S. Employment and Training Administration
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: ICSA
+    frequency: weekly
+    category: labor
+    phase_relevance:
+      - recession
+      - recovery
+    direction: lower_is_stronger
+    transformations:
+      - four_week_moving_average
+      - moving_average_slope
+      - peak_trough_reversal
+    score_method: peak_trough_reversal_score
+    trend_window: 13w
+    confirmation_window: 4w
+    stale_after_days: 14
+    fallback_rule: mark_missing_and_reduce_confidence
+    confidence_rule: reduce_when_recent_weekly_observations_are_missing_or_revised
+    public_explanation_zh: 初領失業救濟金若從高點持續回落，代表裁員壓力緩和，是復甦早期的重要觀察訊號。
+
+  - indicator_id: short_term_unemployment
+    display_name_zh: 短期失業人數
+    description_zh: 衡量失業未滿五週的人數，用於觀察新近失業壓力是否降溫。
+    provider: fred
+    candidate_fred_series:
+      - series_id: UEMPLT5
+        title: Number Unemployed for Less Than 5 Weeks
+        reason: 短期失業人數較能反映新近裁員壓力，適合搭配初領失業救濟金確認勞動市場轉折。
+        frequency: monthly
+        seasonal_adjustment: seasonally_adjusted
+        units: thousands_of_persons
+        source_institution: U.S. Bureau of Labor Statistics
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: UEMPLT5
+    frequency: monthly
+    category: labor
+    phase_relevance:
+      - recession
+      - recovery
+    direction: lower_is_stronger
+    transformations:
+      - three_month_moving_average
+      - moving_average_slope
+      - year_over_year_change
+    score_method: moving_average_slope_score
+    trend_window: 6m
+    confirmation_window: 3m
+    stale_after_days: 45
+    fallback_rule: mark_missing_and_reduce_confidence
+    confidence_rule: reduce_when_employment_situation_release_is_missing_or_revised
+    public_explanation_zh: 短期失業人數下降代表新近失業壓力減輕，可輔助確認復甦是否正在形成。
+
+  - indicator_id: unemployment_rate
+    display_name_zh: 失業率
+    description_zh: 衡量勞動力中失業者比例；此指標偏落後，不得作為復甦初期唯一判斷依據。
+    provider: fred
+    candidate_fred_series:
+      - series_id: UNRATE
+        title: Unemployment Rate
+        reason: 失業率可確認勞動市場修復，但在復甦早期常落後於初領失業救濟金與短期失業人數。
+        frequency: monthly
+        seasonal_adjustment: seasonally_adjusted
+        units: percent
+        source_institution: U.S. Bureau of Labor Statistics
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: UNRATE
+    frequency: monthly
+    category: labor
+    phase_relevance:
+      - recession
+      - recovery
+      - growth
+    direction: lower_is_stronger
+    transformations:
+      - three_month_moving_average
+      - moving_average_slope
+      - rolling_percentile
+    score_method: persistence_confirmed_score
+    trend_window: 12m
+    confirmation_window: 3m
+    stale_after_days: 45
+    fallback_rule: mark_missing_and_reduce_confidence
+    confidence_rule: reduce_when_used_without_leading_labor_confirmation
+    public_explanation_zh: 失業率改善能提高復甦信心，但它通常落後；若其他勞動與需求指標未改善，不能只靠失業率判斷復甦。
+
+  - indicator_id: real_retail_sales
+    display_name_zh: 實質零售銷售
+    description_zh: 以通膨調整後的零售與餐飲銷售觀察家計消費需求是否從谷底回升。
+    provider: fred
+    candidate_fred_series:
+      - series_id: RRSFS
+        title: Advance Real Retail and Food Services Sales
+        reason: FRED 已將零售銷售以 CPI 調整為實質值，適合衡量消費量能。
+        frequency: monthly
+        seasonal_adjustment: seasonally_adjusted
+        units: millions_of_1982_84_cpi_adjusted_dollars
+        source_institution: Federal Reserve Bank of St. Louis
+        validation_status: candidate_unverified_for_project
+      - series_id: RSAFS
+        title: "Advance Retail Sales: Retail Trade and Food Services"
+        reason: 若需自行調整通膨，可搭配 CPIAUCSL 建構實質零售銷售 proxy。
+        frequency: monthly
+        seasonal_adjustment: seasonally_adjusted
+        units: millions_of_dollars
+        source_institution: U.S. Census Bureau
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: RRSFS
+      - fred: RSAFS
+      - fred: CPIAUCSL
+    frequency: monthly
+    category: consumption
+    phase_relevance:
+      - recovery
+      - growth
+      - boom
+    direction: higher_is_stronger
+    transformations:
+      - year_over_year_change
+      - three_month_moving_average
+      - yoy_momentum_change
+    score_method: yoy_momentum_score
+    trend_window: 6m
+    confirmation_window: 3m
+    stale_after_days: 45
+    fallback_rule: use_nominal_sales_with_inflation_adjustment_if_real_series_missing_else_mark_missing
+    confidence_rule: reduce_when_deflator_or_retail_release_is_missing
+    public_explanation_zh: 實質零售銷售回升代表消費需求修復；評估時看年增率與三個月動能，不用單月數字下結論。
+
+  - indicator_id: real_pce_durable_goods
+    display_name_zh: 個人耐久財消費
+    description_zh: 衡量家計對汽車、家具、家電等耐久財的實質支出，常對景氣復甦較敏感。
+    provider: fred
+    candidate_fred_series:
+      - series_id: PCEDGC96
+        title: "Real Personal Consumption Expenditures: Durable Goods"
+        reason: 實質耐久財消費可觀察家計大額支出是否恢復。
+        frequency: monthly
+        seasonal_adjustment: seasonally_adjusted_annual_rate
+        units: billions_of_chained_2017_dollars
+        source_institution: U.S. Bureau of Economic Analysis
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: PCEDGC96
+    frequency: monthly
+    category: consumption
+    phase_relevance:
+      - recovery
+      - growth
+    direction: higher_is_stronger
+    transformations:
+      - year_over_year_change
+      - three_month_moving_average
+      - yoy_momentum_change
+    score_method: yoy_momentum_score
+    trend_window: 6m
+    confirmation_window: 3m
+    stale_after_days: 45
+    fallback_rule: mark_missing_and_reduce_consumption_group_confidence
+    confidence_rule: reduce_when_pce_release_is_missing_or_materially_revised
+    public_explanation_zh: 耐久財消費若持續改善，表示家庭願意恢復大額支出，是復甦期需求回溫的訊號。
+
+  - indicator_id: durable_goods_new_orders
+    display_name_zh: 耐久財新訂單
+    description_zh: 衡量製造商接到的耐久財訂單，用於觀察企業與消費端需求是否回補。
+    provider: fred
+    candidate_fred_series:
+      - series_id: DGORDER
+        title: "Manufacturers' New Orders: Durable Goods"
+        reason: 耐久財新訂單可捕捉製造業需求與投資鏈條的早期改善。
+        frequency: monthly
+        seasonal_adjustment: seasonally_adjusted
+        units: millions_of_dollars
+        source_institution: U.S. Census Bureau
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: DGORDER
+    frequency: monthly
+    category: production
+    phase_relevance:
+      - recovery
+      - growth
+    direction: higher_is_stronger
+    transformations:
+      - three_month_moving_average
+      - year_over_year_change
+      - peak_trough_reversal
+    score_method: peak_trough_reversal_score
+    trend_window: 6m
+    confirmation_window: 3m
+    stale_after_days: 45
+    fallback_rule: mark_missing_and_reduce_investment_group_confidence
+    confidence_rule: reduce_when_orders_release_is_missing_or_single_month_spike_dominates
+    public_explanation_zh: 耐久財新訂單從低點持續回升，代表需求與生產排程改善；單月跳升需要後續月份確認。
+
+  - indicator_id: real_private_fixed_investment
+    display_name_zh: 私人固定投資
+    description_zh: 衡量企業與住宅部門的實質固定投資，用於確認復甦是否從消費擴散到投資。
+    provider: fred
+    candidate_fred_series:
+      - series_id: FPIC1
+        title: Real Private Fixed Investment
+        reason: 實質私人固定投資可觀察資本支出與住宅投資是否回升。
+        frequency: quarterly
+        seasonal_adjustment: seasonally_adjusted_annual_rate
+        units: billions_of_chained_2017_dollars
+        source_institution: U.S. Bureau of Economic Analysis
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: FPIC1
+    frequency: quarterly
+    category: investment
+    phase_relevance:
+      - recovery
+      - growth
+    direction: higher_is_stronger
+    transformations:
+      - quarter_over_quarter_annualized_change
+      - year_over_year_change
+      - two_quarter_moving_average
+    score_method: yoy_momentum_score
+    trend_window: 4q
+    confirmation_window: 2q
+    stale_after_days: 120
+    fallback_rule: mark_missing_and_reduce_investment_group_confidence
+    confidence_rule: reduce_when_gdp_release_is_missing_or_latest_quarter_is_advance_estimate
+    public_explanation_zh: 私人固定投資改善代表企業與住宅部門開始恢復擴張，但季度資料較慢，適合作為復甦確認而非唯一早期訊號。
+
+  - indicator_id: imports_goods_services
+    display_name_zh: 進口金額
+    description_zh: 衡量美國進口商品與服務金額，用於觀察內需與企業補庫存是否回升。
+    provider: fred
+    candidate_fred_series:
+      - series_id: IMPGS
+        title: Imports of Goods and Services
+        reason: 進口回升通常反映國內需求、零售補貨與企業活動改善。
+        frequency: quarterly
+        seasonal_adjustment: seasonally_adjusted_annual_rate
+        units: billions_of_dollars
+        source_institution: U.S. Bureau of Economic Analysis
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: IMPGS
+    frequency: quarterly
+    category: trade
+    phase_relevance:
+      - recovery
+      - growth
+    direction: higher_is_stronger
+    transformations:
+      - quarter_over_quarter_annualized_change
+      - year_over_year_change
+      - two_quarter_moving_average
+    score_method: yoy_momentum_score
+    trend_window: 4q
+    confirmation_window: 2q
+    stale_after_days: 120
+    fallback_rule: mark_missing_and_reduce_trade_group_confidence
+    confidence_rule: reduce_when_trade_data_are_missing_or_heavily_revised
+    public_explanation_zh: 進口金額改善常代表內需回溫與補庫存活動增加，但需搭配消費與投資指標共同判斷。
+
+  - indicator_id: exports_goods_services
+    display_name_zh: 出口金額
+    description_zh: 衡量美國出口商品與服務金額，用於觀察外部需求是否支撐復甦。
+    provider: fred
+    candidate_fred_series:
+      - series_id: EXPGS
+        title: Exports of Goods and Services
+        reason: 出口改善可表示外需與全球製造循環對復甦提供支撐。
+        frequency: quarterly
+        seasonal_adjustment: seasonally_adjusted_annual_rate
+        units: billions_of_dollars
+        source_institution: U.S. Bureau of Economic Analysis
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: EXPGS
+    frequency: quarterly
+    category: trade
+    phase_relevance:
+      - recovery
+      - growth
+    direction: higher_is_stronger
+    transformations:
+      - quarter_over_quarter_annualized_change
+      - year_over_year_change
+      - two_quarter_moving_average
+    score_method: yoy_momentum_score
+    trend_window: 4q
+    confirmation_window: 2q
+    stale_after_days: 120
+    fallback_rule: mark_missing_and_reduce_trade_group_confidence
+    confidence_rule: reduce_when_trade_data_are_missing_or_heavily_revised
+    public_explanation_zh: 出口金額回升代表外部需求改善；復甦判斷應看出口趨勢是否持續，而非單季變化。
+
+  - indicator_id: federal_funds_rate
+    display_name_zh: 聯邦基金利率
+    description_zh: 衡量貨幣政策短端利率環境，用於觀察政策是否仍在支撐復甦或開始轉向緊縮。
+    provider: fred
+    candidate_fred_series:
+      - series_id: FEDFUNDS
+        title: Federal Funds Effective Rate
+        reason: 有效聯邦基金利率可代表短端政策利率環境。
+        frequency: monthly
+        seasonal_adjustment: not_seasonally_adjusted
+        units: percent
+        source_institution: Board of Governors of the Federal Reserve System
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: FEDFUNDS
+    frequency: monthly
+    category: policy
+    phase_relevance:
+      - recession
+      - recovery
+      - growth
+      - boom
+    direction: lower_or_stable_is_more_supportive
+    transformations:
+      - three_month_change
+      - six_month_change
+      - rolling_percentile
+    score_method: level_percentile_score
+    trend_window: 12m
+    confirmation_window: 3m
+    stale_after_days: 45
+    fallback_rule: mark_missing_and_reduce_policy_group_confidence
+    confidence_rule: reduce_when_rate_data_are_missing_or_policy_shift_is_unconfirmed
+    public_explanation_zh: 復甦初期通常需要較寬鬆或穩定的短端利率環境；利率快速上升會降低復甦延續的信心。
+
+  - indicator_id: ten_year_treasury_yield
+    display_name_zh: 10年期公債殖利率
+    description_zh: 衡量長端利率與成長預期、通膨預期及金融環境變化。
+    provider: fred
+    candidate_fred_series:
+      - series_id: DGS10
+        title: Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity
+        reason: 10年期公債殖利率是長端利率與市場成長通膨預期的重要 proxy。
+        frequency: daily
+        seasonal_adjustment: not_seasonally_adjusted
+        units: percent
+        source_institution: Board of Governors of the Federal Reserve System
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: DGS10
+    frequency: daily
+    category: financial_conditions
+    phase_relevance:
+      - recovery
+      - growth
+      - boom
+    direction: moderate_rise_is_supportive_extreme_rise_is_warning
+    transformations:
+      - monthly_average
+      - three_month_change
+      - rolling_percentile
+    score_method: level_percentile_score
+    trend_window: 12m
+    confirmation_window: 3m
+    stale_after_days: 7
+    fallback_rule: aggregate_to_monthly_if_daily_has_market_holiday_gaps_else_mark_missing
+    confidence_rule: reduce_when_daily_observations_are_sparse_or_volatility_is_extreme
+    public_explanation_zh: 10年期殖利率溫和回升可能反映成長預期改善，但若快速上升並壓抑房貸與投資條件，則是復甦風險。
+
+  - indicator_id: thirty_year_mortgage_rate
+    display_name_zh: 30年房貸利率
+    description_zh: 衡量住宅融資成本，用於觀察利率環境是否支撐住宅與耐久財相關需求。
+    provider: fred
+    candidate_fred_series:
+      - series_id: MORTGAGE30US
+        title: 30-Year Fixed Rate Mortgage Average in the United States
+        reason: 30年固定房貸利率可代表家庭購屋融資成本。
+        frequency: weekly
+        seasonal_adjustment: not_seasonally_adjusted
+        units: percent
+        source_institution: Freddie Mac
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: MORTGAGE30US
+    frequency: weekly
+    category: financial_conditions
+    phase_relevance:
+      - recovery
+      - growth
+    direction: lower_or_stable_is_more_supportive
+    transformations:
+      - four_week_average
+      - thirteen_week_change
+      - rolling_percentile
+    score_method: level_percentile_score
+    trend_window: 26w
+    confirmation_window: 4w
+    stale_after_days: 14
+    fallback_rule: mark_missing_and_reduce_financial_conditions_confidence
+    confidence_rule: reduce_when_methodology_break_or_weekly_release_gap_is_detected
+    public_explanation_zh: 房貸利率穩定或下降有助於住宅需求；若利率快速上升，復甦中的投資與耐久財需求可能受壓。
+
+  - indicator_id: wti_oil_price
+    display_name_zh: WTI 油價或原物料價格 proxy
+    description_zh: 衡量能源與原物料價格壓力，用於區分需求回升與成本壓力過快升高。
+    provider: fred
+    candidate_fred_series:
+      - series_id: DCOILWTICO
+        title: "Crude Oil Prices: West Texas Intermediate (WTI) - Cushing, Oklahoma"
+        reason: WTI 油價可作為能源價格與部分原物料壓力 proxy。
+        frequency: daily
+        seasonal_adjustment: not_seasonally_adjusted
+        units: dollars_per_barrel
+        source_institution: U.S. Energy Information Administration
+        validation_status: candidate_unverified_for_project
+      - series_id: PPIACO
+        title: "Producer Price Index by Commodity: All Commodities"
+        reason: 若油價缺漏或需要更廣泛原物料 proxy，可使用全商品 PPI。
+        frequency: monthly
+        seasonal_adjustment: not_seasonally_adjusted
+        units: index_1982_100
+        source_institution: U.S. Bureau of Labor Statistics
+        validation_status: candidate_unverified_for_project
+    source_priority:
+      - fred: DCOILWTICO
+      - fred: PPIACO
+    frequency: daily
+    category: prices
+    phase_relevance:
+      - recovery
+      - growth
+      - boom
+    direction: moderate_rise_is_supportive_extreme_rise_is_warning
+    transformations:
+      - monthly_average
+      - three_month_change
+      - year_over_year_change
+      - rolling_percentile
+    score_method: level_percentile_score
+    trend_window: 12m
+    confirmation_window: 3m
+    stale_after_days: 14
+    fallback_rule: use_ppi_all_commodities_proxy_if_wti_missing_else_mark_missing
+    confidence_rule: reduce_when_price_spike_is_not_confirmed_by_demand_indicators
+    public_explanation_zh: 油價或原物料價格溫和回升可能伴隨需求改善，但若價格快速飆升而需求未同步改善，會提高復甦風險。

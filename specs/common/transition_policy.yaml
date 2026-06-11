@@ -1,0 +1,35 @@
+cycle_order:
+  - recession
+  - recovery
+  - growth
+  - boom
+
+next_phase:
+  recession: recovery
+  recovery: growth
+  growth: boom
+  boom: recession
+
+default_thresholds:
+  target_phase_score_min: 0.62
+  confidence_min: 0.65
+  available_weight_min: 0.70
+  persistence_min_observations: 3
+
+transition_radar:
+  mixed_evidence_level: elevated
+  blocked_transition_level: watch
+  confirmed_transition_level: confirmed
+
+rules:
+  - id: no_arbitrary_phase_jumps
+    description_zh: 只能依 recession -> recovery -> growth -> boom -> recession 的順序轉換。
+  - id: no_reverse_transition
+    description_zh: 不允許逆行到前一階段。
+  - id: require_score_confidence_weight_and_persistence
+    description_zh: 轉換需要目標階段分數、信心、可用權重與持續性同時達標。
+  - id: mixed_evidence_keeps_current_phase
+    description_zh: 證據混雜時保留目前階段，並提高 transition radar。
+  - id: explain_missing_data_impact
+    description_zh: 缺漏與 stale 資料必須反映在 confidence、available_weight 與 missing data impact。
+

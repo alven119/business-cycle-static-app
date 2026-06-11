@@ -1,0 +1,55 @@
+---
+name: macro-indicator-spec
+description: Use when converting business-cycle investing concepts, book-derived indicator logic, or macroeconomic observations into YAML indicator and phase specifications.
+---
+
+## Purpose
+
+Convert macroeconomic investment logic into structured, testable YAML specs.
+
+## Use this skill when
+
+- Creating or editing `specs/indicator_catalog.yaml`
+- Creating or editing `specs/phases/*.yaml`
+- Turning book-derived business-cycle rules into implementation specs
+- Adding a new macro indicator
+- Reviewing whether an indicator has enough metadata for scoring
+
+## Required output fields for each indicator
+
+Each indicator must define:
+
+- indicator_id
+- display_name_zh
+- description_zh
+- provider
+- source_priority
+- frequency
+- category
+- phase_relevance
+- direction
+- transformations
+- score_method
+- trend_window
+- confirmation_window
+- stale_after_days
+- fallback_rule
+- confidence_rule
+- public_explanation_zh
+
+## Rules
+
+1. Do not define an indicator only by its latest value.
+2. Prefer trend-aware methods:
+   - year-over-year change
+   - month-over-month change
+   - quarter-over-quarter annualized change
+   - moving average slope
+   - rolling percentile
+   - z-score
+   - peak/trough reversal
+   - diffusion across related series
+3. Every phase rule must explain why the indicator matters.
+4. Every rule must be testable.
+5. Do not encode investment advice as direct buy/sell instructions.
+6. Use "asset allocation thinking" rather than "trading signal".

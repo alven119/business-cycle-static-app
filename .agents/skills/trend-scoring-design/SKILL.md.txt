@@ -1,0 +1,75 @@
+---
+name: trend-scoring-design
+description: Use when designing or reviewing indicator scoring algorithms that must detect trends, reversals, momentum, and persistence rather than using only the latest data point.
+---
+
+## Purpose
+
+Design robust trend-aware scoring methods for macroeconomic indicators.
+
+## Required design checklist
+
+For every scoring method, specify:
+
+- raw input
+- cleaned input
+- frequency handling
+- missing value handling
+- transformation
+- trend window
+- confirmation window
+- normalization method
+- score range
+- directionality
+- confidence adjustment
+- stale data behavior
+- explanation text
+
+## Recommended scoring methods
+
+Use one or more:
+
+1. `level_percentile_score`
+   - For valuation, spread, unemployment, inflation, yields.
+   - Compares current value to a rolling historical percentile.
+
+2. `moving_average_slope_score`
+   - For trend direction.
+   - Uses 3M, 6M, or 12M moving average slope.
+
+3. `yoy_momentum_score`
+   - For consumption, production, orders, earnings.
+   - Uses year-over-year growth and momentum change.
+
+4. `peak_trough_reversal_score`
+   - For recovery/recession turning points.
+   - Detects whether a series has peaked or bottomed and persisted.
+
+5. `diffusion_score`
+   - For groups of related indicators.
+   - Measures how many indicators agree with the phase.
+
+6. `persistence_confirmed_score`
+   - Requires condition to persist for N observations before raising phase score.
+
+## Hard prohibitions
+
+Do not implement:
+
+- latest value only equals phase
+- single threshold equals recession
+- single-month spike equals trend reversal
+- silently ignoring missing data
+- scoring without confidence output
+
+## Testing requirement
+
+Every scoring method must have tests covering:
+
+- rising trend
+- falling trend
+- flat trend
+- one-period spike
+- missing data
+- stale data
+- insufficient history

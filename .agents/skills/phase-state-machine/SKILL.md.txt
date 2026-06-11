@@ -1,0 +1,41 @@
+---
+name: phase-state-machine
+description: Use when implementing or reviewing the business-cycle phase state machine, phase transition rules, and transition radar.
+---
+
+## Purpose
+
+Ensure the system respects the forward-moving economic cycle:
+
+recession -> recovery -> growth -> boom -> recession
+
+## Rules
+
+1. Do not allow arbitrary phase jumping.
+2. A phase transition requires:
+   - target phase score above threshold
+   - transition radar confirmation
+   - sufficient indicator coverage
+   - minimum confidence
+   - persistence across observations
+3. If evidence is mixed, keep the current phase and raise transition risk.
+4. Do not call ambiguous situations "manual review"; instead output:
+   - confidence
+   - evidence summary
+   - missing data impact
+   - transition watch
+5. Store previous phase state in a static snapshot file so the next run can apply transition rules.
+
+## Required outputs
+
+The phase engine must output:
+
+- current_phase
+- current_substage
+- phase_scores
+- transition_radar
+- confidence
+- available_weight
+- stale_indicators
+- top_positive_reasons
+- top_warning_reasons

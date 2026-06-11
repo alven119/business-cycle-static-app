@@ -1,0 +1,35 @@
+---
+name: fred-series-mapping
+description: Use when mapping macro indicators to FRED series IDs, defining source priority, validating availability, or implementing FRED download/cache logic.
+---
+
+## Purpose
+
+Map business-cycle indicators to reliable public data sources, prioritizing FRED.
+
+## Rules
+
+1. Prefer official FRED series where possible.
+2. If multiple candidate series exist, document:
+   - candidate series ID
+   - reason for use
+   - frequency
+   - seasonal adjustment
+   - units
+   - source institution
+3. Do not invent series IDs.
+4. If FRED lacks a direct equivalent, define proxy candidates.
+5. For each proxy, document what concept it approximates and what it fails to capture.
+6. Never expose FRED API keys in frontend code.
+7. Public static output must contain only processed JSON, not secrets.
+
+## Required validation
+
+For each mapped series:
+
+- Can it be downloaded?
+- Does it have enough history?
+- Is its frequency compatible with scoring?
+- Is it stale?
+- Does it require transformation?
+- Is it seasonally adjusted?

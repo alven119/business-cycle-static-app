@@ -1,0 +1,418 @@
+version: 1
+principles:
+  - id: no_latest_value_only
+    description_zh: 不可以只看最新一筆資料判斷指標分數或景氣階段。
+  - id: require_trend_window
+    description_zh: 趨勢至少要使用 3M、6M、12M，或依週、季資料頻率調整後的等效觀察窗。
+  - id: spike_needs_confirmation
+    description_zh: 單月或單期 spike 不得直接造成景氣階段轉換，必須通過 confirmation_window。
+  - id: confidence_required
+    description_zh: 每個 score 必須同時輸出 confidence，且 missing、stale、insufficient history 必須降低 confidence。
+
+default_output:
+  score:
+    range: [-1.0, 1.0]
+    meaning:
+      "-1.0": strongly_negative_for_target_phase
+      "0.0": neutral_or_insufficient_signal
+      "1.0": strongly_positive_for_target_phase
+  confidence:
+    range: [0.0, 1.0]
+    required: true
+  explanation_zh:
+    required: true
+
+methods:
+  - method_id: level_percentile_score
+    purpose_zh: 將目前水準放到歷史分布中比較，判斷目前位置是否偏高、偏低或接近中性。
+    suitable_for:
+      - unemployment_rate
+      - interest_rates
+      - credit_spreads
+      - inflation
+      - valuation
+      - commodity_prices
+    inputs:
+      raw_input: single_time_series
+      cleaned_input:
+        - sorted_observations
+        - numeric_values
+        - missing_values_marked_not_silently_dropped
+      frequency_handling: 依資料頻率建立 rolling lookback；日資料可先轉週或月平均，月資料用 36M 到 120M，季資料用 20Q 到 40Q。
+      missing_value_handling: 缺值保留為 missing flag，不可前值填補後假裝有效。
+      required_fields:
+        - date
+        - value
+        - direction
+        - stale_after_days
+    parameters:
+      percentile_lookback: 60m
+      min_history: 36m
+      trend_window_options: [3m, 6m, 12m]
+      confirmation_window: 3m
+      normalization_method: rolling_percentile_to_score
+      directionality:
+        higher_is_stronger: 高 percentile 對目標階段較正向。
+        lower_is_stronger: 低 percentile 對目標階段較正向。
+        moderate_rise_is_supportive_extreme_rise_is_warning: 中間區間較正向，極端高分位轉為 warning。
+    output_score_range: [-1.0, 1.0]
+    confidence_behavior:
+      base_confidence: 1.0
+      reduce_when:
+        - insufficient_percentile_history
+        - latest_observation_is_stale
+        - missing_values_inside_trend_window
+        - directionality_is_ambiguous
+      never_allow_score_without_confidence: true
+    stale_data_behavior: 若最新觀測超過 stale_after_days，score 可保留但不得作為 positive confirmation，confidence 下調。
+    insufficient_history_behavior: 回傳 neutral score 0.0、低 confidence，並輸出 insufficient_history reason。
+    pseudo_code_zh:
+      - 清理資料並依頻率排序。
+      - 檢查是否有足夠 rolling lookback 與 trend window。
+      - 計算目前值在 rolling lookback 的 percentile。
+      - 依 directionality 將 percentile 轉為 -1 到 1 的 score。
+      - 檢查 stale、missing、history 長度並調整 confidence。
+      - 輸出 score、confidence、explanation。
+    test_cases:
+      - name: high_percentile_higher_is_stronger
+        description_zh: 高分位且 higher_is_stronger 時應給正分。
+      - name: high_percentile_lower_is_stronger
+        description_zh: 高分位且 lower_is_stronger 時應給負分。
+      - name: flat_series_neutral
+        description_zh: 長期平坦序列應接近中性且 confidence 依有效歷史決定。
+      - name: one_period_spike_not_confirmed
+        description_zh: 單期 spike 不得直接輸出強烈正向 confirmation。
+      - name: missing_data_reduces_confidence
+        description_zh: trend window 內有缺值時 confidence 下調。
+      - name: stale_data_reduces_confidence
+        description_zh: 最新資料 stale 時 confidence 下調且不得確認轉折。
+      - name: insufficient_history_returns_neutral
+        description_zh: 歷史不足時回傳 neutral score 與低 confidence。
+
+  - method_id: moving_average_slope_score
+    purpose_zh: 用移動平均線斜率判斷指標趨勢方向，降低單期噪音。
+    suitable_for:
+      - initial_jobless_claims
+      - short_term_unemployment
+      - unemployment_rate
+      - mortgage_rates
+      - production_series
+    inputs:
+      raw_input: single_time_series
+      cleaned_input:
+        - sorted_observations
+        - numeric_values
+        - frequency_aligned_values
+      frequency_handling: 週資料可用 4W/13W；月資料可用 3M/6M/12M；季資料可用 2Q/4Q。
+      missing_value_handling: 若移動平均窗口內缺值過多，該窗口標為 unreliable。
+      required_fields:
+        - date
+        - value
+        - direction
+        - trend_window
+        - confirmation_window
+    parameters:
+      moving_average_window: 3m
+      slope_window: 6m
+      min_history: 12m
+      confirmation_window: 3m
+      normalization_method: slope_z_score_or_slope_percentile
+      directionality:
+        higher_is_stronger: 正斜率較正向。
+        lower_is_stronger: 負斜率較正向。
+    output_score_range: [-1.0, 1.0]
+    confidence_behavior:
+      base_confidence: 1.0
+      reduce_when:
+        - moving_average_window_has_missing_values
+        - slope_is_driven_by_one_observation
+        - latest_observation_is_stale
+        - history_shorter_than_min_history
+      never_allow_score_without_confidence: true
+    stale_data_behavior: stale 時不更新 trend confirmation，保留前次可用狀態需標示 stale。
+    insufficient_history_behavior: 不計算斜率分數，回傳 score 0.0、低 confidence。
+    pseudo_code_zh:
+      - 依資料頻率選擇移動平均窗口。
+      - 計算每期移動平均。
+      - 在 trend_window 內估計移動平均斜率。
+      - 檢查斜率是否在 confirmation_window 內持續同方向。
+      - 依 directionality 將斜率轉成 score。
+      - 對單期 spike、missing、stale、history 不足調整 confidence。
+    test_cases:
+      - name: rising_trend_positive_for_higher_is_stronger
+        description_zh: 平滑後趨勢上升且 higher_is_stronger 時給正分。
+      - name: falling_trend_positive_for_lower_is_stronger
+        description_zh: 平滑後趨勢下降且 lower_is_stronger 時給正分。
+      - name: flat_trend_neutral
+        description_zh: 平滑後斜率接近零時給中性分。
+      - name: one_period_spike_filtered_by_ma
+        description_zh: 單期 spike 被移動平均削弱，不得形成強烈 confirmation。
+      - name: missing_window_reduces_confidence
+        description_zh: 移動平均窗口缺值使 confidence 下調。
+      - name: stale_latest_reduces_confidence
+        description_zh: 最新資料 stale 時 confidence 下調。
+      - name: insufficient_history_returns_neutral
+        description_zh: 不足以形成移動平均與斜率時回傳中性。
+
+  - method_id: yoy_momentum_score
+    purpose_zh: 衡量年增率及其動能變化，觀察需求、生產或盈利是否從谷底改善。
+    suitable_for:
+      - real_retail_sales
+      - real_pce_durable_goods
+      - durable_goods_new_orders
+      - private_fixed_investment
+      - imports_exports
+      - earnings
+    inputs:
+      raw_input: single_time_series
+      cleaned_input:
+        - sorted_observations
+        - numeric_values
+        - seasonally_adjusted_or_frequency_consistent_values
+      frequency_handling: 月資料需至少 12M 才能算 YoY，建議用 3M/6M 動能；季資料需至少 4Q，建議用 2Q/4Q 動能。
+      missing_value_handling: 同比基期或目前期缺值時該期 YoY 不可計算。
+      required_fields:
+        - date
+        - value
+        - direction
+        - frequency
+    parameters:
+      yoy_lag:
+        monthly: 12
+        quarterly: 4
+      momentum_window: 6m
+      smoothing_window: 3m
+      min_history:
+        monthly: 18m
+        quarterly: 6q
+      confirmation_window: 3m
+      normalization_method: yoy_level_and_change_to_score
+      directionality:
+        higher_is_stronger: YoY 上升與動能改善較正向。
+        lower_is_stronger: YoY 下降與動能轉弱較正向。
+    output_score_range: [-1.0, 1.0]
+    confidence_behavior:
+      base_confidence: 1.0
+      reduce_when:
+        - yoy_base_period_missing
+        - current_period_missing
+        - momentum_improvement_not_persistent
+        - latest_observation_is_stale
+      never_allow_score_without_confidence: true
+    stale_data_behavior: stale 時不得確認需求或生產動能改善，confidence 下調。
+    insufficient_history_behavior: 若無法計算 YoY，回傳 score 0.0、低 confidence，並標示 insufficient_yoy_history。
+    pseudo_code_zh:
+      - 檢查資料頻率與同比所需歷史。
+      - 計算 YoY growth。
+      - 對 YoY 做 3M 或等效頻率平滑。
+      - 計算 momentum_window 內 YoY 是否改善。
+      - 要求改善在 confirmation_window 內持續。
+      - 將 YoY 水準與動能變化轉成 score，並輸出 confidence。
+    test_cases:
+      - name: improving_yoy_positive
+        description_zh: YoY 從低點持續改善時給正分。
+      - name: deteriorating_yoy_negative
+        description_zh: YoY 持續惡化時給負分。
+      - name: flat_yoy_neutral
+        description_zh: YoY 無明顯變化時接近中性。
+      - name: one_month_spike_not_transition_signal
+        description_zh: 單月 YoY spike 不得直接形成強烈分數或階段轉換。
+      - name: missing_base_period_reduces_confidence
+        description_zh: 同比基期缺值時 confidence 下調。
+      - name: stale_release_reduces_confidence
+        description_zh: release stale 時 confidence 下調。
+      - name: insufficient_yoy_history_returns_neutral
+        description_zh: 歷史不足以計算 YoY 時回傳中性。
+
+  - method_id: peak_trough_reversal_score
+    purpose_zh: 偵測序列是否已從高點或低點反轉，並確認反轉具有持續性。
+    suitable_for:
+      - initial_jobless_claims
+      - durable_goods_new_orders
+      - recession_recovery_turning_points
+      - commodity_prices
+      - credit_stress_indicators
+    inputs:
+      raw_input: single_time_series
+      cleaned_input:
+        - sorted_observations
+        - numeric_values
+        - smoothed_values
+      frequency_handling: 週資料使用 4W 平滑與 13W 趨勢；月資料使用 3M 平滑與 6M/12M 趨勢；季資料使用 2Q/4Q。
+      missing_value_handling: turning point 附近缺值時不得確認反轉。
+      required_fields:
+        - date
+        - value
+        - direction
+        - trend_window
+        - confirmation_window
+    parameters:
+      smoothing_window: 3m
+      lookback_window: 12m
+      min_reversal_magnitude: configurable_by_indicator
+      confirmation_window: 3m
+      normalization_method: reversal_magnitude_and_persistence_to_score
+      directionality:
+        higher_is_stronger: trough reversal upward 較正向。
+        lower_is_stronger: peak reversal downward 較正向。
+    output_score_range: [-1.0, 1.0]
+    confidence_behavior:
+      base_confidence: 1.0
+      reduce_when:
+        - reversal_not_persistent
+        - latest_move_is_single_period_spike
+        - turning_point_window_has_missing_values
+        - latest_observation_is_stale
+      never_allow_score_without_confidence: true
+    stale_data_behavior: stale 時不得宣告新 peak/trough reversal，僅可保留舊訊號並降低 confidence。
+    insufficient_history_behavior: 無足夠 lookback 找 peak/trough 時回傳 score 0.0、低 confidence。
+    pseudo_code_zh:
+      - 先平滑原始序列以降低噪音。
+      - 在 lookback_window 找局部 peak 或 trough。
+      - 依 directionality 判斷反轉方向是否有利於目標階段。
+      - 檢查反轉幅度是否達到 min_reversal_magnitude。
+      - 檢查 confirmation_window 內是否持續。
+      - 單期 spike 或缺值不得確認反轉。
+    test_cases:
+      - name: confirmed_trough_reversal_positive
+        description_zh: 低點後連續改善達確認窗時給正分。
+      - name: confirmed_peak_reversal_positive_for_lower_is_stronger
+        description_zh: 高點後連續下降且 lower_is_stronger 時給正分。
+      - name: no_reversal_neutral
+        description_zh: 未形成 peak/trough 反轉時給中性。
+      - name: one_period_reversal_rejected
+        description_zh: 單期反彈或回落不得確認反轉。
+      - name: missing_near_turning_point_reduces_confidence
+        description_zh: 轉折附近缺值時 confidence 下調。
+      - name: stale_data_blocks_new_reversal
+        description_zh: stale 資料不得產生新反轉訊號。
+      - name: insufficient_lookback_returns_neutral
+        description_zh: lookback 不足時回傳中性。
+
+  - method_id: diffusion_score
+    purpose_zh: 衡量一組相關指標中有多少比例支持同一景氣階段，用於避免單一指標主導判斷。
+    suitable_for:
+      - labor_indicator_group
+      - demand_indicator_group
+      - investment_indicator_group
+      - trade_indicator_group
+      - financial_conditions_group
+    inputs:
+      raw_input: multiple_indicator_scores
+      cleaned_input:
+        - indicator_scores_with_confidence
+        - available_weight_by_indicator
+        - stale_and_missing_flags
+      frequency_handling: 不同頻率指標需先對齊到 scoring date，較低頻資料不得被高頻資料覆蓋。
+      missing_value_handling: missing indicator 從 available_weight 排除，但降低 group confidence。
+      required_fields:
+        - indicator_id
+        - score
+        - confidence
+        - weight
+        - stale_flag
+    parameters:
+      positive_threshold: 0.2
+      negative_threshold: -0.2
+      min_available_weight: 0.6
+      confirmation_window: group_specific
+      normalization_method: confidence_weighted_share_supporting_phase
+      directionality:
+        group_supports_phase: 多數指標同向支持目標階段才給正分。
+    output_score_range: [-1.0, 1.0]
+    confidence_behavior:
+      base_confidence: weighted_average_indicator_confidence
+      reduce_when:
+        - available_weight_below_threshold
+        - support_is_concentrated_in_one_indicator
+        - stale_indicators_have_high_weight
+        - indicators_disagree_strongly
+      never_allow_score_without_confidence: true
+    stale_data_behavior: stale indicator 不可算入 positive confirmation，但其缺席會降低 available_weight 與 confidence。
+    insufficient_history_behavior: 若太多 constituent score 因 insufficient history 為低 confidence，group score 回傳中性或低 confidence。
+    pseudo_code_zh:
+      - 收集同一群組內各 indicator score、confidence 與權重。
+      - 排除 missing 或 stale positive confirmation。
+      - 計算支持目標階段的 confidence-weighted share。
+      - 檢查 available_weight 是否達標。
+      - 若支持集中在單一指標，限制最高 score。
+      - 輸出 group score、confidence、missing data impact。
+    test_cases:
+      - name: broad_positive_diffusion
+        description_zh: 多數指標正向且 confidence 足夠時給正分。
+      - name: broad_negative_diffusion
+        description_zh: 多數指標負向時給負分。
+      - name: mixed_indicators_neutral_or_watch
+        description_zh: 指標分歧時分數接近中性並提高轉折觀察。
+      - name: one_indicator_dominance_capped
+        description_zh: 單一指標強正向但其他缺席時不得給滿分。
+      - name: missing_constituents_reduce_confidence
+        description_zh: 群組內缺漏指標降低 confidence。
+      - name: stale_constituents_reduce_available_weight
+        description_zh: stale 指標降低 available_weight。
+      - name: insufficient_group_coverage_returns_neutral
+        description_zh: 群組覆蓋率不足時回傳中性與低 confidence。
+
+  - method_id: persistence_confirmed_score
+    purpose_zh: 要求條件連續成立多期後才提高分數，避免單期噪音或修正資料造成誤判。
+    suitable_for:
+      - unemployment_rate
+      - phase_transition_confirmation
+      - policy_rate_shift
+      - trend_break_confirmation
+      - recession_or_recovery_rules
+    inputs:
+      raw_input: condition_series_or_indicator_scores
+      cleaned_input:
+        - boolean_or_score_conditions_by_observation
+        - confidence_by_observation
+        - missing_and_stale_flags
+      frequency_handling: 月資料常用 3M confirmation，週資料常用 4W 到 13W，季資料常用 2Q。
+      missing_value_handling: missing period 不可視為 condition true，且會降低 confidence。
+      required_fields:
+        - date
+        - condition_value
+        - confidence
+        - confirmation_window
+    parameters:
+      confirmation_window: 3m
+      min_true_share: 1.0
+      allow_one_missing_with_penalty: false
+      min_observation_confidence: 0.6
+      normalization_method: persistence_share_to_score
+      directionality:
+        condition_true_supports_phase: 條件持續成立才提高 score。
+    output_score_range: [-1.0, 1.0]
+    confidence_behavior:
+      base_confidence: average_confidence_over_confirmation_window
+      reduce_when:
+        - condition_not_persistent
+        - missing_observation_in_confirmation_window
+        - stale_latest_observation
+        - observation_confidence_below_minimum
+      never_allow_score_without_confidence: true
+    stale_data_behavior: stale 最新資料不可完成 persistence confirmation，confidence 下調。
+    insufficient_history_behavior: 若 confirmation_window 未滿，回傳 score 0.0、低 confidence。
+    pseudo_code_zh:
+      - 將每期原始訊號轉成 testable condition。
+      - 檢查 confirmation_window 內是否每期或足夠比例成立。
+      - 檢查每期 confidence 是否達最低要求。
+      - 若 persistence 未滿，不提高 phase score。
+      - missing 或 stale 不可默認為 true。
+      - 輸出 score、confidence、未滿足原因。
+    test_cases:
+      - name: condition_persistent_positive
+        description_zh: 條件連續成立達 confirmation_window 時給正分。
+      - name: condition_break_resets_confirmation
+        description_zh: 中間有一期不成立時重置確認。
+      - name: flat_or_neutral_conditions_neutral
+        description_zh: 條件未明確成立時給中性。
+      - name: one_period_signal_rejected
+        description_zh: 單期訊號不得通過 persistence confirmation。
+      - name: missing_period_reduces_confidence
+        description_zh: 確認窗中缺值降低 confidence 且不算 true。
+      - name: stale_latest_blocks_confirmation
+        description_zh: 最新資料 stale 時不得完成 confirmation。
+      - name: insufficient_confirmation_history_returns_neutral
+        description_zh: 確認窗不足時回傳中性。
+
