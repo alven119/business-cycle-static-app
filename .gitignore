@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Environment
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+
+# Data cache
+data/raw/
+data/raw/**
+data/normalized/
+data/normalized/**
+data/derived/
+data/derived/**
+
+# Local output
+public/data/*.local.json
+public/data/snapshots/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

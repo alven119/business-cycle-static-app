@@ -73,38 +73,47 @@ def test_fred_provider_reads_api_key_from_environment(monkeypatch: pytest.Monkey
 
 def test_fred_provider_requires_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("FRED_API_KEY", raising=False)
-    provider = FredProvider(api_key="")
+    provider = FredProvider()
 
     with pytest.raises(FredProviderError, match="FRED_API_KEY is not set"):
         provider.fetch_series_observations("UNRATE")
 
 
-def test_fred_provider_raises_clear_error_on_http_failure() -> None:
+def test_fred_provider_raises_clear_error_on_http_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("FRED_API_KEY", "test-key")
     session = FakeSession(
         FakeResponse(
             {},
             status_error=requests.HTTPError("500 Server Error"),
         )
     )
-    provider = FredProvider(api_key="test-key", session=session)  # type: ignore[arg-type]
+    provider = FredProvider(session=session)  # type: ignore[arg-type]
 
     with pytest.raises(FredProviderError, match="Failed to download FRED series UNRATE"):
         provider.fetch_series_observations("UNRATE")
 
 
-def test_fred_provider_raises_clear_error_on_api_error_payload() -> None:
+def test_fred_provider_raises_clear_error_on_api_error_payload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("FRED_API_KEY", "test-key")
     session = FakeSession(
         FakeResponse({"error_code": 400, "error_message": "Bad request"})
     )
-    provider = FredProvider(api_key="test-key", session=session)  # type: ignore[arg-type]
+    provider = FredProvider(session=session)  # type: ignore[arg-type]
 
     with pytest.raises(FredProviderError, match="FRED API error for UNRATE: Bad request"):
         provider.fetch_series_observations("UNRATE")
 
 
-def test_raw_csv_store_round_trips_observations(tmp_path: Path) -> None:
+def test_raw_csv_store_round_trips_observations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("FRED_API_KEY", "test-key")
     provider = FredProvider(
-        api_key="test-key",
         session=FakeSession(
             FakeResponse({"observations": [{"date": "2024-01-01", "value": "."}]})
         ),  # type: ignore[arg-type]

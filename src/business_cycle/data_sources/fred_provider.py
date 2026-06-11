@@ -22,12 +22,10 @@ class FredProvider:
     def __init__(
         self,
         *,
-        api_key: str | None = None,
         base_url: str = DEFAULT_BASE_URL,
         timeout_seconds: float = 30.0,
         session: requests.Session | None = None,
     ) -> None:
-        self.api_key = api_key if api_key is not None else os.getenv("FRED_API_KEY")
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self.session = session or requests.Session()
@@ -35,12 +33,13 @@ class FredProvider:
     def require_api_key(self) -> str:
         """Return the configured FRED API key or raise a clear error."""
 
-        if not self.api_key:
+        api_key = os.getenv("FRED_API_KEY")
+        if not api_key:
             raise FredProviderError(
                 "FRED_API_KEY is not set. Put it in your environment or local .env file; "
                 "never commit API keys to the repository."
             )
-        return self.api_key
+        return api_key
 
     def fetch_series_observations(
         self,
@@ -119,4 +118,3 @@ class FredProvider:
 
 def _optional_str(value: Any) -> str | None:
     return value if isinstance(value, str) else None
-
