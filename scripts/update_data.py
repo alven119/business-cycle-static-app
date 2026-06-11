@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from business_cycle.data_sources.fred_provider import FredProvider, FredProviderError
+from business_cycle import data_sources
 from business_cycle.storage.raw_store import RawCsvStore
 
 
@@ -72,7 +72,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"dry-run fred series={series_id} cache={cache_status}")
         return 0
 
-    provider = FredProvider()
+    provider = data_sources.FredProvider()
     for series_id in series_ids:
         if store.exists("fred", series_id) and not args.force_refresh:
             print(f"skip fred series={series_id} cache={store.path_for('fred', series_id)}")
@@ -84,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
                 observation_start=args.observation_start,
                 observation_end=args.observation_end,
             )
-        except FredProviderError as exc:
+        except data_sources.FredProviderError as exc:
             parser.exit(status=1, message=f"error: {exc}\n")
 
         path = store.write_observations("fred", series_id, observations)

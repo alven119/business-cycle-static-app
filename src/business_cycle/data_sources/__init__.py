@@ -1,7 +1,7 @@
 """Data provider implementations."""
 
-from business_cycle.data_sources.base import DataProvider, DataProviderError, SeriesObservation
-from business_cycle.data_sources.fred_provider import FredProvider, FredProviderError
+from .base import DataProvider, DataProviderError, SeriesObservation
+from .fred_provider import FredProvider, FredProviderError
 
 __all__ = [
     "DataProvider",
@@ -10,4 +10,3 @@ __all__ = [
     "FredProviderError",
     "SeriesObservation",
 ]
-

@@ -6,10 +6,13 @@ import pytest
 import requests
 
 import scripts.update_data as update_data
-from business_cycle.data_sources.base import SeriesObservation
-from business_cycle.data_sources.fred_provider import FredProvider, FredProviderError
+from business_cycle import data_sources
 from business_cycle.storage.raw_store import RawCsvStore
 from scripts.update_data import main, series_ids_from_catalog
+
+FredProvider = data_sources.FredProvider
+FredProviderError = data_sources.FredProviderError
+SeriesObservation = data_sources.SeriesObservation
 
 
 class FakeResponse:
@@ -216,7 +219,7 @@ indicators:
             calls.append(series_id)
             return [SeriesObservation(series_id=series_id, date="2024-02-01", value="2.0")]
 
-    monkeypatch.setattr(update_data, "FredProvider", FakeProvider)
+    monkeypatch.setattr(update_data.data_sources, "FredProvider", FakeProvider)
 
     assert main(["--catalog", str(catalog_path), "--raw-dir", str(raw_dir)]) == 0
     assert calls == []

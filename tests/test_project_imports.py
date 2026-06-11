@@ -3,15 +3,19 @@
 
 def test_business_cycle_package_imports() -> None:
     import business_cycle
-    import business_cycle.data_source
-    import business_cycle.data_sources
-    import business_cycle.indicators
-    import business_cycle.phases
-    import business_cycle.render
-    import business_cycle.storage
+    from business_cycle import data_sources
+    from business_cycle import indicators
+    from business_cycle import phases
+    from business_cycle import render
+    from business_cycle import storage
+
+    assert data_sources is not None
+    assert indicators is not None
+    assert phases is not None
+    assert render is not None
+    assert storage is not None
 
     assert business_cycle.__all__ == [
-        "data_source",
         "data_sources",
         "indicators",
         "phases",

@@ -7,7 +7,7 @@ from typing import Any
 
 import requests
 
-from business_cycle.data_sources.base import DataProviderError, SeriesObservation
+from .base import DataProviderError, SeriesObservation
 
 
 class FredProviderError(DataProviderError):

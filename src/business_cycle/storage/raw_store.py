@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from business_cycle.data_sources.base import SeriesObservation
+from business_cycle import data_sources
 
 
 class RawCsvStore:
@@ -26,7 +26,7 @@ class RawCsvStore:
         self,
         provider: str,
         series_id: str,
-        observations: list[SeriesObservation],
+        observations: list[data_sources.SeriesObservation],
     ) -> Path:
         path = self.path_for(provider, series_id)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -48,11 +48,15 @@ class RawCsvStore:
                 )
         return path
 
-    def read_observations(self, provider: str, series_id: str) -> list[SeriesObservation]:
+    def read_observations(
+        self,
+        provider: str,
+        series_id: str,
+    ) -> list[data_sources.SeriesObservation]:
         path = self.path_for(provider, series_id)
         with path.open("r", newline="", encoding="utf-8") as csv_file:
             return [
-                SeriesObservation(
+                data_sources.SeriesObservation(
                     series_id=row["series_id"],
                     date=row["date"],
                     value=row["value"],
@@ -61,4 +65,3 @@ class RawCsvStore:
                 )
                 for row in csv.DictReader(csv_file)
             ]
-

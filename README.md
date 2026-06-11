@@ -7,8 +7,7 @@ This repository is currently in early implementation. It has a minimal FRED data
 ## Current structure
 
 - `src/business_cycle/`: Python package root.
-- `src/business_cycle/data_source/`: initial placeholder kept for compatibility.
-- `src/business_cycle/data_sources/`: data providers for public macro data providers such as FRED.
+- `data_sources` package: data providers for public macro data providers such as FRED.
 - `src/business_cycle/storage/`: filesystem helpers for raw, normalized, and public outputs.
 - `src/business_cycle/indicators/`: future indicator catalog loading and trend-aware scoring.
 - `src/business_cycle/phases/`: future phase scoring and transition engine.
