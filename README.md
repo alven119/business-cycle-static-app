@@ -97,6 +97,16 @@ python scripts/verify_fred_catalog.py --indicator-id unemployment_rate
 python scripts/verify_fred_catalog.py --series-id UNRATE
 ```
 
+## Phase 2F batch indicator scoring
+
+Phase 2F adds batch indicator scoring from local raw CSV cache into ignored `data/derived/indicator_scores.json`.
+
+```bash
+python scripts/score_indicators.py
+python scripts/score_indicators.py --indicator-id unemployment_rate
+python scripts/score_indicators.py --as-of 2024-12-31
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
