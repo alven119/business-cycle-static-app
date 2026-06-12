@@ -79,6 +79,10 @@ Phase 2A adds deterministic indicator time-series transformations in `src/busine
 
 Phase 2B adds single-indicator scoring methods in `src/business_cycle/indicators/scoring.py`. Each method returns a 0-100 score and 0-1 confidence for one indicator using trend-aware evidence such as percentiles, moving-average slopes, growth momentum, or confirmed peak/trough reversals. These methods do not produce phase scores or `current_phase`.
 
+## Phase 2C indicator dispatcher
+
+Phase 2C adds `IndicatorScoringSpec` and `score_indicator(...)` to bind indicator specs to single-indicator scoring methods. The dispatcher handles method selection, parameter validation, `as_of` filtering, stale-data confidence handling, and dispatch metadata, but still does not perform phase scoring.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
