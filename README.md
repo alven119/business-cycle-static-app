@@ -61,6 +61,16 @@ Refresh a cached series:
 python scripts/update_data.py --series-id UNRATE --force-refresh
 ```
 
+## Live smoke test
+
+Live FRED checks are manual and are not part of the default pytest suite. After setting `FRED_API_KEY` in local `.env`, run:
+
+```bash
+python scripts/fred_smoke_test.py
+```
+
+See `docs/fred_live_smoke_test.md` for the full safe workflow.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
