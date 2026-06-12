@@ -104,6 +104,26 @@ def write_indicator_scores_json(
     return path
 
 
+def load_indicator_scores_json(path: str | Path) -> dict[str, IndicatorScoreResult]:
+    """Load Phase 2F indicator score JSON output."""
+
+    score_path = Path(path)
+    if not score_path.exists():
+        raise FileNotFoundError(f"Indicator scores JSON does not exist: {score_path}")
+
+    payload = json.loads(score_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
+        raise ValueError("Indicator scores JSON must contain a 'results' list")
+
+    scores: dict[str, IndicatorScoreResult] = {}
+    for raw_result in payload["results"]:
+        if not isinstance(raw_result, dict):
+            raise ValueError("Every indicator score result must be a mapping")
+        result = _indicator_score_result_from_dict(raw_result)
+        scores[result.indicator_id] = result
+    return scores
+
+
 def _json_safe(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): _json_safe(item) for key, item in value.items()}
@@ -115,3 +135,21 @@ def _json_safe(value: Any) -> Any:
         return value.item()
     return value
 
+
+def _indicator_score_result_from_dict(raw_result: dict[str, Any]) -> IndicatorScoreResult:
+    required_fields = ("indicator_id", "score", "confidence", "as_of", "method", "reason_zh", "details")
+    missing = [field for field in required_fields if field not in raw_result]
+    if missing:
+        missing_text = ", ".join(missing)
+        raise ValueError(f"Indicator score result missing required field(s): {missing_text}")
+    if not isinstance(raw_result["details"], dict):
+        raise ValueError("Indicator score result field 'details' must be a mapping")
+    return IndicatorScoreResult(
+        indicator_id=str(raw_result["indicator_id"]),
+        score=float(raw_result["score"]),
+        confidence=float(raw_result["confidence"]),
+        as_of=str(raw_result["as_of"]),
+        method=str(raw_result["method"]),
+        reason_zh=str(raw_result["reason_zh"]),
+        details=dict(raw_result["details"]),
+    )

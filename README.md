@@ -111,6 +111,20 @@ python scripts/score_indicators.py --as-of 2024-12-31
 
 Phase 3A adds phase-level spec schemas and a YAML loader for files such as `specs/phases/recovery.yaml`. These specs define indicator weights, roles, minimum available weight, confidence policy, and stage thresholds for future phase scoring, but they do not compute phase scores or `current_phase`.
 
+## Phase 3B phase scoring
+
+Phase 3B adds single-phase score aggregation from `PhaseScoringSpec` and indicator-level `IndicatorScoreResult` inputs. It computes phase score, confidence, available weight, missing indicators, contributing indicators, and stage hints, but it does not select `current_phase` or make a four-phase decision.
+
+## Phase 3C batch phase scoring
+
+Phase 3C adds batch phase scoring from ignored `data/derived/indicator_scores.json` and `specs/phases` into ignored `data/derived/phase_scores.json`.
+
+```bash
+python scripts/score_phases.py
+python scripts/score_phases.py --phase-id recovery
+python scripts/score_phases.py --as-of 2024-12-31
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
