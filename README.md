@@ -71,6 +71,10 @@ python scripts/fred_smoke_test.py
 
 See `docs/fred_live_smoke_test.md` for the full safe workflow.
 
+## Phase 2A transformations
+
+Phase 2A adds deterministic indicator time-series transformations in `src/business_cycle/indicators/transformations.py`: cleaning, moving averages, percent changes, rolling slopes, rolling z-scores, rolling percentiles, and trailing peak/trough detection. These functions support later trend-aware scoring but do not produce phase decisions.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
