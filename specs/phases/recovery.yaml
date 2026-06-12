@@ -1,135 +1,35 @@
 phase_id: recovery
-display_name_zh: 復甦期
-cycle_order:
-  previous: recession
-  next: growth
-description_zh: 復甦期代表經濟從衰退後的谷底轉向擴張，早期重點是裁員壓力下降與消費需求回溫，後續需看到投資、貿易與金融條件共同確認。
-decision_principles:
-  - 不得用單一最新值判斷復甦。
-  - 不得只用失業率判斷復甦初期，因為失業率偏落後。
-  - 至少需要勞動市場與需求面兩個群組同時改善。
-  - 單月或單週尖峰必須經 confirmation_window 確認後才可提高分數。
-  - 缺漏或 stale indicator 必須降低 confidence 與 available_weight。
-minimum_coverage: 0.70
-minimum_confidence: 0.65
-minimum_positive_groups: 2
-required_core_groups:
-  - labor_leading
-  - demand
-transition_rules:
-  from_recession:
-    target_phase_score_min: 0.62
-    required_persistence: 3m
-    required_available_weight: 0.70
-    required_positive_groups: 2
-    required_confirmations:
-      - labor_leading
-      - demand
-    rationale_zh: 復甦是從谷底轉向擴張的過程，必須同時看到裁員壓力下降與需求回升，避免把單月反彈誤判成趨勢反轉。
-  to_growth_watch:
-    target_phase_score_min: 0.70
-    required_persistence: 2q
-    required_positive_groups: 4
-    rationale_zh: 若投資、貿易與金融條件也轉強，復甦可能逐步轉向成長期，但仍需季度資料確認。
-scoring:
-  score_range:
-    min: 0
-    max: 1
-  aggregation_method: weighted_group_average
-  missing_data_policy: exclude_missing_weight_and_reduce_confidence
-  stale_data_policy: exclude_stale_indicator_from_positive_confirmation
-  single_indicator_cap: 0.18
-  lagging_indicator_cap:
-    unemployment_rate: 0.08
-  confidence_adjustments:
-    - condition: required_core_group_missing
-      adjustment: -0.20
-    - condition: unemployment_rate_is_only_positive_labor_signal
-      adjustment: -0.15
-    - condition: monthly_or_weekly_spike_without_confirmation
-      adjustment: -0.10
-    - condition: quarterly_data_not_yet_available
-      adjustment: -0.05
-indicator_groups:
-  labor_leading:
-    weight: 0.24
-    rationale_zh: 復甦早期通常先看到裁員壓力緩和，因此初領失業救濟金與短期失業人數是核心早期訊號。
-    indicators:
-      initial_jobless_claims: 0.14
-      short_term_unemployment: 0.10
-  labor_lagging_confirmation:
-    weight: 0.08
-    rationale_zh: 失業率可確認勞動市場修復，但偏落後，不可單獨判斷復甦。
-    indicators:
-      unemployment_rate: 0.08
-  demand:
-    weight: 0.24
-    rationale_zh: 消費需求從谷底回升是復甦能否延續的主要確認。
-    indicators:
-      real_retail_sales: 0.12
-      real_pce_durable_goods: 0.12
-  investment:
-    weight: 0.16
-    rationale_zh: 耐久財訂單與私人固定投資改善，代表復甦從消費擴散到企業與住宅投資。
-    indicators:
-      durable_goods_new_orders: 0.08
-      real_private_fixed_investment: 0.08
-  trade:
-    weight: 0.12
-    rationale_zh: 進出口回升可顯示內需、外需與全球循環對復甦的支撐。
-    indicators:
-      imports_goods_services: 0.06
-      exports_goods_services: 0.06
-  financial_conditions:
-    weight: 0.12
-    rationale_zh: 復甦需要金融條件不過度緊縮，政策利率、長端利率與房貸利率需共同觀察。
-    indicators:
-      federal_funds_rate: 0.04
-      ten_year_treasury_yield: 0.04
-      thirty_year_mortgage_rate: 0.04
-  prices:
-    weight: 0.04
-    rationale_zh: 油價或原物料價格可反映需求回升，也可能成為成本壓力；在復甦期作為風險調整而非主判斷。
-    indicators:
-      wti_oil_price: 0.04
-evidence_rules:
-  positive:
-    - indicator_id: initial_jobless_claims
-      testable_condition: four_week_moving_average_has_negative_slope_for_confirmation_window
-      reason_zh: 初領失業救濟金持續下降，代表裁員壓力從衰退高點緩和。
-    - indicator_id: short_term_unemployment
-      testable_condition: three_month_moving_average_slope_is_negative
-      reason_zh: 短期失業人數下降，代表新近失業壓力降低。
-    - indicator_id: real_retail_sales
-      testable_condition: yoy_growth_improves_and_three_month_average_is_rising
-      reason_zh: 實質零售銷售改善，代表消費需求從谷底回升。
-    - indicator_id: durable_goods_new_orders
-      testable_condition: trough_reversal_persists_for_confirmation_window
-      reason_zh: 耐久財新訂單持續回升，代表需求與生產排程改善。
-  confirmation:
-    - indicator_id: unemployment_rate
-      testable_condition: three_month_average_slope_is_flat_or_down
-      reason_zh: 失業率不再上升可提高復甦信心，但不可作為早期唯一訊號。
-    - indicator_id: real_private_fixed_investment
-      testable_condition: two_quarter_average_growth_is_positive
-      reason_zh: 私人固定投資改善代表復甦擴散到投資面。
-    - indicator_id: imports_goods_services
-      testable_condition: two_quarter_average_growth_is_positive
-      reason_zh: 進口改善代表內需與補庫存活動回溫。
-    - indicator_id: exports_goods_services
-      testable_condition: two_quarter_average_growth_is_positive
-      reason_zh: 出口改善代表外部需求支撐復甦。
-  warning:
-    - indicator_id: unemployment_rate
-      testable_condition: three_month_average_slope_is_up
-      reason_zh: 失業率若仍持續上升，代表勞動市場修復尚未確認。
-    - indicator_id: federal_funds_rate
-      testable_condition: six_month_change_is_sharply_positive
-      reason_zh: 短端政策利率快速上升可能壓抑復甦。
-    - indicator_id: thirty_year_mortgage_rate
-      testable_condition: thirteen_week_change_is_sharply_positive
-      reason_zh: 房貸利率快速上升可能壓抑住宅與耐久財需求。
-    - indicator_id: wti_oil_price
-      testable_condition: rolling_percentile_is_extreme_and_demand_group_not_confirmed
-      reason_zh: 油價或原物料快速上升但需求未確認，可能代表成本壓力而非健康復甦。
-public_explanation_zh: 目前證據若顯示裁員壓力下降、消費需求回升，並逐步獲得投資、貿易與金融條件確認，才可提高復甦期分數。失業率屬落後指標，只能作為確認，不能單獨判斷復甦。
+phase_name_zh: 復甦期
+description_zh: 復甦期代表經濟從衰退後的谷底逐步修復。MVP spec 先聚焦勞動市場壓力下降、消費回溫與耐久財訂單改善，不宣稱已涵蓋所有書中指標。
+indicators:
+  - indicator_id: initial_jobless_claims
+    weight: 0.30
+    role: core
+    direction_note_zh: 初領失業救濟金趨勢下降，通常代表裁員壓力緩和。
+  - indicator_id: real_retail_sales
+    weight: 0.30
+    role: core
+    direction_note_zh: 實質零售銷售改善，代表消費需求從谷底修復。
+  - indicator_id: durable_goods_orders
+    weight: 0.25
+    role: confirmation
+    direction_note_zh: 耐久財新訂單落底回升，可確認需求與生產排程改善。
+  - indicator_id: unemployment_rate
+    weight: 0.15
+    role: warning
+    direction_note_zh: 失業率偏落後，不能單獨判斷復甦；若仍上升，應降低復甦信心。
+minimum_available_weight: 0.70
+early_mid_late_thresholds:
+  early: 55.0
+  mid: 70.0
+  late: 82.0
+confidence_policy:
+  minimum_confidence: 0.60
+  missing_core_indicator_penalty: 0.20
+  stale_indicator_penalty: 0.10
+  mixed_evidence_penalty: 0.10
+transition_watch:
+  next_phase: growth
+  watch_threshold: 78.0
+  rationale_zh: 若復甦分數較高且投資與消費確認持續，後續可觀察是否轉向成長期；這不是 current_phase 判斷。
+public_explanation_zh: 復甦期 spec 用來描述哪些 indicator 會支持復甦分數。它只提供後續 phase scoring 的設定，不直接產生景氣階段結論或投資建議。

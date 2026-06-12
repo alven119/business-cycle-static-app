@@ -107,6 +107,10 @@ python scripts/score_indicators.py --indicator-id unemployment_rate
 python scripts/score_indicators.py --as-of 2024-12-31
 ```
 
+## Phase 3A phase specs
+
+Phase 3A adds phase-level spec schemas and a YAML loader for files such as `specs/phases/recovery.yaml`. These specs define indicator weights, roles, minimum available weight, confidence policy, and stage thresholds for future phase scoring, but they do not compute phase scores or `current_phase`.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
