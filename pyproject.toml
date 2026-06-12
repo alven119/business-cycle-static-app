@@ -2,7 +2,7 @@
 name = "business-cycle-static-app"
 version = "0.1.0"
 description = "Python-first static dashboard for business-cycle investing."
-requires-python = ">=3.11"
+requires-python = ">=3.10,<3.11"
 dependencies = [
     "pandas>=2.2.0",
     "pyarrow>=15.0.0",
@@ -24,7 +24,7 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py310"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
