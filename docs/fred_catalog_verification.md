@@ -60,7 +60,19 @@ data/derived/fred_catalog_verification.json
 - `provider_not_supported`：目前 verifier 只支援 FRED。
 - `missing_candidate_series`：indicator 沒有設定 `candidate_series`。
 
+## 處理 missing_candidate_series
+
+若 verifier 回報 `missing_candidate_series`，表示 catalog entry 可能仍只有舊的 mapping 欄位，或尚未補上 verifier 會讀取的 `candidate_series`。
+
+處理方式：
+
+1. 在 `specs/indicator_catalog.yaml` 的該 indicator 下新增 `candidate_series`。
+2. 保持 `validation_status: candidate_unverified_for_project`，不要改成 verified。
+3. 加上 `mapping_note` 或 source note，說明仍需透過 live verification 確認可下載、歷史長度、缺值與 stale 狀態。
+4. 重新手動執行 `python scripts/verify_fred_catalog.py`。
+
+`missing_candidate_series` 的修正只代表 catalog mapping 比較完整，不代表 series 已正式驗證。
+
 ## 仍然不是 Phase Scoring
 
 Series verification 只檢查資料來源能否取得資料。它不計算 indicator score、不計算 phase score、不輸出 `current_phase`，也不產生投資建議。
-

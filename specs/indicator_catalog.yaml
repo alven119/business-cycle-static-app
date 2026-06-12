@@ -44,6 +44,11 @@ indicators:
     display_name_zh: 短期失業人數
     description_zh: 衡量失業未滿五週的人數，用於觀察新近失業壓力是否降溫。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: UEMPLT5
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: UEMPLT5
         title: Number Unemployed for Less Than 5 Weeks
@@ -171,6 +176,11 @@ indicators:
     display_name_zh: 個人耐久財消費
     description_zh: 衡量家計對汽車、家具、家電等耐久財的實質支出，常對景氣復甦較敏感。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: PCEDGC96
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: PCEDGC96
         title: "Real Personal Consumption Expenditures: Durable Goods"
@@ -245,6 +255,11 @@ indicators:
     display_name_zh: 私人固定投資
     description_zh: 衡量企業與住宅部門的實質固定投資，用於確認復甦是否從消費擴散到投資。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: FPIC1
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: FPIC1
         title: Real Private Fixed Investment
@@ -278,6 +293,11 @@ indicators:
     display_name_zh: 進口金額
     description_zh: 衡量美國進口商品與服務金額，用於觀察內需與企業補庫存是否回升。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: IMPGS
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: IMPGS
         title: Imports of Goods and Services
@@ -311,6 +331,11 @@ indicators:
     display_name_zh: 出口金額
     description_zh: 衡量美國出口商品與服務金額，用於觀察外部需求是否支撐復甦。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: EXPGS
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: EXPGS
         title: Exports of Goods and Services
@@ -344,6 +369,11 @@ indicators:
     display_name_zh: 聯邦基金利率
     description_zh: 衡量貨幣政策短端利率環境，用於觀察政策是否仍在支撐復甦或開始轉向緊縮。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: FEDFUNDS
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: FEDFUNDS
         title: Federal Funds Effective Rate
@@ -379,6 +409,11 @@ indicators:
     display_name_zh: 10年期公債殖利率
     description_zh: 衡量長端利率與成長預期、通膨預期及金融環境變化。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: DGS10
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: DGS10
         title: Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity
@@ -413,6 +448,11 @@ indicators:
     display_name_zh: 30年房貸利率
     description_zh: 衡量住宅融資成本，用於觀察利率環境是否支撐住宅與耐久財相關需求。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: MORTGAGE30US
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: MORTGAGE30US
         title: 30-Year Fixed Rate Mortgage Average in the United States
@@ -446,6 +486,15 @@ indicators:
     display_name_zh: WTI 油價或原物料價格 proxy
     description_zh: 衡量能源與原物料價格壓力，用於區分需求回升與成本壓力過快升高。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: DCOILWTICO
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED WTI series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
+      - provider: fred
+        series_id: PPIACO
+        validation_status: candidate_unverified_for_project
+        mapping_note: 候選 FRED 原物料 proxy series，仍需透過 verify_fred_catalog.py live verification 確認可下載、歷史長度與缺值狀態。
     candidate_fred_series:
       - series_id: DCOILWTICO
         title: "Crude Oil Prices: West Texas Intermediate (WTI) - Cushing, Oklahoma"
