@@ -87,6 +87,16 @@ Phase 2C adds `IndicatorScoringSpec` and `score_indicator(...)` to bind indicato
 
 Phase 2D adds an indicator catalog loader for `specs/indicator_catalog.yaml`. Catalog entries can now be loaded into `IndicatorScoringSpec` objects and passed to `score_indicator(...)` for single-indicator scoring. This remains indicator-layer work and does not produce phase scores or `current_phase`.
 
+## Phase 2E FRED catalog verification
+
+Phase 2E adds a manual verifier for FRED `candidate_series` in the indicator catalog. It writes local JSON output under ignored `data/derived/` and is not part of the default pytest flow.
+
+```bash
+python scripts/verify_fred_catalog.py
+python scripts/verify_fred_catalog.py --indicator-id unemployment_rate
+python scripts/verify_fred_catalog.py --series-id UNRATE
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
