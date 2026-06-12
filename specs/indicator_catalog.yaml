@@ -3,6 +3,10 @@ indicators:
     display_name_zh: 初領失業救濟金人數
     description_zh: 衡量每週新申請失業救濟的人數，用於觀察裁員壓力是否從衰退高點緩和。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: ICSA
+        validation_status: candidate_unverified_for_project
     candidate_fred_series:
       - series_id: ICSA
         title: Initial Claims
@@ -19,12 +23,16 @@ indicators:
     phase_relevance:
       - recession
       - recovery
-    direction: lower_is_stronger
+    direction: falling_is_better
     transformations:
       - four_week_moving_average
       - moving_average_slope
       - peak_trough_reversal
-    score_method: peak_trough_reversal_score
+    score_method: moving_average_slope_score
+    parameters:
+      moving_average_window: 4
+      slope_window: 13
+      confirmation_window: 4
     trend_window: 13w
     confirmation_window: 4w
     stale_after_days: 14
@@ -69,6 +77,10 @@ indicators:
     display_name_zh: 失業率
     description_zh: 衡量勞動力中失業者比例；此指標偏落後，不得作為復甦初期唯一判斷依據。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: UNRATE
+        validation_status: candidate_unverified_for_project
     candidate_fred_series:
       - series_id: UNRATE
         title: Unemployment Rate
@@ -86,12 +98,14 @@ indicators:
       - recession
       - recovery
       - growth
-    direction: lower_is_stronger
+    direction: lower_is_better
     transformations:
       - three_month_moving_average
       - moving_average_slope
       - rolling_percentile
-    score_method: persistence_confirmed_score
+    score_method: level_percentile_score
+    parameters:
+      min_periods: 36
     trend_window: 12m
     confirmation_window: 3m
     stale_after_days: 45
@@ -103,6 +117,13 @@ indicators:
     display_name_zh: 實質零售銷售
     description_zh: 以通膨調整後的零售與餐飲銷售觀察家計消費需求是否從谷底回升。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: RRSFS
+        validation_status: candidate_unverified_for_project
+      - provider: fred
+        series_id: RSAFS
+        validation_status: candidate_unverified_for_project
     candidate_fred_series:
       - series_id: RRSFS
         title: Advance Real Retail and Food Services Sales
@@ -130,12 +151,15 @@ indicators:
       - recovery
       - growth
       - boom
-    direction: higher_is_stronger
+    direction: higher_is_better
     transformations:
       - year_over_year_change
       - three_month_moving_average
       - yoy_momentum_change
     score_method: yoy_momentum_score
+    parameters:
+      periods: 12
+      momentum_window: 3
     trend_window: 6m
     confirmation_window: 3m
     stale_after_days: 45
@@ -176,10 +200,14 @@ indicators:
     confidence_rule: reduce_when_pce_release_is_missing_or_materially_revised
     public_explanation_zh: 耐久財消費若持續改善，表示家庭願意恢復大額支出，是復甦期需求回溫的訊號。
 
-  - indicator_id: durable_goods_new_orders
+  - indicator_id: durable_goods_orders
     display_name_zh: 耐久財新訂單
     description_zh: 衡量製造商接到的耐久財訂單，用於觀察企業與消費端需求是否回補。
     provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: DGORDER
+        validation_status: candidate_unverified_for_project
     candidate_fred_series:
       - series_id: DGORDER
         title: "Manufacturers' New Orders: Durable Goods"
@@ -196,12 +224,16 @@ indicators:
     phase_relevance:
       - recovery
       - growth
-    direction: higher_is_stronger
+    direction: higher_is_better
     transformations:
       - three_month_moving_average
       - year_over_year_change
       - peak_trough_reversal
     score_method: peak_trough_reversal_score
+    parameters:
+      mode: trough_recovery
+      lookback_window: 6
+      confirmation_window: 3
     trend_window: 6m
     confirmation_window: 3m
     stale_after_days: 45
