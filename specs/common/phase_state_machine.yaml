@@ -1,0 +1,12 @@
+phase_order:
+  - recession
+  - recovery
+  - growth
+  - boom
+
+min_phase_confidence: 0.65
+min_available_weight: 0.70
+min_score_for_initial_estimate: 65.0
+min_score_margin: 8.0
+transition_score_margin: 5.0
+allow_initial_estimate: true

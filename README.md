@@ -133,6 +133,15 @@ Phase 3D adds phase-specific `signal_transform` support for phase indicators. Ph
 
 Phase 3E adds MVP specs for `growth`, `boom`, and `recession` alongside the existing `recovery` spec. Batch phase scoring can now produce scores for all four phases, but this still does not select `current_phase` or make a final cycle-state decision.
 
+## Phase 4A current phase resolver
+
+Phase 4A adds a deterministic current phase resolver with state-machine ordering. It can produce `data/derived/current_phase_decision.json` from phase scores and an optional previous phase, while blocking non-adjacent jumps and avoiding investment advice.
+
+```bash
+python scripts/resolve_current_phase.py
+python scripts/resolve_current_phase.py --previous-phase-id recovery
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

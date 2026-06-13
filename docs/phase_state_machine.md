@@ -61,3 +61,17 @@ recession -> recovery -> growth -> boom -> recession
 ## 下一步
 
 後續 phase engine 應把前一次 phase snapshot 存成靜態檔，讓下一次執行能檢查 persistence 與 transition radar。Phase 0D 尚不實作檔案 I/O 或完整 scoring。
+
+## Phase 4A Current Phase Resolver
+
+Phase 4A 在既有 state machine skeleton 上新增 `resolve_current_phase(...)`。它讀取 phase scores 與 state machine config，並輸出 `CurrentPhaseDecision`。
+
+新增 resolver 仍遵守相同順序：
+
+```text
+recession -> recovery -> growth -> boom -> recession
+```
+
+有 `previous_phase_id` 時，只能維持目前 phase 或轉到 allowed next phase。非相鄰高分 phase 會放入 `blocked_phase_ids`，不會直接跳階段。沒有 `previous_phase_id` 時，只能在分數、confidence、available_weight 與分數差距都達標時做 `initial_estimate`。
+
+詳細說明見 `docs/current_phase_resolver.md`。

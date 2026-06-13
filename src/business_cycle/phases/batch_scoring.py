@@ -94,6 +94,63 @@ def write_phase_scores_json(
     return path
 
 
+def load_phase_scores_json(path: str | Path) -> dict[str, PhaseScoreResult]:
+    """Load Phase 3C phase_scores.json into PhaseScoreResult objects."""
+
+    phase_scores_path = Path(path)
+    if not phase_scores_path.exists():
+        raise FileNotFoundError(f"Phase scores JSON does not exist: {phase_scores_path}")
+
+    payload = json.loads(phase_scores_path.read_text(encoding="utf-8"))
+    results = payload.get("results")
+    if not isinstance(results, list):
+        raise ValueError("Phase scores JSON must contain results list")
+
+    phase_scores: dict[str, PhaseScoreResult] = {}
+    for entry in results:
+        if not isinstance(entry, dict):
+            raise ValueError("Each phase score result must be a mapping")
+        missing = [
+            field
+            for field in (
+                "phase_id",
+                "phase_name_zh",
+                "score",
+                "confidence",
+                "available_weight",
+                "missing_indicators",
+                "contributing_indicators",
+                "stage_hint",
+                "reason_zh",
+                "details",
+            )
+            if field not in entry
+        ]
+        if missing:
+            raise ValueError(
+                f"Phase score result for {entry.get('phase_id', '<unknown>')} "
+                f"missing required field(s): {', '.join(missing)}"
+            )
+
+        result = PhaseScoreResult(
+            phase_id=str(entry["phase_id"]),
+            phase_name_zh=str(entry["phase_name_zh"]),
+            score=float(entry["score"]),
+            confidence=float(entry["confidence"]),
+            available_weight=float(entry["available_weight"]),
+            missing_indicators=list(entry["missing_indicators"]),
+            contributing_indicators=list(entry["contributing_indicators"]),
+            stage_hint=None if entry["stage_hint"] is None else str(entry["stage_hint"]),
+            reason_zh=str(entry["reason_zh"]),
+            details=dict(entry["details"]),
+        )
+        if result.phase_id in phase_scores:
+            raise ValueError(f"Duplicate phase score result: {result.phase_id}")
+        phase_scores[result.phase_id] = result
+
+    return phase_scores
+
+
 def _json_safe(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): _json_safe(item) for key, item in value.items()}
@@ -104,4 +161,3 @@ def _json_safe(value: Any) -> Any:
     if hasattr(value, "item"):
         return value.item()
     return value
-
