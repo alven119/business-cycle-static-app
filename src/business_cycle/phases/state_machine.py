@@ -321,6 +321,59 @@ def serialize_current_phase_decision(decision: CurrentPhaseDecision) -> dict[str
     }
 
 
+def load_current_phase_decision_json(path: str | Path) -> CurrentPhaseDecision:
+    """Load a CurrentPhaseDecision JSON file."""
+
+    decision_path = Path(path)
+    if not decision_path.exists():
+        raise FileNotFoundError(f"Current phase decision JSON does not exist: {decision_path}")
+
+    payload = json.loads(decision_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("Current phase decision JSON must be a mapping")
+
+    required_fields = (
+        "current_phase_id",
+        "current_phase_name_zh",
+        "decision_status",
+        "previous_phase_id",
+        "candidate_phase_id",
+        "candidate_score",
+        "candidate_confidence",
+        "current_score",
+        "confidence",
+        "allowed_next_phase_id",
+        "blocked_phase_ids",
+        "reason_zh",
+        "details",
+    )
+    missing = [field for field in required_fields if field not in payload]
+    if missing:
+        raise ValueError(
+            f"Current phase decision JSON missing required field(s): {', '.join(missing)}"
+        )
+    if not isinstance(payload["blocked_phase_ids"], list):
+        raise ValueError("Current phase decision field 'blocked_phase_ids' must be a list")
+    if not isinstance(payload["details"], dict):
+        raise ValueError("Current phase decision field 'details' must be a mapping")
+
+    return CurrentPhaseDecision(
+        current_phase_id=_optional_str(payload["current_phase_id"]),
+        current_phase_name_zh=_optional_str(payload["current_phase_name_zh"]),
+        decision_status=str(payload["decision_status"]),
+        previous_phase_id=_optional_str(payload["previous_phase_id"]),
+        candidate_phase_id=_optional_str(payload["candidate_phase_id"]),
+        candidate_score=_optional_float(payload["candidate_score"]),
+        candidate_confidence=_optional_float(payload["candidate_confidence"]),
+        current_score=_optional_float(payload["current_score"]),
+        confidence=float(payload["confidence"]),
+        allowed_next_phase_id=_optional_str(payload["allowed_next_phase_id"]),
+        blocked_phase_ids=[str(item) for item in payload["blocked_phase_ids"]],
+        reason_zh=str(payload["reason_zh"]),
+        details=dict(payload["details"]),
+    )
+
+
 def decide_phase_transition(
     evidence: PhaseEvidence,
     thresholds: TransitionThresholds | None = None,
@@ -714,3 +767,15 @@ def _blocked_reason_text(blocked_phase_ids: list[str]) -> str:
 
 def _clamp_confidence(value: float) -> float:
     return float(min(1.0, max(0.0, value)))
+
+
+def _optional_str(value: Any) -> str | None:
+    if value is None:
+        return None
+    return str(value)
+
+
+def _optional_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    return float(value)

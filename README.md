@@ -142,6 +142,14 @@ python scripts/resolve_current_phase.py
 python scripts/resolve_current_phase.py --previous-phase-id recovery
 ```
 
+## Phase 4B cycle snapshot
+
+Phase 4B combines `indicator_scores.json`, `phase_scores.json`, and `current_phase_decision.json` into ignored `data/derived/cycle_snapshot.json`. The snapshot is dashboard-ready data, but it is not a dashboard and does not contain investment advice.
+
+```bash
+python scripts/build_cycle_snapshot.py
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
