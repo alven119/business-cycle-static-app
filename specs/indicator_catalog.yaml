@@ -203,6 +203,9 @@ indicators:
       - three_month_moving_average
       - yoy_momentum_change
     score_method: yoy_momentum_score
+    parameters:
+      periods: 12
+      momentum_window: 3
     trend_window: 6m
     confirmation_window: 3m
     stale_after_days: 45
@@ -282,6 +285,9 @@ indicators:
       - year_over_year_change
       - two_quarter_moving_average
     score_method: yoy_momentum_score
+    parameters:
+      periods: 4
+      momentum_window: 2
     trend_window: 4q
     confirmation_window: 2q
     stale_after_days: 120
@@ -320,6 +326,9 @@ indicators:
       - year_over_year_change
       - two_quarter_moving_average
     score_method: yoy_momentum_score
+    parameters:
+      periods: 4
+      momentum_window: 2
     trend_window: 4q
     confirmation_window: 2q
     stale_after_days: 120
@@ -358,6 +367,9 @@ indicators:
       - year_over_year_change
       - two_quarter_moving_average
     score_method: yoy_momentum_score
+    parameters:
+      periods: 4
+      momentum_window: 2
     trend_window: 4q
     confirmation_window: 2q
     stale_after_days: 120
@@ -392,12 +404,14 @@ indicators:
       - recovery
       - growth
       - boom
-    direction: lower_or_stable_is_more_supportive
+    direction: lower_is_better
     transformations:
       - three_month_change
       - six_month_change
       - rolling_percentile
     score_method: level_percentile_score
+    parameters:
+      min_periods: 36
     trend_window: 12m
     confirmation_window: 3m
     stale_after_days: 45
@@ -431,12 +445,14 @@ indicators:
       - recovery
       - growth
       - boom
-    direction: moderate_rise_is_supportive_extreme_rise_is_warning
+    direction: neutral_midpoint
     transformations:
       - monthly_average
       - three_month_change
       - rolling_percentile
     score_method: level_percentile_score
+    parameters:
+      min_periods: 252
     trend_window: 12m
     confirmation_window: 3m
     stale_after_days: 7
@@ -469,12 +485,14 @@ indicators:
     phase_relevance:
       - recovery
       - growth
-    direction: lower_or_stable_is_more_supportive
+    direction: lower_is_better
     transformations:
       - four_week_average
       - thirteen_week_change
       - rolling_percentile
     score_method: level_percentile_score
+    parameters:
+      min_periods: 52
     trend_window: 26w
     confirmation_window: 4w
     stale_after_days: 14
@@ -521,13 +539,15 @@ indicators:
       - recovery
       - growth
       - boom
-    direction: moderate_rise_is_supportive_extreme_rise_is_warning
+    direction: neutral_midpoint
     transformations:
       - monthly_average
       - three_month_change
       - year_over_year_change
       - rolling_percentile
     score_method: level_percentile_score
+    parameters:
+      min_periods: 252
     trend_window: 12m
     confirmation_window: 3m
     stale_after_days: 14

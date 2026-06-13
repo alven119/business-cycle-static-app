@@ -51,7 +51,7 @@ def add_pct_change(
         raise ValueError("periods must be positive")
     result = frame.copy()
     column = output_column or f"{value_column}_pct_change_{periods}"
-    result[column] = result[value_column].pct_change(periods=periods)
+    result[column] = result[value_column].pct_change(periods=periods, fill_method=None)
     return result
 
 
@@ -161,4 +161,3 @@ def _last_value_percentile(values: np.ndarray) -> float:
 def _validate_window(window: int) -> None:
     if window <= 0:
         raise ValueError("window must be positive")
-

@@ -60,6 +60,13 @@ def test_add_pct_change_supports_periods() -> None:
     assert result.loc[2, "pct"] == pytest.approx(0.10)
 
 
+def test_add_pct_change_does_not_forward_fill_nan() -> None:
+    result = add_pct_change(frame([100, float("nan"), 121]), periods=1, output_column="pct")
+
+    assert math.isnan(result.loc[1, "pct"])
+    assert math.isnan(result.loc[2, "pct"])
+
+
 def test_rolling_slope_positive_for_rising_trend() -> None:
     result = add_rolling_slope(frame([1, 2, 3, 4, 5]), window=3, output_column="slope")
 

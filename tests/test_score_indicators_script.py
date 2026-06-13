@@ -42,6 +42,28 @@ indicators:
     return path
 
 
+def write_catalog_with_candidate_list(path: Path) -> Path:
+    path.write_text(
+        """
+indicators:
+  - indicator_id: retail
+    provider: fred
+    candidate_series:
+      - provider: fred
+        series_id: FIRST
+      - provider: fred
+        series_id: SECOND
+    score_method: level_percentile_score
+    direction: higher_is_better
+    parameters:
+      min_periods: 3
+    stale_after_days: 45
+""",
+        encoding="utf-8",
+    )
+    return path
+
+
 def write_raw_csv(input_dir: Path, series_id: str, values: list[float | int]) -> Path:
     input_dir.mkdir(parents=True, exist_ok=True)
     frame = pd.DataFrame(
@@ -78,6 +100,8 @@ def test_cli_reads_local_csv_and_writes_output_json(tmp_path: Path) -> None:
     assert exit_code == 0
     assert payload["summary"]["scored_indicators"] == 2
     assert payload["summary"]["failed_indicators"] == 0
+    assert payload["results"][0]["details"]["selected_series_id"] == "ICSA"
+    assert payload["results"][1]["details"]["selected_series_id"] == "UNRATE"
 
 
 def test_missing_csv_becomes_failure_not_crash(tmp_path: Path) -> None:
@@ -98,8 +122,11 @@ def test_missing_csv_becomes_failure_not_crash(tmp_path: Path) -> None:
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert exit_code == 0
     assert payload["summary"]["scored_indicators"] == 0
-    assert payload["summary"]["failed_indicators"] == 4
+    assert payload["summary"]["failed_indicators"] == 2
     assert payload["failures"][0]["error_type"] == "MissingRawCsv"
+    assert "indicator_id=" in payload["failures"][0]["message"]
+    assert "candidate_series=" in payload["failures"][0]["message"]
+    assert "expected_csv_paths=" in payload["failures"][0]["message"]
 
 
 def test_indicator_id_filter_is_applied(tmp_path: Path) -> None:
@@ -164,3 +191,71 @@ def test_first_fred_candidate_series_id() -> None:
         == "UNRATE"
     )
 
+
+def test_candidate_series_list_uses_first_available_csv(tmp_path: Path) -> None:
+    catalog_path = write_catalog_with_candidate_list(tmp_path / "catalog.yaml")
+    input_dir = tmp_path / "raw"
+    output_path = tmp_path / "scores.json"
+    write_raw_csv(input_dir, "FIRST", [1, 2, 3, 4])
+    write_raw_csv(input_dir, "SECOND", [10, 11, 12, 13])
+
+    score_script.main(
+        [
+            "--catalog-path",
+            str(catalog_path),
+            "--input-dir",
+            str(input_dir),
+            "--output-path",
+            str(output_path),
+        ]
+    )
+
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["summary"]["scored_indicators"] == 1
+    assert payload["results"][0]["details"]["selected_series_id"] == "FIRST"
+
+
+def test_candidate_series_list_falls_back_to_second_existing_csv(tmp_path: Path) -> None:
+    catalog_path = write_catalog_with_candidate_list(tmp_path / "catalog.yaml")
+    input_dir = tmp_path / "raw"
+    output_path = tmp_path / "scores.json"
+    write_raw_csv(input_dir, "SECOND", [10, 11, 12, 13])
+
+    score_script.main(
+        [
+            "--catalog-path",
+            str(catalog_path),
+            "--input-dir",
+            str(input_dir),
+            "--output-path",
+            str(output_path),
+        ]
+    )
+
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["summary"]["scored_indicators"] == 1
+    assert payload["results"][0]["details"]["selected_series_id"] == "SECOND"
+
+
+def test_missing_all_candidate_csv_failure_lists_candidates_and_paths(tmp_path: Path) -> None:
+    catalog_path = write_catalog_with_candidate_list(tmp_path / "catalog.yaml")
+    output_path = tmp_path / "scores.json"
+
+    score_script.main(
+        [
+            "--catalog-path",
+            str(catalog_path),
+            "--input-dir",
+            str(tmp_path / "raw"),
+            "--output-path",
+            str(output_path),
+        ]
+    )
+
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    failure = payload["failures"][0]
+    assert failure["indicator_id"] == "retail"
+    assert failure["error_type"] == "MissingRawCsv"
+    assert "FIRST" in failure["message"]
+    assert "SECOND" in failure["message"]
+    assert "expected_csv_paths=" in failure["message"]

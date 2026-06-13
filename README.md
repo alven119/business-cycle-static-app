@@ -150,6 +150,17 @@ Phase 4B combines `indicator_scores.json`, `phase_scores.json`, and `current_pha
 python scripts/build_cycle_snapshot.py
 ```
 
+## Phase 4C local pipeline
+
+Phase 4C adds a local end-to-end pipeline. It can refresh FRED catalog raw cache manually, then produce indicator scores, phase scores, current phase decision, and the final cycle snapshot under ignored `data/derived/`.
+
+```bash
+python scripts/update_catalog_data.py --dry-run
+python scripts/update_catalog_data.py --force-refresh
+python scripts/run_cycle_pipeline.py --previous-phase-id recovery
+python scripts/run_cycle_pipeline.py --update-data --force-refresh --previous-phase-id recovery
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
