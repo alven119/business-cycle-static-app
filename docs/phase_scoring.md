@@ -89,6 +89,10 @@ Phase confidence 會受到以下因素影響：
 
 `current_phase` 需要多個 phase scores、transition radar、persistence、confidence、available_weight 與 state machine 一起判斷。Phase 3B 只計算單一 phase 分數，避免把 aggregation 與狀態轉換混在一起。
 
+Phase 3E 新增 growth、boom、recession 三個 MVP specs 後，系統可以對四個 phase 都產生 score。這仍然不是 `current_phase` 判斷，因為景氣循環有順序與持續性限制，不能只把分數最高的 phase 當成目前階段。
+
 ## 不靠單一高分指標判斷景氣階段
 
 單一 indicator 可能有短期噪音、修正、缺值或落後性。Phase scoring 必須看多個 indicators 的 weighted evidence 與 available_weight，不能因為一個指標高分就直接判斷景氣階段。
+
+同理，也不能只因某個 phase score 最高就直接宣告景氣階段。後續仍需要 state machine、transition policy、persistence、confidence 與 missing data impact 共同決定。

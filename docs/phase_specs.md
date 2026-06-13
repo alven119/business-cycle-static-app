@@ -6,14 +6,14 @@ Phase 3A 建立 phase-level spec loader 與 schema。這一步只定義 phase sc
 
 Phase spec 描述一個景氣階段需要觀察哪些 indicators、各自權重、角色與最低資料覆蓋要求。它是後續 phase scoring 的設定來源。
 
-`specs/phases/recovery.yaml` 目前是 MVP spec，聚焦復甦期的四個核心觀察：
+`specs/phases` 目前包含四個 MVP phase specs：
 
-- 初領失業救濟金
-- 實質零售銷售
-- 耐久財新訂單
-- 失業率
+- `recovery.yaml`：復甦期，聚焦勞動市場壓力下降、消費回溫與訂單改善。
+- `growth.yaml`：成長期，聚焦消費、投資、貿易與就業的廣泛改善。
+- `boom.yaml`：榮景期，聚焦活動強勁、勞動市場緊俏，以及利率與能源等晚週期壓力 proxy。
+- `recession.yaml`：衰退期，聚焦就業、消費、投資與貿易活動惡化。
 
-這不宣稱已完全涵蓋書中所有指標。
+這些都是 MVP specs，不宣稱已完全涵蓋書中所有指標，也不是最終景氣階段判斷。
 
 ## Indicator Score 與 Phase Score 的差別
 
@@ -41,7 +41,7 @@ Phase score 則需要整合多個 indicator score、權重、資料可用性、c
 - `as_is`：直接使用 indicator score。
 - `inverted`：使用 `100 - indicator score`。
 
-預設是 `as_is`。Recovery 目前四個 MVP indicators 都使用 `as_is`，因為這些 indicator 的改善分數對 recovery 是正向支持。未來 recession spec 可能需要對部分 indicator 使用 `inverted`，避免把「經濟改善」誤當成 recession 支持訊號。
+預設是 `as_is`。Recovery 目前四個 MVP indicators 都使用 `as_is`，因為這些 indicator 的改善分數對 recovery 是正向支持。Recession 則對多數活動與就業健康指標使用 `inverted`，避免把「經濟改善」誤當成衰退支持訊號。
 
 `signal_note_zh` 可補充為什麼該 phase 要這樣解讀 indicator score。
 
@@ -56,6 +56,8 @@ Phase score 則需要整合多個 indicator score、權重、資料可用性、c
 ## 為什麼 Phase 3A 還不做 current_phase
 
 `current_phase` 需要比較多個 phase scores、transition policy、persistence、confidence 與 state machine。Phase 3A 只定義單一 phase spec 的 schema 與 loader，避免太早把設定與決策邏輯混在一起。
+
+即使四個 MVP phase specs 都能被 scoring，也不能直接取最高 phase score 當成 `current_phase`。四階段判斷需要 state machine 與 transition rules 確認順序、持續性、資料覆蓋與信心。
 
 ## 不應用單一指標直接判斷景氣階段
 

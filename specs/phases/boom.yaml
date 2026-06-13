@@ -1,0 +1,82 @@
+phase_id: boom
+phase_name_zh: 榮景期
+description_zh: 榮景期代表經濟活動強勁、勞動市場緊俏，且可能伴隨利率、能源或原物料等晚週期壓力。MVP spec 先使用現有 catalog 中可 scoring 的強擴張與壓力 proxy，不宣稱已完整覆蓋書中所有指標。
+indicators:
+  - indicator_id: unemployment_rate
+    weight: 0.14
+    role: core
+    signal_transform: as_is
+    signal_note_zh: 榮景期將低失業或失業改善分數視為勞動市場強勁支持。
+    direction_note_zh: 失業率偏低可代表勞動市場緊俏，但它是落後指標，不能單獨判斷榮景期。
+  - indicator_id: initial_jobless_claims
+    weight: 0.12
+    role: core
+    signal_transform: as_is
+    signal_note_zh: 榮景期將初領失業救濟金改善分數視為裁員壓力低的支持。
+    direction_note_zh: 初領失業救濟金維持低檔通常代表企業仍在保留勞動力。
+  - indicator_id: real_retail_sales
+    weight: 0.14
+    role: core
+    signal_transform: as_is
+    signal_note_zh: 榮景期將實質零售銷售強勁分數視為需求支持。
+    direction_note_zh: 消費動能強勁可支持榮景分數，但需搭配通膨與利率壓力觀察。
+  - indicator_id: real_pce_durable_goods
+    weight: 0.10
+    role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 榮景期將耐久財消費強勁視為需求確認。
+    direction_note_zh: 耐久財支出偏強通常代表家庭大額支出意願仍高。
+  - indicator_id: durable_goods_orders
+    weight: 0.10
+    role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 榮景期將耐久財新訂單強勁視為企業與製造活動確認。
+    direction_note_zh: 訂單持續強勁可反映企業與消費端需求仍旺。
+  - indicator_id: real_private_fixed_investment
+    weight: 0.10
+    role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 榮景期將私人固定投資強勁視為擴張確認。
+    direction_note_zh: 投資強勁可支持榮景，但季度資料較慢，應搭配其他指標。
+  - indicator_id: federal_funds_rate
+    weight: 0.10
+    role: warning
+    signal_transform: as_is
+    signal_note_zh: 聯邦基金利率目前只是 MVP 晚週期政策壓力 proxy；indicator score 語意尚不足以完整代表榮景壓力。
+    direction_note_zh: 政策利率升高可能伴隨晚週期，但過度緊縮也可能壓抑後續需求。
+  - indicator_id: ten_year_treasury_yield
+    weight: 0.08
+    role: warning
+    signal_transform: as_is
+    signal_note_zh: 10年期殖利率目前只是 MVP 長端利率與成長通膨預期 proxy。
+    direction_note_zh: 長端利率溫和上升可能反映成長預期，快速上升則可能形成金融條件壓力。
+  - indicator_id: thirty_year_mortgage_rate
+    weight: 0.06
+    role: optional
+    signal_transform: as_is
+    signal_note_zh: 房貸利率目前只是 MVP 住宅融資壓力 proxy，不能單獨代表榮景。
+    direction_note_zh: 房貸利率偏高可能反映利率壓力，也可能壓抑住宅需求。
+  - indicator_id: wti_oil_price
+    weight: 0.06
+    role: optional
+    signal_transform: as_is
+    signal_note_zh: WTI 油價目前只是 MVP 能源與原物料壓力 proxy，不等於完整通膨壓力模型。
+    direction_note_zh: 油價溫和上升可能伴隨需求強勁，快速上升則可能轉為成本壓力。
+minimum_available_weight: 0.70
+early_mid_late_thresholds:
+  early: 60.0
+  mid: 74.0
+  late: 86.0
+confidence_policy:
+  minimum_confidence: 0.60
+  missing_core_indicator_penalty: 0.18
+  missing_confirmation_indicator_penalty: 0.10
+  missing_warning_indicator_penalty: 0.06
+  missing_optional_indicator_penalty: 0.03
+  stale_indicator_penalty: 0.10
+  mixed_evidence_penalty: 0.12
+transition_watch:
+  next_phase: recession
+  watch_threshold: 82.0
+  rationale_zh: 若榮景分數偏高且 warning 指標顯示政策、利率或能源壓力升高，後續可觀察是否接近轉弱風險；這不是 current_phase 判斷。
+public_explanation_zh: 榮景期 MVP spec 用來描述強擴張與晚週期壓力 proxy 如何支持榮景分數。它不提供投資建議，也不直接判斷目前景氣階段。

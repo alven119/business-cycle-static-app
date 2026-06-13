@@ -1,0 +1,75 @@
+phase_id: recession
+phase_name_zh: 衰退期
+description_zh: 衰退期代表就業、消費、投資與貿易活動明顯轉弱。MVP spec 先使用現有 catalog 中可 scoring 的活動與勞動惡化指標，並透過 inverted signal 將「經濟健康或改善」分數轉為衰退支持訊號，不宣稱已完整覆蓋書中所有指標。
+indicators:
+  - indicator_id: unemployment_rate
+    weight: 0.16
+    role: core
+    signal_transform: inverted
+    signal_note_zh: 失業率 indicator score 高代表失業率偏低或改善；衰退期需要反向解讀為較低支持。
+    direction_note_zh: 失業率惡化是衰退確認訊號，但偏落後，不能單獨判斷衰退。
+  - indicator_id: initial_jobless_claims
+    weight: 0.16
+    role: core
+    signal_transform: inverted
+    signal_note_zh: 初領失業救濟金 indicator score 高代表裁員壓力下降；衰退期需反向解讀。
+    direction_note_zh: 初領失業救濟金上升通常代表裁員壓力升高，是衰退早期風險訊號。
+  - indicator_id: short_term_unemployment
+    weight: 0.12
+    role: core
+    signal_transform: inverted
+    signal_note_zh: 短期失業 indicator score 高代表新近失業壓力較低；衰退期需反向解讀。
+    direction_note_zh: 短期失業人數上升可反映新近裁員惡化。
+  - indicator_id: real_retail_sales
+    weight: 0.14
+    role: core
+    signal_transform: inverted
+    signal_note_zh: 實質零售銷售 indicator score 高代表消費改善；衰退期需反向解讀。
+    direction_note_zh: 實質零售銷售轉弱代表消費需求收縮。
+  - indicator_id: real_pce_durable_goods
+    weight: 0.10
+    role: confirmation
+    signal_transform: inverted
+    signal_note_zh: 耐久財消費 indicator score 高代表大額支出改善；衰退期需反向解讀。
+    direction_note_zh: 耐久財消費轉弱通常顯示家庭延後大額支出。
+  - indicator_id: durable_goods_orders
+    weight: 0.12
+    role: confirmation
+    signal_transform: inverted
+    signal_note_zh: 耐久財新訂單 indicator score 高代表需求回升；衰退期需反向解讀。
+    direction_note_zh: 耐久財新訂單下滑可反映製造與投資需求轉弱。
+  - indicator_id: real_private_fixed_investment
+    weight: 0.08
+    role: confirmation
+    signal_transform: inverted
+    signal_note_zh: 私人固定投資 indicator score 高代表投資改善；衰退期需反向解讀。
+    direction_note_zh: 投資下滑代表企業與住宅部門擴張意願轉弱。
+  - indicator_id: imports_goods_services
+    weight: 0.06
+    role: optional
+    signal_transform: inverted
+    signal_note_zh: 進口 indicator score 高代表內需與補庫存改善；衰退期需反向解讀。
+    direction_note_zh: 進口轉弱可輔助觀察內需與企業活動收縮。
+  - indicator_id: exports_goods_services
+    weight: 0.06
+    role: optional
+    signal_transform: inverted
+    signal_note_zh: 出口 indicator score 高代表外需改善；衰退期需反向解讀。
+    direction_note_zh: 出口轉弱可輔助觀察外需對景氣的拖累。
+minimum_available_weight: 0.70
+early_mid_late_thresholds:
+  early: 55.0
+  mid: 70.0
+  late: 84.0
+confidence_policy:
+  minimum_confidence: 0.60
+  missing_core_indicator_penalty: 0.20
+  missing_confirmation_indicator_penalty: 0.10
+  missing_optional_indicator_penalty: 0.04
+  stale_indicator_penalty: 0.10
+  mixed_evidence_penalty: 0.12
+transition_watch:
+  next_phase: recovery
+  watch_threshold: 76.0
+  rationale_zh: 若衰退分數下降且就業、消費與訂單改善，後續可觀察是否轉向復甦期；這不是 current_phase 判斷。
+public_explanation_zh: 衰退期 MVP spec 用 inverted signal 將多數經濟健康指標轉成衰退支持度。它只提供 phase scoring 設定，不直接產生景氣階段結論或投資建議。

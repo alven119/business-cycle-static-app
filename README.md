@@ -129,6 +129,10 @@ python scripts/score_phases.py --as-of 2024-12-31
 
 Phase 3D adds phase-specific `signal_transform` support for phase indicators. Phase scoring now converts each indicator's original score into a phase signal score using `as_is` or `inverted` before weighted aggregation, while still avoiding `current_phase` selection.
 
+## Phase 3E MVP four-phase specs
+
+Phase 3E adds MVP specs for `growth`, `boom`, and `recession` alongside the existing `recovery` spec. Batch phase scoring can now produce scores for all four phases, but this still does not select `current_phase` or make a final cycle-state decision.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

@@ -228,3 +228,75 @@ def test_recovery_yaml_signal_transforms_are_valid() -> None:
 
     assert all(indicator.signal_transform in {"as_is", "inverted"} for indicator in spec.indicators)
     assert {indicator.signal_transform for indicator in spec.indicators} == {"as_is"}
+
+
+def test_phase_specs_directory_loads_four_mvp_phases() -> None:
+    specs = load_phase_specs("specs/phases")
+
+    assert set(specs) == {"recovery", "growth", "boom", "recession"}
+
+
+def test_each_mvp_phase_has_at_least_four_indicators() -> None:
+    specs = load_phase_specs("specs/phases")
+
+    assert all(len(spec.indicators) >= 4 for spec in specs.values())
+
+
+def test_all_mvp_phase_indicator_ids_exist_in_indicator_catalog() -> None:
+    phase_specs = load_phase_specs("specs/phases")
+    indicator_specs = load_indicator_scoring_specs("specs/indicator_catalog.yaml")
+
+    missing = [
+        (phase_id, indicator.indicator_id)
+        for phase_id, phase_spec in phase_specs.items()
+        for indicator in phase_spec.indicators
+        if indicator.indicator_id not in indicator_specs
+    ]
+
+    assert missing == []
+
+
+def test_all_mvp_phase_signal_transforms_are_valid() -> None:
+    specs = load_phase_specs("specs/phases")
+
+    invalid = [
+        (phase_id, indicator.indicator_id, indicator.signal_transform)
+        for phase_id, phase_spec in specs.items()
+        for indicator in phase_spec.indicators
+        if indicator.signal_transform not in {"as_is", "inverted"}
+    ]
+
+    assert invalid == []
+
+
+def test_recession_yaml_has_inverted_indicator() -> None:
+    spec = load_phase_spec("specs/phases/recession.yaml")
+
+    assert any(indicator.signal_transform == "inverted" for indicator in spec.indicators)
+
+
+def test_recovery_yaml_keeps_as_is_signal_transforms() -> None:
+    spec = load_phase_spec("specs/phases/recovery.yaml")
+
+    assert {indicator.signal_transform for indicator in spec.indicators} == {"as_is"}
+
+
+def test_mvp_phase_ids_are_unique() -> None:
+    specs = load_phase_specs("specs/phases")
+
+    assert len(specs) == len(set(specs))
+
+
+def test_mvp_phase_minimum_available_weights_are_between_zero_and_one() -> None:
+    specs = load_phase_specs("specs/phases")
+
+    assert all(0.0 <= spec.minimum_available_weight <= 1.0 for spec in specs.values())
+
+
+def test_mvp_phase_thresholds_exist() -> None:
+    specs = load_phase_specs("specs/phases")
+
+    assert all(
+        {"early", "mid", "late"}.issubset(spec.early_mid_late_thresholds)
+        for spec in specs.values()
+    )

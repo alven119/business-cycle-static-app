@@ -1,0 +1,69 @@
+phase_id: growth
+phase_name_zh: 成長期
+description_zh: 成長期代表復甦後的需求、就業、投資與貿易活動更廣泛擴張。MVP spec 先使用現有 catalog 中可 scoring 的活動、消費、投資、貿易與勞動指標，不宣稱已完整覆蓋書中所有指標。
+indicators:
+  - indicator_id: real_retail_sales
+    weight: 0.18
+    role: core
+    signal_transform: as_is
+    signal_note_zh: 成長期將實質零售銷售動能改善視為正向支持。
+    direction_note_zh: 消費需求持續改善，代表復甦已擴散到一般需求。
+  - indicator_id: real_pce_durable_goods
+    weight: 0.14
+    role: core
+    signal_transform: as_is
+    signal_note_zh: 成長期將耐久財消費改善視為正向支持。
+    direction_note_zh: 家庭大額支出改善，通常代表信心與所得預期較穩定。
+  - indicator_id: durable_goods_orders
+    weight: 0.14
+    role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 成長期將耐久財新訂單改善視為需求與生產確認。
+    direction_note_zh: 訂單持續改善可確認製造與投資鏈條仍在擴張。
+  - indicator_id: real_private_fixed_investment
+    weight: 0.14
+    role: core
+    signal_transform: as_is
+    signal_note_zh: 成長期將私人固定投資改善視為正向支持。
+    direction_note_zh: 投資改善表示企業與住宅部門擴張意願提升。
+  - indicator_id: imports_goods_services
+    weight: 0.10
+    role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 成長期將進口改善視為內需與補庫存活動支持。
+    direction_note_zh: 進口改善通常反映國內需求與企業活動回升。
+  - indicator_id: exports_goods_services
+    weight: 0.10
+    role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 成長期將出口改善視為外需支持。
+    direction_note_zh: 出口改善表示外部需求可支撐擴張。
+  - indicator_id: unemployment_rate
+    weight: 0.10
+    role: warning
+    signal_transform: as_is
+    signal_note_zh: 成長期將失業率改善分數視為勞動市場確認訊號。
+    direction_note_zh: 失業率偏落後，應用於確認而非單獨判斷成長期。
+  - indicator_id: initial_jobless_claims
+    weight: 0.10
+    role: warning
+    signal_transform: as_is
+    signal_note_zh: 成長期將初領失業救濟金改善分數視為裁員壓力低的確認。
+    direction_note_zh: 初領失業救濟金若維持低檔或下降，有助確認勞動市場穩定。
+minimum_available_weight: 0.70
+early_mid_late_thresholds:
+  early: 58.0
+  mid: 72.0
+  late: 84.0
+confidence_policy:
+  minimum_confidence: 0.60
+  missing_core_indicator_penalty: 0.18
+  missing_confirmation_indicator_penalty: 0.10
+  missing_warning_indicator_penalty: 0.05
+  stale_indicator_penalty: 0.10
+  mixed_evidence_penalty: 0.10
+transition_watch:
+  next_phase: boom
+  watch_threshold: 82.0
+  rationale_zh: 若成長分數持續偏高且政策與價格壓力升高，後續可觀察是否進入榮景期；這不是 current_phase 判斷。
+public_explanation_zh: 成長期 MVP spec 用來描述哪些 indicator 支持成長分數。它只提供 phase scoring 設定，不直接產生景氣階段結論或投資建議。
