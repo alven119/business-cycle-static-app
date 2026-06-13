@@ -172,6 +172,12 @@ python scripts/build_site.py
 python -m http.server 8000 -d public
 ```
 
+## Phase 5B GitHub Pages deployment
+
+Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
+
+See `docs/github_pages_deployment.md` for setup and troubleshooting.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

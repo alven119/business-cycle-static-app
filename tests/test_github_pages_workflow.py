@@ -1,0 +1,38 @@
+from pathlib import Path
+
+
+WORKFLOW_PATH = Path(".github/workflows/pages.yml")
+
+
+def test_pages_workflow_exists() -> None:
+    assert WORKFLOW_PATH.is_file()
+
+
+def test_pages_workflow_uses_fred_secret_without_inline_key() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "FRED_API_KEY: ${{ secrets.FRED_API_KEY }}" in workflow
+    assert "FRED_API_KEY=" not in workflow
+    assert "your_fred_api_key" not in workflow
+
+
+def test_pages_workflow_uploads_public_artifact() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "actions/configure-pages@" in workflow
+    assert "actions/upload-pages-artifact@" in workflow
+    assert "actions/deploy-pages@" in workflow
+    assert "path: public" in workflow
+
+
+def test_pages_workflow_does_not_commit_generated_public_output() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    forbidden_commands = [
+        "git add public",
+        "git add -A",
+        "git commit",
+        "git push",
+    ]
+    for command in forbidden_commands:
+        assert command not in workflow
