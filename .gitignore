@@ -27,6 +27,8 @@ data/derived/
 data/derived/**
 
 # Local output
+public/index.html
+public/data/*.json
 public/data/*.local.json
 public/data/snapshots/
 *.log

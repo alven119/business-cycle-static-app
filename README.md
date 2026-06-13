@@ -161,6 +161,17 @@ python scripts/run_cycle_pipeline.py --previous-phase-id recovery
 python scripts/run_cycle_pipeline.py --update-data --force-refresh --previous-phase-id recovery
 ```
 
+## Phase 5A static dashboard
+
+Phase 5A renders ignored `data/derived/cycle_snapshot.json` into a minimal local static dashboard under `public/`. It uses no frontend framework and does not deploy to GitHub Pages.
+`python scripts/build_site.py` writes ignored local output: `public/index.html` and `public/data/cycle_snapshot.json`. Re-run `build_site.py` whenever you need to regenerate the dashboard from the latest local snapshot.
+
+```bash
+python scripts/run_cycle_pipeline.py --previous-phase-id recovery
+python scripts/build_site.py
+python -m http.server 8000 -d public
+```
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
