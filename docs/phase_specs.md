@@ -34,6 +34,17 @@ Phase score 則需要整合多個 indicator score、權重、資料可用性、c
 
 `available_weight` 是後續 scoring 時實際有可用資料的權重總和。若核心指標缺漏，phase score 的 confidence 應下降。
 
+## signal_transform
+
+`signal_transform` 定義 indicator score 如何轉成該 phase 的支持訊號：
+
+- `as_is`：直接使用 indicator score。
+- `inverted`：使用 `100 - indicator score`。
+
+預設是 `as_is`。Recovery 目前四個 MVP indicators 都使用 `as_is`，因為這些 indicator 的改善分數對 recovery 是正向支持。未來 recession spec 可能需要對部分 indicator 使用 `inverted`，避免把「經濟改善」誤當成 recession 支持訊號。
+
+`signal_note_zh` 可補充為什麼該 phase 要這樣解讀 indicator score。
+
 ## minimum_available_weight
 
 `minimum_available_weight` 定義一個 phase score 至少需要多少資料覆蓋。若低於門檻，後續 phase scoring 不應產生高信心結果。
@@ -49,4 +60,3 @@ Phase score 則需要整合多個 indicator score、權重、資料可用性、c
 ## 不應用單一指標直接判斷景氣階段
 
 單一指標可能落後、修正、缺值或受短期噪音影響。例如失業率偏落後，初領失業救濟金較高頻但波動較大。Phase spec 必須把多個 indicator 的 evidence 結合起來，不能把任一單一最新值直接當成景氣階段判斷。
-

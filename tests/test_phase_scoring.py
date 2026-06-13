@@ -107,11 +107,13 @@ def test_contributing_indicators_include_expected_fields() -> None:
     contribution = result.contributing_indicators[0]
     assert contribution == {
         "indicator_id": "a",
-        "score": 80,
+        "original_score": 80,
+        "phase_signal_score": 80,
         "confidence": 1.0,
         "weight": 0.5,
         "weighted_contribution": 40.0,
         "role": "core",
+        "signal_transform": "as_is",
     }
 
 
@@ -188,5 +190,60 @@ def test_details_include_required_fields() -> None:
     assert result.details["missing_indicators"] == ["b", "c"]
     assert result.details["confidence_policy"]
     assert result.details["stage_thresholds"] == {"early": 55.0, "mid": 70.0, "late": 82.0}
+    assert result.details["signal_transforms"] == {"a": "as_is", "b": "as_is", "c": "as_is"}
     assert result.details["as_of"] == "2024-12-31"
 
+
+def test_as_is_uses_original_indicator_score() -> None:
+    spec = phase_spec(indicators=[PhaseIndicatorWeight("a", 1.0, "core", signal_transform="as_is")])
+
+    result = score_phase(spec, {"a": indicator_score("a", 82)})
+
+    assert result.score == 82.0
+    assert result.contributing_indicators[0]["original_score"] == 82
+    assert result.contributing_indicators[0]["phase_signal_score"] == 82
+
+
+def test_inverted_uses_one_hundred_minus_original_score() -> None:
+    spec = phase_spec(indicators=[PhaseIndicatorWeight("a", 1.0, "core", signal_transform="inverted")])
+
+    result = score_phase(spec, {"a": indicator_score("a", 20)})
+
+    assert result.score == 80.0
+    assert result.contributing_indicators[0]["original_score"] == 20
+    assert result.contributing_indicators[0]["phase_signal_score"] == 80.0
+    assert result.contributing_indicators[0]["signal_transform"] == "inverted"
+
+
+def test_weighted_average_uses_phase_signal_score_not_original_score() -> None:
+    spec = phase_spec(
+        indicators=[
+            PhaseIndicatorWeight("a", 0.5, "core", signal_transform="as_is"),
+            PhaseIndicatorWeight("b", 0.5, "core", signal_transform="inverted"),
+        ]
+    )
+
+    result = score_phase(
+        spec,
+        {
+            "a": indicator_score("a", 80),
+            "b": indicator_score("b", 20),
+        },
+    )
+
+    assert result.score == 80.0
+
+
+def test_recovery_existing_behavior_is_unchanged_with_as_is() -> None:
+    spec = load_phase_spec("specs/phases/recovery.yaml")
+    scores = {
+        "initial_jobless_claims": indicator_score("initial_jobless_claims", 80),
+        "real_retail_sales": indicator_score("real_retail_sales", 75),
+        "durable_goods_orders": indicator_score("durable_goods_orders", 70),
+        "unemployment_rate": indicator_score("unemployment_rate", 60),
+    }
+
+    result = score_phase(spec, scores)
+
+    assert result.score == pytest.approx(73.0)
+    assert {item["signal_transform"] for item in result.contributing_indicators} == {"as_is"}

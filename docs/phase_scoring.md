@@ -23,23 +23,37 @@ Phase score aggregation 的輸入是：
 
 Indicator score 只描述單一指標，例如失業率、初領失業救濟金或零售銷售。
 
-Phase score 則是把 phase spec 內列出的 indicators 依權重整合。它仍然不是最終景氣階段判斷，因為最終判斷需要比較多個 phases、transition policy、persistence 與 state machine。
+Phase signal score 是 indicator score 經過 phase-specific `signal_transform` 後的分數。Phase score 則是把 phase spec 內列出的 phase signal scores 依權重整合。它仍然不是最終景氣階段判斷，因為最終判斷需要比較多個 phases、transition policy、persistence 與 state machine。
+
+## Signal Transform
+
+`signal_transform` 定義 indicator score 如何轉成特定 phase 的支持度：
+
+- `as_is`：`phase_signal_score = indicator_score`
+- `inverted`：`phase_signal_score = 100 - indicator_score`
+
+例如失業率改善對 recovery 是正向，因此 recovery 可以使用 `as_is`。但如果未來建立 recession spec，同一個「失業率改善高分」對 recession 可能應該是反向訊號，因此需要 `inverted`。
+
+不能直接把單一 indicator score 當成所有 phases 的支持度，因為同一個經濟訊號對不同階段可能有不同意義。
 
 ## Weighted Contribution
 
 每個 contributing indicator 會輸出：
 
 - `indicator_id`
-- `score`
+- `original_score`
+- `phase_signal_score`
 - `confidence`
 - `weight`
 - `weighted_contribution`
 - `role`
+- `signal_transform`
 
 計算方式：
 
 ```text
-weighted_contribution = indicator_score * normalized_weight
+phase_signal_score = indicator_score 或 100 - indicator_score
+weighted_contribution = phase_signal_score * normalized_weight
 phase_score = sum(weighted_contribution) / available_weight
 ```
 
@@ -78,4 +92,3 @@ Phase confidence 會受到以下因素影響：
 ## 不靠單一高分指標判斷景氣階段
 
 單一 indicator 可能有短期噪音、修正、缺值或落後性。Phase scoring 必須看多個 indicators 的 weighted evidence 與 available_weight，不能因為一個指標高分就直接判斷景氣階段。
-

@@ -125,6 +125,10 @@ python scripts/score_phases.py --phase-id recovery
 python scripts/score_phases.py --as-of 2024-12-31
 ```
 
+## Phase 3D phase signal mapping
+
+Phase 3D adds phase-specific `signal_transform` support for phase indicators. Phase scoring now converts each indicator's original score into a phase signal score using `as_is` or `inverted` before weighted aggregation, while still avoiding `current_phase` selection.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

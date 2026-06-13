@@ -14,6 +14,8 @@ class PhaseIndicatorWeight:
     weight: float
     role: str | None = None
     direction_note_zh: str | None = None
+    signal_transform: str = "as_is"
+    signal_note_zh: str | None = None
 
 
 @dataclass(frozen=True)
@@ -46,4 +48,3 @@ class PhaseScoreResult:
     stage_hint: str | None
     reason_zh: str
     details: dict[str, Any]
-

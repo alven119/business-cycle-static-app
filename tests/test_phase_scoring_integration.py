@@ -29,6 +29,7 @@ def test_recovery_phase_scoring_with_synthetic_indicator_scores() -> None:
 
     result = score_phase(phase_spec, indicator_scores)
 
+    assert {indicator.signal_transform for indicator in phase_spec.indicators} == {"as_is"}
     assert isinstance(result, PhaseScoreResult)
     assert result.phase_id == "recovery"
     assert 0.0 <= result.score <= 100.0
@@ -39,4 +40,3 @@ def test_recovery_phase_scoring_with_synthetic_indicator_scores() -> None:
     assert result.stage_hint in {"mid", "late"}
     assert result.missing_indicators == []
     assert not hasattr(result, "current_phase")
-

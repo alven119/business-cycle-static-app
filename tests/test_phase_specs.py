@@ -176,3 +176,55 @@ early_mid_late_thresholds:
     assert sum(indicator.weight for indicator in spec.indicators) == pytest.approx(1.0)
     assert spec.details["raw_total_weight"] == 5.0
 
+
+def test_signal_transform_defaults_to_as_is(tmp_path: Path) -> None:
+    path = write_yaml(tmp_path / "phase.yaml", minimal_phase_yaml())
+
+    spec = load_phase_spec(path)
+
+    assert spec.indicators[0].signal_transform == "as_is"
+
+
+def test_signal_transform_as_is_and_inverted_are_allowed(tmp_path: Path) -> None:
+    path = write_yaml(
+        tmp_path / "phase.yaml",
+        """
+phase_id: recovery
+phase_name_zh: 復甦期
+description_zh: 測試
+indicators:
+  - indicator_id: a
+    weight: 1
+    signal_transform: as_is
+  - indicator_id: b
+    weight: 1
+    signal_transform: inverted
+minimum_available_weight: 0.7
+confidence_policy: {}
+early_mid_late_thresholds:
+  early: 55
+  mid: 70
+  late: 82
+""",
+    )
+
+    spec = load_phase_spec(path)
+
+    assert [indicator.signal_transform for indicator in spec.indicators] == ["as_is", "inverted"]
+
+
+def test_invalid_signal_transform_raises(tmp_path: Path) -> None:
+    path = write_yaml(
+        tmp_path / "phase.yaml",
+        minimal_phase_yaml().replace("role: core", "role: core\n    signal_transform: sideways"),
+    )
+
+    with pytest.raises(PhaseCatalogError, match="signal_transform"):
+        load_phase_spec(path)
+
+
+def test_recovery_yaml_signal_transforms_are_valid() -> None:
+    spec = load_phase_spec("specs/phases/recovery.yaml")
+
+    assert all(indicator.signal_transform in {"as_is", "inverted"} for indicator in spec.indicators)
+    assert {indicator.signal_transform for indicator in spec.indicators} == {"as_is"}

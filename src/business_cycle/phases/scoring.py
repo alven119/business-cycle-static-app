@@ -31,18 +31,21 @@ def score_phase(
             missing_indicators.append(indicator_weight.indicator_id)
             continue
 
-        weighted_contribution = indicator_score.score * indicator_weight.weight
+        phase_signal_score = _phase_signal_score(indicator_score.score, indicator_weight.signal_transform)
+        weighted_contribution = phase_signal_score * indicator_weight.weight
         raw_weighted_score += weighted_contribution
         available_weight += indicator_weight.weight
         weighted_confidence += indicator_score.confidence * indicator_weight.weight
         contributing_indicators.append(
             {
                 "indicator_id": indicator_weight.indicator_id,
-                "score": indicator_score.score,
+                "original_score": indicator_score.score,
+                "phase_signal_score": phase_signal_score,
                 "confidence": indicator_score.confidence,
                 "weight": indicator_weight.weight,
                 "weighted_contribution": weighted_contribution,
                 "role": indicator_weight.role,
+                "signal_transform": indicator_weight.signal_transform,
             }
         )
 
@@ -81,6 +84,10 @@ def score_phase(
             "missing_indicators": missing_indicators,
             "confidence_policy": phase_spec.confidence_policy,
             "stage_thresholds": phase_spec.early_mid_late_thresholds,
+            "signal_transforms": {
+                indicator.indicator_id: indicator.signal_transform
+                for indicator in phase_spec.indicators
+            },
             "as_of": None if as_of is None else str(as_of),
         },
     )
@@ -105,6 +112,14 @@ def _scores_by_indicator(
     if isinstance(indicator_scores, dict):
         return dict(indicator_scores)
     return {score.indicator_id: score for score in indicator_scores}
+
+
+def _phase_signal_score(original_score: float, signal_transform: str) -> float:
+    if signal_transform == "as_is":
+        return original_score
+    if signal_transform == "inverted":
+        return 100.0 - original_score
+    raise ValueError(f"Unsupported signal_transform: {signal_transform}")
 
 
 def _phase_confidence(

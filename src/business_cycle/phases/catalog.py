@@ -25,6 +25,7 @@ REQUIRED_PHASE_FIELDS = (
 )
 
 VALID_ROLES = {"core", "confirmation", "warning", "optional"}
+VALID_SIGNAL_TRANSFORMS = {"as_is", "inverted"}
 
 
 def load_phase_spec(path: str | Path) -> PhaseScoringSpec:
@@ -60,6 +61,8 @@ def load_phase_spec(path: str | Path) -> PhaseScoringSpec:
             weight=indicator.weight / raw_total_weight,
             role=indicator.role,
             direction_note_zh=indicator.direction_note_zh,
+            signal_transform=indicator.signal_transform,
+            signal_note_zh=indicator.signal_note_zh,
         )
         for indicator in indicators
     ]
@@ -118,12 +121,20 @@ def _build_indicator_weights(raw_indicators: Any) -> list[PhaseIndicatorWeight]:
         if role is not None and role not in VALID_ROLES:
             allowed = ", ".join(sorted(VALID_ROLES))
             raise PhaseCatalogError(f"Indicator {indicator_id!r} role must be one of: {allowed}")
+        signal_transform = str(raw_indicator.get("signal_transform", "as_is"))
+        if signal_transform not in VALID_SIGNAL_TRANSFORMS:
+            allowed = ", ".join(sorted(VALID_SIGNAL_TRANSFORMS))
+            raise PhaseCatalogError(
+                f"Indicator {indicator_id!r} signal_transform must be one of: {allowed}"
+            )
         indicators.append(
             PhaseIndicatorWeight(
                 indicator_id=str(indicator_id),
                 weight=weight,
                 role=role,
                 direction_note_zh=_optional_str(raw_indicator.get("direction_note_zh")),
+                signal_transform=signal_transform,
+                signal_note_zh=_optional_str(raw_indicator.get("signal_note_zh")),
             )
         )
 
@@ -153,4 +164,3 @@ def _optional_str(value: Any) -> str | None:
     if value is None:
         return None
     return str(value)
-

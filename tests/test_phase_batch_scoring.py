@@ -99,6 +99,7 @@ def test_serialize_phase_score_result_is_json_serializable() -> None:
 
     json.dumps(payload)
     assert payload["phase_id"] == "recovery"
+    assert payload["contributing_indicators"][0]["phase_signal_score"] == 80.0
     assert "current_phase" not in payload
 
 
@@ -125,4 +126,3 @@ def test_summary_counts_are_correct() -> None:
     assert summary.total_phases == 2
     assert summary.scored_phases == 2
     assert summary.failed_phases == 0
-

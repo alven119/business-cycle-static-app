@@ -5,18 +5,26 @@ indicators:
   - indicator_id: initial_jobless_claims
     weight: 0.30
     role: core
+    signal_transform: as_is
+    signal_note_zh: 復甦期將初領失業救濟金改善分數視為正向支持。
     direction_note_zh: 初領失業救濟金趨勢下降，通常代表裁員壓力緩和。
   - indicator_id: real_retail_sales
     weight: 0.30
     role: core
+    signal_transform: as_is
+    signal_note_zh: 復甦期將消費動能改善分數視為正向支持。
     direction_note_zh: 實質零售銷售改善，代表消費需求從谷底修復。
   - indicator_id: durable_goods_orders
     weight: 0.25
     role: confirmation
+    signal_transform: as_is
+    signal_note_zh: 復甦期將耐久財訂單落底回升分數視為正向確認。
     direction_note_zh: 耐久財新訂單落底回升，可確認需求與生產排程改善。
   - indicator_id: unemployment_rate
     weight: 0.15
     role: warning
+    signal_transform: as_is
+    signal_note_zh: 復甦期將失業率改善分數視為確認或風險緩和訊號。
     direction_note_zh: 失業率偏落後，不能單獨判斷復甦；若仍上升，應降低復甦信心。
 minimum_available_weight: 0.70
 early_mid_late_thresholds:
