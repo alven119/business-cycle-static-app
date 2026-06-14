@@ -1,0 +1,43 @@
+transition_controls:
+  version: 1
+  enabled: false
+  description_zh: >
+    Phase 7B experimental transition controls。預設 disabled，
+    不影響正式 dashboard 與既有 resolver 行為。供 Phase 7C calibration experiments 使用。
+
+  controls:
+    transition_watch_required:
+      enabled: true
+      description_zh: confirmed transition 前必須至少經過 transition_watch。
+
+    confirmation_period:
+      enabled: true
+      required_periods: 2
+      description_zh: 候選階段需連續 N 期滿足轉換條件才可 confirmed。
+
+    hysteresis_margin:
+      enabled: true
+      min_score_margin: 5.0
+      description_zh: candidate phase score 需高於 current phase score 至少指定 margin。
+
+    cooldown_period:
+      enabled: true
+      periods_after_confirmed: 2
+      description_zh: confirmed transition 後 N 期內不允許再次 confirmed transition。
+
+    breadth_confirmation:
+      enabled: false
+      min_group_count: 2
+      groups:
+        - employment
+        - consumption
+        - investment
+        - trade
+        - rates_financial_conditions
+        - commodities
+      description_zh: 預留群組共振確認規則；Phase 7B 可只載入與驗證，不必完全啟用。
+
+  caveats_zh:
+    - 此設定為實驗用，不代表正式模型已校準完成。
+    - 回測使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 不構成投資建議。

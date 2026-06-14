@@ -42,6 +42,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=str(DEFAULT_OUTPUT),
         help="Smoke summary JSON output path.",
     )
+    parser.add_argument(
+        "--transition-controls",
+        help="Optional experimental transition controls YAML path.",
+    )
     return parser
 
 
@@ -55,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
             output_path=args.output,
             max_periods=args.max_periods,
             scenario_id=args.scenario_id,
+            transition_controls_path=args.transition_controls,
         )
     except (BacktestScenarioError, BacktestSmokeError, ValueError) as exc:
         parser.exit(status=1, message=f"error: {exc}\n")

@@ -288,6 +288,22 @@ python scripts/show_calibration_plan.py
 
 The plan defines diagnosed issues, candidate controls, scenario splits, and acceptance criteria for future calibration work. It keeps the revised data caveat, avoids single-scenario overfitting, and does not modify scoring, resolver logic, or FRED provider behavior.
 
+## Phase 7B transition confirmation controls
+
+Phase 7B adds feature-gated transition controls for backtest calibration experiments. The config lives at:
+
+```text
+specs/backtests/transition_controls_experiment.yaml
+```
+
+It is disabled by default and has no live dashboard impact. To pass it explicitly in a backtest:
+
+```bash
+python scripts/run_backtest.py --scenario-id global_financial_crisis --max-periods 12 --transition-controls specs/backtests/transition_controls_experiment.yaml
+```
+
+Without `--transition-controls`, the resolver keeps baseline behavior.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

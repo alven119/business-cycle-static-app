@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 from typing import Literal
 
+from business_cycle.phases.transition_controls import TransitionControlsConfig
 from business_cycle.phases.specs import PhaseScoreResult
 
 Phase = Literal["recession", "recovery", "growth", "boom"]
@@ -117,6 +118,8 @@ def resolve_current_phase(
     phase_scores: dict[str, PhaseScoreResult] | list[PhaseScoreResult],
     config: PhaseStateMachineConfig,
     previous_phase_id: str | None = None,
+    transition_controls: TransitionControlsConfig | None = None,
+    phase_history: list[dict[str, Any]] | None = None,
 ) -> CurrentPhaseDecision:
     """Resolve the current phase without blindly selecting the highest score."""
 
@@ -207,7 +210,7 @@ def resolve_current_phase(
     )
     if candidate_passes and margin_passes:
         confidence = _transition_confidence(next_phase_score, score_margin, config)
-        return _decision(
+        decision = _decision(
             current_phase_id=allowed_next_phase_id,
             current_phase_name_zh=next_phase_score.phase_name_zh,
             decision_status="confirmed",
@@ -234,6 +237,11 @@ def resolve_current_phase(
                 score_margin=score_margin,
                 evidence_summary="confirmed_allowed_next_transition",
             ),
+        )
+        return _apply_transition_controls(
+            decision=decision,
+            transition_controls=transition_controls,
+            phase_history=phase_history or [],
         )
 
     if _has_transition_watch_evidence(next_phase_score, current_phase_score, config):
@@ -691,6 +699,132 @@ def _decision(
         reason_zh=reason_zh,
         details=details,
     )
+
+
+def _apply_transition_controls(
+    *,
+    decision: CurrentPhaseDecision,
+    transition_controls: TransitionControlsConfig | None,
+    phase_history: list[dict[str, Any]],
+) -> CurrentPhaseDecision:
+    if transition_controls is None or not transition_controls.enabled or decision.decision_status != "confirmed":
+        return decision
+
+    applied: list[str] = []
+    blocked: list[str] = []
+    warnings: list[str] = []
+    candidate_phase_id = decision.candidate_phase_id
+
+    if transition_controls.transition_watch_required.enabled:
+        applied.append("transition_watch_required")
+        if not _previous_transition_watch_for_candidate(phase_history, candidate_phase_id):
+            blocked.append("transition_watch_required")
+
+    if transition_controls.confirmation_period.enabled:
+        applied.append("confirmation_period")
+        required_periods = transition_controls.confirmation_period.required_periods
+        if _consecutive_candidate_periods(phase_history, candidate_phase_id) + 1 < required_periods:
+            blocked.append("confirmation_period")
+
+    if transition_controls.hysteresis_margin.enabled:
+        applied.append("hysteresis_margin")
+        score_margin = _score_margin_from_decision(decision)
+        if score_margin is None or score_margin < transition_controls.hysteresis_margin.min_score_margin:
+            blocked.append("hysteresis_margin")
+
+    if transition_controls.cooldown_period.enabled:
+        applied.append("cooldown_period")
+        cooldown = transition_controls.cooldown_period.periods_after_confirmed
+        if cooldown > 0 and _recent_confirmed_transition(phase_history, cooldown):
+            blocked.append("cooldown_period")
+
+    if transition_controls.breadth_confirmation.enabled:
+        applied.append("breadth_confirmation")
+        warnings.append(
+            "breadth_confirmation enabled but resolver input does not include indicator-group breadth evidence; "
+            "control is recorded as warning only in Phase 7B."
+        )
+
+    details = {
+        **decision.details,
+        "transition_controls": {
+            "enabled": True,
+            "applied": applied,
+            "blocked": blocked,
+            "warnings": warnings,
+        },
+    }
+    if not blocked:
+        return CurrentPhaseDecision(**{**decision.__dict__, "details": details})
+
+    reason_parts = []
+    if "transition_watch_required" in blocked:
+        reason_parts.append("候選階段證據升高，但需至少一期間轉換觀察後才可確認")
+    if "confirmation_period" in blocked:
+        reason_parts.append("候選階段尚未連續達到確認期要求")
+    if "hysteresis_margin" in blocked:
+        reason_parts.append("candidate phase 分數尚未高出目前階段足夠 margin")
+    if "cooldown_period" in blocked:
+        reason_parts.append("仍在前次 confirmed transition 後的冷卻期")
+
+    previous_phase_id = decision.previous_phase_id
+    return CurrentPhaseDecision(
+        current_phase_id=previous_phase_id,
+        current_phase_name_zh=_phase_label_zh(previous_phase_id),
+        decision_status="transition_watch",
+        previous_phase_id=decision.previous_phase_id,
+        candidate_phase_id=decision.candidate_phase_id,
+        candidate_score=decision.candidate_score,
+        candidate_confidence=decision.candidate_confidence,
+        current_score=decision.current_score,
+        confidence=decision.confidence,
+        allowed_next_phase_id=decision.allowed_next_phase_id,
+        blocked_phase_ids=decision.blocked_phase_ids,
+        reason_zh=f"{decision.reason_zh} 實驗性 transition controls 已啟用；{'；'.join(reason_parts)}，因此先降級為 transition_watch。",
+        details=details,
+    )
+
+
+def _previous_transition_watch_for_candidate(
+    phase_history: list[dict[str, Any]],
+    candidate_phase_id: str | None,
+) -> bool:
+    if not phase_history or candidate_phase_id is None:
+        return False
+    previous = phase_history[-1]
+    return (
+        previous.get("decision_status") == "transition_watch"
+        and previous.get("candidate_phase_id") == candidate_phase_id
+    )
+
+
+def _consecutive_candidate_periods(
+    phase_history: list[dict[str, Any]],
+    candidate_phase_id: str | None,
+) -> int:
+    if candidate_phase_id is None:
+        return 0
+    count = 0
+    for item in reversed(phase_history):
+        if item.get("candidate_phase_id") != candidate_phase_id:
+            break
+        if item.get("decision_status") not in {"transition_watch", "confirmed"}:
+            break
+        count += 1
+    return count
+
+
+def _recent_confirmed_transition(phase_history: list[dict[str, Any]], periods: int) -> bool:
+    return any(item.get("decision_status") == "confirmed" for item in phase_history[-periods:])
+
+
+def _score_margin_from_decision(decision: CurrentPhaseDecision) -> float | None:
+    margin = decision.details.get("score_margin")
+    if isinstance(margin, (int, float)):
+        return float(margin)
+    if decision.candidate_score is None or decision.current_score is None:
+        return None
+    return decision.candidate_score - decision.current_score
 
 
 def _resolver_details(

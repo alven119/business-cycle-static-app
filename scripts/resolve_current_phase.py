@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from business_cycle.phases.cycle_context import load_current_cycle_context
@@ -13,6 +14,10 @@ from business_cycle.phases.state_machine import (
     write_current_phase_decision_json,
 )
 from business_cycle.phases.state_machine_catalog import load_phase_state_machine_config
+from business_cycle.phases.transition_controls import (
+    TransitionControlsConfigError,
+    load_transition_controls_config,
+)
 
 DEFAULT_PHASE_SCORES_PATH = Path("data/derived/phase_scores.json")
 DEFAULT_CONFIG_PATH = Path("specs/common/phase_state_machine.yaml")
@@ -49,6 +54,14 @@ def build_parser() -> argparse.ArgumentParser:
         default=str(DEFAULT_CYCLE_CONTEXT_PATH),
         help="Optional current cycle context YAML metadata path.",
     )
+    parser.add_argument(
+        "--transition-controls",
+        help="Optional experimental transition controls YAML path.",
+    )
+    parser.add_argument(
+        "--phase-history-path",
+        help="Optional JSON path with previous period decision history for transition controls.",
+    )
     return parser
 
 
@@ -62,10 +75,22 @@ def main(argv: list[str] | None = None) -> int:
         parser.exit(status=1, message=f"error: {exc}\n")
 
     config = load_phase_state_machine_config(args.config_path)
+    try:
+        transition_controls = (
+            load_transition_controls_config(args.transition_controls)
+            if args.transition_controls
+            else None
+        )
+        phase_history = _load_phase_history(args.phase_history_path)
+    except (TransitionControlsConfigError, FileNotFoundError, json.JSONDecodeError, ValueError) as exc:
+        parser.exit(status=1, message=f"error: {exc}\n")
+
     decision = resolve_current_phase(
         phase_scores,
         config,
         previous_phase_id=args.previous_phase_id,
+        transition_controls=transition_controls,
+        phase_history=phase_history,
     )
     decision_payload = serialize_current_phase_decision(decision)
     details = dict(decision_payload["details"])
@@ -83,6 +108,18 @@ def main(argv: list[str] | None = None) -> int:
         f"output={output_path}"
     )
     return 0
+
+
+def _load_phase_history(path: str | None) -> list[dict]:
+    if path is None:
+        return []
+    history_path = Path(path)
+    if not history_path.exists():
+        raise FileNotFoundError(f"Phase history JSON does not exist: {history_path}")
+    payload = json.loads(history_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list):
+        raise ValueError("Phase history JSON must be a list")
+    return [item for item in payload if isinstance(item, dict)]
 
 
 if __name__ == "__main__":

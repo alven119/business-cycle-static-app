@@ -43,6 +43,10 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print planned as-of dates without writing output.",
     )
+    parser.add_argument(
+        "--transition-controls",
+        help="Optional experimental transition controls YAML path.",
+    )
     return parser
 
 
@@ -61,6 +65,9 @@ def main(argv: list[str] | None = None) -> int:
         max_periods=args.max_periods,
     )
     output_path = Path(args.output_dir) / scenario.scenario_id / "timeline.json"
+    transition_controls_path = Path(args.transition_controls) if args.transition_controls else None
+    if transition_controls_path is not None and not transition_controls_path.exists():
+        parser.exit(status=1, message=f"error: transition controls config does not exist: {transition_controls_path}\n")
     if args.dry_run:
         print(
             "dry_run "
@@ -78,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=Path(args.output_dir),
         max_periods=args.max_periods,
         data_mode=scenario.data_mode,
+        transition_controls_path=transition_controls_path,
     )
     result = run_backtest(config)
     first_as_of = result.timeline[0].as_of if result.timeline else "none"

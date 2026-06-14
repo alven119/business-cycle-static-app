@@ -184,6 +184,18 @@ docs/model_calibration.md
 
 所有校準設計都保留 revised data caveat，且不得只針對單一 scenario overfit。回測與校準結果仍是模型診斷，不構成投資建議。
 
+## Phase 7B Transition Controls Experiments
+
+`run_backtest.py` 可用 `--transition-controls` 明確指定實驗性 transition controls：
+
+```bash
+python scripts/run_backtest.py --scenario-id global_financial_crisis --max-periods 12 --transition-controls specs/backtests/transition_controls_experiment.yaml
+```
+
+若不加 `--transition-controls`，backtest 維持 baseline resolver 行為。`specs/backtests/transition_controls_experiment.yaml` 本身預設 `enabled: false`，因此即使傳入此檔，也不會改變正式 dashboard 或 live pipeline 的 current phase 判斷。
+
+當未來 Phase 7C 建立 enabled experiment config 時，timeline period 會記錄 `transition_controls_enabled`、`transition_controls_applied`、`transition_controls_blocked` 與 `transition_controls_warnings`，方便比較 baseline 與 controls enabled 的 diagnostics。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

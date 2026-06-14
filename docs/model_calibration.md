@@ -63,6 +63,28 @@ Phase 6F attribution smoke summary 顯示：
 
 後續 Phase 7B 若要實作，應先放在 feature flags 或 experimental config 後面，並以 baseline backtest diagnostics 比較，不應直接改 production resolver 行為。
 
+## Phase 7B Experimental Transition Controls
+
+Phase 7B 實作 feature-gated transition confirmation controls。設定檔位於：
+
+```text
+specs/backtests/transition_controls_experiment.yaml
+```
+
+此設定預設 `enabled: false`，因此不影響正式 dashboard、不影響 GitHub Pages workflow，也不改變沒有傳入 controls 時的 resolver 行為。只有在 backtest 或 calibration experiment 明確傳入 `--transition-controls`，且設定本身啟用時，才會套用實驗控制。
+
+目前支援的 controls：
+
+- `transition_watch_required`：confirmed transition 前需先經過 transition_watch。
+- `confirmation_period`：候選階段需連續 N 期滿足轉換條件。
+- `hysteresis_margin`：candidate phase score 需高於 current phase score 指定 margin。
+- `cooldown_period`：confirmed transition 後 N 期內阻止再次 confirmed transition。
+- `breadth_confirmation`：Phase 7B 先載入與驗證；若資料不足，僅輸出 warning，不會 crash。
+
+Phase 7B 的目的，是提供後續實驗工具，用來檢查是否能降低 direct confirmed transition、short segment 與 rapid round trip。Phase 7B 不評估校準效果；Phase 7C 才會比較 baseline 與 experimental controls 的 backtest diagnostics。
+
+這些 controls 只用於模型診斷與校準實驗，不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

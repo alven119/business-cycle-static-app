@@ -35,6 +35,7 @@ class BacktestRunConfig:
     state_machine_config_path: Path = Path("specs/common/phase_state_machine.yaml")
     raw_data_dir: Path = Path("data/raw/fred")
     data_mode: str = "revised"
+    transition_controls_path: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,10 @@ class BacktestPeriodResult:
     indicator_summary: dict[str, int]
     warnings: list[str] = field(default_factory=list)
     failures: list[dict[str, Any]] = field(default_factory=list)
+    transition_controls_enabled: bool = False
+    transition_controls_applied: list[str] = field(default_factory=list)
+    transition_controls_blocked: list[str] = field(default_factory=list)
+    transition_controls_warnings: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -124,7 +129,16 @@ def run_backtest(
 
     for as_of in periods:
         period_output_dir = scenario_output_dir / "intermediate" / as_of
-        period_result = runner(config, as_of, previous_phase_id, period_output_dir)
+        if period_runner is None:
+            period_result = _run_period_with_scripts(
+                config,
+                as_of,
+                previous_phase_id,
+                period_output_dir,
+                _phase_history(timeline),
+            )
+        else:
+            period_result = runner(config, as_of, previous_phase_id, period_output_dir)
         timeline.append(period_result)
         warnings.extend(period_result.warnings)
         failures.extend(period_result.failures)
@@ -170,12 +184,15 @@ def _run_period_with_scripts(
     as_of: str,
     previous_phase_id: str | None,
     period_output_dir: Path,
+    phase_history: list[dict[str, Any]] | None = None,
 ) -> BacktestPeriodResult:
     period_output_dir.mkdir(parents=True, exist_ok=True)
     indicator_scores_path = period_output_dir / "indicator_scores.json"
     phase_scores_path = period_output_dir / "phase_scores.json"
     current_phase_decision_path = period_output_dir / "current_phase_decision.json"
     no_cycle_context_path = period_output_dir / "no_cycle_context.yaml"
+    phase_history_path = period_output_dir / "phase_history.json"
+    phase_history_path.write_text(json.dumps(phase_history or [], ensure_ascii=False, indent=2), encoding="utf-8")
 
     failures: list[dict[str, Any]] = []
     commands = [
@@ -213,10 +230,14 @@ def _run_period_with_scripts(
             "cli" if previous_phase_id else "none",
             "--cycle-context-path",
             str(no_cycle_context_path),
+            "--phase-history-path",
+            str(phase_history_path),
         ],
     ]
     if previous_phase_id:
         commands[2].extend(["--previous-phase-id", previous_phase_id])
+    if config.transition_controls_path is not None:
+        commands[2].extend(["--transition-controls", str(config.transition_controls_path)])
 
     for command in commands:
         exit_code, stderr = _run_script(command)
@@ -278,6 +299,8 @@ def _period_result_from_outputs(
         warnings.append("indicator scoring had failures; cached raw CSV may be missing or insufficient.")
     if phase_failures:
         warnings.append("phase scoring had failures.")
+    controls = _mapping(decision.get("details")).get("transition_controls")
+    controls = controls if isinstance(controls, dict) else {}
 
     return BacktestPeriodResult(
         as_of=as_of,
@@ -290,6 +313,10 @@ def _period_result_from_outputs(
         indicator_summary=indicator_summary,
         warnings=warnings,
         failures=failures,
+        transition_controls_enabled=bool(controls.get("enabled", False)),
+        transition_controls_applied=[str(item) for item in controls.get("applied", []) if item],
+        transition_controls_blocked=[str(item) for item in controls.get("blocked", []) if item],
+        transition_controls_warnings=[str(item) for item in controls.get("warnings", []) if item],
     )
 
 
@@ -333,6 +360,10 @@ def _serialize_period(period: BacktestPeriodResult) -> dict[str, Any]:
         "indicator_summary": period.indicator_summary,
         "warnings": period.warnings,
         "failures": period.failures,
+        "transition_controls_enabled": period.transition_controls_enabled,
+        "transition_controls_applied": period.transition_controls_applied,
+        "transition_controls_blocked": period.transition_controls_blocked,
+        "transition_controls_warnings": period.transition_controls_warnings,
     }
 
 
@@ -369,6 +400,22 @@ def _list_of_mappings(value: Any) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, dict)]
+
+
+def _mapping(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _phase_history(timeline: list[BacktestPeriodResult]) -> list[dict[str, Any]]:
+    return [
+        {
+            "as_of": item.as_of,
+            "current_phase_id": item.current_phase_id,
+            "candidate_phase_id": item.candidate_phase_id,
+            "decision_status": item.decision_status,
+        }
+        for item in timeline
+    ]
 
 
 def _optional_str(value: Any) -> str | None:

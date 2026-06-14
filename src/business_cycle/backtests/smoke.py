@@ -41,6 +41,7 @@ def run_backtest_smoke(
     output_path: str | Path = Path("data/backtests/smoke_summary.json"),
     max_periods: int = 24,
     scenario_id: str | None = None,
+    transition_controls_path: str | Path | None = None,
     backtest_runner: BacktestRunner | None = None,
     report_writer: ReportWriter | None = None,
 ) -> dict[str, Any]:
@@ -52,6 +53,7 @@ def run_backtest_smoke(
         scenarios=scenarios,
         output_dir=Path(output_dir),
         max_periods=max_periods,
+        transition_controls_path=Path(transition_controls_path) if transition_controls_path is not None else None,
         backtest_runner=backtest_runner or run_backtest,
         report_writer=report_writer or write_backtest_report,
     )
@@ -67,11 +69,14 @@ def build_backtest_smoke_summary(
     scenarios: list[BacktestScenario],
     output_dir: Path,
     max_periods: int,
-    backtest_runner: BacktestRunner,
-    report_writer: ReportWriter,
+    transition_controls_path: Path | None = None,
+    backtest_runner: BacktestRunner | None = None,
+    report_writer: ReportWriter | None = None,
 ) -> dict[str, Any]:
     """Build a smoke summary by running each selected scenario."""
 
+    runner = backtest_runner or run_backtest
+    writer = report_writer or write_backtest_report
     scenario_summaries: list[dict[str, Any]] = []
     for scenario in scenarios:
         scenario_summaries.append(
@@ -79,8 +84,9 @@ def build_backtest_smoke_summary(
                 scenario=scenario,
                 output_dir=output_dir,
                 max_periods=max_periods,
-                backtest_runner=backtest_runner,
-                report_writer=report_writer,
+                transition_controls_path=transition_controls_path,
+                backtest_runner=runner,
+                report_writer=writer,
             )
         )
 
@@ -100,6 +106,7 @@ def _run_one_scenario(
     scenario: BacktestScenario,
     output_dir: Path,
     max_periods: int,
+    transition_controls_path: Path | None,
     backtest_runner: BacktestRunner,
     report_writer: ReportWriter,
 ) -> dict[str, Any]:
@@ -128,6 +135,7 @@ def _run_one_scenario(
             output_dir=output_dir,
             max_periods=max_periods,
             data_mode=scenario.data_mode,
+            transition_controls_path=transition_controls_path,
         )
         result = backtest_runner(config)
         timeline_path = result.output_path

@@ -63,6 +63,29 @@ def fake_period_runner(
     )
 
 
+def fake_controls_period_runner(
+    config: BacktestRunConfig,
+    as_of: str,
+    previous_phase_id: str | None,
+    _period_output_dir: Path,
+) -> BacktestPeriodResult:
+    assert config.transition_controls_path is not None
+    return BacktestPeriodResult(
+        as_of=as_of,
+        previous_phase_id=previous_phase_id,
+        current_phase_id="boom",
+        candidate_phase_id="recession",
+        decision_status="transition_watch",
+        confidence=0.7,
+        phase_scores=[],
+        indicator_summary={"total_indicators": 1, "scored_indicators": 1, "failed_indicators": 0},
+        transition_controls_enabled=True,
+        transition_controls_applied=["transition_watch_required"],
+        transition_controls_blocked=["transition_watch_required"],
+        transition_controls_warnings=[],
+    )
+
+
 def test_generate_monthly_periods_uses_month_end_dates() -> None:
     periods = generate_monthly_periods(date(2020, 1, 15), date(2020, 3, 20))
 
@@ -97,6 +120,7 @@ def test_backtest_writes_timeline_schema(tmp_path: Path) -> None:
     assert payload["periods"][0]["indicator_summary"]["total_indicators"] == 1
     assert "使用修訂後歷史資料。" in payload["caveats_zh"]
     assert "不構成投資建議。" in payload["caveats_zh"]
+    assert payload["periods"][0]["transition_controls_enabled"] is False
 
 
 def test_backtest_records_missing_raw_data_failures_without_fred_api(tmp_path: Path) -> None:
@@ -106,3 +130,23 @@ def test_backtest_records_missing_raw_data_failures_without_fred_api(tmp_path: P
     assert payload["period_count"] == 1
     assert payload["periods"][0]["indicator_summary"]["failed_indicators"] > 0
     assert payload["periods"][0]["failures"]
+
+
+def test_backtest_records_transition_controls_metadata(tmp_path: Path) -> None:
+    controls_path = tmp_path / "controls.yaml"
+    controls_path.write_text("transition_controls: {}\n", encoding="utf-8")
+    run_config = BacktestRunConfig(
+        scenario_id=scenario().scenario_id,
+        scenario=scenario(),
+        output_dir=tmp_path / "backtests",
+        max_periods=1,
+        transition_controls_path=controls_path,
+    )
+
+    result = run_backtest(run_config, period_runner=fake_controls_period_runner)
+
+    payload = json.loads(result.output_path.read_text(encoding="utf-8"))
+    period = payload["periods"][0]
+    assert period["transition_controls_enabled"] is True
+    assert period["transition_controls_applied"] == ["transition_watch_required"]
+    assert period["transition_controls_blocked"] == ["transition_watch_required"]

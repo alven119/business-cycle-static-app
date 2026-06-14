@@ -80,6 +80,28 @@ def test_run_backtest_smoke_script_unknown_scenario_fails(tmp_path: Path) -> Non
     assert "Unknown scenario_id: missing" in completed.stderr
 
 
+def test_run_backtest_smoke_script_accepts_transition_controls(tmp_path: Path) -> None:
+    output_dir = tmp_path / "backtests"
+    output_path = tmp_path / "smoke_summary.json"
+
+    completed = run_script(
+        "--scenario-id",
+        "global_financial_crisis",
+        "--max-periods",
+        "1",
+        "--output-dir",
+        str(output_dir),
+        "--output",
+        str(output_path),
+        "--transition-controls",
+        "specs/backtests/transition_controls_experiment.yaml",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "scenario_count=1" in completed.stdout
+    assert output_path.exists()
+
+
 def run_script(*args: str) -> subprocess.CompletedProcess[str]:
     project_root = Path(__file__).resolve().parents[1]
     return subprocess.run(
