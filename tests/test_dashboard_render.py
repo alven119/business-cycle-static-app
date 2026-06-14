@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 from pathlib import Path
 
@@ -99,7 +100,11 @@ def test_build_dashboard_generates_html() -> None:
     assert html.startswith("<!doctype html>")
     assert '<html lang="zh-Hant-TW">' in html
     assert "景氣循環儀表板" in html
-    assert "目前判讀階段" in html
+    assert "目前景氣位階" in html
+    assert "週期位階分數" in html
+    assert "轉折風險" in html
+    assert "資料信心" in html
+    assert "本期重點" in html
 
 
 def test_dashboard_contains_current_phase() -> None:
@@ -115,6 +120,33 @@ def test_dashboard_contains_current_phase() -> None:
     assert "recession 尚未" not in html
 
 
+def test_dashboard_derives_current_stage_from_cycle_context_when_stage_hint_missing() -> None:
+    snapshot = synthetic_snapshot()
+    for phase_score in snapshot["phase_scores"]:
+        if phase_score["phase_id"] == "boom":
+            phase_score.pop("stage_hint")
+
+    html = build_dashboard(snapshot)
+
+    assert "目前景氣位階" in html
+    assert "榮景期前段" in html
+    assert "榮景期第一年剛結束" in html
+    assert "榮景期，階段未判定" not in html
+
+
+def test_dashboard_falls_back_when_current_stage_cannot_be_derived() -> None:
+    snapshot = deepcopy(synthetic_snapshot())
+    for phase_score in snapshot["phase_scores"]:
+        if phase_score["phase_id"] == "boom":
+            phase_score.pop("stage_hint")
+    snapshot["current_phase_decision"]["details"]["cycle_context"] = {}
+
+    html = build_dashboard(snapshot)
+
+    assert "目前景氣位階" in html
+    assert "榮景期，階段未判定" in html
+
+
 def test_dashboard_contains_four_phase_scores() -> None:
     html = build_dashboard(synthetic_snapshot())
 
@@ -124,6 +156,10 @@ def test_dashboard_contains_four_phase_scores() -> None:
     assert "衰退期" in html
     assert "可用權重" in html
     assert "資料信心" in html
+    assert "四階段證據分數表示目前資料有多像該景氣階段" in html
+    assert "不是景氣好壞分數" in html
+    assert "衰退期分數高代表衰退證據較強" in html
+    assert "分數代表什麼" in html
     assert "榮景期<span class=\"badge\">目前階段</span>" in html
     assert "成長期<span class=\"badge\">目前階段</span>" not in html
     assert "分數最高不等於目前階段" in html
@@ -139,6 +175,11 @@ def test_dashboard_contains_indicator_scores() -> None:
     assert "利率與金融條件" in html
     assert "原物料" in html
     assert "初領失業救濟金人數" in html
+    assert "景氣意義" in html
+    assert "為什麼重要" in html
+    assert "對目前階段的影響" in html
+    assert "對下一階段的影響" in html
+    assert "企業裁員壓力" in html
     assert "失業率" in html
     assert "歷史分位數評分" in html
     assert "UNRATE" in html
@@ -163,6 +204,7 @@ def test_dashboard_excludes_manual_review_and_api_key() -> None:
     forbidden_manual_review_field = "manual_review" + "_required"
     assert forbidden_manual_review_field not in html
     assert "FRED_API_KEY" not in html
+    assert "成長期<span class=\"badge\">目前階段</span>" not in html
 
 
 def test_build_static_site_writes_index_and_snapshot(tmp_path: Path) -> None:

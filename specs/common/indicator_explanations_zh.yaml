@@ -1,0 +1,157 @@
+indicators:
+  initial_jobless_claims:
+    display_name_zh: 初領失業救濟金人數
+    group: employment
+    leading_lagging: leading
+    cycle_meaning_zh: 反映企業裁員壓力與就業市場惡化速度。高峰反轉通常代表新增失業壓力開始下降。
+    why_it_matters_zh: 就業市場會影響所得、消費與企業信心，是復甦與衰退判斷的重要觀察項目。
+    current_signal_template_zh: 目前訊號需搭配趨勢方向與歷史分位數解讀，單月變動不宜過度解讀。
+    phase_impacts:
+      recovery: {positive_when_zh: 高峰反轉或趨勢下降。, negative_when_zh: 持續上升或停留高檔。, explanation_zh: 裁員壓力下降有利於復甦期證據。}
+      growth: {positive_when_zh: 維持低檔或持續下降。, negative_when_zh: 重新上升。, explanation_zh: 就業壓力低有利於成長期延續。}
+      boom: {positive_when_zh: 低檔穩定但需觀察是否反轉。, warning_when_zh: 低檔後開始回升。, explanation_zh: 榮景後期若初領失業金開始回升，可能是轉弱警訊。}
+      recession: {positive_when_zh: 快速上升。, negative_when_zh: 明顯下降。, explanation_zh: 裁員壓力升高會增加衰退期證據。}
+  short_term_unemployment:
+    display_name_zh: 短期失業人數
+    group: employment
+    leading_lagging: leading
+    cycle_meaning_zh: 觀察近期失業壓力是否增加，比整體失業率更早反映勞動市場轉弱。
+    why_it_matters_zh: 新近失業壓力會影響家庭所得與消費，是景氣轉折的重要輔助訊號。
+    current_signal_template_zh: 需看數月趨勢與移動平均，不應以單月跳動判斷循環。
+    phase_impacts:
+      recovery: {positive_when_zh: 短期失業人數下降。, negative_when_zh: 仍快速上升。, explanation_zh: 新近失業壓力下降有助復甦期證據。}
+      growth: {positive_when_zh: 維持低檔或改善。, negative_when_zh: 重新升高。, explanation_zh: 短期失業穩定支持成長期延續。}
+      boom: {positive_when_zh: 低檔穩定。, warning_when_zh: 低檔後轉升。, explanation_zh: 榮景期若短期失業增加，可能代表勞動市場邊際轉弱。}
+      recession: {positive_when_zh: 明顯升高。, negative_when_zh: 下降。, explanation_zh: 新近失業壓力上升會增加衰退期證據。}
+  unemployment_rate:
+    display_name_zh: 失業率
+    group: employment
+    leading_lagging: lagging
+    cycle_meaning_zh: 反映整體勞動市場鬆緊，但通常落後於景氣轉折。
+    why_it_matters_zh: 失業率影響所得、消費與信心，但不能單獨判斷景氣階段。
+    current_signal_template_zh: 需搭配初領失業金、短期失業與需求指標共同判讀。
+    phase_impacts:
+      recovery: {positive_when_zh: 高檔回落或停止惡化。, negative_when_zh: 持續升高。, explanation_zh: 失業率改善能強化復甦確認，但通常較落後。}
+      growth: {positive_when_zh: 持續改善或維持健康區間。, negative_when_zh: 重新惡化。, explanation_zh: 勞動市場穩定支持成長期證據。}
+      boom: {positive_when_zh: 低檔代表就業仍強。, warning_when_zh: 過低後開始回升。, explanation_zh: 榮景期低失業率顯示熱絡，但反轉上升需注意。}
+      recession: {positive_when_zh: 明顯上升。, negative_when_zh: 下降。, explanation_zh: 失業率上升會增加衰退期證據，但常晚於初期訊號。}
+  real_retail_sales:
+    display_name_zh: 實質零售銷售
+    group: consumption
+    leading_lagging: coincident
+    cycle_meaning_zh: 衡量通膨調整後的消費需求，是家計支出動能的重要觀察。
+    why_it_matters_zh: 消費是景氣循環的重要需求來源，能連動企業營收、庫存與投資。
+    current_signal_template_zh: 應觀察年增率與數月動能，不宜只看單月值。
+    phase_impacts:
+      recovery: {positive_when_zh: 止跌回升。, negative_when_zh: 持續下滑。, explanation_zh: 消費修復是復甦期的重要證據。}
+      growth: {positive_when_zh: 穩定擴張。, negative_when_zh: 動能放緩。, explanation_zh: 消費擴張支持成長期證據。}
+      boom: {positive_when_zh: 高檔仍強。, warning_when_zh: 高檔轉弱。, explanation_zh: 榮景期消費轉弱可能提示後期壓力。}
+      recession: {positive_when_zh: 明顯收縮。, negative_when_zh: 回升。, explanation_zh: 消費下滑會增加衰退期證據。}
+  real_pce_durable_goods:
+    display_name_zh: 個人耐久財消費支出
+    group: consumption
+    leading_lagging: coincident
+    cycle_meaning_zh: 反映家庭對汽車、家具、家電等大額支出的意願，對利率與信心較敏感。
+    why_it_matters_zh: 耐久財支出常在景氣轉折時波動較大，可輔助觀察需求強弱。
+    current_signal_template_zh: 需搭配零售、所得與利率環境，不宜單獨判斷階段。
+    phase_impacts:
+      recovery: {positive_when_zh: 落底回升。, negative_when_zh: 繼續下滑。, explanation_zh: 耐久財消費回升支持復甦期證據。}
+      growth: {positive_when_zh: 持續擴張。, negative_when_zh: 動能轉弱。, explanation_zh: 大額消費穩定支持成長期。}
+      boom: {positive_when_zh: 高檔仍強。, warning_when_zh: 對高利率開始敏感轉弱。, explanation_zh: 榮景期耐久財轉弱可能是需求降溫訊號。}
+      recession: {positive_when_zh: 快速收縮。, negative_when_zh: 改善。, explanation_zh: 大額支出收縮會增加衰退期證據。}
+  durable_goods_orders:
+    display_name_zh: 製造業耐久財新訂單
+    group: investment
+    leading_lagging: leading
+    cycle_meaning_zh: 反映企業與消費端對長期商品的需求，常領先生產與投資變化。
+    why_it_matters_zh: 訂單變化會影響產能利用、庫存、生產與企業資本支出。
+    current_signal_template_zh: 需觀察趨勢與反轉，避免用單月大額訂單波動下結論。
+    phase_impacts:
+      recovery: {positive_when_zh: 不再惡化或回升。, negative_when_zh: 持續下滑。, explanation_zh: 訂單改善支持復甦期證據。}
+      growth: {positive_when_zh: 穩定回升。, negative_when_zh: 轉弱。, explanation_zh: 製造需求改善支持成長期。}
+      boom: {positive_when_zh: 高檔仍強。, warning_when_zh: 高檔回落。, explanation_zh: 榮景期訂單轉弱可能提示投資與生產壓力。}
+      recession: {positive_when_zh: 明顯下滑。, negative_when_zh: 回升。, explanation_zh: 訂單下滑會增加衰退期證據。}
+  real_private_fixed_investment:
+    display_name_zh: 實質民間固定資本投資
+    group: investment
+    leading_lagging: coincident
+    cycle_meaning_zh: 反映企業與住宅等固定投資活動，是景氣擴張廣度的重要部分。
+    why_it_matters_zh: 投資會連動就業、生產力與未來需求預期，但資料頻率較低。
+    current_signal_template_zh: 需與訂單、利率和金融條件共同解讀。
+    phase_impacts:
+      recovery: {positive_when_zh: 停止收縮並回升。, negative_when_zh: 持續萎縮。, explanation_zh: 投資回溫可強化復甦期證據。}
+      growth: {positive_when_zh: 穩定擴張。, negative_when_zh: 放緩或收縮。, explanation_zh: 投資擴張支持成長期證據。}
+      boom: {positive_when_zh: 高檔但需留意過熱。, warning_when_zh: 高檔轉弱或融資壓力升高。, explanation_zh: 榮景期投資轉弱可能提示後期壓力。}
+      recession: {positive_when_zh: 明顯收縮。, negative_when_zh: 回升。, explanation_zh: 固定投資下滑會增加衰退期證據。}
+  imports_goods_services:
+    display_name_zh: 進口金額
+    group: trade
+    leading_lagging: coincident
+    cycle_meaning_zh: 進口通常反映國內需求、庫存與企業採購活動。
+    why_it_matters_zh: 進口變化可輔助觀察內需強弱，但需搭配匯率、價格與供應鏈因素。
+    current_signal_template_zh: 不宜單獨解讀，需與消費、投資和出口一起看。
+    phase_impacts:
+      recovery: {positive_when_zh: 從低檔回升。, negative_when_zh: 持續下滑。, explanation_zh: 進口回升可支持需求修復。}
+      growth: {positive_when_zh: 穩定擴張。, negative_when_zh: 放緩。, explanation_zh: 進口擴張可支持成長期證據。}
+      boom: {positive_when_zh: 高檔顯示需求仍強。, warning_when_zh: 高檔轉弱或成本壓力升高。, explanation_zh: 榮景期進口轉弱可提示需求降溫。}
+      recession: {positive_when_zh: 明顯下滑。, negative_when_zh: 回升。, explanation_zh: 進口下滑可能增加衰退期證據。}
+  exports_goods_services:
+    display_name_zh: 出口金額
+    group: trade
+    leading_lagging: coincident
+    cycle_meaning_zh: 出口反映外部需求與全球貿易環境，會影響企業營收與生產。
+    why_it_matters_zh: 外需轉弱可能傳導到製造、投資與就業，但需搭配美元、價格與海外景氣。
+    current_signal_template_zh: 需看趨勢和外部環境，不應用單月變動判斷階段。
+    phase_impacts:
+      recovery: {positive_when_zh: 低檔回升。, negative_when_zh: 持續下滑。, explanation_zh: 出口改善可輔助復甦證據。}
+      growth: {positive_when_zh: 穩定成長。, negative_when_zh: 外需轉弱。, explanation_zh: 外需穩定支持成長期。}
+      boom: {positive_when_zh: 高檔仍強。, warning_when_zh: 高檔轉弱。, explanation_zh: 榮景期出口轉弱可能提示全球需求壓力。}
+      recession: {positive_when_zh: 明顯下滑。, negative_when_zh: 回升。, explanation_zh: 出口下滑會增加衰退期證據。}
+  federal_funds_rate:
+    display_name_zh: 聯邦基金利率
+    group: rates_financial_conditions
+    leading_lagging: policy
+    cycle_meaning_zh: 反映貨幣政策立場與短端資金成本，會影響信用、消費與投資。
+    why_it_matters_zh: 升息與高利率常在景氣後期提高金融條件壓力，但政策本身不能單獨判斷循環。
+    current_signal_template_zh: 需搭配通膨、長短利率、信用條件與實體需求。
+    phase_impacts:
+      recovery: {positive_when_zh: 政策壓力緩和。, negative_when_zh: 過早緊縮。, explanation_zh: 利率壓力緩和有利復甦。}
+      growth: {positive_when_zh: 利率正常化且需求可承受。, negative_when_zh: 快速緊縮。, explanation_zh: 可承受的利率環境支持成長期延續。}
+      boom: {positive_when_zh: 代表後期政策壓力需觀察。, warning_when_zh: 高利率持續壓抑需求。, explanation_zh: 榮景期高利率可能增加轉折風險。}
+      recession: {positive_when_zh: 高利率造成需求壓力或快速降息反映壓力。, negative_when_zh: 壓力緩和。, explanation_zh: 金融條件壓力會增加衰退期證據。}
+  ten_year_treasury_yield:
+    display_name_zh: 美國10年期公債殖利率
+    group: rates_financial_conditions
+    leading_lagging: leading
+    cycle_meaning_zh: 反映長端利率、成長與通膨預期，也是金融條件的重要價格。
+    why_it_matters_zh: 長端利率影響房貸、企業融資、估值與投資決策。
+    current_signal_template_zh: 需搭配短端利率、殖利率曲線與通膨背景。
+    phase_impacts:
+      recovery: {positive_when_zh: 溫和上升反映預期改善。, negative_when_zh: 快速上升壓抑需求。, explanation_zh: 長端利率溫和改善可支持復甦，但過快上升是壓力。}
+      growth: {positive_when_zh: 維持可承受區間。, negative_when_zh: 快速走高或倒掛壓力。, explanation_zh: 穩定金融條件支持成長期。}
+      boom: {positive_when_zh: 顯示後期成長/通膨壓力需觀察。, warning_when_zh: 快速上升造成融資壓力。, explanation_zh: 榮景期長端利率壓力可能提高轉折風險。}
+      recession: {positive_when_zh: 金融條件緊縮或曲線壓力傳導。, negative_when_zh: 壓力緩和。, explanation_zh: 利率壓力可能增加衰退期證據。}
+  thirty_year_mortgage_rate:
+    display_name_zh: 美國30年房屋抵押貸款平均利率
+    group: rates_financial_conditions
+    leading_lagging: leading
+    cycle_meaning_zh: 反映住宅融資成本，對房市、耐久財與家庭負擔有影響。
+    why_it_matters_zh: 房貸利率上升會壓抑住宅需求，可能傳導到消費與投資。
+    current_signal_template_zh: 需與房市、所得、長端利率和信用條件一起觀察。
+    phase_impacts:
+      recovery: {positive_when_zh: 融資成本下降或壓力緩和。, negative_when_zh: 高利率壓抑房市。, explanation_zh: 房貸壓力緩和有利復甦。}
+      growth: {positive_when_zh: 利率可承受且房市穩定。, negative_when_zh: 快速升高。, explanation_zh: 可承受房貸成本支持成長期需求。}
+      boom: {positive_when_zh: 高檔需觀察承受度。, warning_when_zh: 高利率開始壓抑住宅與消費。, explanation_zh: 榮景期房貸利率壓力可能提示後期風險。}
+      recession: {positive_when_zh: 高利率壓抑需求。, negative_when_zh: 壓力緩和。, explanation_zh: 住宅融資壓力會增加衰退期證據。}
+  wti_oil_price:
+    display_name_zh: 西德州原油價格
+    group: commodities
+    leading_lagging: leading
+    cycle_meaning_zh: 反映能源成本與部分需求/供給壓力，會影響通膨與企業成本。
+    why_it_matters_zh: 油價快速上升可能壓縮消費實質購買力，也會影響通膨與政策反應。
+    current_signal_template_zh: 需區分需求帶動與供給衝擊，不宜單獨判斷景氣階段。
+    phase_impacts:
+      recovery: {positive_when_zh: 溫和回升反映需求修復。, negative_when_zh: 快速上升壓抑購買力。, explanation_zh: 油價溫和回升可支持需求改善，但急升是壓力。}
+      growth: {positive_when_zh: 穩定且可承受。, negative_when_zh: 成本壓力升高。, explanation_zh: 能源成本穩定支持成長期。}
+      boom: {positive_when_zh: 需求強勁但需警覺通膨。, warning_when_zh: 快速上升造成成本與政策壓力。, explanation_zh: 榮景期油價壓力可能提高轉折風險。}
+      recession: {positive_when_zh: 成本衝擊壓抑需求或需求崩落後波動。, negative_when_zh: 壓力緩和。, explanation_zh: 能源壓力或需求急縮都可能增加衰退期證據。}

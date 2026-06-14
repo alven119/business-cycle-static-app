@@ -28,7 +28,17 @@ def synthetic_snapshot() -> dict:
             "details": {},
         },
         "phase_scores": [],
-        "indicator_scores": [],
+        "indicator_scores": [
+            {
+                "indicator_id": "initial_jobless_claims",
+                "score": 80.0,
+                "confidence": 0.9,
+                "as_of": "2024-12-31",
+                "method": "moving_average_slope_score",
+                "reason_zh": "初領失業救濟金人數下降。",
+                "details": {"selected_series_id": "ICSA"},
+            }
+        ],
         "summary": {"current_phase_id": "recovery", "decision_status": "hold_current"},
         "warnings": [],
         "failures": {"indicator_failures": [], "phase_failures": []},
@@ -88,6 +98,8 @@ def test_output_html_has_disclaimer_without_advice_language(tmp_path: Path) -> N
 
     html = (output_dir / "index.html").read_text(encoding="utf-8")
     assert "不構成投資建議" in html
+    assert "景氣意義" in html
+    assert "企業裁員壓力" in html
     assert "買進" not in html
     assert "賣出" not in html
     assert "FRED_API_KEY" not in html

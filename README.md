@@ -187,6 +187,12 @@ Phase 5D turns the generated dashboard into a mobile-first Traditional Chinese h
 
 The current phase badge comes from the deterministic resolver output, not from the highest phase score. Indicator sections are grouped by employment, consumption, investment, trade, rates/financial conditions, and commodities.
 
+## Phase 5F headline summary and explainability
+
+Phase 5F adds a dashboard headline summary, score explainability, and educational indicator explanations. The homepage now explains cycle position, current phase evidence score, turning risk, confidence, and conservative period focus.
+
+Phase scores are explained as evidence that data resembles a given cycle phase, not as a generic "better economy" score. Indicator cards include cycle meaning and phase impacts from `specs/common/indicator_explanations_zh.yaml`. The dashboard remains a macro research aid and does not provide investment advice.
+
 ## Phase 5E deployment validation
 
 Phase 5E adds generated-site sanity checks and a deployment/mobile QA checklist. After building locally, validate the generated `public/` output with:

@@ -16,18 +16,28 @@ Static dashboard 是 `cycle_snapshot.json` 的可讀化輸出。它呈現：
 
 ## Homepage Layout
 
-Phase 5D 將首頁整理為 mobile-first 的景氣循環儀表板，而不是 JSON 欄位清單。頁面主要區塊包含：
+Phase 5D/5F 將首頁整理為 mobile-first 的景氣循環儀表板，而不是 JSON 欄位清單。頁面主要區塊包含：
 
-- 頂部 summary hero：目前判讀階段、基準情境、判讀狀態、資料信心、`generated_at` 與 `as_of`。
+- 頂部 headline summary：目前景氣位階、週期位階分數、轉折風險、資料信心、本期重點、`generated_at` 與 `as_of`。
 - 下一階段觀察卡：依 `allowed_next_phase_id` 顯示允許的下一階段、candidate score/confidence、resolver reason 與 blocked phases。
 - 四階段分數卡：固定顯示復甦期、成長期、榮景期、衰退期。
 - 榮景期觀察重點：目前階段為榮景期時，說明這是景氣後期循環與轉折風險觀察，不是投資建議。
 - 核心指標：依就業、消費、投資、進出口、利率與金融條件、原物料分組。
 - 資料警示與 pipeline failure。
 
+`週期位階分數` 暫時使用 current phase 的 evidence score。它代表目前資料對該階段的證據強度，不是景氣好壞分數，也不是越高就代表景氣越好。
+
+若 current phase 的 `stage_hint` 尚未由 scoring 產生，dashboard 可使用 `current_cycle_context` 的基準文字作為顯示層位階提示；這不會改變模型判斷結果，也不會寫回 `current_phase_decision`。
+
 四階段卡片的 `目前階段` badge 只來自 `current_phase_decision.current_phase_id`。它不使用最高分 phase，也不表示最高分就是 current phase；若最高分與 resolver 判讀不同，頁面會提示仍需依循景氣循環順序與轉換規則。
 
+四階段證據分數表示資料有多像該景氣階段。例如衰退期分數高代表衰退證據較強，榮景期分數高代表景氣後期循環證據較強。
+
 指標分組對齊書中觀察主軸：就業、消費、投資、進出口，以及晚週期常見的利率/金融條件與原物料壓力。這些分組只是閱讀與研究用的資訊架構，不改變 indicator scoring 或 phase scoring。
+
+指標教育性說明來自 `specs/common/indicator_explanations_zh.yaml`。四階段分數說明來自 `specs/common/phase_score_explanations_zh.yaml`。這些文字用於解釋指標在景氣循環中的意義，以及它們如何支持或削弱不同階段證據。
+
+`本期重點` 第一版是保守摘要，不做 period-over-period diff。未來可結合 backtest diagnostics、歷史 timeline 與真實 period-over-period changes 強化摘要。
 
 Dashboard 預設語言是 zh-TW / Traditional Chinese。主要顯示名稱會使用 `specs/common/display_labels_zh.yaml`，對齊《景氣循環投資》常用語：
 

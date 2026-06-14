@@ -8,11 +8,19 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from business_cycle.render.explanations import (
+    get_indicator_explanation,
+    get_phase_score_explanation,
+    load_indicator_explanations,
+    load_phase_score_explanations,
+)
 from business_cycle.render.labels import label_for, load_display_labels
 
 PHASE_ORDER = ("recovery", "growth", "boom", "recession")
 DISCLAIMER_ZH = "本頁僅為總經資料整理與景氣循環判讀輔助，不構成投資建議。"
 DEFAULT_LABELS_PATH = Path("specs/common/display_labels_zh.yaml")
+DEFAULT_PHASE_EXPLANATIONS_PATH = Path("specs/common/phase_score_explanations_zh.yaml")
+DEFAULT_INDICATOR_EXPLANATIONS_PATH = Path("specs/common/indicator_explanations_zh.yaml")
 INDICATOR_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("employment", ("initial_jobless_claims", "short_term_unemployment", "unemployment_rate")),
     ("consumption", ("real_retail_sales", "real_pce_durable_goods")),
@@ -26,7 +34,11 @@ INDICATOR_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
-def build_dashboard(snapshot: dict[str, Any]) -> str:
+def build_dashboard(
+    snapshot: dict[str, Any],
+    phase_explanations: dict[str, dict[str, Any]] | None = None,
+    indicator_explanations: dict[str, dict[str, Any]] | None = None,
+) -> str:
     """Build a complete mobile-first HTML document from cycle_snapshot.json data."""
 
     _reject_secret_keys(snapshot)
@@ -35,6 +47,12 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
     cycle_context = _mapping(decision_details.get("cycle_context"))
     summary = _mapping(snapshot.get("summary"))
     labels = _load_default_labels()
+    phase_explanations = phase_explanations if phase_explanations is not None else _load_default_phase_explanations()
+    indicator_explanations = (
+        indicator_explanations
+        if indicator_explanations is not None
+        else _load_default_indicator_explanations()
+    )
     phase_scores = sorted(
         _list_of_mappings(snapshot.get("phase_scores")),
         key=lambda phase: (_phase_sort_index(str(phase.get("phase_id", ""))), str(phase.get("phase_id", ""))),
@@ -45,6 +63,8 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
     indicator_failures = _list_of_mappings(failures.get("indicator_failures"))
     phase_failures = _list_of_mappings(failures.get("phase_failures"))
     current_phase_id = _optional_text(decision.get("current_phase_id"))
+    candidate_phase_id = _optional_text(decision.get("candidate_phase_id") or decision.get("allowed_next_phase_id"))
+    current_phase_score = _phase_by_id(phase_scores, current_phase_id)
     highest_phase = _highest_phase_id(phase_scores)
 
     return f"""<!doctype html>
@@ -132,18 +152,21 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
       <h1 class="hero-title">景氣循環儀表板</h1>
       <div class="grid hero-grid">
         <div>
-          {_metric("目前判讀階段", _phase_label(labels, decision.get("current_phase_id"), decision.get("current_phase_name_zh")))}
-          {_metric("基準情境", _baseline_stage(cycle_context))}
-          {_metric("判讀狀態", _status_label(labels, decision.get("decision_status")))}
-          {_metric("資料信心", _format_percent(decision.get("confidence")))}
+          {_metric("目前景氣位階", _cycle_position_label(labels, current_phase_id, current_phase_score, cycle_context))}
+          {_metric("週期位階分數", _cycle_score_text(current_phase_score))}
+          {_metric("轉折風險", _turning_risk_label(decision))}
+          {_metric("資料信心", _confidence_label(decision.get("confidence")))}
         </div>
         <div>
+          {_metric("本期重點", _headline_focus(labels, decision))}
+          {_metric("基準情境", _baseline_stage(cycle_context))}
+          {_metric("判讀狀態", _status_label(labels, decision.get("decision_status")))}
           {_metric("generated_at", snapshot.get("generated_at"))}
           {_metric("as_of", snapshot.get("as_of"))}
-          {_metric("resolver previous phase", _phase_label(labels, decision.get("previous_phase_id")))}
           <div class="technical">current technical id: {_text(decision.get("current_phase_id"))}</div>
         </div>
       </div>
+      <p class="section-note">週期位階分數代表目前資料對該階段的證據強度，不是景氣好壞分數。</p>
       <p class="section-note">本頁依總經資料、四階段分數與景氣循環順序進行判讀；基準情境來自外部週期脈絡，模型再檢查是否維持或轉換。本頁僅供總經研究與景氣循環判讀，不構成投資建議。</p>
     </div>
   </header>
@@ -163,8 +186,9 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
 
   <section>
     <h2>四階段證據分數</h2>
+    <p class="section-note">四階段證據分數表示目前資料有多像該景氣階段，不是景氣好壞分數；例如衰退期分數高代表衰退證據較強，榮景期分數高代表景氣後期循環證據較強。</p>
     <div class="grid phase-grid">
-      {_phase_cards(phase_scores, labels, current_phase_id)}
+      {_phase_cards(phase_scores, labels, current_phase_id, phase_explanations)}
     </div>
     <p class="muted">四階段分數是各階段證據強度，最終階段仍需依循景氣循環順序與轉換規則判讀。</p>
     {_highest_score_note(current_phase_id, highest_phase)}
@@ -174,7 +198,7 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
 
   <section>
     <h2>核心指標</h2>
-    {_indicator_groups_html(indicator_scores, labels)}
+    {_indicator_groups_html(indicator_scores, labels, indicator_explanations, current_phase_id, candidate_phase_id)}
   </section>
 
   <section>
@@ -222,24 +246,42 @@ def _phase_cards(
     phase_scores: list[dict[str, Any]],
     labels: dict[str, dict[str, str]],
     current_phase_id: str | None,
+    phase_explanations: dict[str, dict[str, Any]],
 ) -> str:
     return "\n".join(
-        f"""<article class="card">
-  <h3>{_phase_label(labels, phase.get("phase_id"), phase.get("phase_name_zh"))}{_current_badge(phase.get("phase_id"), current_phase_id)}</h3>
-  <div class="technical">technical id: {_text(phase.get("phase_id"))}</div>
+        _phase_card(phase, labels, current_phase_id, phase_explanations)
+        for phase in phase_scores
+    )
+
+
+def _phase_card(
+    phase: dict[str, Any],
+    labels: dict[str, dict[str, str]],
+    current_phase_id: str | None,
+    phase_explanations: dict[str, dict[str, Any]],
+) -> str:
+    phase_id = _optional_text(phase.get("phase_id"))
+    explanation = get_phase_score_explanation(phase_explanations, phase_id)
+    return f"""<article class="card">
+  <h3>{_phase_label(labels, phase_id, phase.get("phase_name_zh"))}{_current_badge(phase_id, current_phase_id)}</h3>
+  <div class="technical">technical id: {_text(phase_id)}</div>
   <div class="score">{_text(_format_number(phase.get("score")))}</div>
   {_metric("資料信心", _format_percent(phase.get("confidence")))}
   {_metric("可用權重", _format_number(phase.get("available_weight")))}
   {_metric("階段位置", _stage_label(labels, phase.get("stage_hint")))}
   {_metric("缺漏指標數", len(phase.get("missing_indicators") or []))}
+  <p><strong>分數代表什麼：</strong>{_text(explanation.get("score_meaning_zh") or "尚未建立此階段分數說明。")}</p>
+  <p><strong>高分常見意義：</strong>{_text(explanation.get("high_score_zh") or "尚未建立高分解釋。")}</p>
+  <p class="muted">{_text(explanation.get("interpretation_warning_zh") or "此分數代表階段證據強度，不代表景氣好壞分數。")}</p>
 </article>"""
-        for phase in phase_scores
-    )
 
 
 def _indicator_groups_html(
     indicator_scores: list[dict[str, Any]],
     labels: dict[str, dict[str, str]],
+    indicator_explanations: dict[str, dict[str, Any]],
+    current_phase_id: str | None,
+    candidate_phase_id: str | None,
 ) -> str:
     scores_by_id = {
         str(indicator.get("indicator_id")): indicator
@@ -255,7 +297,7 @@ def _indicator_groups_html(
             f"""<section class="group">
   <h3>{_text(label_for(labels, "indicator_groups", group_id, group_id))}</h3>
   <div class="table-list indicator-grid">
-    {_indicator_cards(group_items, labels)}
+    {_indicator_cards(group_items, labels, indicator_explanations, current_phase_id, candidate_phase_id)}
   </div>
 </section>"""
         )
@@ -270,7 +312,7 @@ def _indicator_groups_html(
             f"""<section class="group">
   <h3>其他</h3>
   <div class="table-list indicator-grid">
-    {_indicator_cards(ungrouped, labels)}
+    {_indicator_cards(ungrouped, labels, indicator_explanations, current_phase_id, candidate_phase_id)}
   </div>
 </section>"""
         )
@@ -280,11 +322,17 @@ def _indicator_groups_html(
 def _indicator_cards(
     indicator_scores: list[dict[str, Any]],
     labels: dict[str, dict[str, str]],
+    indicator_explanations: dict[str, dict[str, Any]],
+    current_phase_id: str | None,
+    candidate_phase_id: str | None,
 ) -> str:
     cards: list[str] = []
     for indicator in indicator_scores:
         details = _mapping(indicator.get("details"))
         indicator_id = _optional_text(indicator.get("indicator_id"))
+        explanation = get_indicator_explanation(indicator_explanations, indicator_id)
+        current_impact = _phase_impact_text(explanation, current_phase_id)
+        next_impact = _phase_impact_text(explanation, candidate_phase_id)
         cards.append(
             f"""<article class="card">
   <h3>{_text(label_for(labels, "indicators", indicator_id))}</h3>
@@ -294,6 +342,11 @@ def _indicator_cards(
   {_metric("評分方法", label_for(labels, "methods", _optional_text(indicator.get("method"))))}
   {_metric("資料日期", indicator.get("as_of"))}
   <p>{_text(indicator.get("reason_zh") or indicator.get("reason"))}</p>
+  <p><strong>景氣意義：</strong>{_text(explanation.get("cycle_meaning_zh") or "尚未建立此指標說明。")}</p>
+  <p><strong>為什麼重要：</strong>{_text(explanation.get("why_it_matters_zh") or "尚未建立此指標的重要性說明。")}</p>
+  {_metric("指標屬性", _leading_lagging_label(explanation.get("leading_lagging")))}
+  <p><strong>對目前階段的影響：</strong>{_text(current_impact)}</p>
+  <p><strong>對下一階段的影響：</strong>{_text(next_impact)}</p>
 </article>"""
         )
     return "\n".join(cards)
@@ -369,6 +422,20 @@ def _load_default_labels() -> dict[str, dict[str, str]]:
         return {}
 
 
+def _load_default_phase_explanations() -> dict[str, dict[str, Any]]:
+    try:
+        return load_phase_score_explanations(DEFAULT_PHASE_EXPLANATIONS_PATH)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
+def _load_default_indicator_explanations() -> dict[str, dict[str, Any]]:
+    try:
+        return load_indicator_explanations(DEFAULT_INDICATOR_EXPLANATIONS_PATH)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
 def _phase_label(
     labels: dict[str, dict[str, str]],
     phase_id: Any,
@@ -405,6 +472,114 @@ def _highest_score_note(current_phase_id: str | None, highest_phase_id: str | No
     if current_phase_id is None or highest_phase_id is None or current_phase_id == highest_phase_id:
         return ""
     return '<p class="muted">分數最高不等於目前階段，仍需依循景氣循環順序與轉換規則。</p>'
+
+
+def _phase_by_id(phase_scores: list[dict[str, Any]], phase_id: str | None) -> dict[str, Any]:
+    if phase_id is None:
+        return {}
+    for phase in phase_scores:
+        if phase.get("phase_id") == phase_id:
+            return phase
+    return {}
+
+
+def _cycle_position_label(
+    labels: dict[str, dict[str, str]],
+    current_phase_id: str | None,
+    phase_score: dict[str, Any],
+    cycle_context: dict[str, Any] | None = None,
+) -> str:
+    phase_name = _phase_label(labels, current_phase_id, phase_score.get("phase_name_zh"))
+    stage = _optional_text(phase_score.get("stage_hint"))
+    stage_labels = {"early": "前段", "mid": "中段", "late": "後段"}
+    if stage in stage_labels:
+        return f"{phase_name}{stage_labels[stage]}"
+    derived_stage = _derived_stage_from_cycle_context(current_phase_id, cycle_context)
+    if derived_stage is not None:
+        return f"{phase_name}{derived_stage}"
+    return f"{phase_name}，階段未判定"
+
+
+def _derived_stage_from_cycle_context(
+    current_phase_id: str | None,
+    cycle_context: dict[str, Any] | None,
+) -> str | None:
+    if current_phase_id is None or not isinstance(cycle_context, dict):
+        return None
+    if _optional_text(cycle_context.get("baseline_phase_id")) != current_phase_id:
+        return None
+    note = _optional_text(cycle_context.get("baseline_stage_note_zh")) or ""
+    if "第一年" in note or "剛結束" in note:
+        return "前段"
+    return None
+
+
+def _cycle_score_text(phase_score: dict[str, Any]) -> str:
+    score = phase_score.get("score")
+    if isinstance(score, (int, float)):
+        return f"{float(score):.0f} / 100"
+    return "尚未取得"
+
+
+def _turning_risk_label(decision: dict[str, Any]) -> str:
+    status = decision.get("decision_status")
+    candidate_score = float(decision.get("candidate_score") or 0.0)
+    if status == "confirmed":
+        return "高"
+    if status == "transition_watch":
+        return "偏高"
+    if status == "hold_current" and candidate_score >= 60.0:
+        return "中"
+    if status == "hold_current" and candidate_score >= 45.0:
+        return "觀察中"
+    return "偏低"
+
+
+def _confidence_label(value: Any) -> str:
+    if not isinstance(value, (int, float)):
+        return "偏低"
+    confidence = float(value)
+    if confidence >= 0.75:
+        return "高"
+    if confidence >= 0.60:
+        return "中高"
+    if confidence >= 0.45:
+        return "中"
+    return "偏低"
+
+
+def _headline_focus(labels: dict[str, dict[str, str]], decision: dict[str, Any]) -> str:
+    current_phase = _phase_label(labels, decision.get("current_phase_id"))
+    candidate_phase = _phase_label(labels, decision.get("candidate_phase_id") or decision.get("allowed_next_phase_id"))
+    status = decision.get("decision_status")
+    if status == "confirmed":
+        return f"{candidate_phase}已達確認條件；仍需持續觀察資料信心與指標廣度。"
+    if status == "transition_watch":
+        return f"{candidate_phase}進入轉換觀察；就業、消費、投資與利率條件仍需合併判讀。"
+    return f"目前維持{current_phase}；{candidate_phase}證據尚未足以推動階段轉換。"
+
+
+def _phase_impact_text(explanation: dict[str, Any], phase_id: str | None) -> str:
+    impacts = explanation.get("phase_impacts")
+    if not isinstance(impacts, dict) or phase_id is None:
+        return "尚未建立此階段影響說明。"
+    impact = impacts.get(phase_id)
+    if not isinstance(impact, dict):
+        return "尚未建立此階段影響說明。"
+    return str(impact.get("explanation_zh") or "尚未建立此階段影響說明。")
+
+
+def _leading_lagging_label(value: Any) -> str:
+    labels = {
+        "leading": "領先",
+        "coincident": "同步",
+        "lagging": "落後",
+        "policy": "政策/金融條件",
+    }
+    key = _optional_text(value)
+    if key is None:
+        return "未分類"
+    return labels.get(key, key)
 
 
 def _mapping(value: Any) -> dict[str, Any]:

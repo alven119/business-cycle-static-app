@@ -10,7 +10,9 @@ from typing import Any
 DEFAULT_SITE_DIR = Path("public")
 REQUIRED_INDEX_TEXT = (
     "景氣循環儀表板",
-    "目前判讀階段",
+    "目前景氣位階",
+    "週期位階分數",
+    "轉折風險",
     "榮景期第一年剛結束",
     "下一階段觀察",
     "榮景期觀察重點",

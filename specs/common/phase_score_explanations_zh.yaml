@@ -1,0 +1,45 @@
+phase_score_explanations:
+  recovery:
+    display_name_zh: 復甦期
+    score_meaning_zh: 復甦期證據分數代表目前資料有多像景氣從衰退落底後逐步修復的型態，不代表景氣好壞分數。
+    high_score_zh: 分數高通常代表就業壓力緩和、消費與投資開始止跌回升、進出口或生產活動改善。
+    low_score_zh: 分數低代表復甦期證據不足，可能尚未落底，或已進入下一個循環階段。
+    typical_signals_zh:
+      - 初領失業救濟金人數高峰反轉
+      - 短期失業人數下降
+      - 實質零售銷售止跌回升
+      - 耐久財訂單不再惡化
+    interpretation_warning_zh: 復甦期分數高不代表沒有風險，而是代表資料較符合復甦初期或修復階段。
+  growth:
+    display_name_zh: 成長期
+    score_meaning_zh: 成長期證據分數代表目前資料有多像需求擴張、就業改善、投資回溫且通膨尚未失控的穩定擴張階段。
+    high_score_zh: 分數高通常代表景氣擴張廣度增加，消費、投資與就業同步改善。
+    low_score_zh: 分數低代表成長期證據不足，可能仍在復甦早期、進入榮景後期，或開始出現衰退訊號。
+    typical_signals_zh:
+      - 就業市場持續改善
+      - 消費穩定擴張
+      - 民間投資與耐久財訂單回升
+      - 利率與通膨仍在可承受範圍
+    interpretation_warning_zh: 成長期分數高通常代表擴張證據較完整，但仍需觀察是否逐漸轉入榮景後期。
+  boom:
+    display_name_zh: 榮景期
+    score_meaning_zh: 榮景期證據分數代表目前資料有多像景氣後期循環，不是單純代表經濟越好。
+    high_score_zh: 分數高通常代表景氣仍熱絡，但也可能意味著升息、通膨、原物料、估值或金融條件壓力需要提高警覺。
+    low_score_zh: 分數低代表榮景期證據不足，可能仍在成長期，或榮景動能已轉弱。
+    typical_signals_zh:
+      - 就業仍強但邊際改善趨緩
+      - 利率或金融條件偏緊
+      - 原物料或通膨壓力升高
+      - 消費與投資高檔轉弱
+    interpretation_warning_zh: 榮景期分數高不等於投資環境無風險；它更接近景氣後期循環證據。
+  recession:
+    display_name_zh: 衰退期
+    score_meaning_zh: 衰退期證據分數代表目前資料有多像景氣收縮，不是景氣好壞分數。
+    high_score_zh: 分數高代表衰退證據變強，例如就業惡化、消費轉弱、投資收縮或信用/金融條件壓力升高。
+    low_score_zh: 分數低代表衰退證據不足，或衰退壓力尚未形成廣泛共振。
+    typical_signals_zh:
+      - 初領失業救濟金人數快速上升
+      - 消費轉弱
+      - 耐久財訂單與固定投資下滑
+      - 利率或信用條件壓力影響實體經濟
+    interpretation_warning_zh: 衰退期分數高代表衰退證據強，並不代表分數越高越好。
