@@ -137,6 +137,31 @@ Attribution quality 分為：
 
 這些 attribution 可協助判斷 whipsaw 或過早轉換較可能來自 threshold、score sensitivity、缺少 confirmation period，或缺少書中觀察指標。它只解釋回測結果，不會修改模型判斷。輸出仍使用 revised data，不等同當時投資人可見資料，也不構成投資建議。
 
+## Phase 6F Attribution Smoke Summary
+
+Phase 6F 新增多 scenario 的 attribution smoke summary。它會彙整各 scenario 的 `transition_attribution.json`，比較不同歷史案例中哪些 phase score 或 indicator score 最常出現在 transition / plausibility warning 附近。
+
+建議先跑 limited backtest smoke，再重用既有 outputs 做 attribution aggregation：
+
+```bash
+python scripts/run_backtest_smoke.py --max-periods 12
+python scripts/run_attribution_smoke.py --max-periods 12 --reuse-existing
+```
+
+預設輸出：
+
+```text
+data/backtests/attribution_summary.json
+```
+
+用途：
+
+- 比較多個歷史案例中，哪些指標最常導致 transition 或 whipsaw 診斷。
+- 檢查 attribution quality 是否多數為 `full` / `partial` / `limited`。
+- 判斷下一步應檢查 confirmation periods、thresholds、indicator sensitivity，或補齊書中觀察指標。
+
+Attribution summary 仍是 diagnostics aggregation，不代表模型已驗證完成。它使用 revised data，不等同當時投資人可見資料，也不構成投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

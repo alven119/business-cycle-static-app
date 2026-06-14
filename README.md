@@ -260,6 +260,17 @@ python scripts/diagnose_backtest_transitions.py --scenario-id global_financial_c
 
 The attribution output is written to `data/backtests/<scenario_id>/transition_attribution.json`. It compares phase scores and indicator scores around transition periods, links plausibility warnings, and uses intermediate contribution data when available. Outputs under `data/backtests/` are generated ignored files and should not be committed.
 
+## Phase 6F attribution smoke summary
+
+Phase 6F aggregates transition attribution across scenarios.
+
+```bash
+python scripts/run_backtest_smoke.py --max-periods 12
+python scripts/run_attribution_smoke.py --max-periods 12 --reuse-existing
+```
+
+The summary is written to `data/backtests/attribution_summary.json` by default. It is generated ignored output, uses revised historical data, and is for model diagnosis rather than investment advice.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
