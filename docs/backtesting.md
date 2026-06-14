@@ -162,6 +162,28 @@ data/backtests/attribution_summary.json
 
 Attribution summary 仍是 diagnostics aggregation，不代表模型已驗證完成。它使用 revised data，不等同當時投資人可見資料，也不構成投資建議。
 
+Phase 6F 的 attribution summary 是 Phase 7A calibration plan 的主要輸入之一，用來把常見 whipsaw、transition warning 與 indicator delta 集中現象整理成後續校準假設。
+
+## Phase 7A Calibration Plan
+
+Phase 7A 將 Phase 6A 到 6F 的 diagnostics 整理成模型校準計畫，但不修改 scoring、resolver 或 FRED provider。
+
+Machine-readable spec：
+
+```text
+specs/backtests/calibration_plan.yaml
+```
+
+中文說明文件：
+
+```text
+docs/model_calibration.md
+```
+
+校準計畫目前只定義 diagnosed issues、candidate controls、in-sample/out-of-sample scenario split 與 acceptance criteria。候選 controls 包含 confirmation period、transition watch requirement、hysteresis margin、cooldown period、breadth confirmation 與 indicator smoothing。這些 controls 尚未啟用，也不會改變 production dashboard 或 current phase resolver 結果。
+
+所有校準設計都保留 revised data caveat，且不得只針對單一 scenario overfit。回測與校準結果仍是模型診斷，不構成投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

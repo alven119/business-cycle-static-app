@@ -1,0 +1,146 @@
+calibration_plan:
+  version: 1
+  status: draft
+  objective_zh: >
+    使用歷史回測診斷結果，降低模型對短期訊號的過度敏感，
+    改善階段轉換確認流程，並補齊書籍方法論中的指標覆蓋。
+    本計畫不直接修改模型，只定義後續校準方向與驗收標準。
+
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 回測結果用於模型診斷，不構成投資建議。
+    - 校準不得只針對單一歷史案例最佳化。
+
+  diagnosed_issues:
+    - issue_id: direct_confirmed_without_watch
+      display_name_zh: 未經轉換觀察即直接確認階段切換
+      evidence_zh: 多個 scenario 出現 direct_confirmed_transition_without_watch。
+      likely_causes_zh:
+        - current phase resolver 缺少 confirmation period
+        - candidate phase threshold 過於敏感
+        - 少數指標短期變動即可推動階段切換
+      proposed_actions:
+        - add_confirmation_period
+        - require_transition_watch_before_confirmed
+
+    - issue_id: short_phase_segment
+      display_name_zh: 階段分段過短
+      evidence_zh: 部分 scenario 出現 1 至 2 期的 recession/recovery segment。
+      likely_causes_zh:
+        - phase transition 門檻缺少持續性要求
+        - 指標分數短期波動過度影響 phase score
+      proposed_actions:
+        - add_minimum_phase_duration_diagnostics
+        - require_multi_period_confirmation
+
+    - issue_id: rapid_round_trip
+      display_name_zh: 短期間階段來回切換
+      evidence_zh: 部分 scenario 出現 boom -> recession -> recovery 類型 whipsaw。
+      likely_causes_zh:
+        - 缺少 phase hysteresis
+        - 缺少轉換後冷卻期
+        - 缺少多指標群組共振條件
+      proposed_actions:
+        - add_hysteresis_margin
+        - add_cooldown_period
+        - require_breadth_confirmation
+
+    - issue_id: concentrated_indicator_delta
+      display_name_zh: 少數指標變動過度影響轉換
+      evidence_zh: attribution smoke 顯示常見變動集中於初領失業救濟金、實質零售銷售、10年期公債殖利率、短期失業人數。
+      likely_causes_zh:
+        - 部分指標權重或轉換邏輯過於敏感
+        - indicator smoothing / confirmation window 不足
+        - 缺少群組層級 diffusion rule
+      proposed_actions:
+        - review_indicator_sensitivity
+        - add_group_breadth_rule
+        - add_outlier_guard
+
+    - issue_id: incomplete_book_indicator_coverage
+      display_name_zh: 書籍方法論指標覆蓋尚未完整
+      evidence_zh: 目前只實作 MVP 核心指標，尚未完整補齊榮景期7指標、衰退確認與落底反轉訊號。
+      likely_causes_zh:
+        - 目前模型仍是 MVP 指標集合
+      proposed_actions:
+        - expand_boom_ending_indicators
+        - expand_recession_confirmation_indicators
+        - expand_recovery_trough_indicators
+
+  candidate_model_controls:
+    confirmation_period:
+      description_zh: 階段確認前需連續 N 期滿足轉換條件。
+      initial_candidates: [2, 3]
+      applies_to:
+        - transition_watch_to_confirmed
+        - recession_confirmation
+        - recovery_confirmation
+
+    transition_watch_required:
+      description_zh: confirmed transition 前必須至少經過 transition_watch。
+      initial_value: true
+
+    hysteresis_margin:
+      description_zh: candidate phase score 必須超過 current phase score 一定 margin，才允許轉換。
+      initial_candidates: [5, 10, 15]
+
+    cooldown_period:
+      description_zh: confirmed transition 後 N 期內不允許再次轉換，除非 evidence extremely strong。
+      initial_candidates: [2, 3]
+
+    breadth_confirmation:
+      description_zh: phase transition 需至少多個 indicator group 同向支持。
+      group_min_count_candidates: [2, 3]
+      groups:
+        - employment
+        - consumption
+        - investment
+        - trade
+        - rates_financial_conditions
+        - commodities
+
+    indicator_smoothing:
+      description_zh: 對高波動指標增加 smoothing 或 confirmation window。
+      candidate_indicators:
+        - initial_jobless_claims
+        - real_retail_sales
+        - ten_year_treasury_yield
+        - short_term_unemployment
+
+  calibration_scenarios:
+    in_sample:
+      - dotcom_bubble
+      - global_financial_crisis
+      - covid_recession
+    out_of_sample:
+      - euro_debt_slowdown
+      - late_cycle_2018
+
+  acceptance_criteria:
+    - criterion_id: no_direct_confirmed_without_watch
+      description_zh: confirmed transition 前應先出現 transition_watch，除非明確定義為外生衝擊例外。
+      target: zero_or_documented_exception
+
+    - criterion_id: reduce_short_segments
+      description_zh: recession/recovery segment 不應頻繁只維持 1 至 2 期。
+      target: reduce_vs_baseline
+
+    - criterion_id: reduce_rapid_round_trip
+      description_zh: 降低 boom -> recession -> recovery 類型短期 whipsaw。
+      target: reduce_vs_baseline
+
+    - criterion_id: preserve_non_recession_cases
+      description_zh: euro_debt_slowdown 與 late_cycle_2018 不應因校準後過度敏感而誤判為衰退。
+      target: no_new_false_recession
+
+    - criterion_id: keep_revised_data_caveat
+      description_zh: 所有回測報告仍需標示 revised data caveat。
+      target: required
+
+  next_phases:
+    - phase_id: 7B
+      title: Implement transition confirmation controls behind feature flags
+    - phase_id: 7C
+      title: Run calibration experiments across scenarios
+    - phase_id: 7D
+      title: Expand book-aligned indicator coverage

@@ -271,6 +271,23 @@ python scripts/run_attribution_smoke.py --max-periods 12 --reuse-existing
 
 The summary is written to `data/backtests/attribution_summary.json` by default. It is generated ignored output, uses revised historical data, and is for model diagnosis rather than investment advice.
 
+## Phase 7A model calibration plan
+
+Phase 7A adds a machine-readable calibration plan without changing model behavior.
+
+```text
+specs/backtests/calibration_plan.yaml
+docs/model_calibration.md
+```
+
+Inspect the plan summary with:
+
+```bash
+python scripts/show_calibration_plan.py
+```
+
+The plan defines diagnosed issues, candidate controls, scenario splits, and acceptance criteria for future calibration work. It keeps the revised data caveat, avoids single-scenario overfitting, and does not modify scoring, resolver logic, or FRED provider behavior.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
