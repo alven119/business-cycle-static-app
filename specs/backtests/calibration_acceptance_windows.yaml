@@ -1,0 +1,45 @@
+acceptance_windows:
+  version: 1
+  data_mode: revised
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為模型校準驗收輔助，不構成投資建議。
+    - 驗收窗口只用於模型診斷，不代表唯一正確答案。
+
+  scenarios:
+    dotcom_bubble:
+      display_name_zh: 網路泡沫
+      expected_behavior_zh: 前期不應過早確認衰退；完整窗口應逐步接近衰退風險。
+      early_false_recession_before: "2000-01-01"
+      expected_recession_window:
+        start: "2000-01-01"
+        end: "2001-12-31"
+      allow_no_recession_in_first_12_periods: true
+
+    global_financial_crisis:
+      display_name_zh: 金融海嘯
+      expected_behavior_zh: 2005 年不應過早確認衰退；完整窗口應於 2007/2008 附近升高衰退風險。
+      early_false_recession_before: "2007-01-01"
+      expected_recession_window:
+        start: "2007-01-01"
+        end: "2009-06-30"
+      allow_no_recession_in_first_12_periods: true
+
+    covid_recession:
+      display_name_zh: COVID 衰退
+      expected_behavior_zh: 2019 年 confirmed recession 應視為過早；2020 年初後才應確認衰退或外生衝擊。
+      early_false_recession_before: "2020-02-01"
+      expected_recession_window:
+        start: "2020-02-01"
+        end: "2020-06-30"
+      allow_no_recession_in_first_12_periods: false
+
+    euro_debt_slowdown:
+      display_name_zh: 歐債危機與二次衰退疑慮
+      expected_behavior_zh: 可出現 transition_watch，但不應 confirmed recession。
+      should_avoid_confirmed_recession: true
+
+    late_cycle_2018:
+      display_name_zh: 2018 升息與貿易戰壓力
+      expected_behavior_zh: 可出現風險升高，但不應 confirmed recession。
+      should_avoid_confirmed_recession: true

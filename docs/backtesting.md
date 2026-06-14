@@ -212,6 +212,28 @@ data/backtests/calibration/transition_controls_v1/calibration_summary.json
 
 Baseline 不傳 transition controls；experiment 使用 `specs/backtests/transition_controls_enabled_experiment.yaml`。此流程只產生 diagnostics comparison，不會修改 live dashboard、GitHub Pages workflow 或 production resolver 預設。
 
+## Phase 7C.1 Calibration Acceptance Review
+
+Calibration acceptance review 會讀取 calibration summary 與 scenario acceptance windows，檢查 warning count 下降後是否仍有過早衰退、應避免衰退卻 confirmed recession，或需要更長 horizon 才能判斷的情況。
+
+```bash
+python scripts/review_calibration_experiment.py --experiment-id transition_controls_v1
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/transition_controls_v1/calibration_acceptance_review.json
+```
+
+Acceptance windows 位於：
+
+```text
+specs/backtests/calibration_acceptance_windows.yaml
+```
+
+此 review 仍是模型診斷，不會啟用 transition controls，也不會改 live dashboard。它使用 revised data，不等同當時投資人可見資料，也不構成投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

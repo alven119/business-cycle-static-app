@@ -127,6 +127,38 @@ Acceptance checks 目前包含：
 
 Phase 7C 的結果不會直接進 live dashboard，也不會改 production resolver 預設。下一步才會根據 diagnostics 決定是否把 controls 轉成正式設定或繼續調整實驗參數。
 
+## Phase 7C.1 Calibration Acceptance Review
+
+Phase 7C 顯示 transition controls enabled 後 plausibility warning count 明顯下降，但 warning count 下降不等於模型可正式啟用。Phase 7C.1 新增 acceptance window review，用每個 scenario 的歷史窗口檢查 calibration experiment 是否合理。
+
+執行方式：
+
+```bash
+python scripts/review_calibration_experiment.py --experiment-id transition_controls_v1
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/<experiment_id>/calibration_acceptance_review.json
+```
+
+Acceptance windows 定義於：
+
+```text
+specs/backtests/calibration_acceptance_windows.yaml
+```
+
+Review 會檢查：
+
+- experiment 是否在 `early_false_recession_before` 之前過早確認衰退。
+- `should_avoid_confirmed_recession` scenario 是否維持未確認衰退。
+- `expected_recession_window` 中的 first recession current date 是否過早、過晚、落在窗口內或尚未偵測。
+- dotcom 與金融海嘯這類前 12 期 smoke run 尚未偵測衰退時，是否應標記為 `needs_longer_horizon` 而非直接視為失敗。
+- COVID 2019 若過早 confirmed recession，應被標記為 early false recession risk。
+
+Phase 7C.1 仍只產生 review/report，不修改 scoring、resolver、live dashboard 或 GitHub Pages workflow。Acceptance windows 是模型診斷輔助，不代表唯一正確答案，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

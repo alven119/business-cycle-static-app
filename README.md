@@ -314,6 +314,16 @@ python scripts/run_calibration_experiment.py --experiment-id transition_controls
 
 The summary is written to `data/backtests/calibration/<experiment_id>/calibration_summary.json`. This is generated ignored output. The live dashboard and GitHub Pages workflow remain unaffected.
 
+## Phase 7C.1 calibration acceptance review
+
+Phase 7C.1 reviews a calibration experiment against expected scenario windows.
+
+```bash
+python scripts/review_calibration_experiment.py --experiment-id transition_controls_v1
+```
+
+The review is written to `data/backtests/calibration/<experiment_id>/calibration_acceptance_review.json`. This is generated ignored output and remains a diagnostics aid; it does not enable transition controls or affect the live dashboard.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
