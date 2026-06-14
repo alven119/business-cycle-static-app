@@ -11,16 +11,16 @@ def synthetic_snapshot() -> dict:
         "generated_at": "2026-06-14T00:00:00+00:00",
         "as_of": "2024-12-31",
         "current_phase_decision": {
-            "current_phase_id": "recovery",
-            "current_phase_name_zh": "復甦期",
+            "current_phase_id": "boom",
+            "current_phase_name_zh": "榮景期",
             "decision_status": "hold_current",
-            "previous_phase_id": "recovery",
-            "candidate_phase_id": "growth",
-            "candidate_score": 70.0,
-            "candidate_confidence": 0.8,
+            "previous_phase_id": "boom",
+            "candidate_phase_id": "recession",
+            "candidate_score": 68.0,
+            "candidate_confidence": 0.62,
             "current_score": 72.0,
             "confidence": 0.75,
-            "allowed_next_phase_id": "growth",
+            "allowed_next_phase_id": "recession",
             "blocked_phase_ids": [],
             "reason_zh": "維持榮景期，因為允許的下一階段衰退期尚未提供足夠的轉換證據。",
             "details": {
@@ -36,24 +36,28 @@ def synthetic_snapshot() -> dict:
             },
         },
         "phase_scores": [
-            phase("growth", "成長期"),
-            phase("boom", "榮景期"),
-            phase("recession", "衰退期"),
-            phase("recovery", "復甦期"),
+            phase("growth", "成長期", score=90.0),
+            phase("boom", "榮景期", score=72.0),
+            phase("recession", "衰退期", score=68.0),
+            phase("recovery", "復甦期", score=60.0),
         ],
         "indicator_scores": [
-            {
-                "indicator_id": "unemployment_rate",
-                "score": 80.0,
-                "confidence": 0.9,
-                "as_of": "2024-12-31",
-                "method": "level_percentile_score",
-                "reason_zh": "失業率改善。",
-                "details": {"selected_series_id": "UNRATE"},
-            }
+            indicator("initial_jobless_claims", "ICSA", "初領失業救濟金人數下降。"),
+            indicator("short_term_unemployment", "UEMPLT5", "短期失業人數下降。"),
+            indicator("unemployment_rate", "UNRATE", "失業率改善。"),
+            indicator("real_retail_sales", "RRSFS", "實質零售銷售改善。"),
+            indicator("real_pce_durable_goods", "PCEDGC96", "耐久財消費改善。"),
+            indicator("durable_goods_orders", "DGORDER", "耐久財新訂單改善。"),
+            indicator("real_private_fixed_investment", "FPIC1", "民間固定投資改善。"),
+            indicator("imports_goods_services", "IMPGS", "進口改善。"),
+            indicator("exports_goods_services", "EXPGS", "出口改善。"),
+            indicator("federal_funds_rate", "FEDFUNDS", "聯邦基金利率觀察。"),
+            indicator("ten_year_treasury_yield", "DGS10", "十年期公債殖利率觀察。"),
+            indicator("thirty_year_mortgage_rate", "MORTGAGE30US", "房貸利率觀察。"),
+            indicator("wti_oil_price", "DCOILWTICO", "油價觀察。"),
         ],
         "summary": {
-            "current_phase_id": "recovery",
+            "current_phase_id": "boom",
             "decision_status": "hold_current",
             "decision_confidence": 0.75,
         },
@@ -62,11 +66,11 @@ def synthetic_snapshot() -> dict:
     }
 
 
-def phase(phase_id: str, name: str) -> dict:
+def phase(phase_id: str, name: str, score: float = 70.0) -> dict:
     return {
         "phase_id": phase_id,
         "phase_name_zh": name,
-        "score": 70.0,
+        "score": score,
         "confidence": 0.8,
         "available_weight": 1.0,
         "missing_indicators": [],
@@ -77,20 +81,36 @@ def phase(phase_id: str, name: str) -> dict:
     }
 
 
+def indicator(indicator_id: str, series_id: str, reason_zh: str) -> dict:
+    return {
+        "indicator_id": indicator_id,
+        "score": 80.0,
+        "confidence": 0.9,
+        "as_of": "2024-12-31",
+        "method": "level_percentile_score",
+        "reason_zh": reason_zh,
+        "details": {"selected_series_id": series_id},
+    }
+
+
 def test_build_dashboard_generates_html() -> None:
     html = build_dashboard(synthetic_snapshot())
 
     assert html.startswith("<!doctype html>")
     assert '<html lang="zh-Hant-TW">' in html
     assert "景氣循環儀表板" in html
+    assert "目前判讀階段" in html
 
 
 def test_dashboard_contains_current_phase() -> None:
     html = build_dashboard(synthetic_snapshot())
 
-    assert "復甦期" in html
+    assert "榮景期" in html
     assert "維持目前階段" in html
     assert "榮景期第一年剛結束" in html
+    assert "下一階段觀察" in html
+    assert "衰退期" in html
+    assert "榮景期觀察重點" in html
     assert "維持 boom" not in html
     assert "recession 尚未" not in html
 
@@ -104,11 +124,21 @@ def test_dashboard_contains_four_phase_scores() -> None:
     assert "衰退期" in html
     assert "可用權重" in html
     assert "資料信心" in html
+    assert "榮景期<span class=\"badge\">目前階段</span>" in html
+    assert "成長期<span class=\"badge\">目前階段</span>" not in html
+    assert "分數最高不等於目前階段" in html
 
 
 def test_dashboard_contains_indicator_scores() -> None:
     html = build_dashboard(synthetic_snapshot())
 
+    assert "就業" in html
+    assert "消費" in html
+    assert "投資" in html
+    assert "進出口" in html
+    assert "利率與金融條件" in html
+    assert "原物料" in html
+    assert "初領失業救濟金人數" in html
     assert "失業率" in html
     assert "歷史分位數評分" in html
     assert "UNRATE" in html
@@ -146,4 +176,4 @@ def test_build_static_site_writes_index_and_snapshot(tmp_path: Path) -> None:
     assert outputs["index_path"].name == "index.html"
     assert json.loads(outputs["snapshot_path"].read_text(encoding="utf-8"))["summary"][
         "current_phase_id"
-    ] == "recovery"
+    ] == "boom"

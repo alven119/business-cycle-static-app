@@ -181,6 +181,12 @@ python scripts/build_site.py
 python -m http.server 8000 -d public
 ```
 
+## Phase 5D dashboard UX polish
+
+Phase 5D turns the generated dashboard into a mobile-first Traditional Chinese homepage. The page uses book-aligned wording, groups indicators by observation theme, and keeps technical ids in small debug text.
+
+The current phase badge comes from the deterministic resolver output, not from the highest phase score. Indicator sections are grouped by employment, consumption, investment, trade, rates/financial conditions, and commodities.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

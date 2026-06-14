@@ -46,3 +46,11 @@ roles:
 signal_transforms:
   as_is: 順向解讀
   inverted: 反向解讀
+
+indicator_groups:
+  employment: 就業
+  consumption: 消費
+  investment: 投資
+  trade: 進出口
+  rates_financial_conditions: 利率與金融條件
+  commodities: 原物料

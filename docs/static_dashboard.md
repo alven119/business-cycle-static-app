@@ -14,6 +14,21 @@ Static dashboard 是 `cycle_snapshot.json` 的可讀化輸出。它呈現：
 
 它不重新計算 indicator score、不重新計算 phase score，也不重新 resolve current phase。
 
+## Homepage Layout
+
+Phase 5D 將首頁整理為 mobile-first 的景氣循環儀表板，而不是 JSON 欄位清單。頁面主要區塊包含：
+
+- 頂部 summary hero：目前判讀階段、基準情境、判讀狀態、資料信心、`generated_at` 與 `as_of`。
+- 下一階段觀察卡：依 `allowed_next_phase_id` 顯示允許的下一階段、candidate score/confidence、resolver reason 與 blocked phases。
+- 四階段分數卡：固定顯示復甦期、成長期、榮景期、衰退期。
+- 榮景期觀察重點：目前階段為榮景期時，說明這是景氣後期循環與轉折風險觀察，不是投資建議。
+- 核心指標：依就業、消費、投資、進出口、利率與金融條件、原物料分組。
+- 資料警示與 pipeline failure。
+
+四階段卡片的 `目前階段` badge 只來自 `current_phase_decision.current_phase_id`。它不使用最高分 phase，也不表示最高分就是 current phase；若最高分與 resolver 判讀不同，頁面會提示仍需依循景氣循環順序與轉換規則。
+
+指標分組對齊書中觀察主軸：就業、消費、投資、進出口，以及晚週期常見的利率/金融條件與原物料壓力。這些分組只是閱讀與研究用的資訊架構，不改變 indicator scoring 或 phase scoring。
+
 Dashboard 預設語言是 zh-TW / Traditional Chinese。主要顯示名稱會使用 `specs/common/display_labels_zh.yaml`，對齊《景氣循環投資》常用語：
 
 - 復甦期
@@ -62,6 +77,8 @@ python -m http.server 8000 -d public
 ## 不是投資建議
 
 Dashboard 只呈現總經資料整理與景氣循環判讀輔助。它不提供資產配置、不提供交易訊號，也不構成投資建議。分數與階段判讀依賴資料品質、資料修正與模型假設。
+
+榮景期說明聚焦景氣後期循環、升息、通膨、利率、原物料、估值與就業/消費轉弱訊號。它是景氣循環脈絡說明，不是資產配置或交易建議。
 
 ## 尚未做 Deployment
 
