@@ -83,6 +83,11 @@ def fake_controls_period_runner(
         transition_controls_applied=["transition_watch_required"],
         transition_controls_blocked=["transition_watch_required"],
         transition_controls_warnings=[],
+        transition_controls_breadth_summary={
+            "passed": False,
+            "supported_groups": ["employment"],
+            "supported_indicator_count": 3,
+        },
     )
 
 
@@ -150,3 +155,11 @@ def test_backtest_records_transition_controls_metadata(tmp_path: Path) -> None:
     assert period["transition_controls_enabled"] is True
     assert period["transition_controls_applied"] == ["transition_watch_required"]
     assert period["transition_controls_blocked"] == ["transition_watch_required"]
+    assert period["transition_controls_breadth_summary"]["supported_groups"] == ["employment"]
+
+
+def test_backtest_default_timeline_has_no_breadth_summary(tmp_path: Path) -> None:
+    result = run_backtest(config(tmp_path, max_periods=1), period_runner=fake_period_runner)
+
+    payload = json.loads(result.output_path.read_text(encoding="utf-8"))
+    assert payload["periods"][0]["transition_controls_breadth_summary"] is None

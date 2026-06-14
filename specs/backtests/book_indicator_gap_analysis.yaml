@@ -1,0 +1,219 @@
+book_indicator_gap_analysis:
+  version: 1
+  status: draft
+  objective_zh: >
+    對照目前 MVP 指標集合與《景氣循環投資》方法論，整理榮景期結束、
+    衰退確認與衰退落底反轉的工程化缺口。本規格只定義 gap 與候選指標，
+    不修改 scoring、resolver 或正式 dashboard 判斷。
+
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此分析用於模型診斷與指標覆蓋規劃，不構成投資建議。
+    - 不應針對 COVID 單一案例 overfit，需跨歷史 scenario 驗證。
+
+  current_mvp_indicator_ids:
+    - initial_jobless_claims
+    - short_term_unemployment
+    - unemployment_rate
+    - real_retail_sales
+    - real_pce_durable_goods
+    - durable_goods_orders
+    - real_private_fixed_investment
+    - imports_goods_services
+    - exports_goods_services
+    - federal_funds_rate
+    - ten_year_treasury_yield
+    - thirty_year_mortgage_rate
+    - wti_oil_price
+
+  book_aligned_indicator_groups:
+    - group_id: boom_ending_indicators
+      display_name_zh: 榮景期結束指標
+      purpose_zh: 榮景期結束、過熱轉衰退前的減碼訊號。
+      current_coverage_status: partial
+      current_indicator_ids:
+        - federal_funds_rate
+        - ten_year_treasury_yield
+        - thirty_year_mortgage_rate
+        - wti_oil_price
+        - initial_jobless_claims
+      candidate_indicator_ids:
+        - yield_curve_spread_10y_3m
+        - corporate_credit_spread
+        - financial_conditions_index
+        - cpi_inflation_yoy
+        - ism_new_orders
+        - housing_starts
+        - equity_valuation_pressure
+      candidate_fred_series:
+        - T10Y3M
+        - BAA10Y
+        - NFCI
+        - CPIAUCSL
+        - HOUST
+      expected_effect_zh: >
+        補足利率倒掛、信用壓力、金融條件、通膨與訂單/房市轉弱訊號，
+        避免只用就業與消費短期變動判斷榮景轉衰退。
+      implementation_priority: high
+
+    - group_id: recession_confirmation_indicators
+      display_name_zh: 衰退確認指標
+      purpose_zh: 確認是否真的進入衰退，不被短期雜訊誤導。
+      current_coverage_status: partial
+      current_indicator_ids:
+        - initial_jobless_claims
+        - short_term_unemployment
+        - unemployment_rate
+        - real_retail_sales
+        - real_pce_durable_goods
+        - durable_goods_orders
+        - real_private_fixed_investment
+      candidate_indicator_ids:
+        - employment_deterioration_breadth
+        - sustained_initial_claims_increase
+        - unemployment_and_short_term_unemployment_breadth
+        - broad_consumption_weakness
+        - investment_orders_breadth
+        - credit_financial_stress
+        - yield_curve_rate_cut_cycle_confirmation
+      candidate_fred_series:
+        - PAYEMS
+        - ICSA
+        - UNRATE
+        - UEMPLT5
+        - PCECC96
+        - DGORDER
+        - NFCI
+        - T10Y3M
+        - FEDFUNDS
+      expected_effect_zh: >
+        要求就業、消費、投資、信用/金融條件與利率循環有更廣泛共振，
+        特別用來降低 COVID 2019 類 early false recession。
+      implementation_priority: high
+
+    - group_id: recession_trough_recovery_indicators
+      display_name_zh: 衰退落底反轉指標
+      purpose_zh: 衰退落底與復甦初期買進時機的資料確認。
+      current_coverage_status: partial
+      current_indicator_ids:
+        - initial_jobless_claims
+        - short_term_unemployment
+        - real_retail_sales
+        - real_pce_durable_goods
+        - durable_goods_orders
+        - imports_goods_services
+        - exports_goods_services
+        - federal_funds_rate
+      candidate_indicator_ids:
+        - initial_claims_peak_reversal
+        - short_term_unemployment_peak_reversal
+        - retail_sales_bottoming
+        - durable_goods_bottoming
+        - durable_goods_orders_bottoming
+        - trade_bottoming
+        - monetary_easing_in_place
+      candidate_fred_series:
+        - ICSA
+        - UEMPLT5
+        - RSAFS
+        - PCECC96
+        - DGORDER
+        - IMPGS
+        - EXPGS
+        - FEDFUNDS
+      expected_effect_zh: >
+        將高峰反轉與落底訊號工程化，避免只確認衰退而缺少復甦起點的
+        state-machine 依據。
+      implementation_priority: medium
+
+    - group_id: indicator_sensitivity_issues
+      display_name_zh: 高敏感指標問題
+      purpose_zh: 記錄目前造成 false positive 或 whipsaw 的高敏感指標。
+      current_coverage_status: covered
+      current_indicator_ids:
+        - short_term_unemployment
+        - real_pce_durable_goods
+        - initial_jobless_claims
+        - real_retail_sales
+      candidate_indicator_ids:
+        - indicator_smoothing_window
+        - recession_specific_breadth_confirmation
+        - outlier_guard
+      candidate_fred_series: []
+      expected_effect_zh: >
+        先以診斷與 breadth confirmation 檢查高敏感指標，不直接調 threshold，
+        避免針對單一 scenario overfit。
+      implementation_priority: high
+      sensitivity_issues:
+        - indicator_id: short_term_unemployment
+          observed_problem_zh: COVID false-positive attribution 顯示短期失業分數變化明顯，可能放大早期雜訊。
+          example_scenario_id: covid_recession
+          example_as_of: "2019-02-28"
+          candidate_fix_zh: 先加入 recession-specific breadth confirmation，要求失業率、初領失業救濟金與消費/投資同步惡化。
+          whether_fix_should_be_scoring_change: false
+          recommended_next_step: phase_7e_breadth_confirmation
+        - indicator_id: real_pce_durable_goods
+          observed_problem_zh: 耐久財消費波動較大，單獨轉弱不應直接確認衰退。
+          example_scenario_id: covid_recession
+          example_as_of: "2019-02-28"
+          candidate_fix_zh: 與廣義消費、零售銷售、投資訂單及就業 breadth 合併確認。
+          whether_fix_should_be_scoring_change: false
+          recommended_next_step: phase_7e_breadth_confirmation
+        - indicator_id: initial_jobless_claims
+          observed_problem_zh: 初領失業救濟金是重要領先訊號，但需確認是否持續升高而非單期波動。
+          example_scenario_id: covid_recession
+          example_as_of: "2019-02-28"
+          candidate_fix_zh: 增加 sustained increase / confirmation window 的診斷規則，再評估是否納入正式模型。
+          whether_fix_should_be_scoring_change: false
+          recommended_next_step: phase_7e_breadth_confirmation
+        - indicator_id: real_retail_sales
+          observed_problem_zh: 零售銷售轉弱會影響衰退分數，但需避免只由消費短期放緩推動轉換。
+          example_scenario_id: covid_recession
+          example_as_of: "2019-02-28"
+          candidate_fix_zh: 與非耐久消費、就業與投資 breadth 合併檢查。
+          whether_fix_should_be_scoring_change: false
+          recommended_next_step: phase_7f_book_aligned_indicators
+
+  gap_items:
+    - gap_id: boom_ending_coverage_gap
+      display_name_zh: 榮景期結束覆蓋不足
+      related_group_id: boom_ending_indicators
+      severity: high
+      description_zh: 目前已有利率、油價與部分就業指標，但缺少信用壓力、金融條件、通膨與領先訂單/房市等過熱轉弱訊號。
+    - gap_id: recession_confirmation_breadth_gap
+      display_name_zh: 衰退確認 breadth 不足
+      related_group_id: recession_confirmation_indicators
+      severity: high
+      description_zh: 目前衰退確認容易受少數高敏感指標影響，需加入群組共振與 recession-specific confirmation。
+    - gap_id: recovery_trough_reversal_gap
+      display_name_zh: 衰退落底反轉規則不足
+      related_group_id: recession_trough_recovery_indicators
+      severity: medium
+      description_zh: 現有復甦判斷有初步反轉訊號，但尚未完整工程化失業、消費、訂單、進出口與寬鬆政策的落底組合。
+    - gap_id: sensitivity_diagnostics_gap
+      display_name_zh: 高敏感指標診斷不足
+      related_group_id: indicator_sensitivity_issues
+      severity: high
+      description_zh: 需要先診斷 short_term_unemployment、real_pce_durable_goods、initial_jobless_claims 與 real_retail_sales 的 false-positive 貢獻，再決定是否調整模型。
+
+  priority_recommendations:
+    - recommendation_id: phase_7e_breadth_confirmation
+      display_name_zh: 實作 recession-specific breadth confirmation
+      priority: high
+      rationale_zh: 先要求多個指標群組同步惡化，可降低 COVID 2019 類 early false recession，且不需直接調 threshold。
+    - recommendation_id: phase_7f_book_aligned_indicators
+      display_name_zh: 補齊書籍對齊的衰退與復甦指標
+      priority: high
+      rationale_zh: 補足榮景結束、衰退確認與落底反轉的資料覆蓋，再進一步評估 scoring sensitivity。
+    - recommendation_id: phase_8a_portfolio_policy_spec
+      display_name_zh: 建立 portfolio policy spec
+      priority: medium
+      rationale_zh: 模型判讀與投資政策需分層，避免 dashboard 診斷文字直接變成投資建議。
+
+  next_phases:
+    - phase_id: 7E
+      title: Implement recession-specific breadth confirmation behind feature flags
+    - phase_id: 7F
+      title: Implement book-aligned recession and recovery indicators
+    - phase_id: 8A
+      title: Portfolio policy spec

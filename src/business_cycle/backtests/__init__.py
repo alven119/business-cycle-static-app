@@ -10,6 +10,14 @@ from business_cycle.backtests.attribution_smoke import (
     build_attribution_smoke_summary,
     run_attribution_smoke,
 )
+from business_cycle.backtests.book_gap import (
+    BookIndicatorGapAnalysis,
+    BookIndicatorGapAnalysisError,
+    high_priority_count as high_priority_book_gap_count,
+    load_book_indicator_gap_analysis,
+    sensitivity_issues,
+    validate_book_indicator_gap_analysis,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -68,6 +76,8 @@ __all__ = [
     "BacktestScenarioError",
     "BacktestSmokeError",
     "AttributionSmokeError",
+    "BookIndicatorGapAnalysis",
+    "BookIndicatorGapAnalysisError",
     "CalibrationPlan",
     "CalibrationPlanError",
     "CalibrationExperimentError",
@@ -83,6 +93,8 @@ __all__ = [
     "build_transition_attribution",
     "generate_monthly_periods",
     "get_scenario",
+    "high_priority_book_gap_count",
+    "load_book_indicator_gap_analysis",
     "load_calibration_plan",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
@@ -91,10 +103,12 @@ __all__ = [
     "run_backtest_smoke",
     "run_calibration_experiment",
     "run_full_horizon_calibration",
+    "sensitivity_issues",
     "write_transition_attribution",
     "write_calibration_acceptance_review",
     "write_covid_false_positive_diagnostic",
     "write_full_horizon_calibration_outputs",
     "validate_calibration_plan",
+    "validate_book_indicator_gap_analysis",
     "write_backtest_report",
 ]

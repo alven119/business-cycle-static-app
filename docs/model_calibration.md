@@ -199,6 +199,68 @@ data/backtests/calibration/<experiment_id>/covid_false_positive_diagnostic.json
 
 Phase 7C.2 不會正式啟用 transition controls，也不修改 live dashboard、scoring、resolver 或 FRED provider。它只提供下一步校準決策依據，避免只看 plausibility warning count 下降就誤判模型已可上線。
 
+## Phase 7D Book-Aligned Indicator Gap Analysis
+
+Phase 7D 是 Phase 7C.2 後的 gap analysis。它不改模型，而是整理目前 MVP 指標與《景氣循環投資》方法論在三個面向上的缺口：
+
+- 榮景期結束：過熱、升息、信用壓力、金融條件與領先訂單/房市訊號。
+- 衰退確認：就業、消費、投資、金融壓力與利率循環是否形成 breadth confirmation。
+- 衰退落底反轉：初領失業救濟金、短期失業、消費、訂單、進出口與貨幣寬鬆是否出現高峰或低點反轉。
+
+Machine-readable spec：
+
+```text
+specs/backtests/book_indicator_gap_analysis.yaml
+```
+
+中文說明：
+
+```text
+docs/book_indicator_gap_analysis.md
+```
+
+查看摘要：
+
+```bash
+python scripts/show_book_indicator_gap.py
+```
+
+7D 的結果會用來決定下一步應先做 recession-specific breadth confirmation，還是先補齊書中衰退/復甦指標。這仍是 calibration planning，不會正式啟用 transition controls，也不構成投資建議。
+
+## Phase 7E Recession-Specific Breadth Confirmation
+
+Phase 7E 實作 recession-specific breadth confirmation，目的是避免少數高敏感指標造成 premature confirmed recession。這是 feature-gated experiment control，預設不會被 live dashboard、GitHub Pages workflow 或 production resolver 使用。
+
+實驗設定檔：
+
+```text
+specs/backtests/transition_controls_recession_breadth_experiment.yaml
+```
+
+核心規則：
+
+- 只在原 resolver 已準備 confirmed transition 時檢查。
+- 只針對 `target_phases: [recession]` 生效。
+- confirmed recession 需達到多個 indicator group 同步支持。
+- 初版要求至少 3 個 group、至少 2 個 core group、至少 4 個支持指標。
+- 支持指標需達到最低 phase signal score 與 confidence。
+- 若 evidence 不足，保守降級為 `transition_watch`，不使用 `manual_review_required`。
+
+執行 calibration experiment：
+
+```bash
+python scripts/run_calibration_experiment.py --experiment-id transition_controls_v2_breadth --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml
+```
+
+執行 full-horizon review：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v2_breadth_full --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml
+python scripts/review_calibration_experiment.py --experiment-id transition_controls_v2_breadth_full
+```
+
+Phase 7E 後應比較是否改善 COVID false positive，同時保留 dotcom 與金融海嘯的 recession detection window。此實驗仍不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

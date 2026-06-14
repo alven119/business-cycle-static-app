@@ -56,6 +56,7 @@ class BacktestPeriodResult:
     transition_controls_applied: list[str] = field(default_factory=list)
     transition_controls_blocked: list[str] = field(default_factory=list)
     transition_controls_warnings: list[str] = field(default_factory=list)
+    transition_controls_breadth_summary: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -317,6 +318,7 @@ def _period_result_from_outputs(
         transition_controls_applied=[str(item) for item in controls.get("applied", []) if item],
         transition_controls_blocked=[str(item) for item in controls.get("blocked", []) if item],
         transition_controls_warnings=[str(item) for item in controls.get("warnings", []) if item],
+        transition_controls_breadth_summary=_optional_mapping(controls.get("breadth_summary")),
     )
 
 
@@ -364,6 +366,7 @@ def _serialize_period(period: BacktestPeriodResult) -> dict[str, Any]:
         "transition_controls_applied": period.transition_controls_applied,
         "transition_controls_blocked": period.transition_controls_blocked,
         "transition_controls_warnings": period.transition_controls_warnings,
+        "transition_controls_breadth_summary": period.transition_controls_breadth_summary,
     }
 
 
@@ -404,6 +407,10 @@ def _list_of_mappings(value: Any) -> list[dict[str, Any]]:
 
 def _mapping(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
+
+
+def _optional_mapping(value: Any) -> dict[str, Any] | None:
+    return value if isinstance(value, dict) else None
 
 
 def _phase_history(timeline: list[BacktestPeriodResult]) -> list[dict[str, Any]]:

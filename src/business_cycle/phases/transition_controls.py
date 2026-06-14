@@ -43,7 +43,13 @@ class CooldownPeriodControl:
 @dataclass(frozen=True)
 class BreadthConfirmationControl:
     enabled: bool = False
+    target_phases: list[str] = field(default_factory=list)
     min_group_count: int = 1
+    min_core_group_count: int = 0
+    min_indicator_count: int = 1
+    min_phase_signal_score: float = 0.0
+    min_indicator_confidence: float = 0.0
+    allowed_groups: list[str] = field(default_factory=list)
     groups: list[str] = field(default_factory=list)
     description_zh: str = ""
 
@@ -105,6 +111,18 @@ def validate_transition_controls_config(config: TransitionControlsConfig) -> Non
         raise TransitionControlsConfigError("cooldown_period.periods_after_confirmed must be >= 0")
     if config.breadth_confirmation.min_group_count < 1:
         raise TransitionControlsConfigError("breadth_confirmation.min_group_count must be >= 1")
+    if config.breadth_confirmation.min_core_group_count < 0:
+        raise TransitionControlsConfigError("breadth_confirmation.min_core_group_count must be >= 0")
+    if config.breadth_confirmation.min_indicator_count < 1:
+        raise TransitionControlsConfigError("breadth_confirmation.min_indicator_count must be >= 1")
+    if not 0 <= config.breadth_confirmation.min_phase_signal_score <= 100:
+        raise TransitionControlsConfigError("breadth_confirmation.min_phase_signal_score must be between 0 and 100")
+    if not 0 <= config.breadth_confirmation.min_indicator_confidence <= 1:
+        raise TransitionControlsConfigError("breadth_confirmation.min_indicator_confidence must be between 0 and 1")
+    if config.breadth_confirmation.enabled and not config.breadth_confirmation.target_phases:
+        raise TransitionControlsConfigError("breadth_confirmation.target_phases must not be empty when enabled")
+    if config.breadth_confirmation.enabled and not config.breadth_confirmation.allowed_groups:
+        raise TransitionControlsConfigError("breadth_confirmation.allowed_groups must not be empty when enabled")
     if not any("修訂後歷史資料" in caveat for caveat in config.caveats_zh):
         raise TransitionControlsConfigError("caveats_zh must include revised data caveat")
     if not any("不構成投資建議" in caveat for caveat in config.caveats_zh):
@@ -148,10 +166,22 @@ def _cooldown_period(value: Any) -> CooldownPeriodControl:
 
 def _breadth_confirmation(value: Any) -> BreadthConfirmationControl:
     data = _mapping(value)
+    allowed_groups = _str_list(data.get("allowed_groups"), "breadth_confirmation.allowed_groups", allow_empty=True)
+    legacy_groups = _str_list(data.get("groups"), "breadth_confirmation.groups", allow_empty=True)
     return BreadthConfirmationControl(
         enabled=_bool(data.get("enabled", False), "breadth_confirmation.enabled"),
+        target_phases=_str_list(data.get("target_phases"), "breadth_confirmation.target_phases", allow_empty=True),
         min_group_count=int(data["min_group_count"]) if "min_group_count" in data else 1,
-        groups=_str_list(data.get("groups"), "breadth_confirmation.groups", allow_empty=True),
+        min_core_group_count=int(data["min_core_group_count"]) if "min_core_group_count" in data else 0,
+        min_indicator_count=int(data["min_indicator_count"]) if "min_indicator_count" in data else 1,
+        min_phase_signal_score=(
+            float(data["min_phase_signal_score"]) if "min_phase_signal_score" in data else 0.0
+        ),
+        min_indicator_confidence=(
+            float(data["min_indicator_confidence"]) if "min_indicator_confidence" in data else 0.0
+        ),
+        allowed_groups=allowed_groups or legacy_groups,
+        groups=legacy_groups,
         description_zh=str(data.get("description_zh") or ""),
     )
 

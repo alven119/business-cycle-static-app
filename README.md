@@ -335,6 +335,27 @@ python scripts/diagnose_covid_false_positive.py --experiment-id transition_contr
 
 Outputs are written under `data/backtests/calibration/<experiment_id>/`, including `calibration_acceptance_review.json` and `covid_false_positive_diagnostic.json`. These files are generated ignored diagnostics and do not affect the live dashboard.
 
+## Phase 7D book-aligned indicator gap analysis
+
+Phase 7D documents the gap between the MVP indicator set and book-aligned boom-ending, recession-confirmation, and recession-trough/recovery signals.
+
+```bash
+python scripts/show_book_indicator_gap.py
+```
+
+The spec lives at `specs/backtests/book_indicator_gap_analysis.yaml`, with narrative docs in `docs/book_indicator_gap_analysis.md`. This phase only adds planning/spec validation and does not change scoring, resolver behavior, or the live dashboard.
+
+## Phase 7E recession breadth confirmation
+
+Phase 7E adds feature-gated recession-specific breadth confirmation for calibration experiments.
+
+```bash
+python scripts/run_calibration_experiment.py --experiment-id transition_controls_v2_breadth --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v2_breadth_full --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml
+```
+
+The config is `specs/backtests/transition_controls_recession_breadth_experiment.yaml`. It is not used by the live dashboard unless explicitly passed to a backtest/calibration command.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

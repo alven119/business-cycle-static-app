@@ -269,6 +269,41 @@ data/backtests/calibration/transition_controls_v1_full/covid_false_positive_diag
 
 這些 output 都在 ignored `data/backtests/calibration/` 之下，只用於 diagnostics。它們不會修改正式 dashboard、不會啟用 transition controls，也不構成投資建議。
 
+## Phase 7D Book Indicator Gap Analysis
+
+Phase 7D 讀取 machine-readable gap spec，整理目前 MVP 指標與書籍方法論之間的缺口：
+
+```bash
+python scripts/show_book_indicator_gap.py
+```
+
+Spec 與說明文件：
+
+```text
+specs/backtests/book_indicator_gap_analysis.yaml
+docs/book_indicator_gap_analysis.md
+```
+
+此步驟不執行 backtest、不產生 `data/backtests/` output，也不修改 scoring 或 resolver。它用來規劃後續 recession-specific breadth confirmation 與 book-aligned indicator expansion。
+
+## Phase 7E Recession Breadth Confirmation Experiment
+
+Phase 7E 可用新的 transition controls config 進行 recession-specific breadth confirmation 實驗：
+
+```bash
+python scripts/run_calibration_experiment.py --experiment-id transition_controls_v2_breadth --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml
+```
+
+Full-horizon calibration 與 review：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v2_breadth_full --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml
+python scripts/review_calibration_experiment.py --experiment-id transition_controls_v2_breadth_full
+python scripts/diagnose_covid_false_positive.py --experiment-id transition_controls_v2_breadth_full
+```
+
+此 config 只供 calibration experiment 使用。若不明確傳入 `--controls`，backtest 仍維持 baseline 或原本指定的 controls。Live dashboard 與 GitHub Pages workflow 不會使用此設定。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

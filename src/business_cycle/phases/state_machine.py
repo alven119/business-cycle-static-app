@@ -27,6 +27,25 @@ NEXT_PHASE: dict[Phase, Phase] = {
     "growth": "boom",
     "boom": "recession",
 }
+INDICATOR_GROUPS: dict[str, str] = {
+    "initial_jobless_claims": "employment",
+    "unemployment_rate": "employment",
+    "short_term_unemployment": "employment",
+    "real_retail_sales": "consumption",
+    "real_pce_durable_goods": "consumption",
+    "durable_goods_orders": "investment",
+    "real_private_fixed_investment": "investment",
+    "housing_starts": "investment",
+    "industrial_production": "investment",
+    "exports_goods_services": "trade",
+    "imports_goods_services": "trade",
+    "federal_funds_rate": "rates_financial_conditions",
+    "ten_year_treasury_yield": "rates_financial_conditions",
+    "thirty_year_mortgage_rate": "rates_financial_conditions",
+    "yield_curve_spread": "rates_financial_conditions",
+    "wti_oil_price": "commodities",
+}
+_CORE_BREADTH_GROUPS = {"employment", "consumption", "investment"}
 
 
 @dataclass(frozen=True)
@@ -240,6 +259,7 @@ def resolve_current_phase(
         )
         return _apply_transition_controls(
             decision=decision,
+            candidate_phase_score=next_phase_score,
             transition_controls=transition_controls,
             phase_history=phase_history or [],
         )
@@ -704,6 +724,7 @@ def _decision(
 def _apply_transition_controls(
     *,
     decision: CurrentPhaseDecision,
+    candidate_phase_score: PhaseScoreResult,
     transition_controls: TransitionControlsConfig | None,
     phase_history: list[dict[str, Any]],
 ) -> CurrentPhaseDecision:
@@ -740,10 +761,24 @@ def _apply_transition_controls(
 
     if transition_controls.breadth_confirmation.enabled:
         applied.append("breadth_confirmation")
-        warnings.append(
-            "breadth_confirmation enabled but resolver input does not include indicator-group breadth evidence; "
-            "control is recorded as warning only in Phase 7B."
-        )
+        if _breadth_applies_to_candidate(transition_controls, candidate_phase_id):
+            breadth_summary = _breadth_confirmation_summary(
+                transition_controls=transition_controls,
+                candidate_phase_score=candidate_phase_score,
+            )
+            if breadth_summary["insufficient_evidence"]:
+                blocked.append("breadth_confirmation")
+                warnings.append("breadth_confirmation_insufficient_evidence")
+            elif not breadth_summary["passed"]:
+                blocked.append("breadth_confirmation")
+            details_breadth_summary = breadth_summary
+        else:
+            details_breadth_summary = {
+                "target_phase": candidate_phase_id,
+                "applies": False,
+                "passed": True,
+                "reason": "candidate phase is not targeted by breadth_confirmation",
+            }
 
     details = {
         **decision.details,
@@ -754,6 +789,8 @@ def _apply_transition_controls(
             "warnings": warnings,
         },
     }
+    if "details_breadth_summary" in locals():
+        details["transition_controls"]["breadth_summary"] = details_breadth_summary
     if not blocked:
         return CurrentPhaseDecision(**{**decision.__dict__, "details": details})
 
@@ -766,6 +803,8 @@ def _apply_transition_controls(
         reason_parts.append("candidate phase 分數尚未高出目前階段足夠 margin")
     if "cooldown_period" in blocked:
         reason_parts.append("仍在前次 confirmed transition 後的冷卻期")
+    if "breadth_confirmation" in blocked:
+        reason_parts.append("衰退候選分數升高，但尚未達到多指標群組同步確認門檻")
 
     previous_phase_id = decision.previous_phase_id
     return CurrentPhaseDecision(
@@ -783,6 +822,79 @@ def _apply_transition_controls(
         reason_zh=f"{decision.reason_zh} 實驗性 transition controls 已啟用；{'；'.join(reason_parts)}，因此先降級為 transition_watch。",
         details=details,
     )
+
+
+def _breadth_applies_to_candidate(
+    transition_controls: TransitionControlsConfig,
+    candidate_phase_id: str | None,
+) -> bool:
+    if candidate_phase_id is None:
+        return False
+    return candidate_phase_id in set(transition_controls.breadth_confirmation.target_phases)
+
+
+def _breadth_confirmation_summary(
+    *,
+    transition_controls: TransitionControlsConfig,
+    candidate_phase_score: PhaseScoreResult,
+) -> dict[str, Any]:
+    control = transition_controls.breadth_confirmation
+    allowed_groups = set(control.allowed_groups)
+    supported_indicators: list[dict[str, Any]] = []
+    unsupported_indicators: list[dict[str, Any]] = []
+    for item in candidate_phase_score.contributing_indicators:
+        if not isinstance(item, dict):
+            continue
+        indicator_id = str(item.get("indicator_id") or "")
+        group = _indicator_group(indicator_id)
+        phase_signal_score = _float_or_none(item.get("phase_signal_score"))
+        confidence = _float_or_none(item.get("confidence"))
+        if not indicator_id or group is None or group not in allowed_groups:
+            continue
+        evidence = {
+            "indicator_id": indicator_id,
+            "group": group,
+            "phase_signal_score": phase_signal_score,
+            "confidence": confidence,
+            "role": item.get("role"),
+        }
+        if (
+            phase_signal_score is not None
+            and confidence is not None
+            and phase_signal_score >= control.min_phase_signal_score
+            and confidence >= control.min_indicator_confidence
+        ):
+            supported_indicators.append(evidence)
+        else:
+            unsupported_indicators.append(evidence)
+
+    supported_groups = sorted({str(item["group"]) for item in supported_indicators})
+    supported_core_groups = sorted(set(supported_groups) & _CORE_BREADTH_GROUPS)
+    insufficient_evidence = not candidate_phase_score.contributing_indicators
+    passed = (
+        not insufficient_evidence
+        and len(supported_groups) >= control.min_group_count
+        and len(supported_indicators) >= control.min_indicator_count
+        and len(supported_core_groups) >= control.min_core_group_count
+    )
+    return {
+        "target_phase": candidate_phase_score.phase_id,
+        "applies": True,
+        "passed": passed,
+        "insufficient_evidence": insufficient_evidence,
+        "supported_group_count": len(supported_groups),
+        "supported_indicator_count": len(supported_indicators),
+        "supported_core_group_count": len(supported_core_groups),
+        "supported_groups": supported_groups,
+        "supported_core_groups": supported_core_groups,
+        "supported_indicators": supported_indicators,
+        "unsupported_indicators": unsupported_indicators,
+        "required_group_count": control.min_group_count,
+        "required_indicator_count": control.min_indicator_count,
+        "required_core_group_count": control.min_core_group_count,
+        "min_phase_signal_score": control.min_phase_signal_score,
+        "min_indicator_confidence": control.min_indicator_confidence,
+    }
 
 
 def _previous_transition_watch_for_candidate(
@@ -927,3 +1039,13 @@ def _optional_float(value: Any) -> float | None:
     if value is None:
         return None
     return float(value)
+
+
+def _indicator_group(indicator_id: str) -> str | None:
+    return INDICATOR_GROUPS.get(indicator_id)
+
+
+def _float_or_none(value: Any) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None

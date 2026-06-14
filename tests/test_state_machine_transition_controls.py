@@ -187,7 +187,7 @@ def test_breadth_confirmation_placeholder_records_warning() -> None:
 
     assert decision.decision_status == "confirmed"
     assert "breadth_confirmation" in decision.details["transition_controls"]["applied"]
-    assert decision.details["transition_controls"]["warnings"]
+    assert decision.details["transition_controls"]["breadth_summary"]["applies"] is False
 
 
 def test_controls_do_not_emit_manual_review_required() -> None:
