@@ -75,6 +75,7 @@ jobs:
           python scripts/update_catalog_data.py --force-refresh
           python scripts/run_cycle_pipeline.py
           python scripts/build_site.py
+          python scripts/validate_generated_site.py
 
       - name: Check generated dashboard output
         run: |

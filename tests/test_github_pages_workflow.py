@@ -44,3 +44,9 @@ def test_pages_workflow_uses_pipeline_default_cycle_context() -> None:
     assert "python scripts/run_cycle_pipeline.py" in workflow
     forbidden_previous_phase = "--previous-phase-id " + "recovery"
     assert forbidden_previous_phase not in workflow
+
+
+def test_pages_workflow_validates_generated_site() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "python scripts/validate_generated_site.py" in workflow

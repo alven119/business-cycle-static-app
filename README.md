@@ -187,6 +187,18 @@ Phase 5D turns the generated dashboard into a mobile-first Traditional Chinese h
 
 The current phase badge comes from the deterministic resolver output, not from the highest phase score. Indicator sections are grouped by employment, consumption, investment, trade, rates/financial conditions, and commodities.
 
+## Phase 5E deployment validation
+
+Phase 5E adds generated-site sanity checks and a deployment/mobile QA checklist. After building locally, validate the generated `public/` output with:
+
+```bash
+python scripts/run_cycle_pipeline.py
+python scripts/build_site.py
+python scripts/validate_generated_site.py
+```
+
+For GitHub Pages deployment checks and iPhone Safari QA, see `docs/deployment_validation.md`.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
