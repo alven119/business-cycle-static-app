@@ -18,6 +18,11 @@ from business_cycle.backtests.runner import (
     run_backtest,
 )
 from business_cycle.backtests.report import build_backtest_report, write_backtest_report
+from business_cycle.backtests.smoke import (
+    BacktestSmokeError,
+    build_backtest_smoke_summary,
+    run_backtest_smoke,
+)
 
 __all__ = [
     "BacktestPeriodResult",
@@ -26,11 +31,14 @@ __all__ = [
     "BacktestScenario",
     "BacktestScenarioCatalog",
     "BacktestScenarioError",
+    "BacktestSmokeError",
+    "build_backtest_smoke_summary",
     "build_backtest_report",
     "generate_monthly_periods",
     "get_scenario",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
     "run_backtest",
+    "run_backtest_smoke",
     "write_backtest_report",
 ]

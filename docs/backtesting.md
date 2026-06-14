@@ -79,6 +79,30 @@ Phase 6C.1 在 `report.json` 增加 `plausibility_warnings` 與 `plausibility_wa
 
 這些 warning 是模型診斷資訊，不是投資建議。
 
+## Phase 6D Full Smoke Summary
+
+Phase 6D 新增多 scenario 的 limited smoke runner。它會依 `specs/backtests/scenarios.yaml` 對每個 scenario 執行有限期數的 backtest，再產生 timeline report，最後彙整成整體診斷摘要。
+
+```bash
+python scripts/run_backtest_smoke.py --max-periods 24
+```
+
+預設輸出：
+
+```text
+data/backtests/smoke_summary.json
+```
+
+也可以只跑單一 scenario：
+
+```bash
+python scripts/run_backtest_smoke.py --max-periods 12 --scenario-id global_financial_crisis
+```
+
+Smoke summary 用途是快速比較多個歷史案例是否出現 whipsaw、過早轉換、沒有 `transition_watch`、短期 phase segment，並判斷後續是否需要檢查 phase thresholds、confirmation periods、indicator scoring sensitivity 或 book-aligned indicator coverage。
+
+Smoke summary 不代表模型已驗證完成。它仍使用 revised data，不等同當時投資人可見資料，也不構成投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。
