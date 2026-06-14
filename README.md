@@ -199,6 +199,17 @@ python scripts/validate_generated_site.py
 
 For GitHub Pages deployment checks and iPhone Safari QA, see `docs/deployment_validation.md`.
 
+## Phase 6A backtest scenario specs
+
+Phase 6A adds historical backtest scenario specs without running a backtest runner. Scenario definitions live in `specs/backtests/scenarios.yaml` and can be inspected with:
+
+```bash
+python scripts/list_backtest_scenarios.py
+python scripts/list_backtest_scenarios.py --scenario-id global_financial_crisis
+```
+
+Initial scenarios use `data_mode: revised`, meaning current revised historical data. This is useful for framework validation, but it is not the same as realtime vintage data available at the historical date.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

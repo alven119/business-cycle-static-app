@@ -1,0 +1,68 @@
+scenarios:
+  - scenario_id: dotcom_bubble
+    display_name_zh: 網路泡沫
+    display_name_en: Dot-com Bubble
+    window_start: "1998-01-01"
+    window_end: "2003-12-31"
+    focus_transition: boom_to_recession
+    baseline_phase_id: boom
+    expected_focus_zh:
+      - 觀察榮景期後期指標是否逐步轉弱
+      - 觀察衰退期分數是否在 2000-2001 年間升高
+      - 觀察就業、消費、投資與利率指標的領先/落後關係
+    benchmark_notes_zh: 使用修訂後歷史資料進行第一版框架驗證；不等同當時可見資料。
+    data_mode: revised
+
+  - scenario_id: global_financial_crisis
+    display_name_zh: 金融海嘯
+    display_name_en: Global Financial Crisis
+    window_start: "2005-01-01"
+    window_end: "2010-12-31"
+    focus_transition: boom_to_recession_to_recovery
+    baseline_phase_id: boom
+    expected_focus_zh:
+      - 觀察榮景期結束前的利率、就業、消費與投資轉弱訊號
+      - 觀察衰退期確認是否過早或過晚
+      - 觀察復甦期初期指標是否在 2009 年後開始改善
+    benchmark_notes_zh: 第一版使用 FRED 修訂後資料；未來可擴充 ALFRED vintage data。
+    data_mode: revised
+
+  - scenario_id: covid_recession
+    display_name_zh: COVID 衰退
+    display_name_en: COVID Recession
+    window_start: "2019-01-01"
+    window_end: "2021-12-31"
+    focus_transition: boom_to_recession_to_recovery
+    baseline_phase_id: boom
+    expected_focus_zh:
+      - 觀察突發性衰退對 state machine 的影響
+      - 觀察初領失業救濟金人數與消費指標的急劇變化
+      - 觀察模型是否能處理非常短暫但劇烈的衰退
+    benchmark_notes_zh: COVID 屬特殊外生衝擊，不能完全等同一般景氣循環。
+    data_mode: revised
+
+  - scenario_id: euro_debt_slowdown
+    display_name_zh: 歐債危機與二次衰退疑慮
+    display_name_en: Euro Debt Crisis / Double-dip Fear
+    window_start: "2010-01-01"
+    window_end: "2012-12-31"
+    focus_transition: recovery_to_growth_watch
+    baseline_phase_id: recovery
+    expected_focus_zh:
+      - 觀察市場二次衰退疑慮下，資料是否仍支持復甦/成長延續
+      - 檢查 state machine 是否避免過早跳回衰退期
+    benchmark_notes_zh: 此案例用來檢查模型是否過度敏感。
+    data_mode: revised
+
+  - scenario_id: late_cycle_2018
+    display_name_zh: 2018 升息與貿易戰壓力
+    display_name_en: 2018 Late-cycle Stress
+    window_start: "2017-01-01"
+    window_end: "2019-12-31"
+    focus_transition: growth_to_boom_or_recession_watch
+    baseline_phase_id: growth
+    expected_focus_zh:
+      - 觀察升息、利率與景氣後期壓力
+      - 檢查模型是否把短期市場壓力誤判為衰退
+    benchmark_notes_zh: 此案例用來檢查榮景期/衰退觀察的邊界。
+    data_mode: revised
