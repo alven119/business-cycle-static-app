@@ -26,6 +26,15 @@ from business_cycle.backtests.calibration_review import (
     build_calibration_acceptance_review,
     write_calibration_acceptance_review,
 )
+from business_cycle.backtests.covid_false_positive import (
+    CovidFalsePositiveError,
+    build_covid_false_positive_diagnostic,
+    write_covid_false_positive_diagnostic,
+)
+from business_cycle.backtests.full_horizon_calibration import (
+    run_full_horizon_calibration,
+    write_full_horizon_calibration_outputs,
+)
 from business_cycle.backtests.catalog import (
     get_scenario,
     load_backtest_scenario_catalog,
@@ -63,12 +72,14 @@ __all__ = [
     "CalibrationPlanError",
     "CalibrationExperimentError",
     "CalibrationReviewError",
+    "CovidFalsePositiveError",
     "attribution_quality_counts",
     "build_attribution_smoke_summary",
     "build_backtest_smoke_summary",
     "build_backtest_report",
     "build_calibration_experiment_summary",
     "build_calibration_acceptance_review",
+    "build_covid_false_positive_diagnostic",
     "build_transition_attribution",
     "generate_monthly_periods",
     "get_scenario",
@@ -79,8 +90,11 @@ __all__ = [
     "run_backtest",
     "run_backtest_smoke",
     "run_calibration_experiment",
+    "run_full_horizon_calibration",
     "write_transition_attribution",
     "write_calibration_acceptance_review",
+    "write_covid_false_positive_diagnostic",
+    "write_full_horizon_calibration_outputs",
     "validate_calibration_plan",
     "write_backtest_report",
 ]

@@ -324,6 +324,17 @@ python scripts/review_calibration_experiment.py --experiment-id transition_contr
 
 The review is written to `data/backtests/calibration/<experiment_id>/calibration_acceptance_review.json`. This is generated ignored output and remains a diagnostics aid; it does not enable transition controls or affect the live dashboard.
 
+## Phase 7C.2 full-horizon calibration review
+
+Phase 7C.2 runs calibration experiments over each scenario's full historical window and adds COVID early false-positive attribution.
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v1_full
+python scripts/diagnose_covid_false_positive.py --experiment-id transition_controls_v1_full
+```
+
+Outputs are written under `data/backtests/calibration/<experiment_id>/`, including `calibration_acceptance_review.json` and `covid_false_positive_diagnostic.json`. These files are generated ignored diagnostics and do not affect the live dashboard.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

@@ -234,6 +234,41 @@ specs/backtests/calibration_acceptance_windows.yaml
 
 此 review 仍是模型診斷，不會啟用 transition controls，也不會改 live dashboard。它使用 revised data，不等同當時投資人可見資料，也不構成投資建議。
 
+## Phase 7C.2 Full-Horizon Calibration and COVID Diagnostic
+
+Full-horizon calibration 會使用每個 scenario 的完整 window，不套用 `max_periods` smoke 限制：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v1_full
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/transition_controls_v1_full/calibration_summary.json
+data/backtests/calibration/transition_controls_v1_full/calibration_acceptance_review.json
+```
+
+若只想跑單一 scenario：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v1_full --scenario-id covid_recession
+```
+
+COVID early false-positive diagnostic 可針對 `covid_recession` 的 experiment output 產生歸因報告：
+
+```bash
+python scripts/diagnose_covid_false_positive.py --experiment-id transition_controls_v1_full
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/transition_controls_v1_full/covid_false_positive_diagnostic.json
+```
+
+這些 output 都在 ignored `data/backtests/calibration/` 之下，只用於 diagnostics。它們不會修改正式 dashboard、不會啟用 transition controls，也不構成投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

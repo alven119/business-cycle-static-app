@@ -159,6 +159,46 @@ Review 會檢查：
 
 Phase 7C.1 仍只產生 review/report，不修改 scoring、resolver、live dashboard 或 GitHub Pages workflow。Acceptance windows 是模型診斷輔助，不代表唯一正確答案，也不構成投資建議。
 
+## Phase 7C.2 Full-Horizon Review and COVID False-Positive Attribution
+
+Phase 7C.1 使用 `max_periods=12` 的 calibration experiment，因此 dotcom 與金融海嘯只能標記為 `needs_longer_horizon`，不能判斷完整歷史窗口下 transition controls 是否合理。Phase 7C.2 新增 full-horizon calibration orchestration，對每個 scenario 使用完整 `window_start` 到 `window_end` 執行 baseline、experiment、report、transition attribution 與 acceptance review。
+
+執行方式：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v1_full
+python scripts/review_calibration_experiment.py --experiment-id transition_controls_v1_full
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/<experiment_id>/calibration_summary.json
+data/backtests/calibration/<experiment_id>/calibration_acceptance_review.json
+```
+
+COVID scenario 在 7C.1 被標記為 2019-02-28 early false recession，因此 Phase 7C.2 也新增 attribution diagnostic：
+
+```bash
+python scripts/diagnose_covid_false_positive.py --experiment-id transition_controls_v1_full
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/<experiment_id>/covid_false_positive_diagnostic.json
+```
+
+此 diagnostic 會整理 false transition 附近的 phase score changes、top indicator score changes、candidate phase evidence，以及 transition controls applied/blocked/warnings。它的用途是檢查：
+
+- 是否由少數指標推動。
+- 是否需要 `breadth_confirmation`。
+- 是否需要更嚴格的 recession-specific confirmation。
+- 是否需要 COVID / exogenous shock handling。
+- 是否需要先補齊書中衰退確認指標。
+
+Phase 7C.2 不會正式啟用 transition controls，也不修改 live dashboard、scoring、resolver 或 FRED provider。它只提供下一步校準決策依據，避免只看 plausibility warning count 下降就誤判模型已可上線。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
