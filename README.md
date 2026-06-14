@@ -210,6 +210,17 @@ python scripts/list_backtest_scenarios.py --scenario-id global_financial_crisis
 
 Initial scenarios use `data_mode: revised`, meaning current revised historical data. This is useful for framework validation, but it is not the same as realtime vintage data available at the historical date.
 
+## Phase 6B backtest runner skeleton
+
+Phase 6B adds a monthly historical backtest runner skeleton that writes timeline JSON under ignored `data/backtests/`.
+
+```bash
+python scripts/run_backtest.py --scenario-id global_financial_crisis --max-periods 3
+python scripts/run_backtest.py --scenario-id global_financial_crisis
+```
+
+Use `--max-periods` for smoke tests. The runner uses local cached raw CSV files and does not call the FRED API.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

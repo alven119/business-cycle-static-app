@@ -25,6 +25,8 @@ data/normalized/
 data/normalized/**
 data/derived/
 data/derived/**
+data/backtests/
+data/backtests/**
 
 # Local output
 public/index.html
