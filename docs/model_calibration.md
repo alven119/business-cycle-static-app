@@ -85,6 +85,48 @@ Phase 7B 的目的，是提供後續實驗工具，用來檢查是否能降低 d
 
 這些 controls 只用於模型診斷與校準實驗，不構成投資建議。
 
+## Phase 7C Calibration Experiments
+
+Phase 7C 新增 calibration experiment runner，用來比較 baseline resolver 與 transition controls enabled 後的 backtest diagnostics。
+
+執行方式：
+
+```bash
+python scripts/run_calibration_experiment.py --experiment-id transition_controls_v1 --max-periods 12
+```
+
+預設 controls config：
+
+```text
+specs/backtests/transition_controls_enabled_experiment.yaml
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/<experiment_id>/calibration_summary.json
+```
+
+Runner 會針對每個 scenario 產生兩組結果：
+
+- `baseline/`：不傳 transition controls。
+- `experiment/`：傳入 enabled transition controls config。
+
+每組都會產生 timeline、report 與 transition attribution，最後比較：
+
+- plausibility warning count
+- transition event count
+- phase segment count
+- first recession current date
+
+Acceptance checks 目前包含：
+
+- direct confirmed without watch、short segment、rapid round trip 是否可望下降。
+- experiment 是否沒有新增 failure。
+- out-of-sample scenario 是否沒有新增 false recession。
+
+Phase 7C 的結果不會直接進 live dashboard，也不會改 production resolver 預設。下一步才會根據 diagnostics 決定是否把 controls 轉成正式設定或繼續調整實驗參數。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

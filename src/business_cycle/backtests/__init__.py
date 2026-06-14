@@ -16,6 +16,11 @@ from business_cycle.backtests.calibration import (
     load_calibration_plan,
     validate_calibration_plan,
 )
+from business_cycle.backtests.calibration_experiment import (
+    CalibrationExperimentError,
+    build_calibration_experiment_summary,
+    run_calibration_experiment,
+)
 from business_cycle.backtests.catalog import (
     get_scenario,
     load_backtest_scenario_catalog,
@@ -51,10 +56,12 @@ __all__ = [
     "AttributionSmokeError",
     "CalibrationPlan",
     "CalibrationPlanError",
+    "CalibrationExperimentError",
     "attribution_quality_counts",
     "build_attribution_smoke_summary",
     "build_backtest_smoke_summary",
     "build_backtest_report",
+    "build_calibration_experiment_summary",
     "build_transition_attribution",
     "generate_monthly_periods",
     "get_scenario",
@@ -64,6 +71,7 @@ __all__ = [
     "run_attribution_smoke",
     "run_backtest",
     "run_backtest_smoke",
+    "run_calibration_experiment",
     "write_transition_attribution",
     "validate_calibration_plan",
     "write_backtest_report",

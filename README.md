@@ -304,6 +304,16 @@ python scripts/run_backtest.py --scenario-id global_financial_crisis --max-perio
 
 Without `--transition-controls`, the resolver keeps baseline behavior.
 
+## Phase 7C calibration experiments
+
+Phase 7C compares baseline backtests with enabled transition controls.
+
+```bash
+python scripts/run_calibration_experiment.py --experiment-id transition_controls_v1 --max-periods 12
+```
+
+The summary is written to `data/backtests/calibration/<experiment_id>/calibration_summary.json`. This is generated ignored output. The live dashboard and GitHub Pages workflow remain unaffected.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

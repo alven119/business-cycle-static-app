@@ -196,6 +196,22 @@ python scripts/run_backtest.py --scenario-id global_financial_crisis --max-perio
 
 當未來 Phase 7C 建立 enabled experiment config 時，timeline period 會記錄 `transition_controls_enabled`、`transition_controls_applied`、`transition_controls_blocked` 與 `transition_controls_warnings`，方便比較 baseline 與 controls enabled 的 diagnostics。
 
+## Phase 7C Calibration Experiment Runner
+
+Calibration experiment runner 會同時跑 baseline 與 enabled transition controls，並輸出比較報告：
+
+```bash
+python scripts/run_calibration_experiment.py --experiment-id transition_controls_v1 --max-periods 12
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/transition_controls_v1/calibration_summary.json
+```
+
+Baseline 不傳 transition controls；experiment 使用 `specs/backtests/transition_controls_enabled_experiment.yaml`。此流程只產生 diagnostics comparison，不會修改 live dashboard、GitHub Pages workflow 或 production resolver 預設。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。
