@@ -30,6 +30,33 @@ data/backtests/<scenario_id>/timeline.json
 
 Runner 不會呼叫 FRED API，也不會下載資料。它只讀本機 `data/raw/fred` CSV cache；若 raw CSV 缺漏，timeline 會記錄 period failure 或 indicator failure。正式執行前請先用 live data refresh 建好 raw cache。
 
+## Phase 6C Timeline Report
+
+Phase 6C 新增 diagnostics report layer。先產生 timeline，再產生 report：
+
+```bash
+python scripts/run_backtest.py --scenario-id global_financial_crisis --max-periods 12
+python scripts/summarize_backtest.py --scenario-id global_financial_crisis
+```
+
+Report 預設輸出：
+
+```text
+data/backtests/<scenario_id>/report.json
+```
+
+`report.json` 包含：
+
+- `phase_segments`：current phase 的連續分段。
+- `transition_events`：current phase 實際改變的日期與轉換資訊。
+- `decision_status_counts`：各種 resolver status 的出現次數。
+- `phase_score_extrema`：各 phase 分數的最高、最低、最新值與日期。
+- `first_transition_watch_as_of`。
+- `first_recession_watch_as_of`。
+- `first_recession_current_as_of`。
+
+Report 用途是檢查模型是否太早或太晚出現轉折訊號，並觀察四階段分數在歷史事件中的演變。它仍然使用 timeline 的 revised data caveat，不代表當時投資人可見資料，也不是投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

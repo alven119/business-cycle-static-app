@@ -17,6 +17,7 @@ from business_cycle.backtests.runner import (
     generate_monthly_periods,
     run_backtest,
 )
+from business_cycle.backtests.report import build_backtest_report, write_backtest_report
 
 __all__ = [
     "BacktestPeriodResult",
@@ -25,9 +26,11 @@ __all__ = [
     "BacktestScenario",
     "BacktestScenarioCatalog",
     "BacktestScenarioError",
+    "build_backtest_report",
     "generate_monthly_periods",
     "get_scenario",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
     "run_backtest",
+    "write_backtest_report",
 ]

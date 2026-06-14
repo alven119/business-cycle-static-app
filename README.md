@@ -221,6 +221,16 @@ python scripts/run_backtest.py --scenario-id global_financial_crisis
 
 Use `--max-periods` for smoke tests. The runner uses local cached raw CSV files and does not call the FRED API.
 
+## Phase 6C backtest diagnostics report
+
+Phase 6C summarizes a generated timeline into diagnostics JSON:
+
+```bash
+python scripts/summarize_backtest.py --scenario-id global_financial_crisis
+```
+
+The report is written to `data/backtests/<scenario_id>/report.json`. Backtest outputs under `data/backtests/` are generated ignored files and should not be committed.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
