@@ -231,6 +231,8 @@ python scripts/summarize_backtest.py --scenario-id global_financial_crisis
 
 The report is written to `data/backtests/<scenario_id>/report.json`. Backtest outputs under `data/backtests/` are generated ignored files and should not be committed.
 
+Phase 6C.1 adds `plausibility_warning_count` and `plausibility_warnings` to the report. These warnings flag model-diagnostic issues such as short phase segments, direct confirmed transitions without watch periods, and rapid round trips; they do not change the model result.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

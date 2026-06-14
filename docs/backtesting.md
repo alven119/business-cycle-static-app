@@ -57,6 +57,28 @@ data/backtests/<scenario_id>/report.json
 
 Report 用途是檢查模型是否太早或太晚出現轉折訊號，並觀察四階段分數在歷史事件中的演變。它仍然使用 timeline 的 revised data caveat，不代表當時投資人可見資料，也不是投資建議。
 
+## Phase 6C.1 Plausibility Diagnostics
+
+Phase 6C.1 在 `report.json` 增加 `plausibility_warnings` 與 `plausibility_warning_count`。這些 warning 只用來檢查模型在歷史案例中的可疑跳轉，不會改變模型結果。
+
+常見 warning：
+
+- `short_phase_segment`：某個 phase segment 持續期數過短。
+- `direct_confirmed_transition_without_watch`：階段直接 confirmed transition，前一期沒有先進入 transition watch。
+- `rapid_round_trip`：短時間內出現 A -> B -> C，且中間 phase 過短，可能代表 whipsaw。
+- `early_scenario_transition`：第一個 transition 發生在 scenario window 前段。
+- `recession_without_watch`：衰退期在同一期直接被確認，缺少觀察期。
+
+看到 warning 後，下一步通常是檢查：
+
+- phase thresholds
+- phase scoring weights
+- indicator scoring sensitivity
+- required confirmation periods
+- book-aligned indicator coverage
+
+這些 warning 是模型診斷資訊，不是投資建議。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

@@ -31,6 +31,24 @@ def timeline() -> dict:
                 ],
                 "warnings": [],
                 "failures": [],
+            },
+            {
+                "as_of": "2005-02-28",
+                "current_phase_id": "recession",
+                "decision_status": "confirmed",
+                "candidate_phase_id": "recession",
+                "confidence": 0.75,
+                "phase_scores": [
+                    {
+                        "phase_id": "recession",
+                        "score": 80,
+                        "confidence": 0.8,
+                        "available_weight": 1.0,
+                        "stage_hint": None,
+                    }
+                ],
+                "warnings": [],
+                "failures": [],
             }
         ],
         "caveats_zh": ["使用修訂後歷史資料。", "不構成投資建議。"],
@@ -51,6 +69,8 @@ def test_summarize_backtest_with_scenario_id_default_path(tmp_path: Path) -> Non
     report_path = timeline_path.with_name("report.json")
     assert completed.returncode == 0, completed.stderr
     assert "scenario_id=global_financial_crisis" in completed.stdout
+    assert "plausibility_warning_count=" in completed.stdout
+    assert "plausibility_warning kind=" in completed.stdout
     assert report_path.exists()
 
 
@@ -68,7 +88,7 @@ def test_summarize_backtest_with_custom_timeline_and_output(tmp_path: Path) -> N
 
     assert completed.returncode == 0, completed.stderr
     assert output_path.exists()
-    assert json.loads(output_path.read_text(encoding="utf-8"))["period_count"] == 1
+    assert json.loads(output_path.read_text(encoding="utf-8"))["period_count"] == 2
 
 
 def test_summarize_backtest_missing_timeline_fails(tmp_path: Path) -> None:

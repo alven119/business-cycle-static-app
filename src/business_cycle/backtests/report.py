@@ -52,6 +52,24 @@ class PhaseScoreExtrema:
 
 
 @dataclass(frozen=True)
+class BacktestPlausibilityConfig:
+    """Thresholds for report-only plausibility diagnostics."""
+
+    min_segment_periods: int = 3
+    early_window_ratio: float = 0.2
+
+
+@dataclass(frozen=True)
+class PlausibilityWarning:
+    """Report-only warning for suspicious backtest behavior."""
+
+    kind: str
+    as_of: str
+    phase_id: str | None
+    message_zh: str
+
+
+@dataclass(frozen=True)
 class BacktestDiagnosticsReport:
     """Diagnostics report derived from one backtest timeline."""
 
@@ -74,13 +92,19 @@ class BacktestDiagnosticsReport:
     warning_count: int
     periods_with_failures: list[dict[str, Any]]
     periods_with_warnings: list[dict[str, Any]]
+    plausibility_warning_count: int
+    plausibility_warnings: list[PlausibilityWarning]
     caveats_zh: list[str]
     warnings: list[str]
 
 
-def build_backtest_report(timeline: dict[str, Any]) -> BacktestDiagnosticsReport:
+def build_backtest_report(
+    timeline: dict[str, Any],
+    plausibility_config: BacktestPlausibilityConfig | None = None,
+) -> BacktestDiagnosticsReport:
     """Build a diagnostics report from a timeline mapping."""
 
+    config = plausibility_config or BacktestPlausibilityConfig()
     periods = _periods(timeline)
     warnings: list[str] = []
     phase_segments = _phase_segments(periods)
@@ -91,6 +115,14 @@ def build_backtest_report(timeline: dict[str, Any]) -> BacktestDiagnosticsReport
     periods_with_warnings = _periods_with_count(periods, "warnings")
     failure_count = sum(item["count"] for item in periods_with_failures)
     warning_count = sum(item["count"] for item in periods_with_warnings) + len(warnings)
+    plausibility_warnings = _plausibility_warnings(
+        periods=periods,
+        phase_segments=phase_segments,
+        transition_events=transition_events,
+        first_recession_watch_as_of=_first_recession_watch(periods),
+        first_recession_current_as_of=_first_current_phase(periods, "recession"),
+        config=config,
+    )
 
     return BacktestDiagnosticsReport(
         scenario_id=str(timeline.get("scenario_id") or ""),
@@ -112,6 +144,8 @@ def build_backtest_report(timeline: dict[str, Any]) -> BacktestDiagnosticsReport
         warning_count=warning_count,
         periods_with_failures=periods_with_failures,
         periods_with_warnings=periods_with_warnings,
+        plausibility_warning_count=len(plausibility_warnings),
+        plausibility_warnings=plausibility_warnings,
         caveats_zh=_caveats(timeline),
         warnings=warnings,
     )
@@ -160,6 +194,8 @@ def serialize_backtest_report(report: BacktestDiagnosticsReport) -> dict[str, An
         "warning_count": report.warning_count,
         "periods_with_failures": report.periods_with_failures,
         "periods_with_warnings": report.periods_with_warnings,
+        "plausibility_warning_count": report.plausibility_warning_count,
+        "plausibility_warnings": [warning.__dict__ for warning in report.plausibility_warnings],
         "caveats_zh": report.caveats_zh,
         "warnings": report.warnings,
     }
@@ -314,6 +350,164 @@ def _periods_with_count(periods: list[dict[str, Any]], field: str) -> list[dict[
         if count > 0:
             items.append({"as_of": str(period.get("as_of")), "count": count})
     return items
+
+
+def _plausibility_warnings(
+    *,
+    periods: list[dict[str, Any]],
+    phase_segments: list[PhaseSegment],
+    transition_events: list[TransitionEvent],
+    first_recession_watch_as_of: str | None,
+    first_recession_current_as_of: str | None,
+    config: BacktestPlausibilityConfig,
+) -> list[PlausibilityWarning]:
+    warnings: list[PlausibilityWarning] = []
+    warnings.extend(_short_phase_segment_warnings(phase_segments, config))
+    warnings.extend(_direct_confirmed_transition_warnings(periods, transition_events))
+    warnings.extend(_rapid_round_trip_warnings(phase_segments, config))
+    warning = _early_transition_warning(periods, transition_events, config)
+    if warning is not None:
+        warnings.append(warning)
+    warning = _recession_without_watch_warning(
+        first_recession_watch_as_of,
+        first_recession_current_as_of,
+    )
+    if warning is not None:
+        warnings.append(warning)
+    return warnings
+
+
+def _short_phase_segment_warnings(
+    phase_segments: list[PhaseSegment],
+    config: BacktestPlausibilityConfig,
+) -> list[PlausibilityWarning]:
+    warnings: list[PlausibilityWarning] = []
+    for segment in phase_segments:
+        if segment.period_count < config.min_segment_periods:
+            warnings.append(
+                PlausibilityWarning(
+                    kind="short_phase_segment",
+                    as_of=segment.start_as_of,
+                    phase_id=segment.phase_id,
+                    message_zh=(
+                        f"{_phase_label_zh(segment.phase_id)}分段僅持續 {segment.period_count} 期，"
+                        "可能代表模型對短期訊號過度敏感；此為診斷警示，不會修改回測結果。"
+                    ),
+                )
+            )
+    return warnings
+
+
+def _direct_confirmed_transition_warnings(
+    periods: list[dict[str, Any]],
+    transition_events: list[TransitionEvent],
+) -> list[PlausibilityWarning]:
+    periods_by_as_of = {str(period.get("as_of")): index for index, period in enumerate(periods)}
+    warnings: list[PlausibilityWarning] = []
+    for event in transition_events:
+        if event.decision_status != "confirmed":
+            continue
+        index = periods_by_as_of.get(event.as_of)
+        previous_status = None if index is None or index == 0 else periods[index - 1].get("decision_status")
+        if previous_status != "transition_watch":
+            warnings.append(
+                PlausibilityWarning(
+                    kind="direct_confirmed_transition_without_watch",
+                    as_of=event.as_of,
+                    phase_id=event.to_phase_id,
+                    message_zh=(
+                        f"{event.as_of} 從{_phase_label_zh(event.from_phase_id)}直接確認轉換到"
+                        f"{_phase_label_zh(event.to_phase_id)}，前一期未先進入轉換觀察；"
+                        "此為診斷警示，需檢查轉換門檻或訊號敏感度。"
+                    ),
+                )
+            )
+    return warnings
+
+
+def _rapid_round_trip_warnings(
+    phase_segments: list[PhaseSegment],
+    config: BacktestPlausibilityConfig,
+) -> list[PlausibilityWarning]:
+    warnings: list[PlausibilityWarning] = []
+    for index in range(1, len(phase_segments) - 1):
+        middle = phase_segments[index]
+        if middle.period_count < config.min_segment_periods:
+            previous = phase_segments[index - 1]
+            next_segment = phase_segments[index + 1]
+            warnings.append(
+                PlausibilityWarning(
+                    kind="rapid_round_trip",
+                    as_of=middle.start_as_of,
+                    phase_id=middle.phase_id,
+                    message_zh=(
+                        f"短時間內出現{_phase_label_zh(previous.phase_id)} -> "
+                        f"{_phase_label_zh(middle.phase_id)} -> {_phase_label_zh(next_segment.phase_id)}，"
+                        f"其中{_phase_label_zh(middle.phase_id)}僅持續 {middle.period_count} 期，"
+                        "可能代表 whipsaw；此為診斷警示，不會修改結果。"
+                    ),
+                )
+            )
+    return warnings
+
+
+def _early_transition_warning(
+    periods: list[dict[str, Any]],
+    transition_events: list[TransitionEvent],
+    config: BacktestPlausibilityConfig,
+) -> PlausibilityWarning | None:
+    if not transition_events:
+        return None
+    first_event = transition_events[0]
+    event_index = next(
+        (index for index, period in enumerate(periods) if period.get("as_of") == first_event.as_of),
+        None,
+    )
+    if event_index is None:
+        return None
+    early_periods = max(1, int(len(periods) * config.early_window_ratio))
+    if event_index <= early_periods:
+        return PlausibilityWarning(
+            kind="early_scenario_transition",
+            as_of=first_event.as_of,
+            phase_id=first_event.to_phase_id,
+            message_zh=(
+                f"第一個階段轉換發生在 scenario 前 {config.early_window_ratio:.0%} 期間內，"
+                "可能代表模型過早確認轉折；此為診斷警示。"
+            ),
+        )
+    return None
+
+
+def _recession_without_watch_warning(
+    first_recession_watch_as_of: str | None,
+    first_recession_current_as_of: str | None,
+) -> PlausibilityWarning | None:
+    if first_recession_current_as_of is None:
+        return None
+    if first_recession_watch_as_of == first_recession_current_as_of:
+        return PlausibilityWarning(
+            kind="recession_without_watch",
+            as_of=first_recession_current_as_of,
+            phase_id="recession",
+            message_zh=(
+                "衰退期在同一期直接被確認，缺少觀察期，需檢查 phase thresholds、"
+                "scoring sensitivity 或 confirmation periods；此為診斷警示。"
+            ),
+        )
+    return None
+
+
+def _phase_label_zh(phase_id: str | None) -> str:
+    labels = {
+        "recovery": "復甦期",
+        "growth": "成長期",
+        "boom": "榮景期",
+        "recession": "衰退期",
+    }
+    if phase_id is None:
+        return "未判定"
+    return labels.get(phase_id, phase_id)
 
 
 def _optional_str(value: Any) -> str | None:

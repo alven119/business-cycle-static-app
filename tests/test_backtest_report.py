@@ -206,3 +206,102 @@ def test_write_backtest_report_writes_json(tmp_path: Path) -> None:
     assert payload["phase_segments"][0]["phase_id"] == "boom"
     assert "不構成投資建議。" in payload["caveats_zh"]
     assert serialize_backtest_report(build_backtest_report(timeline()))["scenario_id"] == "test_scenario"
+
+
+def test_short_phase_segment_warning() -> None:
+    report = build_backtest_report(timeline())
+
+    assert "short_phase_segment" in warning_kinds(report)
+    warning = first_warning(report, "short_phase_segment", "recession")
+    assert warning["as_of"] == "2000-03-31"
+    assert "衰退期分段僅持續 2 期" in warning["message_zh"]
+
+
+def test_direct_confirmed_transition_without_watch_warning() -> None:
+    payload = no_watch_round_trip_timeline()
+
+    report = build_backtest_report(payload)
+
+    assert "direct_confirmed_transition_without_watch" in warning_kinds(report)
+
+
+def test_rapid_round_trip_warning() -> None:
+    payload = no_watch_round_trip_timeline()
+
+    report = build_backtest_report(payload)
+
+    warning = first_warning(report, "rapid_round_trip", "recession")
+    assert warning["as_of"] == "2000-02-29"
+    assert "可能代表 whipsaw" in warning["message_zh"]
+
+
+def test_early_scenario_transition_warning() -> None:
+    payload = no_watch_round_trip_timeline()
+
+    report = build_backtest_report(payload)
+
+    assert "early_scenario_transition" in warning_kinds(report)
+
+
+def test_recession_without_watch_warning() -> None:
+    payload = no_watch_round_trip_timeline()
+
+    report = build_backtest_report(payload)
+
+    warning = first_warning(report, "recession_without_watch", "recession")
+    assert warning["as_of"] == "2000-02-29"
+    assert "缺少觀察期" in warning["message_zh"]
+
+
+def test_no_plausibility_warnings_when_segments_are_long_and_watch_precedes_transition() -> None:
+    report = build_backtest_report(stable_watch_timeline())
+
+    assert report.plausibility_warning_count == 0
+    assert report.plausibility_warnings == []
+
+
+def test_plausibility_warning_count_matches_warning_list() -> None:
+    report = build_backtest_report(no_watch_round_trip_timeline())
+
+    assert report.plausibility_warning_count == len(report.plausibility_warnings)
+    assert report.plausibility_warning_count > 0
+
+
+def no_watch_round_trip_timeline() -> dict:
+    payload = timeline()
+    payload["periods"] = [
+        period("2000-01-31", "boom", "hold_current", "recession", boom_score=70, recession_score=20),
+        period("2000-02-29", "recession", "confirmed", "recession", boom_score=40, recession_score=80),
+        period("2000-03-31", "recovery", "confirmed", "recovery", boom_score=45, recession_score=30),
+        period("2000-04-30", "recovery", "hold_current", "growth", boom_score=48, recession_score=20),
+        period("2000-05-31", "recovery", "hold_current", "growth", boom_score=50, recession_score=15),
+    ]
+    return payload
+
+
+def stable_watch_timeline() -> dict:
+    payload = timeline()
+    payload["periods"] = [
+        period("2000-01-31", "boom", "hold_current", "recession", boom_score=70, recession_score=20),
+        period("2000-02-29", "boom", "hold_current", "recession", boom_score=68, recession_score=25),
+        period("2000-03-31", "boom", "hold_current", "recession", boom_score=65, recession_score=35),
+        period("2000-04-30", "boom", "transition_watch", "recession", boom_score=62, recession_score=55),
+        period("2000-05-31", "recession", "confirmed", "recession", boom_score=45, recession_score=75),
+        period("2000-06-30", "recession", "hold_current", "recovery", boom_score=44, recession_score=72),
+        period("2000-07-31", "recession", "hold_current", "recovery", boom_score=43, recession_score=70),
+        period("2000-08-31", "recession", "hold_current", "recovery", boom_score=42, recession_score=68),
+    ]
+    return payload
+
+
+def warning_kinds(report) -> list[str]:  # type: ignore[no-untyped-def]
+    payload = serialize_backtest_report(report)
+    return [warning["kind"] for warning in payload["plausibility_warnings"]]
+
+
+def first_warning(report, kind: str, phase_id: str) -> dict:  # type: ignore[no-untyped-def]
+    payload = serialize_backtest_report(report)
+    for warning in payload["plausibility_warnings"]:
+        if warning["kind"] == kind and warning["phase_id"] == phase_id:
+            return warning
+    raise AssertionError(f"missing warning kind={kind} phase_id={phase_id}")

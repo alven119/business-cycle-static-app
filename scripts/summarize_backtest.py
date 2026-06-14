@@ -57,8 +57,15 @@ def main(argv: list[str] | None = None) -> int:
         f"first_transition_watch_as_of={payload['first_transition_watch_as_of']} "
         f"first_recession_watch_as_of={payload['first_recession_watch_as_of']} "
         f"first_recession_current_as_of={payload['first_recession_current_as_of']} "
+        f"plausibility_warning_count={payload['plausibility_warning_count']} "
         f"output={output}"
     )
+    for warning in payload["plausibility_warnings"][:5]:
+        print(
+            "plausibility_warning "
+            f"kind={warning['kind']} as_of={warning['as_of']} "
+            f"message_zh={warning['message_zh']}"
+        )
     return 0
 
 
