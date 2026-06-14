@@ -1,5 +1,10 @@
 """Backtest scenario specs and catalog loading."""
 
+from business_cycle.backtests.attribution import (
+    attribution_quality_counts,
+    build_transition_attribution,
+    write_transition_attribution,
+)
 from business_cycle.backtests.catalog import (
     get_scenario,
     load_backtest_scenario_catalog,
@@ -32,13 +37,16 @@ __all__ = [
     "BacktestScenarioCatalog",
     "BacktestScenarioError",
     "BacktestSmokeError",
+    "attribution_quality_counts",
     "build_backtest_smoke_summary",
     "build_backtest_report",
+    "build_transition_attribution",
     "generate_monthly_periods",
     "get_scenario",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
     "run_backtest",
     "run_backtest_smoke",
+    "write_transition_attribution",
     "write_backtest_report",
 ]
