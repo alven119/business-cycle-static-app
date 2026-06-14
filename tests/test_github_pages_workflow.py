@@ -12,7 +12,7 @@ def test_pages_workflow_uses_fred_secret_without_inline_key() -> None:
     workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
 
     assert "FRED_API_KEY: ${{ secrets.FRED_API_KEY }}" in workflow
-    assert "FRED_API_KEY=" not in workflow
+    assert "FRED_API_KEY" + "=" not in workflow
     assert "your_fred_api_key" not in workflow
 
 
@@ -36,3 +36,11 @@ def test_pages_workflow_does_not_commit_generated_public_output() -> None:
     ]
     for command in forbidden_commands:
         assert command not in workflow
+
+
+def test_pages_workflow_uses_pipeline_default_cycle_context() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "python scripts/run_cycle_pipeline.py" in workflow
+    forbidden_previous_phase = "--previous-phase-id " + "recovery"
+    assert forbidden_previous_phase not in workflow

@@ -29,9 +29,19 @@ python scripts/update_catalog_data.py --series-id UNRATE
 若加上 `--update-data`，會先執行 catalog data refresh。
 
 ```bash
-python scripts/run_cycle_pipeline.py --previous-phase-id recovery
-python scripts/run_cycle_pipeline.py --update-data --force-refresh --previous-phase-id recovery
+python scripts/run_cycle_pipeline.py
+python scripts/run_cycle_pipeline.py --update-data --force-refresh
 ```
+
+預設情況下，pipeline 會讀取 `specs/common/current_cycle_context.yaml`。若使用者沒有指定 `--previous-phase-id`，且 context 中 `use_as_default_previous_phase: true`，resolver 會使用 `baseline_phase_id` 作為 previous phase context。目前 baseline 是「榮景期第一年剛結束」，其 phase id 為 `boom`。
+
+CLI 明確值優先。需要覆蓋外部基準情境時才使用：
+
+```bash
+python scripts/run_cycle_pipeline.py --previous-phase-id boom
+```
+
+stdout 會顯示 previous phase 來源：`cli`、`cycle_context` 或 `none`。
 
 推薦直接使用上述檔案路徑執行方式，不需要手動設定 `PYTHONPATH`，也不要求使用 `python -m`。Pipeline runner 會用目前 Python interpreter 呼叫各步驟 script，並在子程序環境中設定專案的 `src` import path。
 
@@ -40,7 +50,7 @@ python scripts/run_cycle_pipeline.py --update-data --force-refresh --previous-ph
 本機 `.env` 可放：
 
 ```text
-FRED_API_KEY=your_fred_api_key_here
+FRED_API_KEY = your_fred_api_key_here
 ```
 
 `.env` 不應 commit。沒有 `FRED_API_KEY` 時，live data refresh 會清楚報錯。

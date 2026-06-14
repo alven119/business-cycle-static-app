@@ -48,4 +48,38 @@ def test_run_cycle_pipeline_script_executes_without_pythonpath(tmp_path: Path) -
     payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
     assert payload["summary"]["total_indicators"] == 1
     assert payload["summary"]["total_phases"] == 1
+    assert "previous_phase id=recovery source=cli" in completed.stdout
     assert not contains_key(payload, "investment_advice")
+
+
+def test_run_cycle_pipeline_script_defaults_to_cycle_context_boom(tmp_path: Path) -> None:
+    project_root = Path(__file__).resolve().parents[1]
+    output_dir = tmp_path / "derived"
+    env = dict(os.environ)
+    env.pop("PYTHONPATH", None)
+    env.pop("FRED_API_KEY", None)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/run_cycle_pipeline.py",
+            "--indicator-id",
+            "unemployment_rate",
+            "--phase-id",
+            "boom",
+            "--output-dir",
+            str(output_dir),
+        ],
+        cwd=project_root,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    decision = json.loads((output_dir / "current_phase_decision.json").read_text(encoding="utf-8"))
+    assert decision["previous_phase_id"] == "boom"
+    assert decision["details"]["previous_phase_source"] == "cycle_context"
+    assert decision["details"]["cycle_context"]["baseline_stage_note_zh"] == "榮景期第一年剛結束"
+    assert "previous_phase id=boom source=cycle_context" in completed.stdout

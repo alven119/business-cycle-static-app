@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from business_cycle.phases.cycle_context import CurrentCycleContext, load_current_cycle_context
+
 
 @dataclass(frozen=True)
 class PipelineRunResult:
@@ -21,6 +23,8 @@ class PipelineRunResult:
     steps: list[dict[str, str | int]]
     success: bool
     message: str
+    previous_phase_id: str | None
+    previous_phase_source: str
 
 
 StepRunner = Callable[[str, list[str]], int]
@@ -34,6 +38,7 @@ def run_cycle_pipeline(
     force_refresh: bool = False,
     indicator_ids: list[str] | None = None,
     phase_ids: list[str] | None = None,
+    cycle_context_path: str | Path = "specs/common/current_cycle_context.yaml",
     output_dir: str | Path = "data/derived",
     step_runner: StepRunner | None = None,
 ) -> PipelineRunResult:
@@ -45,10 +50,18 @@ def run_cycle_pipeline(
     current_phase_decision_path = output_root / "current_phase_decision.json"
     cycle_snapshot_path = output_root / "cycle_snapshot.json"
     runner = step_runner or _default_step_runner
+    cycle_context = load_current_cycle_context(cycle_context_path)
+    effective_previous_phase_id, previous_phase_source = _previous_phase_context(
+        previous_phase_id=previous_phase_id,
+        cycle_context=cycle_context,
+    )
 
     steps_to_run = _build_steps(
         as_of=as_of,
-        previous_phase_id=previous_phase_id,
+        previous_phase_id=effective_previous_phase_id,
+        previous_phase_source=previous_phase_source,
+        cycle_context_path=Path(cycle_context_path),
+        cycle_context=cycle_context,
         update_data=update_data,
         force_refresh=force_refresh,
         indicator_ids=indicator_ids,
@@ -74,6 +87,8 @@ def run_cycle_pipeline(
                 steps=completed_steps,
                 success=False,
                 message=f"Pipeline step failed: {step_name} exit_code={exit_code}",
+                previous_phase_id=effective_previous_phase_id,
+                previous_phase_source=previous_phase_source,
             )
 
     return PipelineRunResult(
@@ -84,6 +99,8 @@ def run_cycle_pipeline(
         steps=completed_steps,
         success=True,
         message="Pipeline completed successfully.",
+        previous_phase_id=effective_previous_phase_id,
+        previous_phase_source=previous_phase_source,
     )
 
 
@@ -91,6 +108,9 @@ def _build_steps(
     *,
     as_of: str | None,
     previous_phase_id: str | None,
+    previous_phase_source: str,
+    cycle_context_path: Path,
+    cycle_context: CurrentCycleContext | None,
     update_data: bool,
     force_refresh: bool,
     indicator_ids: list[str] | None,
@@ -132,6 +152,9 @@ def _build_steps(
     resolver_args = ["--phase-scores-path", str(phase_scores_path), "--output-path", str(current_phase_decision_path)]
     if previous_phase_id:
         resolver_args.extend(["--previous-phase-id", previous_phase_id])
+    resolver_args.extend(["--previous-phase-source", previous_phase_source])
+    if cycle_context is not None:
+        resolver_args.extend(["--cycle-context-path", str(cycle_context_path)])
     steps.append(
         {
             "name": "resolve_current_phase",
@@ -160,6 +183,18 @@ def _build_steps(
         }
     )
     return steps
+
+
+def _previous_phase_context(
+    *,
+    previous_phase_id: str | None,
+    cycle_context: CurrentCycleContext | None,
+) -> tuple[str | None, str]:
+    if previous_phase_id:
+        return previous_phase_id, "cli"
+    if cycle_context is not None and cycle_context.use_as_default_previous_phase:
+        return cycle_context.baseline_phase_id, "cycle_context"
+    return None, "none"
 
 
 def _default_step_runner(step_name: str, args: list[str]) -> int:

@@ -2,18 +2,19 @@
 
 Python-first static dashboard for business-cycle investing.
 
-This repository is currently in early implementation. It has a minimal FRED data provider and raw CSV cache, but does not yet score indicators, classify phases, or render the final dashboard.
+This repository now supports deterministic indicator scoring, phase scoring, current-phase resolution, and a generated static dashboard deployable to GitHub Pages.
 
 ## Current structure
 
 - `src/business_cycle/`: Python package root.
 - `data_sources` package: data providers for public macro data providers such as FRED.
 - `src/business_cycle/storage/`: filesystem helpers for raw, normalized, and public outputs.
-- `src/business_cycle/indicators/`: future indicator catalog loading and trend-aware scoring.
-- `src/business_cycle/phases/`: future phase scoring and transition engine.
-- `src/business_cycle/render/`: future static dashboard rendering.
-- `specs/indicator_catalog.yaml`: minimal indicator metadata examples.
-- `specs/phases/recovery.yaml`: minimal recovery phase spec example.
+- `src/business_cycle/indicators/`: indicator catalog loading and trend-aware scoring.
+- `src/business_cycle/phases/`: phase scoring, state-machine resolution, and cycle context loading.
+- `src/business_cycle/render/`: Traditional Chinese static dashboard rendering.
+- `specs/indicator_catalog.yaml`: indicator metadata and FRED candidate series.
+- `specs/phases/`: four phase specs for recovery, growth, boom, and recession.
+- `specs/common/current_cycle_context.yaml`: current external baseline context; default is `榮景期第一年剛結束`.
 - `scripts/update_data.py`: CLI for updating raw FRED CSV cache.
 - `scripts/score_today.py`: CLI skeleton for scoring.
 - `scripts/build_site.py`: CLI skeleton for static site generation.
@@ -38,7 +39,7 @@ pytest
 Create a local `.env` file for development:
 
 ```bash
-FRED_API_KEY=your_fred_api_key_here
+FRED_API_KEY = your_fred_api_key_here
 ```
 
 Do not commit `.env` or any API key. `scripts/update_data.py` loads `FRED_API_KEY` from the environment or local `.env`.
@@ -139,7 +140,7 @@ Phase 4A adds a deterministic current phase resolver with state-machine ordering
 
 ```bash
 python scripts/resolve_current_phase.py
-python scripts/resolve_current_phase.py --previous-phase-id recovery
+python scripts/resolve_current_phase.py --previous-phase-id boom
 ```
 
 ## Phase 4B cycle snapshot
@@ -157,8 +158,14 @@ Phase 4C adds a local end-to-end pipeline. It can refresh FRED catalog raw cache
 ```bash
 python scripts/update_catalog_data.py --dry-run
 python scripts/update_catalog_data.py --force-refresh
-python scripts/run_cycle_pipeline.py --previous-phase-id recovery
-python scripts/run_cycle_pipeline.py --update-data --force-refresh --previous-phase-id recovery
+python scripts/run_cycle_pipeline.py
+python scripts/run_cycle_pipeline.py --update-data --force-refresh
+```
+
+By default, `run_cycle_pipeline.py` reads `specs/common/current_cycle_context.yaml`. The current external baseline context is `榮景期第一年剛結束`, used as previous-phase context for the deterministic resolver. To override that context explicitly:
+
+```bash
+python scripts/run_cycle_pipeline.py --previous-phase-id boom
 ```
 
 ## Phase 5A static dashboard
@@ -166,8 +173,10 @@ python scripts/run_cycle_pipeline.py --update-data --force-refresh --previous-ph
 Phase 5A renders ignored `data/derived/cycle_snapshot.json` into a minimal local static dashboard under `public/`. It uses no frontend framework and does not deploy to GitHub Pages.
 `python scripts/build_site.py` writes ignored local output: `public/index.html` and `public/data/cycle_snapshot.json`. Re-run `build_site.py` whenever you need to regenerate the dashboard from the latest local snapshot.
 
+The dashboard is Traditional Chinese first. Chinese phase and indicator wording aligns with the book-style cycle terms `復甦期 -> 成長期 -> 榮景期 -> 衰退期`, while technical ids remain visible in small debug text.
+
 ```bash
-python scripts/run_cycle_pipeline.py --previous-phase-id recovery
+python scripts/run_cycle_pipeline.py
 python scripts/build_site.py
 python -m http.server 8000 -d public
 ```

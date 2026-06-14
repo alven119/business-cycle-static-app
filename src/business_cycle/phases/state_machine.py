@@ -14,6 +14,12 @@ Phase = Literal["recession", "recovery", "growth", "boom"]
 RadarLevel = Literal["none", "watch", "elevated", "confirmed"]
 
 CYCLE_ORDER: tuple[Phase, ...] = ("recession", "recovery", "growth", "boom")
+PHASE_LABELS_ZH: dict[str, str] = {
+    "recovery": "復甦期",
+    "growth": "成長期",
+    "boom": "榮景期",
+    "recession": "衰退期",
+}
 NEXT_PHASE: dict[Phase, Phase] = {
     "recession": "recovery",
     "recovery": "growth",
@@ -155,6 +161,8 @@ def resolve_current_phase(
     )
     current_phase_score = scores_by_phase.get(previous_phase_id)
     next_phase_score = scores_by_phase.get(allowed_next_phase_id)
+    previous_phase_label = _phase_label_zh(previous_phase_id)
+    allowed_next_phase_label = _phase_label_zh(allowed_next_phase_id)
     current_score = current_phase_score.score if current_phase_score is not None else None
     next_score = next_phase_score.score if next_phase_score is not None else None
     score_margin = (
@@ -178,7 +186,7 @@ def resolve_current_phase(
             allowed_next_phase_id=allowed_next_phase_id,
             blocked_phase_ids=blocked_phase_ids,
             reason_zh=(
-                f"維持 {previous_phase_id}，因為允許的下一階段 {allowed_next_phase_id} "
+                f"維持{previous_phase_label}，因為允許的下一階段{allowed_next_phase_label}"
                 "沒有可用 phase score。"
             ),
             details=_resolver_details(
@@ -212,7 +220,7 @@ def resolve_current_phase(
             allowed_next_phase_id=allowed_next_phase_id,
             blocked_phase_ids=blocked_phase_ids,
             reason_zh=(
-                f"確認從 {previous_phase_id} 轉換到 {allowed_next_phase_id}，因為允許的下一階段"
+                f"確認從{previous_phase_label}轉換到{allowed_next_phase_label}，因為允許的下一階段"
                 f"分數 {next_phase_score.score:.1f}、confidence {next_phase_score.confidence:.2f}、"
                 f"available_weight {next_phase_score.available_weight:.2f} 均達標，且相對目前階段"
                 f"分數差距 {score_margin:.1f} 達到轉換門檻。"
@@ -243,8 +251,8 @@ def resolve_current_phase(
             allowed_next_phase_id=allowed_next_phase_id,
             blocked_phase_ids=blocked_phase_ids,
             reason_zh=(
-                f"{allowed_next_phase_id} 已有改善跡象，但分數差距、confidence 或 available_weight "
-                f"尚未同時達標，因此暫時維持 {previous_phase_id} 並列入 transition watch。"
+                f"{allowed_next_phase_label}已有改善跡象，但分數差距、confidence 或 available_weight "
+                f"尚未同時達標，因此暫時維持{previous_phase_label}並列入 transition watch。"
                 f"{_blocked_reason_text(blocked_phase_ids)}"
             ),
             details=_resolver_details(
@@ -271,7 +279,7 @@ def resolve_current_phase(
         allowed_next_phase_id=allowed_next_phase_id,
         blocked_phase_ids=blocked_phase_ids,
         reason_zh=(
-            f"維持 {previous_phase_id}，因為允許的下一階段 {allowed_next_phase_id} "
+            f"維持{previous_phase_label}，因為允許的下一階段{allowed_next_phase_label}"
             "尚未提供足夠的轉換證據。"
             f"{_blocked_reason_text(blocked_phase_ids)}"
         ),
@@ -287,15 +295,16 @@ def resolve_current_phase(
 
 
 def write_current_phase_decision_json(
-    decision: CurrentPhaseDecision,
+    decision: CurrentPhaseDecision | dict[str, Any],
     output_path: str | Path,
 ) -> Path:
     """Write a current phase decision to JSON."""
 
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload = serialize_current_phase_decision(decision) if isinstance(decision, CurrentPhaseDecision) else decision
     path.write_text(
-        json.dumps(serialize_current_phase_decision(decision), ensure_ascii=False, indent=2),
+        json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
     return path
@@ -543,7 +552,7 @@ def _resolve_initial_estimate(
             allowed_next_phase_id=None,
             blocked_phase_ids=[],
             reason_zh=(
-                f"沒有 previous_phase_id，因此只做 initial estimate。{candidate.phase_id} "
+                f"沒有 previous_phase_id，因此只做 initial estimate。{_phase_label_zh(candidate.phase_id)}"
                 f"分數 {candidate.score:.1f}、confidence {candidate.confidence:.2f}、"
                 f"available_weight {candidate.available_weight:.2f} 達標，且與第二名差距 "
                 f"{score_margin:.1f} 達到門檻。"
@@ -759,10 +768,15 @@ def _phase_name(score: PhaseScoreResult | None) -> str | None:
     return score.phase_name_zh
 
 
+def _phase_label_zh(phase_id: str) -> str:
+    return PHASE_LABELS_ZH.get(phase_id, phase_id)
+
+
 def _blocked_reason_text(blocked_phase_ids: list[str]) -> str:
     if not blocked_phase_ids:
         return ""
-    return f" 非相鄰高分 phase 已被阻擋，不允許跳階段：{', '.join(blocked_phase_ids)}。"
+    blocked_labels = ", ".join(_phase_label_zh(phase_id) for phase_id in blocked_phase_ids)
+    return f" 非相鄰高分 phase 已被阻擋，不允許跳階段：{blocked_labels}。"
 
 
 def _clamp_confidence(value: float) -> float:

@@ -59,9 +59,11 @@ FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
 ```bash
 python scripts/update_catalog_data.py --force-refresh
-python scripts/run_cycle_pipeline.py --previous-phase-id recovery
+python scripts/run_cycle_pipeline.py
 python scripts/build_site.py
 ```
+
+Workflow 不硬寫正式 previous phase。`run_cycle_pipeline.py` 會讀取 `specs/common/current_cycle_context.yaml`，目前以「榮景期第一年剛結束」作為外部 baseline/context，讓 resolver 依循景氣循環順序與轉換規則檢查是否維持或轉換。
 
 最後把 `public/` 上傳為 Pages artifact 並部署。
 

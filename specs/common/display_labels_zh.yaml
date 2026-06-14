@@ -1,0 +1,48 @@
+phases:
+  recovery: 復甦期
+  growth: 成長期
+  boom: 榮景期
+  recession: 衰退期
+
+stage_hints:
+  early: 前期
+  mid: 中期
+  late: 後期
+
+decision_statuses:
+  confirmed: 已確認轉換
+  transition_watch: 轉換觀察
+  hold_current: 維持目前階段
+  initial_estimate: 初始推估
+  insufficient_evidence: 證據不足
+
+indicators:
+  initial_jobless_claims: 初領失業救濟金人數
+  short_term_unemployment: 短期失業人數
+  unemployment_rate: 失業率
+  real_retail_sales: 實質零售銷售
+  real_pce_durable_goods: 個人耐久財消費支出
+  durable_goods_orders: 製造業耐久財新訂單
+  real_private_fixed_investment: 實質民間固定資本投資
+  imports_goods_services: 進口金額
+  exports_goods_services: 出口金額
+  federal_funds_rate: 聯邦基金利率
+  ten_year_treasury_yield: 美國10年期公債殖利率
+  thirty_year_mortgage_rate: 美國30年房屋抵押貸款平均利率
+  wti_oil_price: 西德州原油價格
+
+methods:
+  level_percentile_score: 歷史分位數評分
+  moving_average_slope_score: 移動平均趨勢評分
+  yoy_momentum_score: 年增率動能評分
+  peak_trough_reversal_score: 高低點反轉評分
+
+roles:
+  core: 核心指標
+  confirmation: 確認指標
+  warning: 警示指標
+  optional: 輔助指標
+
+signal_transforms:
+  as_is: 順向解讀
+  inverted: 反向解讀

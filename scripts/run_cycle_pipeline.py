@@ -14,12 +14,18 @@ if str(SRC_DIR) not in sys.path:
 from business_cycle.pipeline.runner import run_cycle_pipeline  # noqa: E402
 
 DEFAULT_OUTPUT_DIR = Path("data/derived")
+DEFAULT_CYCLE_CONTEXT_PATH = Path("specs/common/current_cycle_context.yaml")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run local business cycle pipeline.")
     parser.add_argument("--as-of", help="Optional as-of date in YYYY-MM-DD format.")
     parser.add_argument("--previous-phase-id", help="Optional previous phase ID for resolver.")
+    parser.add_argument(
+        "--cycle-context-path",
+        default=str(DEFAULT_CYCLE_CONTEXT_PATH),
+        help="Current cycle context YAML used when --previous-phase-id is omitted.",
+    )
     parser.add_argument(
         "--update-data",
         action="store_true",
@@ -59,7 +65,12 @@ def main(argv: list[str] | None = None) -> int:
         force_refresh=args.force_refresh,
         indicator_ids=args.indicator_id,
         phase_ids=args.phase_id,
+        cycle_context_path=args.cycle_context_path,
         output_dir=args.output_dir,
+    )
+    print(
+        "previous_phase "
+        f"id={result.previous_phase_id or 'none'} source={result.previous_phase_source}"
     )
     for step in result.steps:
         print(f"step name={step['name']} exit_code={step['exit_code']} output={step['output_path']}")

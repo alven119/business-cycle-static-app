@@ -7,7 +7,7 @@ This project keeps live FRED checks out of the default pytest suite. Use this ma
 Create a local `.env` file in the repository root:
 
 ```bash
-FRED_API_KEY=your_fred_api_key_here
+FRED_API_KEY = your_fred_api_key_here
 ```
 
 Do not commit `.env`. The provider reads `FRED_API_KEY` from the environment, and `scripts/fred_smoke_test.py` calls `load_dotenv()` so local `.env` works for manual runs.
@@ -76,7 +76,7 @@ Expected result: raw CSV files appear only as ignored files, not as files staged
 
 `FRED_API_KEY is not set`
 
-The `.env` file is missing, has a different variable name, or the command is being run outside the repository root. Confirm `.env` exists and contains `FRED_API_KEY=...`.
+The `.env` file is missing, has a different variable name, or the command is being run outside the repository root. Confirm `.env` exists and contains a `FRED_API_KEY` entry.
 
 `Failed to download FRED series ...`
 
@@ -89,4 +89,3 @@ The API key may be invalid, rate limited, or the series ID may be invalid. Confi
 Raw data appears in `git status`
 
 Confirm `.gitignore` includes `data/raw/`, then run `git check-ignore -v data/raw/fred/UNRATE.csv`. Do not commit raw cache files.
-

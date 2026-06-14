@@ -73,7 +73,7 @@ jobs:
       - name: Build dashboard from live public macro data
         run: |
           python scripts/update_catalog_data.py --force-refresh
-          python scripts/run_cycle_pipeline.py --previous-phase-id recovery
+          python scripts/run_cycle_pipeline.py
           python scripts/build_site.py
 
       - name: Check generated dashboard output

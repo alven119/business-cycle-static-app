@@ -1,0 +1,6 @@
+baseline_phase_id: boom
+baseline_phase_name_zh: 榮景期
+baseline_stage_note_zh: 榮景期第一年剛結束
+source_type: user_provided_author_assessment
+source_note_zh: 根據使用者提供之作者近期敘述，作為 state machine 的外部基準情境；模型仍以資料分數檢查是否維持或轉換。
+use_as_default_previous_phase: true

@@ -41,6 +41,45 @@ def test_pipeline_runner_passes_previous_phase_to_resolver(tmp_path: Path) -> No
 
     assert "--previous-phase-id" in calls["resolve_current_phase"]
     assert "recovery" in calls["resolve_current_phase"]
+    assert "--previous-phase-source" in calls["resolve_current_phase"]
+    assert "cli" in calls["resolve_current_phase"]
+
+
+def test_pipeline_runner_uses_cycle_context_when_previous_phase_is_omitted(tmp_path: Path) -> None:
+    calls: dict[str, list[str]] = {}
+
+    def fake_runner(step_name: str, args: list[str]) -> int:
+        calls[step_name] = args
+        return 0
+
+    result = run_cycle_pipeline(output_dir=tmp_path, step_runner=fake_runner)
+
+    assert result.previous_phase_id == "boom"
+    assert result.previous_phase_source == "cycle_context"
+    assert "--previous-phase-id" in calls["resolve_current_phase"]
+    assert "boom" in calls["resolve_current_phase"]
+    assert "--previous-phase-source" in calls["resolve_current_phase"]
+    assert "cycle_context" in calls["resolve_current_phase"]
+
+
+def test_pipeline_runner_reports_none_when_context_is_missing(tmp_path: Path) -> None:
+    calls: dict[str, list[str]] = {}
+
+    def fake_runner(step_name: str, args: list[str]) -> int:
+        calls[step_name] = args
+        return 0
+
+    result = run_cycle_pipeline(
+        output_dir=tmp_path,
+        cycle_context_path=tmp_path / "missing.yaml",
+        step_runner=fake_runner,
+    )
+
+    assert result.previous_phase_id is None
+    assert result.previous_phase_source == "none"
+    assert "--previous-phase-id" not in calls["resolve_current_phase"]
+    assert "--previous-phase-source" in calls["resolve_current_phase"]
+    assert "none" in calls["resolve_current_phase"]
 
 
 def test_pipeline_runner_passes_as_of_to_relevant_steps(tmp_path: Path) -> None:

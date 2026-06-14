@@ -14,6 +14,21 @@ Static dashboard 是 `cycle_snapshot.json` 的可讀化輸出。它呈現：
 
 它不重新計算 indicator score、不重新計算 phase score，也不重新 resolve current phase。
 
+Dashboard 預設語言是 zh-TW / Traditional Chinese。主要顯示名稱會使用 `specs/common/display_labels_zh.yaml`，對齊《景氣循環投資》常用語：
+
+- 復甦期
+- 成長期
+- 榮景期
+- 衰退期
+
+Technical ids 仍會保留在小字欄位，方便 debug、對照 JSON 與測試。
+
+## Current Cycle Context
+
+`specs/common/current_cycle_context.yaml` 提供 resolver 的 previous-phase baseline/context。現階段預設為「榮景期第一年剛結束」，來源是使用者提供的作者近期敘述。
+
+這不是把模型結論硬寫死，也不是 manual review。Pipeline 會把它當作 state machine 的前一階段脈絡，再用 phase scores、資料信心、可用權重與轉換規則檢查是否維持或轉換。Dashboard 會清楚顯示此資訊是外部基準情境，不是純模型自動算出的結果。
+
 ## 不打 FRED API
 
 `scripts/build_site.py` 只讀本機 snapshot JSON，不呼叫 FRED API，也不需要 `FRED_API_KEY`。HTML 與 public JSON 不應包含任何 API key。
@@ -39,7 +54,7 @@ public/data/cycle_snapshot.json
 ## 使用方式
 
 ```bash
-python scripts/run_cycle_pipeline.py --previous-phase-id recovery
+python scripts/run_cycle_pipeline.py
 python scripts/build_site.py
 python -m http.server 8000 -d public
 ```

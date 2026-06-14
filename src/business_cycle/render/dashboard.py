@@ -8,8 +8,11 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from business_cycle.render.labels import label_for, load_display_labels
+
 PHASE_ORDER = ("recession", "recovery", "growth", "boom")
 DISCLAIMER_ZH = "本頁僅為總經資料整理與景氣循環判讀輔助，不構成投資建議。"
+DEFAULT_LABELS_PATH = Path("specs/common/display_labels_zh.yaml")
 
 
 def build_dashboard(snapshot: dict[str, Any]) -> str:
@@ -17,7 +20,10 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
 
     _reject_secret_keys(snapshot)
     decision = _mapping(snapshot.get("current_phase_decision"))
+    decision_details = _mapping(decision.get("details"))
+    cycle_context = _mapping(decision_details.get("cycle_context"))
     summary = _mapping(snapshot.get("summary"))
+    labels = _load_default_labels()
     phase_scores = sorted(
         _list_of_mappings(snapshot.get("phase_scores")),
         key=lambda phase: (_phase_sort_index(str(phase.get("phase_id", ""))), str(phase.get("phase_id", ""))),
@@ -32,7 +38,7 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
     phase_failures = _list_of_mappings(failures.get("phase_failures"))
 
     return f"""<!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -62,6 +68,8 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
     h2 {{ margin: 28px 0 12px; font-size: 1.2rem; }}
     h3 {{ margin: 0 0 8px; font-size: 1rem; }}
     .muted {{ color: var(--muted); }}
+    .technical {{ color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }}
+    .baseline {{ margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }}
     .grid {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
     .card {{
       background: var(--panel);
@@ -88,49 +96,52 @@ def build_dashboard(snapshot: dict[str, Any]) -> str:
 <main>
   <header>
     <h1>景氣循環儀表板</h1>
-    <div class="muted">generated_at: {_text(snapshot.get("generated_at"))}</div>
-    <div class="muted">as_of: {_text(snapshot.get("as_of"))}</div>
+    <div class="muted">產生時間：{_text(snapshot.get("generated_at"))}</div>
+    <div class="muted">資料日期：{_text(snapshot.get("as_of"))}</div>
     <p>{DISCLAIMER_ZH}</p>
+    <p class="muted">景氣循環順序為復甦期、成長期、榮景期、衰退期；判讀不可任意跳躍、逆行或略過。</p>
   </header>
 
   <section>
-    <h2>Current Phase</h2>
+    <h2>目前景氣階段</h2>
     <div class="card current">
-      <h3>{_text(decision.get("current_phase_name_zh"))} ({_text(decision.get("current_phase_id"))})</h3>
-      {_metric("decision_status", decision.get("decision_status"))}
-      {_metric("confidence", _format_number(decision.get("confidence")))}
-      {_metric("previous_phase_id", decision.get("previous_phase_id"))}
-      {_metric("candidate_phase_id", decision.get("candidate_phase_id"))}
-      {_metric("allowed_next_phase_id", decision.get("allowed_next_phase_id"))}
+      <h3>{_phase_label(labels, decision.get("current_phase_id"), decision.get("current_phase_name_zh"))}</h3>
+      <div class="technical">technical id: {_text(decision.get("current_phase_id"))}</div>
+      {_metric("判讀狀態", _status_label(labels, decision.get("decision_status")))}
+      {_metric("資料信心", _format_number(decision.get("confidence")))}
+      {_metric("前一階段脈絡", _phase_label(labels, decision.get("previous_phase_id")))}
+      {_metric("轉換候選階段", _phase_label(labels, decision.get("candidate_phase_id")))}
+      {_metric("允許的下一階段", _phase_label(labels, decision.get("allowed_next_phase_id")))}
+      {_baseline_context_html(cycle_context)}
       <p>{_text(decision.get("reason_zh"))}</p>
     </div>
   </section>
 
   <section>
-    <h2>Phase Scores</h2>
+    <h2>四階段證據分數</h2>
     <div class="grid phase-grid">
-      {_phase_cards(phase_scores)}
+      {_phase_cards(phase_scores, labels)}
     </div>
-    <p class="muted">Phase score 不會直接取最高分當作 current phase；state machine 會考慮前一階段、相鄰轉換與信心。</p>
+    <p class="muted">四階段分數是各階段證據強度，最終階段仍需依循景氣循環順序與轉換規則判讀。</p>
   </section>
 
   <section>
-    <h2>Indicator Scores</h2>
+    <h2>指標分數</h2>
     <div class="table-list indicator-grid">
-      {_indicator_cards(indicator_scores)}
+      {_indicator_cards(indicator_scores, labels)}
     </div>
   </section>
 
   <section>
-    <h2>Warnings / Failures</h2>
+    <h2>資料警示與失敗項目</h2>
     {_warnings_html(warnings)}
     {_failures_html(indicator_failures, phase_failures)}
   </section>
 
   <footer class="muted">
     <p>{DISCLAIMER_ZH}</p>
-    <p>分數與階段判讀依賴資料品質、資料修正與模型假設。</p>
-    <p>summary: current_phase_id={_text(summary.get("current_phase_id"))}, decision_status={_text(summary.get("decision_status"))}</p>
+    <p>分數與階段判讀依賴客觀數據、資料品質、資料修正與模型假設。榮景期屬景氣後期循環，重點不是單純高成長，而是觀察升息、通膨、估值、投資過熱與轉折風險。</p>
+    <p>summary technical id: current_phase_id={_text(summary.get("current_phase_id"))}, decision_status={_text(summary.get("decision_status"))}</p>
   </footer>
 </main>
 </body>
@@ -162,34 +173,38 @@ def build_static_site(snapshot_path: str | Path, output_dir: str | Path) -> dict
     return {"index_path": index_path, "snapshot_path": copied_snapshot_path}
 
 
-def _phase_cards(phase_scores: list[dict[str, Any]]) -> str:
+def _phase_cards(phase_scores: list[dict[str, Any]], labels: dict[str, dict[str, str]]) -> str:
     return "\n".join(
         f"""<article class="card">
-  <h3>{_text(phase.get("phase_name_zh"))}</h3>
-  <div class="muted">{_text(phase.get("phase_id"))}</div>
+  <h3>{_phase_label(labels, phase.get("phase_id"), phase.get("phase_name_zh"))}</h3>
+  <div class="technical">technical id: {_text(phase.get("phase_id"))}</div>
   <div class="score">{_text(_format_number(phase.get("score")))}</div>
-  {_metric("confidence", _format_number(phase.get("confidence")))}
-  {_metric("available_weight", _format_number(phase.get("available_weight")))}
-  {_metric("stage_hint", phase.get("stage_hint"))}
-  {_metric("missing_indicators", len(phase.get("missing_indicators") or []))}
+  {_metric("資料信心", _format_number(phase.get("confidence")))}
+  {_metric("可用權重", _format_number(phase.get("available_weight")))}
+  {_metric("階段位置", _stage_label(labels, phase.get("stage_hint")))}
+  {_metric("缺漏指標數", len(phase.get("missing_indicators") or []))}
 </article>"""
         for phase in phase_scores
     )
 
 
-def _indicator_cards(indicator_scores: list[dict[str, Any]]) -> str:
+def _indicator_cards(
+    indicator_scores: list[dict[str, Any]],
+    labels: dict[str, dict[str, str]],
+) -> str:
     cards: list[str] = []
     for indicator in indicator_scores:
         details = _mapping(indicator.get("details"))
+        indicator_id = _optional_text(indicator.get("indicator_id"))
         cards.append(
             f"""<article class="card">
-  <h3>{_text(indicator.get("indicator_id"))}</h3>
-  {_metric("score", _format_number(indicator.get("score")))}
-  {_metric("confidence", _format_number(indicator.get("confidence")))}
-  {_metric("method", indicator.get("method"))}
-  {_metric("as_of", indicator.get("as_of"))}
-  {_metric("selected_series_id", details.get("selected_series_id"))}
-  <p>{_text(indicator.get("reason_zh"))}</p>
+  <h3>{_text(label_for(labels, "indicators", indicator_id))}</h3>
+  <div class="technical">technical id: {_text(indicator_id)}; selected_series_id: {_text(details.get("selected_series_id"))}</div>
+  {_metric("分數", _format_number(indicator.get("score")))}
+  {_metric("資料信心", _format_number(indicator.get("confidence")))}
+  {_metric("評分方法", label_for(labels, "methods", _optional_text(indicator.get("method"))))}
+  {_metric("資料日期", indicator.get("as_of"))}
+  <p>{_text(indicator.get("reason_zh") or indicator.get("reason"))}</p>
 </article>"""
         )
     return "\n".join(cards)
@@ -207,9 +222,9 @@ def _failures_html(indicator_failures: list[dict[str, Any]], phase_failures: lis
         return '<p class="muted">目前沒有 pipeline failure。</p>'
     sections: list[str] = []
     if indicator_failures:
-        sections.append("<h3>Indicator failures</h3>" + _failure_list(indicator_failures))
+        sections.append("<h3>指標失敗項目</h3>" + _failure_list(indicator_failures))
     if phase_failures:
-        sections.append("<h3>Phase failures</h3>" + _failure_list(phase_failures))
+        sections.append("<h3>階段失敗項目</h3>" + _failure_list(phase_failures))
     return "\n".join(sections)
 
 
@@ -224,6 +239,45 @@ def _failure_list(failures: list[dict[str, Any]]) -> str:
 
 def _metric(label: str, value: Any) -> str:
     return f'<div class="metric"><span>{escape(label)}</span><strong>{_text(value)}</strong></div>'
+
+
+def _baseline_context_html(cycle_context: dict[str, Any]) -> str:
+    if not cycle_context:
+        return ""
+    return f"""<div class="baseline">
+  <h3>外部基準情境</h3>
+  {_metric("基準階段", cycle_context.get("baseline_phase_name_zh"))}
+  {_metric("基準位置", cycle_context.get("baseline_stage_note_zh"))}
+  <p>{_text(cycle_context.get("source_note_zh"))}</p>
+  <p class="muted">此 baseline/context 是 resolver 的 previous phase 脈絡，不是純模型自動算出的結論，也不是投資建議。</p>
+</div>"""
+
+
+def _load_default_labels() -> dict[str, dict[str, str]]:
+    try:
+        return load_display_labels(DEFAULT_LABELS_PATH)
+    except FileNotFoundError:
+        return {}
+
+
+def _phase_label(
+    labels: dict[str, dict[str, str]],
+    phase_id: Any,
+    fallback: Any = None,
+) -> str:
+    key = _optional_text(phase_id)
+    fallback_text = _optional_text(fallback)
+    return label_for(labels, "phases", key, fallback_text or key or "-")
+
+
+def _status_label(labels: dict[str, dict[str, str]], status: Any) -> str:
+    key = _optional_text(status)
+    return label_for(labels, "decision_statuses", key, key or "-")
+
+
+def _stage_label(labels: dict[str, dict[str, str]], stage_hint: Any) -> str:
+    key = _optional_text(stage_hint)
+    return label_for(labels, "stage_hints", key, key or "-")
 
 
 def _mapping(value: Any) -> dict[str, Any]:
@@ -247,6 +301,10 @@ def _format_number(value: Any) -> str:
     if isinstance(value, (int, float)):
         return f"{float(value):.2f}"
     return "" if value is None else str(value)
+
+
+def _optional_text(value: Any) -> str | None:
+    return None if value is None else str(value)
 
 
 def _text(value: Any) -> str:
