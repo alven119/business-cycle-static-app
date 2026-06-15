@@ -330,6 +330,31 @@ python scripts/show_book_indicator_plan.py
 
 Phase 7F 仍不改模型輸出、不啟用 transition controls、不修改 dashboard。後續真正新增 scoring 前，需先用既有 calibration review 驗證 COVID false positive 是否降低，同時保留 dotcom/GFC 的合理 recession window。本計畫不構成投資建議。
 
+## Phase 7F1 Recession Confirmation Candidate Indicators
+
+Phase 7F1 先實作 recession confirmation candidate indicators，但不接入正式 phase scoring、resolver 或 live dashboard。這些 candidate outputs 只供後續 calibration/backtest diagnostics 使用。
+
+Candidate spec：
+
+```text
+specs/backtests/recession_confirmation_candidate_indicators.yaml
+specs/common/experimental_indicator_groups.yaml
+```
+
+Coverage check：
+
+```bash
+python scripts/check_recession_confirmation_candidate_coverage.py
+```
+
+Experimental scoring：
+
+```bash
+python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
+```
+
+輸出寫入 ignored `data/backtests/candidate_indicators/`。若本機 raw cache 缺少 candidate series，CLI 會列出 failures/warnings，但不會呼叫 FRED API。Phase 7F1 不構成投資建議，也不代表模型結論已更新。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

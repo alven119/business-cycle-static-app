@@ -1,0 +1,138 @@
+recession_confirmation_candidate_indicators:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 Phase 7F1 recession confirmation candidate indicators。這些指標只供
+    experimental diagnostics 與後續 calibration 使用，不接入正式 phase scoring、
+    resolver 或 live dashboard。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 本規格只定義候選衰退確認指標，不構成投資建議。
+    - 不應針對 COVID 單一案例 overfit，需同時檢查 dotcom、GFC、euro debt 與 late cycle 2018。
+
+  indicators:
+    - indicator_id: continuing_jobless_claims
+      display_name_zh: 續領失業救濟金人數
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - CCNSA
+        - CCSA
+      preferred_series: CCSA
+      transformation:
+        - moving_average
+        - slope
+        - yoy_change
+        - persistence_window
+      proposed_score_method: sustained_deterioration_score
+      expected_phase_impact:
+        recession: sustained increase supports recession confirmation
+        recovery: peak reversal supports recovery watch
+      implementation_priority: high
+
+    - indicator_id: insured_unemployment_rate
+      display_name_zh: 保險失業率
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - IURSA
+        - IURNSA
+      preferred_series: IURSA
+      transformation:
+        - level_percentile
+        - moving_average_slope
+        - persistence_window
+      proposed_score_method: level_and_trend_confirmation_score
+      expected_phase_impact:
+        recession: high level and rising trend support recession confirmation
+        recovery: declining level supports recovery watch
+      implementation_priority: medium
+
+    - indicator_id: unemployment_duration_15_weeks_over
+      display_name_zh: 失業 15 週以上人數
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - UEMP15OV
+      preferred_series: UEMP15OV
+      transformation:
+        - moving_average
+        - slope
+        - yoy_change
+      proposed_score_method: sustained_deterioration_score
+      expected_phase_impact:
+        recession: sustained increase supports recession confirmation
+        recovery: peak reversal supports recovery watch
+      implementation_priority: medium
+
+    - indicator_id: credit_spread_baa_aaa
+      display_name_zh: BAA 與 AAA 公司債利差
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - BAA
+        - AAA
+      derived_formula: BAA - AAA
+      transformation:
+        - spread_level
+        - spread_change
+        - percentile
+        - persistence_window
+      proposed_score_method: credit_stress_score
+      expected_phase_impact:
+        recession: widening credit spread supports recession confirmation
+        boom: rising spread can support boom ending risk watch
+      implementation_priority: high
+
+    - indicator_id: financial_stress_index
+      display_name_zh: 金融壓力指數
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - STLFSI4
+        - NFCI
+      preferred_series: STLFSI4
+      transformation:
+        - level
+        - moving_average
+        - percentile
+        - persistence_window
+      proposed_score_method: financial_stress_confirmation_score
+      expected_phase_impact:
+        recession: elevated and rising financial stress supports recession confirmation
+        recovery: easing stress supports recovery watch
+      implementation_priority: high
+
+    - indicator_id: real_personal_consumption_expenditures
+      display_name_zh: 實質個人消費支出
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - PCEC96
+      preferred_series: PCEC96
+      transformation:
+        - yoy_change
+        - rolling_growth
+        - momentum_change
+      proposed_score_method: broad_consumption_deterioration_score
+      expected_phase_impact:
+        recession: broad consumption deterioration supports recession confirmation
+        growth: stable broad consumption supports expansion continuation
+      implementation_priority: high
+
+    - indicator_id: industrial_production
+      display_name_zh: 工業生產指數
+      purpose_group: recession_confirmation
+      provider: fred
+      candidate_fred_series:
+        - INDPRO
+      preferred_series: INDPRO
+      transformation:
+        - yoy_change
+        - moving_average_slope
+        - momentum_change
+      proposed_score_method: production_deterioration_score
+      expected_phase_impact:
+        recession: production deterioration supports recession confirmation
+        boom: production rollover supports boom ending risk watch
+      implementation_priority: high

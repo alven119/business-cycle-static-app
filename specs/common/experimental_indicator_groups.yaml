@@ -1,0 +1,12 @@
+experimental_indicator_groups:
+  employment:
+    - continuing_jobless_claims
+    - insured_unemployment_rate
+    - unemployment_duration_15_weeks_over
+  consumption:
+    - real_personal_consumption_expenditures
+  production:
+    - industrial_production
+  credit_financial_conditions:
+    - credit_spread_baa_aaa
+    - financial_stress_index

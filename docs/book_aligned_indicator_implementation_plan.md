@@ -41,6 +41,33 @@ Phase 7F1：衰退確認指標
 - 金融壓力指數。
 - 信用利差。
 
+Phase 7F1 已先把這批指標做成 experimental candidate outputs：
+
+```text
+specs/backtests/recession_confirmation_candidate_indicators.yaml
+specs/common/experimental_indicator_groups.yaml
+```
+
+檢查本機 raw cache coverage：
+
+```bash
+python scripts/check_recession_confirmation_candidate_coverage.py
+```
+
+對單一 as-of 日期計算 candidate scores：
+
+```bash
+python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
+```
+
+輸出位於：
+
+```text
+data/backtests/candidate_indicators/recession_confirmation/<as_of>/candidate_indicator_scores.json
+```
+
+這些分數只供 recession confirmation diagnostics 與後續 calibration 使用，不接正式 phase scoring、不改 resolver，也不會出現在 live dashboard。Phase 7F1.1 才會把 candidate indicators 放進 calibration experiment 檢查。
+
 Phase 7F2：榮景期結束指標
 
 - 10Y-3M 與 10Y-2Y yield curve。

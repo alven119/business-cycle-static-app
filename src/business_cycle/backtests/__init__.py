@@ -35,6 +35,14 @@ from business_cycle.backtests.breadth_sensitivity import (
     validate_breadth_sensitivity_matrix,
     write_breadth_sensitivity_summary,
 )
+from business_cycle.backtests.candidate_indicators import (
+    CandidateIndicatorError,
+    RecessionConfirmationCandidateSpec,
+    load_recession_confirmation_candidate_indicators,
+    score_candidate_indicators,
+    validate_recession_confirmation_candidate_indicators,
+    write_candidate_indicator_scores,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -103,7 +111,9 @@ __all__ = [
     "CalibrationPlanError",
     "CalibrationExperimentError",
     "CalibrationReviewError",
+    "CandidateIndicatorError",
     "CovidFalsePositiveError",
+    "RecessionConfirmationCandidateSpec",
     "attribution_quality_counts",
     "build_attribution_smoke_summary",
     "build_backtest_smoke_summary",
@@ -123,6 +133,7 @@ __all__ = [
     "load_calibration_plan",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
+    "load_recession_confirmation_candidate_indicators",
     "purpose_groups",
     "run_attribution_smoke",
     "run_backtest",
@@ -130,6 +141,7 @@ __all__ = [
     "run_calibration_experiment",
     "run_full_horizon_calibration",
     "run_breadth_sensitivity_experiment",
+    "score_candidate_indicators",
     "sensitivity_issues",
     "write_transition_attribution",
     "write_calibration_acceptance_review",
@@ -139,6 +151,8 @@ __all__ = [
     "validate_book_indicator_gap_analysis",
     "validate_book_aligned_indicator_implementation_plan",
     "validate_breadth_sensitivity_matrix",
+    "validate_recession_confirmation_candidate_indicators",
     "write_backtest_report",
     "write_breadth_sensitivity_summary",
+    "write_candidate_indicator_scores",
 ]
