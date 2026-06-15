@@ -1,4 +1,4 @@
-"""Experimental recession-confirmation candidate indicator loading and scoring."""
+"""Experimental boom-ending candidate indicator loading and scoring."""
 
 from __future__ import annotations
 
@@ -11,27 +11,25 @@ from typing import Any
 import pandas as pd
 import yaml
 
+from business_cycle.backtests.candidate_indicators import CandidateIndicatorError
 from business_cycle.indicators.experimental import (
     ExperimentalIndicatorScore,
-    broad_consumption_deterioration_score,
-    credit_stress_score,
-    financial_stress_confirmation_score,
-    level_and_trend_confirmation_score,
-    production_deterioration_score,
+    commodity_pressure_score,
+    credit_spread_widening_score,
+    financial_conditions_tightening_score,
+    labor_market_late_cycle_pressure_score,
+    production_momentum_loss_score,
+    restrictive_policy_pressure_score,
     score_to_dict,
-    sustained_deterioration_score,
+    yield_curve_inversion_pressure_score,
 )
 
 VALID_PRIORITIES = {"high", "medium", "low"}
 
 
-class CandidateIndicatorError(ValueError):
-    """Raised when candidate indicator specs are invalid."""
-
-
 @dataclass(frozen=True)
-class RecessionConfirmationCandidateSpec:
-    """Candidate indicator spec for recession confirmation diagnostics."""
+class BoomEndingCandidateSpec:
+    """Candidate indicator spec for boom-ending diagnostics."""
 
     version: int
     status: str
@@ -40,32 +38,26 @@ class RecessionConfirmationCandidateSpec:
     indicators: list[dict[str, Any]]
 
 
-def load_recession_confirmation_candidate_indicators(
-    path: str | Path,
-) -> RecessionConfirmationCandidateSpec:
-    """Load and validate recession confirmation candidate indicator YAML."""
+def load_boom_ending_candidate_indicators(path: str | Path) -> BoomEndingCandidateSpec:
+    """Load and validate boom-ending candidate indicator YAML."""
 
     payload = _load_yaml_mapping(path)
-    spec = payload.get("recession_confirmation_candidate_indicators")
+    spec = payload.get("boom_ending_candidate_indicators")
     if not isinstance(spec, dict):
-        raise CandidateIndicatorError(
-            "YAML must contain a recession_confirmation_candidate_indicators mapping"
-        )
-    parsed = RecessionConfirmationCandidateSpec(
+        raise CandidateIndicatorError("YAML must contain a boom_ending_candidate_indicators mapping")
+    parsed = BoomEndingCandidateSpec(
         version=int(spec.get("version", 0)),
         status=str(spec.get("status", "")),
         objective_zh=str(spec.get("objective_zh", "")),
         caveats_zh=_non_empty_str_list(spec.get("caveats_zh"), "caveats_zh"),
         indicators=_list_of_mappings(spec.get("indicators"), "indicators"),
     )
-    validate_recession_confirmation_candidate_indicators(parsed)
+    validate_boom_ending_candidate_indicators(parsed)
     return parsed
 
 
-def validate_recession_confirmation_candidate_indicators(
-    spec: RecessionConfirmationCandidateSpec,
-) -> None:
-    """Validate recession confirmation candidate indicator spec."""
+def validate_boom_ending_candidate_indicators(spec: BoomEndingCandidateSpec) -> None:
+    """Validate boom-ending candidate indicator spec."""
 
     if not isinstance(spec.version, int) or spec.version < 1:
         raise CandidateIndicatorError("version must exist and be a positive integer")
@@ -79,8 +71,8 @@ def validate_recession_confirmation_candidate_indicators(
     for indicator in spec.indicators:
         indicator_id = str(indicator.get("indicator_id") or "")
         _require_text(indicator, "display_name_zh", indicator_id)
-        if indicator.get("purpose_group") != "recession_confirmation":
-            raise CandidateIndicatorError(f"{indicator_id} purpose_group must be recession_confirmation")
+        if indicator.get("purpose_group") != "boom_ending":
+            raise CandidateIndicatorError(f"{indicator_id} purpose_group must be boom_ending")
         if indicator.get("provider") != "fred":
             raise CandidateIndicatorError(f"{indicator_id} provider must be fred")
         _non_empty_str_list(indicator.get("candidate_fred_series"), f"{indicator_id}.candidate_fred_series")
@@ -93,15 +85,49 @@ def validate_recession_confirmation_candidate_indicators(
             raise CandidateIndicatorError(f"{indicator_id} expected_phase_impact must be a mapping")
 
 
-def score_candidate_indicators(
+def check_boom_ending_candidate_coverage(
+    *,
+    spec_path: str | Path = "specs/backtests/boom_ending_candidate_indicators.yaml",
+    cache_dir: str | Path = "data/raw/fred",
+) -> dict[str, Any]:
+    """Check local raw cache coverage for boom-ending candidate series."""
+
+    spec = load_boom_ending_candidate_indicators(spec_path)
+    cache_root = Path(cache_dir)
+    required_series: set[str] = set()
+    available_series: set[str] = set()
+    missing_series: set[str] = set()
+    derived_series: list[str] = []
+    for indicator in spec.indicators:
+        series_ids = [str(item).upper() for item in indicator.get("candidate_fred_series", [])]
+        required_series.update(series_ids)
+        if indicator.get("derived_formula"):
+            derived_series.append(str(indicator["indicator_id"]))
+        for series_id in series_ids:
+            if (cache_root / f"{series_id}.csv").exists():
+                available_series.add(series_id)
+            else:
+                missing_series.add(series_id)
+    return {
+        "candidate_indicator_count": len(spec.indicators),
+        "required_series_count": len(required_series),
+        "available_series_count": len(available_series),
+        "cached_series": sorted(available_series),
+        "missing_series": sorted(missing_series),
+        "derived_series": sorted(derived_series),
+        "notes": ["local cache check only; no FRED API calls were made"],
+    }
+
+
+def score_boom_ending_candidate_indicators(
     *,
     as_of: str,
     cache_dir: str | Path = "data/raw/fred",
-    spec_path: str | Path = "specs/backtests/recession_confirmation_candidate_indicators.yaml",
+    spec_path: str | Path = "specs/backtests/boom_ending_candidate_indicators.yaml",
 ) -> dict[str, Any]:
-    """Score candidate indicators from local raw cache without downloading data."""
+    """Score boom-ending candidate indicators from local raw cache without downloads."""
 
-    spec = load_recession_confirmation_candidate_indicators(spec_path)
+    spec = load_boom_ending_candidate_indicators(spec_path)
     cache_root = Path(cache_dir)
     scores: list[dict[str, Any]] = []
     failures: list[dict[str, Any]] = []
@@ -112,6 +138,7 @@ def score_candidate_indicators(
         method = str(indicator["proposed_score_method"])
         try:
             frame, selected = _load_indicator_frame(indicator, cache_root)
+            score = _score_frame(indicator_id, method, frame, as_of)
         except FileNotFoundError as exc:
             failures.append(
                 {
@@ -133,7 +160,6 @@ def score_candidate_indicators(
             )
             continue
 
-        score = _score_frame(indicator_id, method, frame, as_of)
         score_dict = score_to_dict(score)
         score_dict["display_name_zh"] = indicator.get("display_name_zh")
         score_dict["purpose_group"] = indicator.get("purpose_group")
@@ -143,7 +169,7 @@ def score_candidate_indicators(
         scores.append(score_dict)
 
     if not scores:
-        warnings.append("No candidate indicators could be scored from local raw cache.")
+        warnings.append("No boom-ending candidate indicators could be scored from local raw cache.")
 
     return {
         "as_of": as_of,
@@ -160,8 +186,8 @@ def score_candidate_indicators(
     }
 
 
-def write_candidate_indicator_scores(output_path: str | Path, scores: dict[str, Any]) -> Path:
-    """Write candidate indicator scores JSON."""
+def write_boom_ending_candidate_scores(output_path: str | Path, scores: dict[str, Any]) -> Path:
+    """Write boom-ending candidate indicator scores JSON."""
 
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -175,33 +201,35 @@ def _score_frame(
     frame: pd.DataFrame,
     as_of: str,
 ) -> ExperimentalIndicatorScore:
-    if method == "sustained_deterioration_score":
-        return sustained_deterioration_score(frame, indicator_id=indicator_id, as_of=as_of)
-    if method == "level_and_trend_confirmation_score":
-        return level_and_trend_confirmation_score(frame, indicator_id=indicator_id, as_of=as_of)
-    if method == "credit_stress_score":
-        return credit_stress_score(frame, indicator_id=indicator_id, as_of=as_of)
-    if method == "financial_stress_confirmation_score":
-        return financial_stress_confirmation_score(frame, indicator_id=indicator_id, as_of=as_of)
-    if method == "broad_consumption_deterioration_score":
-        return broad_consumption_deterioration_score(frame, indicator_id=indicator_id, as_of=as_of)
-    if method == "production_deterioration_score":
-        return production_deterioration_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "yield_curve_inversion_pressure_score":
+        return yield_curve_inversion_pressure_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "restrictive_policy_pressure_score":
+        return restrictive_policy_pressure_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "credit_spread_widening_score":
+        return credit_spread_widening_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "financial_conditions_tightening_score":
+        return financial_conditions_tightening_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "commodity_pressure_score":
+        return commodity_pressure_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "labor_market_late_cycle_pressure_score":
+        return labor_market_late_cycle_pressure_score(frame, indicator_id=indicator_id, as_of=as_of)
+    if method == "production_momentum_loss_score":
+        return production_momentum_loss_score(frame, indicator_id=indicator_id, as_of=as_of)
     raise CandidateIndicatorError(f"Unsupported proposed_score_method: {method}")
 
 
 def _load_indicator_frame(indicator: dict[str, Any], cache_dir: Path) -> tuple[pd.DataFrame, dict[str, Any]]:
     formula = str(indicator.get("derived_formula") or "")
-    if formula == "BAA - AAA":
+    if formula == "BAA - DGS10":
         baa = _read_series(cache_dir, "BAA")
-        aaa = _read_series(cache_dir, "AAA")
+        dgs10 = _read_series(cache_dir, "DGS10")
         merged = baa[["date", "value"]].rename(columns={"value": "baa"}).merge(
-            aaa[["date", "value"]].rename(columns={"value": "aaa"}),
+            dgs10[["date", "value"]].rename(columns={"value": "dgs10"}),
             on="date",
             how="inner",
         )
-        merged["value"] = merged["baa"] - merged["aaa"]
-        return merged[["date", "value"]], {"selected_series_ids": ["BAA", "AAA"]}
+        merged["value"] = merged["baa"] - merged["dgs10"]
+        return merged[["date", "value"]], {"selected_series_ids": ["BAA", "DGS10"]}
 
     preferred = indicator.get("preferred_series")
     candidates = [str(item) for item in indicator.get("candidate_fred_series", [])]

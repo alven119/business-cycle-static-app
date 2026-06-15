@@ -185,6 +185,43 @@ Phase 7F2：榮景期結束指標
 - 油價壓力。
 - Fed 政策反轉訊號。
 
+## Phase 7F2 Boom Ending Candidate Indicators
+
+Phase 7F2 已先把第一批榮景期結束 / late-cycle transition 指標做成 experimental candidate outputs：
+
+```text
+specs/backtests/boom_ending_candidate_indicators.yaml
+```
+
+本階段只支援 coverage check、candidate data updater 與獨立 scoring，不接正式 phase scoring、不改 resolver，也不會讓 live dashboard 使用這批指標。
+
+檢查本機 raw cache coverage：
+
+```bash
+python scripts/check_boom_ending_candidate_coverage.py
+```
+
+Dry run / no-api cache check：
+
+```bash
+python scripts/update_boom_ending_candidate_data.py --dry-run
+python scripts/update_boom_ending_candidate_data.py --no-api
+```
+
+對單一 as-of 日期計算 candidate scores：
+
+```bash
+python scripts/score_boom_ending_candidates.py --as-of 2019-02-28
+```
+
+輸出位於：
+
+```text
+data/backtests/candidate_indicators/boom_ending/<as_of>/candidate_indicator_scores.json
+```
+
+這些分數只供榮景期結束與衰退前風險 diagnostics 使用。下一步 Phase 7F2.1 才會建立 boom ending diagnostics / overlay。本階段不構成投資建議。
+
 Phase 7F3：衰退落底與復甦反轉指標
 
 - 初領失業救濟金高峰反轉。

@@ -4,13 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Callable, Protocol
 
 from business_cycle import data_sources
-from business_cycle.backtests.candidate_indicators import (
-    RecessionConfirmationCandidateSpec,
-    load_recession_confirmation_candidate_indicators,
-)
+from business_cycle.backtests.candidate_indicators import load_recession_confirmation_candidate_indicators
 from business_cycle.storage.raw_store import RawCsvStore
 
 
@@ -31,7 +28,7 @@ class CandidateDataUpdateResult:
     message: str
 
 
-def candidate_fred_series_ids(spec: RecessionConfirmationCandidateSpec) -> list[str]:
+def candidate_fred_series_ids(spec: Any) -> list[str]:
     """Collect unique candidate FRED series ids, including derived indicator inputs."""
 
     series_ids: list[str] = []
@@ -50,13 +47,15 @@ def update_candidate_fred_cache(
     spec_path: str | Path = "specs/backtests/recession_confirmation_candidate_indicators.yaml",
     raw_dir: str | Path = "data/raw",
     provider: CandidateFredProvider | None = None,
+    spec_loader: Callable[[str | Path], Any] = load_recession_confirmation_candidate_indicators,
+    summary_label: str = "candidate recession confirmation cache update",
     dry_run: bool = False,
     force_refresh: bool = False,
     no_api: bool = False,
 ) -> dict:
-    """Update local raw FRED cache for recession-confirmation candidate series."""
+    """Update local raw FRED cache for experimental candidate series."""
 
-    spec = load_recession_confirmation_candidate_indicators(spec_path)
+    spec = spec_loader(spec_path)
     store = RawCsvStore(raw_dir)
     series_ids = candidate_fred_series_ids(spec)
     results: list[CandidateDataUpdateResult] = []
@@ -67,7 +66,7 @@ def update_candidate_fred_cache(
             status = "cached" if cache_path.exists() else "missing"
             message = "dry_run" if dry_run else "no_api"
             results.append(CandidateDataUpdateResult(series_id, status, str(cache_path), message))
-        return _summary(series_ids, results, store, dry_run=dry_run, no_api=no_api)
+        return _summary(series_ids, results, store, dry_run=dry_run, no_api=no_api, summary_label=summary_label)
 
     active_provider = provider or data_sources.FredProvider()
     if hasattr(active_provider, "require_api_key"):
@@ -92,7 +91,7 @@ def update_candidate_fred_cache(
                 message=f"observations={len(observations)}",
             )
         )
-    return _summary(series_ids, results, store, dry_run=dry_run, no_api=no_api)
+    return _summary(series_ids, results, store, dry_run=dry_run, no_api=no_api, summary_label=summary_label)
 
 
 def _summary(
@@ -102,6 +101,7 @@ def _summary(
     *,
     dry_run: bool,
     no_api: bool,
+    summary_label: str,
 ) -> dict:
     cached = [result.series_id for result in results if result.status == "cached"]
     downloaded = [result.series_id for result in results if result.status == "downloaded"]
@@ -113,7 +113,7 @@ def _summary(
     if no_api:
         notes.append("no_api: local cache was checked without FRED API calls")
     if not notes:
-        notes.append("candidate recession confirmation cache update")
+        notes.append(summary_label)
     return {
         "required_series_count": len(series_ids),
         "already_cached_series_count": len(cached),

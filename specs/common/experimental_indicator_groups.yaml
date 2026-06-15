@@ -3,10 +3,20 @@ experimental_indicator_groups:
     - continuing_jobless_claims
     - insured_unemployment_rate
     - unemployment_duration_15_weeks_over
+    - unemployment_rate_cycle_low_pressure
   consumption:
     - real_personal_consumption_expenditures
   production:
     - industrial_production
+    - industrial_production_momentum_loss
   credit_financial_conditions:
     - credit_spread_baa_aaa
     - financial_stress_index
+    - credit_spread_baa_10y
+    - financial_conditions_tightening
+  rates_policy:
+    - yield_curve_10y_3m
+    - yield_curve_10y_2y
+    - fed_policy_restrictive_pressure
+  commodities:
+    - oil_price_pressure

@@ -433,6 +433,20 @@ python scripts/show_candidate_recession_integration_design.py
 
 This phase does not change formal phase scoring, resolver logic, FRED provider behavior, live dashboard output, or GitHub Pages deployment.
 
+## Phase 7F2 boom ending candidate indicators
+
+Phase 7F2 implements experimental boom ending / late-cycle transition candidate indicators without connecting them to formal phase scoring or the live dashboard.
+
+```bash
+python scripts/check_boom_ending_candidate_coverage.py
+python scripts/update_boom_ending_candidate_data.py --dry-run
+python scripts/update_boom_ending_candidate_data.py --no-api
+python scripts/update_boom_ending_candidate_data.py
+python scripts/score_boom_ending_candidates.py --as-of 2019-02-28
+```
+
+Candidate scores are written under `data/backtests/candidate_indicators/boom_ending/`, which is generated ignored output. These indicators are for boom-ending diagnostics and future calibration only; they do not affect live dashboard decisions.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

@@ -1,0 +1,158 @@
+boom_ending_candidate_indicators:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 Phase 7F2 boom ending / late-cycle transition candidate indicators。這些指標只供
+    experimental diagnostics 與後續 calibration 使用，不接入正式 phase scoring、
+    resolver 或 live dashboard。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 本規格只定義榮景期結束與衰退前風險候選指標，不構成投資建議。
+    - 不應針對單一歷史案例 overfit，需同時檢查 dotcom、GFC、COVID、euro debt 與 late cycle 2018。
+
+  indicators:
+    - indicator_id: yield_curve_10y_3m
+      display_name_zh: 10 年期與 3 個月期公債利差
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - T10Y3M
+      preferred_series: T10Y3M
+      transformation:
+        - level
+        - inversion_duration
+        - moving_average
+        - persistence_window
+      proposed_score_method: yield_curve_inversion_pressure_score
+      expected_phase_impact:
+        boom: inversion or sustained flattening increases boom ending risk
+        recession: inversion followed by deterioration supports recession watch
+      implementation_priority: high
+
+    - indicator_id: yield_curve_10y_2y
+      display_name_zh: 10 年期與 2 年期公債利差
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - T10Y2Y
+      preferred_series: T10Y2Y
+      transformation:
+        - level
+        - inversion_duration
+        - moving_average
+        - persistence_window
+      proposed_score_method: yield_curve_inversion_pressure_score
+      expected_phase_impact:
+        boom: inversion or sustained flattening increases boom ending risk
+        recession: inversion followed by deterioration supports recession watch
+      implementation_priority: high
+
+    - indicator_id: fed_policy_restrictive_pressure
+      display_name_zh: 聯準會政策利率限制性壓力
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - FEDFUNDS
+        - DFF
+      preferred_series: FEDFUNDS
+      transformation:
+        - rate_level
+        - rate_change_12m
+        - moving_average
+        - persistence_window
+      proposed_score_method: restrictive_policy_pressure_score
+      expected_phase_impact:
+        boom: sustained restrictive policy pressure supports boom ending risk watch
+        recession: restrictive policy followed by deterioration supports recession watch
+      implementation_priority: high
+
+    - indicator_id: credit_spread_baa_10y
+      display_name_zh: BAA 公司債與 10 年期公債利差
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - BAA
+        - DGS10
+      derived_formula: BAA - DGS10
+      transformation:
+        - spread_level
+        - spread_change
+        - percentile
+        - persistence_window
+      proposed_score_method: credit_spread_widening_score
+      expected_phase_impact:
+        boom: widening credit spread supports boom ending risk watch
+        recession: elevated credit spread supports recession watch
+      implementation_priority: high
+
+    - indicator_id: financial_conditions_tightening
+      display_name_zh: 金融條件收緊壓力
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - NFCI
+        - STLFSI4
+      preferred_series: NFCI
+      transformation:
+        - level
+        - moving_average
+        - percentile
+        - persistence_window
+      proposed_score_method: financial_conditions_tightening_score
+      expected_phase_impact:
+        boom: tightening financial conditions support boom ending risk watch
+        recession: elevated financial stress supports recession watch
+      implementation_priority: high
+
+    - indicator_id: oil_price_pressure
+      display_name_zh: 油價壓力
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - DCOILWTICO
+        - WTI
+      preferred_series: DCOILWTICO
+      transformation:
+        - yoy_change
+        - rolling_change
+        - percentile
+        - persistence_window
+      proposed_score_method: commodity_pressure_score
+      expected_phase_impact:
+        boom: persistent commodity pressure supports boom ending risk watch
+        recession: commodity pressure followed by demand deterioration can support recession watch
+      implementation_priority: medium
+
+    - indicator_id: unemployment_rate_cycle_low_pressure
+      display_name_zh: 失業率低檔後轉弱壓力
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - UNRATE
+      preferred_series: UNRATE
+      transformation:
+        - cycle_low_distance
+        - moving_average_slope
+        - persistence_window
+      proposed_score_method: labor_market_late_cycle_pressure_score
+      expected_phase_impact:
+        boom: cycle-low unemployment followed by rising trend supports late-cycle risk watch
+        recession: rising unemployment after a cycle low supports recession watch
+      implementation_priority: medium
+
+    - indicator_id: industrial_production_momentum_loss
+      display_name_zh: 工業生產動能轉弱
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series:
+        - INDPRO
+      preferred_series: INDPRO
+      transformation:
+        - yoy_change
+        - moving_average_slope
+        - momentum_change
+      proposed_score_method: production_momentum_loss_score
+      expected_phase_impact:
+        boom: production rollover supports boom ending risk watch
+        recession: production deterioration supports recession watch
+      implementation_priority: medium

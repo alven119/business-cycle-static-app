@@ -222,6 +222,233 @@ def production_deterioration_score(
     )
 
 
+def yield_curve_inversion_pressure_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "yield_curve_10y_3m",
+    as_of: str | date | None = None,
+    moving_average_window: int = 5,
+    persistence_window: int = 10,
+    min_periods: int = 60,
+) -> ExperimentalIndicatorScore:
+    """Score sustained yield-curve inversion or flattening pressure."""
+
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(
+            indicator_id,
+            as_of,
+            "沒有可用資料。",
+            {"method": "yield_curve_inversion_pressure_score"},
+        )
+    if len(cleaned) < moving_average_window:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認殖利率曲線倒掛是否具有持續性。",
+            {"moving_average_window": moving_average_window},
+            min_periods,
+            "yield_curve_inversion_pressure_score",
+        )
+
+    values = cleaned["value"].astype(float)
+    moving_average = values.rolling(moving_average_window, min_periods=moving_average_window).mean()
+    recent = moving_average.dropna().tail(persistence_window)
+    if recent.empty:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認殖利率曲線倒掛是否具有持續性。",
+            {"moving_average_window": moving_average_window},
+            min_periods,
+            "yield_curve_inversion_pressure_score",
+        )
+    inversion_share = float((recent < 0.0).mean())
+    latest_level = float(recent.iloc[-1])
+    flattening_pressure = max(0.0, _tanh_signal(-latest_level, _scale(moving_average.dropna())))
+    score = _clamp_score(25.0 + 45.0 * inversion_share + 30.0 * flattening_pressure)
+    confidence = _confidence(cleaned, min_periods) * max(0.35, inversion_share)
+    if inversion_share < 0.5:
+        confidence *= 0.65
+    reason = "以殖利率曲線倒掛程度與持續性觀察榮景期後段風險，避免單期倒掛被過度解讀。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "yield_curve_inversion_pressure_score",
+        {
+            "moving_average_window": moving_average_window,
+            "persistence_window": persistence_window,
+            "latest_level": latest_level,
+            "inversion_share": inversion_share,
+        },
+    )
+
+
+def restrictive_policy_pressure_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "fed_policy_restrictive_pressure",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score sustained policy-rate tightening pressure."""
+
+    return level_and_trend_confirmation_score(
+        series,
+        indicator_id=indicator_id,
+        direction="higher_is_worse",
+        as_of=as_of,
+        percentile_window=120,
+        moving_average_window=3,
+        slope_window=12,
+        persistence_window=4,
+        min_periods=60,
+    )
+
+
+def credit_spread_widening_score(
+    spread_series: pd.DataFrame,
+    *,
+    indicator_id: str = "credit_spread_baa_10y",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score widening BAA-Treasury credit spread pressure."""
+
+    return level_and_trend_confirmation_score(
+        spread_series,
+        indicator_id=indicator_id,
+        direction="higher_is_worse",
+        as_of=as_of,
+        percentile_window=120,
+        moving_average_window=4,
+        slope_window=4,
+        persistence_window=4,
+        min_periods=60,
+    )
+
+
+def financial_conditions_tightening_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "financial_conditions_tightening",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score tightening financial conditions."""
+
+    return level_and_trend_confirmation_score(
+        series,
+        indicator_id=indicator_id,
+        direction="higher_is_worse",
+        as_of=as_of,
+        percentile_window=156,
+        moving_average_window=4,
+        slope_window=4,
+        persistence_window=4,
+        min_periods=78,
+    )
+
+
+def commodity_pressure_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "oil_price_pressure",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score persistent oil or commodity pressure."""
+
+    return sustained_deterioration_score(
+        series,
+        indicator_id=indicator_id,
+        direction="higher_is_worse",
+        as_of=as_of,
+        moving_average_window=4,
+        slope_window=4,
+        yoy_periods=52,
+        persistence_window=4,
+        min_periods=80,
+    )
+
+
+def labor_market_late_cycle_pressure_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "unemployment_rate_cycle_low_pressure",
+    as_of: str | date | None = None,
+    percentile_window: int = 120,
+    moving_average_window: int = 3,
+    slope_window: int = 3,
+    persistence_window: int = 3,
+    min_periods: int = 60,
+) -> ExperimentalIndicatorScore:
+    """Score unemployment rate rising from a cycle-low zone."""
+
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(
+            indicator_id,
+            as_of,
+            "沒有可用資料。",
+            {"method": "labor_market_late_cycle_pressure_score"},
+        )
+    percentile = _rolling_percentile(cleaned["value"], percentile_window)
+    features = _trend_features(
+        cleaned,
+        moving_average_window=moving_average_window,
+        slope_window=slope_window,
+        yoy_periods=12,
+        persistence_window=persistence_window,
+    )
+    if percentile is None or features["latest_slope"] is None:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認失業率是否由低檔轉弱。",
+            {**features, "percentile": percentile},
+            min_periods,
+            "labor_market_late_cycle_pressure_score",
+        )
+    low_level_signal = max(0.0, 1.0 - percentile)
+    rising_share = _signed_persistence(features["recent_slopes"], "higher_is_worse", persistence_window)
+    rising_signal = max(0.0, _tanh_signal(features["latest_slope"], features["slope_scale"]))
+    score = _clamp_score(100.0 * (0.35 * low_level_signal + 0.45 * rising_signal + 0.20 * rising_share))
+    if rising_share < 0.5:
+        score = min(score, 45.0)
+    confidence = _confidence(cleaned, min_periods) * max(0.35, rising_share)
+    reason = "以失業率是否處於低檔後轉為上升，觀察就業市場由過熱轉弱的後期循環壓力。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "labor_market_late_cycle_pressure_score",
+        {**features, "percentile": percentile, "low_level_signal": low_level_signal, "rising_share": rising_share},
+    )
+
+
+def production_momentum_loss_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "industrial_production_momentum_loss",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score industrial production momentum loss."""
+
+    return sustained_deterioration_score(
+        series,
+        indicator_id=indicator_id,
+        direction="lower_is_worse",
+        as_of=as_of,
+        moving_average_window=3,
+        slope_window=3,
+        yoy_periods=12,
+        persistence_window=3,
+        min_periods=24,
+    )
+
+
 def score_to_dict(score: ExperimentalIndicatorScore) -> dict[str, Any]:
     """Serialize an experimental score."""
 

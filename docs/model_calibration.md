@@ -438,6 +438,37 @@ docs/candidate_recession_integration_design.md
 
 下一步應進 Phase 7F2 補強榮景期結束與衰退前風險指標，因為 recession confirmation 通常偏晚。Phase 7F1.5 不構成投資建議。
 
+## Phase 7F2 Boom Ending Candidate Indicators
+
+Phase 7F2 開始補強榮景期結束與衰退前風險指標。這些 candidate indicators 只供 experimental diagnostics 使用，不加入正式 `indicator_catalog.yaml`、不改 phase scoring、不改 resolver，也不會讓 live dashboard 使用。
+
+Candidate spec：
+
+```text
+specs/backtests/boom_ending_candidate_indicators.yaml
+```
+
+本階段包含：
+
+- 10Y-3M / 10Y-2Y yield curve inversion pressure。
+- Fed policy restrictive pressure。
+- BAA-10Y credit spread widening。
+- Financial conditions tightening。
+- Oil price pressure。
+- Unemployment rate cycle-low weakening pressure。
+- Industrial production momentum loss。
+
+執行方式：
+
+```bash
+python scripts/check_boom_ending_candidate_coverage.py
+python scripts/update_boom_ending_candidate_data.py --dry-run
+python scripts/update_boom_ending_candidate_data.py --no-api
+python scripts/score_boom_ending_candidates.py --as-of 2019-02-28
+```
+
+下一步 Phase 7F2.1 才會把這些 candidate scores 放進 boom ending diagnostics / overlay，檢查它們是否能提前辨識榮景期後段風險。Phase 7F2 不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
