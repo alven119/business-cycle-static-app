@@ -42,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
         default=str(DEFAULT_OUTPUT_DIR),
         help="Root directory for calibration experiment outputs.",
     )
+    parser.add_argument("--reuse-existing", action="store_true", help="Reuse complete existing generated outputs.")
+    parser.add_argument("--force", action="store_true", help="Recompute even when reusable outputs exist.")
     return parser
 
 
@@ -56,6 +58,8 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=args.output_dir,
             max_periods=args.max_periods,
             scenario_id=args.scenario_id,
+            reuse_existing=args.reuse_existing,
+            force=args.force,
         )
     except (BacktestScenarioError, CalibrationExperimentError, ValueError) as exc:
         parser.exit(status=1, message=f"error: {exc}\n")
@@ -70,6 +74,8 @@ def main(argv: list[str] | None = None) -> int:
         f"delta_total_plausibility_warning_count={aggregate['delta_total_plausibility_warning_count']} "
         f"scenario_improved_count={aggregate['scenario_improved_count']} "
         f"scenario_regressed_count={aggregate['scenario_regressed_count']} "
+        f"reused_output_count={summary.get('reuse', {}).get('reused_output_count', 0)} "
+        f"recomputed_output_count={summary.get('reuse', {}).get('recomputed_output_count', 0)} "
         f"output={summary['output_path']}"
     )
     return 1 if aggregate["scenario_with_failures_count"] > 0 else 0

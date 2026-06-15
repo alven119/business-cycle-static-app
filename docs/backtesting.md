@@ -304,6 +304,51 @@ python scripts/diagnose_covid_false_positive.py --experiment-id transition_contr
 
 此 config 只供 calibration experiment 使用。若不明確傳入 `--controls`，backtest 仍維持 baseline 或原本指定的 controls。Live dashboard 與 GitHub Pages workflow 不會使用此設定。
 
+## Phase 7E.1 Breadth Sensitivity Matrix
+
+Phase 7E.1 比較多組 recession breadth 規則：
+
+```bash
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1
+```
+
+只跑單一 variant：
+
+```bash
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --variant-id v4_core_plus_financial
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/breadth_sensitivity/breadth_sensitivity_v1/breadth_sensitivity_summary.json
+```
+
+Matrix spec：
+
+```text
+specs/backtests/breadth_sensitivity_matrix.yaml
+```
+
+此流程只產生 diagnostics aggregation，不會修改 scoring、resolver、dashboard 或 GitHub Pages workflow。
+
+## Phase 7E.2 Reuse Existing Calibration Outputs
+
+Full-horizon calibration 與 breadth sensitivity 可能耗時很久。若只是重看既有結果，可使用 `--reuse-existing`：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v2_breadth_full --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml --reuse-existing
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --reuse-existing
+```
+
+若 config、程式或資料已改，需要強制重算：
+
+```bash
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --force
+```
+
+Reuse 機制會保守檢查 required JSON outputs 是否存在且可 parse；缺檔或壞檔不會被默默使用。Generated output 仍在 ignored `data/backtests/` 之下，不應 commit。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

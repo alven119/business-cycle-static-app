@@ -261,6 +261,50 @@ python scripts/review_calibration_experiment.py --experiment-id transition_contr
 
 Phase 7E 後應比較是否改善 COVID false positive，同時保留 dotcom 與金融海嘯的 recession detection window。此實驗仍不構成投資建議。
 
+## Phase 7E.1 Breadth Rule Sensitivity Experiment
+
+Phase 7E 的 breadth gate 已能運作，但 v2 breadth 規則沒有擋掉 COVID 2019-02-28 early false recession。Phase 7E.1 新增 breadth sensitivity matrix，用多組 recession breadth 規則比較：COVID false positive 是否能被擋下、dotcom 與 GFC 是否仍在 expected window、euro debt 與 late cycle 2018 是否仍避免 confirmed recession。
+
+Matrix spec：
+
+```text
+specs/backtests/breadth_sensitivity_matrix.yaml
+```
+
+執行方式：
+
+```bash
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1
+```
+
+也可只跑單一 variant：
+
+```bash
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --variant-id v4_core_plus_financial
+```
+
+預設輸出：
+
+```text
+data/backtests/calibration/breadth_sensitivity/<experiment_id>/breadth_sensitivity_summary.json
+```
+
+若沒有任何 variant 同時擋掉 COVID false positive 並保留 dotcom/GFC recession detection，應優先進 Phase 7F 補齊書籍衰退確認指標，而不是繼續硬調 breadth rule。Phase 7E.1 仍不會正式啟用 transition controls，也不構成投資建議。
+
+## Phase 7E.2 Runtime Reuse
+
+Phase 7E.2 新增 `--reuse-existing` / `--force`，目的只是降低重複運算時間。它不改模型判斷、不改 scoring、不改 resolver，也不代表 transition controls 正式啟用。
+
+使用方式：
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v2_breadth_full --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml --reuse-existing
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --reuse-existing
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --force
+```
+
+`--reuse-existing` 只有在 required JSON outputs 全部存在且可 parse 時才會跳過重算；`--force` 會強制重跑。這只影響 calibration/backtest runtime，不影響 live dashboard。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

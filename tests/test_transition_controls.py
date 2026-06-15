@@ -127,3 +127,87 @@ def test_invalid_breadth_min_phase_signal_score_raises(tmp_path: Path) -> None:
 
     with pytest.raises(TransitionControlsConfigError, match="min_phase_signal_score"):
         load_transition_controls_config(path)
+
+
+def test_invalid_required_groups_subset_raises(tmp_path: Path) -> None:
+    path = tmp_path / "controls.yaml"
+    path.write_text(minimal_breadth_yaml(required_groups=["missing_group"]), encoding="utf-8")
+
+    with pytest.raises(TransitionControlsConfigError, match="required_groups"):
+        load_transition_controls_config(path)
+
+
+def test_invalid_core_non_core_overlap_raises(tmp_path: Path) -> None:
+    path = tmp_path / "controls.yaml"
+    path.write_text(
+        minimal_breadth_yaml(
+            core_groups=["employment", "consumption"],
+            non_core_groups=["employment"],
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TransitionControlsConfigError, match="must not overlap"):
+        load_transition_controls_config(path)
+
+
+def test_invalid_min_core_group_count_raises(tmp_path: Path) -> None:
+    path = tmp_path / "controls.yaml"
+    path.write_text(
+        minimal_breadth_yaml(
+            min_core_group_count=4,
+            core_groups=["employment", "consumption", "investment"],
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TransitionControlsConfigError, match="min_core_group_count"):
+        load_transition_controls_config(path)
+
+
+def minimal_breadth_yaml(
+    *,
+    min_core_group_count: int = 2,
+    required_groups: list[str] | None = None,
+    core_groups: list[str] | None = None,
+    non_core_groups: list[str] | None = None,
+) -> str:
+    def lines(items: list[str] | None, indent: str) -> str:
+        if not items:
+            return ""
+        return "".join(f"{indent}- {item}\n" for item in items)
+
+    required = f"      required_groups:\n{lines(required_groups, '        ')}" if required_groups else ""
+    core = f"      core_groups:\n{lines(core_groups, '        ')}" if core_groups else ""
+    non_core = f"      non_core_groups:\n{lines(non_core_groups, '        ')}" if non_core_groups else ""
+    return f"""
+transition_controls:
+  version: 1
+  enabled: true
+  controls:
+    transition_watch_required:
+      enabled: false
+    confirmation_period:
+      enabled: false
+    hysteresis_margin:
+      enabled: false
+    cooldown_period:
+      enabled: false
+    breadth_confirmation:
+      enabled: true
+      target_phases:
+        - recession
+      min_group_count: 3
+      min_core_group_count: {min_core_group_count}
+      min_indicator_count: 4
+      min_phase_signal_score: 55.0
+      min_indicator_confidence: 0.5
+{required}{core}{non_core}      allowed_groups:
+        - employment
+        - consumption
+        - investment
+        - trade
+  caveats_zh:
+    - 使用修訂後歷史資料。
+    - 不構成投資建議。
+""".lstrip()

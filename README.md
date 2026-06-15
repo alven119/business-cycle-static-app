@@ -356,6 +356,29 @@ python scripts/run_full_horizon_calibration.py --experiment-id transition_contro
 
 The config is `specs/backtests/transition_controls_recession_breadth_experiment.yaml`. It is not used by the live dashboard unless explicitly passed to a backtest/calibration command.
 
+## Phase 7E.1 breadth rule sensitivity
+
+Phase 7E.1 compares multiple recession breadth variants.
+
+```bash
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --variant-id v4_core_plus_financial
+```
+
+The matrix lives at `specs/backtests/breadth_sensitivity_matrix.yaml`. Output is written under `data/backtests/calibration/breadth_sensitivity/<experiment_id>/` and is generated ignored diagnostics.
+
+## Phase 7E.2 calibration output reuse
+
+Phase 7E.2 adds conservative `--reuse-existing` and `--force` flags for long-running calibration commands.
+
+```bash
+python scripts/run_full_horizon_calibration.py --experiment-id transition_controls_v2_breadth_full --controls specs/backtests/transition_controls_recession_breadth_experiment.yaml --reuse-existing
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --reuse-existing
+python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1 --force
+```
+
+Reuse only applies when required generated JSON outputs exist and parse successfully. It does not change model behavior or live dashboard output.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

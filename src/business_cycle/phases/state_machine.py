@@ -804,7 +804,12 @@ def _apply_transition_controls(
     if "cooldown_period" in blocked:
         reason_parts.append("仍在前次 confirmed transition 後的冷卻期")
     if "breadth_confirmation" in blocked:
-        reason_parts.append("衰退候選分數升高，但尚未達到多指標群組同步確認門檻")
+        failed_reasons = []
+        breadth_details = details["transition_controls"].get("breadth_summary")
+        if isinstance(breadth_details, dict):
+            failed_reasons = [str(item) for item in breadth_details.get("failed_reasons", [])]
+        suffix = f"（{', '.join(failed_reasons)}）" if failed_reasons else ""
+        reason_parts.append(f"衰退候選分數升高，但尚未達到多指標群組同步確認門檻{suffix}")
 
     previous_phase_id = decision.previous_phase_id
     return CurrentPhaseDecision(
@@ -840,6 +845,9 @@ def _breadth_confirmation_summary(
 ) -> dict[str, Any]:
     control = transition_controls.breadth_confirmation
     allowed_groups = set(control.allowed_groups)
+    core_groups = set(control.core_groups) or _CORE_BREADTH_GROUPS
+    non_core_groups = set(control.non_core_groups)
+    required_groups = set(control.required_groups)
     supported_indicators: list[dict[str, Any]] = []
     unsupported_indicators: list[dict[str, Any]] = []
     for item in candidate_phase_score.contributing_indicators:
@@ -869,24 +877,39 @@ def _breadth_confirmation_summary(
             unsupported_indicators.append(evidence)
 
     supported_groups = sorted({str(item["group"]) for item in supported_indicators})
-    supported_core_groups = sorted(set(supported_groups) & _CORE_BREADTH_GROUPS)
+    supported_group_set = set(supported_groups)
+    supported_core_groups = sorted(supported_group_set & core_groups)
+    supported_non_core_groups = sorted(supported_group_set & non_core_groups)
+    missing_required_groups = sorted(required_groups - supported_group_set)
     insufficient_evidence = not candidate_phase_score.contributing_indicators
-    passed = (
-        not insufficient_evidence
-        and len(supported_groups) >= control.min_group_count
-        and len(supported_indicators) >= control.min_indicator_count
-        and len(supported_core_groups) >= control.min_core_group_count
-    )
+    failed_reasons: list[str] = []
+    if insufficient_evidence:
+        failed_reasons.append("insufficient_evidence")
+    if len(supported_groups) < control.min_group_count:
+        failed_reasons.append("supported_group_count_below_min")
+    if len(supported_indicators) < control.min_indicator_count:
+        failed_reasons.append("supported_indicator_count_below_min")
+    if len(supported_core_groups) < control.min_core_group_count:
+        failed_reasons.append("supported_core_group_count_below_min")
+    if missing_required_groups:
+        failed_reasons.append("missing_required_groups")
+    passed = not failed_reasons
     return {
         "target_phase": candidate_phase_score.phase_id,
         "applies": True,
         "passed": passed,
         "insufficient_evidence": insufficient_evidence,
+        "failed_reasons": failed_reasons,
         "supported_group_count": len(supported_groups),
         "supported_indicator_count": len(supported_indicators),
         "supported_core_group_count": len(supported_core_groups),
         "supported_groups": supported_groups,
+        "required_groups": sorted(required_groups),
+        "missing_required_groups": missing_required_groups,
+        "core_groups": sorted(core_groups),
         "supported_core_groups": supported_core_groups,
+        "non_core_groups": sorted(non_core_groups),
+        "supported_non_core_groups": supported_non_core_groups,
         "supported_indicators": supported_indicators,
         "unsupported_indicators": unsupported_indicators,
         "required_group_count": control.min_group_count,

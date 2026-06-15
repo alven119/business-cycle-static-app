@@ -11,6 +11,7 @@ from business_cycle.backtests.attribution import write_transition_attribution
 from business_cycle.backtests.calibration import load_calibration_plan
 from business_cycle.backtests.catalog import get_scenario, load_backtest_scenario_catalog
 from business_cycle.backtests.report import write_backtest_report
+from business_cycle.backtests.reuse import should_reuse_outputs
 from business_cycle.backtests.runner import BacktestRunConfig, BacktestRunResult, run_backtest
 from business_cycle.backtests.specs import BacktestScenario, BacktestScenarioCatalog, BacktestScenarioError
 
@@ -41,6 +42,8 @@ def run_calibration_experiment(
     backtest_runner: BacktestRunner | None = None,
     report_writer: ReportWriter | None = None,
     attribution_writer: AttributionWriter | None = None,
+    reuse_existing: bool = False,
+    force: bool = False,
 ) -> dict[str, Any]:
     """Run baseline and enabled-controls backtests and write a comparison summary."""
 
@@ -53,6 +56,19 @@ def run_calibration_experiment(
     scenarios = _selected_scenarios(catalog, scenario_id)
     out_of_sample = _out_of_sample_scenarios(calibration_plan_path)
     experiment_root = Path(output_dir) / experiment_id
+    output_path = experiment_root / "calibration_summary.json"
+    required_outputs = _required_experiment_outputs(experiment_root, scenarios)
+    if should_reuse_outputs(required_outputs, reuse_existing=reuse_existing, force=force):
+        summary = _load_json_mapping(output_path)
+        summary["reuse"] = {
+            "enabled": True,
+            "reused": True,
+            "reused_output_count": len(required_outputs),
+            "recomputed_output_count": 0,
+        }
+        summary.setdefault("output_path", str(output_path))
+        return summary
+
     summary = build_calibration_experiment_summary(
         experiment_id=experiment_id,
         scenarios=scenarios,
@@ -64,8 +80,13 @@ def run_calibration_experiment(
         report_writer=report_writer or write_backtest_report,
         attribution_writer=attribution_writer or write_transition_attribution,
     )
-    output_path = experiment_root / "calibration_summary.json"
     summary["output_path"] = str(output_path)
+    summary["reuse"] = {
+        "enabled": reuse_existing,
+        "reused": False,
+        "reused_output_count": 0,
+        "recomputed_output_count": len(required_outputs),
+    }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     return summary
@@ -308,3 +329,18 @@ def _list(value: Any) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, dict)]
+
+
+def _required_experiment_outputs(experiment_root: Path, scenarios: list[BacktestScenario]) -> list[Path]:
+    paths = [experiment_root / "calibration_summary.json"]
+    for section in ("baseline", "experiment"):
+        for scenario in scenarios:
+            scenario_dir = experiment_root / section / scenario.scenario_id
+            paths.extend(
+                [
+                    scenario_dir / "timeline.json",
+                    scenario_dir / "report.json",
+                    scenario_dir / "transition_attribution.json",
+                ]
+            )
+    return paths

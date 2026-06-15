@@ -123,6 +123,45 @@ def test_run_full_horizon_calibration_script_accepts_breadth_controls(monkeypatc
     assert "pass_count=1" in capsys.readouterr().out
 
 
+def test_run_full_horizon_calibration_reuse_and_force_flags(monkeypatch, capsys) -> None:  # noqa: ANN001
+    calls: list[dict] = []
+
+    def fake_run_full_horizon_calibration(**kwargs) -> dict:  # noqa: ANN003
+        calls.append(kwargs)
+        review_path = Path(kwargs["output_dir"]) / kwargs["experiment_id"] / "review.json"
+        review_path.parent.mkdir(parents=True, exist_ok=True)
+        review_path.write_text(
+            json.dumps(
+                {
+                    "scenario_count": 1,
+                    "aggregate": {
+                        "pass_count": 1,
+                        "warning_count": 0,
+                        "fail_count": 0,
+                        "needs_longer_horizon_count": 0,
+                        "early_false_recession_count": 0,
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        return {
+            "experiment_id": kwargs["experiment_id"],
+            "aggregate": {"scenario_with_failures_count": 0},
+            "acceptance_review_path": str(review_path),
+            "reuse": {"reused_output_count": 10, "recomputed_output_count": 0},
+        }
+
+    monkeypatch.setattr(script, "run_full_horizon_calibration", fake_run_full_horizon_calibration)
+
+    exit_code = script.main(["--experiment-id", "test", "--reuse-existing", "--force"])
+
+    assert exit_code == 0
+    assert calls[0]["reuse_existing"] is True
+    assert calls[0]["force"] is True
+    assert "reused_output_count=10" in capsys.readouterr().out
+
+
 def test_run_full_horizon_calibration_missing_controls_fails(tmp_path: Path) -> None:
     completed = run_script(
         "--experiment-id",

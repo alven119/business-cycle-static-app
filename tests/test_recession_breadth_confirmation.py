@@ -58,6 +58,26 @@ def contribution(indicator_id: str, score: float = 70.0, confidence: float = 0.9
 
 
 def controls(*, enabled: bool = True, breadth_enabled: bool = True) -> TransitionControlsConfig:
+    return controls_with_breadth(
+        enabled=enabled,
+        breadth_enabled=breadth_enabled,
+        min_group_count=3,
+        min_core_group_count=2,
+        min_indicator_count=4,
+    )
+
+
+def controls_with_breadth(
+    *,
+    enabled: bool = True,
+    breadth_enabled: bool = True,
+    min_group_count: int = 3,
+    min_core_group_count: int = 2,
+    min_indicator_count: int = 4,
+    required_groups: list[str] | None = None,
+    core_groups: list[str] | None = None,
+    non_core_groups: list[str] | None = None,
+) -> TransitionControlsConfig:
     return TransitionControlsConfig(
         version=1,
         enabled=enabled,
@@ -69,11 +89,12 @@ def controls(*, enabled: bool = True, breadth_enabled: bool = True) -> Transitio
         breadth_confirmation=BreadthConfirmationControl(
             enabled=breadth_enabled,
             target_phases=["recession"],
-            min_group_count=3,
-            min_core_group_count=2,
-            min_indicator_count=4,
+            min_group_count=min_group_count,
+            min_core_group_count=min_core_group_count,
+            min_indicator_count=min_indicator_count,
             min_phase_signal_score=55.0,
             min_indicator_confidence=0.5,
+            required_groups=required_groups or [],
             allowed_groups=[
                 "employment",
                 "consumption",
@@ -82,6 +103,8 @@ def controls(*, enabled: bool = True, breadth_enabled: bool = True) -> Transitio
                 "rates_financial_conditions",
                 "commodities",
             ],
+            core_groups=core_groups or [],
+            non_core_groups=non_core_groups or [],
         ),
         caveats_zh=["使用修訂後歷史資料。", "不構成投資建議。"],
     )
@@ -199,3 +222,71 @@ def test_breadth_confirmation_does_not_emit_manual_review_required() -> None:
     decision = resolve_with_contributions([], transition_controls=controls())
 
     assert "manual_review_required" not in str(serialize_current_phase_decision(decision))
+
+
+def test_missing_required_financial_group_blocks_recession() -> None:
+    decision = resolve_with_contributions(
+        [
+            contribution("initial_jobless_claims"),
+            contribution("short_term_unemployment"),
+            contribution("real_retail_sales"),
+            contribution("durable_goods_orders"),
+        ],
+        transition_controls=controls_with_breadth(required_groups=["rates_financial_conditions"]),
+    )
+
+    summary = decision.details["transition_controls"]["breadth_summary"]
+    assert decision.decision_status == "transition_watch"
+    assert "breadth_confirmation" in decision.details["transition_controls"]["blocked"]
+    assert summary["missing_required_groups"] == ["rates_financial_conditions"]
+    assert "missing_required_groups" in summary["failed_reasons"]
+
+
+def test_core_groups_support_insufficient_blocks_recession() -> None:
+    decision = resolve_with_contributions(
+        [
+            contribution("initial_jobless_claims"),
+            contribution("short_term_unemployment"),
+            contribution("real_retail_sales"),
+            contribution("exports_goods_services"),
+            contribution("imports_goods_services"),
+        ],
+        transition_controls=controls_with_breadth(
+            min_group_count=3,
+            min_core_group_count=3,
+            min_indicator_count=5,
+            core_groups=["employment", "consumption", "investment"],
+            non_core_groups=["trade", "rates_financial_conditions", "commodities"],
+        ),
+    )
+
+    summary = decision.details["transition_controls"]["breadth_summary"]
+    assert decision.decision_status == "transition_watch"
+    assert summary["supported_groups"] == ["consumption", "employment", "trade"]
+    assert summary["supported_core_groups"] == ["consumption", "employment"]
+    assert summary["supported_non_core_groups"] == ["trade"]
+    assert "supported_core_group_count_below_min" in summary["failed_reasons"]
+
+
+def test_trade_support_cannot_replace_core_group() -> None:
+    decision = resolve_with_contributions(
+        [
+            contribution("initial_jobless_claims"),
+            contribution("real_retail_sales"),
+            contribution("exports_goods_services"),
+            contribution("imports_goods_services"),
+            contribution("wti_oil_price"),
+        ],
+        transition_controls=controls_with_breadth(
+            min_group_count=3,
+            min_core_group_count=3,
+            min_indicator_count=5,
+            core_groups=["employment", "consumption", "investment"],
+            non_core_groups=["trade", "rates_financial_conditions", "commodities"],
+        ),
+    )
+
+    summary = decision.details["transition_controls"]["breadth_summary"]
+    assert decision.decision_status == "transition_watch"
+    assert "trade" in summary["supported_non_core_groups"]
+    assert "investment" not in summary["supported_core_groups"]

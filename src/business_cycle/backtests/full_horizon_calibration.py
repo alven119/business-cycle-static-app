@@ -10,6 +10,9 @@ from business_cycle.backtests.calibration_experiment import (
     run_calibration_experiment,
 )
 from business_cycle.backtests.calibration_review import write_calibration_acceptance_review
+from business_cycle.backtests.catalog import get_scenario, load_backtest_scenario_catalog
+from business_cycle.backtests.reuse import should_reuse_outputs
+from business_cycle.backtests.specs import BacktestScenario
 
 DEFAULT_CONTROLS_PATH = Path("specs/backtests/transition_controls_enabled_experiment.yaml")
 DEFAULT_OUTPUT_DIR = Path("data/backtests/calibration")
@@ -29,6 +32,8 @@ def run_full_horizon_calibration(
     windows_path: str | Path = DEFAULT_WINDOWS_PATH,
     experiment_runner: ExperimentRunner | None = None,
     review_writer: ReviewWriter | None = None,
+    reuse_existing: bool = False,
+    force: bool = False,
 ) -> dict[str, Any]:
     """Run calibration across full scenario windows and write acceptance review."""
 
@@ -41,6 +46,8 @@ def run_full_horizon_calibration(
         windows_path=windows_path,
         experiment_runner=experiment_runner,
         review_writer=review_writer,
+        reuse_existing=reuse_existing,
+        force=force,
     )
 
 
@@ -54,6 +61,8 @@ def write_full_horizon_calibration_outputs(
     windows_path: str | Path = DEFAULT_WINDOWS_PATH,
     experiment_runner: ExperimentRunner | None = None,
     review_writer: ReviewWriter | None = None,
+    reuse_existing: bool = False,
+    force: bool = False,
 ) -> dict[str, Any]:
     """Run full-horizon calibration and write the acceptance review JSON."""
 
@@ -62,6 +71,23 @@ def write_full_horizon_calibration_outputs(
     controls_path = Path(controls_config_path)
     if not controls_path.exists():
         raise CalibrationExperimentError(f"transition controls config does not exist: {controls_path}")
+    scenarios = _selected_scenarios(catalog_path, scenario_id)
+    experiment_root = Path(output_dir) / experiment_id
+    summary_path = experiment_root / "calibration_summary.json"
+    output_path = experiment_root / "calibration_acceptance_review.json"
+    required_outputs = _required_full_horizon_outputs(experiment_root, scenarios)
+    if should_reuse_outputs(required_outputs, reuse_existing=reuse_existing, force=force):
+        summary = _load_json_mapping(summary_path)
+        summary["acceptance_review_path"] = str(output_path)
+        summary["full_horizon"] = True
+        summary["reuse"] = {
+            "enabled": True,
+            "reused": True,
+            "reused_output_count": len(required_outputs),
+            "recomputed_output_count": 0,
+        }
+        return summary
+
     runner = experiment_runner or run_calibration_experiment
     summary = runner(
         experiment_id=experiment_id,
@@ -70,11 +96,11 @@ def write_full_horizon_calibration_outputs(
         output_dir=output_dir,
         max_periods=None,
         scenario_id=scenario_id,
+        reuse_existing=reuse_existing,
+        force=force,
     )
 
-    experiment_root = Path(output_dir) / experiment_id
-    summary_path = Path(summary.get("output_path") or experiment_root / "calibration_summary.json")
-    output_path = experiment_root / "calibration_acceptance_review.json"
+    summary_path = Path(summary.get("output_path") or summary_path)
     writer = review_writer or write_calibration_acceptance_review
     review_path = writer(
         summary_path=summary_path,
@@ -83,4 +109,44 @@ def write_full_horizon_calibration_outputs(
     )
     summary["acceptance_review_path"] = str(review_path)
     summary["full_horizon"] = True
+    summary["reuse"] = {
+        **dict(summary.get("reuse") if isinstance(summary.get("reuse"), dict) else {}),
+        "enabled": reuse_existing,
+        "reused": False,
+        "recomputed_output_count": len(required_outputs),
+    }
     return summary
+
+
+def _selected_scenarios(catalog_path: str | Path, scenario_id: str | None) -> list[BacktestScenario]:
+    catalog = load_backtest_scenario_catalog(catalog_path)
+    if scenario_id is None:
+        return list(catalog.scenarios)
+    return [get_scenario(catalog, scenario_id)]
+
+
+def _required_full_horizon_outputs(experiment_root: Path, scenarios: list[BacktestScenario]) -> list[Path]:
+    paths = [
+        experiment_root / "calibration_summary.json",
+        experiment_root / "calibration_acceptance_review.json",
+    ]
+    for section in ("baseline", "experiment"):
+        for scenario in scenarios:
+            scenario_dir = experiment_root / section / scenario.scenario_id
+            paths.extend(
+                [
+                    scenario_dir / "timeline.json",
+                    scenario_dir / "report.json",
+                    scenario_dir / "transition_attribution.json",
+                ]
+            )
+    return paths
+
+
+def _load_json_mapping(path: Path) -> dict[str, Any]:
+    import json
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise CalibrationExperimentError(f"JSON must be a mapping: {path}")
+    return payload

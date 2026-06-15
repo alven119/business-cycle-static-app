@@ -32,6 +32,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--scenario-id", help="Run only one scenario id.")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Calibration output root.")
     parser.add_argument("--windows", default=str(DEFAULT_WINDOWS_PATH), help="Acceptance windows YAML path.")
+    parser.add_argument("--reuse-existing", action="store_true", help="Reuse complete existing generated outputs.")
+    parser.add_argument("--force", action="store_true", help="Recompute even when reusable outputs exist.")
     return parser
 
 
@@ -46,6 +48,8 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=args.output_dir,
             scenario_id=args.scenario_id,
             windows_path=args.windows,
+            reuse_existing=args.reuse_existing,
+            force=args.force,
         )
         review = json.loads(Path(summary["acceptance_review_path"]).read_text(encoding="utf-8"))
     except (BacktestScenarioError, CalibrationExperimentError, OSError, ValueError, json.JSONDecodeError) as exc:
@@ -61,6 +65,8 @@ def main(argv: list[str] | None = None) -> int:
         f"fail_count={aggregate['fail_count']} "
         f"needs_longer_horizon_count={aggregate['needs_longer_horizon_count']} "
         f"early_false_recession_count={aggregate['early_false_recession_count']} "
+        f"reused_output_count={summary.get('reuse', {}).get('reused_output_count', 0)} "
+        f"recomputed_output_count={summary.get('reuse', {}).get('recomputed_output_count', 0)} "
         f"output={summary['acceptance_review_path']}"
     )
     return 1 if summary["aggregate"]["scenario_with_failures_count"] > 0 else 0

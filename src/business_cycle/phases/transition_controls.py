@@ -49,7 +49,10 @@ class BreadthConfirmationControl:
     min_indicator_count: int = 1
     min_phase_signal_score: float = 0.0
     min_indicator_confidence: float = 0.0
+    required_groups: list[str] = field(default_factory=list)
     allowed_groups: list[str] = field(default_factory=list)
+    core_groups: list[str] = field(default_factory=list)
+    non_core_groups: list[str] = field(default_factory=list)
     groups: list[str] = field(default_factory=list)
     description_zh: str = ""
 
@@ -123,6 +126,25 @@ def validate_transition_controls_config(config: TransitionControlsConfig) -> Non
         raise TransitionControlsConfigError("breadth_confirmation.target_phases must not be empty when enabled")
     if config.breadth_confirmation.enabled and not config.breadth_confirmation.allowed_groups:
         raise TransitionControlsConfigError("breadth_confirmation.allowed_groups must not be empty when enabled")
+    allowed_groups = set(config.breadth_confirmation.allowed_groups)
+    required_groups = set(config.breadth_confirmation.required_groups)
+    core_groups = set(config.breadth_confirmation.core_groups)
+    non_core_groups = set(config.breadth_confirmation.non_core_groups)
+    if not required_groups <= allowed_groups:
+        raise TransitionControlsConfigError("breadth_confirmation.required_groups must be a subset of allowed_groups")
+    if core_groups and not core_groups <= allowed_groups:
+        raise TransitionControlsConfigError("breadth_confirmation.core_groups must be a subset of allowed_groups")
+    if non_core_groups and not non_core_groups <= allowed_groups:
+        raise TransitionControlsConfigError("breadth_confirmation.non_core_groups must be a subset of allowed_groups")
+    overlap = sorted(core_groups & non_core_groups)
+    if overlap:
+        raise TransitionControlsConfigError(
+            f"breadth_confirmation.core_groups and non_core_groups must not overlap: {', '.join(overlap)}"
+        )
+    if core_groups and config.breadth_confirmation.min_core_group_count > len(core_groups):
+        raise TransitionControlsConfigError(
+            "breadth_confirmation.min_core_group_count must be <= len(core_groups)"
+        )
     if not any("修訂後歷史資料" in caveat for caveat in config.caveats_zh):
         raise TransitionControlsConfigError("caveats_zh must include revised data caveat")
     if not any("不構成投資建議" in caveat for caveat in config.caveats_zh):
@@ -180,7 +202,10 @@ def _breadth_confirmation(value: Any) -> BreadthConfirmationControl:
         min_indicator_confidence=(
             float(data["min_indicator_confidence"]) if "min_indicator_confidence" in data else 0.0
         ),
+        required_groups=_str_list(data.get("required_groups"), "breadth_confirmation.required_groups", allow_empty=True),
         allowed_groups=allowed_groups or legacy_groups,
+        core_groups=_str_list(data.get("core_groups"), "breadth_confirmation.core_groups", allow_empty=True),
+        non_core_groups=_str_list(data.get("non_core_groups"), "breadth_confirmation.non_core_groups", allow_empty=True),
         groups=legacy_groups,
         description_zh=str(data.get("description_zh") or ""),
     )

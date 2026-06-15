@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import scripts.run_calibration_experiment as script
+
 
 def test_run_calibration_experiment_script_runs_one_period(tmp_path: Path) -> None:
     output_dir = tmp_path / "calibration"
@@ -73,6 +75,36 @@ def test_run_calibration_experiment_unknown_scenario_fails(tmp_path: Path) -> No
 
     assert completed.returncode != 0
     assert "Unknown scenario_id: missing" in completed.stderr
+
+
+def test_run_calibration_experiment_reuse_and_force_flags(monkeypatch, capsys) -> None:  # noqa: ANN001
+    calls: list[dict] = []
+
+    def fake_run_calibration_experiment(**kwargs) -> dict:  # noqa: ANN003
+        calls.append(kwargs)
+        return {
+            "experiment_id": kwargs["experiment_id"],
+            "scenario_count": 1,
+            "aggregate": {
+                "baseline_total_plausibility_warning_count": 1,
+                "experiment_total_plausibility_warning_count": 1,
+                "delta_total_plausibility_warning_count": 0,
+                "scenario_improved_count": 0,
+                "scenario_regressed_count": 0,
+                "scenario_with_failures_count": 0,
+            },
+            "reuse": {"reused_output_count": 4, "recomputed_output_count": 0},
+            "output_path": "tmp/summary.json",
+        }
+
+    monkeypatch.setattr(script, "run_calibration_experiment", fake_run_calibration_experiment)
+
+    exit_code = script.main(["--experiment-id", "test", "--reuse-existing", "--force"])
+
+    assert exit_code == 0
+    assert calls[0]["reuse_existing"] is True
+    assert calls[0]["force"] is True
+    assert "reused_output_count=4" in capsys.readouterr().out
 
 
 def run_script(*args: str) -> subprocess.CompletedProcess[str]:
