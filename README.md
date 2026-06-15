@@ -416,6 +416,23 @@ python -m json.tool data/backtests/candidate_indicators/recession_confirmation_d
 
 Candidate scores are written under `data/backtests/candidate_indicators/`, which is generated ignored output. Missing local raw cache is reported as warnings/failures; the command does not download FRED data.
 
+## Phase 7F1.5 candidate recession integration design
+
+Phase 7F1.5 turns the candidate recession overlay result into integration guardrails. It documents why candidate recession confirmation is useful as diagnostics, but not yet safe as a hard gate because dotcom was downgraded to watch in the full-horizon overlay.
+
+```text
+specs/backtests/candidate_recession_integration_design.yaml
+docs/candidate_recession_integration_design.md
+```
+
+Inspect the design summary with:
+
+```bash
+python scripts/show_candidate_recession_integration_design.py
+```
+
+This phase does not change formal phase scoring, resolver logic, FRED provider behavior, live dashboard output, or GitHub Pages deployment.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

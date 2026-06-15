@@ -73,6 +73,13 @@ from business_cycle.backtests.candidate_recession_overlay import (
     load_candidate_recession_overlay_experiment,
     write_candidate_recession_overlay_report,
 )
+from business_cycle.backtests.candidate_recession_integration import (
+    CandidateRecessionIntegrationDesign,
+    CandidateRecessionIntegrationDesignError,
+    integration_mode_allowed,
+    load_candidate_recession_integration_design,
+    validate_candidate_recession_integration_design,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -147,6 +154,8 @@ __all__ = [
     "CandidateRecessionConfirmationRule",
     "CandidateRecessionRuleError",
     "CandidateRecessionOverlayError",
+    "CandidateRecessionIntegrationDesign",
+    "CandidateRecessionIntegrationDesignError",
     "CovidFalsePositiveError",
     "RecessionConfirmationCandidateSpec",
     "attribution_quality_counts",
@@ -172,6 +181,7 @@ __all__ = [
     "high_priority_indicator_count",
     "is_high_signal",
     "is_strong_signal",
+    "integration_mode_allowed",
     "load_book_indicator_gap_analysis",
     "load_book_aligned_indicator_implementation_plan",
     "load_breadth_sensitivity_matrix",
@@ -181,6 +191,7 @@ __all__ = [
     "load_candidate_recession_diagnostic_windows",
     "load_candidate_recession_confirmation_rule",
     "load_candidate_recession_overlay_experiment",
+    "load_candidate_recession_integration_design",
     "load_recession_confirmation_candidate_indicators",
     "purpose_groups",
     "run_attribution_smoke",
@@ -200,6 +211,7 @@ __all__ = [
     "validate_book_indicator_gap_analysis",
     "validate_book_aligned_indicator_implementation_plan",
     "validate_breadth_sensitivity_matrix",
+    "validate_candidate_recession_integration_design",
     "validate_recession_confirmation_candidate_indicators",
     "write_backtest_report",
     "write_breadth_sensitivity_summary",

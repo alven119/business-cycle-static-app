@@ -163,6 +163,19 @@ data/backtests/candidate_indicators/recession_confirmation_overlay/candidate_rec
 
 Overlay 只新增 diagnostics 欄位，不覆寫既有 timeline，也不修改正式 resolver。它的用途是觀察 candidate rule 是否能降低 false confirmed recession，同時保留 GFC / COVID 2020 等明確衰退案例。若結果合理，下一步 Phase 7F1.5 才討論 experimental phase scoring / transition control integration design。本內容不構成投資建議。
 
+## Phase 7F1.5 Integration Design
+
+Phase 7F1.5 將 candidate recession diagnostics、rule report 與 full-horizon overlay 的結果整理成整合設計與 guardrails：
+
+```text
+specs/backtests/candidate_recession_integration_design.yaml
+docs/candidate_recession_integration_design.md
+```
+
+設計結論是：candidate rule 可以作為 diagnostics 或 soft confirmation filter 的候選基礎，但目前不能作為 hard gate。原因是 dotcom_bubble 在 overlay 中被降級為 watch，若只允許 candidate confirmed 才能 confirmed recession，可能漏掉歷史衰退案例。
+
+因此 Phase 7F1.5 不接入正式 scoring、不改 resolver、不影響 live dashboard。下一步應進 Phase 7F2 補強榮景期結束與衰退前風險指標，而不是直接把 recession confirmation rule 正式啟用。本內容不構成投資建議。
+
 Phase 7F2：榮景期結束指標
 
 - 10Y-3M 與 10Y-2Y yield curve。

@@ -423,6 +423,21 @@ data/backtests/candidate_indicators/recession_confirmation_overlay/candidate_rec
 
 此步驟檢查 COVID 2019 false confirmed recession 是否可被降級、COVID 2020 / GFC 是否仍有 candidate confirmed support，以及 euro debt / 2018 是否沒有新增 false confirmed recession。下一步若結果合理，才進 Phase 7F1.5 experimental phase scoring / transition control integration design。本階段不構成投資建議。
 
+## Phase 7F1.5 Candidate Recession Integration Design
+
+Phase 7F1.5 將 Phase 7F1.2～7F1.4 的結果整理成 integration design 與 acceptance guardrails：
+
+```text
+specs/backtests/candidate_recession_integration_design.yaml
+docs/candidate_recession_integration_design.md
+```
+
+結論是：candidate recession rule 有助於擋掉 COVID 2019 early false confirmed recession，並保留 GFC / COVID 2020 的 confirmed support，但 dotcom 在 full-horizon overlay 中被降級為 watch。因此它目前不適合成為 hard confirmation gate。
+
+未來較合理的整合路徑是先維持 diagnostic-only，或設計 soft confirmation filter：candidate confirmed 支持 confirmed recession，candidate watch 則要求 persistence、原始 recession score、phase score margin 或其他 evidence path。這仍不會改 live dashboard，也不代表正式模型已更新。
+
+下一步應進 Phase 7F2 補強榮景期結束與衰退前風險指標，因為 recession confirmation 通常偏晚。Phase 7F1.5 不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

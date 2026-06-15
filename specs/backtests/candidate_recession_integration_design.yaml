@@ -1,0 +1,68 @@
+candidate_recession_integration_design:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    根據 Phase 7F1.2～7F1.4 的 candidate recession diagnostics 與 overlay 結果，
+    定義 candidate recession rule 未來如何安全整合到 transition controls，
+    並明確列出目前不能直接 hard-gate 的限制。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為整合設計，不代表正式模型已更新。
+    - 不構成投資建議。
+  evidence_summary:
+    covid_2019_false_confirmed_blocked: true
+    gfc_2008_confirmed_preserved: true
+    covid_2020_confirmed_preserved: true
+    out_of_sample_false_confirmed_count: 0
+    dotcom_overlay_confirmed_missing: true
+  design_conclusion:
+    hard_gate_candidate_status_confirmed_only:
+      allowed: false
+      reason_zh: >
+        dotcom_bubble 在 full-horizon overlay 中被降級為 watch，若直接 hard-gate confirmed recession，
+        可能漏掉歷史衰退案例。
+    soft_filter_with_watch_persistence:
+      allowed: true
+      reason_zh: >
+        candidate watch 可作為 transition_watch 或 delayed confirmation 的證據，
+        但需搭配 persistence、原始 recession score、phase score margin 與 scenario acceptance。
+    diagnostic_layer_only:
+      allowed: true
+      reason_zh: >
+        在正式整合前，candidate rule 可安全作為 dashboard / backtest diagnostics，但不能改 live decision。
+  proposed_future_integration_modes:
+    - mode_id: diagnostic_only
+      display_name_zh: 僅診斷顯示
+      formal_decision_impact: none
+      risk_level: low
+      allowed_now: true
+    - mode_id: soft_confirmation_filter
+      display_name_zh: 軟性衰退確認過濾
+      formal_decision_impact: candidate confirmed supports confirmed recession; candidate watch keeps transition_watch unless persistent
+      risk_level: medium
+      allowed_now: false
+    - mode_id: hard_confirmation_gate
+      display_name_zh: 硬性衰退確認閘門
+      formal_decision_impact: candidate must be confirmed before model can confirm recession
+      risk_level: high
+      allowed_now: false
+  required_acceptance_before_live_integration:
+    - target_id: block_covid_2019_false_confirmed
+      required: true
+    - target_id: preserve_gfc_confirmed
+      required: true
+    - target_id: preserve_covid_2020_confirmed
+      required: true
+    - target_id: dotcom_not_lost
+      required: true
+      description_zh: dotcom 不可完全失去 recession confirmation；若 candidate 只給 watch，必須有 watch persistence 或其他 evidence path。
+    - target_id: no_euro_debt_false_confirmed
+      required: true
+    - target_id: no_late_cycle_2018_false_confirmed
+      required: true
+  recommended_next_phase:
+    phase_id: 7F2
+    title: implement boom ending candidate indicators
+    reason_zh: >
+      recession confirmation 通常已偏晚；若目標是投資配置與減碼，下一步應補強榮景期結束與衰退前風險指標。
