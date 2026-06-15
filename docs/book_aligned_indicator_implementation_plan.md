@@ -66,7 +66,38 @@ python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
 data/backtests/candidate_indicators/recession_confirmation/<as_of>/candidate_indicator_scores.json
 ```
 
-這些分數只供 recession confirmation diagnostics 與後續 calibration 使用，不接正式 phase scoring、不改 resolver，也不會出現在 live dashboard。Phase 7F1.1 才會把 candidate indicators 放進 calibration experiment 檢查。
+這些分數只供 recession confirmation diagnostics 與後續 calibration 使用，不接正式 phase scoring、不改 resolver，也不會出現在 live dashboard。Phase 7F1.2 才會把 candidate indicators 放進 calibration experiment 檢查。
+
+## Phase 7F1.1 Candidate FRED Cache
+
+Phase 7F1.1 新增 candidate series cache updater，先把 recession confirmation candidate FRED series 下載到本機 raw cache，讓 experimental scoring 可以產生實際分數。
+
+Dry run：
+
+```bash
+python scripts/update_recession_confirmation_candidate_data.py --dry-run
+```
+
+只檢查本機 cache、不呼叫 API：
+
+```bash
+python scripts/update_recession_confirmation_candidate_data.py --no-api
+```
+
+真實下載需本機環境有 `FRED_API_KEY`：
+
+```bash
+python scripts/update_recession_confirmation_candidate_data.py
+```
+
+下載後可重新檢查 coverage 與 candidate scores：
+
+```bash
+python scripts/check_recession_confirmation_candidate_coverage.py
+python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
+```
+
+Raw cache 仍寫入 ignored `data/raw/fred/`，不得 commit。這些資料只供 experimental candidate indicators 使用，不會接入 live dashboard，也不構成投資建議。
 
 Phase 7F2：榮景期結束指標
 

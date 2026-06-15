@@ -43,6 +43,11 @@ from business_cycle.backtests.candidate_indicators import (
     validate_recession_confirmation_candidate_indicators,
     write_candidate_indicator_scores,
 )
+from business_cycle.backtests.candidate_data import (
+    CandidateDataUpdateResult,
+    candidate_fred_series_ids,
+    update_candidate_fred_cache,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -112,6 +117,7 @@ __all__ = [
     "CalibrationExperimentError",
     "CalibrationReviewError",
     "CandidateIndicatorError",
+    "CandidateDataUpdateResult",
     "CovidFalsePositiveError",
     "RecessionConfirmationCandidateSpec",
     "attribution_quality_counts",
@@ -123,6 +129,7 @@ __all__ = [
     "build_covid_false_positive_diagnostic",
     "build_breadth_sensitivity_summary",
     "build_transition_attribution",
+    "candidate_fred_series_ids",
     "generate_monthly_periods",
     "get_scenario",
     "high_priority_book_gap_count",
@@ -143,6 +150,7 @@ __all__ = [
     "run_breadth_sensitivity_experiment",
     "score_candidate_indicators",
     "sensitivity_issues",
+    "update_candidate_fred_cache",
     "write_transition_attribution",
     "write_calibration_acceptance_review",
     "write_covid_false_positive_diagnostic",

@@ -16,6 +16,7 @@ def test_check_recession_confirmation_candidate_coverage_outputs_summary(tmp_pat
     assert "candidate_indicator_count=7" in completed.stdout
     assert "required_series_count=" in completed.stdout
     assert "available_series_count=1" in completed.stdout
+    assert "cached_series=CCSA" in completed.stdout
     assert "missing_series=" in completed.stdout
     assert "derived_series=credit_spread_baa_aaa" in completed.stdout
     assert "no FRED API calls" in completed.stdout

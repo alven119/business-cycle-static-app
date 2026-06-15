@@ -402,6 +402,8 @@ Phase 7F1 implements experimental recession confirmation candidate indicators wi
 
 ```bash
 python scripts/show_book_indicator_plan.py
+python scripts/update_recession_confirmation_candidate_data.py --dry-run
+python scripts/update_recession_confirmation_candidate_data.py
 python scripts/check_recession_confirmation_candidate_coverage.py
 python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
 ```

@@ -56,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"candidate_indicator_count={len(spec.indicators)}")
     print(f"required_series_count={len(required_series)}")
     print(f"available_series_count={len(available_unique)}")
+    print(f"cached_series={','.join(available_unique)}")
     print(f"missing_series={','.join(missing_unique)}")
     print(f"derived_series={','.join(sorted(derived_series))}")
     print("notes=local cache check only; no FRED API calls were made")

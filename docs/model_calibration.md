@@ -355,6 +355,20 @@ python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
 
 輸出寫入 ignored `data/backtests/candidate_indicators/`。若本機 raw cache 缺少 candidate series，CLI 會列出 failures/warnings，但不會呼叫 FRED API。Phase 7F1 不構成投資建議，也不代表模型結論已更新。
 
+## Phase 7F1.1 Candidate Series Cache
+
+Phase 7F1.1 只補齊 experimental candidate FRED cache。它不把 candidate indicators 加進正式 `indicator_catalog.yaml`，也不改 phase scoring、resolver 或 live dashboard。
+
+```bash
+python scripts/update_recession_confirmation_candidate_data.py --dry-run
+python scripts/update_recession_confirmation_candidate_data.py --no-api
+python scripts/update_recession_confirmation_candidate_data.py
+```
+
+`--dry-run` 與 `--no-api` 不需要 API key。真實下載沿用既有 `FRED_API_KEY` 環境變數或 `.env` 設定，但不會印出或寫入 key。下載後的 raw cache 位於 ignored `data/raw/fred/`，不得 commit。
+
+下一步 Phase 7F1.2 才會把 candidate scores 納入 calibration diagnostics，比較這批指標是否降低 COVID early false recession 並保留 dotcom/GFC recession detection。本階段不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
