@@ -349,6 +349,23 @@ python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1
 
 Reuse 機制會保守檢查 required JSON outputs 是否存在且可 parse；缺檔或壞檔不會被默默使用。Generated output 仍在 ignored `data/backtests/` 之下，不應 commit。
 
+## Phase 7F Book-Aligned Indicator Plan
+
+Phase 7F 建立下一批書籍方法論指標的實作計畫，不執行 backtest、不產生 `data/backtests/` output，也不修改 scoring 或 resolver。
+
+```bash
+python scripts/show_book_indicator_plan.py
+```
+
+Spec 與說明文件：
+
+```text
+specs/backtests/book_aligned_indicator_implementation_plan.yaml
+docs/book_aligned_indicator_implementation_plan.md
+```
+
+此計畫使用 Phase 7E.1 的 breadth sensitivity 結論作為輸入：若 breadth rule alone 無法同時滿足所有 acceptance targets，下一步應補齊 recession confirmation、boom ending、recession trough/recovery 指標，再重新跑 calibration diagnostics。
+
 ## Data Mode
 
 第一版 scenario 的 `data_mode` 都是 `revised`，代表使用目前可下載的修訂後歷史資料。

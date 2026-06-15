@@ -379,6 +379,23 @@ python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1
 
 Reuse only applies when required generated JSON outputs exist and parse successfully. It does not change model behavior or live dashboard output.
 
+## Phase 7F book-aligned indicator implementation plan
+
+Phase 7F turns the Phase 7E.1 result into an implementation plan for book-aligned recession confirmation, boom-ending, and recession-trough/recovery indicators.
+
+```text
+specs/backtests/book_aligned_indicator_implementation_plan.yaml
+docs/book_aligned_indicator_implementation_plan.md
+```
+
+Inspect the plan summary with:
+
+```bash
+python scripts/show_book_indicator_plan.py
+```
+
+This phase only defines candidate indicators, data sources, scoring method notes, and acceptance checks. It does not change scoring, resolver logic, FRED provider behavior, or live dashboard output.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

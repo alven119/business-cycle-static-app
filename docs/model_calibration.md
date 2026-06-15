@@ -305,6 +305,31 @@ python scripts/run_breadth_sensitivity.py --experiment-id breadth_sensitivity_v1
 
 `--reuse-existing` 只有在 required JSON outputs 全部存在且可 parse 時才會跳過重算；`--force` 會強制重跑。這只影響 calibration/backtest runtime，不影響 live dashboard。
 
+## Phase 7F Book-Aligned Indicator Implementation Plan
+
+Phase 7E.1 的結論是：沒有任何 breadth variant 同時擋掉 COVID 2019 early false recession、保留 dotcom/GFC recession detection，並維持 euro debt / late cycle 2018 不新增 false recession。因此 Phase 7F 不再繼續硬調 breadth rule，而是轉向補齊書籍方法論指標。
+
+Implementation plan：
+
+```text
+specs/backtests/book_aligned_indicator_implementation_plan.yaml
+docs/book_aligned_indicator_implementation_plan.md
+```
+
+查看摘要：
+
+```bash
+python scripts/show_book_indicator_plan.py
+```
+
+7F 規劃三批候選實作：
+
+- 7F1：衰退確認指標，補強就業廣度、廣義消費、金融壓力與信用條件。
+- 7F2：榮景期結束指標，補強 yield curve、信用利差、金融壓力、工業生產與政策反轉。
+- 7F3：衰退落底與復甦反轉指標，補強 claims peak reversal、短期失業高峰反轉與寬鬆已到位訊號。
+
+Phase 7F 仍不改模型輸出、不啟用 transition controls、不修改 dashboard。後續真正新增 scoring 前，需先用既有 calibration review 驗證 COVID false positive 是否降低，同時保留 dotcom/GFC 的合理 recession window。本計畫不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

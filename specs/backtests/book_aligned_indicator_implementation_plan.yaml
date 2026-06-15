@@ -1,0 +1,379 @@
+book_aligned_indicator_implementation_plan:
+  version: 1
+  status: draft
+  objective_zh: >
+    根據 breadth sensitivity 與 COVID false-positive attribution，定義下一批
+    書籍方法論對齊指標的工程化順序、資料來源、建議 scoring 方法與驗收方式。
+    本計畫只規劃後續實作，不修改目前 scoring、resolver 或 dashboard 輸出。
+
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此計畫用於模型診斷與指標實作規劃，不構成投資建議。
+    - 不應針對 COVID 單一案例 overfit，需同時保留 dotcom 與金融海嘯等歷史轉折偵測。
+
+  input_diagnostics:
+    - diagnostic_id: breadth_sensitivity_no_recommended_variant
+      finding_zh: breadth_sensitivity_v1 沒有任何 recommended variants。
+      evidence_zh: v4_core_plus_financial 與 v6_strict_core 可擋掉 COVID 2019 early false recession，但會漏掉 dotcom / GFC recession detection。
+    - diagnostic_id: covid_false_positive_contributors
+      finding_zh: COVID false positive 主要由少數 MVP 指標推動。
+      evidence_zh: attribution 顯示 short_term_unemployment、real_pce_durable_goods、initial_jobless_claims 是主要貢獻指標。
+    - diagnostic_id: breadth_rule_not_sufficient
+      finding_zh: 單靠 breadth rule 無法同時滿足所有 acceptance targets。
+      evidence_zh: v2/v3/v5 保留 dotcom/GFC in window 但擋不掉 COVID；v4/v6 擋 COVID 但漏掉 dotcom/GFC。
+    - diagnostic_id: indicator_expansion_needed
+      finding_zh: 下一步應補齊書籍方法論指標，不應繼續硬調 breadth rule。
+      evidence_zh: euro debt / late cycle 2018 所有 variants 都 avoided recession，主要缺口集中在衰退確認與榮景轉折訊號覆蓋。
+
+  implementation_batches:
+    - batch_id: phase_7f1_recession_confirmation_indicators
+      display_name_zh: 衰退確認指標
+      purpose_zh: 補強是否真的進入衰退的確認證據，避免一般放緩被誤判為 confirmed recession。
+      candidate_directions_zh:
+        - 就業惡化廣度
+        - 初領失業救濟金持續升高，而非短期波動
+        - 短期失業人數與失業率同步惡化
+        - 消費廣泛惡化，不只耐久財
+        - 投資 / 訂單惡化
+        - 信用條件 / 金融壓力惡化
+        - 殖利率曲線與降息週期確認
+      implementation_priority: high
+      validation_scenarios:
+        - covid_recession
+        - dotcom_bubble
+        - global_financial_crisis
+        - euro_debt_slowdown
+        - late_cycle_2018
+
+    - batch_id: phase_7f2_boom_ending_indicators
+      display_name_zh: 榮景期結束指標
+      purpose_zh: 補強榮景期結束與減碼時點判斷，不要等 confirmed recession 才反應。
+      candidate_directions_zh:
+        - 利率高檔與貨幣政策緊縮
+        - 長短利差 / yield curve
+        - 信用利差 / 金融壓力
+        - 油價或原物料壓力
+        - 就業市場過熱後轉弱
+        - 消費 / 訂單動能轉弱
+        - 企業投資或工業生產轉弱
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - late_cycle_2018
+
+    - batch_id: phase_7f3_recession_trough_recovery_indicators
+      display_name_zh: 衰退落底與復甦指標
+      purpose_zh: 補強衰退落底與買進時機的資料判讀。
+      candidate_directions_zh:
+        - initial_jobless_claims peak reversal
+        - short_term_unemployment peak reversal
+        - retail sales / durable goods bottoming
+        - durable goods orders bottoming
+        - monetary easing already in place
+        - credit stress easing
+        - yield curve steepening after easing
+      implementation_priority: medium
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - covid_recession
+
+  candidate_indicators:
+    - indicator_id: continuing_jobless_claims
+      display_name_zh: 續領失業救濟金人數
+      purpose_group: recession_confirmation
+      current_status: missing
+      candidate_fred_series:
+        - CCSA
+      source_priority: primary_fred
+      transformation: sustained_yoy_and_moving_average_trend
+      proposed_score_method: moving_average_slope_score + yoy_momentum_score
+      expected_phase_impact: 衰退確認時若續領失業救濟金持續上升，可補強就業惡化 breadth；復甦時高峰反轉可作為落底訊號。
+      stale_after_days: 21
+      implementation_priority: high
+      validation_scenarios:
+        - covid_recession
+        - dotcom_bubble
+        - global_financial_crisis
+      notes_zh: 用來避免只看初領失業救濟金短期波動。
+
+    - indicator_id: insured_unemployment_rate
+      display_name_zh: 投保失業率
+      purpose_group: recession_confirmation
+      current_status: missing
+      candidate_fred_series:
+        - IURSA
+      source_priority: primary_fred
+      transformation: level_percentile_and_trend
+      proposed_score_method: level_percentile_score + moving_average_slope_score
+      expected_phase_impact: 與初領及續領失業救濟金搭配，確認失業壓力是否擴散。
+      stale_after_days: 21
+      implementation_priority: medium
+      validation_scenarios:
+        - covid_recession
+        - global_financial_crisis
+      notes_zh: 若資料頻率或季節調整不穩，先作 confirmation 指標而非核心單點判斷。
+
+    - indicator_id: unemployment_duration_15_weeks_over
+      display_name_zh: 失業 15 週以上人數
+      purpose_group: recession_confirmation
+      current_status: missing
+      candidate_fred_series:
+        - UEMP15OV
+      source_priority: primary_fred
+      transformation: yoy_momentum_and_peak_reversal
+      proposed_score_method: yoy_momentum_score + peak_trough_reversal_score
+      expected_phase_impact: 長期化失業上升可補強衰退確認；高峰反轉可補強復甦落底。
+      stale_after_days: 45
+      implementation_priority: medium
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - covid_recession
+      notes_zh: 用於確認就業惡化是否具有持續性。
+
+    - indicator_id: credit_spread_baa_aaa
+      display_name_zh: Baa-Aaa 公司債信用利差
+      purpose_group: boom_ending
+      current_status: missing
+      candidate_fred_series:
+        - BAA
+        - AAA
+      source_priority: derived_fred
+      transformation: spread_level_percentile_and_widening_trend
+      proposed_score_method: level_percentile_score + moving_average_slope_score
+      expected_phase_impact: 信用利差擴大可補強榮景後期與衰退前金融壓力訊號。
+      stale_after_days: 21
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - late_cycle_2018
+      notes_zh: 需以兩條 FRED series 計算 spread，不改 FRED provider 公開行為。
+
+    - indicator_id: financial_stress_index
+      display_name_zh: 金融壓力指數
+      purpose_group: recession_confirmation
+      current_status: missing
+      candidate_fred_series:
+        - NFCI
+        - STLFSI4
+      source_priority: primary_fred
+      transformation: level_percentile_and_worsening_trend
+      proposed_score_method: level_percentile_score + moving_average_slope_score
+      expected_phase_impact: 金融壓力升高可降低少數就業/消費指標造成的 false positive。
+      stale_after_days: 21
+      implementation_priority: high
+      validation_scenarios:
+        - global_financial_crisis
+        - covid_recession
+        - euro_debt_slowdown
+        - late_cycle_2018
+      notes_zh: 可先列為 confirmation 指標，避免單一 index 主導 recession 判斷。
+
+    - indicator_id: yield_curve_10y_3m
+      display_name_zh: 10 年期與 3 個月期公債利差
+      purpose_group: boom_ending
+      current_status: missing
+      candidate_fred_series:
+        - T10Y3M
+      source_priority: primary_fred
+      transformation: inversion_duration_and_steepening_after_easing
+      proposed_score_method: level_percentile_score + peak_trough_reversal_score
+      expected_phase_impact: 倒掛持續可補強榮景後期風險；寬鬆後轉陡可作為落底修復訊號之一。
+      stale_after_days: 14
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - late_cycle_2018
+      notes_zh: 不應單獨用倒掛判斷 recession，需搭配就業、消費、投資與信用。
+
+    - indicator_id: yield_curve_10y_2y
+      display_name_zh: 10 年期與 2 年期公債利差
+      purpose_group: boom_ending
+      current_status: missing
+      candidate_fred_series:
+        - T10Y2Y
+      source_priority: primary_fred
+      transformation: inversion_duration_and_momentum
+      proposed_score_method: level_percentile_score + moving_average_slope_score
+      expected_phase_impact: 作為 yield curve confirmation，避免只依賴單一利差。
+      stale_after_days: 14
+      implementation_priority: medium
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - late_cycle_2018
+      notes_zh: 與 10Y-3M 合併作利率循環確認。
+
+    - indicator_id: real_personal_consumption_expenditures
+      display_name_zh: 實質個人消費支出
+      purpose_group: recession_confirmation
+      current_status: missing
+      candidate_fred_series:
+        - PCECC96
+      source_priority: primary_fred
+      transformation: yoy_momentum_and_broad_consumption_trend
+      proposed_score_method: yoy_momentum_score + moving_average_slope_score
+      expected_phase_impact: 補強廣義消費是否惡化，避免只看耐久財波動。
+      stale_after_days: 45
+      implementation_priority: high
+      validation_scenarios:
+        - covid_recession
+        - dotcom_bubble
+        - global_financial_crisis
+      notes_zh: 與 real_pce_durable_goods 搭配，判斷消費弱化是否廣泛。
+
+    - indicator_id: industrial_production
+      display_name_zh: 工業生產指數
+      purpose_group: boom_ending
+      current_status: missing
+      candidate_fred_series:
+        - INDPRO
+      source_priority: primary_fred
+      transformation: yoy_momentum_and_trend_break
+      proposed_score_method: yoy_momentum_score + moving_average_slope_score
+      expected_phase_impact: 工業生產轉弱可補強榮景結束與衰退確認的投資/生產面訊號。
+      stale_after_days: 45
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - late_cycle_2018
+      notes_zh: 可與 durable_goods_orders 一起作投資與生產 breadth。
+
+    - indicator_id: durable_goods_new_orders_refined
+      display_name_zh: 耐久財新訂單精煉訊號
+      purpose_group: boom_ending
+      current_status: existing_needs_refinement
+      candidate_fred_series:
+        - DGORDER
+      source_priority: existing_fred_series
+      transformation: ex_transport_optional_yoy_and_confirmation_window
+      proposed_score_method: yoy_momentum_score + moving_average_slope_score
+      expected_phase_impact: 降低 durable goods 單月波動，提升訂單轉弱對榮景結束與衰退確認的解釋力。
+      stale_after_days: 45
+      implementation_priority: medium
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - covid_recession
+      notes_zh: 目前已有 durable_goods_orders，下一步先 refine confirmation window，不新增模型預設行為。
+
+    - indicator_id: oil_price_pressure
+      display_name_zh: 油價壓力
+      purpose_group: boom_ending
+      current_status: existing_needs_refinement
+      candidate_fred_series:
+        - DCOILWTICO
+      source_priority: existing_fred_series
+      transformation: percentile_pressure_and_yoy_spike
+      proposed_score_method: level_percentile_score + yoy_momentum_score
+      expected_phase_impact: 原油高檔或快速上升可作榮景後期壓力確認，但不應單獨確認衰退。
+      stale_after_days: 14
+      implementation_priority: medium
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - late_cycle_2018
+      notes_zh: 目前已有 wti_oil_price，需把壓力解讀與階段影響拆清楚。
+
+    - indicator_id: fed_policy_reversal_signal
+      display_name_zh: Fed 政策反轉訊號
+      purpose_group: recession_trough_recovery
+      current_status: existing_needs_refinement
+      candidate_fred_series:
+        - FEDFUNDS
+      source_priority: existing_fred_series
+      transformation: rate_cut_cycle_detection
+      proposed_score_method: peak_trough_reversal_score + moving_average_slope_score
+      expected_phase_impact: 升息停止或降息循環可作榮景轉折與衰退落底背景，但需搭配實體經濟資料。
+      stale_after_days: 45
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - covid_recession
+      notes_zh: 目前已有 federal_funds_rate，需新增政策反轉 interpretation 而非只看 level。
+
+    - indicator_id: claims_peak_reversal
+      display_name_zh: 初領失業救濟金高峰反轉
+      purpose_group: recession_trough_recovery
+      current_status: existing_needs_refinement
+      candidate_fred_series:
+        - ICSA
+      source_priority: existing_fred_series
+      transformation: peak_reversal_with_confirmation_window
+      proposed_score_method: peak_trough_reversal_score
+      expected_phase_impact: 衰退落底時，初領失業救濟金高峰反轉可補強復甦初期訊號。
+      stale_after_days: 21
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - covid_recession
+      notes_zh: 目前已有 initial_jobless_claims，需把 recession confirmation 與 recovery reversal 分開。
+
+    - indicator_id: short_term_unemployment_peak_reversal
+      display_name_zh: 短期失業人數高峰反轉
+      purpose_group: recession_trough_recovery
+      current_status: existing_needs_refinement
+      candidate_fred_series:
+        - UEMPLT5
+      source_priority: existing_fred_series
+      transformation: peak_reversal_with_confirmation_window
+      proposed_score_method: peak_trough_reversal_score
+      expected_phase_impact: 短期失業高峰反轉可補強衰退落底判斷，並降低衰退確認階段過度敏感。
+      stale_after_days: 45
+      implementation_priority: high
+      validation_scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+        - covid_recession
+      notes_zh: 目前已有 short_term_unemployment，需新增 reversal-specific 方法。
+
+  scoring_design_notes:
+    - note_id: no_single_indicator_phase_change
+      note_zh: 新指標不得單獨觸發 phase transition，必須與 state machine、breadth 與 confirmation controls 搭配。
+    - note_id: revised_data_caveat
+      note_zh: 回測第一版仍使用 revised data，驗收時不可宣稱等同當時可見資料。
+    - note_id: scoring_methods_to_reuse
+      note_zh: 優先重用 level_percentile_score、moving_average_slope_score、yoy_momentum_score、peak_trough_reversal_score。
+    - note_id: status_existing_needs_refinement
+      note_zh: 若 repo 已有相近 indicator，先 refinement 既有 indicator interpretation 與 confirmation window，不重複新增同義指標。
+
+  acceptance_plan:
+    - criterion_id: reduce_covid_early_false_recession
+      description_zh: COVID 2019 early false recession 應降低或被轉為 transition_watch。
+      scenarios:
+        - covid_recession
+      target: reduce_vs_breadth_sensitivity_v1
+    - criterion_id: preserve_dotcom_gfc_detection
+      description_zh: dotcom 與 GFC 仍需在 acceptance window 內偵測 recession。
+      scenarios:
+        - dotcom_bubble
+        - global_financial_crisis
+      target: in_window
+    - criterion_id: avoid_out_of_sample_false_recession
+      description_zh: euro debt 與 late cycle 2018 不應新增 confirmed recession。
+      scenarios:
+        - euro_debt_slowdown
+        - late_cycle_2018
+      target: no_new_false_recession
+    - criterion_id: keep_explainability
+      description_zh: 新指標需提供中文 reason、phase impact 與 data freshness，dashboard 不得只顯示英文 id。
+      scenarios:
+        - all
+      target: required
+
+  next_phases:
+    - phase_id: 7F1
+      title: Implement recession confirmation candidate indicators behind feature flags
+    - phase_id: 7F2
+      title: Implement boom ending and financial stress indicators
+    - phase_id: 7F3
+      title: Implement recession trough and recovery reversal indicators
+    - phase_id: 8A
+      title: Portfolio policy spec
