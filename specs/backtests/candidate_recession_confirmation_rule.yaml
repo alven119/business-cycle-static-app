@@ -1,0 +1,44 @@
+candidate_recession_confirmation_rule:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    使用 recession confirmation candidate indicators 的群組廣度、信心與分數，
+    建立 experimental recession confirmation rule，用於校準診斷，不接入正式模型。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental diagnostics，不代表正式模型已更新。
+    - 不構成投資建議。
+  signal_thresholds:
+    high_signal_score: 65.0
+    strong_signal_score: 75.0
+    min_high_signal_confidence: 0.5
+    min_strong_signal_confidence: 0.7
+  group_thresholds:
+    confirmed:
+      min_broad_group_count: 3
+      min_high_confidence_high_signal_count: 4
+      min_weighted_confirmation_score: 80.0
+    watch:
+      min_broad_group_count: 2
+      min_high_signal_count: 3
+      min_weighted_confirmation_score: 60.0
+    weak:
+      min_high_signal_count: 1
+  required_interpretation_zh:
+    confirmed: 廣泛且高信心的衰退確認訊號。
+    watch: 局部或正在累積的衰退風險，不足以單獨 confirmed recession。
+    weak: 有少數壓力訊號，但廣度不足。
+    none: 缺乏明確衰退確認訊號。
+  expected_diagnostic_outcomes:
+    covid_recession:
+      "2019-02-28": watch
+      "2020-03-31": confirmed
+    global_financial_crisis:
+      "2008-10-31": confirmed
+    dotcom_bubble:
+      "2001-01-31": watch
+    euro_debt_slowdown:
+      "2011-12-31": weak
+    late_cycle_2018:
+      "2018-12-31": weak

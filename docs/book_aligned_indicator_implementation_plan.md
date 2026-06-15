@@ -123,6 +123,30 @@ data/backtests/candidate_indicators/recession_confirmation_diagnostics/candidate
 
 此 diagnostic 會計算 candidate indicator 的 high signal、strong signal、group breadth 與 weighted confirmation score。這些門檻只供診斷，不是正式模型規則，不會改 live dashboard，也不構成投資建議。
 
+## Phase 7F1.3 Experimental Confirmation Rule
+
+Phase 7F1.3 在 candidate diagnostics 上新增 experimental recession confirmation rule：
+
+```text
+specs/backtests/candidate_recession_confirmation_rule.yaml
+```
+
+執行：
+
+```bash
+python scripts/run_candidate_recession_diagnostics.py
+python scripts/run_candidate_recession_rule.py
+```
+
+此 rule 同時使用：
+
+- group breadth。
+- high confidence high signal count。
+- high signal count。
+- weighted confirmation score。
+
+分類結果為 `confirmed`、`watch`、`weak`、`none`。它不是正式 phase scoring，也不會修改 resolver 或 live dashboard。若結果合理，下一步 Phase 7F1.4 才能做 full-horizon experimental transition overlay。本內容不構成投資建議。
+
 Phase 7F2：榮景期結束指標
 
 - 10Y-3M 與 10Y-2Y yield curve。

@@ -58,6 +58,15 @@ from business_cycle.backtests.candidate_recession_diagnostics import (
     load_candidate_recession_diagnostic_windows,
     write_candidate_recession_diagnostics,
 )
+from business_cycle.backtests.candidate_recession_rule import (
+    CandidateRecessionConfirmationRule,
+    CandidateRecessionRuleError,
+    build_candidate_recession_rule_report,
+    classify_candidate_recession_status,
+    evaluate_candidate_recession_confirmation,
+    load_candidate_recession_confirmation_rule,
+    write_candidate_recession_rule_report,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -129,6 +138,8 @@ __all__ = [
     "CandidateIndicatorError",
     "CandidateDataUpdateResult",
     "CandidateRecessionDiagnosticsError",
+    "CandidateRecessionConfirmationRule",
+    "CandidateRecessionRuleError",
     "CovidFalsePositiveError",
     "RecessionConfirmationCandidateSpec",
     "attribution_quality_counts",
@@ -141,9 +152,12 @@ __all__ = [
     "build_breadth_sensitivity_summary",
     "build_candidate_point_summary",
     "build_candidate_recession_diagnostics",
+    "build_candidate_recession_rule_report",
     "build_group_summary",
     "build_transition_attribution",
     "candidate_fred_series_ids",
+    "classify_candidate_recession_status",
+    "evaluate_candidate_recession_confirmation",
     "generate_monthly_periods",
     "get_scenario",
     "high_priority_book_gap_count",
@@ -157,6 +171,7 @@ __all__ = [
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
     "load_candidate_recession_diagnostic_windows",
+    "load_candidate_recession_confirmation_rule",
     "load_recession_confirmation_candidate_indicators",
     "purpose_groups",
     "run_attribution_smoke",
@@ -181,4 +196,5 @@ __all__ = [
     "write_breadth_sensitivity_summary",
     "write_candidate_indicator_scores",
     "write_candidate_recession_diagnostics",
+    "write_candidate_recession_rule_report",
 ]

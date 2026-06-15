@@ -407,6 +407,8 @@ python scripts/update_recession_confirmation_candidate_data.py
 python scripts/check_recession_confirmation_candidate_coverage.py
 python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
 python scripts/run_candidate_recession_diagnostics.py
+python scripts/run_candidate_recession_rule.py
+python -m json.tool data/backtests/candidate_indicators/recession_confirmation_rule/candidate_recession_rule_report.json | head -n 220
 python -m json.tool data/backtests/candidate_indicators/recession_confirmation_diagnostics/candidate_recession_diagnostics.json | head -n 220
 ```
 

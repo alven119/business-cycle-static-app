@@ -390,6 +390,23 @@ data/backtests/candidate_indicators/recession_confirmation_diagnostics/candidate
 
 若 candidate indicators 能有效區分 false positive 與真實 recession window，下一步才評估是否把部分指標接入 experimental phase scoring 或 calibration controls。Phase 7F1.2 不改 live dashboard，也不構成投資建議。
 
+## Phase 7F1.3 Experimental Candidate Rule
+
+Phase 7F1.3 新增 experimental candidate recession confirmation rule，用來診斷 candidate indicators 是否能降低 false confirmed recession。Rule 不只看單一 weighted score，而是同時檢查 group breadth、high-confidence signals、high-signal count 與 weighted confirmation score。
+
+```bash
+python scripts/run_candidate_recession_diagnostics.py
+python scripts/run_candidate_recession_rule.py
+```
+
+輸出位於 ignored：
+
+```text
+data/backtests/candidate_indicators/recession_confirmation_rule/candidate_recession_rule_report.json
+```
+
+此 rule 只用於 diagnostics，不代表正式模型已更新，不改 resolver、不改 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
