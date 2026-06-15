@@ -1,0 +1,40 @@
+candidate_recession_overlay_experiment:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    將 experimental candidate recession confirmation rule 疊加到 full-horizon scenario timeline，
+    診斷 candidate rule 是否能降低 confirmed recession false positive，
+    同時避免漏掉 GFC / COVID 2020 等明確衰退案例。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental overlay，不代表正式模型已更新。
+    - 不構成投資建議。
+  inputs:
+    scenario_spec: specs/backtests/scenarios.yaml
+    candidate_indicator_spec: specs/backtests/recession_confirmation_candidate_indicators.yaml
+    candidate_rule_spec: specs/backtests/candidate_recession_confirmation_rule.yaml
+  overlay_policy:
+    target_phase: recession
+    only_review_confirmed_recession: true
+    downgrade_if_candidate_status_not_confirmed: true
+    downgrade_to: transition_watch
+    keep_original_decision_in_output: true
+  acceptance_targets:
+    - target_id: block_covid_2019_false_confirmed_recession
+      scenario_id: covid_recession
+      expected_zh: 2019 early false recession 應被 candidate overlay 降級，不應維持 confirmed recession。
+    - target_id: keep_covid_2020_confirmed_recession
+      scenario_id: covid_recession
+      expected_zh: 2020 COVID 真正衰退段應至少有 confirmed candidate support。
+    - target_id: keep_gfc_confirmed_recession
+      scenario_id: global_financial_crisis
+      expected_zh: GFC 2008 confirmed recession 應被 candidate rule 支持。
+    - target_id: keep_dotcom_at_least_watch
+      scenario_id: dotcom_bubble
+      expected_zh: dotcom 早期可為 watch，不強制 confirmed，避免過度擬合。
+    - target_id: avoid_out_of_sample_false_confirmed
+      scenario_ids:
+        - euro_debt_slowdown
+        - late_cycle_2018
+      expected_zh: 不應新增 confirmed recession false positive。

@@ -147,6 +147,22 @@ python scripts/run_candidate_recession_rule.py
 
 分類結果為 `confirmed`、`watch`、`weak`、`none`。它不是正式 phase scoring，也不會修改 resolver 或 live dashboard。若結果合理，下一步 Phase 7F1.4 才能做 full-horizon experimental transition overlay。本內容不構成投資建議。
 
+## Phase 7F1.4 Full-Horizon Overlay
+
+Phase 7F1.4 將 experimental candidate recession confirmation rule 疊加到 full-horizon scenario timeline 上，檢查原始 timeline 的 confirmed recession 是否得到 candidate rule 支持。
+
+```bash
+python scripts/run_candidate_recession_overlay.py --experiment-id candidate_recession_overlay_v1
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recession_confirmation_overlay/candidate_recession_overlay_report.json
+```
+
+Overlay 只新增 diagnostics 欄位，不覆寫既有 timeline，也不修改正式 resolver。它的用途是觀察 candidate rule 是否能降低 false confirmed recession，同時保留 GFC / COVID 2020 等明確衰退案例。若結果合理，下一步 Phase 7F1.5 才討論 experimental phase scoring / transition control integration design。本內容不構成投資建議。
+
 Phase 7F2：榮景期結束指標
 
 - 10Y-3M 與 10Y-2Y yield curve。

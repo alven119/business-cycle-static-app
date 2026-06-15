@@ -67,6 +67,12 @@ from business_cycle.backtests.candidate_recession_rule import (
     load_candidate_recession_confirmation_rule,
     write_candidate_recession_rule_report,
 )
+from business_cycle.backtests.candidate_recession_overlay import (
+    CandidateRecessionOverlayError,
+    build_candidate_recession_overlay_report,
+    load_candidate_recession_overlay_experiment,
+    write_candidate_recession_overlay_report,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -140,6 +146,7 @@ __all__ = [
     "CandidateRecessionDiagnosticsError",
     "CandidateRecessionConfirmationRule",
     "CandidateRecessionRuleError",
+    "CandidateRecessionOverlayError",
     "CovidFalsePositiveError",
     "RecessionConfirmationCandidateSpec",
     "attribution_quality_counts",
@@ -153,6 +160,7 @@ __all__ = [
     "build_candidate_point_summary",
     "build_candidate_recession_diagnostics",
     "build_candidate_recession_rule_report",
+    "build_candidate_recession_overlay_report",
     "build_group_summary",
     "build_transition_attribution",
     "candidate_fred_series_ids",
@@ -172,6 +180,7 @@ __all__ = [
     "load_backtest_scenarios",
     "load_candidate_recession_diagnostic_windows",
     "load_candidate_recession_confirmation_rule",
+    "load_candidate_recession_overlay_experiment",
     "load_recession_confirmation_candidate_indicators",
     "purpose_groups",
     "run_attribution_smoke",
@@ -197,4 +206,5 @@ __all__ = [
     "write_candidate_indicator_scores",
     "write_candidate_recession_diagnostics",
     "write_candidate_recession_rule_report",
+    "write_candidate_recession_overlay_report",
 ]

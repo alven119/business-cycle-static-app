@@ -407,6 +407,22 @@ data/backtests/candidate_indicators/recession_confirmation_rule/candidate_recess
 
 此 rule 只用於 diagnostics，不代表正式模型已更新，不改 resolver、不改 live dashboard，也不構成投資建議。
 
+## Phase 7F1.4 Full-Horizon Candidate Overlay
+
+Phase 7F1.4 用 full-horizon overlay 比較原始 timeline 與 candidate-filtered recession confirmation。Overlay 僅新增 diagnostics，不覆寫 backtest timeline，也不會讓 live dashboard 使用 candidate indicators。
+
+```bash
+python scripts/run_candidate_recession_overlay.py --experiment-id candidate_recession_overlay_v1
+```
+
+輸出位於 ignored：
+
+```text
+data/backtests/candidate_indicators/recession_confirmation_overlay/candidate_recession_overlay_report.json
+```
+
+此步驟檢查 COVID 2019 false confirmed recession 是否可被降級、COVID 2020 / GFC 是否仍有 candidate confirmed support，以及 euro debt / 2018 是否沒有新增 false confirmed recession。下一步若結果合理，才進 Phase 7F1.5 experimental phase scoring / transition control integration design。本階段不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
