@@ -1,0 +1,48 @@
+candidate_recession_diagnostic_windows:
+  version: 1
+  status: draft
+  data_mode: revised
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為模型診斷，不代表正式模型已更新。
+    - 不構成投資建議。
+  scenarios:
+    covid_recession:
+      display_name_zh: COVID 衰退
+      diagnostic_points:
+        - as_of: "2019-02-28"
+          label: covid_false_positive_candidate
+          expected_zh: 不應呈現廣泛 confirmed recession，只能視為放緩或局部風險。
+        - as_of: "2020-03-31"
+          label: covid_true_recession_candidate
+          expected_zh: 應呈現廣泛衰退確認或外生衝擊壓力。
+        - as_of: "2020-04-30"
+          label: covid_shock_confirmation
+          expected_zh: 應呈現高度衰退確認。
+    global_financial_crisis:
+      display_name_zh: 金融海嘯
+      diagnostic_points:
+        - as_of: "2007-12-31"
+          label: gfc_recession_window_start
+          expected_zh: 衰退確認訊號應明顯升高。
+        - as_of: "2008-10-31"
+          label: gfc_recession_confirmed
+          expected_zh: 應呈現高度衰退確認。
+    dotcom_bubble:
+      display_name_zh: 網路泡沫
+      diagnostic_points:
+        - as_of: "2001-01-31"
+          label: dotcom_recession_window
+          expected_zh: 衰退確認訊號應升高。
+    euro_debt_slowdown:
+      display_name_zh: 歐債危機與二次衰退疑慮
+      diagnostic_points:
+        - as_of: "2011-12-31"
+          label: euro_debt_non_recession
+          expected_zh: 可出現風險升高，但不應是廣泛 confirmed recession。
+    late_cycle_2018:
+      display_name_zh: 2018 升息與貿易戰壓力
+      diagnostic_points:
+        - as_of: "2018-12-31"
+          label: late_cycle_non_recession
+          expected_zh: 可出現風險升高，但不應是廣泛 confirmed recession。

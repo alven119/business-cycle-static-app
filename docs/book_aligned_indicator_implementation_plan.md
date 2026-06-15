@@ -99,6 +99,30 @@ python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
 
 Raw cache 仍寫入 ignored `data/raw/fred/`，不得 commit。這些資料只供 experimental candidate indicators 使用，不會接入 live dashboard，也不構成投資建議。
 
+## Phase 7F1.2 Candidate Recession Diagnostics
+
+Phase 7F1.2 將 candidate scores 放進歷史案例 diagnostic points，比較 COVID 2019 early false recession、COVID 2020 真實衝擊、dotcom/GFC recession window，以及 euro debt / 2018 non-recession cases。
+
+Diagnostic windows：
+
+```text
+specs/backtests/candidate_recession_diagnostic_windows.yaml
+```
+
+執行：
+
+```bash
+python scripts/run_candidate_recession_diagnostics.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recession_confirmation_diagnostics/candidate_recession_diagnostics.json
+```
+
+此 diagnostic 會計算 candidate indicator 的 high signal、strong signal、group breadth 與 weighted confirmation score。這些門檻只供診斷，不是正式模型規則，不會改 live dashboard，也不構成投資建議。
+
 Phase 7F2：榮景期結束指標
 
 - 10Y-3M 與 10Y-2Y yield curve。

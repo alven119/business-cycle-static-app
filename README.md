@@ -406,6 +406,8 @@ python scripts/update_recession_confirmation_candidate_data.py --dry-run
 python scripts/update_recession_confirmation_candidate_data.py
 python scripts/check_recession_confirmation_candidate_coverage.py
 python scripts/score_recession_confirmation_candidates.py --as-of 2019-02-28
+python scripts/run_candidate_recession_diagnostics.py
+python -m json.tool data/backtests/candidate_indicators/recession_confirmation_diagnostics/candidate_recession_diagnostics.json | head -n 220
 ```
 
 Candidate scores are written under `data/backtests/candidate_indicators/`, which is generated ignored output. Missing local raw cache is reported as warnings/failures; the command does not download FRED data.

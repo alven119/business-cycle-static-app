@@ -369,6 +369,27 @@ python scripts/update_recession_confirmation_candidate_data.py
 
 下一步 Phase 7F1.2 才會把 candidate scores 納入 calibration diagnostics，比較這批指標是否降低 COVID early false recession 並保留 dotcom/GFC recession detection。本階段不構成投資建議。
 
+## Phase 7F1.2 Candidate Recession Diagnostics
+
+Phase 7F1.2 只判斷 candidate indicators 是否有辨識力，不把它們接入正式 phase scoring。它會比較：
+
+- COVID 2019 early false recession。
+- COVID 2020 true recession / exogenous shock。
+- dotcom 與 GFC recession window。
+- euro debt 與 late cycle 2018 non-recession cases。
+
+```bash
+python scripts/run_candidate_recession_diagnostics.py
+```
+
+輸出位於 ignored：
+
+```text
+data/backtests/candidate_indicators/recession_confirmation_diagnostics/candidate_recession_diagnostics.json
+```
+
+若 candidate indicators 能有效區分 false positive 與真實 recession window，下一步才評估是否把部分指標接入 experimental phase scoring 或 calibration controls。Phase 7F1.2 不改 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
