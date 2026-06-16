@@ -447,6 +447,17 @@ python scripts/score_boom_ending_candidates.py --as-of 2019-02-28
 
 Candidate scores are written under `data/backtests/candidate_indicators/boom_ending/`, which is generated ignored output. These indicators are for boom-ending diagnostics and future calibration only; they do not affect live dashboard decisions.
 
+## Phase 7F2.1 boom ending diagnostics
+
+Phase 7F2.1 runs fixed historical diagnostic points for the boom ending candidate indicators.
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python -m json.tool data/backtests/candidate_indicators/boom_ending_diagnostics/boom_ending_diagnostics.json | head -n 260
+```
+
+The output is generated ignored diagnostics. It is used to evaluate late-cycle early-warning behavior and does not change formal phase scoring, resolver logic, or live dashboard output.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

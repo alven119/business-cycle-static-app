@@ -1,0 +1,55 @@
+boom_ending_diagnostic_windows:
+  version: 1
+  status: draft
+  data_mode: revised
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 boom ending candidate diagnostics，不代表正式模型已更新。
+    - 不構成投資建議。
+  scenarios:
+    dotcom_bubble:
+      display_name_zh: 網路泡沫
+      diagnostic_points:
+        - as_of: "2000-03-31"
+          label: dotcom_market_peak_area
+          expected_zh: 榮景後期或泡沫壓力應升高，但不一定已 confirmed recession。
+        - as_of: "2001-01-31"
+          label: dotcom_recession_window
+          expected_zh: 榮景結束風險應已明顯升高。
+
+    global_financial_crisis:
+      display_name_zh: 金融海嘯
+      diagnostic_points:
+        - as_of: "2006-12-31"
+          label: gfc_yield_curve_warning
+          expected_zh: 殖利率曲線或金融條件應開始提示 late-cycle risk。
+        - as_of: "2007-12-31"
+          label: gfc_recession_window_start
+          expected_zh: 榮景結束風險應明顯升高。
+        - as_of: "2008-10-31"
+          label: gfc_confirmed_recession
+          expected_zh: 應呈現高度壓力。
+
+    covid_recession:
+      display_name_zh: COVID 衰退
+      diagnostic_points:
+        - as_of: "2019-02-28"
+          label: covid_2019_false_recession_context
+          expected_zh: 可有 late-cycle pressure，但不應被解讀為 confirmed recession。
+        - as_of: "2020-03-31"
+          label: covid_shock_recession
+          expected_zh: 外生衝擊下，boom ending 指標可能不如 recession confirmation 指標有效。
+
+    late_cycle_2018:
+      display_name_zh: 2018 升息與貿易戰壓力
+      diagnostic_points:
+        - as_of: "2018-12-31"
+          label: late_cycle_2018_warning
+          expected_zh: 可出現 late-cycle risk，但不應直接代表 confirmed recession。
+
+    euro_debt_slowdown:
+      display_name_zh: 歐債危機與二次衰退疑慮
+      diagnostic_points:
+        - as_of: "2011-12-31"
+          label: euro_debt_slowdown_warning
+          expected_zh: 可出現風險升高，但不應是明確榮景結束後衰退確認。

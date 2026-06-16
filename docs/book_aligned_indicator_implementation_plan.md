@@ -222,6 +222,24 @@ data/backtests/candidate_indicators/boom_ending/<as_of>/candidate_indicator_scor
 
 這些分數只供榮景期結束與衰退前風險 diagnostics 使用。下一步 Phase 7F2.1 才會建立 boom ending diagnostics / overlay。本階段不構成投資建議。
 
+## Phase 7F2.1 Boom Ending Diagnostics
+
+Phase 7F2.1 建立 boom ending candidate diagnostics，目標是檢查這批指標是否能在 confirmed recession 之前，較早提示榮景期結束或 late-cycle risk。
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/boom_ending_diagnostics/boom_ending_diagnostics.json
+```
+
+此 diagnostics 會比較 dotcom、GFC、COVID、late cycle 2018 與 euro debt 等固定 as-of points，並計算 group breadth、high signal count、weighted boom-ending score 與 `strong/watch/weak/none` 狀態。
+
+這些結果只用於模型校準與 early-warning 診斷，不接 live model、不產生配置建議，也不構成投資建議。
+
 Phase 7F3：衰退落底與復甦反轉指標
 
 - 初領失業救濟金高峰反轉。

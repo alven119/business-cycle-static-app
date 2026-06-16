@@ -469,6 +469,24 @@ python scripts/score_boom_ending_candidates.py --as-of 2019-02-28
 
 下一步 Phase 7F2.1 才會把這些 candidate scores 放進 boom ending diagnostics / overlay，檢查它們是否能提前辨識榮景期後段風險。Phase 7F2 不構成投資建議。
 
+## Phase 7F2.1 Boom Ending Diagnostics
+
+Phase 7F2.1 將 boom ending candidate scores 放入固定 historical diagnostic points，檢查這批指標是否能早於 recession confirmation 提示 late-cycle risk。
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/boom_ending_diagnostics/boom_ending_diagnostics.json
+```
+
+Diagnostic status 使用 `strong`、`watch`、`weak`、`none`，並依 group breadth、high-confidence signal count 與 weighted boom-ending score 判斷。這些門檻只供 diagnostics，不是正式 phase scoring rule。
+
+Phase 7F2.1 不改 live model。下一步才可能建立 experimental boom ending rule 或 overlay，用來比較 dotcom / GFC / 2018 / euro debt 的 early-warning 行為。本內容不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
