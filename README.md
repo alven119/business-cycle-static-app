@@ -470,6 +470,18 @@ python scripts/show_boom_ending_refinement_plan.py
 
 The attribution output is written under ignored `data/backtests/candidate_indicators/boom_ending_diagnostics/`. The plan lives at `specs/backtests/boom_ending_refinement_plan.yaml`. This phase does not change scoring or live dashboard behavior.
 
+## Phase 7F2.3 boom ending scoring refinement experiment
+
+Phase 7F2.3 compares baseline boom ending diagnostics with refined experimental scoring.
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_refinement_experiment.py
+python -m json.tool data/backtests/candidate_indicators/boom_ending_refinement/boom_ending_refinement_experiment.json | head -n 320
+```
+
+The refined helpers test yield-curve lead-time pressure, credit-spread velocity, financial-conditions delta, and Fed peak/pause pressure. Output is generated ignored diagnostics and does not affect formal phase scoring or the live dashboard.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

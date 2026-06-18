@@ -1,0 +1,65 @@
+boom_ending_scoring_refinement_experiment:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    比較 baseline boom ending candidate scoring 與 refined scoring，
+    檢查 yield curve lead-time pressure、credit spread velocity 與 financial conditions delta
+    是否能改善 GFC 2006/2007 early warning，同時避免 2018 / euro debt false strong warning。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental scoring refinement，不代表正式模型已更新。
+    - 不構成投資建議。
+  baseline:
+    diagnostics_path: data/backtests/candidate_indicators/boom_ending_diagnostics/boom_ending_diagnostics.json
+  refined_profile:
+    profile_id: boom_ending_refined_v1
+    yield_curve:
+      method: lead_time_pressure
+      inversion_threshold: 0.0
+      sustained_inversion_min_share: 0.6
+      inversion_lookback_months: 18
+      peak_warning_months_after_inversion: [3, 18]
+      include_resteepening_after_inversion: true
+    credit_spread:
+      method: spread_velocity_and_percentile
+      preferred_spreads:
+        - BAA - AAA
+        - BAA - DGS10
+      velocity_window_months: 6
+      percentile_window_years: 10
+      widening_min_share: 0.5
+    financial_conditions:
+      method: delta_and_level
+      delta_window_months: 6
+      level_percentile_window_years: 10
+    fed_policy:
+      method: restrictive_level_plus_peak_pause
+      high_level_percentile: 0.75
+      recent_hike_window_months: 18
+      peak_or_pause_window_months: 6
+  expected_refinement_outcomes:
+    - scenario_id: global_financial_crisis
+      as_of: "2006-12-31"
+      expected_min_status: watch
+      reason_zh: GFC 前期 yield curve inversion 應能形成 early warning。
+    - scenario_id: global_financial_crisis
+      as_of: "2007-12-31"
+      expected_min_status: watch
+      reason_zh: GFC 衰退窗口起點應至少為 watch。
+    - scenario_id: global_financial_crisis
+      as_of: "2008-10-31"
+      expected_min_status: watch
+      reason_zh: GFC confirmed recession 時不應低於 watch。
+    - scenario_id: dotcom_bubble
+      as_of: "2000-03-31"
+      expected_min_status: watch
+      reason_zh: dotcom peak 附近應維持 watch。
+    - scenario_id: late_cycle_2018
+      as_of: "2018-12-31"
+      expected_max_status: watch
+      reason_zh: 2018 可為 late-cycle risk，但不應變成 strong。
+    - scenario_id: euro_debt_slowdown
+      as_of: "2011-12-31"
+      expected_max_status: watch
+      reason_zh: euro debt 可為風險升高，但不應變成 strong。

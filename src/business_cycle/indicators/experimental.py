@@ -449,6 +449,259 @@ def production_momentum_loss_score(
     )
 
 
+def yield_curve_lead_time_pressure_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "yield_curve_10y_3m",
+    as_of: str | date | None = None,
+    config: dict[str, Any] | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score yield-curve lead-time pressure after sustained inversion."""
+
+    cfg = config or {}
+    inversion_threshold = float(cfg.get("inversion_threshold", 0.0))
+    min_share = float(cfg.get("sustained_inversion_min_share", 0.6))
+    lookback_months = int(cfg.get("inversion_lookback_months", 18))
+    lead_start, lead_end = cfg.get("peak_warning_months_after_inversion", [3, 18])
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(
+            indicator_id,
+            as_of,
+            "沒有可用資料。",
+            {"method": "yield_curve_lead_time_pressure_score"},
+        )
+
+    recent = _since_months(cleaned, lookback_months)
+    if len(recent) < 6:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認殖利率曲線倒掛後的 lead-time pressure。",
+            {"lookback_months": lookback_months},
+            60,
+            "yield_curve_lead_time_pressure_score",
+        )
+
+    values = recent["value"].astype(float)
+    inversion_mask = values < inversion_threshold
+    inversion_share = float(inversion_mask.mean())
+    latest_level = float(values.iloc[-1])
+    inversion_dates = recent.loc[inversion_mask, "date"]
+    last_inversion_date = None if inversion_dates.empty else pd.Timestamp(inversion_dates.iloc[-1])
+    latest_date = pd.Timestamp(cleaned["date"].iloc[-1])
+    months_since = None if last_inversion_date is None else _month_delta(last_inversion_date, latest_date)
+    sustained = inversion_share >= min_share
+    lead_active = bool(
+        sustained
+        or (months_since is not None and int(lead_start) <= months_since <= int(lead_end))
+    )
+    earlier = values.iloc[: max(1, len(values) // 2)]
+    later = values.iloc[max(1, len(values) // 2) :]
+    resteepening = bool(inversion_share > 0 and later.mean() > earlier.mean())
+    inversion_pressure = min(1.0, inversion_share / max(min_share, 0.01))
+    lead_bonus = 0.30 if lead_active else 0.0
+    resteepening_bonus = 0.10 if resteepening and lead_active else 0.0
+    level_pressure = max(0.0, _tanh_signal(-latest_level, _scale(values)))
+    score = _clamp_score(35.0 + 35.0 * inversion_pressure + 20.0 * level_pressure + 100.0 * (lead_bonus + resteepening_bonus))
+    confidence = _confidence(cleaned, 60) * max(0.45, inversion_pressure)
+    if not lead_active and inversion_share < min_share:
+        confidence *= 0.65
+    reason = "以持續倒掛後的 6～18 個月 lead-time window 評估榮景期結束風險，而非只看當期倒掛。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "yield_curve_lead_time_pressure_score",
+        {
+            "latest_level": latest_level,
+            "inversion_share": inversion_share,
+            "months_since_sustained_inversion": months_since,
+            "lead_time_window_active": lead_active,
+            "resteepening_after_inversion": resteepening,
+            "lookback_months": lookback_months,
+        },
+    )
+
+
+def credit_spread_velocity_score(
+    primary_spread_series: pd.DataFrame,
+    alternative_spread_series: pd.DataFrame | None = None,
+    *,
+    indicator_id: str = "credit_spread_baa_10y",
+    as_of: str | date | None = None,
+    config: dict[str, Any] | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score credit spread pressure from percentile and widening velocity."""
+
+    cfg = config or {}
+    velocity_window = int(cfg.get("velocity_window_months", 6))
+    percentile_window = int(cfg.get("percentile_window_years", 10)) * 12
+    widening_min_share = float(cfg.get("widening_min_share", 0.5))
+    primary = _credit_spread_candidate(
+        primary_spread_series,
+        as_of=as_of,
+        name="BAA - DGS10",
+        velocity_window=velocity_window,
+        percentile_window=percentile_window,
+    )
+    candidates = [primary]
+    if alternative_spread_series is not None:
+        candidates.append(
+            _credit_spread_candidate(
+                alternative_spread_series,
+                as_of=as_of,
+                name="BAA - AAA",
+                velocity_window=velocity_window,
+                percentile_window=percentile_window,
+            )
+        )
+    best = max(candidates, key=lambda item: item["score"])
+    frame = best["frame"]
+    if frame.empty:
+        return _empty_result(
+            indicator_id,
+            as_of,
+            "沒有可用資料。",
+            {"method": "credit_spread_velocity_score"},
+        )
+    if best["percentile"] is None or best["velocity"] is None:
+        return _low_information_result(
+            indicator_id,
+            frame,
+            "資料不足，尚無法確認信用利差分位數與擴大速度。",
+            best,
+            60,
+            "credit_spread_velocity_score",
+        )
+    widening_share = float(best["widening_share"])
+    velocity_signal = max(0.0, _tanh_signal(float(best["velocity"]), best["velocity_scale"]))
+    score = _clamp_score(100.0 * (0.45 * float(best["percentile"]) + 0.35 * velocity_signal + 0.20 * min(1.0, widening_share / max(widening_min_share, 0.01))))
+    confidence = _confidence(frame, 60) * max(0.45, widening_share)
+    reason = "以信用利差分位數與擴大速度比較 credit stress proxy，降低單一利率水準造成的失真。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        frame,
+        reason,
+        "credit_spread_velocity_score",
+        {
+            "selected_spread": best["name"],
+            "latest_spread": best["latest_spread"],
+            "spread_percentile": best["percentile"],
+            "spread_velocity": best["velocity"],
+            "widening_share": widening_share,
+            "alternative_spreads_checked": [item["name"] for item in candidates],
+        },
+    )
+
+
+def financial_conditions_delta_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "financial_conditions_tightening",
+    as_of: str | date | None = None,
+    config: dict[str, Any] | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score financial conditions using level percentile and deterioration velocity."""
+
+    cfg = config or {}
+    delta_window = int(cfg.get("delta_window_months", 6))
+    percentile_window = int(cfg.get("level_percentile_window_years", 10)) * 12
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "financial_conditions_delta_score"})
+    percentile = _rolling_percentile(cleaned["value"], percentile_window)
+    delta_series = cleaned["value"].astype(float).diff(delta_window)
+    delta = _latest(delta_series)
+    delta_percentile = _rolling_percentile(delta_series.dropna().reset_index(drop=True), percentile_window)
+    if percentile is None or delta is None:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認金融條件水準與惡化速度。",
+            {"level_percentile": percentile, "delta": delta},
+            60,
+            "financial_conditions_delta_score",
+        )
+    delta_signal = max(0.0, _tanh_signal(delta, _scale(delta_series.dropna())))
+    score = _clamp_score(100.0 * (0.50 * percentile + 0.35 * delta_signal + 0.15 * (delta_percentile or 0.0)))
+    confidence = _confidence(cleaned, 60)
+    reason = "以金融條件水準分位數與近期惡化速度評估 late-cycle tightening pressure。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "financial_conditions_delta_score",
+        {
+            "latest_level": float(cleaned["value"].iloc[-1]),
+            "level_percentile": percentile,
+            "delta": delta,
+            "delta_percentile": delta_percentile,
+        },
+    )
+
+
+def fed_policy_peak_pause_pressure_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "fed_policy_restrictive_pressure",
+    as_of: str | date | None = None,
+    config: dict[str, Any] | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score policy pressure from high rates, recent hikes, and peak/pause behavior."""
+
+    cfg = config or {}
+    high_level_percentile = float(cfg.get("high_level_percentile", 0.75))
+    recent_hike_window = int(cfg.get("recent_hike_window_months", 18))
+    pause_window = int(cfg.get("peak_or_pause_window_months", 6))
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "fed_policy_peak_pause_pressure_score"})
+    percentile = _rolling_percentile(cleaned["value"], 120)
+    recent = _since_months(cleaned, recent_hike_window)
+    pause_recent = _since_months(cleaned, pause_window)
+    if percentile is None or len(recent) < 2:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認政策利率高檔與 peak/pause 壓力。",
+            {"rate_percentile": percentile},
+            60,
+            "fed_policy_peak_pause_pressure_score",
+        )
+    recent_hike_amount = float(recent["value"].iloc[-1] - recent["value"].iloc[0])
+    diffs = cleaned["value"].astype(float).diff()
+    hike_dates = cleaned.loc[diffs > 0.01, "date"]
+    months_since_last_hike = None if hike_dates.empty else _month_delta(pd.Timestamp(hike_dates.iloc[-1]), pd.Timestamp(cleaned["date"].iloc[-1]))
+    pause_delta = float(pause_recent["value"].iloc[-1] - pause_recent["value"].iloc[0]) if len(pause_recent) >= 2 else 0.0
+    high_level_signal = 1.0 if percentile >= high_level_percentile else percentile / max(high_level_percentile, 0.01)
+    hike_signal = max(0.0, _tanh_signal(recent_hike_amount, _scale(recent["value"].diff().dropna())))
+    pause_signal = 1.0 if recent_hike_amount > 0 and abs(pause_delta) <= 0.1 else 0.0
+    score = _clamp_score(100.0 * (0.45 * high_level_signal + 0.35 * hike_signal + 0.20 * pause_signal))
+    confidence = _confidence(cleaned, 60)
+    reason = "以政策利率高檔、近期升息與升息後停留高檔觀察 late-cycle policy pressure。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "fed_policy_peak_pause_pressure_score",
+        {
+            "rate_percentile": percentile,
+            "recent_hike_amount": recent_hike_amount,
+            "months_since_last_hike": months_since_last_hike,
+            "pause_delta": pause_delta,
+        },
+    )
+
+
 def score_to_dict(score: ExperimentalIndicatorScore) -> dict[str, Any]:
     """Serialize an experimental score."""
 
@@ -460,6 +713,64 @@ def score_to_dict(score: ExperimentalIndicatorScore) -> dict[str, Any]:
         "latest_date": score.latest_date,
         "metadata": score.metadata,
     }
+
+
+def _credit_spread_candidate(
+    series: pd.DataFrame,
+    *,
+    as_of: str | date | None,
+    name: str,
+    velocity_window: int,
+    percentile_window: int,
+) -> dict[str, Any]:
+    frame = _prepare(series, as_of=as_of)
+    if frame.empty:
+        return {
+            "name": name,
+            "frame": frame,
+            "score": 0.0,
+            "percentile": None,
+            "velocity": None,
+            "latest_spread": None,
+            "widening_share": 0.0,
+            "velocity_scale": 1.0,
+        }
+    values = frame["value"].astype(float)
+    percentile = _rolling_percentile(values, percentile_window)
+    velocity_series = values.diff(velocity_window)
+    velocity = _latest(velocity_series)
+    recent_changes = values.diff().dropna().tail(velocity_window)
+    widening_share = float((recent_changes > 0.0).mean()) if not recent_changes.empty else 0.0
+    velocity_scale = _scale(velocity_series.dropna())
+    score = 0.0
+    if percentile is not None and velocity is not None:
+        score = 100.0 * (
+            0.45 * percentile
+            + 0.35 * max(0.0, _tanh_signal(velocity, velocity_scale))
+            + 0.20 * widening_share
+        )
+    return {
+        "name": name,
+        "frame": frame,
+        "score": score,
+        "percentile": percentile,
+        "velocity": velocity,
+        "latest_spread": float(values.iloc[-1]),
+        "widening_share": widening_share,
+        "velocity_scale": velocity_scale,
+    }
+
+
+def _since_months(frame: pd.DataFrame, months: int) -> pd.DataFrame:
+    if frame.empty:
+        return frame
+    latest = pd.Timestamp(frame["date"].iloc[-1])
+    cutoff = latest - pd.DateOffset(months=months)
+    return frame[frame["date"] >= cutoff].reset_index(drop=True)
+
+
+def _month_delta(start: pd.Timestamp, end: pd.Timestamp) -> int:
+    return max(0, (end.year - start.year) * 12 + (end.month - start.month))
 
 
 def _prepare(series: pd.DataFrame, *, as_of: str | date | None) -> pd.DataFrame:

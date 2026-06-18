@@ -258,6 +258,30 @@ specs/backtests/boom_ending_refinement_plan.yaml
 
 目前建議優先檢查 yield curve lead-time pressure、`credit_spread_baa_10y` proxy 適用性、financial conditions delta、Fed policy peak/pause signal，以及 experimental boom ending watch rule。這些仍不接 live model，也不構成投資建議。
 
+## Phase 7F2.3 Scoring Refinement Experiment
+
+Phase 7F2.3 依據 7F2.2 refinement plan 實作 experimental scoring refinements，並比較 baseline 與 refined diagnostics。
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_refinement_experiment.py
+```
+
+Refinement 包含：
+
+- yield curve lead-time pressure。
+- credit spread velocity 與 BAA - AAA / BAA - DGS10 proxy 比較。
+- financial conditions delta。
+- Fed policy peak / pause pressure。
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/boom_ending_refinement/boom_ending_refinement_experiment.json
+```
+
+這仍是 experimental comparison，不接正式 phase scoring、不改 resolver、不進 live dashboard，也不構成投資建議。
+
 Phase 7F3：衰退落底與復甦反轉指標
 
 - 初領失業救濟金高峰反轉。

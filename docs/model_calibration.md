@@ -507,6 +507,30 @@ python scripts/show_boom_ending_refinement_plan.py
 
 Phase 7F2.2 不直接修改 experimental scoring method，也不改正式模型或 live dashboard。後續 Phase 7F2.3 才能依據 plan 實作 scoring refinements。本內容不構成投資建議。
 
+## Phase 7F2.3 Boom Ending Scoring Refinement Experiment
+
+Phase 7F2.3 依據 refinement plan 實作 experimental scoring refinements，並產生 baseline vs refined comparison：
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_refinement_experiment.py
+```
+
+Refined scoring 包含：
+
+- yield curve lead-time pressure：檢查持續倒掛後 3～18 個月的 late-cycle pressure。
+- credit spread velocity：比較 BAA - AAA 與 BAA - DGS10 的分位數與擴大速度。
+- financial conditions delta：加入金融條件的惡化速度，不只看 level。
+- Fed policy peak/pause：檢查高利率水準、近期升息與高檔停留。
+
+輸出位於：
+
+```text
+data/backtests/candidate_indicators/boom_ending_refinement/boom_ending_refinement_experiment.json
+```
+
+此階段只比較 experimental diagnostics，不改正式 phase scoring、不改 resolver、不影響 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
