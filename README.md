@@ -458,6 +458,18 @@ python -m json.tool data/backtests/candidate_indicators/boom_ending_diagnostics/
 
 The output is generated ignored diagnostics. It is used to evaluate late-cycle early-warning behavior and does not change formal phase scoring, resolver logic, or live dashboard output.
 
+## Phase 7F2.2 boom ending attribution and refinement plan
+
+Phase 7F2.2 explains the boom ending diagnostics and records the scoring refinement plan.
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_attribution.py
+python scripts/show_boom_ending_refinement_plan.py
+```
+
+The attribution output is written under ignored `data/backtests/candidate_indicators/boom_ending_diagnostics/`. The plan lives at `specs/backtests/boom_ending_refinement_plan.yaml`. This phase does not change scoring or live dashboard behavior.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

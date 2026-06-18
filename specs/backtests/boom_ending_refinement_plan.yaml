@@ -1,0 +1,84 @@
+boom_ending_refinement_plan:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    根據 Phase 7F2.1 boom ending diagnostics，
+    分析 late-cycle early warning 指標在 dotcom、GFC、COVID、2018 與 euro debt 案例中的有效性，
+    並規劃後續 scoring refinement。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental diagnostics refinement plan，不代表正式模型已更新。
+    - 不構成投資建議。
+  input_findings:
+    dotcom_peak_status: watch
+    dotcom_recession_window_status: watch
+    gfc_2006_status: weak
+    gfc_2007_status: weak
+    gfc_2008_status: watch
+    covid_2019_status: watch
+    covid_2020_status: weak
+    late_cycle_2018_status: weak
+    euro_debt_status: weak
+  diagnosed_issues:
+    - issue_id: gfc_early_warning_too_weak
+      severity: high
+      description_zh: GFC 2006 / 2007 僅為 weak，表示目前 boom ending candidate scoring 對金融海嘯前期風險不夠敏感。
+      candidate_causes:
+        - credit spread score 使用 BAA - DGS10 可能混入 Treasury yield level 影響。
+        - financial conditions / credit stress 指標可能在 crisis 前一刻才明顯惡化。
+        - yield curve inversion 訊號可能需要 persistence / lead-time scoring，而不是只看當期壓力。
+    - issue_id: credit_spread_baa_10y_refinement_required
+      severity: high
+      description_zh: credit_spread_baa_10y 被 diagnostics 標記為 requiring refinement。
+      candidate_causes:
+        - BAA - DGS10 與信用風險不完全等同，可能混入無風險利率波動。
+        - boom ending early warning 可能更適合 BAA - AAA 或 credit spread widening velocity。
+    - issue_id: boom_ending_status_lacks_strong_cases
+      severity: medium
+      description_zh: 目前 diagnostics 沒有 strong case，可能代表門檻過嚴或 scoring 分散。
+      candidate_causes:
+        - high-confidence high-signal count 門檻可能較適合 recession confirmation，不一定適合 early warning。
+        - 榮景結束訊號可能應區分 yield curve lead time、policy pressure、credit deterioration 與 production rollover。
+    - issue_id: covid_2019_watch_interpretation
+      severity: medium
+      description_zh: COVID 2019 watch 合理，但需避免把 late-cycle watch 誤解為 confirmed recession。
+      candidate_causes:
+        - boom ending watch 代表衰退前風險升高，不等同於正式衰退確認。
+  proposed_refinements:
+    - refinement_id: yield_curve_lead_time_pressure
+      target_indicators:
+        - yield_curve_10y_3m
+        - yield_curve_10y_2y
+      description_zh: 對 yield curve inversion 增加 lead-time pressure scoring，將持續倒掛後的 6~18 個月視為 late-cycle warning，而非只看當期是否倒掛。
+      priority: high
+    - refinement_id: replace_or_compare_credit_spread_baa_10y
+      target_indicators:
+        - credit_spread_baa_10y
+      description_zh: 比較 BAA - DGS10、BAA - AAA、BAA percentile、spread velocity，找出較適合 boom ending early warning 的 credit stress proxy。
+      priority: high
+    - refinement_id: financial_conditions_delta_score
+      target_indicators:
+        - financial_conditions_tightening
+      description_zh: 增加 financial conditions 的變化率與惡化速度，不只看 level percentile。
+      priority: medium
+    - refinement_id: fed_policy_peak_or_pause_signal
+      target_indicators:
+        - fed_policy_restrictive_pressure
+      description_zh: Fed policy late-cycle pressure 不只看升息本身，也要看高利率維持、升息接近尾聲、或政策轉向前後。
+      priority: medium
+    - refinement_id: boom_ending_watch_rule
+      target_indicators:
+        - yield_curve_10y_3m
+        - yield_curve_10y_2y
+        - fed_policy_restrictive_pressure
+        - financial_conditions_tightening
+        - oil_price_pressure
+      description_zh: 建立 experimental boom ending watch rule，將 watch 定義為減碼風險提示，而非 confirmed recession。
+      priority: high
+  recommended_next_phase:
+    phase_id: 7F2.3
+    title: implement boom ending scoring refinements
+    reason_zh: >
+      目前 diagnostics 顯示 early warning 有部分效果，但 GFC 2006/2007 偏弱；
+      應先 refine scoring，再建立 experimental boom ending rule。

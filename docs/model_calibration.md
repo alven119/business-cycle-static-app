@@ -487,6 +487,26 @@ Diagnostic status 使用 `strong`、`watch`、`weak`、`none`，並依 group bre
 
 Phase 7F2.1 不改 live model。下一步才可能建立 experimental boom ending rule 或 overlay，用來比較 dotcom / GFC / 2018 / euro debt 的 early-warning 行為。本內容不構成投資建議。
 
+## Phase 7F2.2 Boom Ending Attribution And Refinement Plan
+
+Phase 7F2.2 針對 7F2.1 diagnostics 產生 attribution，回答哪些指標支持 watch、哪些重要指標偏弱，以及為什麼 GFC 2006 / 2007 只有 weak。
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_attribution.py
+python scripts/show_boom_ending_refinement_plan.py
+```
+
+目前 refinement plan 的重點是：
+
+- yield curve 需要 lead-time pressure scoring，而不只看當期倒掛。
+- `credit_spread_baa_10y` 需要與 BAA - AAA、spread velocity、percentile proxy 比較。
+- financial conditions 需要加入 delta / deterioration speed。
+- Fed policy pressure 需要區分升息、高利率維持、升息接近尾聲與政策轉向前後。
+- boom ending watch rule 應被定義為 early-warning diagnostics，不是 confirmed recession。
+
+Phase 7F2.2 不直接修改 experimental scoring method，也不改正式模型或 live dashboard。後續 Phase 7F2.3 才能依據 plan 實作 scoring refinements。本內容不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

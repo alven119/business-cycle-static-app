@@ -43,6 +43,12 @@ from business_cycle.backtests.boom_ending_candidates import (
     validate_boom_ending_candidate_indicators,
     write_boom_ending_candidate_scores,
 )
+from business_cycle.backtests.boom_ending_attribution import (
+    BoomEndingAttributionError,
+    build_boom_ending_attribution,
+    build_boom_ending_attribution_from_file,
+    write_boom_ending_attribution,
+)
 from business_cycle.backtests.boom_ending_diagnostics import (
     BoomEndingDiagnosticsError,
     build_boom_ending_diagnostics,
@@ -52,6 +58,13 @@ from business_cycle.backtests.boom_ending_diagnostics import (
     is_boom_ending_strong_signal,
     load_boom_ending_diagnostic_windows,
     write_boom_ending_diagnostics,
+)
+from business_cycle.backtests.boom_ending_refinement import (
+    BoomEndingRefinementPlan,
+    BoomEndingRefinementPlanError,
+    high_priority_refinement_count,
+    load_boom_ending_refinement_plan,
+    validate_boom_ending_refinement_plan,
 )
 from business_cycle.backtests.candidate_indicators import (
     CandidateIndicatorError,
@@ -163,7 +176,10 @@ __all__ = [
     "BreadthSensitivityError",
     "BreadthSensitivityMatrix",
     "BoomEndingCandidateSpec",
+    "BoomEndingAttributionError",
     "BoomEndingDiagnosticsError",
+    "BoomEndingRefinementPlan",
+    "BoomEndingRefinementPlanError",
     "CalibrationPlan",
     "CalibrationPlanError",
     "CalibrationExperimentError",
@@ -189,6 +205,8 @@ __all__ = [
     "build_boom_ending_diagnostics",
     "build_boom_ending_group_summary",
     "build_boom_ending_point_summary",
+    "build_boom_ending_attribution",
+    "build_boom_ending_attribution_from_file",
     "build_candidate_point_summary",
     "build_candidate_recession_diagnostics",
     "build_candidate_recession_rule_report",
@@ -203,6 +221,7 @@ __all__ = [
     "get_scenario",
     "high_priority_book_gap_count",
     "high_priority_indicator_count",
+    "high_priority_refinement_count",
     "is_high_signal",
     "is_strong_signal",
     "is_boom_ending_high_signal",
@@ -213,6 +232,7 @@ __all__ = [
     "load_breadth_sensitivity_matrix",
     "load_boom_ending_candidate_indicators",
     "load_boom_ending_diagnostic_windows",
+    "load_boom_ending_refinement_plan",
     "load_calibration_plan",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
@@ -241,12 +261,14 @@ __all__ = [
     "validate_book_aligned_indicator_implementation_plan",
     "validate_breadth_sensitivity_matrix",
     "validate_boom_ending_candidate_indicators",
+    "validate_boom_ending_refinement_plan",
     "validate_candidate_recession_integration_design",
     "validate_recession_confirmation_candidate_indicators",
     "write_backtest_report",
     "write_breadth_sensitivity_summary",
     "write_boom_ending_candidate_scores",
     "write_boom_ending_diagnostics",
+    "write_boom_ending_attribution",
     "write_candidate_indicator_scores",
     "write_candidate_recession_diagnostics",
     "write_candidate_recession_rule_report",

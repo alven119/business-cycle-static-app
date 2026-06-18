@@ -240,6 +240,24 @@ data/backtests/candidate_indicators/boom_ending_diagnostics/boom_ending_diagnost
 
 這些結果只用於模型校準與 early-warning 診斷，不接 live model、不產生配置建議，也不構成投資建議。
 
+## Phase 7F2.2 Attribution And Refinement Plan
+
+Phase 7F2.2 針對 boom ending diagnostics 做 attribution 與 scoring refinement plan。7F2.1 顯示 dotcom 與 COVID 2019 可達 watch，但 GFC 2006 / 2007 仍偏 weak，GFC 2008 也只是 watch。因此本階段先解釋指標貢獻與缺口，不直接調 scoring。
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_attribution.py
+python scripts/show_boom_ending_refinement_plan.py
+```
+
+Refinement plan：
+
+```text
+specs/backtests/boom_ending_refinement_plan.yaml
+```
+
+目前建議優先檢查 yield curve lead-time pressure、`credit_spread_baa_10y` proxy 適用性、financial conditions delta、Fed policy peak/pause signal，以及 experimental boom ending watch rule。這些仍不接 live model，也不構成投資建議。
+
 Phase 7F3：衰退落底與復甦反轉指標
 
 - 初領失業救濟金高峰反轉。
