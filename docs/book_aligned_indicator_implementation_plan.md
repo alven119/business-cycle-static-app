@@ -313,6 +313,18 @@ Overlay 只新增 experimental diagnostics，不覆寫既有 timeline，不改 c
 
 此階段不接 live model、不改正式 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
 
+## Phase 7F2.6 Boom Ending Watch Integration Guardrails
+
+Phase 7F2.6 根據 full-horizon overlay 建立 boom ending watch integration guardrails。Guardrails 的核心結論是：watch 可作為 early-warning diagnostics，但不得直接 confirmed recession，也不得直接觸發 portfolio action。
+
+```bash
+python scripts/show_boom_ending_watch_integration_guardrails.py
+```
+
+Guardrails 要求未來 live integration 前必須定義 watch density 上限、persistence、cooldown、外生衝擊 caveat 與 portfolio backtest。下一步應進 Phase 7F3，補齊 recession trough / recovery candidate indicators，讓減碼與再加碼流程更完整。
+
+本階段不接 live model、不改正式 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
+
 Phase 7F3：衰退落底與復甦反轉指標
 
 - 初領失業救濟金高峰反轉。

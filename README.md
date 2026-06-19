@@ -506,6 +506,23 @@ python -m json.tool data/backtests/candidate_indicators/boom_ending_watch_overla
 
 The overlay output is generated ignored diagnostics under `data/backtests/`. It does not overwrite timelines, does not confirm recession, does not affect formal phase scoring, and does not affect the live dashboard.
 
+## Phase 7F2.6 boom ending watch integration guardrails
+
+Phase 7F2.6 records guardrails for any future use of boom ending watch.
+
+```text
+specs/backtests/boom_ending_watch_integration_guardrails.yaml
+docs/boom_ending_watch_integration_guardrails.md
+```
+
+Inspect the guardrails summary with:
+
+```bash
+python scripts/show_boom_ending_watch_integration_guardrails.py
+```
+
+The guardrails explicitly prohibit direct recession confirmation and direct portfolio action. They do not change formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

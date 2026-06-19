@@ -1,0 +1,110 @@
+boom_ending_watch_integration_guardrails:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    根據 Phase 7F2.5 full-horizon boom ending watch overlay，
+    定義 boom ending watch 未來如何安全整合到 transition risk、dashboard diagnostics 與 portfolio policy 研究中，
+    並明確避免將 watch 誤用為 confirmed recession 或直接交易指令。
+
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 integration guardrails，不代表正式模型已更新。
+    - boom ending watch 不等於 confirmed recession。
+    - boom ending watch 不是買賣訊號。
+    - 外生衝擊案例中，boom ending 指標可能是同步壓力反映，不代表事前預測。
+    - 不構成投資建議。
+
+  evidence_summary:
+    dotcom_has_pre_recession_watch: true
+    gfc_has_pre_recession_watch: true
+    euro_debt_excessive_watch: false
+    late_cycle_2018_excessive_watch: false
+    global_watch_density_ratio: 0.4563
+    global_strong_density_ratio: 0.004
+    covid_requires_exogenous_shock_caveat: true
+
+  design_conclusion:
+    diagnostic_only:
+      allowed: true
+      reason_zh: >
+        boom ending watch 已具備 historical early-warning value，可先作為 diagnostics 顯示。
+
+    transition_risk_boost:
+      allowed: true
+      reason_zh: >
+        若 watch 具備 persistence 且與 phase score / recession candidate watch 同向，
+        可在未來作為 transition risk 的加分項，但不可直接改 current phase。
+
+    direct_recession_confirmation:
+      allowed: false
+      reason_zh: >
+        boom ending watch 是 late-cycle risk，不是 confirmed recession。
+
+    direct_portfolio_action:
+      allowed: false
+      reason_zh: >
+        watch density 偏高，若直接觸發減碼可能過早或過度交易；需先做 portfolio backtest。
+
+    portfolio_policy_research_input:
+      allowed: true
+      reason_zh: >
+        可作為 Phase 8 / Phase 9 中 70/50/30 policy 的 early-warning input，
+        但需搭配 persistence / cooldown / confirmation。
+
+  proposed_future_integration_modes:
+    - mode_id: diagnostic_badge_only
+      display_name_zh: 僅顯示榮景後期風險 badge
+      formal_decision_impact: none
+      risk_level: low
+      allowed_now: true
+
+    - mode_id: transition_risk_boost
+      display_name_zh: 提高轉折風險文字與權重
+      formal_decision_impact: risk display only, no phase change
+      risk_level: medium
+      allowed_now: false
+
+    - mode_id: portfolio_policy_input
+      display_name_zh: 作為未來配置策略的減碼觀察輸入
+      formal_decision_impact: portfolio research only
+      risk_level: medium
+      allowed_now: false
+
+    - mode_id: recession_confirmation_gate
+      display_name_zh: 衰退確認閘門
+      formal_decision_impact: confirm recession
+      risk_level: high
+      allowed_now: false
+
+  required_acceptance_before_live_integration:
+    - target_id: watch_not_too_dense
+      required: true
+      description_zh: watch density 必須有上限，避免大部分月份都在 warning。
+
+    - target_id: watch_persistence_defined
+      required: true
+      description_zh: 需定義連續幾期 watch 才能提高 transition risk。
+
+    - target_id: cooldown_defined
+      required: true
+      description_zh: watch 解除與再觸發需有 cooldown，避免頻繁跳動。
+
+    - target_id: no_direct_recession_confirmation
+      required: true
+      description_zh: boom ending watch 不得直接 confirmed recession。
+
+    - target_id: exogenous_shock_caveat_displayed
+      required: true
+      description_zh: COVID 類外生衝擊需標記 caveat。
+
+    - target_id: portfolio_backtest_required
+      required: true
+      description_zh: 任何配置行動前必須完成 portfolio backtest。
+
+  recommended_next_phase:
+    phase_id: 7F3
+    title: implement recession trough / recovery candidate indicators
+    reason_zh: >
+      已完成 recession confirmation 與 boom ending early-warning 的 experimental guardrails；
+      下一步應補齊衰退落底與復甦起點指標，才能形成完整的減碼與再加碼流程。

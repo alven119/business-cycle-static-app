@@ -87,6 +87,13 @@ from business_cycle.backtests.boom_ending_watch_overlay import (
     load_boom_ending_watch_overlay_experiment,
     write_boom_ending_watch_overlay_report,
 )
+from business_cycle.backtests.boom_ending_watch_integration import (
+    BoomEndingWatchIntegrationGuardrails,
+    BoomEndingWatchIntegrationGuardrailsError,
+    boom_ending_integration_mode_allowed,
+    load_boom_ending_watch_integration_guardrails,
+    validate_boom_ending_watch_integration_guardrails,
+)
 from business_cycle.backtests.candidate_indicators import (
     CandidateIndicatorError,
     RecessionConfirmationCandidateSpec,
@@ -205,6 +212,8 @@ __all__ = [
     "BoomEndingWatchRule",
     "BoomEndingWatchRuleError",
     "BoomEndingWatchOverlayError",
+    "BoomEndingWatchIntegrationGuardrails",
+    "BoomEndingWatchIntegrationGuardrailsError",
     "CalibrationPlan",
     "CalibrationPlanError",
     "CalibrationExperimentError",
@@ -257,6 +266,7 @@ __all__ = [
     "is_boom_ending_high_signal",
     "is_boom_ending_strong_signal",
     "integration_mode_allowed",
+    "boom_ending_integration_mode_allowed",
     "load_book_indicator_gap_analysis",
     "load_book_aligned_indicator_implementation_plan",
     "load_breadth_sensitivity_matrix",
@@ -266,6 +276,7 @@ __all__ = [
     "load_boom_ending_scoring_refinement_experiment",
     "load_boom_ending_watch_rule",
     "load_boom_ending_watch_overlay_experiment",
+    "load_boom_ending_watch_integration_guardrails",
     "load_calibration_plan",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
@@ -295,6 +306,7 @@ __all__ = [
     "validate_breadth_sensitivity_matrix",
     "validate_boom_ending_candidate_indicators",
     "validate_boom_ending_refinement_plan",
+    "validate_boom_ending_watch_integration_guardrails",
     "validate_candidate_recession_integration_design",
     "validate_recession_confirmation_candidate_indicators",
     "write_backtest_report",

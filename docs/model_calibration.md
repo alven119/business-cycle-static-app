@@ -560,6 +560,18 @@ data/backtests/candidate_indicators/boom_ending_watch_overlay/boom_ending_watch_
 
 Overlay 不覆寫原始 backtest timeline、不改 current phase、不確認 recession，也不進 live dashboard。它的用途是判斷 boom ending watch 是否適合作為未來 portfolio policy 或 transition diagnostics 的 early-warning input。COVID 等外生衝擊案例仍需標記 caveat：watch 可能是同步壓力反映，不代表事前預測。本內容不構成投資建議。
 
+## Phase 7F2.6 Boom Ending Watch Integration Guardrails
+
+Phase 7F2.6 將 7F2.5 overlay 結果整理成 integration guardrails。結論是：boom ending watch 有 early-warning value，但 watch density 偏高，因此不能直接作為 confirmed recession，也不能直接作為 portfolio action。
+
+```bash
+python scripts/show_boom_ending_watch_integration_guardrails.py
+```
+
+Guardrails 明確允許 diagnostic-only 顯示，也允許未來研究 transition risk boost；但禁止 direct recession confirmation 與 direct portfolio action。任何配置策略使用前，都必須先定義 persistence、cooldown、watch density 上限，並完成 portfolio backtest。
+
+下一步轉向 Phase 7F3，補齊 recession trough / recovery candidate indicators。Phase 7F2.6 不改 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
