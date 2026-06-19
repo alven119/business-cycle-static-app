@@ -20,3 +20,18 @@ experimental_indicator_groups:
     - fed_policy_restrictive_pressure
   commodities:
     - oil_price_pressure
+  labor_reversal:
+    - initial_jobless_claims_peak_reversal
+    - continuing_jobless_claims_peak_reversal
+    - short_term_unemployment_peak_reversal
+  consumption_recovery:
+    - real_retail_sales_bottoming
+    - real_pce_bottoming
+  production_recovery:
+    - durable_goods_orders_bottoming
+    - industrial_production_bottoming
+  credit_financial_easing:
+    - credit_spread_easing
+    - financial_stress_easing
+  policy_support:
+    - fed_policy_easing_signal

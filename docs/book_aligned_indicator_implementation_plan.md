@@ -334,6 +334,34 @@ Phase 7F3：衰退落底與復甦反轉指標
 - 寬鬆政策已到位。
 - 信用壓力緩和。
 
+## Phase 7F3 Recession Trough / Recovery Candidate Indicators
+
+Phase 7F3 實作第一批 recession trough / recovery candidate indicators。這些指標只供 experimental diagnostics 使用，不加入正式 `indicator_catalog.yaml`、不改 phase scoring、不改 resolver，也不會讓 live dashboard 使用。
+
+Candidate spec：
+
+```text
+specs/backtests/recovery_candidate_indicators.yaml
+```
+
+執行方式：
+
+```bash
+python scripts/check_recovery_candidate_coverage.py
+python scripts/update_recovery_candidate_data.py --dry-run
+python scripts/update_recovery_candidate_data.py --no-api
+python scripts/score_recovery_candidates.py --as-of 2009-03-31
+```
+
+這批 candidate indicators 聚焦於：
+
+- 初領 / 續領失業救濟金與短期失業人數高點反轉。
+- 實質零售銷售、PCE、耐久財訂單與工業生產落底回升。
+- 信用利差與金融壓力緩解。
+- Fed policy easing support。
+
+下一步 Phase 7F3.1 才會把這些 candidate scores 放進 recovery diagnostics / overlay，檢查它們是否能辨識衰退落底與復甦起點。本階段不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

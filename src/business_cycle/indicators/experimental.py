@@ -759,6 +759,257 @@ def fed_policy_peak_pause_pressure_score(
     )
 
 
+def peak_reversal_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "initial_jobless_claims_peak_reversal",
+    direction: str = "down_from_peak",
+    as_of: str | date | None = None,
+    moving_average_window: int = 4,
+    peak_lookback_periods: int = 26,
+    persistence_window: int = 4,
+    min_periods: int = 30,
+) -> ExperimentalIndicatorScore:
+    """Score sustained reversal down from a recent peak."""
+
+    if direction != "down_from_peak":
+        raise ValueError("direction must be down_from_peak")
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "peak_reversal_score"})
+    smoothed = cleaned["value"].astype(float).rolling(
+        moving_average_window,
+        min_periods=moving_average_window,
+    ).mean()
+    recent = smoothed.dropna().tail(peak_lookback_periods)
+    if len(recent) < max(persistence_window + 1, 8):
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認是否已從高點持續回落。",
+            {"moving_average_window": moving_average_window, "peak_lookback_periods": peak_lookback_periods},
+            min_periods,
+            "peak_reversal_score",
+        )
+    recent_peak = float(recent.max())
+    latest_value = float(recent.iloc[-1])
+    drawdown = 0.0 if recent_peak == 0 else max(0.0, (recent_peak - latest_value) / abs(recent_peak))
+    recent_changes = recent.diff().dropna().tail(persistence_window)
+    easing_share = float((recent_changes < 0.0).mean()) if not recent_changes.empty else 0.0
+    slope = float(recent_changes.mean()) if not recent_changes.empty else 0.0
+    drawdown_signal = min(1.0, drawdown / 0.20)
+    persistence_signal = easing_share
+    score = _clamp_score(35.0 + 40.0 * drawdown_signal + 25.0 * persistence_signal)
+    if easing_share < 0.5:
+        score = min(score, 62.0)
+    confidence = _confidence(cleaned, min_periods) * max(0.35, easing_share)
+    if easing_share < 0.5:
+        confidence *= 0.65
+    reason = "以近期高點後的回落幅度與連續性檢查是否出現衰退落底訊號，而非單期跳動。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "peak_reversal_score",
+        {
+            "recent_peak": recent_peak,
+            "latest_value": latest_value,
+            "drawdown_from_peak": drawdown,
+            "persistence_share": easing_share,
+            "recent_slope": slope,
+            "moving_average_window": moving_average_window,
+            "peak_lookback_periods": peak_lookback_periods,
+        },
+    )
+
+
+def bottoming_momentum_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "real_retail_sales_bottoming",
+    direction: str = "up_from_trough",
+    as_of: str | date | None = None,
+    moving_average_window: int = 3,
+    trough_lookback_periods: int = 18,
+    persistence_window: int = 3,
+    min_periods: int = 24,
+) -> ExperimentalIndicatorScore:
+    """Score sustained rebound up from a recent trough."""
+
+    if direction != "up_from_trough":
+        raise ValueError("direction must be up_from_trough")
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "bottoming_momentum_score"})
+    smoothed = cleaned["value"].astype(float).rolling(
+        moving_average_window,
+        min_periods=moving_average_window,
+    ).mean()
+    recent = smoothed.dropna().tail(trough_lookback_periods)
+    if len(recent) < max(persistence_window + 1, 8):
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認是否已由低點持續回升。",
+            {"moving_average_window": moving_average_window, "trough_lookback_periods": trough_lookback_periods},
+            min_periods,
+            "bottoming_momentum_score",
+        )
+    recent_trough = float(recent.min())
+    latest_value = float(recent.iloc[-1])
+    rebound = 0.0 if recent_trough == 0 else max(0.0, (latest_value - recent_trough) / abs(recent_trough))
+    recent_slopes = recent.diff().dropna().tail(persistence_window)
+    rebound_share = float((recent_slopes > 0.0).mean()) if not recent_slopes.empty else 0.0
+    slope_signal = max(0.0, _tanh_signal(float(recent_slopes.mean()), _scale(recent.diff().dropna()))) if not recent_slopes.empty else 0.0
+    rebound_signal = min(1.0, rebound / 0.08)
+    score = _clamp_score(35.0 + 35.0 * rebound_signal + 20.0 * rebound_share + 10.0 * slope_signal)
+    if rebound_share < 0.5:
+        score = min(score, 62.0)
+    confidence = _confidence(cleaned, min_periods) * max(0.35, rebound_share)
+    if rebound_share < 0.5:
+        confidence *= 0.65
+    reason = "以近期低點後的回升幅度、移動平均斜率與持續性檢查是否有落底回升。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "bottoming_momentum_score",
+        {
+            "recent_trough": recent_trough,
+            "latest_value": latest_value,
+            "rebound_from_trough": rebound,
+            "persistence_share": rebound_share,
+            "recent_slopes": recent_slopes.tolist(),
+            "moving_average_window": moving_average_window,
+            "trough_lookback_periods": trough_lookback_periods,
+        },
+    )
+
+
+def credit_stress_easing_score(
+    spread_series: pd.DataFrame,
+    *,
+    indicator_id: str = "credit_spread_easing",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score easing credit stress from a spread series."""
+
+    score = peak_reversal_score(
+        spread_series,
+        indicator_id=indicator_id,
+        as_of=as_of,
+        moving_average_window=3,
+        peak_lookback_periods=18,
+        persistence_window=3,
+        min_periods=36,
+    )
+    frame = _prepare(spread_series, as_of=as_of)
+    if frame.empty:
+        return score
+    return _result(
+        indicator_id,
+        score.score,
+        score.confidence,
+        frame,
+        "以信用利差是否自近期高點收斂評估壓力緩解；這不代表信用壓力已消失。",
+        "credit_stress_easing_score",
+        {
+            "recent_peak_spread": score.metadata.get("recent_peak"),
+            "latest_spread": score.metadata.get("latest_value"),
+            "spread_drawdown": score.metadata.get("drawdown_from_peak"),
+            "easing_share": score.metadata.get("persistence_share"),
+        },
+    )
+
+
+def financial_stress_easing_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "financial_stress_easing",
+    as_of: str | date | None = None,
+) -> ExperimentalIndicatorScore:
+    """Score financial stress easing from a recent peak."""
+
+    score = peak_reversal_score(
+        series,
+        indicator_id=indicator_id,
+        as_of=as_of,
+        moving_average_window=4,
+        peak_lookback_periods=26,
+        persistence_window=4,
+        min_periods=52,
+    )
+    frame = _prepare(series, as_of=as_of)
+    if frame.empty:
+        return score
+    return _result(
+        indicator_id,
+        score.score,
+        score.confidence,
+        frame,
+        "以金融壓力是否自近期高點下降評估壓力緩解。",
+        "financial_stress_easing_score",
+        {
+            "recent_peak": score.metadata.get("recent_peak"),
+            "latest_level": score.metadata.get("latest_value"),
+            "drawdown_from_peak": score.metadata.get("drawdown_from_peak"),
+            "easing_share": score.metadata.get("persistence_share"),
+        },
+    )
+
+
+def policy_easing_support_score(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "fed_policy_easing_signal",
+    as_of: str | date | None = None,
+    min_periods: int = 36,
+) -> ExperimentalIndicatorScore:
+    """Score Fed policy easing as recovery support, not standalone confirmation."""
+
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "policy_easing_support_score"})
+    values = cleaned["value"].astype(float)
+    if len(values) < 7:
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法確認政策是否進入寬鬆。",
+            {"required_recent_periods": 7},
+            min_periods,
+            "policy_easing_support_score",
+        )
+    rate_change_3m = float(values.iloc[-1] - values.iloc[-4])
+    rate_change_6m = float(values.iloc[-1] - values.iloc[-7])
+    recent_changes = values.diff().dropna().tail(6)
+    easing_share = float((recent_changes < -0.01).mean()) if not recent_changes.empty else 0.0
+    easing_magnitude = max(0.0, -rate_change_6m)
+    score = _clamp_score(35.0 + 35.0 * min(1.0, easing_magnitude / 2.0) + 30.0 * easing_share)
+    if easing_share < 0.34:
+        score = min(score, 62.0)
+    confidence = _confidence(cleaned, min_periods) * max(0.35, easing_share)
+    reason = "以降息幅度與寬鬆持續性判斷政策是否支持復甦；此訊號不能單獨確認復甦。"
+    return _result(
+        indicator_id,
+        score,
+        confidence,
+        cleaned,
+        reason,
+        "policy_easing_support_score",
+        {
+            "rate_change_3m": rate_change_3m,
+            "rate_change_6m": rate_change_6m,
+            "easing_persistence": easing_share,
+            "standalone_recovery_confirmation": False,
+        },
+    )
+
+
 def score_to_dict(score: ExperimentalIndicatorScore) -> dict[str, Any]:
     """Serialize an experimental score."""
 

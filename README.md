@@ -523,6 +523,21 @@ python scripts/show_boom_ending_watch_integration_guardrails.py
 
 The guardrails explicitly prohibit direct recession confirmation and direct portfolio action. They do not change formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
 
+## Phase 7F3 recovery candidate indicators
+
+Phase 7F3 implements experimental recession trough / recovery candidate indicators without connecting them to formal phase scoring or the live dashboard.
+
+```bash
+python scripts/check_recovery_candidate_coverage.py
+python scripts/update_recovery_candidate_data.py --dry-run
+python scripts/update_recovery_candidate_data.py --no-api
+python scripts/update_recovery_candidate_data.py
+python scripts/score_recovery_candidates.py --as-of 2009-03-31
+python scripts/score_recovery_candidates.py --as-of 2020-04-30
+```
+
+Candidate scores are written under `data/backtests/candidate_indicators/recovery/`, which is generated ignored output. These indicators are for recession-trough and recovery diagnostics only; they do not affect live dashboard decisions.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

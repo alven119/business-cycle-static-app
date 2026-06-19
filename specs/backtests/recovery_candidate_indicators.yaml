@@ -1,0 +1,197 @@
+recovery_candidate_indicators:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 Phase 7F3 recession trough / recovery candidate indicators。這些指標只供
+    experimental diagnostics 與後續 calibration 使用，不接入正式 phase scoring、
+    resolver 或 live dashboard。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 本規格只定義衰退落底與復甦起點候選指標，不構成投資建議。
+    - 不應針對單一歷史案例 overfit，需同時檢查 dotcom、GFC、COVID、euro debt 與 late cycle 2018。
+
+  indicators:
+    - indicator_id: initial_jobless_claims_peak_reversal
+      display_name_zh: 初領失業救濟金高點反轉
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - ICSA
+        - ICNSA
+      preferred_series: ICSA
+      transformation:
+        - moving_average
+        - peak_detection
+        - drawdown_from_recent_peak
+        - persistence_window
+      proposed_score_method: peak_reversal_score
+      expected_phase_impact:
+        recession: peak reversal supports recession trough watch
+        recovery: sustained decline supports recovery confirmation watch
+      implementation_priority: high
+
+    - indicator_id: continuing_jobless_claims_peak_reversal
+      display_name_zh: 續領失業救濟金高點反轉
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - CCSA
+        - CCNSA
+      preferred_series: CCSA
+      transformation:
+        - moving_average
+        - peak_detection
+        - drawdown_from_recent_peak
+        - persistence_window
+      proposed_score_method: peak_reversal_score
+      expected_phase_impact:
+        recession: peak reversal supports recession trough watch
+        recovery: sustained decline supports recovery confirmation watch
+      implementation_priority: high
+
+    - indicator_id: short_term_unemployment_peak_reversal
+      display_name_zh: 短期失業人數高點反轉
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - UEMPLT5
+      preferred_series: UEMPLT5
+      transformation:
+        - moving_average
+        - peak_detection
+        - drawdown_from_recent_peak
+        - persistence_window
+      proposed_score_method: peak_reversal_score
+      expected_phase_impact:
+        recession: short-term unemployment peak reversal supports trough watch
+        recovery: sustained decline supports recovery confirmation watch
+      implementation_priority: high
+
+    - indicator_id: real_retail_sales_bottoming
+      display_name_zh: 實質零售銷售落底回升
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - RRSFS
+      preferred_series: RRSFS
+      transformation:
+        - moving_average_slope
+        - trough_detection
+        - momentum_reversal
+        - yoy_change
+      proposed_score_method: bottoming_momentum_score
+      expected_phase_impact:
+        recession: retail sales bottoming supports trough watch
+        recovery: sustained rebound supports recovery confirmation watch
+      implementation_priority: high
+
+    - indicator_id: real_pce_bottoming
+      display_name_zh: 實質個人消費支出落底回升
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - PCEC96
+      preferred_series: PCEC96
+      transformation:
+        - moving_average_slope
+        - trough_detection
+        - momentum_reversal
+        - yoy_change
+      proposed_score_method: bottoming_momentum_score
+      expected_phase_impact:
+        recession: broad consumption bottoming supports trough watch
+        recovery: sustained rebound supports recovery confirmation watch
+      implementation_priority: high
+
+    - indicator_id: durable_goods_orders_bottoming
+      display_name_zh: 耐久財訂單落底回升
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - DGORDER
+        - AMDMNO
+      preferred_series: DGORDER
+      transformation:
+        - moving_average_slope
+        - trough_detection
+        - momentum_reversal
+        - yoy_change
+      proposed_score_method: bottoming_momentum_score
+      expected_phase_impact:
+        recession: orders bottoming supports trough watch
+        recovery: rebound supports recovery confirmation watch
+      implementation_priority: medium
+
+    - indicator_id: industrial_production_bottoming
+      display_name_zh: 工業生產落底回升
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - INDPRO
+      preferred_series: INDPRO
+      transformation:
+        - moving_average_slope
+        - trough_detection
+        - momentum_reversal
+        - yoy_change
+      proposed_score_method: bottoming_momentum_score
+      expected_phase_impact:
+        recession: production bottoming supports trough watch
+        recovery: rebound supports recovery confirmation watch
+      implementation_priority: high
+
+    - indicator_id: credit_spread_easing
+      display_name_zh: 信用利差壓力緩解
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - BAA
+        - AAA
+      derived_formula: BAA - AAA
+      transformation:
+        - spread_level
+        - spread_change
+        - drawdown_from_recent_peak
+        - persistence_window
+      proposed_score_method: credit_stress_easing_score
+      expected_phase_impact:
+        recession: spread easing supports trough watch
+        recovery: easing credit stress supports recovery watch
+      implementation_priority: medium
+
+    - indicator_id: financial_stress_easing
+      display_name_zh: 金融壓力緩解
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - STLFSI4
+        - NFCI
+      preferred_series: STLFSI4
+      transformation:
+        - level
+        - moving_average_slope
+        - drawdown_from_recent_peak
+        - persistence_window
+      proposed_score_method: financial_stress_easing_score
+      expected_phase_impact:
+        recession: financial stress easing supports trough watch
+        recovery: easing stress supports recovery watch
+      implementation_priority: medium
+
+    - indicator_id: fed_policy_easing_signal
+      display_name_zh: 聯準會政策寬鬆訊號
+      purpose_group: recession_trough_recovery
+      provider: fred
+      candidate_fred_series:
+        - FEDFUNDS
+        - DFF
+      preferred_series: FEDFUNDS
+      transformation:
+        - rate_change_3m
+        - rate_change_6m
+        - easing_persistence
+      proposed_score_method: policy_easing_support_score
+      expected_phase_impact:
+        recession: policy easing supports trough watch but is not recovery confirmation alone
+        recovery: sustained easing can support recovery context
+      implementation_priority: medium

@@ -572,6 +572,19 @@ Guardrails 明確允許 diagnostic-only 顯示，也允許未來研究 transitio
 
 下一步轉向 Phase 7F3，補齊 recession trough / recovery candidate indicators。Phase 7F2.6 不改 live dashboard，也不構成投資建議。
 
+## Phase 7F3 Recovery Candidate Indicators
+
+Phase 7F3 補齊 recession trough / recovery candidate indicators，用於判斷衰退落底、復甦起點與未來再加碼前的資料證據。這些 candidate indicators 仍只供 experimental diagnostics 使用，不加入正式 `indicator_catalog.yaml`，不改 phase scoring、不改 resolver，也不進 live dashboard。
+
+```bash
+python scripts/check_recovery_candidate_coverage.py
+python scripts/update_recovery_candidate_data.py --dry-run
+python scripts/update_recovery_candidate_data.py --no-api
+python scripts/score_recovery_candidates.py --as-of 2009-03-31
+```
+
+本階段支援的候選方向包含 claims / unemployment peak reversal、消費與生產落底回升、信用與金融壓力緩解，以及 Fed easing support。這些訊號不構成投資建議，也不會直接觸發 portfolio allocation。下一步 Phase 7F3.1 才會建立 recovery diagnostics / overlay。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
