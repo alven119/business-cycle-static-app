@@ -1,0 +1,90 @@
+recovery_diagnostic_windows:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    檢查 recovery / recession trough candidate indicators 在歷史衰退後段與復甦初期的表現，
+    用於判斷它們是否適合後續建立 recession trough / recovery watch rule。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental diagnostics，不代表正式模型已更新。
+    - recovery watch 不等於正式復甦確認。
+    - policy easing 不得單獨確認 recovery。
+    - 外生衝擊案例中，COVID 快速反彈不等同一般景氣循環復甦。
+    - 不構成投資建議。
+
+  diagnostic_points:
+    - scenario_id: dotcom_bubble
+      as_of: "2001-03-31"
+      label: dotcom_recession_early
+      expected_status: weak_or_none
+      reason_zh: dotcom 衰退早期，不應過早出現 strong recovery。
+
+    - scenario_id: dotcom_bubble
+      as_of: "2001-11-30"
+      label: dotcom_recession_trough_area
+      expected_status: watch_or_strong
+      reason_zh: NBER recession 接近結束，應開始出現 recovery / trough evidence。
+
+    - scenario_id: dotcom_bubble
+      as_of: "2002-03-31"
+      label: dotcom_recovery_initial
+      expected_status: watch_or_strong
+      reason_zh: 復甦初期應出現較明顯 recovery evidence。
+
+    - scenario_id: global_financial_crisis
+      as_of: "2008-10-31"
+      label: gfc_crisis_peak
+      expected_status: weak_or_none
+      reason_zh: 金融海嘯高峰不應過早確認 recovery。
+
+    - scenario_id: global_financial_crisis
+      as_of: "2009-03-31"
+      label: gfc_policy_stress_easing_but_labor_not_ready
+      expected_status: weak_or_watch
+      reason_zh: 政策與金融壓力可能改善，但勞動市場不一定已確認落底。
+
+    - scenario_id: global_financial_crisis
+      as_of: "2009-06-30"
+      label: gfc_trough_area
+      expected_status: watch_or_strong
+      reason_zh: NBER trough 附近，應開始出現 recovery / trough evidence。
+
+    - scenario_id: global_financial_crisis
+      as_of: "2009-09-30"
+      label: gfc_recovery_initial
+      expected_status: watch_or_strong
+      reason_zh: 復甦初期應有更明確 recovery evidence。
+
+    - scenario_id: covid_recession
+      as_of: "2020-03-31"
+      label: covid_shock_crash
+      expected_status: weak_or_none
+      reason_zh: COVID 衝擊初期，不應將政策反應直接視為 recovery。
+      caveat: exogenous_shock
+
+    - scenario_id: covid_recession
+      as_of: "2020-04-30"
+      label: covid_trough_area
+      expected_status: watch_or_strong
+      reason_zh: COVID recession trough 附近可能快速出現 recovery evidence，但需 caveat。
+      caveat: exogenous_shock
+
+    - scenario_id: covid_recession
+      as_of: "2020-06-30"
+      label: covid_recovery_initial
+      expected_status: watch_or_strong
+      reason_zh: COVID 初期復甦訊號應較明顯，但屬外生衝擊後反彈。
+      caveat: exogenous_shock
+
+    - scenario_id: euro_debt_slowdown
+      as_of: "2011-12-31"
+      label: euro_debt_non_recession
+      expected_status: weak_or_none
+      reason_zh: 非正式衰退 slowdown，不應出現 strong recovery。
+
+    - scenario_id: late_cycle_2018
+      as_of: "2018-12-31"
+      label: late_cycle_2018_non_recession
+      expected_status: weak_or_none
+      reason_zh: late-cycle risk 不是 recession trough，不應出現 strong recovery。
