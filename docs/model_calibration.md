@@ -544,6 +544,22 @@ Phase 7F2.4 使用 refined boom ending diagnostics 建立 experimental watch rul
 
 COVID 這類外生衝擊案例需特別標註：boom ending 指標在衝擊發生時可能是同步壓力反映，不代表事前預測。後續若 rule 結果穩定，下一步才會做 full-horizon boom ending watch overlay。本內容不構成投資建議。
 
+## Phase 7F2.5 Boom Ending Watch Overlay
+
+Phase 7F2.5 將 experimental boom ending watch rule 套到完整 scenario timeline，檢查 watch 是否早於 confirmed recession、是否在 dotcom / GFC 這類 late-cycle 案例提供提前提示，以及 euro debt / late cycle 2018 是否出現過度警報。
+
+```bash
+python scripts/run_boom_ending_watch_overlay.py
+```
+
+輸出位於：
+
+```text
+data/backtests/candidate_indicators/boom_ending_watch_overlay/boom_ending_watch_overlay_report.json
+```
+
+Overlay 不覆寫原始 backtest timeline、不改 current phase、不確認 recession，也不進 live dashboard。它的用途是判斷 boom ending watch 是否適合作為未來 portfolio policy 或 transition diagnostics 的 early-warning input。COVID 等外生衝擊案例仍需標記 caveat：watch 可能是同步壓力反映，不代表事前預測。本內容不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

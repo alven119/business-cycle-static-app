@@ -1,0 +1,46 @@
+boom_ending_watch_overlay_experiment:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    將 experimental boom ending watch rule 疊加到 full-horizon scenario timeline，
+    檢查 watch 是否能早於 confirmed recession 提示榮景後期風險，
+    並評估 non-recession 案例是否出現過度警報。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental overlay，不代表正式模型已更新。
+    - boom ending watch 不等於 confirmed recession。
+    - 外生衝擊案例中，boom ending 指標可能是同步壓力反映，不代表事前預測。
+    - 不構成投資建議。
+  inputs:
+    scenario_spec: specs/backtests/scenarios.yaml
+    boom_ending_candidate_spec: specs/backtests/boom_ending_candidate_indicators.yaml
+    boom_ending_watch_rule: specs/backtests/boom_ending_watch_rule.yaml
+    boom_ending_refinement_experiment: specs/backtests/boom_ending_scoring_refinement_experiment.yaml
+  overlay_policy:
+    target_context: boom_ending
+    keep_original_decision_in_output: true
+    do_not_change_current_phase: true
+    do_not_confirm_recession: true
+  evaluation:
+    watch_lead_time_months_before_first_confirmed_recession: true
+    watch_duration_months: true
+    watch_density_ratio: true
+    strong_warning_density_ratio: true
+    non_recession_watch_persistence: true
+  acceptance_targets:
+    - target_id: dotcom_has_pre_recession_watch
+      scenario_id: dotcom_bubble
+      expected_zh: dotcom confirmed recession 前應出現 boom ending watch。
+    - target_id: gfc_has_pre_recession_watch
+      scenario_id: global_financial_crisis
+      expected_zh: GFC confirmed recession 前應出現 boom ending watch。
+    - target_id: covid_caveated
+      scenario_id: covid_recession
+      expected_zh: COVID 可出現 watch，但需標記外生衝擊 caveat，不可解讀為事前預測。
+    - target_id: euro_debt_no_excessive_watch
+      scenario_id: euro_debt_slowdown
+      expected_zh: euro debt 不應出現長期過度 watch。
+    - target_id: late_cycle_2018_no_excessive_watch
+      scenario_id: late_cycle_2018
+      expected_zh: 2018 可出現 watch，但不應長期過度警報或 strong。

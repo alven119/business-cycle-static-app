@@ -495,6 +495,17 @@ python -m json.tool data/backtests/candidate_indicators/boom_ending_watch_rule/b
 
 The rule classifies `strong_late_cycle_warning`, `watch`, `weak`, and `none`. It is for early-warning diagnostics and future strategy design only: boom ending watch is not confirmed recession, does not affect formal phase scoring, and does not affect the live dashboard.
 
+## Phase 7F2.5 boom ending watch overlay
+
+Phase 7F2.5 applies the experimental boom ending watch rule across full-horizon scenario timelines.
+
+```bash
+python scripts/run_boom_ending_watch_overlay.py
+python -m json.tool data/backtests/candidate_indicators/boom_ending_watch_overlay/boom_ending_watch_overlay_report.json | head -n 360
+```
+
+The overlay output is generated ignored diagnostics under `data/backtests/`. It does not overwrite timelines, does not confirm recession, does not affect formal phase scoring, and does not affect the live dashboard.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

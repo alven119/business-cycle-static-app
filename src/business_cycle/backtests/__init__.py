@@ -81,6 +81,12 @@ from business_cycle.backtests.boom_ending_watch_rule import (
     load_boom_ending_watch_rule,
     write_boom_ending_watch_rule_report,
 )
+from business_cycle.backtests.boom_ending_watch_overlay import (
+    BoomEndingWatchOverlayError,
+    build_boom_ending_watch_overlay_report,
+    load_boom_ending_watch_overlay_experiment,
+    write_boom_ending_watch_overlay_report,
+)
 from business_cycle.backtests.candidate_indicators import (
     CandidateIndicatorError,
     RecessionConfirmationCandidateSpec,
@@ -198,6 +204,7 @@ __all__ = [
     "BoomEndingRefinementExperimentError",
     "BoomEndingWatchRule",
     "BoomEndingWatchRuleError",
+    "BoomEndingWatchOverlayError",
     "CalibrationPlan",
     "CalibrationPlanError",
     "CalibrationExperimentError",
@@ -227,6 +234,7 @@ __all__ = [
     "build_boom_ending_attribution_from_file",
     "build_boom_ending_refinement_experiment",
     "build_boom_ending_watch_rule_report",
+    "build_boom_ending_watch_overlay_report",
     "build_candidate_point_summary",
     "build_candidate_recession_diagnostics",
     "build_candidate_recession_rule_report",
@@ -257,6 +265,7 @@ __all__ = [
     "load_boom_ending_refinement_plan",
     "load_boom_ending_scoring_refinement_experiment",
     "load_boom_ending_watch_rule",
+    "load_boom_ending_watch_overlay_experiment",
     "load_calibration_plan",
     "load_backtest_scenario_catalog",
     "load_backtest_scenarios",
@@ -295,6 +304,7 @@ __all__ = [
     "write_boom_ending_attribution",
     "write_boom_ending_refinement_experiment",
     "write_boom_ending_watch_rule_report",
+    "write_boom_ending_watch_overlay_report",
     "write_candidate_indicator_scores",
     "write_candidate_recession_diagnostics",
     "write_candidate_recession_rule_report",
