@@ -460,8 +460,13 @@ def yield_curve_lead_time_pressure_score(
 
     cfg = config or {}
     inversion_threshold = float(cfg.get("inversion_threshold", 0.0))
+    near_inversion_threshold = float(cfg.get("near_inversion_threshold", 0.25))
     min_share = float(cfg.get("sustained_inversion_min_share", 0.6))
     lookback_months = int(cfg.get("inversion_lookback_months", 18))
+    min_sustained_months = int(cfg.get("min_sustained_inversion_months", 3))
+    max_lead_time_months = int(cfg.get("max_lead_time_months", 18))
+    near_score_floor = float(cfg.get("near_inversion_score_floor", 55.0))
+    post_inversion_floor = float(cfg.get("post_inversion_warning_floor", 68.0))
     lead_start, lead_end = cfg.get("peak_warning_months_after_inversion", [3, 18])
     cleaned = _prepare(series, as_of=as_of)
     if cleaned.empty:
@@ -485,28 +490,71 @@ def yield_curve_lead_time_pressure_score(
 
     values = recent["value"].astype(float)
     inversion_mask = values < inversion_threshold
+    near_inversion_mask = values <= near_inversion_threshold
     inversion_share = float(inversion_mask.mean())
+    near_inversion_share = float(near_inversion_mask.mean())
     latest_level = float(values.iloc[-1])
     inversion_dates = recent.loc[inversion_mask, "date"]
     last_inversion_date = None if inversion_dates.empty else pd.Timestamp(inversion_dates.iloc[-1])
     latest_date = pd.Timestamp(cleaned["date"].iloc[-1])
-    months_since = None if last_inversion_date is None else _month_delta(last_inversion_date, latest_date)
-    sustained = inversion_share >= min_share
-    lead_active = bool(
-        sustained
-        or (months_since is not None and int(lead_start) <= months_since <= int(lead_end))
+    months_since_last = None if last_inversion_date is None else _month_delta(last_inversion_date, latest_date)
+    sustained_run = _first_sustained_true_run(recent, inversion_mask, min_sustained_months)
+    near_sustained_run = _first_sustained_true_run(recent, near_inversion_mask, min_sustained_months)
+    first_sustained_date = sustained_run[0]
+    sustained_detected = bool(sustained_run[0] is not None or inversion_share >= min_share)
+    near_sustained_detected = bool(near_sustained_run[0] is not None or near_inversion_share >= min_share)
+    months_since_sustained = (
+        None if first_sustained_date is None else _month_delta(first_sustained_date, latest_date)
     )
-    earlier = values.iloc[: max(1, len(values) // 2)]
-    later = values.iloc[max(1, len(values) // 2) :]
-    resteepening = bool(inversion_share > 0 and later.mean() > earlier.mean())
+    lead_active = bool(
+        sustained_detected
+        and months_since_last is not None
+        and 0 <= months_since_last <= max_lead_time_months
+    )
+    post_inversion_values = values.loc[inversion_mask.cumsum() > 0]
+    post_inversion_max = float(post_inversion_values.max()) if not post_inversion_values.empty else latest_level
+    resteepening = bool(inversion_share > 0 and latest_level > inversion_threshold and post_inversion_max > inversion_threshold)
     inversion_pressure = min(1.0, inversion_share / max(min_share, 0.01))
-    lead_bonus = 0.30 if lead_active else 0.0
-    resteepening_bonus = 0.10 if resteepening and lead_active else 0.0
-    level_pressure = max(0.0, _tanh_signal(-latest_level, _scale(values)))
-    score = _clamp_score(35.0 + 35.0 * inversion_pressure + 20.0 * level_pressure + 100.0 * (lead_bonus + resteepening_bonus))
-    confidence = _confidence(cleaned, 60) * max(0.45, inversion_pressure)
-    if not lead_active and inversion_share < min_share:
+    near_pressure = min(1.0, near_inversion_share / max(min_share, 0.01))
+    persistence_pressure = max(
+        inversion_pressure,
+        near_pressure * 0.75,
+        min(1.0, sustained_run[1] / max(min_sustained_months, 1)),
+    )
+    current_curve_component = _yield_curve_current_component(
+        latest_level=latest_level,
+        inversion_threshold=inversion_threshold,
+        near_inversion_threshold=near_inversion_threshold,
+        near_score_floor=near_score_floor,
+        values=values,
+    )
+    persistence_component = 100.0 * persistence_pressure
+    lead_time_component = 0.0
+    if lead_active:
+        lead_time_component = post_inversion_floor
+        if months_since_last is not None and int(lead_start) <= months_since_last <= int(lead_end):
+            lead_time_component = max(lead_time_component, 75.0)
+        if latest_level < inversion_threshold:
+            lead_time_component = max(lead_time_component, 82.0)
+        if resteepening:
+            lead_time_component = min(100.0, lead_time_component + 8.0)
+    elif near_sustained_detected:
+        lead_time_component = near_score_floor
+
+    final_score_before_confidence = max(
+        current_curve_component,
+        lead_time_component,
+        0.45 * lead_time_component + 0.35 * persistence_component + 0.20 * current_curve_component,
+    )
+    score = _clamp_score(final_score_before_confidence)
+    confidence = _confidence(cleaned, 60) * min(1.0, 0.35 + 0.45 * persistence_pressure + (0.20 if lead_active else 0.0))
+    confidence_reason = "sustained_inversion_detected" if sustained_detected else "near_inversion_or_limited_persistence"
+    if not sustained_detected and not near_sustained_detected:
         confidence *= 0.65
+        confidence_reason = "single_or_sparse_inversion"
+    if months_since_last is not None and months_since_last > max_lead_time_months and latest_level > near_inversion_threshold:
+        confidence *= 0.8
+        confidence_reason = "outside_lead_time_window"
     reason = "以持續倒掛後的 6～18 個月 lead-time window 評估榮景期結束風險，而非只看當期倒掛。"
     return _result(
         indicator_id,
@@ -518,9 +566,18 @@ def yield_curve_lead_time_pressure_score(
         {
             "latest_level": latest_level,
             "inversion_share": inversion_share,
-            "months_since_sustained_inversion": months_since,
+            "sustained_inversion_detected": sustained_detected,
+            "first_sustained_inversion_date": _date_or_none(first_sustained_date),
+            "last_inversion_date": _date_or_none(last_inversion_date),
+            "months_since_last_inversion": months_since_last,
+            "months_since_sustained_inversion": months_since_sustained,
             "lead_time_window_active": lead_active,
             "resteepening_after_inversion": resteepening,
+            "current_curve_component": current_curve_component,
+            "lead_time_component": lead_time_component,
+            "persistence_component": persistence_component,
+            "final_score_before_confidence": final_score_before_confidence,
+            "confidence_reason": confidence_reason,
             "lookback_months": lookback_months,
         },
     )
@@ -759,6 +816,56 @@ def _credit_spread_candidate(
         "widening_share": widening_share,
         "velocity_scale": velocity_scale,
     }
+
+
+def _first_sustained_true_run(
+    frame: pd.DataFrame,
+    mask: pd.Series,
+    min_months: int,
+) -> tuple[pd.Timestamp | None, int]:
+    run_start: pd.Timestamp | None = None
+    run_length = 0
+    max_run_length = 0
+    first_sustained: pd.Timestamp | None = None
+    for is_true, observed_at in zip(mask.astype(bool), frame["date"], strict=False):
+        if is_true:
+            if run_length == 0:
+                run_start = pd.Timestamp(observed_at)
+            run_length += 1
+            max_run_length = max(max_run_length, run_length)
+            if run_length >= min_months and first_sustained is None:
+                first_sustained = run_start
+        else:
+            run_start = None
+            run_length = 0
+    return first_sustained, max_run_length
+
+
+def _yield_curve_current_component(
+    *,
+    latest_level: float,
+    inversion_threshold: float,
+    near_inversion_threshold: float,
+    near_score_floor: float,
+    values: pd.Series,
+) -> float:
+    scale = _scale(values)
+    if latest_level < inversion_threshold:
+        return _clamp_score(82.0 + 18.0 * max(0.0, _tanh_signal(-latest_level, scale)))
+    if latest_level <= near_inversion_threshold:
+        distance = (near_inversion_threshold - latest_level) / max(
+            near_inversion_threshold - inversion_threshold,
+            0.01,
+        )
+        return _clamp_score(near_score_floor + 20.0 * max(0.0, min(1.0, distance)))
+    steepness_penalty = max(0.0, _tanh_signal(latest_level - near_inversion_threshold, scale))
+    return _clamp_score(45.0 - 25.0 * steepness_penalty)
+
+
+def _date_or_none(value: pd.Timestamp | None) -> str | None:
+    if value is None:
+        return None
+    return value.date().isoformat()
 
 
 def _since_months(frame: pd.DataFrame, months: int) -> pd.DataFrame:

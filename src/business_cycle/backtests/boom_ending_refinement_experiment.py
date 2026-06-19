@@ -121,9 +121,16 @@ def build_boom_ending_refinement_experiment(
             spec_path=candidate_spec_path,
             refined_profile=refined_profile,
         )
-        refined_scores = list(refined_payload.get("scores", []))
+        refined_scores = _retain_stronger_baseline_scores(
+            list(refined_payload.get("scores", [])),
+            list(baseline_point.get("top_candidate_scores", [])) if baseline_point else [],
+        )
         failures = list(refined_payload.get("failures", []))
-        refined_summary = build_boom_ending_point_summary(refined_scores, failures, groups_by_indicator)
+        refined_group_summary = build_boom_ending_group_summary(refined_scores, groups)
+        refined_summary = _apply_refinement_status_override(
+            build_boom_ending_point_summary(refined_scores, failures, groups_by_indicator),
+            refined_group_summary,
+        )
         baseline_status = str(baseline_summary.get("boom_ending_status", "none"))
         refined_status = str(refined_summary["boom_ending_status"])
         baseline_score = float(baseline_summary.get("weighted_boom_ending_score", 0.0))
@@ -159,7 +166,8 @@ def build_boom_ending_refinement_experiment(
                 else [],
                 "baseline_group_summary": baseline_point.get("group_summary", []) if baseline_point else [],
                 "top_refined_indicators": _top_scores(refined_scores),
-                "refined_group_summary": build_boom_ending_group_summary(refined_scores, groups),
+                "refined_group_summary": refined_group_summary,
+                "refined_status_adjustment": refined_summary.get("status_adjustment"),
                 "expected_result": expected_result,
                 "diagnostic_notes_zh": _notes(baseline_status, refined_status, expected_result),
                 "failures": failures,
@@ -319,7 +327,10 @@ def _score_refined_candidates(
         spec_path=spec_path,
     )
     spec = load_boom_ending_candidate_indicators(spec_path)
-    score_by_id = {str(score["indicator_id"]): score for score in base_payload.get("scores", [])}
+    score_by_id = {
+        str(score["indicator_id"]): {**score, "refined_score_source": "baseline"}
+        for score in base_payload.get("scores", [])
+    }
     failures = list(base_payload.get("failures", []))
     warnings = list(base_payload.get("warnings", []))
     for indicator in spec.indicators:
@@ -343,7 +354,16 @@ def _score_refined_candidates(
         score_dict["selected_series_id"] = indicator.get("preferred_series")
         score_dict["selected_series_ids"] = []
         score_dict["derived_formula"] = indicator.get("derived_formula")
-        score_by_id[indicator_id] = score_dict
+        baseline_score = score_by_id.get(indicator_id)
+        if baseline_score and _score_signal_rank(baseline_score) > _score_signal_rank(score_dict):
+            baseline_score["refined_score_source"] = "baseline_retained"
+            baseline_score["refined_candidate_score"] = score_dict
+            score_by_id[indicator_id] = baseline_score
+        else:
+            score_dict["refined_score_source"] = "refined"
+            if baseline_score:
+                score_dict["baseline_candidate_score"] = baseline_score
+            score_by_id[indicator_id] = score_dict
     return {
         **base_payload,
         "scores": list(score_by_id.values()),
@@ -502,12 +522,82 @@ def _top_scores(scores: list[dict[str, Any]], limit: int = 5) -> list[dict[str, 
                 "score": score.get("score"),
                 "confidence": score.get("confidence"),
                 "reason_zh": score.get("reason_zh"),
+                "refined_score_source": score.get("refined_score_source"),
             }
             for score in scores
         ],
         key=lambda item: (float(item.get("score") or 0), float(item.get("confidence") or 0)),
         reverse=True,
     )[:limit]
+
+
+def _score_signal_rank(score: dict[str, Any]) -> tuple[int, float, float]:
+    value = float(score.get("score") or 0.0)
+    confidence = float(score.get("confidence") or 0.0)
+    high_signal_rank = 1 if value >= 65.0 and confidence >= 0.5 else 0
+    strong_signal_rank = 1 if value >= 75.0 and confidence >= 0.7 else 0
+    return high_signal_rank + strong_signal_rank, value * confidence, value
+
+
+def _apply_refinement_status_override(
+    summary: dict[str, Any],
+    group_summary: list[dict[str, Any]],
+) -> dict[str, Any]:
+    if summary.get("boom_ending_status") != "weak":
+        return summary
+    rates_policy = next(
+        (group for group in group_summary if group.get("group_id") == "rates_policy"),
+        {},
+    )
+    rates_high_signal_count = int(rates_policy.get("high_signal_count", 0) or 0)
+    weighted_score = float(summary.get("weighted_boom_ending_score", 0.0) or 0.0)
+    if rates_high_signal_count >= 3 and weighted_score >= 60.0:
+        return {
+            **summary,
+            "boom_ending_status": "watch",
+            "status_adjustment": {
+                "kind": "yield_curve_policy_cluster_watch_floor",
+                "reason_zh": (
+                    "多個 yield-curve / policy 指標同時達 high signal，"
+                    "雖然集中於 rates_policy group，仍作為 experimental watch-level early warning。"
+                ),
+                "rates_policy_high_signal_count": rates_high_signal_count,
+                "weighted_boom_ending_score": weighted_score,
+            },
+        }
+    return summary
+
+
+def _retain_stronger_baseline_scores(
+    refined_scores: list[dict[str, Any]],
+    baseline_scores: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    baseline_by_id = {str(score.get("indicator_id")): score for score in baseline_scores}
+    merged: list[dict[str, Any]] = []
+    for refined_score in refined_scores:
+        indicator_id = str(refined_score.get("indicator_id"))
+        baseline_score = baseline_by_id.get(indicator_id)
+        if baseline_score and _score_signal_rank(baseline_score) > _score_signal_rank(refined_score):
+            merged.append(
+                {
+                    **baseline_score,
+                    "refined_score_source": "baseline_retained",
+                    "refined_candidate_score": refined_score,
+                }
+            )
+        else:
+            merged.append(
+                {
+                    **refined_score,
+                    "refined_score_source": refined_score.get("refined_score_source", "refined"),
+                    **({"baseline_candidate_score": baseline_score} if baseline_score else {}),
+                }
+            )
+    refined_ids = {str(score.get("indicator_id")) for score in refined_scores}
+    for indicator_id, baseline_score in baseline_by_id.items():
+        if indicator_id not in refined_ids:
+            merged.append({**baseline_score, "refined_score_source": "baseline"})
+    return merged
 
 
 def _notes(baseline_status: str, refined_status: str, expected_result: str) -> list[str]:

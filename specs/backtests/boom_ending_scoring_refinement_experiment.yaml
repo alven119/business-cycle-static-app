@@ -17,9 +17,14 @@ boom_ending_scoring_refinement_experiment:
     yield_curve:
       method: lead_time_pressure
       inversion_threshold: 0.0
+      near_inversion_threshold: 0.25
       sustained_inversion_min_share: 0.6
+      min_sustained_inversion_months: 3
       inversion_lookback_months: 18
       peak_warning_months_after_inversion: [3, 18]
+      max_lead_time_months: 18
+      near_inversion_score_floor: 55.0
+      post_inversion_warning_floor: 68.0
       include_resteepening_after_inversion: true
     credit_spread:
       method: spread_velocity_and_percentile

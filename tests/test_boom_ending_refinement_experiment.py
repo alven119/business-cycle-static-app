@@ -157,6 +157,81 @@ def test_boom_ending_refinement_warns_for_unmatched_baseline_point(tmp_path: Pat
     assert result["baseline_lookup_warnings"][0]["unmatched_key"] is True
 
 
+def test_boom_ending_refinement_retains_stronger_baseline_target_scores(tmp_path: Path) -> None:
+    windows_path = write_single_window(tmp_path)
+    experiment_path = write_single_experiment(tmp_path)
+    groups_path = write_groups(tmp_path)
+    spec_path = write_target_spec(tmp_path)
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    write_series(cache_dir / "T10Y3M.csv", [1.0] * 20)
+    baseline = {
+        "points": [
+            {
+                "scenario_id": "scenario_a",
+                "as_of": "2000-01-31",
+                "label": "target_retention",
+                "candidate_summary": {
+                    "boom_ending_status": "watch",
+                    "weighted_boom_ending_score": 70.0,
+                    "broad_group_count": 2,
+                    "high_signal_count": 3,
+                    "high_confidence_high_signal_count": 1,
+                },
+                "top_candidate_scores": [
+                    score("yield_curve_10y_3m", 80, 1.0),
+                    score("credit_spread_baa_10y", 78, 0.8),
+                    score("fed_policy_restrictive_pressure", 70, 0.7),
+                ],
+            }
+        ]
+    }
+
+    result = build_boom_ending_refinement_experiment(
+        experiment_path=experiment_path,
+        windows_path=windows_path,
+        groups_path=groups_path,
+        candidate_spec_path=spec_path,
+        cache_dir=cache_dir,
+        baseline_diagnostics=baseline,
+        refined_score_func=weak_target_refined_score_func,
+    )
+
+    point = result["points"][0]
+    assert point["baseline_status"] == "watch"
+    assert point["refined_status"] == "watch"
+    assert point["status_delta"] == "unchanged"
+    target = next(item for item in point["top_refined_indicators"] if item["indicator_id"] == "yield_curve_10y_3m")
+    assert target["refined_score_source"] == "baseline_retained"
+
+
+def test_boom_ending_refinement_yield_curve_cluster_can_raise_watch(tmp_path: Path) -> None:
+    windows_path = write_single_window(tmp_path)
+    experiment_path = write_single_experiment(tmp_path)
+    groups_path = write_rates_only_groups(tmp_path)
+    baseline = {
+        "points": [
+            baseline_point("scenario_a", "2000-01-31", "target_retention", "weak", 55.0),
+        ]
+    }
+
+    result = build_boom_ending_refinement_experiment(
+        experiment_path=experiment_path,
+        windows_path=windows_path,
+        groups_path=groups_path,
+        candidate_spec_path=tmp_path / "unused.yaml",
+        cache_dir=tmp_path,
+        baseline_diagnostics=baseline,
+        refined_score_func=rates_cluster_refined_score_func,
+    )
+
+    point = result["points"][0]
+    assert point["baseline_status"] == "weak"
+    assert point["refined_status"] == "watch"
+    assert point["status_delta"] == "improved"
+    assert point["refined_status_adjustment"]["kind"] == "yield_curve_policy_cluster_watch_floor"
+
+
 def baseline_point(
     scenario_id: str,
     as_of: str,
@@ -205,6 +280,30 @@ def fake_delta_refined_score_func(*, as_of: str, **_: object) -> dict:
     return {"scores": scores, "failures": [], "warnings": []}
 
 
+def weak_target_refined_score_func(**_: object) -> dict:
+    return {
+        "scores": [
+            score("yield_curve_10y_3m", 40, 0.9),
+            score("credit_spread_baa_10y", 78, 0.8),
+            score("fed_policy_restrictive_pressure", 70, 0.7),
+        ],
+        "failures": [],
+        "warnings": [],
+    }
+
+
+def rates_cluster_refined_score_func(**_: object) -> dict:
+    return {
+        "scores": [
+            score("yield_curve_10y_3m", 92, 1.0),
+            score("yield_curve_10y_2y", 88, 1.0),
+            score("fed_policy_restrictive_pressure", 74, 1.0),
+        ],
+        "failures": [],
+        "warnings": [],
+    }
+
+
 def score(indicator_id: str, value: float, confidence: float) -> dict:
     return {
         "indicator_id": indicator_id,
@@ -245,6 +344,30 @@ boom_ending_diagnostic_windows:
     return path
 
 
+def write_single_window(tmp_path: Path) -> Path:
+    path = tmp_path / "single_window.yaml"
+    path.write_text(
+        """
+boom_ending_diagnostic_windows:
+  version: 1
+  status: test
+  data_mode: revised
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 不構成投資建議。
+  scenarios:
+    scenario_a:
+      display_name_zh: 測試
+      diagnostic_points:
+        - as_of: "2000-01-31"
+          label: target_retention
+          expected_zh: test
+""",
+        encoding="utf-8",
+    )
+    return path
+
+
 def write_delta_windows(tmp_path: Path) -> Path:
     path = tmp_path / "delta_windows.yaml"
     path.write_text(
@@ -275,6 +398,58 @@ boom_ending_diagnostic_windows:
     return path
 
 
+def write_single_experiment(tmp_path: Path) -> Path:
+    path = tmp_path / "single_experiment.yaml"
+    path.write_text(
+        """
+boom_ending_scoring_refinement_experiment:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: test
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 不構成投資建議。
+  refined_profile:
+    profile_id: boom_ending_refined_v1
+  expected_refinement_outcomes:
+    - scenario_id: scenario_a
+      as_of: "2000-01-31"
+      expected_min_status: watch
+""",
+        encoding="utf-8",
+    )
+    return path
+
+
+def write_target_spec(tmp_path: Path) -> Path:
+    path = tmp_path / "target_spec.yaml"
+    path.write_text(
+        """
+boom_ending_candidate_indicators:
+  version: 1
+  status: test
+  objective_zh: test
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 不構成投資建議。
+  indicators:
+    - indicator_id: yield_curve_10y_3m
+      display_name_zh: 10 年期與 3 個月期公債利差
+      purpose_group: boom_ending
+      provider: fred
+      candidate_fred_series: [T10Y3M]
+      preferred_series: T10Y3M
+      transformation: [level]
+      proposed_score_method: yield_curve_inversion_pressure_score
+      expected_phase_impact: {boom: pressure}
+      implementation_priority: high
+""",
+        encoding="utf-8",
+    )
+    return path
+
+
 def write_groups(tmp_path: Path) -> Path:
     path = tmp_path / "groups.yaml"
     path.write_text(
@@ -291,6 +466,32 @@ experimental_indicator_groups:
         encoding="utf-8",
     )
     return path
+
+
+def write_rates_only_groups(tmp_path: Path) -> Path:
+    path = tmp_path / "rates_groups.yaml"
+    path.write_text(
+        """
+experimental_indicator_groups:
+  rates_policy:
+    - yield_curve_10y_3m
+    - yield_curve_10y_2y
+    - fed_policy_restrictive_pressure
+  credit_financial_conditions:
+    - credit_spread_baa_10y
+""",
+        encoding="utf-8",
+    )
+    return path
+
+
+def write_series(path: Path, values: list[float]) -> None:
+    path.write_text(
+        "date,value\n"
+        + "\n".join(f"2000-{index + 1:02d}-29,{value}" for index, value in enumerate(values[:12]))
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def write_delta_experiment(tmp_path: Path) -> Path:

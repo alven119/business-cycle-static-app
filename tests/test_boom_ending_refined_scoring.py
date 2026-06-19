@@ -19,6 +19,36 @@ def test_yield_curve_lead_time_pressure_after_sustained_inversion_scores_high() 
     assert score.score >= 75
     assert score.confidence >= 0.5
     assert score.metadata["lead_time_window_active"] is True
+    assert score.metadata["sustained_inversion_detected"] is True
+    assert score.metadata["last_inversion_date"] is not None
+    assert "current_curve_component" in score.metadata
+    assert "lead_time_component" in score.metadata
+    assert "persistence_component" in score.metadata
+    assert "final_score_before_confidence" in score.metadata
+    assert "confidence_reason" in score.metadata
+
+
+def test_yield_curve_post_inversion_resteepening_stays_watch_level_in_window() -> None:
+    frame = monthly_series([1.0] * 60 + [-0.5] * 6 + [0.35] * 8)
+
+    score = yield_curve_lead_time_pressure_score(frame, as_of="2021-02-28")
+
+    assert score.score is not None
+    assert score.score >= 65
+    assert score.metadata["lead_time_window_active"] is True
+    assert score.metadata["resteepening_after_inversion"] is True
+    assert score.metadata["months_since_last_inversion"] is not None
+
+
+def test_yield_curve_near_inversion_persistence_gives_limited_pressure() -> None:
+    frame = monthly_series([1.0] * 60 + [0.12] * 8)
+
+    score = yield_curve_lead_time_pressure_score(frame, as_of="2020-08-31")
+
+    assert score.score is not None
+    assert 45 <= score.score < 75
+    assert score.confidence < 0.8
+    assert score.metadata["sustained_inversion_detected"] is False
 
 
 def test_yield_curve_single_inversion_does_not_have_high_confidence() -> None:
