@@ -538,6 +538,17 @@ python scripts/score_recovery_candidates.py --as-of 2020-04-30
 
 Candidate scores are written under `data/backtests/candidate_indicators/recovery/`, which is generated ignored output. These indicators are for recession-trough and recovery diagnostics only; they do not affect live dashboard decisions.
 
+## Phase 7F3.1 recovery diagnostics
+
+Phase 7F3.1 runs fixed historical diagnostic points for recovery / recession trough candidate indicators.
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python -m json.tool data/backtests/candidate_indicators/recovery_diagnostics/recovery_diagnostics.json | head -n 360
+```
+
+The diagnostics output is generated ignored data. Recovery watch is not formal recovery confirmation, policy easing cannot confirm recovery by itself, and the output does not affect formal phase scoring or the live dashboard.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

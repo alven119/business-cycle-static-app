@@ -585,6 +585,22 @@ python scripts/score_recovery_candidates.py --as-of 2009-03-31
 
 本階段支援的候選方向包含 claims / unemployment peak reversal、消費與生產落底回升、信用與金融壓力緩解，以及 Fed easing support。這些訊號不構成投資建議，也不會直接觸發 portfolio allocation。下一步 Phase 7F3.1 才會建立 recovery diagnostics / overlay。
 
+## Phase 7F3.1 Recovery Diagnostics
+
+Phase 7F3.1 建立 recovery / recession trough diagnostics，將 candidate scores 放入 dotcom、GFC、COVID、euro debt 與 late cycle 2018 的固定 as-of points，檢查它們是否能區分衰退中段、落底附近、復甦初期與非衰退 slowdown。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+```
+
+輸出位於：
+
+```text
+data/backtests/candidate_indicators/recovery_diagnostics/recovery_diagnostics.json
+```
+
+此 diagnostics 使用 `strong/watch/weak/none`，但 `recovery watch` 不等於正式復甦確認。Policy easing 只能是 support signal，不能單獨確認 recovery。COVID 外生衝擊後的快速反彈需保留 caveat，不應直接等同一般景氣循環復甦。本階段不改 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

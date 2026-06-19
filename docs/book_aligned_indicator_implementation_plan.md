@@ -362,6 +362,24 @@ python scripts/score_recovery_candidates.py --as-of 2009-03-31
 
 下一步 Phase 7F3.1 才會把這些 candidate scores 放進 recovery diagnostics / overlay，檢查它們是否能辨識衰退落底與復甦起點。本階段不構成投資建議。
 
+## Phase 7F3.1 Recovery Diagnostics
+
+Phase 7F3.1 將 recovery candidate scores 放進固定 historical diagnostic points，用來檢查 recession trough / recovery candidates 是否能合理辨識衰退中段、落底附近與復甦初期。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recovery_diagnostics/recovery_diagnostics.json
+```
+
+Diagnostics 明確限制：policy easing 只能作為 support signal，不得單獨確認 recovery；`recovery watch` 不等於正式復甦確認。COVID 類外生衝擊案例需標記 caveat，快速反彈不等同一般景氣循環復甦。
+
+本階段不接正式模型、不改 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：
