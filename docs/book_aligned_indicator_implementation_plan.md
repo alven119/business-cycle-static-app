@@ -282,6 +282,19 @@ data/backtests/candidate_indicators/boom_ending_refinement/boom_ending_refinemen
 
 這仍是 experimental comparison，不接正式 phase scoring、不改 resolver、不進 live dashboard，也不構成投資建議。
 
+## Phase 7F2.4 Boom Ending Watch Rule
+
+Phase 7F2.4 將 refined boom ending diagnostics 轉成 experimental watch rule。Rule 狀態包含：
+
+- `strong_late_cycle_warning`
+- `watch`
+- `weak`
+- `none`
+
+`watch` 的用途是 early warning / 減碼風險提示研究，不是 confirmed recession，也不是正式投資配置建議。Rule 支援 rates-policy cluster watch：當 yield curve / Fed policy 多個訊號集中於 rates policy 群組時，可形成 watch，但不能直接升為 strong。
+
+此階段仍不接 live model、不改正式 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
+
 Phase 7F3：衰退落底與復甦反轉指標
 
 - 初領失業救濟金高峰反轉。

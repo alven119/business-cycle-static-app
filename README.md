@@ -482,6 +482,19 @@ python -m json.tool data/backtests/candidate_indicators/boom_ending_refinement/b
 
 The refined helpers test yield-curve lead-time pressure, credit-spread velocity, financial-conditions delta, and Fed peak/pause pressure. Output is generated ignored diagnostics and does not affect formal phase scoring or the live dashboard.
 
+## Phase 7F2.4 boom ending watch rule
+
+Phase 7F2.4 applies an experimental watch rule to the refined boom ending diagnostics.
+
+```bash
+python scripts/run_boom_ending_diagnostics.py
+python scripts/run_boom_ending_refinement_experiment.py
+python scripts/run_boom_ending_watch_rule.py
+python -m json.tool data/backtests/candidate_indicators/boom_ending_watch_rule/boom_ending_watch_rule_report.json | head -n 260
+```
+
+The rule classifies `strong_late_cycle_warning`, `watch`, `weak`, and `none`. It is for early-warning diagnostics and future strategy design only: boom ending watch is not confirmed recession, does not affect formal phase scoring, and does not affect the live dashboard.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

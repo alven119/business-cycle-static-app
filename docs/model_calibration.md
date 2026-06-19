@@ -531,6 +531,19 @@ data/backtests/candidate_indicators/boom_ending_refinement/boom_ending_refinemen
 
 此階段只比較 experimental diagnostics，不改正式 phase scoring、不改 resolver、不影響 live dashboard，也不構成投資建議。
 
+## Phase 7F2.4 Boom Ending Watch Rule
+
+Phase 7F2.4 使用 refined boom ending diagnostics 建立 experimental watch rule，將 diagnostic points 分為：
+
+- `strong_late_cycle_warning`
+- `watch`
+- `weak`
+- `none`
+
+這個 rule 只用於 future strategy / overlay design，不接正式 phase scoring、不改 resolver，也不進 live dashboard。`watch` 代表 late-cycle risk 正在累積，可作為減碼風險提示研究，但不等於 confirmed recession。
+
+COVID 這類外生衝擊案例需特別標註：boom ending 指標在衝擊發生時可能是同步壓力反映，不代表事前預測。後續若 rule 結果穩定，下一步才會做 full-horizon boom ending watch overlay。本內容不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
