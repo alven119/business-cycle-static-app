@@ -632,6 +632,23 @@ python scripts/show_cycle_transition_evidence_architecture.py
 
 This phase only defines evidence usage boundaries. It does not connect evidence to the dashboard, resolver, formal phase scoring, FRED provider, GitHub Pages workflow, or portfolio allocation.
 
+## Phase 7G1 transition evidence badge schema
+
+Phase 7G1 defines the future dashboard diagnostics badge schema for transition evidence.
+
+```text
+specs/common/transition_evidence_badge_schema.yaml
+docs/transition_evidence_badge_schema.md
+```
+
+Inspect the schema summary with:
+
+```bash
+python scripts/show_transition_evidence_badge_schema.py
+```
+
+This phase only defines a schema and validator. It does not connect evidence badges to dashboard output, resolver logic, formal phase scoring, FRED provider behavior, GitHub Pages workflow, or portfolio allocation.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

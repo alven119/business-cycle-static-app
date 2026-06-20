@@ -87,3 +87,12 @@ phase_specific_gates:
       - recommended_next_phase == 7G1
     soft_warnings_allowed:
       - none
+
+  transition_evidence_badge_schema:
+    hard_gates:
+      - dashboard_contract_allowed_now == false
+      - formal_decision_impact_allowed == false
+      - direct_trade_signal_allowed == false
+      - recommended_next_phase == 7G2
+    soft_warnings_allowed:
+      - none

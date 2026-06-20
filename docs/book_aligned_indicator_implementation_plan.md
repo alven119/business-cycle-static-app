@@ -478,6 +478,18 @@ python scripts/show_cycle_transition_evidence_architecture.py
 
 下一步可進 Phase 7G1 設計 evidence badge schema；若改走投資策略研究，則必須等 Phase 8 / Phase 9 portfolio backtest。本階段不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
 
+## Phase 7G1 Transition Evidence Badge Schema
+
+Phase 7G1 設計 future dashboard diagnostics 的 evidence badge schema，統一 recession confirmation、boom ending watch、recovery watch 三類 evidence 的 badge levels、required fields、prohibited fields 與 caveats。
+
+```bash
+python scripts/show_transition_evidence_badge_schema.py
+```
+
+此 schema 明確限制：badge 不得改變 `current_phase_id` 或 `decision_status`，不得包含買進、賣出、配置或 phase override 欄位。Watch 類訊號不是買賣訊號，且所有 badge 都必須保留 experimental diagnostics 與不構成投資建議 caveat。
+
+Phase 7G1 只做 schema / validator / docs / tests，不接 dashboard renderer、不產生 `public/` output、不改正式模型。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

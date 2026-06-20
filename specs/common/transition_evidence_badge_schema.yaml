@@ -1,0 +1,142 @@
+transition_evidence_badge_schema:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    定義未來 dashboard diagnostics 可顯示的 transition evidence badge schema，
+    用於一致呈現 recession confirmation、boom ending watch、recovery watch 三類 experimental evidence，
+    並確保 evidence badge 不影響正式景氣階段、不產生投資建議。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 dashboard diagnostics schema，不代表正式模型已更新。
+    - evidence badge 不會改變 current_phase_id。
+    - evidence badge 不會改變 decision_status。
+    - watch 類訊號不是買賣訊號。
+    - 不構成投資建議。
+
+  badge_families:
+    recession_confirmation:
+      display_name_zh: 衰退確認證據
+      allowed_badge_levels:
+        - none
+        - weak
+        - watch
+        - confirmed_candidate
+      allowed_display: true
+      formal_decision_impact: none
+      prohibited_interpretations_zh:
+        - 不得單獨覆寫 current_phase_id。
+        - 不得單獨 confirmed recession。
+        - 不得產生買賣建議。
+      required_caveats_zh:
+        - 此為 experimental recession evidence。
+        - 不代表正式景氣階段切換。
+        - 不構成投資建議。
+
+    boom_ending_watch:
+      display_name_zh: 榮景後期風險觀察
+      allowed_badge_levels:
+        - none
+        - weak
+        - watch
+        - strong_late_cycle_warning
+      allowed_display: true
+      formal_decision_impact: none
+      prohibited_interpretations_zh:
+        - boom ending watch 不等於 confirmed recession。
+        - boom ending watch 不是減碼或賣出訊號。
+        - 外生衝擊案例不得被解讀為事前預測能力。
+      required_caveats_zh:
+        - 此為榮景後期風險 diagnostics。
+        - 不代表正式衰退確認。
+        - 不是買賣訊號。
+        - 不構成投資建議。
+
+    recovery_watch:
+      display_name_zh: 衰退落底 / 復甦觀察
+      allowed_badge_levels:
+        - none
+        - weak
+        - recovery_watch
+        - strong_recovery_watch
+      allowed_display: true
+      formal_decision_impact: none
+      prohibited_interpretations_zh:
+        - recovery watch 不等於正式復甦確認。
+        - recovery watch 不是買進或加碼訊號。
+        - policy easing 不得單獨確認 recovery。
+        - financial easing 不得單獨確認 recovery。
+      required_caveats_zh:
+        - 此為復甦證據 diagnostics。
+        - 不代表正式復甦確認。
+        - 不是買進訊號。
+        - 不構成投資建議。
+
+  badge_object_schema:
+    required_fields:
+      - family_id
+      - level
+      - display_name_zh
+      - summary_zh
+      - confidence
+      - evidence_date
+      - diagnostics_only
+      - formal_decision_impact
+      - caveats_zh
+    optional_fields:
+      - score
+      - top_contributors
+      - warning_flags
+      - source_artifacts
+      - explanation_zh
+      - updated_at
+    constraints:
+      diagnostics_only_must_be_true: true
+      formal_decision_impact_must_be_none: true
+      confidence_range:
+        - 0.0
+        - 1.0
+      no_portfolio_action_field: true
+      no_buy_sell_language: true
+
+  allowed_dashboard_contract:
+    allowed_now: false
+    reason_zh: >
+      本階段只定義 schema，不接 dashboard renderer。
+      後續若接 dashboard，必須另開 phase，並更新 generated site validation。
+    future_allowed_display_sections:
+      - 首頁 diagnostics summary
+      - 階段詳細頁 evidence section
+      - 指標解釋頁 experimental evidence note
+    required_display_text_zh:
+      - experimental diagnostics，不代表正式階段切換。
+      - watch 不是買賣訊號。
+      - 不構成投資建議。
+
+  prohibited_fields:
+    - action
+    - buy_signal
+    - sell_signal
+    - allocation
+    - target_weight
+    - confirmed_phase_override
+    - current_phase_override
+
+  validation_rules:
+    - rule_id: no_formal_decision_impact
+      description_zh: badge 不得影響 current_phase_id 或 decision_status。
+    - rule_id: no_trade_signal
+      description_zh: badge 不得包含買進、賣出、減碼、加碼等直接行動欄位。
+    - rule_id: caveats_required
+      description_zh: 每個 badge family 必須包含不構成投資建議 caveat。
+    - rule_id: family_levels_restricted
+      description_zh: badge level 必須屬於各 family 的 allowed_badge_levels。
+    - rule_id: diagnostics_only
+      description_zh: badge_object_schema 中 diagnostics_only 必須為 true。
+
+  recommended_next_phase:
+    phase_id: 7G2
+    title: transition evidence badge static validator
+    reason_zh: >
+      已完成 evidence badge schema。下一步可建立 static validator / sample badge fixtures，
+      驗證未來 dashboard diagnostics badge 不會包含正式決策或投資行動欄位。

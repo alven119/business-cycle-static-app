@@ -678,6 +678,16 @@ python scripts/show_cycle_transition_evidence_architecture.py
 
 下一步可做 Phase 7G1 evidence badge schema，或轉向 Phase 8 portfolio policy research planning。Phase 7G 不改正式模型、不進 dashboard，也不構成投資建議。
 
+## Phase 7G1 Transition Evidence Badge Schema
+
+Phase 7G1 定義 future dashboard diagnostics 的 transition evidence badge schema。此 schema 只描述 display layer contract：badge 可以呈現 recession confirmation、boom ending watch、recovery watch 三類 experimental evidence，但不得影響 `current_phase_id`、不得改 `decision_status`，也不得包含買賣或配置欄位。
+
+```bash
+python scripts/show_transition_evidence_badge_schema.py
+```
+
+Badge schema 是 diagnostics display layer 的前置設計，不接正式 dashboard output。下一步可做 Phase 7G2 static validator / sample badge fixtures，檢查未來 badge 不包含正式決策或投資行動欄位。此階段不改正式模型，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
