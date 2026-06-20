@@ -50,6 +50,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     readiness_gates = phase_specific["dashboard_evidence_integration_readiness"]["hard_gates"]
     portfolio_plan_gates = phase_specific["portfolio_policy_research_plan"]["hard_gates"]
     portfolio_template_gates = phase_specific["portfolio_policy_template_schema"]["hard_gates"]
+    portfolio_backtest_contract_gates = phase_specific["portfolio_backtest_input_contract"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -84,6 +85,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "live_allocation_allowed_now == false" in portfolio_template_gates
     assert "valid_pass_count == valid_template_count" in portfolio_template_gates
     assert "recommended_next_phase == 8C" in portfolio_template_gates
+    assert "live_allocation_output_allowed == false" in portfolio_backtest_contract_gates
+    assert "mapped_scenario_count == allowed_scenario_count" in portfolio_backtest_contract_gates
+    assert "recommended_next_phase == 8D" in portfolio_backtest_contract_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

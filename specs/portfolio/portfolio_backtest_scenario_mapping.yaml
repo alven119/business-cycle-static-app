@@ -1,0 +1,95 @@
+portfolio_backtest_scenario_mapping:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future portfolio policy backtest 使用的歷史 scenario mapping，
+    將 policy templates、scenario periods、phase/evidence inputs 與 expected research purpose 對齊。
+  caveats_zh:
+    - 此為 future backtest scenario mapping，不是回測結果。
+    - 不產生 portfolio allocation。
+    - 不構成投資建議。
+
+  scenarios:
+    dotcom_bubble:
+      enabled_for_backtest: true
+      primary_research_purpose:
+        - boom_de_risking_template
+        - recession_defense_template
+        - recovery_re_risking_template
+      expected_policy_questions_zh:
+        - 榮景後期逐步防守是否可降低 late exit cost？
+        - 衰退確認 evidence 是否能避免過早或過晚防守？
+        - 復甦 watch 是否能改善 re-entry timing？
+      required_evidence_families:
+        - recession_confirmation
+        - boom_ending_watch
+        - recovery_watch
+      caveats_zh:
+        - dotcom 復甦較慢，re-entry timing 需測 sensitivity。
+
+    global_financial_crisis:
+      enabled_for_backtest: true
+      primary_research_purpose:
+        - boom_de_risking_template
+        - recession_defense_template
+        - recovery_re_risking_template
+      expected_policy_questions_zh:
+        - 榮景後期防守是否降低 max drawdown？
+        - GFC 中 recovery watch lead time 偏早時，cooldown / persistence 是否可降低 false re-risk cost？
+      required_evidence_families:
+        - recession_confirmation
+        - boom_ending_watch
+        - recovery_watch
+      caveats_zh:
+        - GFC recovery watch 可能早於正式 recovery，多數政策需測 persistence。
+
+    covid_recession:
+      enabled_for_backtest: true
+      primary_research_purpose:
+        - recession_defense_template
+        - recovery_re_risking_template
+      expected_policy_questions_zh:
+        - 外生衝擊下，recovery watch 是否過度快速？
+        - exogenous shock caveat 是否應改變 re-risking rule？
+      required_evidence_families:
+        - recession_confirmation
+        - recovery_watch
+      caveats_zh:
+        - COVID 屬外生衝擊，不應直接推論一般景氣循環策略有效。
+
+    euro_debt_slowdown:
+      enabled_for_backtest: true
+      primary_research_purpose:
+        - boom_de_risking_template
+      expected_policy_questions_zh:
+        - non-recession slowdown 是否造成 false de-risk？
+        - watch density 是否造成 whipsaw？
+      required_evidence_families:
+        - boom_ending_watch
+      caveats_zh:
+        - 非正式衰退場景主要用於 false positive cost。
+
+    late_cycle_2018:
+      enabled_for_backtest: true
+      primary_research_purpose:
+        - boom_de_risking_template
+      expected_policy_questions_zh:
+        - late-cycle watch 是否造成過度防守？
+        - recovery watch context gate 是否避免 non-recession false re-risk？
+      required_evidence_families:
+        - boom_ending_watch
+        - recovery_watch
+      caveats_zh:
+        - 2018 屬 late-cycle false positive / whipsaw 壓力測試。
+
+  mapping_validation_rules:
+    - rule_id: all_allowed_scenarios_mapped
+      description_zh: input contract 的 allowed_scenarios 必須全部存在於 mapping。
+    - rule_id: all_policy_templates_known
+      description_zh: scenario 使用的 policy templates 必須屬於 allowed_policy_templates。
+    - rule_id: evidence_family_known
+      description_zh: required_evidence_families 必須屬於 transition evidence architecture。
+    - rule_id: caveats_required
+      description_zh: 每個 scenario 必須有 caveats。
+    - rule_id: no_allocation_or_trade_output
+      description_zh: scenario mapping 不得包含 allocation 或 trade signal。

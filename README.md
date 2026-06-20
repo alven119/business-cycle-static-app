@@ -750,6 +750,23 @@ python scripts/validate_portfolio_policy_template_fixtures.py
 
 The validator accepts only backtest-only templates and rejects live allocation, trade signals, target weights, current market recommendations, and prohibited recommendation text. It does not produce allocation output or public dashboard output.
 
+## Phase 8C portfolio backtest input contract
+
+Phase 8C defines the future portfolio backtest input contract and scenario mapping.
+
+```text
+specs/portfolio/portfolio_backtest_input_contract.yaml
+specs/portfolio/portfolio_backtest_scenario_mapping.yaml
+```
+
+Inspect the contract and mapping summary with:
+
+```bash
+python scripts/show_portfolio_backtest_input_contract.py
+```
+
+This phase only defines future backtest inputs, rebalance assumptions, cost assumptions, risk metrics, output safety boundaries, and scenario mapping. It does not run a portfolio backtest, produce allocation output, generate `data/backtests`, or publish dashboard output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

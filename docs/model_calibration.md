@@ -753,6 +753,18 @@ python scripts/validate_portfolio_policy_template_fixtures.py
 
 Validator 確保三個 policy templates 只能是 research-only / backtest-only，並阻擋 live allocation、trade signal、target weight、current market recommendation 與 prohibited text。70/50/30 只能作為 `stock_weight_levels_for_backtest_only`，不是目前配置建議。本階段不產生 allocation、不接 dashboard，也不構成投資建議。
 
+## Phase 8C Portfolio Backtest Input Contract
+
+Phase 8C 定義 future portfolio backtest 的 input contract 與 scenario mapping。
+
+```bash
+python scripts/show_portfolio_backtest_input_contract.py
+```
+
+Contract 定義 monthly as-of alignment、phase / evidence inputs、rebalance frequency、transaction cost / slippage assumptions、risk metrics 與 output safety boundaries。Scenario mapping 覆蓋 dotcom、GFC、COVID、euro debt slowdown、late-cycle 2018，並將每個 scenario 對應到 future research policy questions。
+
+本階段不跑正式 backtest、不產生 `data/backtests`、不產生 allocation、不接 dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

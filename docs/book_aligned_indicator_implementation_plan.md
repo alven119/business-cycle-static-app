@@ -561,6 +561,18 @@ python scripts/validate_portfolio_policy_template_fixtures.py
 
 此階段將 boom de-risking、recession defense、recovery re-risking 三個研究模板限制為 research-only / backtest-only。Validator 會拒絕 live allocation、trade signal、target weight、current market recommendation 與 prohibited text。70/50/30 只允許作為 backtest-only parameters，不是目前配置建議。本階段不產生 allocation、不接 dashboard、不改正式模型，也不構成投資建議。
 
+## Phase 8C Portfolio Backtest Input Contract
+
+Phase 8C 建立 portfolio backtest input contract 與 scenario mapping。
+
+```bash
+python scripts/show_portfolio_backtest_input_contract.py
+```
+
+Input contract 定義 future backtest 可接受的 phase / evidence inputs、rebalance assumptions、transaction cost / slippage assumptions、required risk metrics 與 prohibited outputs。Scenario mapping 將 dotcom、GFC、COVID、euro debt slowdown、late-cycle 2018 對應到 policy template research questions。
+
+本階段只定義 backtest input，不跑正式回測、不產生 allocation、不輸出買賣訊號、不產生 `data/backtests` 或 `public/` output，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

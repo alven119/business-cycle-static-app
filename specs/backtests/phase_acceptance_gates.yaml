@@ -161,3 +161,14 @@ phase_specific_gates:
       - recommended_next_phase == 8C
     soft_warnings_allowed:
       - none
+
+  portfolio_backtest_input_contract:
+    hard_gates:
+      - live_allocation_output_allowed == false
+      - trade_signal_output_allowed == false
+      - public_dashboard_output_allowed == false
+      - allowed_policy_template_count == 3
+      - mapped_scenario_count == allowed_scenario_count
+      - recommended_next_phase == 8D
+    soft_warnings_allowed:
+      - none

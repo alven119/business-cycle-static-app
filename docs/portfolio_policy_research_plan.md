@@ -73,6 +73,18 @@ python scripts/validate_portfolio_policy_template_fixtures.py
 
 本階段仍不產生 allocation、不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
 
+## Phase 8C Portfolio Backtest Input Contract
+
+Phase 8C 新增 `specs/portfolio/portfolio_backtest_input_contract.yaml` 與 `specs/portfolio/portfolio_backtest_scenario_mapping.yaml`。這兩個 spec 只定義 future portfolio backtest 的輸入契約與 scenario mapping，不跑正式回測、不產生 allocation。
+
+Input contract 定義可用 policy templates、scenario ids、monthly as-of 對齊、phase / evidence inputs、rebalance assumptions、transaction cost / slippage sensitivity、risk metrics 與 output safety boundaries。Scenario mapping 將 dotcom、GFC、COVID、euro debt slowdown、late-cycle 2018 對應到 boom de-risking、recession defense、recovery re-risking 的研究問題。
+
+```bash
+python scripts/show_portfolio_backtest_input_contract.py
+```
+
+Validator 會確認所有 allowed scenarios 都已 mapping、policy templates 與 evidence families 都是已知 id，並阻擋 live allocation、target weight、buy/sell signal、current recommendation 與 public dashboard output。所有權重仍只能是 backtest-only parameters，不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

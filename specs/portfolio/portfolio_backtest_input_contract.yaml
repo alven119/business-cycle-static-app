@@ -1,0 +1,176 @@
+portfolio_backtest_input_contract:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future portfolio policy backtest 的輸入契約，
+    包含 policy templates、scenario mapping、phase/evidence inputs、rebalance rules、
+    transaction cost assumptions、risk metrics 與 output safety boundaries。
+    本規格只供 future backtest 使用，不產生 live allocation 或投資建議。
+  caveats_zh:
+    - 此為 portfolio backtest input contract，不是回測結果。
+    - 所有權重都是 backtest-only parameters，不是目前配置建議。
+    - transition evidence watch 不是買賣訊號。
+    - 本階段不產生 portfolio allocation。
+    - 不構成投資建議。
+
+  input_sources:
+    policy_template_schema:
+      path: specs/portfolio/portfolio_policy_template_schema.yaml
+      required: true
+    policy_template_fixtures:
+      path: specs/portfolio/portfolio_policy_template_fixtures.yaml
+      required: true
+    policy_research_plan:
+      path: specs/portfolio/portfolio_policy_research_plan.yaml
+      required: true
+    scenario_spec:
+      path: specs/backtests/scenarios.yaml
+      required: true
+    transition_evidence_architecture:
+      path: specs/common/cycle_transition_evidence_architecture.yaml
+      required: true
+
+  allowed_policy_templates:
+    - boom_de_risking_template
+    - recession_defense_template
+    - recovery_re_risking_template
+
+  allowed_scenarios:
+    - dotcom_bubble
+    - global_financial_crisis
+    - covid_recession
+    - euro_debt_slowdown
+    - late_cycle_2018
+
+  data_contract:
+    required_time_index:
+      frequency: monthly
+      as_of_alignment: month_end
+      timezone: none
+    required_inputs_per_period:
+      - as_of
+      - scenario_id
+      - formal_phase_id
+      - phase_score
+      - phase_confidence
+      - recession_confirmation_status
+      - boom_ending_watch_status
+      - recovery_watch_status
+      - evidence_caveats
+    optional_inputs_per_period:
+      - phase_progress_score
+      - transition_risk_score
+      - indicator_score_snapshot
+      - missing_data_flags
+      - stale_data_flags
+    prohibited_inputs_per_period:
+      - live_allocation
+      - current_allocation
+      - target_weight
+      - buy_signal
+      - sell_signal
+      - current_market_recommendation
+
+  rebalance_contract:
+    allowed_frequencies:
+      - monthly
+      - quarterly
+    default_frequency: monthly
+    required_assumptions:
+      - rebalance_frequency
+      - transaction_cost_bps
+      - slippage_bps
+      - minimum_holding_period_months
+      - cooldown_months
+    prohibited_behaviors:
+      - intraday_trading
+      - immediate_live_rebalance
+      - current_market_action
+
+  cost_assumptions:
+    transaction_cost_bps:
+      default: 10
+      sensitivity_grid:
+        - 0
+        - 10
+        - 25
+        - 50
+    slippage_bps:
+      default: 5
+      sensitivity_grid:
+        - 0
+        - 5
+        - 10
+        - 25
+
+  risk_metric_contract:
+    required_metrics:
+      - total_return
+      - annualized_return
+      - volatility
+      - max_drawdown
+      - turnover
+      - whipsaw_count
+      - false_de_risk_cost
+      - false_re_risk_cost
+      - missed_recovery_cost
+      - late_exit_cost
+      - late_reentry_cost
+    required_grouping:
+      - scenario_id
+      - policy_template_id
+      - parameter_set_id
+    prohibited_metrics:
+      - live_recommendation
+      - current_target_weight
+      - buy_sell_signal
+
+  output_contract:
+    allowed_outputs:
+      - backtest_summary
+      - scenario_metric_table
+      - sensitivity_result_table
+      - policy_parameter_result
+      - caveat_report
+    prohibited_outputs:
+      - live_allocation
+      - current_market_recommendation
+      - buy_signal
+      - sell_signal
+      - add_signal
+      - reduce_signal
+      - target_weight
+      - target_weights
+      - portfolio_action
+      - public_dashboard_output
+    required_output_caveats_zh:
+      - backtest result，不代表未來績效。
+      - 所有權重都是 backtest-only parameters。
+      - 不構成投資建議。
+
+  required_acceptance_before_running_backtest:
+    - target_id: input_contract_validated
+      required: true
+      description_zh: 必須先通過 input contract validator。
+    - target_id: policy_template_fixtures_validated
+      required: true
+      description_zh: policy template fixtures 必須通過 validator。
+    - target_id: scenario_mapping_validated
+      required: true
+      description_zh: scenario mapping 必須完整定義。
+    - target_id: no_live_allocation_output
+      required: true
+      description_zh: backtest 階段不得輸出 live allocation。
+    - target_id: no_trade_signal_output
+      required: true
+      description_zh: backtest 階段不得輸出買賣訊號。
+    - target_id: not_investment_advice_caveat
+      required: true
+      description_zh: 必須明確標記不構成投資建議。
+
+  recommended_next_phase:
+    phase_id: 8D
+    title: portfolio backtest input fixtures and contract validator
+    reason_zh: >
+      已完成 portfolio backtest input contract。下一步應建立合法與非法 backtest input fixtures，
+      驗證 validator 能阻擋 live allocation、trade signal、target weight 與 current recommendation。
