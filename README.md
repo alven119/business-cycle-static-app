@@ -574,6 +574,21 @@ python -m json.tool data/backtests/candidate_indicators/recovery_refinement/reco
 
 The refined comparison adds a recession-context gate and caps policy/financial-only support signals. The output is generated ignored data and does not affect formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
 
+## Agent workflow / self-repair
+
+Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
+
+Reference files:
+
+```text
+AGENTS.md
+docs/agent_workflow.md
+specs/backtests/phase_acceptance_gates.yaml
+docs/prompt_templates.md
+```
+
+The workflow requires implementation, tests, domain command execution, JSON/stdout inspection, hard-gate comparison, repair, and rerun until all hard gates pass or a real blocker is reached. It does not change formal scoring, resolver logic, FRED provider behavior, dashboard output, or GitHub Pages workflow.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
