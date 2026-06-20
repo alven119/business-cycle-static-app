@@ -654,6 +654,18 @@ python scripts/run_recovery_watch_overlay.py
 
 Phase 7F3.5 不改正式 phase scoring、不改 resolver、不改 FRED provider、不進 live dashboard，也不構成投資建議。
 
+## Phase 7F3.6 Recovery Watch Integration Guardrails
+
+Phase 7F3.6 根據 full-horizon recovery watch overlay 建立 integration guardrails。Recovery watch 有 trough / recovery evidence value，但不能直接 confirmed recovery，也不能直接成為買進或加碼訊號。
+
+```bash
+python scripts/show_recovery_watch_integration_guardrails.py
+```
+
+Guardrails 禁止 `direct_recovery_confirmation` 與 `direct_portfolio_action`，並要求保留 recession context gate、policy / financial support cap、persistence、cooldown、COVID exogenous shock caveat 與 portfolio backtest。
+
+下一步轉向 Phase 7G：cycle transition evidence architecture，整合 recession confirmation、boom ending watch、recovery watch 三類 experimental evidence。Phase 7F3.6 不改正式模型、不進 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

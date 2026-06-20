@@ -191,6 +191,13 @@ from business_cycle.backtests.recovery_watch_overlay import (
     load_recovery_watch_overlay_experiment,
     write_recovery_watch_overlay_report,
 )
+from business_cycle.backtests.recovery_watch_integration import (
+    RecoveryWatchIntegrationGuardrails,
+    RecoveryWatchIntegrationGuardrailsError,
+    load_recovery_watch_integration_guardrails,
+    recovery_watch_integration_mode_allowed,
+    validate_recovery_watch_integration_guardrails,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -289,6 +296,8 @@ __all__ = [
     "RecoveryWatchRule",
     "RecoveryWatchRuleError",
     "RecoveryWatchOverlayError",
+    "RecoveryWatchIntegrationGuardrails",
+    "RecoveryWatchIntegrationGuardrailsError",
     "attribution_quality_counts",
     "build_attribution_smoke_summary",
     "build_backtest_smoke_summary",
@@ -366,6 +375,7 @@ __all__ = [
     "load_recovery_scoring_refinement_experiment",
     "load_recovery_watch_rule",
     "load_recovery_watch_overlay_experiment",
+    "load_recovery_watch_integration_guardrails",
     "purpose_groups",
     "run_attribution_smoke",
     "run_backtest",
@@ -393,6 +403,7 @@ __all__ = [
     "validate_recession_confirmation_candidate_indicators",
     "validate_recovery_candidate_indicators",
     "validate_recovery_refinement_plan",
+    "validate_recovery_watch_integration_guardrails",
     "write_backtest_report",
     "write_breadth_sensitivity_summary",
     "write_boom_ending_candidate_scores",
@@ -408,6 +419,7 @@ __all__ = [
     "write_recovery_refinement_experiment",
     "write_recovery_watch_rule_report",
     "write_recovery_watch_overlay_report",
+    "recovery_watch_integration_mode_allowed",
     "write_candidate_recession_diagnostics",
     "write_candidate_recession_rule_report",
     "write_candidate_recession_overlay_report",

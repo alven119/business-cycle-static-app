@@ -67,3 +67,13 @@ phase_specific_gates:
     soft_warnings_allowed:
       - warning_count > 0 if caveats explain exogenous shock or watch density
       - recovery_watch_density_ratio may be high only if integration guardrails are planned
+
+  recovery_watch_integration_guardrails:
+    hard_gates:
+      - direct_recovery_confirmation_allowed == false
+      - direct_portfolio_action_allowed == false
+      - diagnostic_only_allowed == true
+      - portfolio_policy_research_input_allowed == true
+      - recommended_next_phase == 7G
+    soft_warnings_allowed:
+      - none

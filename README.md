@@ -598,6 +598,23 @@ python -m json.tool data/backtests/candidate_indicators/recovery_watch_overlay/r
 
 The overlay output is generated ignored data. It preserves original timeline phase and decision fields, does not confirm recovery, does not create portfolio actions, and does not affect formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
 
+## Phase 7F3.6 recovery watch integration guardrails
+
+Phase 7F3.6 records guardrails for future recovery watch integration.
+
+```text
+specs/backtests/recovery_watch_integration_guardrails.yaml
+docs/recovery_watch_integration_guardrails.md
+```
+
+Inspect the guardrails summary with:
+
+```bash
+python scripts/show_recovery_watch_integration_guardrails.py
+```
+
+The guardrails prohibit direct recovery confirmation and direct portfolio action. They do not change formal phase scoring, resolver logic, FRED provider behavior, GitHub Pages workflow, or live dashboard output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

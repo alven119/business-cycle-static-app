@@ -1,0 +1,122 @@
+recovery_watch_integration_guardrails:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    根據 Phase 7F3.5 full-horizon recovery watch overlay，
+    定義 recovery watch 未來如何安全整合到 recovery diagnostics、dashboard evidence、
+    transition risk 與 portfolio policy research 中，
+    並明確避免將 recovery watch 誤用為正式復甦確認或直接買進訊號。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 integration guardrails，不代表正式模型已更新。
+    - recovery watch 不等於正式復甦確認。
+    - recovery watch 不是買進訊號。
+    - policy easing 不得單獨確認 recovery。
+    - financial easing 不得單獨確認 recovery。
+    - 外生衝擊案例中，COVID 快速反彈不等同一般景氣循環復甦。
+    - 不構成投資建議。
+  evidence_summary:
+    gfc_has_trough_or_recovery_watch: true
+    dotcom_has_recovery_watch: true
+    covid_caveated_recovery_watch: true
+    euro_debt_excessive_recovery_watch: false
+    late_cycle_2018_excessive_recovery_watch: false
+    global_recovery_watch_density_ratio: 0.254
+    global_strong_recovery_watch_density_ratio: 0.0952
+    gfc_watch_lead_months_vs_original_recovery: 18
+    dotcom_watch_lead_months_vs_original_recovery: 9
+    covid_requires_exogenous_shock_caveat: true
+  design_conclusion:
+    diagnostic_only:
+      allowed: true
+      reason_zh: >
+        recovery watch 已具備 historical trough/recovery evidence value，
+        可先作為 diagnostics 顯示。
+    recovery_evidence_display:
+      allowed: true
+      reason_zh: >
+        可在未來 dashboard 顯示為「復甦證據形成中」，
+        但不得等同正式復甦確認。
+    transition_risk_adjustment:
+      allowed: true
+      reason_zh: >
+        未來可作為衰退後期往復甦轉換的 evidence input，
+        但必須搭配正式 phase score、recession context、persistence 與 confirmation。
+    direct_recovery_confirmation:
+      allowed: false
+      reason_zh: >
+        recovery watch 是 candidate evidence，不是正式復甦確認。
+    direct_portfolio_action:
+      allowed: false
+      reason_zh: >
+        GFC watch lead time 可達 18 個月，若直接觸發加碼可能過早；
+        任何配置行動必須先完成 portfolio backtest。
+    portfolio_policy_research_input:
+      allowed: true
+      reason_zh: >
+        可作為 Phase 8 / Phase 9 中衰退後再加碼策略的研究輸入，
+        但需搭配 persistence、cooldown、phase confirmation 與風險控管。
+  proposed_future_integration_modes:
+    - mode_id: diagnostic_badge_only
+      display_name_zh: 僅顯示復甦觀察 badge
+      formal_decision_impact: none
+      risk_level: low
+      allowed_now: true
+    - mode_id: recovery_evidence_display
+      display_name_zh: 顯示復甦證據形成中
+      formal_decision_impact: display only, no phase change
+      risk_level: low
+      allowed_now: false
+    - mode_id: transition_evidence_input
+      display_name_zh: 作為衰退轉復甦的 evidence input
+      formal_decision_impact: future resolver research only
+      risk_level: medium
+      allowed_now: false
+    - mode_id: portfolio_policy_input
+      display_name_zh: 作為未來衰退後再加碼策略的研究輸入
+      formal_decision_impact: portfolio research only
+      risk_level: medium
+      allowed_now: false
+    - mode_id: recovery_confirmation_trigger
+      display_name_zh: 正式復甦確認觸發器
+      formal_decision_impact: confirm recovery
+      risk_level: high
+      allowed_now: false
+    - mode_id: buy_signal
+      display_name_zh: 買進訊號
+      formal_decision_impact: portfolio action
+      risk_level: high
+      allowed_now: false
+  required_acceptance_before_live_integration:
+    - target_id: recovery_watch_not_formal_confirmation
+      required: true
+      description_zh: recovery watch 不得直接成為正式復甦確認。
+    - target_id: no_direct_buy_signal
+      required: true
+      description_zh: recovery watch 不得直接觸發買進或加碼。
+    - target_id: persistence_defined
+      required: true
+      description_zh: 必須定義連續幾期 recovery_watch 才能提高 transition evidence。
+    - target_id: cooldown_defined
+      required: true
+      description_zh: watch 解除與再觸發需有 cooldown，避免頻繁跳動。
+    - target_id: recession_context_required
+      required: true
+      description_zh: 必須保留 recession context gate，避免 non-recession false positive。
+    - target_id: policy_financial_only_cap_required
+      required: true
+      description_zh: policy / financial easing 不得單獨確認 recovery。
+    - target_id: exogenous_shock_caveat_displayed
+      required: true
+      description_zh: COVID 類外生衝擊需標記 caveat。
+    - target_id: portfolio_backtest_required
+      required: true
+      description_zh: 任何配置行動前必須完成 portfolio backtest。
+  recommended_next_phase:
+    phase_id: 7G
+    title: consolidate cycle transition evidence architecture
+    reason_zh: >
+      已完成 recession confirmation、boom ending early-warning、recovery trough/watch 三類 experimental evidence 與 guardrails；
+      下一步應整合 evidence architecture，定義哪些 evidence 可進 dashboard diagnostics、哪些可進 future transition risk，
+      並為 Phase 8 portfolio policy research 做準備。
