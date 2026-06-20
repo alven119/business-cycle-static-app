@@ -45,6 +45,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     evidence_architecture_gates = phase_specific["cycle_transition_evidence_architecture"]["hard_gates"]
     badge_schema_gates = phase_specific["transition_evidence_badge_schema"]["hard_gates"]
     badge_fixture_gates = phase_specific["transition_evidence_badge_fixtures"]["hard_gates"]
+    renderer_contract_gates = phase_specific["transition_evidence_badge_renderer_contract"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -63,6 +64,10 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "valid_pass_count == valid_fixture_count" in badge_fixture_gates
     assert "invalid_rejected_count == invalid_fixture_count" in badge_fixture_gates
     assert "result == passed" in badge_fixture_gates
+    assert "direct_trade_text_blocked == true" in renderer_contract_gates
+    assert "phase_override_field_blocked == true" in renderer_contract_gates
+    assert "dashboard_renderer_wiring_allowed_now == false" in renderer_contract_gates
+    assert "recommended_next_phase == 7G4" in renderer_contract_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

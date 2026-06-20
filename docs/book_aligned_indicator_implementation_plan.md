@@ -502,6 +502,18 @@ python scripts/validate_transition_evidence_badge_fixtures.py
 
 本階段只做 static validator / fixtures，不接 dashboard renderer、不產生 `public/` output、不改正式模型。
 
+## Phase 7G3 Transition Evidence Badge Renderer Contract
+
+Phase 7G3 設計 transition evidence badge 的 future renderer contract，定義 renderer 可以接受的 input、可以輸出的 safe display model、level display mapping、required caveats、forbidden fields 與 prohibited text patterns。
+
+```bash
+python scripts/show_transition_evidence_badge_renderer_contract.py
+```
+
+Renderer contract 明確要求 badge 仍為 diagnostics-only，不得改變 `current_phase_id` 或 `decision_status`，不得包含買賣、配置、target weight 或 phase override 欄位，且顯示文字不得把 watch 說成正式階段確認或投資建議。
+
+Phase 7G3 不改 dashboard templates、不產生 `public/` output、不改正式模型。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

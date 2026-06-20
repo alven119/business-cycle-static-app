@@ -107,3 +107,12 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - none
+
+  transition_evidence_badge_renderer_contract:
+    hard_gates:
+      - direct_trade_text_blocked == true
+      - phase_override_field_blocked == true
+      - dashboard_renderer_wiring_allowed_now == false
+      - recommended_next_phase == 7G4
+    soft_warnings_allowed:
+      - none

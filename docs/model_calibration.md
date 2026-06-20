@@ -700,6 +700,16 @@ Valid fixtures 必須是 diagnostics-only、`formal_decision_impact=none` 且含
 
 Phase 7G2 只做 static validation，不接 dashboard renderer、不產生 `public/` output、不改正式模型，也不構成投資建議。
 
+## Phase 7G3 Transition Evidence Badge Renderer Contract
+
+Phase 7G3 定義 future dashboard diagnostics 的 renderer contract，規範 badge input、safe display model、level display mapping、required caveats、forbidden fields 與 prohibited text patterns。
+
+```bash
+python scripts/show_transition_evidence_badge_renderer_contract.py
+```
+
+此 contract 是 dashboard diagnostics 前置安全規格。Renderer 必須先接受已通過 schema validation 的 badge，輸出 safe display model，並阻擋買賣、配置、phase override 與正式階段確認文字。本階段不接 dashboard renderer、不產生 `public/` output，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

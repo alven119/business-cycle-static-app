@@ -1,0 +1,148 @@
+transition_evidence_badge_renderer_contract:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義未來 dashboard renderer 顯示 transition evidence badge 時必須遵守的輸入、輸出、安全限制與 validation contract，
+    確保 evidence badge 僅作為 diagnostics display，不影響正式景氣階段、不產生投資買賣訊號。
+  caveats_zh:
+    - 此為 renderer contract，不代表 dashboard 已接入。
+    - evidence badge 僅供 diagnostics display。
+    - evidence badge 不會改變 current_phase_id。
+    - evidence badge 不會改變 decision_status。
+    - watch 類訊號不是買賣訊號。
+    - 不構成投資建議。
+
+  input_contract:
+    source_schema: specs/common/transition_evidence_badge_schema.yaml
+    source_fixtures: specs/common/transition_evidence_badge_fixtures.yaml
+    accepted_input_type: list_of_validated_badge_objects
+    require_schema_validation_before_render: true
+    require_fixture_validation_before_dashboard_integration: true
+    reject_unvalidated_badges: true
+
+  safe_display_model:
+    required_fields:
+      - family_id
+      - level
+      - display_name_zh
+      - summary_zh
+      - confidence
+      - evidence_date
+      - diagnostics_only
+      - formal_decision_impact
+      - caveats_zh
+    optional_display_fields:
+      - score
+      - top_contributors
+      - warning_flags
+      - explanation_zh
+    renderer_generated_fields:
+      - badge_css_class
+      - badge_level_label_zh
+      - badge_family_label_zh
+      - display_caveat_summary_zh
+    forbidden_display_fields:
+      - action
+      - buy_signal
+      - sell_signal
+      - reduce_signal
+      - add_signal
+      - allocation
+      - target_weight
+      - confirmed_phase_override
+      - current_phase_override
+      - decision_status_override
+
+  level_display_mapping:
+    recession_confirmation:
+      none:
+        label_zh: 無明顯衰退確認證據
+        severity: neutral
+      weak:
+        label_zh: 衰退證據偏弱
+        severity: low
+      watch:
+        label_zh: 衰退確認觀察
+        severity: medium
+      confirmed_candidate:
+        label_zh: 衰退候選證據明顯
+        severity: high
+        required_suffix_zh: 仍非正式階段切換
+    boom_ending_watch:
+      none:
+        label_zh: 無明顯榮景後期風險觀察
+        severity: neutral
+      weak:
+        label_zh: 榮景後期風險偏弱
+        severity: low
+      watch:
+        label_zh: 榮景後期風險觀察
+        severity: medium
+      strong_late_cycle_warning:
+        label_zh: 榮景後期風險明顯
+        severity: high
+        required_suffix_zh: 不是衰退確認或賣出訊號
+    recovery_watch:
+      none:
+        label_zh: 無明顯復甦觀察證據
+        severity: neutral
+      weak:
+        label_zh: 復甦證據偏弱
+        severity: low
+      recovery_watch:
+        label_zh: 復甦證據形成中
+        severity: medium
+      strong_recovery_watch:
+        label_zh: 復甦觀察證據明顯
+        severity: high
+        required_suffix_zh: 不是正式復甦確認或買進訊號
+
+  required_global_display_caveats_zh:
+    - experimental diagnostics，不代表正式階段切換。
+    - watch 不是買賣訊號。
+    - 不構成投資建議。
+
+  prohibited_text_patterns:
+    zh:
+      - 買進
+      - 賣出
+      - 加碼
+      - 減碼
+      - 調整配置
+      - 建議配置
+      - 確認轉入復甦
+      - 確認轉入衰退
+    en:
+      - buy signal
+      - sell signal
+      - allocation
+      - target weight
+      - confirmed phase
+      - investment advice
+
+  dashboard_integration_preconditions:
+    - schema_validator_passed
+    - fixture_validator_passed
+    - renderer_contract_validator_passed
+    - generated_site_validation_updated
+    - no_formal_decision_impact_tested
+    - no_trade_signal_text_tested
+    - caveats_display_tested
+
+  allowed_future_dashboard_sections:
+    - diagnostics_summary
+    - phase_detail_evidence_section
+    - experimental_evidence_note
+
+  disallowed_future_dashboard_sections:
+    - portfolio_action_panel
+    - buy_sell_recommendation
+    - allocation_target_panel
+    - formal_phase_override_banner
+
+  recommended_next_phase:
+    phase_id: 7G4
+    title: transition evidence badge renderer fixture contract validator
+    reason_zh: >
+      已完成 renderer contract planning。下一步可建立 renderer display model fixtures 與 contract validator，
+      但仍不接 dashboard templates 或 public output。
