@@ -574,6 +574,19 @@ python -m json.tool data/backtests/candidate_indicators/recovery_refinement/reco
 
 The refined comparison adds a recession-context gate and caps policy/financial-only support signals. The output is generated ignored data and does not affect formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
 
+## Phase 7F3.4 recovery watch rule
+
+Phase 7F3.4 evaluates an experimental recovery watch rule on the refined recovery diagnostics.
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_refinement_experiment.py
+python scripts/run_recovery_watch_rule.py
+python -m json.tool data/backtests/candidate_indicators/recovery_watch_rule/recovery_watch_rule_report.json | head -n 320
+```
+
+The report is generated ignored output. Recovery watch is not formal recovery confirmation, policy/financial easing cannot confirm recovery by itself, and the rule is not connected to formal phase scoring, resolver logic, FRED provider behavior, portfolio allocation, or the live dashboard.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

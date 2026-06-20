@@ -628,6 +628,20 @@ python scripts/run_recovery_refinement_experiment.py
 
 Phase 7F3.3 不改正式 phase scoring、不改 resolver、不改 FRED provider、不進 live dashboard，也不構成投資建議。
 
+## Phase 7F3.4 Recovery Watch Rule
+
+Phase 7F3.4 將 refined recovery diagnostics 轉成 experimental recovery watch rule，分類為 `strong_recovery_watch`、`recovery_watch`、`weak`、`none`。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_refinement_experiment.py
+python scripts/run_recovery_watch_rule.py
+```
+
+此 rule 只用於 future recovery overlay / portfolio research。它保留 recession-context gate，並限制 policy easing / financial easing 不得單獨推升到 recovery watch 或 strong。`recovery watch` 不等於正式復甦確認；COVID 外生衝擊案例需保留 caveat。
+
+如果結果合理，下一步才做 full-horizon recovery watch overlay。Phase 7F3.4 不改正式模型、不進 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

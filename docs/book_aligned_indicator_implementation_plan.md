@@ -416,6 +416,26 @@ data/backtests/candidate_indicators/recovery_refinement/recovery_refinement_expe
 
 Refinement 目標是降低 euro debt / 2018 non-recession false positives，同時保留 GFC trough / recovery evidence，並改善 dotcom 與 COVID trough watch。COVID 仍需保留 exogenous shock caveat。此階段仍不接正式模型、不改 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
 
+## Phase 7F3.4 Recovery Watch Rule
+
+Phase 7F3.4 在 7F3.3 refined recovery diagnostics 上建立 experimental recovery watch rule，用於判斷 `strong_recovery_watch`、`recovery_watch`、`weak`、`none`。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_refinement_experiment.py
+python scripts/run_recovery_watch_rule.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recovery_watch_rule/recovery_watch_rule_report.json
+```
+
+此 rule 明確保留 recession-context gate 與 support-signal cap：policy easing 與 financial easing 不得單獨確認 recovery；沒有 recession context 時最多只能是 weak。COVID 類外生衝擊可以有 caveated recovery watch，但不得被解讀為一般景氣循環復甦確認。
+
+本階段只做 experimental diagnostics / future portfolio policy research，不接正式模型、不改 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

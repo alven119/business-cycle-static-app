@@ -1,0 +1,67 @@
+recovery_watch_rule:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    使用 refined recovery candidate indicators、recession context gate、support-signal cap、
+    labor reversal、real activity rebound 與 credit/financial easing evidence，
+    建立 experimental recovery watch rule，用於判斷衰退落底與復甦初期風險/機會觀察。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental watch rule，不代表正式模型已更新。
+    - recovery watch 不等於正式復甦確認。
+    - policy easing 不得單獨確認 recovery。
+    - financial easing 不得單獨確認 recovery。
+    - 外生衝擊案例中，COVID 快速反彈不等同一般景氣循環復甦。
+    - 不構成投資建議。
+  signal_thresholds:
+    high_signal_score: 65.0
+    strong_signal_score: 75.0
+    min_high_signal_confidence: 0.5
+    min_strong_signal_confidence: 0.7
+  context_gate:
+    require_recession_context_for_watch: true
+    require_recession_context_for_strong: true
+    allow_exogenous_shock_watch_with_caveat: true
+    max_status_without_recession_context: weak
+  support_signal_cap:
+    policy_financial_only_max_status: weak
+    require_labor_or_real_activity_for_watch: true
+    require_labor_and_real_activity_or_credit_for_strong: true
+  group_thresholds:
+    strong_recovery_watch:
+      min_broad_group_count: 3
+      min_high_confidence_high_signal_count: 4
+      min_weighted_recovery_score: 75.0
+      require_labor_confirmation: true
+      require_real_activity_or_credit_confirmation: true
+    recovery_watch:
+      min_broad_group_count: 2
+      min_high_signal_count: 3
+      min_weighted_recovery_score: 55.0
+      require_labor_or_real_activity_confirmation: true
+    weak:
+      min_high_signal_count: 1
+  required_interpretation_zh:
+    strong_recovery_watch: 多群組且具 recession context 的衰退落底 / 復甦初期證據。
+    recovery_watch: 復甦證據正在形成，但不是正式復甦確認。
+    weak: 有少數復甦支持訊號，但廣度或 context 不足。
+    none: 缺乏明確復甦觀察訊號。
+  expected_diagnostic_outcomes:
+    dotcom_bubble:
+      "2001-03-31": weak_or_none
+      "2001-11-30": watch_or_strong
+      "2002-03-31": watch_or_strong
+    global_financial_crisis:
+      "2008-10-31": weak_or_none
+      "2009-03-31": weak_or_watch
+      "2009-06-30": watch_or_strong
+      "2009-09-30": watch_or_strong
+    covid_recession:
+      "2020-03-31": weak_or_watch
+      "2020-04-30": watch_or_strong
+      "2020-06-30": watch_or_strong
+    euro_debt_slowdown:
+      "2011-12-31": weak_or_none
+    late_cycle_2018:
+      "2018-12-31": weak_or_none
