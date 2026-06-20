@@ -715,6 +715,23 @@ python scripts/show_dashboard_evidence_integration_readiness.py
 
 Phase 7G is now fully specified but not wired. Dashboard wiring remains blocked until a data adapter schema, generated-site validation updates, HTML text-safety tests, accessibility handling, and no-formal-decision-impact tests are defined.
 
+## Phase 8A portfolio policy research planning
+
+Phase 8A starts portfolio policy research planning without producing allocation output.
+
+```text
+specs/portfolio/portfolio_policy_research_plan.yaml
+docs/portfolio_policy_research_plan.md
+```
+
+Inspect the plan summary with:
+
+```bash
+python scripts/show_portfolio_policy_research_plan.py
+```
+
+This phase only defines research templates, backtest-only parameters, risk metrics, sensitivity tests, and acceptance gates. It does not produce live allocation, current market recommendations, dashboard portfolio actions, public output, resolver integration, or trade signals.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

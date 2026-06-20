@@ -1,0 +1,176 @@
+portfolio_policy_research_plan:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    規格化景氣循環投資中的 portfolio policy research framework，
+    將榮景減碼、衰退防守、復甦再加碼等概念轉為 future backtest-only policy templates，
+    並明確禁止將任何 policy template 視為 live allocation 或投資建議。
+  caveats_zh:
+    - 此為 portfolio policy research planning，不是正式投資策略。
+    - 所有權重都是 future backtest-only parameters，不是目前配置建議。
+    - transition evidence watch 不是買賣訊號。
+    - 任何 portfolio action 前必須完成 backtest、風險分析與成本分析。
+    - 不構成投資建議。
+
+  policy_scope:
+    allowed_now:
+      define_research_policy_templates: true
+      define_backtest_parameters: true
+      define_required_risk_metrics: true
+      define_future_backtest_acceptance_gates: true
+    disallowed_now:
+      live_allocation_output: true
+      current_market_recommendation: true
+      dashboard_portfolio_action: true
+      resolver_integration: true
+      trade_signal_generation: true
+      public_output: true
+
+  evidence_inputs:
+    formal_phase_scores:
+      allowed_future_use: true
+      required_before_use:
+        - phase_score_stability_review
+        - confidence_threshold_defined
+        - stale_data_policy_defined
+    recession_confirmation_evidence:
+      allowed_future_use: true
+      required_guardrails:
+        - not_single_source_of_truth
+        - no_direct_trade_signal
+        - false_positive_cost_backtest_required
+    boom_ending_watch:
+      allowed_future_use: true
+      required_guardrails:
+        - not_confirmed_recession
+        - no_direct_de_risk_action
+        - persistence_required
+        - cooldown_required
+        - density_threshold_required
+    recovery_watch:
+      allowed_future_use: true
+      required_guardrails:
+        - not_confirmed_recovery
+        - no_direct_re_risk_action
+        - recession_context_required
+        - policy_financial_only_cap_required
+        - exogenous_shock_caveat_required
+
+  research_policy_templates:
+    boom_de_risking_template:
+      display_name_zh: 榮景期逐步防守研究模板
+      status: proposed_for_backtest
+      description_zh: >
+        根據榮景期長度、late-cycle evidence、phase score 與 persistence，
+        研究是否逐步降低股票曝險。
+      book_aligned_parameters:
+        stock_weight_levels_for_backtest_only:
+          - 0.70
+          - 0.50
+          - 0.30
+        short_boom_min_stock_weight_for_backtest_only: 0.50
+        extended_boom_year_4_stock_weight_for_backtest_only: 0.30
+      required_signals_before_policy_research:
+        - boom_phase_detected
+        - boom_duration_months
+        - boom_ending_watch_persistence
+        - recession_confirmation_status
+        - phase_confidence
+      prohibited_interpretations_zh:
+        - 不得把 boom ending watch 直接視為賣出或減碼指令。
+        - 不得未經回測直接使用 70/50/30。
+        - 不得輸出目前配置建議。
+
+    recession_defense_template:
+      display_name_zh: 衰退期防守研究模板
+      status: proposed_for_backtest
+      description_zh: >
+        研究 recession confirmation 與 formal phase score 是否可用於降低風險曝險或維持防守。
+      required_signals_before_policy_research:
+        - recession_phase_detected_or_confirmed
+        - recession_confirmation_evidence
+        - unemployment_or_claims_confirmation
+        - credit_financial_stress_confirmation
+      prohibited_interpretations_zh:
+        - recession confirmation evidence 不得單獨產生交易訊號。
+        - 不得在未定義交易成本與錯誤訊號成本前做配置行動。
+
+    recovery_re_risking_template:
+      display_name_zh: 衰退落底 / 復甦再加碼研究模板
+      status: proposed_for_backtest
+      description_zh: >
+        研究 recovery watch、formal phase score、recession context 與 real activity / labor confirmation
+        是否可作為衰退後再提高風險曝險的條件。
+      required_signals_before_policy_research:
+        - recovery_watch_persistence
+        - recession_context_gate
+        - labor_reversal_confirmation
+        - real_activity_confirmation
+        - credit_or_financial_easing_confirmation
+        - phase_confidence
+      prohibited_interpretations_zh:
+        - recovery watch 不得直接視為買進或加碼訊號。
+        - policy easing 不得單獨確認 recovery。
+        - COVID 類外生衝擊必須有 caveat。
+
+  required_backtest_dimensions:
+    historical_scenarios:
+      - dotcom_bubble
+      - global_financial_crisis
+      - covid_recession
+      - euro_debt_slowdown
+      - late_cycle_2018
+    metrics:
+      - total_return
+      - max_drawdown
+      - volatility
+      - turnover
+      - whipsaw_count
+      - false_de_risk_cost
+      - false_re_risk_cost
+      - missed_recovery_cost
+      - late_exit_cost
+      - late_reentry_cost
+    sensitivity_tests:
+      - persistence_months
+      - cooldown_months
+      - phase_confidence_threshold
+      - evidence_density_threshold
+      - transaction_cost_assumption
+      - monthly_vs_quarterly_rebalance
+    data_limitations:
+      - revised_data_bias
+      - vintage_data_unavailable_initially
+      - publication_lag
+      - signal_revision_risk
+
+  required_acceptance_before_policy_backtest:
+    - target_id: policy_template_schema_defined
+      required: true
+      description_zh: 必須先定義 policy template schema。
+    - target_id: no_live_allocation_output
+      required: true
+      description_zh: 規劃階段不得產生 live allocation。
+    - target_id: no_trade_signal_language
+      required: true
+      description_zh: 不得使用買進、賣出、加碼、減碼作為目前建議。
+    - target_id: backtest_metric_schema_defined
+      required: true
+      description_zh: 必須定義回測指標。
+    - target_id: transaction_cost_policy_defined
+      required: true
+      description_zh: 必須定義交易成本假設。
+    - target_id: false_signal_cost_policy_defined
+      required: true
+      description_zh: 必須定義錯誤訊號成本。
+    - target_id: not_investment_advice_caveat
+      required: true
+      description_zh: 必須明確標記不構成投資建議。
+
+  recommended_next_phase:
+    phase_id: 8B
+    title: portfolio policy template schema and static validator
+    reason_zh: >
+      已完成 portfolio policy research planning。下一步應建立 policy template schema 與 static validator，
+      確保 backtest-only 權重、禁止 live allocation、禁止交易建議文字。

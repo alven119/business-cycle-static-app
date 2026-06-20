@@ -137,3 +137,12 @@ phase_specific_gates:
       - recommended_next_phase == 8A
     soft_warnings_allowed:
       - active_blocker_count > 0 because dashboard wiring is intentionally blocked
+
+  portfolio_policy_research_plan:
+    hard_gates:
+      - live_allocation_allowed_now == false
+      - trade_signal_generation_allowed_now == false
+      - public_output_allowed_now == false
+      - recommended_next_phase == 8B
+    soft_warnings_allowed:
+      - none

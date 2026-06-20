@@ -732,6 +732,16 @@ python scripts/show_dashboard_evidence_integration_readiness.py
 
 此 checklist 明確指出 dashboard wiring 仍 blocked：尚未定義 data adapter schema、尚未更新 generated site validation、尚未加入 HTML text-safety tests，也不得影響 `current_phase_id` 或 `decision_status`。Phase 7G 可收斂為 fully specified but not wired。下一步轉 Phase 8A portfolio policy research planning。
 
+## Phase 8A Portfolio Policy Research Planning
+
+Phase 8A 開始進入 portfolio policy research，但目前只做 planning。
+
+```bash
+python scripts/show_portfolio_policy_research_plan.py
+```
+
+此階段將榮景期逐步防守、衰退期防守、復甦再加碼規格化為 future backtest-only templates。70/50/30 只能作為 backtest-only parameter，不是目前配置建議。Transition evidence watch 不能直接觸發交易，任何 portfolio action 前必須完成 backtest、風險分析、交易成本與 false signal cost 分析。本階段不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
