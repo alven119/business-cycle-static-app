@@ -30,10 +30,48 @@ class TransitionEvidenceBadgeSchema:
     recommended_next_phase: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class TransitionEvidenceBadgeFixtures:
+    """Machine-readable transition evidence badge validation fixtures."""
+
+    version: int
+    status: str
+    schema_path: str
+    objective_zh: str
+    caveats_zh: list[str]
+    valid_badges: list[dict[str, Any]]
+    invalid_badges: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class TransitionEvidenceBadgeFixtureValidationSummary:
+    """Summary of transition evidence badge fixture validation."""
+
+    valid_fixture_count: int
+    invalid_fixture_count: int
+    valid_pass_count: int
+    invalid_rejected_count: int
+    unexpected_valid_failures: list[dict[str, str]]
+    unexpected_invalid_passes: list[str]
+    expected_error_mismatches: list[dict[str, str]]
+
+    @property
+    def passed(self) -> bool:
+        """Return whether all fixture validation gates passed."""
+
+        return (
+            self.valid_pass_count == self.valid_fixture_count
+            and self.invalid_rejected_count == self.invalid_fixture_count
+            and not self.unexpected_valid_failures
+            and not self.unexpected_invalid_passes
+            and not self.expected_error_mismatches
+        )
+
+
 def load_transition_evidence_badge_schema(path: str | Path) -> TransitionEvidenceBadgeSchema:
     """Load and validate transition evidence badge schema YAML."""
 
-    payload = _load_yaml_mapping(path)
+    payload = _load_yaml_mapping(path, "Transition evidence badge schema")
     raw = payload.get("transition_evidence_badge_schema")
     if not isinstance(raw, dict):
         raise TransitionEvidenceBadgeSchemaError(
@@ -42,6 +80,18 @@ def load_transition_evidence_badge_schema(path: str | Path) -> TransitionEvidenc
     schema = _schema_from_mapping(raw)
     validate_transition_evidence_badge_schema(schema)
     return schema
+
+
+def load_transition_evidence_badge_fixtures(path: str | Path) -> TransitionEvidenceBadgeFixtures:
+    """Load transition evidence badge validation fixtures YAML."""
+
+    payload = _load_yaml_mapping(path, "Transition evidence badge fixtures")
+    raw = payload.get("transition_evidence_badge_fixtures")
+    if not isinstance(raw, dict):
+        raise TransitionEvidenceBadgeSchemaError(
+            "transition_evidence_badge_fixtures YAML must contain a mapping"
+        )
+    return _fixtures_from_mapping(raw)
 
 
 def validate_transition_evidence_badge_schema(schema: TransitionEvidenceBadgeSchema) -> None:
@@ -57,6 +107,73 @@ def validate_transition_evidence_badge_schema(schema: TransitionEvidenceBadgeSch
     _validate_dashboard_contract(schema.allowed_dashboard_contract)
     _validate_prohibited_fields(schema.prohibited_fields)
     _validate_recommended_next_phase(schema.recommended_next_phase)
+
+
+def validate_transition_evidence_badge_list(
+    badges: list[dict[str, Any]],
+    schema: TransitionEvidenceBadgeSchema,
+) -> None:
+    """Validate a list of transition evidence badge objects."""
+
+    if not isinstance(badges, list):
+        raise TransitionEvidenceBadgeSchemaError("badges must be a list")
+    for index, badge in enumerate(badges):
+        try:
+            validate_transition_evidence_badge_object(badge, schema)
+        except TransitionEvidenceBadgeSchemaError as exc:
+            raise TransitionEvidenceBadgeSchemaError(f"badges[{index}] invalid: {exc}") from exc
+
+
+def validate_transition_evidence_badge_fixtures(
+    fixtures: TransitionEvidenceBadgeFixtures,
+    schema: TransitionEvidenceBadgeSchema,
+) -> TransitionEvidenceBadgeFixtureValidationSummary:
+    """Validate valid and invalid transition evidence badge fixtures."""
+
+    unexpected_valid_failures: list[dict[str, str]] = []
+    unexpected_invalid_passes: list[str] = []
+    expected_error_mismatches: list[dict[str, str]] = []
+    valid_pass_count = 0
+    invalid_rejected_count = 0
+
+    for fixture in fixtures.valid_badges:
+        fixture_id = str(fixture["fixture_id"])
+        try:
+            validate_transition_evidence_badge_object(_mapping(fixture["badge"], "badge"), schema)
+        except TransitionEvidenceBadgeSchemaError as exc:
+            unexpected_valid_failures.append({"fixture_id": fixture_id, "error": str(exc)})
+        else:
+            valid_pass_count += 1
+
+    for fixture in fixtures.invalid_badges:
+        fixture_id = str(fixture["fixture_id"])
+        expected_error = str(fixture.get("expected_error_contains") or "")
+        try:
+            validate_transition_evidence_badge_object(_mapping(fixture["badge"], "badge"), schema)
+        except TransitionEvidenceBadgeSchemaError as exc:
+            error = str(exc)
+            if expected_error and expected_error not in error:
+                expected_error_mismatches.append(
+                    {
+                        "fixture_id": fixture_id,
+                        "expected_error_contains": expected_error,
+                        "actual_error": error,
+                    }
+                )
+            else:
+                invalid_rejected_count += 1
+        else:
+            unexpected_invalid_passes.append(fixture_id)
+
+    return TransitionEvidenceBadgeFixtureValidationSummary(
+        valid_fixture_count=len(fixtures.valid_badges),
+        invalid_fixture_count=len(fixtures.invalid_badges),
+        valid_pass_count=valid_pass_count,
+        invalid_rejected_count=invalid_rejected_count,
+        unexpected_valid_failures=unexpected_valid_failures,
+        unexpected_invalid_passes=unexpected_invalid_passes,
+        expected_error_mismatches=expected_error_mismatches,
+    )
 
 
 def validate_transition_evidence_badge_object(
@@ -104,7 +221,7 @@ def validate_transition_evidence_badge_object(
     caveats = _non_empty_str_list(badge.get("caveats_zh"), "badge.caveats_zh")
     if not any("不構成投資建議" in caveat for caveat in caveats):
         raise TransitionEvidenceBadgeSchemaError(
-            "badge caveats_zh must include no-investment-advice caveat"
+            "badge caveats_zh must include 不構成投資建議 no-investment-advice caveat"
         )
 
     confidence = badge.get("confidence")
@@ -121,6 +238,53 @@ def validate_transition_evidence_badge_object(
         raise TransitionEvidenceBadgeSchemaError(
             f"badge confidence must be between {min_confidence} and {max_confidence}"
         )
+
+
+def _fixtures_from_mapping(payload: dict[str, Any]) -> TransitionEvidenceBadgeFixtures:
+    required = (
+        "version",
+        "status",
+        "schema_path",
+        "objective_zh",
+        "caveats_zh",
+        "valid_badges",
+        "invalid_badges",
+    )
+    missing = [field for field in required if field not in payload]
+    if missing:
+        raise TransitionEvidenceBadgeSchemaError(
+            "transition_evidence_badge_fixtures missing required field(s): "
+            f"{', '.join(missing)}"
+        )
+    caveats = _non_empty_str_list(payload["caveats_zh"], "caveats_zh")
+    for required_caveat in (
+        "evidence badge 不會改變 current_phase_id",
+        "evidence badge 不會改變 decision_status",
+        "watch 類訊號不是買賣訊號",
+        "不構成投資建議",
+    ):
+        if not any(required_caveat in caveat for caveat in caveats):
+            raise TransitionEvidenceBadgeSchemaError(
+                f"transition_evidence_badge_fixtures.caveats_zh must include {required_caveat}"
+            )
+    valid_badges = _list_of_mappings(payload["valid_badges"], "valid_badges")
+    invalid_badges = _list_of_mappings(payload["invalid_badges"], "invalid_badges")
+    for field, fixtures in (("valid_badges", valid_badges), ("invalid_badges", invalid_badges)):
+        for index, fixture in enumerate(fixtures):
+            if "fixture_id" not in fixture:
+                raise TransitionEvidenceBadgeSchemaError(f"{field}[{index}] missing fixture_id")
+            if "badge" not in fixture:
+                raise TransitionEvidenceBadgeSchemaError(f"{field}[{index}] missing badge")
+            _mapping(fixture["badge"], f"{field}[{index}].badge")
+    return TransitionEvidenceBadgeFixtures(
+        version=int(payload["version"]),
+        status=str(payload["status"]),
+        schema_path=str(payload["schema_path"]),
+        objective_zh=str(payload["objective_zh"]),
+        caveats_zh=caveats,
+        valid_badges=valid_badges,
+        invalid_badges=invalid_badges,
+    )
 
 
 def _schema_from_mapping(payload: dict[str, Any]) -> TransitionEvidenceBadgeSchema:
@@ -259,20 +423,20 @@ def _validate_recommended_next_phase(next_phase: dict[str, Any]) -> None:
         raise TransitionEvidenceBadgeSchemaError("recommended_next_phase must include reason_zh")
 
 
-def _load_yaml_mapping(path: str | Path) -> dict[str, Any]:
+def _load_yaml_mapping(path: str | Path, description: str) -> dict[str, Any]:
     yaml_path = Path(path)
     if not yaml_path.exists():
         raise TransitionEvidenceBadgeSchemaError(
-            f"Transition evidence badge schema file does not exist: {yaml_path}"
+            f"{description} file does not exist: {yaml_path}"
         )
     try:
         payload = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
     except yaml.YAMLError as exc:
         raise TransitionEvidenceBadgeSchemaError(
-            f"Invalid YAML in transition evidence badge schema file {yaml_path}: {exc}"
+            f"Invalid YAML in {description.lower()} file {yaml_path}: {exc}"
         ) from exc
     if not isinstance(payload, dict):
-        raise TransitionEvidenceBadgeSchemaError("Transition evidence badge schema YAML must be a mapping")
+        raise TransitionEvidenceBadgeSchemaError(f"{description} YAML must be a mapping")
     return payload
 
 

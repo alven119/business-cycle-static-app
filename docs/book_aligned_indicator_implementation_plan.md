@@ -490,6 +490,18 @@ python scripts/show_transition_evidence_badge_schema.py
 
 Phase 7G1 只做 schema / validator / docs / tests，不接 dashboard renderer、不產生 `public/` output、不改正式模型。
 
+## Phase 7G2 Transition Evidence Badge Fixtures
+
+Phase 7G2 新增 transition evidence badge fixtures 與 batch validator，將合法 badge 與刻意非法 badge 都納入測試。
+
+```bash
+python scripts/validate_transition_evidence_badge_fixtures.py
+```
+
+合法 fixture 必須是 diagnostics-only、不得影響正式決策、不得產生買賣或 allocation 欄位，且必須包含不構成投資建議 caveat。非法 fixture 必須被拒絕，包含 `buy_signal`、`sell_signal`、`allocation`、`current_phase_override`、`diagnostics_only=false` 或 `formal_decision_impact` 非 `none` 等情況。
+
+本階段只做 static validator / fixtures，不接 dashboard renderer、不產生 `public/` output、不改正式模型。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

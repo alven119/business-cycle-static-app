@@ -649,6 +649,22 @@ python scripts/show_transition_evidence_badge_schema.py
 
 This phase only defines a schema and validator. It does not connect evidence badges to dashboard output, resolver logic, formal phase scoring, FRED provider behavior, GitHub Pages workflow, or portfolio allocation.
 
+## Phase 7G2 transition evidence badge fixtures
+
+Phase 7G2 adds static fixtures and a batch validator for transition evidence badges.
+
+```text
+specs/common/transition_evidence_badge_fixtures.yaml
+```
+
+Validate the fixtures with:
+
+```bash
+python scripts/validate_transition_evidence_badge_fixtures.py
+```
+
+The validator requires valid badges to pass and invalid badges with action, allocation, buy/sell signal, or phase override fields to fail. This phase still does not connect badges to dashboard output, resolver logic, formal phase scoring, FRED provider behavior, GitHub Pages workflow, or portfolio allocation.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

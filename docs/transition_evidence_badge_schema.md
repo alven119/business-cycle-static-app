@@ -71,6 +71,48 @@ Validator 必須檢查：
 - 不得包含 prohibited fields。
 - caveats 必須包含不構成投資建議。
 
+## Static Fixture Validation
+
+Phase 7G2 新增 `specs/common/transition_evidence_badge_fixtures.yaml`，用 valid / invalid fixtures 檢查 schema validator 是否能守住 display-only boundary。
+
+```bash
+python scripts/validate_transition_evidence_badge_fixtures.py
+```
+
+CLI 會輸出 valid fixture count、invalid fixture count、通過數、拒絕數、unexpected pass / failure 與 `result=passed|failed`。這個 validator 不接 dashboard renderer，也不產生 `public/` output。
+
+## Valid Badge Fixture Examples
+
+Valid fixtures 覆蓋三類 family：
+
+- recession confirmation watch：顯示衰退候選證據升高，但不代表正式階段切換。
+- boom ending watch：顯示榮景後期風險，但不是衰退確認或減碼指令。
+- recovery watch：顯示復甦證據形成中，但不是正式復甦確認或買進訊號。
+
+這些 fixtures 都必須有 `diagnostics_only=true`、`formal_decision_impact=none`，且 `caveats_zh` 必須包含不構成投資建議。
+
+## Invalid Badge Fixture Examples
+
+Invalid fixtures 故意加入：
+
+- `buy_signal`
+- `sell_signal`
+- `allocation`
+- `current_phase_override`
+- `diagnostics_only=false`
+- `formal_decision_impact` 非 `none`
+- 缺少不構成投資建議 caveat
+
+每個 invalid fixture 都必須被 validator 拒絕。
+
+## 為什麼 Invalid Fixture 必須存在
+
+只測 valid examples 無法證明 validator 真的擋住危險欄位。Invalid fixtures 是 schema guard：它們確保未來 dashboard diagnostics 不會因資料結構漂移而帶入 action、allocation、phase override 或投資建議語意。
+
+## 如何避免 Dashboard 未來誤接 Action / Allocation / Phase Override
+
+未來若接 dashboard，必須先跑 static fixture validation。任何 badge object 只要包含 prohibited fields，就必須在 render 前失敗。Dashboard 只能顯示 diagnostics text、level、confidence、contributors 與 caveats，不得讀取或推導 portfolio action，也不得改 `current_phase_id` 或 `decision_status`。
+
 ## Recommended Next Phase
 
 下一步是 Phase 7G2：transition evidence badge static validator。該階段可加入 sample badge fixtures 與 static validation，確認未來 dashboard diagnostics badge 不包含正式決策或投資行動欄位。

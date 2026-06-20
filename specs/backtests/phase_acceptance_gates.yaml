@@ -96,3 +96,14 @@ phase_specific_gates:
       - recommended_next_phase == 7G2
     soft_warnings_allowed:
       - none
+
+  transition_evidence_badge_fixtures:
+    hard_gates:
+      - valid_pass_count == valid_fixture_count
+      - invalid_rejected_count == invalid_fixture_count
+      - unexpected_valid_failures == 0
+      - unexpected_invalid_passes == 0
+      - expected_error_mismatches == 0
+      - result == passed
+    soft_warnings_allowed:
+      - none

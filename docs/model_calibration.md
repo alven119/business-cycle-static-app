@@ -688,6 +688,18 @@ python scripts/show_transition_evidence_badge_schema.py
 
 Badge schema 是 diagnostics display layer 的前置設計，不接正式 dashboard output。下一步可做 Phase 7G2 static validator / sample badge fixtures，檢查未來 badge 不包含正式決策或投資行動欄位。此階段不改正式模型，也不構成投資建議。
 
+## Phase 7G2 Transition Evidence Badge Fixtures
+
+Phase 7G2 建立 transition evidence badge 的 valid / invalid fixtures，並提供 batch validator。
+
+```bash
+python scripts/validate_transition_evidence_badge_fixtures.py
+```
+
+Valid fixtures 必須是 diagnostics-only、`formal_decision_impact=none` 且含不構成投資建議 caveat。Invalid fixtures 則刻意包含 `buy_signal`、`sell_signal`、`allocation`、`current_phase_override`、`diagnostics_only=false` 或 formal decision impact，用來確保未來 dashboard diagnostics 不會誤接正式決策、交易訊號或配置欄位。
+
+Phase 7G2 只做 static validation，不接 dashboard renderer、不產生 `public/` output、不改正式模型，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

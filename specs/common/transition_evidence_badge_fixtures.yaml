@@ -1,0 +1,184 @@
+transition_evidence_badge_fixtures:
+  version: 1
+  status: draft
+  schema_path: specs/common/transition_evidence_badge_schema.yaml
+  objective_zh: >
+    提供 transition evidence badge 的合法與非法樣本，
+    用於 static validator 測試，確保未來 dashboard diagnostics badge
+    不包含正式決策、投資行動或 phase override 欄位。
+  caveats_zh:
+    - 此為 static validation fixtures，不代表正式 dashboard output。
+    - evidence badge 不會改變 current_phase_id。
+    - evidence badge 不會改變 decision_status。
+    - watch 類訊號不是買賣訊號。
+    - 不構成投資建議。
+
+  valid_badges:
+    - fixture_id: recession_confirmation_watch_valid
+      badge:
+        family_id: recession_confirmation
+        level: watch
+        display_name_zh: 衰退確認證據
+        summary_zh: 衰退候選證據升高，但不代表正式階段切換。
+        confidence: 0.72
+        evidence_date: "2008-10-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為 experimental recession evidence。
+          - 不代表正式景氣階段切換。
+          - 不構成投資建議。
+        score: 78.5
+        top_contributors:
+          - credit_spread_baa_aaa
+          - continuing_jobless_claims
+        warning_flags:
+          - experimental_evidence
+
+    - fixture_id: boom_ending_watch_valid
+      badge:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: 榮景後期風險正在累積，但不是衰退確認或減碼指令。
+        confidence: 0.68
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為榮景後期風險 diagnostics。
+          - 不代表正式衰退確認。
+          - 不是買賣訊號。
+          - 不構成投資建議。
+        score: 66.0
+        top_contributors:
+          - yield_curve_10y_3m
+          - fed_policy_restrictive_pressure
+        warning_flags:
+          - watch_not_recession_confirmation
+
+    - fixture_id: recovery_watch_valid
+      badge:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: 復甦證據形成中，但不是正式復甦確認或買進訊號。
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為復甦證據 diagnostics。
+          - 不代表正式復甦確認。
+          - 不是買進訊號。
+          - 不構成投資建議。
+        score: 70.0
+        top_contributors:
+          - initial_jobless_claims_peak_reversal
+          - credit_spread_easing
+        warning_flags:
+          - recovery_watch_not_buy_signal
+
+  invalid_badges:
+    - fixture_id: invalid_buy_signal_field
+      expected_error_contains: buy_signal
+      badge:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid badge
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+        buy_signal: true
+
+    - fixture_id: invalid_sell_signal_field
+      expected_error_contains: sell_signal
+      badge:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: invalid badge
+        confidence: 0.6
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+        sell_signal: true
+
+    - fixture_id: invalid_allocation_field
+      expected_error_contains: allocation
+      badge:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: invalid badge
+        confidence: 0.6
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+        allocation:
+          stocks: 0.5
+
+    - fixture_id: invalid_current_phase_override
+      expected_error_contains: current_phase_override
+      badge:
+        family_id: recession_confirmation
+        level: watch
+        display_name_zh: 衰退確認證據
+        summary_zh: invalid badge
+        confidence: 0.8
+        evidence_date: "2008-10-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+        current_phase_override: recession
+
+    - fixture_id: invalid_diagnostics_only_false
+      expected_error_contains: diagnostics_only
+      badge:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid badge
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: false
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_formal_decision_impact
+      expected_error_contains: formal_decision_impact
+      badge:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: invalid badge
+        confidence: 0.6
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: transition_risk_boost
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_missing_not_investment_advice_caveat
+      expected_error_contains: 不構成投資建議
+      badge:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid badge
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為復甦證據 diagnostics。
