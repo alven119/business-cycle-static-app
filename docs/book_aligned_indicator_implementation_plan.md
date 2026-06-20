@@ -595,6 +595,18 @@ python scripts/show_portfolio_backtest_dry_run_contract.py
 
 Dry-run 只做 structural validation，不計算 total return、max drawdown、turnover 等績效，也不得輸出 portfolio weights、allocation、target weight、buy/sell signal、`data/backtests` 或 `public/` output。此階段為 Phase 8F dry-run fixtures / output validator 做準備，仍不跑正式回測，也不構成投資建議。
 
+## Phase 8F Portfolio Backtest Dry-Run Fixtures
+
+Phase 8F 新增 dry-run output fixtures 與 validator。
+
+```bash
+python scripts/validate_portfolio_backtest_dry_run_fixtures.py
+```
+
+合法 dry-run output 只可作 structural validation summary；非法 output 若包含 performance metrics、allocation、target weight、buy/sell signal、public dashboard output、output-written flags、缺少不構成投資建議 caveat 或 prohibited text，必須被拒絕。
+
+本階段仍不跑正式 portfolio backtest、不計算績效、不產生 allocation、不產生 `data/backtests` 或 `public/` output，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

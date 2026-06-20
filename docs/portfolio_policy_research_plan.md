@@ -109,6 +109,18 @@ python scripts/show_portfolio_backtest_dry_run_contract.py
 
 本階段為 Phase 8F dry-run fixtures / output validator 做準備，仍不跑正式 backtest、不產生回測結果，也不構成投資建議。
 
+## Phase 8F Portfolio Backtest Dry-Run Fixtures
+
+Phase 8F 新增 `specs/portfolio/portfolio_backtest_dry_run_fixtures.yaml` 與 dry-run output validator。Fixtures 提供合法 structural summary 與非法 output 範例，用來驗證 future dry-run engine 的 output safety。
+
+合法 dry-run output 只包含 dry-run id、backtest input id、scenario id、policy template id、validation status、structural summary、required metric/input count、caveats 與 next required phase。非法 fixtures 會被拒絕，包含 `total_return`、`max_drawdown`、`allocation`、`target_weight`、`buy_signal`、`public_dashboard_output`、`output_written=true`、`data_backtests_output_written=true`、缺少不構成投資建議 caveat 或買進訊號文字。
+
+```bash
+python scripts/validate_portfolio_backtest_dry_run_fixtures.py
+```
+
+本階段仍不跑正式 backtest、不計算績效、不產生 allocation、不寫入 `data/backtests` 或 `public`，也不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

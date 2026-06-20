@@ -1,0 +1,316 @@
+portfolio_backtest_dry_run_fixtures:
+  version: 1
+  status: draft
+  dry_run_contract_path: specs/portfolio/portfolio_backtest_dry_run_contract.yaml
+  backtest_input_contract_path: specs/portfolio/portfolio_backtest_input_contract.yaml
+  backtest_input_fixtures_path: specs/portfolio/portfolio_backtest_input_fixtures.yaml
+  objective_zh: >
+    提供 portfolio backtest dry-run 的合法與非法輸出樣本，
+    驗證 dry-run output validator 能接受 structural validation summary，
+    並拒絕績效欄位、allocation、target weight、trade signal、current recommendation 與 public dashboard output。
+  caveats_zh:
+    - 此為 dry-run fixtures，不是正式回測。
+    - dry-run summary 不代表績效。
+    - dry-run 不產生 portfolio allocation。
+    - dry-run 不產生買賣訊號。
+    - 不構成投資建議。
+
+  valid_dry_run_outputs:
+    - fixture_id: valid_gfc_boom_de_risking_dry_run_output
+      output:
+        dry_run_id: dryrun_gfc_boom_de_risking_monthly_v1
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        validation_status: passed
+        structural_summary:
+          input_contract_validated: true
+          scenario_mapping_validated: true
+          backtest_input_fixture_validated: true
+          performance_metrics_computed: false
+          allocation_generated: false
+          trade_signal_generated: false
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - dry-run，不是正式回測。
+          - 不產生 portfolio allocation。
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: valid_dotcom_recovery_re_risking_dry_run_output
+      output:
+        dry_run_id: dryrun_dotcom_recovery_re_risking_quarterly_v1
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        validation_status: passed
+        structural_summary:
+          input_contract_validated: true
+          scenario_mapping_validated: true
+          backtest_input_fixture_validated: true
+          performance_metrics_computed: false
+          allocation_generated: false
+          trade_signal_generated: false
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - dry-run，不是正式回測。
+          - recovery watch 不是買進訊號。
+          - 不產生 portfolio allocation。
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: valid_covid_recession_defense_dry_run_output
+      output:
+        dry_run_id: dryrun_covid_recession_defense_monthly_v1
+        backtest_input_id: covid_recession_defense_monthly_v1
+        scenario_id: covid_recession
+        policy_template_id: recession_defense_template
+        parameter_set_id: recession_confirmation_caveated_monthly
+        validation_status: passed
+        structural_summary:
+          input_contract_validated: true
+          scenario_mapping_validated: true
+          backtest_input_fixture_validated: true
+          performance_metrics_computed: false
+          allocation_generated: false
+          trade_signal_generated: false
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - dry-run，不是正式回測。
+          - COVID 屬外生衝擊，結果不可直接推論一般景氣循環。
+          - 不產生 portfolio allocation。
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+  invalid_dry_run_outputs:
+    - fixture_id: invalid_output_total_return
+      expected_error_contains: total_return
+      output:
+        dry_run_id: invalid_output_total_return
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        validation_status: passed
+        total_return: 0.12
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_output_max_drawdown
+      expected_error_contains: max_drawdown
+      output:
+        dry_run_id: invalid_output_max_drawdown
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        validation_status: passed
+        max_drawdown: -0.25
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_output_allocation
+      expected_error_contains: allocation
+      output:
+        dry_run_id: invalid_output_allocation
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        validation_status: passed
+        allocation:
+          stocks: 0.7
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_output_target_weight
+      expected_error_contains: target_weight
+      output:
+        dry_run_id: invalid_output_target_weight
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        validation_status: passed
+        target_weight: 0.7
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_output_buy_signal
+      expected_error_contains: buy_signal
+      output:
+        dry_run_id: invalid_output_buy_signal
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        validation_status: passed
+        buy_signal: true
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_output_public_dashboard
+      expected_error_contains: public_dashboard_output
+      output:
+        dry_run_id: invalid_output_public_dashboard
+        backtest_input_id: covid_recession_defense_monthly_v1
+        scenario_id: covid_recession
+        policy_template_id: recession_defense_template
+        parameter_set_id: recession_confirmation_caveated_monthly
+        validation_status: passed
+        public_dashboard_output: true
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_output_written_true
+      expected_error_contains: output_written
+      output:
+        dry_run_id: invalid_output_written_true
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        validation_status: passed
+        structural_summary:
+          output_written: true
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_data_backtests_output_written_true
+      expected_error_contains: data_backtests_output_written
+      output:
+        dry_run_id: invalid_data_backtests_output_written_true
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        validation_status: passed
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: true
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_missing_not_investment_advice
+      expected_error_contains: 不構成投資建議
+      output:
+        dry_run_id: invalid_missing_not_investment_advice
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        validation_status: passed
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - dry-run，不是正式回測。
+        next_required_phase: 8G
+
+    - fixture_id: invalid_prohibited_text_buy_signal
+      expected_error_contains: 買進訊號
+      output:
+        dry_run_id: invalid_prohibited_text_buy_signal
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        validation_status: passed
+        structural_summary:
+          output_written: false
+          data_backtests_output_written: false
+          public_output_written: false
+          allocation_generated: false
+          trade_signal_generated: false
+        required_metric_count: 11
+        required_input_count: 9
+        caveats_zh:
+          - 不構成投資建議。
+        note_zh: 這是買進訊號。
+        next_required_phase: 8G

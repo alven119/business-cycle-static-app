@@ -53,6 +53,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     portfolio_backtest_contract_gates = phase_specific["portfolio_backtest_input_contract"]["hard_gates"]
     portfolio_backtest_fixture_gates = phase_specific["portfolio_backtest_input_fixtures"]["hard_gates"]
     portfolio_dry_run_gates = phase_specific["portfolio_backtest_dry_run_contract"]["hard_gates"]
+    portfolio_dry_run_fixture_gates = phase_specific["portfolio_backtest_dry_run_fixtures"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -96,6 +97,10 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "compute_returns_allowed == false" in portfolio_dry_run_gates
     assert "allocation_output_allowed == false" in portfolio_dry_run_gates
     assert "recommended_next_phase == 8F" in portfolio_dry_run_gates
+    assert "valid_pass_count == valid_output_count" in portfolio_dry_run_fixture_gates
+    assert "output_written == false" in portfolio_dry_run_fixture_gates
+    assert "trade_signal_generated == false" in portfolio_dry_run_fixture_gates
+    assert "result == passed" in portfolio_dry_run_fixture_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

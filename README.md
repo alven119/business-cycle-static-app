@@ -799,6 +799,22 @@ python scripts/show_portfolio_backtest_dry_run_contract.py
 
 The dry-run contract allows input/schema validation and stdout-only structural summaries. It forbids performance calculations, allocation output, trade signals, `data/backtests` output, and public dashboard output.
 
+## Phase 8F portfolio backtest dry-run fixtures
+
+Phase 8F adds dry-run output fixtures and a validator for structural summaries.
+
+```text
+specs/portfolio/portfolio_backtest_dry_run_fixtures.yaml
+```
+
+Validate the fixtures with:
+
+```bash
+python scripts/validate_portfolio_backtest_dry_run_fixtures.py
+```
+
+The validator accepts structural dry-run summaries and rejects performance metrics, allocation fields, target weights, trade signals, public dashboard output, output-written flags, and prohibited recommendation text. It does not run a portfolio backtest or generate `data/backtests`.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
