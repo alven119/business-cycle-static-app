@@ -1,0 +1,306 @@
+transition_evidence_badge_display_fixtures:
+  version: 1
+  status: draft
+  schema_path: specs/common/transition_evidence_badge_schema.yaml
+  badge_fixtures_path: specs/common/transition_evidence_badge_fixtures.yaml
+  renderer_contract_path: specs/common/transition_evidence_badge_renderer_contract.yaml
+  objective_zh: >
+    提供 transition evidence badge renderer display model 的合法與非法樣本，
+    用於驗證 future dashboard renderer 的安全輸入/輸出 contract，
+    確保 display model 不包含正式決策、投資行動、phase override 或 prohibited text。
+  caveats_zh:
+    - 此為 renderer display model fixtures，不代表 dashboard 已接入。
+    - display model 僅供 diagnostics display。
+    - display model 不會改變 current_phase_id。
+    - display model 不會改變 decision_status。
+    - watch 類訊號不是買賣訊號。
+    - 不構成投資建議。
+
+  valid_display_models:
+    - fixture_id: valid_recession_confirmation_watch_display
+      display_model:
+        family_id: recession_confirmation
+        level: watch
+        display_name_zh: 衰退確認證據
+        summary_zh: 衰退候選證據升高，但不代表正式階段切換。
+        confidence: 0.72
+        evidence_date: "2008-10-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為 experimental recession evidence。
+          - 不代表正式景氣階段切換。
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        score: 78.5
+        top_contributors:
+          - credit_spread_baa_aaa
+          - continuing_jobless_claims
+        warning_flags:
+          - experimental_evidence
+        badge_css_class: evidence-badge evidence-badge--recession-confirmation evidence-badge--medium
+        badge_level_label_zh: 衰退確認觀察
+        badge_family_label_zh: 衰退確認證據
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+    - fixture_id: valid_boom_ending_strong_display
+      display_model:
+        family_id: boom_ending_watch
+        level: strong_late_cycle_warning
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: 榮景後期風險明顯，但不是衰退確認或賣出訊號。
+        confidence: 0.76
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為榮景後期風險 diagnostics。
+          - 不代表正式衰退確認。
+          - 不是買賣訊號。
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        score: 82.0
+        top_contributors:
+          - yield_curve_10y_3m
+          - fed_policy_restrictive_pressure
+        warning_flags:
+          - watch_not_recession_confirmation
+        badge_css_class: evidence-badge evidence-badge--boom-ending evidence-badge--high
+        badge_level_label_zh: 榮景後期風險明顯
+        badge_family_label_zh: 榮景後期風險觀察
+        display_caveat_summary_zh: 不是衰退確認或賣出訊號。 experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+    - fixture_id: valid_recovery_watch_display
+      display_model:
+        family_id: recovery_watch
+        level: strong_recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: 復甦觀察證據明顯，但不是正式復甦確認或買進訊號。
+        confidence: 0.74
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 此為復甦證據 diagnostics。
+          - 不代表正式復甦確認。
+          - 不是買進訊號。
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        score: 80.0
+        top_contributors:
+          - initial_jobless_claims_peak_reversal
+          - credit_spread_easing
+        warning_flags:
+          - recovery_watch_not_buy_signal
+        badge_css_class: evidence-badge evidence-badge--recovery-watch evidence-badge--high
+        badge_level_label_zh: 復甦觀察證據明顯
+        badge_family_label_zh: 衰退落底 / 復甦觀察
+        display_caveat_summary_zh: 不是正式復甦確認或買進訊號。 experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+  invalid_display_models:
+    - fixture_id: invalid_display_buy_signal_field
+      expected_error_contains: buy_signal
+      display_model:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid display model
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 復甦證據形成中
+        badge_family_label_zh: 衰退落底 / 復甦觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+        buy_signal: true
+
+    - fixture_id: invalid_display_sell_signal_field
+      expected_error_contains: sell_signal
+      display_model:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: invalid display model
+        confidence: 0.6
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 榮景後期風險觀察
+        badge_family_label_zh: 榮景後期風險觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+        sell_signal: true
+
+    - fixture_id: invalid_display_allocation_field
+      expected_error_contains: allocation
+      display_model:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: invalid display model
+        confidence: 0.6
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 榮景後期風險觀察
+        badge_family_label_zh: 榮景後期風險觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+        allocation:
+          stocks: 0.5
+
+    - fixture_id: invalid_display_current_phase_override
+      expected_error_contains: current_phase_override
+      display_model:
+        family_id: recession_confirmation
+        level: watch
+        display_name_zh: 衰退確認證據
+        summary_zh: invalid display model
+        confidence: 0.8
+        evidence_date: "2008-10-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 衰退確認觀察
+        badge_family_label_zh: 衰退確認證據
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+        current_phase_override: recession
+
+    - fixture_id: invalid_display_decision_status_override
+      expected_error_contains: decision_status_override
+      display_model:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid display model
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 復甦證據形成中
+        badge_family_label_zh: 衰退落底 / 復甦觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+        decision_status_override: buy
+
+    - fixture_id: invalid_display_prohibited_text_buy
+      expected_error_contains: 買進
+      display_model:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: 出現復甦訊號，建議買進。
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 復甦證據形成中
+        badge_family_label_zh: 衰退落底 / 復甦觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+    - fixture_id: invalid_display_prohibited_text_sell
+      expected_error_contains: 賣出
+      display_model:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: 出現風險訊號，建議賣出。
+        confidence: 0.7
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 榮景後期風險觀察
+        badge_family_label_zh: 榮景後期風險觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+    - fixture_id: invalid_display_diagnostics_only_false
+      expected_error_contains: diagnostics_only
+      display_model:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid display model
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: false
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 復甦證據形成中
+        badge_family_label_zh: 衰退落底 / 復甦觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+    - fixture_id: invalid_display_formal_decision_impact
+      expected_error_contains: formal_decision_impact
+      display_model:
+        family_id: boom_ending_watch
+        level: watch
+        display_name_zh: 榮景後期風險觀察
+        summary_zh: invalid display model
+        confidence: 0.6
+        evidence_date: "2007-12-31"
+        diagnostics_only: true
+        formal_decision_impact: transition_risk_boost
+        caveats_zh:
+          - 不構成投資建議。
+          - experimental diagnostics，不代表正式階段切換。
+          - watch 不是買賣訊號。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 榮景後期風險觀察
+        badge_family_label_zh: 榮景後期風險觀察
+        display_caveat_summary_zh: experimental diagnostics，不代表正式階段切換。 watch 不是買賣訊號。 不構成投資建議。
+
+    - fixture_id: invalid_display_missing_global_caveat
+      expected_error_contains: experimental diagnostics
+      display_model:
+        family_id: recovery_watch
+        level: recovery_watch
+        display_name_zh: 衰退落底 / 復甦觀察
+        summary_zh: invalid display model
+        confidence: 0.7
+        evidence_date: "2009-06-30"
+        diagnostics_only: true
+        formal_decision_impact: none
+        caveats_zh:
+          - 不構成投資建議。
+        badge_css_class: evidence-badge
+        badge_level_label_zh: 復甦證據形成中
+        badge_family_label_zh: 衰退落底 / 復甦觀察
+        display_caveat_summary_zh: 不構成投資建議。

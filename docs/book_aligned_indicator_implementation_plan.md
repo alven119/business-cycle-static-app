@@ -514,6 +514,18 @@ Renderer contract 明確要求 badge 仍為 diagnostics-only，不得改變 `cur
 
 Phase 7G3 不改 dashboard templates、不產生 `public/` output、不改正式模型。
 
+## Phase 7G4 Transition Evidence Badge Display Fixtures
+
+Phase 7G4 建立 renderer display model fixtures 與 batch validator，用合法與非法 display model 測試 future renderer contract。
+
+```bash
+python scripts/validate_transition_evidence_badge_display_fixtures.py
+```
+
+合法 display model 必須保留 global caveats，且仍為 diagnostics-only。非法 display model 必須被拒絕，包含 `buy_signal`、`sell_signal`、`allocation`、`current_phase_override`、`decision_status_override`、`diagnostics_only=false`、`formal_decision_impact` 非 `none` 或 prohibited text pattern。
+
+本階段不改 dashboard templates、不產生 `public/` output、不改正式模型。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

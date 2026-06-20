@@ -38,6 +38,46 @@ class TransitionEvidenceBadgeRendererContract:
     recommended_next_phase: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class TransitionEvidenceBadgeDisplayFixtures:
+    """Machine-readable renderer display model validation fixtures."""
+
+    version: int
+    status: str
+    schema_path: str
+    badge_fixtures_path: str
+    renderer_contract_path: str
+    objective_zh: str
+    caveats_zh: list[str]
+    valid_display_models: list[dict[str, Any]]
+    invalid_display_models: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class TransitionEvidenceBadgeDisplayFixtureValidationSummary:
+    """Summary of renderer display model fixture validation."""
+
+    valid_display_fixture_count: int
+    invalid_display_fixture_count: int
+    valid_display_pass_count: int
+    invalid_display_rejected_count: int
+    unexpected_valid_display_failures: list[dict[str, str]]
+    unexpected_invalid_display_passes: list[str]
+    expected_display_error_mismatches: list[dict[str, str]]
+
+    @property
+    def passed(self) -> bool:
+        """Return whether all display fixture validation gates passed."""
+
+        return (
+            self.valid_display_pass_count == self.valid_display_fixture_count
+            and self.invalid_display_rejected_count == self.invalid_display_fixture_count
+            and not self.unexpected_valid_display_failures
+            and not self.unexpected_invalid_display_passes
+            and not self.expected_display_error_mismatches
+        )
+
+
 def load_transition_evidence_badge_renderer_contract(
     path: str | Path,
 ) -> TransitionEvidenceBadgeRendererContract:
@@ -68,6 +108,34 @@ def load_transition_evidence_badge_renderer_contract(
     return contract
 
 
+def load_transition_evidence_badge_display_fixtures(
+    path: str | Path,
+) -> TransitionEvidenceBadgeDisplayFixtures:
+    """Load transition evidence badge renderer display model fixtures YAML."""
+
+    yaml_path = Path(path)
+    if not yaml_path.exists():
+        raise TransitionEvidenceRendererContractError(
+            f"Transition evidence badge display fixtures file does not exist: {yaml_path}"
+        )
+    try:
+        payload = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise TransitionEvidenceRendererContractError(
+            f"Invalid YAML in transition evidence badge display fixtures file {yaml_path}: {exc}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise TransitionEvidenceRendererContractError(
+            "Transition evidence badge display fixtures YAML must be a mapping"
+        )
+    raw = payload.get("transition_evidence_badge_display_fixtures")
+    if not isinstance(raw, dict):
+        raise TransitionEvidenceRendererContractError(
+            "transition_evidence_badge_display_fixtures YAML must contain a mapping"
+        )
+    return _display_fixtures_from_mapping(raw)
+
+
 def validate_transition_evidence_badge_renderer_contract(
     contract: TransitionEvidenceBadgeRendererContract,
 ) -> None:
@@ -94,6 +162,81 @@ def validate_transition_evidence_badge_renderer_contract(
 
     if str(contract.recommended_next_phase.get("phase_id") or "") != "7G4":
         raise TransitionEvidenceRendererContractError("recommended_next_phase.phase_id must be 7G4")
+
+
+def validate_transition_evidence_badge_display_model_list(
+    display_models: list[dict[str, Any]],
+    contract: TransitionEvidenceBadgeRendererContract,
+) -> None:
+    """Validate a list of transition evidence badge display models."""
+
+    if not isinstance(display_models, list):
+        raise TransitionEvidenceRendererContractError("display_models must be a list")
+    for index, display_model in enumerate(display_models):
+        try:
+            validate_safe_badge_display_model(display_model, contract)
+        except TransitionEvidenceRendererContractError as exc:
+            raise TransitionEvidenceRendererContractError(
+                f"display_models[{index}] invalid: {exc}"
+            ) from exc
+
+
+def validate_transition_evidence_badge_display_fixtures(
+    fixtures: TransitionEvidenceBadgeDisplayFixtures,
+    contract: TransitionEvidenceBadgeRendererContract,
+) -> TransitionEvidenceBadgeDisplayFixtureValidationSummary:
+    """Validate valid and invalid renderer display model fixtures."""
+
+    unexpected_valid_failures: list[dict[str, str]] = []
+    unexpected_invalid_passes: list[str] = []
+    expected_error_mismatches: list[dict[str, str]] = []
+    valid_pass_count = 0
+    invalid_rejected_count = 0
+
+    for fixture in fixtures.valid_display_models:
+        fixture_id = str(fixture["fixture_id"])
+        try:
+            validate_safe_badge_display_model(
+                _mapping(fixture["display_model"], "display_model"),
+                contract,
+            )
+        except TransitionEvidenceRendererContractError as exc:
+            unexpected_valid_failures.append({"fixture_id": fixture_id, "error": str(exc)})
+        else:
+            valid_pass_count += 1
+
+    for fixture in fixtures.invalid_display_models:
+        fixture_id = str(fixture["fixture_id"])
+        expected_error = str(fixture.get("expected_error_contains") or "")
+        try:
+            validate_safe_badge_display_model(
+                _mapping(fixture["display_model"], "display_model"),
+                contract,
+            )
+        except TransitionEvidenceRendererContractError as exc:
+            error = str(exc)
+            if expected_error and expected_error not in error:
+                expected_error_mismatches.append(
+                    {
+                        "fixture_id": fixture_id,
+                        "expected_error_contains": expected_error,
+                        "actual_error": error,
+                    }
+                )
+            else:
+                invalid_rejected_count += 1
+        else:
+            unexpected_invalid_passes.append(fixture_id)
+
+    return TransitionEvidenceBadgeDisplayFixtureValidationSummary(
+        valid_display_fixture_count=len(fixtures.valid_display_models),
+        invalid_display_fixture_count=len(fixtures.invalid_display_models),
+        valid_display_pass_count=valid_pass_count,
+        invalid_display_rejected_count=invalid_rejected_count,
+        unexpected_valid_display_failures=unexpected_valid_failures,
+        unexpected_invalid_display_passes=unexpected_invalid_passes,
+        expected_display_error_mismatches=expected_error_mismatches,
+    )
 
 
 def build_safe_badge_display_model(
@@ -233,6 +376,67 @@ def _contract_from_mapping(payload: dict[str, Any]) -> TransitionEvidenceBadgeRe
     )
 
 
+def _display_fixtures_from_mapping(payload: dict[str, Any]) -> TransitionEvidenceBadgeDisplayFixtures:
+    required = (
+        "version",
+        "status",
+        "schema_path",
+        "badge_fixtures_path",
+        "renderer_contract_path",
+        "objective_zh",
+        "caveats_zh",
+        "valid_display_models",
+        "invalid_display_models",
+    )
+    missing = [field for field in required if field not in payload]
+    if missing:
+        raise TransitionEvidenceRendererContractError(
+            "transition_evidence_badge_display_fixtures missing required field(s): "
+            f"{', '.join(missing)}"
+        )
+    caveats = _str_list(payload["caveats_zh"], "caveats_zh")
+    for required_caveat in (
+        "display model 僅供 diagnostics display",
+        "display model 不會改變 current_phase_id",
+        "display model 不會改變 decision_status",
+        "watch 類訊號不是買賣訊號",
+        "不構成投資建議",
+    ):
+        if not any(required_caveat in caveat for caveat in caveats):
+            raise TransitionEvidenceRendererContractError(
+                f"transition_evidence_badge_display_fixtures.caveats_zh must include {required_caveat}"
+            )
+    valid_display_models = _list_of_mappings(
+        payload["valid_display_models"],
+        "valid_display_models",
+    )
+    invalid_display_models = _list_of_mappings(
+        payload["invalid_display_models"],
+        "invalid_display_models",
+    )
+    for field, fixtures in (
+        ("valid_display_models", valid_display_models),
+        ("invalid_display_models", invalid_display_models),
+    ):
+        for index, fixture in enumerate(fixtures):
+            if "fixture_id" not in fixture:
+                raise TransitionEvidenceRendererContractError(f"{field}[{index}] missing fixture_id")
+            if "display_model" not in fixture:
+                raise TransitionEvidenceRendererContractError(f"{field}[{index}] missing display_model")
+            _mapping(fixture["display_model"], f"{field}[{index}].display_model")
+    return TransitionEvidenceBadgeDisplayFixtures(
+        version=int(payload["version"]),
+        status=str(payload["status"]),
+        schema_path=str(payload["schema_path"]),
+        badge_fixtures_path=str(payload["badge_fixtures_path"]),
+        renderer_contract_path=str(payload["renderer_contract_path"]),
+        objective_zh=str(payload["objective_zh"]),
+        caveats_zh=caveats,
+        valid_display_models=valid_display_models,
+        invalid_display_models=invalid_display_models,
+    )
+
+
 def _validate_forbidden_display_fields(display_model: dict[str, Any]) -> None:
     forbidden = set(
         _str_list(
@@ -296,6 +500,8 @@ def _raise_if_prohibited_text(
         "不是買賣訊號",
         "不是買進訊號",
         "不是賣出訊號",
+        "不是正式復甦確認或買進訊號",
+        "不是衰退確認或賣出訊號",
         "不是減碼",
         "不是加碼",
         "not a buy signal",
@@ -346,6 +552,17 @@ def _nested_mapping(value: Any, field: str) -> dict[str, dict[str, dict[str, Any
 def _mapping_of_str_lists(value: Any, field: str) -> dict[str, list[str]]:
     mapping = _mapping(value, field)
     return {key: _str_list(raw, f"{field}.{key}") for key, raw in mapping.items()}
+
+
+def _list_of_mappings(value: Any, field: str) -> list[dict[str, Any]]:
+    if not isinstance(value, list) or not value:
+        raise TransitionEvidenceRendererContractError(f"{field} must be a non-empty list")
+    result: list[dict[str, Any]] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, dict):
+            raise TransitionEvidenceRendererContractError(f"{field}[{index}] must be a mapping")
+        result.append({str(key): raw for key, raw in item.items()})
+    return result
 
 
 def _str_list(value: Any, field: str) -> list[str]:

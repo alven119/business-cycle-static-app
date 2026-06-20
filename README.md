@@ -682,6 +682,22 @@ python scripts/show_transition_evidence_badge_renderer_contract.py
 
 This phase only defines a renderer contract and validator. It does not modify dashboard templates, generate `public/`, alter formal phase scoring, resolver logic, FRED provider behavior, GitHub Pages workflow, or portfolio allocation.
 
+## Phase 7G4 transition evidence badge display fixtures
+
+Phase 7G4 adds renderer display model fixtures and a batch validator for the renderer contract.
+
+```text
+specs/common/transition_evidence_badge_display_fixtures.yaml
+```
+
+Validate the display fixtures with:
+
+```bash
+python scripts/validate_transition_evidence_badge_display_fixtures.py
+```
+
+The validator requires safe display models to pass and display models with action, allocation, buy/sell signal, phase override, or prohibited text to fail. This phase still does not modify dashboard templates, generate `public/`, alter formal phase scoring, resolver logic, FRED provider behavior, GitHub Pages workflow, or portfolio allocation.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
