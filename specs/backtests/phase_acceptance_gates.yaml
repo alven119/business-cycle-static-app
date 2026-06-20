@@ -183,3 +183,14 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - none
+
+  portfolio_backtest_dry_run_contract:
+    hard_gates:
+      - compute_returns_allowed == false
+      - allocation_output_allowed == false
+      - trade_signal_output_allowed == false
+      - data_backtests_output_allowed == false
+      - public_output_allowed == false
+      - recommended_next_phase == 8F
+    soft_warnings_allowed:
+      - none

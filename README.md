@@ -783,6 +783,22 @@ python scripts/validate_portfolio_backtest_input_fixtures.py
 
 The validator accepts only research-only / backtest-only inputs and rejects live allocation, target weights, buy/sell signals, current recommendations, public dashboard output, unknown scenarios, and unknown policy templates. It does not run a portfolio backtest or generate `data/backtests`.
 
+## Phase 8E portfolio backtest dry-run contract
+
+Phase 8E defines the dry-run engine contract for future structural portfolio backtest validation.
+
+```text
+specs/portfolio/portfolio_backtest_dry_run_contract.yaml
+```
+
+Inspect the contract with:
+
+```bash
+python scripts/show_portfolio_backtest_dry_run_contract.py
+```
+
+The dry-run contract allows input/schema validation and stdout-only structural summaries. It forbids performance calculations, allocation output, trade signals, `data/backtests` output, and public dashboard output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

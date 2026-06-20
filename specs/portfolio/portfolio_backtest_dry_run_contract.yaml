@@ -1,0 +1,156 @@
+portfolio_backtest_dry_run_contract:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 portfolio backtest dry-run engine 的輸入、輸出與安全邊界。
+    dry-run 只做 structural validation，不計算績效、不產生 allocation、不產生交易訊號、不輸出 data/backtests 或 public。
+  caveats_zh:
+    - 此為 dry-run engine contract，不是正式回測。
+    - dry-run summary 不代表績效。
+    - dry-run 不產生 portfolio allocation。
+    - dry-run 不產生買賣訊號。
+    - 不構成投資建議。
+
+  input_contracts:
+    backtest_input_contract:
+      path: specs/portfolio/portfolio_backtest_input_contract.yaml
+      required: true
+    scenario_mapping:
+      path: specs/portfolio/portfolio_backtest_scenario_mapping.yaml
+      required: true
+    backtest_input_fixtures:
+      path: specs/portfolio/portfolio_backtest_input_fixtures.yaml
+      required: true
+
+  dry_run_scope:
+    allowed:
+      validate_input_contract: true
+      validate_scenario_mapping: true
+      validate_backtest_input_fixture: true
+      build_structural_summary: true
+      print_stdout_summary: true
+    disallowed:
+      compute_returns: true
+      compute_drawdown: true
+      compute_turnover: true
+      compute_live_allocation: true
+      produce_trade_signal: true
+      write_data_backtests_output: true
+      write_public_output: true
+      dashboard_integration: true
+
+  dry_run_input_schema:
+    required_fields:
+      - backtest_input_id
+      - scenario_id
+      - policy_template_id
+      - parameter_set_id
+      - research_only
+      - backtest_only
+      - rebalance_frequency
+      - transaction_cost_bps
+      - slippage_bps
+      - minimum_holding_period_months
+      - cooldown_months
+      - parameter_context
+      - required_metrics
+      - required_inputs_per_period
+      - caveats_zh
+    prohibited_fields:
+      - live_allocation
+      - current_allocation
+      - target_weight
+      - target_weights
+      - portfolio_action
+      - buy_signal
+      - sell_signal
+      - add_signal
+      - reduce_signal
+      - current_market_recommendation
+      - public_dashboard_output
+
+  dry_run_output_schema:
+    allowed_fields:
+      - dry_run_id
+      - backtest_input_id
+      - scenario_id
+      - policy_template_id
+      - parameter_set_id
+      - validation_status
+      - structural_summary
+      - required_metric_count
+      - required_input_count
+      - caveats_zh
+      - next_required_phase
+    prohibited_fields:
+      - total_return
+      - annualized_return
+      - max_drawdown
+      - volatility
+      - turnover
+      - portfolio_weights
+      - allocation
+      - target_weight
+      - target_weights
+      - buy_signal
+      - sell_signal
+      - portfolio_action
+      - current_market_recommendation
+      - public_dashboard_output
+    required_caveats_zh:
+      - dry-run，不是正式回測。
+      - 不產生 portfolio allocation。
+      - 不構成投資建議。
+
+  stdout_contract:
+    required_lines:
+      - dry_run_count
+      - valid_dry_run_count
+      - invalid_dry_run_count
+      - output_written=false
+      - data_backtests_output_written=false
+      - public_output_written=false
+      - allocation_output_generated=false
+      - trade_signal_generated=false
+      - result=passed
+    prohibited_text_patterns:
+      zh:
+        - 目前建議
+        - 建議買進
+        - 建議賣出
+        - 立即買進
+        - 立即賣出
+        - 目標配置
+        - 買進訊號
+        - 賣出訊號
+      en:
+        - buy signal
+        - sell signal
+        - target weight
+        - live allocation
+        - current recommendation
+        - investment advice
+
+  required_acceptance_before_dry_run_fixtures:
+    - target_id: dry_run_contract_validated
+      required: true
+      description_zh: dry-run contract 必須通過 validator。
+    - target_id: output_schema_blocks_performance_metrics
+      required: true
+      description_zh: dry-run output schema 必須禁止績效欄位。
+    - target_id: output_schema_blocks_allocation
+      required: true
+      description_zh: dry-run output schema 必須禁止 allocation / target weight。
+    - target_id: stdout_contract_blocks_trade_signal
+      required: true
+      description_zh: stdout contract 必須禁止買賣訊號。
+    - target_id: not_investment_advice_caveat
+      required: true
+      description_zh: 必須明確標記不構成投資建議。
+
+  recommended_next_phase:
+    phase_id: 8F
+    title: portfolio backtest dry-run fixtures and output validator
+    reason_zh: >
+      已完成 dry-run engine contract。下一步可建立 dry-run input/output fixtures 與 validator，
+      驗證 dry-run summary 不包含績效、allocation、trade signal 或 public output。

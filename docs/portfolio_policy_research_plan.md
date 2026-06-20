@@ -97,6 +97,18 @@ python scripts/validate_portfolio_backtest_input_fixtures.py
 
 本階段仍不產生 `data/backtests`、不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
 
+## Phase 8E Portfolio Backtest Dry-Run Contract
+
+Phase 8E 新增 `specs/portfolio/portfolio_backtest_dry_run_contract.yaml`。Dry-run engine contract 只定義 future dry-run engine 的輸入、輸出、stdout 與安全邊界，用來確認 input contract 和 fixtures 是否足以支援後續 structural dry-run。
+
+Dry-run 只做 structural validation，不計算 `total_return`、`max_drawdown`、`turnover` 等績效，不產生 portfolio weights、不產生 allocation、不產生 buy/sell signal，也不寫入 `data/backtests` 或 `public`。
+
+```bash
+python scripts/show_portfolio_backtest_dry_run_contract.py
+```
+
+本階段為 Phase 8F dry-run fixtures / output validator 做準備，仍不跑正式 backtest、不產生回測結果，也不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。
