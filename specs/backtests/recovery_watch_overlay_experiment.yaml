@@ -1,0 +1,53 @@
+recovery_watch_overlay_experiment:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    將 experimental recovery watch rule 疊加到 full-horizon scenario timeline，
+    檢查 recovery_watch 是否能在 recession trough / recovery initial 附近提示落底與復甦證據，
+    並評估 non-recession 案例是否出現誤報或過度 watch。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental overlay，不代表正式模型已更新。
+    - recovery watch 不等於正式復甦確認。
+    - recovery watch 不是買進訊號。
+    - policy easing 不得單獨確認 recovery。
+    - financial easing 不得單獨確認 recovery。
+    - 外生衝擊案例中，COVID 快速反彈不等同一般景氣循環復甦。
+    - 不構成投資建議。
+  inputs:
+    scenario_spec: specs/backtests/scenarios.yaml
+    recovery_candidate_spec: specs/backtests/recovery_candidate_indicators.yaml
+    recovery_watch_rule: specs/backtests/recovery_watch_rule.yaml
+    recovery_refinement_experiment: specs/backtests/recovery_scoring_refinement_experiment.yaml
+  overlay_policy:
+    target_context: recession_trough_recovery
+    keep_original_decision_in_output: true
+    do_not_change_current_phase: true
+    do_not_confirm_recovery: true
+    do_not_create_portfolio_action: true
+  evaluation:
+    watch_timing_relative_to_recession_trough: true
+    watch_timing_relative_to_original_recovery_phase: true
+    watch_duration_months: true
+    watch_density_ratio: true
+    strong_watch_density_ratio: true
+    non_recession_watch_persistence: true
+    policy_only_blocked_count: true
+    context_gate_blocked_count: true
+  acceptance_targets:
+    - target_id: gfc_has_trough_or_recovery_watch
+      scenario_id: global_financial_crisis
+      expected_zh: GFC trough / recovery initial 附近應出現 recovery_watch 或 strong_recovery_watch。
+    - target_id: dotcom_has_recovery_watch
+      scenario_id: dotcom_bubble
+      expected_zh: dotcom recession 後期或 recovery initial 附近應出現 recovery_watch。
+    - target_id: covid_caveated_recovery_watch
+      scenario_id: covid_recession
+      expected_zh: COVID 可出現 recovery_watch，但必須保留 exogenous-shock caveat。
+    - target_id: euro_debt_no_excessive_recovery_watch
+      scenario_id: euro_debt_slowdown
+      expected_zh: euro debt 不應出現長期 recovery_watch 或 strong_recovery_watch。
+    - target_id: late_cycle_2018_no_excessive_recovery_watch
+      scenario_id: late_cycle_2018
+      expected_zh: 2018 不應出現長期 recovery_watch 或 strong_recovery_watch。

@@ -587,6 +587,17 @@ python -m json.tool data/backtests/candidate_indicators/recovery_watch_rule/reco
 
 The report is generated ignored output. Recovery watch is not formal recovery confirmation, policy/financial easing cannot confirm recovery by itself, and the rule is not connected to formal phase scoring, resolver logic, FRED provider behavior, portfolio allocation, or the live dashboard.
 
+## Phase 7F3.5 recovery watch overlay
+
+Phase 7F3.5 runs a full-horizon experimental recovery watch overlay.
+
+```bash
+python scripts/run_recovery_watch_overlay.py
+python -m json.tool data/backtests/candidate_indicators/recovery_watch_overlay/recovery_watch_overlay_report.json | head -n 420
+```
+
+The overlay output is generated ignored data. It preserves original timeline phase and decision fields, does not confirm recovery, does not create portfolio actions, and does not affect formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

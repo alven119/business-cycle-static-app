@@ -642,6 +642,18 @@ python scripts/run_recovery_watch_rule.py
 
 如果結果合理，下一步才做 full-horizon recovery watch overlay。Phase 7F3.4 不改正式模型、不進 live dashboard，也不構成投資建議。
 
+## Phase 7F3.5 Recovery Watch Overlay
+
+Phase 7F3.5 將 experimental recovery watch rule 套用到 full-horizon scenario timeline，評估 watch timing、watch density、strong watch density、policy-only block、context gate block 與 COVID caveat。
+
+```bash
+python scripts/run_recovery_watch_overlay.py
+```
+
+此 overlay 用於判斷 recovery watch 是否可成為 future portfolio policy research input；它不會改 current phase、不會 confirmed recovery，也不會產生買進訊號。若結果合理，下一步才做 recovery integration guardrails。
+
+Phase 7F3.5 不改正式 phase scoring、不改 resolver、不改 FRED provider、不進 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

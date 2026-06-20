@@ -436,6 +436,24 @@ data/backtests/candidate_indicators/recovery_watch_rule/recovery_watch_rule_repo
 
 本階段只做 experimental diagnostics / future portfolio policy research，不接正式模型、不改 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
 
+## Phase 7F3.5 Recovery Watch Overlay
+
+Phase 7F3.5 將 experimental recovery watch rule 疊加到 full-horizon scenario timeline，用來檢查 recovery watch 在完整歷史案例中是否太密集、太早或太晚。
+
+```bash
+python scripts/run_recovery_watch_overlay.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recovery_watch_overlay/recovery_watch_overlay_report.json
+```
+
+Overlay 只新增 diagnostics 欄位，不改原始 `current_phase_id`、不覆寫 resolver decision，也不產生 portfolio action。驗收重點包括 GFC / dotcom 是否在 trough 或 recovery initial 附近出現 watch、COVID 是否保留外生衝擊 caveat，以及 euro debt / 2018 是否避免 excessive recovery watch。
+
+`recovery watch` 不等於正式復甦確認，也不是買進訊號。本階段不接 live model，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

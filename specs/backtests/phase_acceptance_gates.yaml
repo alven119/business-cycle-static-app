@@ -55,3 +55,15 @@ phase_specific_gates:
     soft_warnings_allowed:
       - mismatch_count > 0 because diagnostics phases are allowed to discover model issues
       - unexpected_strong_points not empty if the phase objective is attribution/refinement planning
+
+  recovery_watch_overlay:
+    hard_gates:
+      - fail_count == 0
+      - gfc_has_trough_or_recovery_watch == true
+      - dotcom_has_recovery_watch == true
+      - covid_caveated_recovery_watch == true
+      - euro_debt_excessive_recovery_watch == false
+      - late_cycle_2018_excessive_recovery_watch == false
+    soft_warnings_allowed:
+      - warning_count > 0 if caveats explain exogenous shock or watch density
+      - recovery_watch_density_ratio may be high only if integration guardrails are planned

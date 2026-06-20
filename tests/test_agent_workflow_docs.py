@@ -40,9 +40,13 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
 
     recovery_gates = phase_specific["recovery_refinement_experiment"]["hard_gates"]
     boom_overlay_gates = phase_specific["boom_ending_watch_overlay"]["hard_gates"]
+    recovery_overlay_gates = phase_specific["recovery_watch_overlay"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
+    assert "fail_count == 0" in recovery_overlay_gates
+    assert "gfc_has_trough_or_recovery_watch == true" in recovery_overlay_gates
+    assert "euro_debt_excessive_recovery_watch == false" in recovery_overlay_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:
