@@ -77,3 +77,13 @@ phase_specific_gates:
       - recommended_next_phase == 7G
     soft_warnings_allowed:
       - none
+
+  cycle_transition_evidence_architecture:
+    hard_gates:
+      - formal_phase_change_allowed_now == false
+      - direct_trade_signal_allowed_now == false
+      - portfolio_policy_allowed_now == false
+      - dashboard_diagnostics_allowed_now == false
+      - recommended_next_phase == 7G1
+    soft_warnings_allowed:
+      - none

@@ -42,6 +42,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     boom_overlay_gates = phase_specific["boom_ending_watch_overlay"]["hard_gates"]
     recovery_overlay_gates = phase_specific["recovery_watch_overlay"]["hard_gates"]
     recovery_integration_gates = phase_specific["recovery_watch_integration_guardrails"]["hard_gates"]
+    evidence_architecture_gates = phase_specific["cycle_transition_evidence_architecture"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -51,6 +52,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "direct_recovery_confirmation_allowed == false" in recovery_integration_gates
     assert "direct_portfolio_action_allowed == false" in recovery_integration_gates
     assert "recommended_next_phase == 7G" in recovery_integration_gates
+    assert "formal_phase_change_allowed_now == false" in evidence_architecture_gates
+    assert "direct_trade_signal_allowed_now == false" in evidence_architecture_gates
+    assert "recommended_next_phase == 7G1" in evidence_architecture_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

@@ -615,6 +615,23 @@ python scripts/show_recovery_watch_integration_guardrails.py
 
 The guardrails prohibit direct recovery confirmation and direct portfolio action. They do not change formal phase scoring, resolver logic, FRED provider behavior, GitHub Pages workflow, or live dashboard output.
 
+## Phase 7G cycle transition evidence architecture
+
+Phase 7G consolidates recession confirmation, boom ending watch, and recovery watch into one evidence architecture.
+
+```text
+specs/common/cycle_transition_evidence_architecture.yaml
+docs/cycle_transition_evidence_architecture.md
+```
+
+Inspect the architecture summary with:
+
+```bash
+python scripts/show_cycle_transition_evidence_architecture.py
+```
+
+This phase only defines evidence usage boundaries. It does not connect evidence to the dashboard, resolver, formal phase scoring, FRED provider, GitHub Pages workflow, or portfolio allocation.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

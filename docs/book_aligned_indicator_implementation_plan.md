@@ -466,6 +466,18 @@ Guardrails 要求 live integration 前必須定義 persistence、cooldown、rece
 
 本階段只做設計與驗收 guardrails，不接正式模型、不改 resolver、不進 dashboard，也不構成投資建議。
 
+## Phase 7G Cycle Transition Evidence Architecture
+
+Phase 7G 將 recession confirmation、boom ending watch、recovery watch 三類 experimental evidence 收斂成統一 architecture。
+
+```bash
+python scripts/show_cycle_transition_evidence_architecture.py
+```
+
+這個 architecture 定義 evidence family、allowed uses、prohibited uses、dashboard diagnostics contract、future transition risk contract 與 future portfolio policy contract。Watch 類訊號不得等同正式 phase confirmation，也不得等同買賣訊號。
+
+下一步可進 Phase 7G1 設計 evidence badge schema；若改走投資策略研究，則必須等 Phase 8 / Phase 9 portfolio backtest。本階段不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

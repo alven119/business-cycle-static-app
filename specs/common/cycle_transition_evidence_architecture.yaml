@@ -1,0 +1,166 @@
+cycle_transition_evidence_architecture:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    整合 recession confirmation、boom ending watch、recovery watch 三類 experimental evidence，
+    定義它們在 dashboard diagnostics、future transition risk、portfolio policy research 中的安全使用邊界，
+    並避免將 watch 類訊號誤用為正式景氣階段確認或投資買賣訊號。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 evidence architecture，不代表正式模型已更新。
+    - boom ending watch 不等於 confirmed recession。
+    - recovery watch 不等於正式復甦確認。
+    - watch 類訊號不是買賣訊號。
+    - 任何 portfolio action 前必須完成 portfolio backtest。
+    - 不構成投資建議。
+  evidence_families:
+    recession_confirmation:
+      display_name_zh: 衰退確認證據
+      purpose_zh: 確認衰退是否成立，降低 false recession。
+      current_status: experimental_guardrailed
+      source_artifacts:
+        - specs/backtests/recession_confirmation_candidate_indicators.yaml
+        - specs/backtests/candidate_recession_confirmation_rule.yaml
+        - specs/backtests/candidate_recession_integration_design.yaml
+      allowed_uses:
+        dashboard_diagnostics: true
+        evidence_badge: true
+        transition_risk_research: true
+        formal_phase_confirmation: false
+        portfolio_policy_research: true
+        direct_portfolio_action: false
+      prohibited_uses:
+        - 不得單獨覆寫 current_phase_id。
+        - 不得在未經 full integration validation 前 confirmed recession。
+        - 不得產生直接買賣建議。
+      required_guardrails:
+        - recession candidate rule 必須區分 confirmed / watch / weak。
+        - false confirmed recession 必須被 tracking。
+        - integration 前必須通過 full-horizon overlay acceptance。
+    boom_ending_watch:
+      display_name_zh: 榮景後期風險觀察
+      purpose_zh: 提示榮景後期與衰退前風險。
+      current_status: experimental_guardrailed
+      source_artifacts:
+        - specs/backtests/boom_ending_candidate_indicators.yaml
+        - specs/backtests/boom_ending_watch_rule.yaml
+        - specs/backtests/boom_ending_watch_integration_guardrails.yaml
+      allowed_uses:
+        dashboard_diagnostics: true
+        evidence_badge: true
+        transition_risk_research: true
+        formal_phase_confirmation: false
+        portfolio_policy_research: true
+        direct_portfolio_action: false
+      prohibited_uses:
+        - boom ending watch 不得直接 confirmed recession。
+        - boom ending watch 不得直接觸發減碼或賣出。
+        - 外生衝擊案例不得被解讀為事前預測能力。
+      required_guardrails:
+        - watch density 需要監控。
+        - persistence / cooldown 必須先定義。
+        - portfolio action 前必須回測。
+        - strong warning 與 watch 必須分開顯示。
+    recovery_watch:
+      display_name_zh: 衰退落底 / 復甦觀察
+      purpose_zh: 提示衰退落底與復甦證據形成。
+      current_status: experimental_guardrailed
+      source_artifacts:
+        - specs/backtests/recovery_candidate_indicators.yaml
+        - specs/backtests/recovery_watch_rule.yaml
+        - specs/backtests/recovery_watch_integration_guardrails.yaml
+      allowed_uses:
+        dashboard_diagnostics: true
+        evidence_badge: true
+        transition_risk_research: true
+        formal_phase_confirmation: false
+        portfolio_policy_research: true
+        direct_portfolio_action: false
+      prohibited_uses:
+        - recovery watch 不得直接 confirmed recovery。
+        - recovery watch 不得直接觸發買進或加碼。
+        - policy easing 不得單獨確認 recovery。
+        - financial easing 不得單獨確認 recovery。
+      required_guardrails:
+        - recession context gate 必須保留。
+        - policy / financial only cap 必須保留。
+        - COVID 類外生衝擊必須標記 caveat。
+        - portfolio action 前必須回測。
+  unified_evidence_outputs:
+    evidence_badge:
+      allowed_now: true
+      description_zh: >
+        可作為未來 dashboard diagnostics 顯示，例如「榮景後期風險觀察」、「復甦證據形成中」。
+      formal_decision_impact: none
+    transition_risk_research:
+      allowed_now: false
+      description_zh: >
+        可作為未來 transition risk score 的研究輸入，但需要另行實作、回測與 guardrails。
+      formal_decision_impact: research_only
+    portfolio_policy_research:
+      allowed_now: false
+      description_zh: >
+        可作為 Phase 8 / Phase 9 portfolio policy research 的輸入，但不得直接產生 allocation。
+      formal_decision_impact: research_only
+    formal_phase_change:
+      allowed_now: false
+      description_zh: >
+        不得由 experimental evidence architecture 直接改變 current_phase_id。
+      formal_decision_impact: prohibited
+    direct_trade_signal:
+      allowed_now: false
+      description_zh: >
+        本系統不得輸出直接買賣訊號。
+      formal_decision_impact: prohibited
+  dashboard_diagnostics_contract:
+    allowed_now: false
+    reason_zh: >
+      目前只是架構收斂。若未來接入 dashboard，必須另開 phase，且只能以 diagnostics badge / explanation 呈現。
+    allowed_display_labels_zh:
+      - 衰退確認證據
+      - 榮景後期風險觀察
+      - 復甦證據形成中
+    required_display_caveats_zh:
+      - experimental evidence，不代表正式階段切換。
+      - watch 不是買賣訊號。
+      - 不構成投資建議。
+  future_transition_risk_contract:
+    allowed_now: false
+    required_before_enable:
+      - persistence_defined
+      - cooldown_defined
+      - density_threshold_defined
+      - false_positive_backtest_completed
+      - no_direct_phase_override
+    description_zh: >
+      transition risk 可作為未來研究方向，但不得直接覆寫 state machine。
+  future_portfolio_policy_contract:
+    allowed_now: false
+    required_before_enable:
+      - portfolio_backtest_completed
+      - drawdown_analysis_completed
+      - turnover_analysis_completed
+      - false_signal_cost_analysis_completed
+      - vintage_data_limitations_documented
+    description_zh: >
+      portfolio policy 必須等 Phase 8 / Phase 9 回測後才可研究，不能從 watch 直接產生配置行動。
+  required_acceptance_before_dashboard_integration:
+    - target_id: evidence_badge_schema_defined
+      required: true
+      description_zh: 必須定義 badge schema 與中文說明。
+    - target_id: display_caveats_defined
+      required: true
+      description_zh: 必須明確顯示 watch 不是正式階段切換與不是買賣訊號。
+    - target_id: generated_site_validation_updated
+      required: true
+      description_zh: 若接 dashboard，需更新 validate_generated_site。
+    - target_id: no_formal_decision_impact
+      required: true
+      description_zh: dashboard diagnostics 不得影響 current_phase_id。
+  recommended_next_phase:
+    phase_id: 7G1
+    title: design transition evidence badge schema
+    reason_zh: >
+      已完成 evidence architecture consolidation。下一步可設計 dashboard diagnostics 用的 evidence badge schema，
+      但仍不接入正式 dashboard output；或改走 Phase 8 portfolio policy research planning。
