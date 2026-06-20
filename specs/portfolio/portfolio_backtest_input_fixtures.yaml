@@ -1,0 +1,364 @@
+portfolio_backtest_input_fixtures:
+  version: 1
+  status: draft
+  contract_path: specs/portfolio/portfolio_backtest_input_contract.yaml
+  scenario_mapping_path: specs/portfolio/portfolio_backtest_scenario_mapping.yaml
+  objective_zh: >
+    提供 portfolio backtest input 的合法與非法樣本，
+    驗證 validator 能接受 backtest-only input，
+    並拒絕 live allocation、trade signal、target weight、current recommendation 與 public dashboard output。
+  caveats_zh:
+    - 此為 portfolio backtest input fixtures，不是回測結果。
+    - 所有權重都是 backtest-only parameters。
+    - 本階段不產生 portfolio allocation。
+    - 不構成投資建議。
+
+  valid_inputs:
+    - fixture_id: valid_gfc_boom_de_risking_monthly
+      input:
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        policy_parameters:
+          stock_weight_levels_for_backtest_only:
+            - 0.70
+            - 0.50
+            - 0.30
+          persistence_months: 3
+          phase_confidence_threshold: 0.65
+        required_metrics:
+          - total_return
+          - annualized_return
+          - volatility
+          - max_drawdown
+          - turnover
+          - whipsaw_count
+          - false_de_risk_cost
+          - false_re_risk_cost
+          - missed_recovery_cost
+          - late_exit_cost
+          - late_reentry_cost
+        required_inputs_per_period:
+          - as_of
+          - scenario_id
+          - formal_phase_id
+          - phase_score
+          - phase_confidence
+          - recession_confirmation_status
+          - boom_ending_watch_status
+          - recovery_watch_status
+          - evidence_caveats
+        output_mode: backtest_summary_only
+        public_output_allowed: false
+        live_allocation_allowed: false
+        trade_signal_output_allowed: false
+        caveats_zh:
+          - backtest input，不是回測結果。
+          - 所有權重都是 backtest-only parameters。
+          - 不構成投資建議。
+
+    - fixture_id: valid_dotcom_recovery_re_risking_quarterly
+      input:
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: quarterly
+        transaction_cost_bps: 25
+        slippage_bps: 10
+        minimum_holding_period_months: 6
+        cooldown_months: 3
+        parameter_context: backtest_only
+        policy_parameters:
+          recovery_watch_persistence_months: 3
+          recession_context_required: true
+          labor_confirmation_required: true
+          real_activity_confirmation_required: true
+        required_metrics:
+          - total_return
+          - annualized_return
+          - volatility
+          - max_drawdown
+          - turnover
+          - whipsaw_count
+          - false_de_risk_cost
+          - false_re_risk_cost
+          - missed_recovery_cost
+          - late_exit_cost
+          - late_reentry_cost
+        required_inputs_per_period:
+          - as_of
+          - scenario_id
+          - formal_phase_id
+          - phase_score
+          - phase_confidence
+          - recession_confirmation_status
+          - boom_ending_watch_status
+          - recovery_watch_status
+          - evidence_caveats
+        output_mode: sensitivity_result_table
+        public_output_allowed: false
+        live_allocation_allowed: false
+        trade_signal_output_allowed: false
+        caveats_zh:
+          - backtest input，不是回測結果。
+          - recovery watch 不是買進訊號。
+          - 不構成投資建議。
+
+    - fixture_id: valid_covid_recession_defense_monthly
+      input:
+        backtest_input_id: covid_recession_defense_monthly_v1
+        scenario_id: covid_recession
+        policy_template_id: recession_defense_template
+        parameter_set_id: recession_confirmation_caveated_monthly
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 1
+        cooldown_months: 1
+        parameter_context: backtest_only
+        policy_parameters:
+          recession_confirmation_required: true
+          exogenous_shock_caveat_required: true
+          phase_confidence_threshold: 0.60
+        required_metrics:
+          - total_return
+          - annualized_return
+          - volatility
+          - max_drawdown
+          - turnover
+          - whipsaw_count
+          - false_de_risk_cost
+          - false_re_risk_cost
+          - missed_recovery_cost
+          - late_exit_cost
+          - late_reentry_cost
+        required_inputs_per_period:
+          - as_of
+          - scenario_id
+          - formal_phase_id
+          - phase_score
+          - phase_confidence
+          - recession_confirmation_status
+          - boom_ending_watch_status
+          - recovery_watch_status
+          - evidence_caveats
+        output_mode: caveat_report
+        public_output_allowed: false
+        live_allocation_allowed: false
+        trade_signal_output_allowed: false
+        caveats_zh:
+          - backtest input，不是回測結果。
+          - COVID 屬外生衝擊，結果不可直接推論一般景氣循環。
+          - 不構成投資建議。
+
+  invalid_inputs:
+    - fixture_id: invalid_live_allocation_field
+      expected_error_contains: live_allocation
+      input:
+        backtest_input_id: invalid_live_allocation_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        live_allocation:
+          stocks: 0.5
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_target_weight_field
+      expected_error_contains: target_weight
+      input:
+        backtest_input_id: invalid_target_weight_field
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        target_weight: 0.7
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_buy_signal_field
+      expected_error_contains: buy_signal
+      input:
+        backtest_input_id: invalid_buy_signal_field
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        buy_signal: true
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_sell_signal_field
+      expected_error_contains: sell_signal
+      input:
+        backtest_input_id: invalid_sell_signal_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        sell_signal: true
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_public_output_allowed
+      expected_error_contains: public_output_allowed
+      input:
+        backtest_input_id: invalid_public_output_allowed
+        scenario_id: covid_recession
+        policy_template_id: recession_defense_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 1
+        cooldown_months: 1
+        parameter_context: backtest_only
+        public_output_allowed: true
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_unknown_scenario
+      expected_error_contains: scenario_id
+      input:
+        backtest_input_id: invalid_unknown_scenario
+        scenario_id: unknown_scenario
+        policy_template_id: boom_de_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_unknown_policy_template
+      expected_error_contains: policy_template_id
+      input:
+        backtest_input_id: invalid_unknown_policy_template
+        scenario_id: global_financial_crisis
+        policy_template_id: unknown_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_rebalance_frequency
+      expected_error_contains: rebalance_frequency
+      input:
+        backtest_input_id: invalid_rebalance_frequency
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: daily
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_missing_required_metric
+      expected_error_contains: max_drawdown
+      input:
+        backtest_input_id: invalid_missing_required_metric
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        required_metrics:
+          - total_return
+          - turnover
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_missing_not_investment_advice
+      expected_error_contains: 不構成投資建議
+      input:
+        backtest_input_id: invalid_missing_not_investment_advice
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        caveats_zh:
+          - backtest input，不是回測結果。
+
+    - fixture_id: invalid_current_recommendation_text
+      expected_error_contains: 目前建議
+      input:
+        backtest_input_id: invalid_current_recommendation_text
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        research_only: true
+        backtest_only: true
+        rebalance_frequency: monthly
+        transaction_cost_bps: 10
+        slippage_bps: 5
+        minimum_holding_period_months: 3
+        cooldown_months: 3
+        parameter_context: backtest_only
+        notes_zh: 目前建議使用 50% 股票配置。
+        caveats_zh:
+          - 不構成投資建議。

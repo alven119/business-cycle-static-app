@@ -765,6 +765,16 @@ Contract 定義 monthly as-of alignment、phase / evidence inputs、rebalance fr
 
 本階段不跑正式 backtest、不產生 `data/backtests`、不產生 allocation、不接 dashboard，也不構成投資建議。
 
+## Phase 8D Portfolio Backtest Input Fixtures
+
+Phase 8D 建立 portfolio backtest input fixtures 與 batch validator。
+
+```bash
+python scripts/validate_portfolio_backtest_input_fixtures.py
+```
+
+Valid fixtures 代表 future backtest 的安全輸入樣本；invalid fixtures 則測試 live allocation、target weight、buy/sell signal、public output、unknown scenario、unknown policy template、缺少 required metrics、缺少不構成投資建議 caveat 與目前建議文字都會被拒絕。本階段不跑正式 backtest、不產生 `data/backtests`、不產生 allocation，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

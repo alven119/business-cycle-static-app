@@ -45,6 +45,48 @@ class PortfolioBacktestScenarioMapping:
     mapping_validation_rules: list[dict[str, Any]]
 
 
+@dataclass(frozen=True)
+class PortfolioBacktestInputFixtures:
+    """Machine-readable portfolio backtest input fixtures."""
+
+    version: int
+    status: str
+    contract_path: str
+    scenario_mapping_path: str
+    objective_zh: str
+    caveats_zh: list[str]
+    valid_inputs: list[dict[str, Any]]
+    invalid_inputs: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class PortfolioBacktestInputFixtureValidationSummary:
+    """Summary returned by backtest input fixture validation."""
+
+    contract_version: int
+    mapping_version: int
+    fixtures_version: int
+    valid_input_count: int
+    invalid_input_count: int
+    valid_pass_count: int
+    invalid_rejected_count: int
+    unexpected_valid_failures: list[dict[str, str]]
+    unexpected_invalid_passes: list[str]
+    expected_error_mismatches: list[dict[str, str]]
+
+    @property
+    def passed(self) -> bool:
+        """Return true when all fixture expectations were met."""
+
+        return (
+            self.valid_pass_count == self.valid_input_count
+            and self.invalid_rejected_count == self.invalid_input_count
+            and not self.unexpected_valid_failures
+            and not self.unexpected_invalid_passes
+            and not self.expected_error_mismatches
+        )
+
+
 def load_portfolio_backtest_input_contract(path: str | Path) -> PortfolioBacktestInputContract:
     """Load and validate portfolio backtest input contract YAML."""
 
@@ -173,6 +215,122 @@ def summarize_portfolio_backtest_input_contract(
     }
 
 
+def load_portfolio_backtest_input_fixtures(path: str | Path) -> PortfolioBacktestInputFixtures:
+    """Load portfolio backtest input fixtures YAML."""
+
+    payload = _load_root_mapping(path, "portfolio_backtest_input_fixtures")
+    return _fixtures_from_mapping(payload)
+
+
+def validate_portfolio_backtest_input(
+    backtest_input: dict[str, Any],
+    contract: PortfolioBacktestInputContract,
+    mapping: PortfolioBacktestScenarioMapping,
+) -> None:
+    """Validate one portfolio backtest input object against contract and mapping."""
+
+    if not isinstance(backtest_input, dict):
+        raise PortfolioBacktestContractError("backtest input must be a mapping")
+    required = (
+        "backtest_input_id",
+        "scenario_id",
+        "policy_template_id",
+        "research_only",
+        "backtest_only",
+        "rebalance_frequency",
+        "transaction_cost_bps",
+        "slippage_bps",
+        "minimum_holding_period_months",
+        "cooldown_months",
+        "parameter_context",
+        "caveats_zh",
+    )
+    _require_keys(backtest_input, required, "portfolio_backtest_input")
+    if backtest_input.get("research_only") is not True:
+        raise PortfolioBacktestContractError("research_only must be true")
+    if backtest_input.get("backtest_only") is not True:
+        raise PortfolioBacktestContractError("backtest_only must be true")
+    if str(backtest_input["parameter_context"]) != "backtest_only":
+        raise PortfolioBacktestContractError("parameter_context must be backtest_only")
+
+    scenario_id = str(backtest_input["scenario_id"])
+    if scenario_id not in contract.allowed_scenarios or scenario_id not in mapping.scenarios:
+        raise PortfolioBacktestContractError(f"scenario_id must be known: {scenario_id}")
+
+    template_id = str(backtest_input["policy_template_id"])
+    if template_id not in contract.allowed_policy_templates:
+        raise PortfolioBacktestContractError(f"policy_template_id must be known: {template_id}")
+
+    allowed_frequencies = set(
+        _str_list(
+            contract.rebalance_contract.get("allowed_frequencies"),
+            "rebalance_contract.allowed_frequencies",
+        )
+    )
+    if str(backtest_input["rebalance_frequency"]) not in allowed_frequencies:
+        raise PortfolioBacktestContractError(
+            f"rebalance_frequency must be one of {', '.join(sorted(allowed_frequencies))}"
+        )
+
+    _validate_optional_required_metrics(backtest_input, contract)
+    _validate_optional_required_inputs(backtest_input, contract)
+    _validate_no_prohibited_fields(backtest_input, _prohibited_mapping_fields(contract))
+    _validate_no_prohibited_text(backtest_input)
+    _validate_backtest_input_caveats(backtest_input)
+    _validate_optional_false_flags(backtest_input)
+
+
+def validate_portfolio_backtest_input_fixtures(
+    fixtures: PortfolioBacktestInputFixtures,
+    contract: PortfolioBacktestInputContract,
+    mapping: PortfolioBacktestScenarioMapping,
+) -> PortfolioBacktestInputFixtureValidationSummary:
+    """Validate all valid and invalid portfolio backtest input fixtures."""
+
+    unexpected_valid_failures: list[dict[str, str]] = []
+    unexpected_invalid_passes: list[str] = []
+    expected_error_mismatches: list[dict[str, str]] = []
+    valid_pass_count = 0
+    invalid_rejected_count = 0
+
+    for fixture in fixtures.valid_inputs:
+        fixture_id = str(fixture.get("fixture_id") or "")
+        try:
+            validate_portfolio_backtest_input(_fixture_input(fixture, fixture_id), contract, mapping)
+        except PortfolioBacktestContractError as exc:
+            unexpected_valid_failures.append({"fixture_id": fixture_id, "error": str(exc)})
+        else:
+            valid_pass_count += 1
+
+    for fixture in fixtures.invalid_inputs:
+        fixture_id = str(fixture.get("fixture_id") or "")
+        expected = str(fixture.get("expected_error_contains") or "")
+        try:
+            validate_portfolio_backtest_input(_fixture_input(fixture, fixture_id), contract, mapping)
+        except PortfolioBacktestContractError as exc:
+            invalid_rejected_count += 1
+            error = str(exc)
+            if expected and expected not in error:
+                expected_error_mismatches.append(
+                    {"fixture_id": fixture_id, "expected": expected, "error": error}
+                )
+        else:
+            unexpected_invalid_passes.append(fixture_id)
+
+    return PortfolioBacktestInputFixtureValidationSummary(
+        contract_version=contract.version,
+        mapping_version=mapping.version,
+        fixtures_version=fixtures.version,
+        valid_input_count=len(fixtures.valid_inputs),
+        invalid_input_count=len(fixtures.invalid_inputs),
+        valid_pass_count=valid_pass_count,
+        invalid_rejected_count=invalid_rejected_count,
+        unexpected_valid_failures=unexpected_valid_failures,
+        unexpected_invalid_passes=unexpected_invalid_passes,
+        expected_error_mismatches=expected_error_mismatches,
+    )
+
+
 def _contract_from_mapping(payload: dict[str, Any]) -> PortfolioBacktestInputContract:
     required = (
         "version",
@@ -235,6 +393,30 @@ def _mapping_from_mapping(payload: dict[str, Any]) -> PortfolioBacktestScenarioM
             payload["mapping_validation_rules"],
             "mapping_validation_rules",
         ),
+    )
+
+
+def _fixtures_from_mapping(payload: dict[str, Any]) -> PortfolioBacktestInputFixtures:
+    required = (
+        "version",
+        "status",
+        "contract_path",
+        "scenario_mapping_path",
+        "objective_zh",
+        "caveats_zh",
+        "valid_inputs",
+        "invalid_inputs",
+    )
+    _require_keys(payload, required, "portfolio_backtest_input_fixtures")
+    return PortfolioBacktestInputFixtures(
+        version=int(payload["version"]),
+        status=str(payload["status"]),
+        contract_path=str(payload["contract_path"]),
+        scenario_mapping_path=str(payload["scenario_mapping_path"]),
+        objective_zh=str(payload["objective_zh"]),
+        caveats_zh=_str_list(payload["caveats_zh"], "caveats_zh"),
+        valid_inputs=_list_of_mappings(payload["valid_inputs"], "valid_inputs"),
+        invalid_inputs=_list_of_mappings(payload["invalid_inputs"], "invalid_inputs"),
     )
 
 
@@ -337,6 +519,107 @@ def _validate_no_prohibited_fields(value: Any, prohibited_fields: set[str], path
     elif isinstance(value, list):
         for index, item in enumerate(value):
             _validate_no_prohibited_fields(item, prohibited_fields, f"{path}[{index}]")
+
+
+def _validate_optional_required_metrics(
+    backtest_input: dict[str, Any],
+    contract: PortfolioBacktestInputContract,
+) -> None:
+    if "required_metrics" not in backtest_input:
+        return
+    required_order = _str_list(
+        contract.risk_metric_contract.get("required_metrics"),
+        "risk_metric_contract.required_metrics",
+    )
+    required = set(required_order)
+    actual = set(_str_list(backtest_input["required_metrics"], "required_metrics"))
+    priority_order = ("max_drawdown", "turnover", "false_de_risk_cost", "false_re_risk_cost")
+    missing = [metric for metric in priority_order if metric in required and metric not in actual]
+    missing.extend(metric for metric in required_order if metric not in actual and metric not in missing)
+    if missing:
+        raise PortfolioBacktestContractError(f"required_metrics must include {missing[0]}")
+
+
+def _validate_optional_required_inputs(
+    backtest_input: dict[str, Any],
+    contract: PortfolioBacktestInputContract,
+) -> None:
+    if "required_inputs_per_period" not in backtest_input:
+        return
+    required = set(
+        _str_list(
+            contract.data_contract.get("required_inputs_per_period"),
+            "data_contract.required_inputs_per_period",
+        )
+    )
+    actual = set(_str_list(backtest_input["required_inputs_per_period"], "required_inputs_per_period"))
+    missing = sorted(required - actual)
+    if missing:
+        raise PortfolioBacktestContractError(f"required_inputs_per_period must include {missing[0]}")
+
+
+def _validate_no_prohibited_text(value: Any) -> None:
+    patterns = (
+        "目前建議",
+        "建議買進",
+        "建議賣出",
+        "立即買進",
+        "立即賣出",
+        "買進訊號",
+        "賣出訊號",
+        "live allocation",
+        "target weight",
+        "buy signal",
+        "sell signal",
+    )
+    for path, text in _iter_text_fields(value):
+        lowered = text.lower()
+        for pattern in patterns:
+            if pattern.lower() in lowered:
+                raise PortfolioBacktestContractError(
+                    f"prohibited text pattern {pattern} found at {path}"
+                )
+
+
+def _iter_text_fields(value: Any, path: str = "") -> list[tuple[str, str]]:
+    if path == "caveats_zh":
+        return []
+    if isinstance(value, str):
+        return [(path, value)]
+    if isinstance(value, dict):
+        result: list[tuple[str, str]] = []
+        for key, raw in value.items():
+            key_text = str(key)
+            current_path = f"{path}.{key_text}" if path else key_text
+            if key_text == "caveats_zh":
+                continue
+            result.extend(_iter_text_fields(raw, current_path))
+        return result
+    if isinstance(value, list):
+        result = []
+        for index, item in enumerate(value):
+            result.extend(_iter_text_fields(item, f"{path}[{index}]"))
+        return result
+    return []
+
+
+def _validate_backtest_input_caveats(backtest_input: dict[str, Any]) -> None:
+    caveats = _str_list(backtest_input.get("caveats_zh"), "caveats_zh")
+    if not any("不構成投資建議" in caveat for caveat in caveats):
+        raise PortfolioBacktestContractError("caveats_zh must include 不構成投資建議")
+
+
+def _validate_optional_false_flags(backtest_input: dict[str, Any]) -> None:
+    for field in ("public_output_allowed", "live_allocation_allowed", "trade_signal_output_allowed"):
+        if field in backtest_input and backtest_input[field] is not False:
+            raise PortfolioBacktestContractError(f"{field} must be false")
+
+
+def _fixture_input(fixture: dict[str, Any], fixture_id: str) -> dict[str, Any]:
+    backtest_input = fixture.get("input")
+    if not isinstance(backtest_input, dict):
+        raise PortfolioBacktestContractError(f"{fixture_id}.input must be a mapping")
+    return {str(key): raw for key, raw in backtest_input.items()}
 
 
 def _load_root_mapping(path: str | Path, root_key: str) -> dict[str, Any]:

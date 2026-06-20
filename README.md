@@ -767,6 +767,22 @@ python scripts/show_portfolio_backtest_input_contract.py
 
 This phase only defines future backtest inputs, rebalance assumptions, cost assumptions, risk metrics, output safety boundaries, and scenario mapping. It does not run a portfolio backtest, produce allocation output, generate `data/backtests`, or publish dashboard output.
 
+## Phase 8D portfolio backtest input fixtures
+
+Phase 8D adds valid and invalid portfolio backtest input fixtures plus a batch validator.
+
+```text
+specs/portfolio/portfolio_backtest_input_fixtures.yaml
+```
+
+Validate the fixtures with:
+
+```bash
+python scripts/validate_portfolio_backtest_input_fixtures.py
+```
+
+The validator accepts only research-only / backtest-only inputs and rejects live allocation, target weights, buy/sell signals, current recommendations, public dashboard output, unknown scenarios, and unknown policy templates. It does not run a portfolio backtest or generate `data/backtests`.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

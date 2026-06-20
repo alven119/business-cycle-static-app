@@ -85,6 +85,18 @@ python scripts/show_portfolio_backtest_input_contract.py
 
 Validator 會確認所有 allowed scenarios 都已 mapping、policy templates 與 evidence families 都是已知 id，並阻擋 live allocation、target weight、buy/sell signal、current recommendation 與 public dashboard output。所有權重仍只能是 backtest-only parameters，不構成投資建議。
 
+## Phase 8D Portfolio Backtest Input Fixtures
+
+Phase 8D 新增 `specs/portfolio/portfolio_backtest_input_fixtures.yaml` 與 batch validator。Fixtures 提供 future portfolio backtest input 的合法與非法樣本，但仍不跑正式 backtest、不產生回測結果、不輸出 allocation。
+
+合法 fixtures 必須是 research-only / backtest-only，使用已知 scenario、已知 policy template、允許的 rebalance frequency，並包含必要 metrics、必要 period inputs 與不構成投資建議 caveat。非法 fixtures 則刻意包含 live allocation、target weight、buy/sell signal、public output、unknown scenario、unknown policy template、缺少核心 metrics、缺少 caveat 或目前建議文字，用來確保 validator 能阻擋 unsafe input。
+
+```bash
+python scripts/validate_portfolio_backtest_input_fixtures.py
+```
+
+本階段仍不產生 `data/backtests`、不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

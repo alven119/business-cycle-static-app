@@ -573,6 +573,18 @@ Input contract 定義 future backtest 可接受的 phase / evidence inputs、reb
 
 本階段只定義 backtest input，不跑正式回測、不產生 allocation、不輸出買賣訊號、不產生 `data/backtests` 或 `public/` output，也不構成投資建議。
 
+## Phase 8D Portfolio Backtest Input Fixtures
+
+Phase 8D 新增 portfolio backtest input fixtures 與 batch validator。
+
+```bash
+python scripts/validate_portfolio_backtest_input_fixtures.py
+```
+
+合法 input fixtures 必須是 research-only / backtest-only，並使用已知 scenario、已知 policy template 與允許的 rebalance settings。非法 fixtures 必須被拒絕，包含 live allocation、target weight、buy/sell signal、public dashboard output、unknown scenario、unknown policy template、缺少核心 metrics、缺少 caveat 或目前建議文字。
+
+本階段仍不跑正式 portfolio backtest、不產生 allocation、不產生 `data/backtests` 或 `public/` output，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：
