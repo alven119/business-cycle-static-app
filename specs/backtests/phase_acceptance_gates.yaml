@@ -146,3 +146,18 @@ phase_specific_gates:
       - recommended_next_phase == 8B
     soft_warnings_allowed:
       - none
+
+  portfolio_policy_template_schema:
+    hard_gates:
+      - live_allocation_allowed_now == false
+      - trade_signal_generation_allowed_now == false
+      - public_output_allowed_now == false
+      - valid_pass_count == valid_template_count
+      - invalid_rejected_count == invalid_template_count
+      - unexpected_valid_failures == 0
+      - unexpected_invalid_passes == 0
+      - expected_error_mismatches == 0
+      - result == passed
+      - recommended_next_phase == 8C
+    soft_warnings_allowed:
+      - none

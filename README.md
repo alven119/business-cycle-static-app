@@ -732,6 +732,24 @@ python scripts/show_portfolio_policy_research_plan.py
 
 This phase only defines research templates, backtest-only parameters, risk metrics, sensitivity tests, and acceptance gates. It does not produce live allocation, current market recommendations, dashboard portfolio actions, public output, resolver integration, or trade signals.
 
+## Phase 8B portfolio policy template schema
+
+Phase 8B adds the static schema and fixtures for research-only portfolio policy templates.
+
+```text
+specs/portfolio/portfolio_policy_template_schema.yaml
+specs/portfolio/portfolio_policy_template_fixtures.yaml
+```
+
+Inspect and validate with:
+
+```bash
+python scripts/show_portfolio_policy_template_schema.py
+python scripts/validate_portfolio_policy_template_fixtures.py
+```
+
+The validator accepts only backtest-only templates and rejects live allocation, trade signals, target weights, current market recommendations, and prohibited recommendation text. It does not produce allocation output or public dashboard output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

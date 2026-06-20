@@ -49,6 +49,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     display_fixture_gates = phase_specific["transition_evidence_badge_display_fixtures"]["hard_gates"]
     readiness_gates = phase_specific["dashboard_evidence_integration_readiness"]["hard_gates"]
     portfolio_plan_gates = phase_specific["portfolio_policy_research_plan"]["hard_gates"]
+    portfolio_template_gates = phase_specific["portfolio_policy_template_schema"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -80,6 +81,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "live_allocation_allowed_now == false" in portfolio_plan_gates
     assert "trade_signal_generation_allowed_now == false" in portfolio_plan_gates
     assert "recommended_next_phase == 8B" in portfolio_plan_gates
+    assert "live_allocation_allowed_now == false" in portfolio_template_gates
+    assert "valid_pass_count == valid_template_count" in portfolio_template_gates
+    assert "recommended_next_phase == 8C" in portfolio_template_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

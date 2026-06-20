@@ -1,0 +1,130 @@
+portfolio_policy_template_schema:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 portfolio policy research templates 的安全 schema，
+    確保榮景減碼、衰退防守、復甦再加碼等策略概念只能作為 backtest-only research template，
+    不得輸出 live allocation、交易訊號或目前配置建議。
+  caveats_zh:
+    - 此為 portfolio policy template schema，不是正式投資策略。
+    - 所有權重都是 backtest-only parameters，不是目前配置建議。
+    - transition evidence watch 不是買賣訊號。
+    - 任何 portfolio action 前必須完成 backtest、風險分析與成本分析。
+    - 不構成投資建議。
+
+  template_object_schema:
+    required_fields:
+      - template_id
+      - display_name_zh
+      - status
+      - research_only
+      - backtest_only
+      - live_allocation_allowed
+      - trade_signal_allowed
+      - public_output_allowed
+      - description_zh
+      - required_signals_before_policy_research
+      - prohibited_interpretations_zh
+      - caveats_zh
+    optional_fields:
+      - book_aligned_parameters
+      - backtest_parameter_grid
+      - required_risk_metrics
+      - required_sensitivity_tests
+      - data_limitations
+      - source_artifacts
+    constraints:
+      research_only_must_be_true: true
+      backtest_only_must_be_true: true
+      live_allocation_allowed_must_be_false: true
+      trade_signal_allowed_must_be_false: true
+      public_output_allowed_must_be_false: true
+      no_current_market_context: true
+      no_live_target_weight: true
+      no_trade_action_language: true
+
+  allowed_template_ids:
+    - boom_de_risking_template
+    - recession_defense_template
+    - recovery_re_risking_template
+
+  allowed_statuses:
+    - proposed_for_backtest
+    - draft
+    - disabled
+
+  allowed_parameter_contexts:
+    - backtest_only
+    - sensitivity_test_only
+    - documentation_only
+
+  prohibited_fields:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - rebalance_now
+    - current_market_recommendation
+    - execute_trade
+    - decision_status_override
+    - current_phase_override
+
+  prohibited_text_patterns:
+    zh:
+      - 目前建議
+      - 建議買進
+      - 建議賣出
+      - 立即買進
+      - 立即賣出
+      - 加碼
+      - 減碼
+      - 調整配置
+      - 目標配置
+      - 買進訊號
+      - 賣出訊號
+    en:
+      - buy signal
+      - sell signal
+      - current recommendation
+      - live allocation
+      - target weight
+      - rebalance now
+      - execute trade
+
+  required_caveats_zh:
+    - research-only，不是正式投資策略。
+    - backtest-only，不是目前配置建議。
+    - 不構成投資建議。
+
+  template_specific_rules:
+    boom_de_risking_template:
+      required_book_parameters:
+        stock_weight_levels_for_backtest_only:
+          - 0.70
+          - 0.50
+          - 0.30
+      required_prohibited_interpretations:
+        - 不得把 boom ending watch 直接視為賣出或減碼指令。
+        - 不得未經回測直接使用 70/50/30。
+        - 不得輸出目前配置建議。
+    recession_defense_template:
+      required_prohibited_interpretations:
+        - recession confirmation evidence 不得單獨產生交易訊號。
+        - 不得在未定義交易成本與錯誤訊號成本前做配置行動。
+    recovery_re_risking_template:
+      required_prohibited_interpretations:
+        - recovery watch 不得直接視為買進或加碼訊號。
+        - policy easing 不得單獨確認 recovery。
+        - COVID 類外生衝擊必須有 caveat。
+
+  recommended_next_phase:
+    phase_id: 8C
+    title: portfolio policy template fixtures and validator hardening
+    reason_zh: >
+      已完成 portfolio policy template schema。下一步可建立合法與非法 policy template fixtures，
+      確保 validator 能阻擋 live allocation、trade signal、current recommendation 與 prohibited text。

@@ -60,6 +60,19 @@ False de-risk cost 衡量過早防守造成的機會成本。False re-risk cost 
 
 下一步是 Phase 8B：portfolio policy template schema and static validator。8B 仍應是 static validation 層，確保權重只作 backtest-only parameters，禁止 live allocation 與交易建議文字。
 
+## Phase 8B Portfolio Policy Template Schema
+
+Phase 8B 新增 `specs/portfolio/portfolio_policy_template_schema.yaml` 與 `specs/portfolio/portfolio_policy_template_fixtures.yaml`。Schema 定義 research-only / backtest-only policy template 的 required fields、allowed template IDs、prohibited fields、prohibited text patterns 與 template-specific rules。
+
+Validator 會接受合法的 boom / recession / recovery 三個研究模板，並拒絕 live allocation、trade signal、target weight、current recommendation、phase override 與禁止文字。70/50/30 只能出現在 `stock_weight_levels_for_backtest_only`，且必須搭配 backtest-only caveat。
+
+```bash
+python scripts/show_portfolio_policy_template_schema.py
+python scripts/validate_portfolio_policy_template_fixtures.py
+```
+
+本階段仍不產生 allocation、不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

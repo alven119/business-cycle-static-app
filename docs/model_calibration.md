@@ -742,6 +742,17 @@ python scripts/show_portfolio_policy_research_plan.py
 
 此階段將榮景期逐步防守、衰退期防守、復甦再加碼規格化為 future backtest-only templates。70/50/30 只能作為 backtest-only parameter，不是目前配置建議。Transition evidence watch 不能直接觸發交易，任何 portfolio action 前必須完成 backtest、風險分析、交易成本與 false signal cost 分析。本階段不構成投資建議。
 
+## Phase 8B Portfolio Policy Template Schema
+
+Phase 8B 建立 portfolio policy template schema、valid / invalid fixtures 與 static validator。
+
+```bash
+python scripts/show_portfolio_policy_template_schema.py
+python scripts/validate_portfolio_policy_template_fixtures.py
+```
+
+Validator 確保三個 policy templates 只能是 research-only / backtest-only，並阻擋 live allocation、trade signal、target weight、current market recommendation 與 prohibited text。70/50/30 只能作為 `stock_weight_levels_for_backtest_only`，不是目前配置建議。本階段不產生 allocation、不接 dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

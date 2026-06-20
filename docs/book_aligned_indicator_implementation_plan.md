@@ -550,6 +550,17 @@ python scripts/show_portfolio_policy_research_plan.py
 
 Phase 8A 不產生 allocation、不接 dashboard、不改 resolver、不改正式 scoring，也不構成投資建議。
 
+## Phase 8B Portfolio Policy Template Schema
+
+Phase 8B 新增 portfolio policy template schema、fixtures 與 static validator。
+
+```bash
+python scripts/show_portfolio_policy_template_schema.py
+python scripts/validate_portfolio_policy_template_fixtures.py
+```
+
+此階段將 boom de-risking、recession defense、recovery re-risking 三個研究模板限制為 research-only / backtest-only。Validator 會拒絕 live allocation、trade signal、target weight、current market recommendation 與 prohibited text。70/50/30 只允許作為 backtest-only parameters，不是目前配置建議。本階段不產生 allocation、不接 dashboard、不改正式模型，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

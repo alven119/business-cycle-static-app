@@ -1,0 +1,365 @@
+portfolio_policy_template_fixtures:
+  version: 1
+  status: draft
+  schema_path: specs/portfolio/portfolio_policy_template_schema.yaml
+  objective_zh: >
+    提供 portfolio policy template 的合法與非法樣本，
+    驗證 validator 能接受 research-only / backtest-only templates，
+    並拒絕 live allocation、trade signal、current recommendation、target weight 與 prohibited text。
+  caveats_zh:
+    - 此為 static validation fixtures，不是正式投資策略。
+    - 所有權重都是 backtest-only parameters。
+    - 不構成投資建議。
+
+  valid_templates:
+    - fixture_id: valid_boom_de_risking_template
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: 榮景期逐步防守研究模板
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: >
+          根據榮景期長度、late-cycle evidence、phase score 與 persistence，
+          研究是否逐步降低股票曝險。此模板僅供 backtest。
+        book_aligned_parameters:
+          stock_weight_levels_for_backtest_only:
+            - 0.70
+            - 0.50
+            - 0.30
+          short_boom_min_stock_weight_for_backtest_only: 0.50
+          extended_boom_year_4_stock_weight_for_backtest_only: 0.30
+          parameter_context: backtest_only
+        required_signals_before_policy_research:
+          - boom_phase_detected
+          - boom_duration_months
+          - boom_ending_watch_persistence
+          - recession_confirmation_status
+          - phase_confidence
+        prohibited_interpretations_zh:
+          - 不得把 boom ending watch 直接視為賣出或減碼指令。
+          - 不得未經回測直接使用 70/50/30。
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - research-only，不是正式投資策略。
+          - backtest-only，不是目前配置建議。
+          - 不構成投資建議。
+
+    - fixture_id: valid_recession_defense_template
+      template:
+        template_id: recession_defense_template
+        display_name_zh: 衰退期防守研究模板
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: >
+          研究 recession confirmation 與 formal phase score 是否可用於風險曝險管理。
+          此模板僅供 backtest。
+        required_signals_before_policy_research:
+          - recession_phase_detected_or_confirmed
+          - recession_confirmation_evidence
+          - unemployment_or_claims_confirmation
+          - credit_financial_stress_confirmation
+        prohibited_interpretations_zh:
+          - recession confirmation evidence 不得單獨產生交易訊號。
+          - 不得在未定義交易成本與錯誤訊號成本前做配置行動。
+        caveats_zh:
+          - research-only，不是正式投資策略。
+          - backtest-only，不是目前配置建議。
+          - 不構成投資建議。
+
+    - fixture_id: valid_recovery_re_risking_template
+      template:
+        template_id: recovery_re_risking_template
+        display_name_zh: 衰退落底 / 復甦再加碼研究模板
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: >
+          研究 recovery watch、formal phase score、recession context 與 real activity / labor confirmation
+          是否可作為衰退後風險曝險研究條件。此模板僅供 backtest。
+        required_signals_before_policy_research:
+          - recovery_watch_persistence
+          - recession_context_gate
+          - labor_reversal_confirmation
+          - real_activity_confirmation
+          - credit_or_financial_easing_confirmation
+          - phase_confidence
+        prohibited_interpretations_zh:
+          - recovery watch 不得直接視為買進或加碼訊號。
+          - policy easing 不得單獨確認 recovery。
+          - COVID 類外生衝擊必須有 caveat。
+        caveats_zh:
+          - research-only，不是正式投資策略。
+          - backtest-only，不是目前配置建議。
+          - 不構成投資建議。
+
+  invalid_templates:
+    - fixture_id: invalid_live_allocation_allowed
+      expected_error_contains: live_allocation_allowed
+      template:
+        template_id: recovery_re_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: true
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        required_signals_before_policy_research:
+          - recovery_watch_persistence
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_trade_signal_allowed
+      expected_error_contains: trade_signal_allowed
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: true
+        public_output_allowed: false
+        description_zh: invalid
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_target_weight_field
+      expected_error_contains: target_weight
+      template:
+        template_id: recession_defense_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        target_weight: 0.5
+        required_signals_before_policy_research:
+          - recession_confirmation_evidence
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_buy_signal_field
+      expected_error_contains: buy_signal
+      template:
+        template_id: recovery_re_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        buy_signal: true
+        required_signals_before_policy_research:
+          - recovery_watch_persistence
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_sell_signal_field
+      expected_error_contains: sell_signal
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        sell_signal: true
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_current_market_recommendation_field
+      expected_error_contains: current_market_recommendation
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        current_market_recommendation: 50% stocks
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_current_recommendation
+      expected_error_contains: 目前建議
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: 目前建議使用 50% 股票配置。
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_buy_recommendation
+      expected_error_contains: 建議買進
+      template:
+        template_id: recovery_re_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: 建議買進風險資產。
+        required_signals_before_policy_research:
+          - recovery_watch_persistence
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_sell_recommendation
+      expected_error_contains: 建議賣出
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: 建議賣出股票部位。
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_add_risk
+      expected_error_contains: 加碼
+      template:
+        template_id: recovery_re_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: 復甦觀察後加碼股票。
+        required_signals_before_policy_research:
+          - recovery_watch_persistence
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_reduce_risk
+      expected_error_contains: 減碼
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: 榮景後期減碼股票。
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - 不構成投資建議。
+
+    - fixture_id: invalid_missing_not_investment_advice_caveat
+      expected_error_contains: 不構成投資建議
+      template:
+        template_id: recession_defense_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        required_signals_before_policy_research:
+          - recession_confirmation_evidence
+        prohibited_interpretations_zh:
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - research-only，不是正式投資策略。
+
+    - fixture_id: invalid_boom_missing_705030
+      expected_error_contains: stock_weight_levels_for_backtest_only
+      template:
+        template_id: boom_de_risking_template
+        display_name_zh: invalid
+        status: proposed_for_backtest
+        research_only: true
+        backtest_only: true
+        live_allocation_allowed: false
+        trade_signal_allowed: false
+        public_output_allowed: false
+        description_zh: invalid
+        book_aligned_parameters:
+          stock_weight_levels_for_backtest_only:
+            - 0.70
+            - 0.50
+          parameter_context: backtest_only
+        required_signals_before_policy_research:
+          - boom_phase_detected
+        prohibited_interpretations_zh:
+          - 不得把 boom ending watch 直接視為賣出或減碼指令。
+          - 不得未經回測直接使用 70/50/30。
+          - 不得輸出目前配置建議。
+        caveats_zh:
+          - research-only，不是正式投資策略。
+          - backtest-only，不是目前配置建議。
+          - 不構成投資建議。
