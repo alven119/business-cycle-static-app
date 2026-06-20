@@ -698,6 +698,23 @@ python scripts/validate_transition_evidence_badge_display_fixtures.py
 
 The validator requires safe display models to pass and display models with action, allocation, buy/sell signal, phase override, or prohibited text to fail. This phase still does not modify dashboard templates, generate `public/`, alter formal phase scoring, resolver logic, FRED provider behavior, GitHub Pages workflow, or portfolio allocation.
 
+## Phase 7G5 dashboard evidence integration readiness
+
+Phase 7G5 closes Phase 7G with a dashboard evidence integration readiness checklist.
+
+```text
+specs/common/dashboard_evidence_integration_readiness.yaml
+docs/dashboard_evidence_integration_readiness.md
+```
+
+Inspect the readiness summary with:
+
+```bash
+python scripts/show_dashboard_evidence_integration_readiness.py
+```
+
+Phase 7G is now fully specified but not wired. Dashboard wiring remains blocked until a data adapter schema, generated-site validation updates, HTML text-safety tests, accessibility handling, and no-formal-decision-impact tests are defined.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

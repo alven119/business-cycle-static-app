@@ -1,0 +1,116 @@
+dashboard_evidence_integration_readiness:
+  version: 1
+  status: draft
+  objective_zh: >
+    彙整 transition evidence architecture、badge schema、badge fixtures、renderer contract、
+    display model fixtures 與 validator 的完成狀態，定義未來若要接入 dashboard diagnostics evidence display
+    前必須滿足的安全條件。
+  caveats_zh:
+    - 此為 dashboard integration readiness checklist，不代表 dashboard 已接入。
+    - evidence badge 僅供 diagnostics display。
+    - evidence badge 不會改變 current_phase_id。
+    - evidence badge 不會改變 decision_status。
+    - watch 類訊號不是買賣訊號。
+    - 不構成投資建議。
+
+  artifact_readiness:
+    cycle_transition_evidence_architecture:
+      path: specs/common/cycle_transition_evidence_architecture.yaml
+      required: true
+      expected_status: draft
+    transition_evidence_badge_schema:
+      path: specs/common/transition_evidence_badge_schema.yaml
+      required: true
+      expected_status: draft
+    transition_evidence_badge_fixtures:
+      path: specs/common/transition_evidence_badge_fixtures.yaml
+      required: true
+      expected_status: draft
+    transition_evidence_badge_renderer_contract:
+      path: specs/common/transition_evidence_badge_renderer_contract.yaml
+      required: true
+      expected_status: draft
+    transition_evidence_badge_display_fixtures:
+      path: specs/common/transition_evidence_badge_display_fixtures.yaml
+      required: true
+      expected_status: draft
+
+  validator_readiness:
+    badge_schema_summary:
+      command: python scripts/show_transition_evidence_badge_schema.py
+      required: true
+    badge_fixture_validation:
+      command: python scripts/validate_transition_evidence_badge_fixtures.py
+      required: true
+      required_result: passed
+    renderer_contract_summary:
+      command: python scripts/show_transition_evidence_badge_renderer_contract.py
+      required: true
+    display_fixture_validation:
+      command: python scripts/validate_transition_evidence_badge_display_fixtures.py
+      required: true
+      required_result: passed
+
+  dashboard_integration_blockers:
+    - blocker_id: dashboard_renderer_not_wired
+      active: true
+      reason_zh: 本階段尚未修改 dashboard renderer 或 templates。
+    - blocker_id: generated_site_validation_not_updated
+      active: true
+      reason_zh: 若未來接 dashboard，必須更新 generated site validation。
+    - blocker_id: no_visual_regression_tests
+      active: true
+      reason_zh: 若未來接 dashboard，必須新增 evidence badge 的 HTML / accessibility / text safety tests。
+    - blocker_id: no_live_data_mapping
+      active: true
+      reason_zh: 目前只有 schema / fixture / renderer contract，尚未定義 live data mapping。
+    - blocker_id: no_phase_decision_impact_allowed
+      active: true
+      reason_zh: evidence display 不得影響 current_phase_id 或 decision_status。
+
+  allowed_future_work:
+    - phase_id: 7H1
+      title: dashboard evidence badge data adapter design
+      allowed: true
+      description_zh: 可設計 evidence JSON adapter，但仍不接 public output。
+    - phase_id: 7H2
+      title: dashboard evidence badge template prototype
+      allowed: false
+      description_zh: 需等 adapter design 與 generated-site validation plan 完成後才能做。
+    - phase_id: 8A
+      title: portfolio policy research planning
+      allowed: true
+      description_zh: 可開始規格化書中的 70/50/30 榮景減碼與衰退後再加碼策略，但不得直接用 watch 產生交易訊號。
+
+  required_before_dashboard_wiring:
+    - target_id: data_adapter_schema_defined
+      required: true
+      description_zh: 必須定義 dashboard evidence badge 的資料 adapter schema。
+    - target_id: generated_site_validation_updated
+      required: true
+      description_zh: 必須更新 generated site validation，檢查 no trade signal / no phase override。
+    - target_id: html_text_safety_tests_added
+      required: true
+      description_zh: 必須測試 HTML 不含買賣建議、allocation、phase override。
+    - target_id: accessibility_and_empty_state_defined
+      required: true
+      description_zh: 必須定義 badge empty state 與 accessibility labels。
+    - target_id: no_public_output_in_planning_phase
+      required: true
+      description_zh: 規劃階段不得產生 public output。
+    - target_id: no_formal_decision_impact
+      required: true
+      description_zh: evidence display 不得影響 current_phase_id / decision_status。
+
+  phase_7g_closure:
+    status: ready_to_close_after_validation
+    conclusion_zh: >
+      Phase 7G 已完成 dashboard evidence display 的 schema、fixtures、renderer contract 與 display model validation。
+      目前可安全收斂為「fully specified but not wired」狀態。
+      後續可選擇進入 dashboard data adapter design，或轉入 Phase 8 portfolio policy research planning。
+    recommended_next_phase:
+      phase_id: 8A
+      title: portfolio policy research planning
+      reason_zh: >
+        transition evidence display 已完成規格與安全驗證，但尚未接 dashboard。
+        下一步可開始規格化書中榮景減碼與衰退後再加碼策略，作為 portfolio policy research 的前置設計。

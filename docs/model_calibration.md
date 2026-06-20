@@ -722,6 +722,16 @@ Display fixtures 是 future dashboard diagnostics 的 renderer-level guard。Val
 
 Phase 7G4 只做 display model contract validation，不接 dashboard templates、不產生 `public/` output，也不構成投資建議。
 
+## Phase 7G5 Dashboard Evidence Integration Readiness
+
+Phase 7G5 建立 dashboard evidence integration readiness checklist，彙整 Phase 7G 到 7G4 的 schema、fixtures、renderer contract、display model fixtures 與 validator 狀態。
+
+```bash
+python scripts/show_dashboard_evidence_integration_readiness.py
+```
+
+此 checklist 明確指出 dashboard wiring 仍 blocked：尚未定義 data adapter schema、尚未更新 generated site validation、尚未加入 HTML text-safety tests，也不得影響 `current_phase_id` 或 `decision_status`。Phase 7G 可收斂為 fully specified but not wired。下一步轉 Phase 8A portfolio policy research planning。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

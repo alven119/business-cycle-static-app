@@ -526,6 +526,18 @@ python scripts/validate_transition_evidence_badge_display_fixtures.py
 
 本階段不改 dashboard templates、不產生 `public/` output、不改正式模型。
 
+## Phase 7G5 Dashboard Evidence Integration Readiness
+
+Phase 7G5 彙整 Phase 7G 到 7G4 的 schema、fixtures、renderer contract、display model fixtures 與 validator，建立 dashboard evidence integration readiness checklist。
+
+```bash
+python scripts/show_dashboard_evidence_integration_readiness.py
+```
+
+Readiness checklist 結論是：Phase 7G 已完成 dashboard evidence display 的規格與安全驗證，可收斂為 fully specified but not wired。Dashboard wiring 仍被 blocker 擋住，直到 data adapter schema、generated site validation、HTML text-safety tests、accessibility / empty state 與 no formal decision impact tests 完成。
+
+下一步建議轉 Phase 8A：portfolio policy research planning。本階段不接 dashboard、不產生 `public/` output、不改正式模型。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

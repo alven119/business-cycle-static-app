@@ -127,3 +127,13 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - none
+
+  dashboard_evidence_integration_readiness:
+    hard_gates:
+      - dashboard_wiring_allowed_now == false
+      - public_output_allowed_now == false
+      - formal_decision_impact_allowed == false
+      - phase_7g_closure_status == ready_to_close_after_validation
+      - recommended_next_phase == 8A
+    soft_warnings_allowed:
+      - active_blocker_count > 0 because dashboard wiring is intentionally blocked
