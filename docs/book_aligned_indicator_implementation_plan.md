@@ -380,6 +380,25 @@ Diagnostics 明確限制：policy easing 只能作為 support signal，不得單
 
 本階段不接正式模型、不改 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
 
+## Phase 7F3.2 Recovery Attribution And Refinement Plan
+
+Phase 7F3.2 針對 7F3.1 diagnostics 的 mismatch 做 attribution 與 refinement plan。重點問題包括：euro debt 2011 被判為 strong、late-cycle 2018 被判為 watch、dotcom 2002-03 與 COVID 2020-04 recovery watch miss。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_attribution.py
+python scripts/show_recovery_refinement_plan.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recovery_diagnostics/recovery_attribution.json
+specs/backtests/recovery_refinement_plan.yaml
+```
+
+此階段結論聚焦於後續需要 `recession_context_gate` 與 `policy_and_financial_support_cap`：policy / financial easing 可支持 recovery，但不得單獨確認 recovery。下一步 Phase 7F3.3 才會實作 experimental scoring refinements。本階段不改正式模型、不進 dashboard，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

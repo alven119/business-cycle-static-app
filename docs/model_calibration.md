@@ -601,6 +601,20 @@ data/backtests/candidate_indicators/recovery_diagnostics/recovery_diagnostics.js
 
 此 diagnostics 使用 `strong/watch/weak/none`，但 `recovery watch` 不等於正式復甦確認。Policy easing 只能是 support signal，不能單獨確認 recovery。COVID 外生衝擊後的快速反彈需保留 caveat，不應直接等同一般景氣循環復甦。本階段不改 live dashboard，也不構成投資建議。
 
+## Phase 7F3.2 Recovery Attribution And Refinement Plan
+
+Phase 7F3.2 將 7F3.1 recovery diagnostics 的 mismatch 拆解為 indicator / group attribution，並建立 refinement plan。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_attribution.py
+python scripts/show_recovery_refinement_plan.py
+```
+
+Attribution 用來回答 euro debt / 2018 false positive、dotcom / COVID missed recovery watch，以及 GFC 有效訊號來自哪些群組。Refinement plan 明確要求下一步補 `recession_context_gate`，並限制 policy / financial easing 不能單獨推升到 recovery watch/strong。
+
+Phase 7F3.2 仍只做 diagnostics 與 plan，不改 scoring、不改 resolver、不改 FRED provider、不進 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

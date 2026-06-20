@@ -549,6 +549,19 @@ python -m json.tool data/backtests/candidate_indicators/recovery_diagnostics/rec
 
 The diagnostics output is generated ignored data. Recovery watch is not formal recovery confirmation, policy easing cannot confirm recovery by itself, and the output does not affect formal phase scoring or the live dashboard.
 
+## Phase 7F3.2 recovery attribution and refinement plan
+
+Phase 7F3.2 attributes recovery diagnostics mismatches and records the next refinement plan.
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_attribution.py
+python scripts/show_recovery_refinement_plan.py
+python -m json.tool data/backtests/candidate_indicators/recovery_diagnostics/recovery_attribution.json | head -n 320
+```
+
+The attribution output is generated ignored data under `data/backtests/`. The plan lives at `specs/backtests/recovery_refinement_plan.yaml`. This phase does not change formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

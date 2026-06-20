@@ -1,0 +1,100 @@
+recovery_refinement_plan:
+  version: 1
+  status: draft
+  data_mode: revised
+  objective_zh: >
+    根據 Phase 7F3.1 recovery diagnostics，
+    分析 recovery / recession trough candidate indicators 在 GFC、dotcom、COVID、euro debt 與 2018 場景中的有效性，
+    並規劃後續 scoring refinement 與 recovery watch rule guardrails。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental diagnostics refinement plan，不代表正式模型已更新。
+    - recovery watch 不等於正式復甦確認。
+    - policy easing 不得單獨確認 recovery。
+    - 外生衝擊案例中，COVID 快速反彈不等同一般景氣循環復甦。
+    - 不構成投資建議。
+  input_findings:
+    diagnostic_point_count: 12
+    match_count: 8
+    mismatch_count: 4
+    strong_count: 2
+    watch_count: 5
+    weak_count: 5
+    policy_only_warning_count: 2
+    unexpected_strong_points:
+      - euro_debt_slowdown:2011-12-31:euro_debt_non_recession
+    missed_recovery_watch_points:
+      - dotcom_bubble:2002-03-31:dotcom_recovery_initial
+      - covid_recession:2020-04-30:covid_trough_area
+  diagnosed_issues:
+    - issue_id: euro_debt_false_recovery_strong
+      severity: high
+      description_zh: euro debt 2011 屬非正式衰退 slowdown，卻被 recovery diagnostics 判為 strong，表示目前 recovery scoring 缺少 recession-context gate。
+      candidate_causes:
+        - financial stress easing 或 credit easing 在非衰退 slowdown 後也可能出現。
+        - policy/financial easing 可能被過度解讀為 recovery。
+        - 缺少 recession confirmation / recession-depth context。
+    - issue_id: late_cycle_2018_false_recovery_watch
+      severity: medium
+      description_zh: 2018 late-cycle risk 被判為 watch，表示 recovery scoring 可能把風險緩和誤解為復甦訊號。
+      candidate_causes:
+        - 缺少 recession-state prerequisite。
+        - real activity bottoming score 可能對一般波動太敏感。
+    - issue_id: dotcom_recovery_initial_missed
+      severity: medium
+      description_zh: dotcom 2002-03 recovery initial 只得到 weak，表示 recovery scoring 對 dotcom 類型的緩慢復甦不夠敏感。
+      candidate_causes:
+        - labor peak reversal 可能滯後。
+        - real activity rebound threshold 可能過高。
+        - scoring 太依賴金融壓力緩解。
+    - issue_id: covid_trough_area_missed
+      severity: medium
+      description_zh: COVID 2020-04 trough area 只得到 weak，表示 scoring 對急速外生衝擊後的快速落底反應不足。
+      candidate_causes:
+        - moving average / persistence window 對 COVID 這種短週期衝擊太慢。
+        - 需要 exogenous shock caveat 與 separate interpretation。
+    - issue_id: policy_only_or_financial_only_risk
+      severity: high
+      description_zh: policy easing 與 financial stress easing 可支持復甦，但不能單獨確認 recovery。
+      candidate_causes:
+        - 缺少 labor / real activity confirmation gate。
+  proposed_refinements:
+    - refinement_id: recession_context_gate
+      priority: high
+      target:
+        - recovery_diagnostics
+        - recovery_watch_rule
+      description_zh: recovery watch/strong 必須建立在近期曾有 recession confirmed、recession watch、或 sufficient recession-depth evidence 的 context 上，避免 euro debt / 2018 類 non-recession false positive。
+    - refinement_id: policy_and_financial_support_cap
+      priority: high
+      target:
+        - policy_easing_support_score
+        - financial_stress_easing_score
+        - credit_stress_easing_score
+      description_zh: 若只有 policy / financial easing，最多 weak；必須搭配 labor reversal 或 real activity rebound 才能進 watch/strong。
+    - refinement_id: labor_reversal_persistence_tuning
+      priority: medium
+      target:
+        - initial_jobless_claims_peak_reversal
+        - continuing_jobless_claims_peak_reversal
+        - short_term_unemployment_peak_reversal
+      description_zh: 調整 peak reversal 的 persistence 與 drawdown threshold，使其能抓到 GFC / dotcom 復甦初期，但避免單期跳動。
+    - refinement_id: real_activity_bottoming_sensitivity
+      priority: medium
+      target:
+        - real_retail_sales_bottoming
+        - real_pce_bottoming
+        - industrial_production_bottoming
+        - durable_goods_orders_bottoming
+      description_zh: 檢查 real activity bottoming 對不同衰退型態的敏感度，避免 non-recession 反彈誤判。
+    - refinement_id: covid_exogenous_shock_profile
+      priority: medium
+      target:
+        - covid_recession
+      description_zh: COVID 類外生衝擊應以 caveated diagnostics 處理，不直接用一般景氣循環 threshold 評價。
+  recommended_next_phase:
+    phase_id: 7F3.3
+    title: implement recovery scoring refinements with recession context gate
+    reason_zh: >
+      Phase 7F3.1 顯示 recovery candidates 可抓到 GFC trough/recovery，
+      但 euro debt / 2018 false positives 與 dotcom/COVID misses 需要先透過 context gate 與 scoring refinement 修正。
