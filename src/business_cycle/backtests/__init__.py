@@ -170,6 +170,12 @@ from business_cycle.backtests.recovery_refinement import (
     load_recovery_refinement_plan,
     validate_recovery_refinement_plan,
 )
+from business_cycle.backtests.recovery_refinement_experiment import (
+    RecoveryRefinementExperimentError,
+    build_recovery_refinement_experiment,
+    load_recovery_scoring_refinement_experiment,
+    write_recovery_refinement_experiment,
+)
 from business_cycle.backtests.calibration import (
     CalibrationPlan,
     CalibrationPlanError,
@@ -264,6 +270,7 @@ __all__ = [
     "RecoveryDiagnosticsError",
     "RecoveryRefinementPlan",
     "RecoveryRefinementPlanError",
+    "RecoveryRefinementExperimentError",
     "attribution_quality_counts",
     "build_attribution_smoke_summary",
     "build_backtest_smoke_summary",
@@ -289,6 +296,7 @@ __all__ = [
     "build_recovery_point_summary",
     "build_recovery_attribution",
     "build_recovery_attribution_from_file",
+    "build_recovery_refinement_experiment",
     "build_transition_attribution",
     "candidate_fred_series_ids",
     "check_boom_ending_candidate_coverage",
@@ -333,6 +341,7 @@ __all__ = [
     "load_recovery_candidate_indicators",
     "load_recovery_diagnostic_windows",
     "load_recovery_refinement_plan",
+    "load_recovery_scoring_refinement_experiment",
     "purpose_groups",
     "run_attribution_smoke",
     "run_backtest",
@@ -372,6 +381,7 @@ __all__ = [
     "write_recovery_candidate_scores",
     "write_recovery_diagnostics",
     "write_recovery_attribution",
+    "write_recovery_refinement_experiment",
     "write_candidate_recession_diagnostics",
     "write_candidate_recession_rule_report",
     "write_candidate_recession_overlay_report",

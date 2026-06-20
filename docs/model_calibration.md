@@ -615,6 +615,19 @@ Attribution 用來回答 euro debt / 2018 false positive、dotcom / COVID missed
 
 Phase 7F3.2 仍只做 diagnostics 與 plan，不改 scoring、不改 resolver、不改 FRED provider、不進 live dashboard，也不構成投資建議。
 
+## Phase 7F3.3 Recovery Scoring Refinement Experiment
+
+Phase 7F3.3 實作 experimental recovery scoring refinements，加入 recession-context gate、policy/financial support cap、labor reversal tuning 與 real activity bottoming tuning。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_refinement_experiment.py
+```
+
+此 comparison 的重點是：non-recession slowdown 不應被誤判為 recovery strong/watch，policy easing 與 financial easing 不能單獨確認 recovery，而 GFC / dotcom / COVID trough 附近的 recovery evidence 仍需保留。`recovery watch` 仍不等於正式復甦確認，COVID 類外生衝擊仍需 caveat。
+
+Phase 7F3.3 不改正式 phase scoring、不改 resolver、不改 FRED provider、不進 live dashboard，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

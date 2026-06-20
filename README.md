@@ -562,6 +562,18 @@ python -m json.tool data/backtests/candidate_indicators/recovery_diagnostics/rec
 
 The attribution output is generated ignored data under `data/backtests/`. The plan lives at `specs/backtests/recovery_refinement_plan.yaml`. This phase does not change formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
 
+## Phase 7F3.3 recovery scoring refinement experiment
+
+Phase 7F3.3 compares baseline recovery diagnostics with refined experimental scoring.
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_refinement_experiment.py
+python -m json.tool data/backtests/candidate_indicators/recovery_refinement/recovery_refinement_experiment.json | head -n 420
+```
+
+The refined comparison adds a recession-context gate and caps policy/financial-only support signals. The output is generated ignored data and does not affect formal phase scoring, resolver logic, FRED provider behavior, or live dashboard output.
+
 ## Phase 5B GitHub Pages deployment
 
 Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.

@@ -44,6 +44,7 @@ class RecoveryDiagnosticPoint:
     expected_status: str
     reason_zh: str
     caveat: str | None
+    context: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -279,6 +280,7 @@ def _points_from_list(raw_points: Any) -> list[RecoveryDiagnosticPoint]:
                 expected_status=str(point.get("expected_status") or ""),
                 reason_zh=str(point.get("reason_zh") or ""),
                 caveat=str(point["caveat"]) if point.get("caveat") else None,
+                context=dict(point.get("context", {})) if isinstance(point.get("context", {}), dict) else {},
             )
         )
     if any(not point.scenario_id or not point.as_of or not point.label for point in points):

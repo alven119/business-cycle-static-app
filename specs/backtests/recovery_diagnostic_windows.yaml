@@ -19,42 +19,77 @@ recovery_diagnostic_windows:
       label: dotcom_recession_early
       expected_status: weak_or_none
       reason_zh: dotcom 衰退早期，不應過早出現 strong recovery。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 65
+        exogenous_shock_caveat: false
 
     - scenario_id: dotcom_bubble
       as_of: "2001-11-30"
       label: dotcom_recession_trough_area
       expected_status: watch_or_strong
       reason_zh: NBER recession 接近結束，應開始出現 recovery / trough evidence。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 80
+        exogenous_shock_caveat: false
 
     - scenario_id: dotcom_bubble
       as_of: "2002-03-31"
       label: dotcom_recovery_initial
       expected_status: watch_or_strong
       reason_zh: 復甦初期應出現較明顯 recovery evidence。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 75
+        exogenous_shock_caveat: false
 
     - scenario_id: global_financial_crisis
       as_of: "2008-10-31"
       label: gfc_crisis_peak
       expected_status: weak_or_none
       reason_zh: 金融海嘯高峰不應過早確認 recovery。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 90
+        exogenous_shock_caveat: false
 
     - scenario_id: global_financial_crisis
       as_of: "2009-03-31"
       label: gfc_policy_stress_easing_but_labor_not_ready
       expected_status: weak_or_watch
       reason_zh: 政策與金融壓力可能改善，但勞動市場不一定已確認落底。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 90
+        exogenous_shock_caveat: false
 
     - scenario_id: global_financial_crisis
       as_of: "2009-06-30"
       label: gfc_trough_area
       expected_status: watch_or_strong
       reason_zh: NBER trough 附近，應開始出現 recovery / trough evidence。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 85
+        exogenous_shock_caveat: false
 
     - scenario_id: global_financial_crisis
       as_of: "2009-09-30"
       label: gfc_recovery_initial
       expected_status: watch_or_strong
       reason_zh: 復甦初期應有更明確 recovery evidence。
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 80
+        exogenous_shock_caveat: false
 
     - scenario_id: covid_recession
       as_of: "2020-03-31"
@@ -62,6 +97,11 @@ recovery_diagnostic_windows:
       expected_status: weak_or_none
       reason_zh: COVID 衝擊初期，不應將政策反應直接視為 recovery。
       caveat: exogenous_shock
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 90
+        exogenous_shock_caveat: true
 
     - scenario_id: covid_recession
       as_of: "2020-04-30"
@@ -69,6 +109,11 @@ recovery_diagnostic_windows:
       expected_status: watch_or_strong
       reason_zh: COVID recession trough 附近可能快速出現 recovery evidence，但需 caveat。
       caveat: exogenous_shock
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 90
+        exogenous_shock_caveat: true
 
     - scenario_id: covid_recession
       as_of: "2020-06-30"
@@ -76,15 +121,30 @@ recovery_diagnostic_windows:
       expected_status: watch_or_strong
       reason_zh: COVID 初期復甦訊號應較明顯，但屬外生衝擊後反彈。
       caveat: exogenous_shock
+      context:
+        recent_formal_recession_phase: true
+        recent_recession_candidate_watch_or_confirmed: true
+        recession_depth_proxy_score: 85
+        exogenous_shock_caveat: true
 
     - scenario_id: euro_debt_slowdown
       as_of: "2011-12-31"
       label: euro_debt_non_recession
       expected_status: weak_or_none
       reason_zh: 非正式衰退 slowdown，不應出現 strong recovery。
+      context:
+        recent_formal_recession_phase: false
+        recent_recession_candidate_watch_or_confirmed: false
+        recession_depth_proxy_score: 20
+        exogenous_shock_caveat: false
 
     - scenario_id: late_cycle_2018
       as_of: "2018-12-31"
       label: late_cycle_2018_non_recession
       expected_status: weak_or_none
       reason_zh: late-cycle risk 不是 recession trough，不應出現 strong recovery。
+      context:
+        recent_formal_recession_phase: false
+        recent_recession_candidate_watch_or_confirmed: false
+        recession_depth_proxy_score: 20
+        exogenous_shock_caveat: false

@@ -1,0 +1,90 @@
+recovery_scoring_refinement_experiment:
+  version: 1
+  status: experimental
+  data_mode: revised
+  objective_zh: >
+    比較 baseline recovery diagnostics 與 refined recovery scoring，
+    檢查 recession-context gate、policy/financial support cap、labor reversal tuning 與 real activity bottoming tuning
+    是否能降低 non-recession false positives，同時保留 GFC / dotcom / COVID trough recovery evidence。
+  caveats_zh:
+    - 使用修訂後歷史資料，不等同當時投資人可見資料。
+    - 此為 experimental scoring refinement，不代表正式模型已更新。
+    - recovery watch 不等於正式復甦確認。
+    - policy easing 不得單獨確認 recovery。
+    - 外生衝擊案例中，COVID 快速反彈不等同一般景氣循環復甦。
+    - 不構成投資建議。
+  inputs:
+    recovery_candidate_spec: specs/backtests/recovery_candidate_indicators.yaml
+    recovery_diagnostic_windows: specs/backtests/recovery_diagnostic_windows.yaml
+    baseline_diagnostics: data/backtests/candidate_indicators/recovery_diagnostics/recovery_diagnostics.json
+  refined_profile:
+    profile_id: recovery_refined_v1
+    recession_context_gate:
+      enabled: true
+      allow_strong_without_recession_context: false
+      allow_watch_without_recession_context: false
+      recession_context_sources:
+        - recent_formal_recession_phase
+        - recent_recession_candidate_confirmed_or_watch
+        - sufficient_recession_depth_proxy
+      lookback_months: 12
+      min_recession_depth_score: 60.0
+      description_zh: >
+        recovery watch / strong 必須建立在近期曾有 recession context 或足夠衰退深度證據上，
+        避免 euro debt / 2018 類 non-recession easing 被誤判為 recovery。
+    support_signal_cap:
+      enabled: true
+      policy_financial_only_max_status: weak
+      require_labor_or_real_activity_for_watch: true
+      require_labor_and_real_activity_or_credit_for_strong: true
+    labor_reversal:
+      method: peak_reversal_with_persistence_and_depth
+      moving_average_window: 4
+      peak_lookback_months: 12
+      min_drawdown_from_peak_for_watch: 0.08
+      min_persistence_share_for_watch: 0.5
+      slow_recovery_sensitivity: true
+    real_activity_bottoming:
+      method: trough_rebound_with_momentum_confirmation
+      moving_average_window: 3
+      trough_lookback_months: 12
+      min_rebound_from_trough_for_watch: 0.01
+      allow_slow_recovery_momentum: true
+      require_positive_recent_slope: true
+    exogenous_shock_profile:
+      enabled: true
+      shock_rebound_window_months: 3
+      allow_fast_trough_watch_with_caveat: true
+      max_status_without_labor_confirmation: watch
+  expected_refinement_outcomes:
+    - scenario_id: euro_debt_slowdown
+      as_of: "2011-12-31"
+      label: euro_debt_non_recession
+      expected_max_status: weak
+      reason_zh: 非正式衰退 slowdown 不應被判為 strong recovery。
+    - scenario_id: late_cycle_2018
+      as_of: "2018-12-31"
+      label: late_cycle_2018_non_recession
+      expected_max_status: weak
+      reason_zh: late-cycle risk 不是 recession trough，不應被判為 recovery watch。
+    - scenario_id: global_financial_crisis
+      as_of: "2009-06-30"
+      label: gfc_trough_area
+      expected_min_status: watch
+      reason_zh: GFC trough 附近應保留 recovery watch。
+    - scenario_id: global_financial_crisis
+      as_of: "2009-09-30"
+      label: gfc_recovery_initial
+      expected_min_status: watch
+      reason_zh: GFC 復甦初期應保留 recovery evidence。
+    - scenario_id: dotcom_bubble
+      as_of: "2002-03-31"
+      label: dotcom_recovery_initial
+      expected_min_status: watch
+      reason_zh: dotcom 慢速復甦初期應至少進入 recovery watch。
+    - scenario_id: covid_recession
+      as_of: "2020-04-30"
+      label: covid_trough_area
+      expected_min_status: watch
+      reason_zh: COVID trough 附近可進入 caveated recovery watch。
+      caveat: exogenous_shock

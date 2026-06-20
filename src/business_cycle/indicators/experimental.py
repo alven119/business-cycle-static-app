@@ -1010,6 +1010,246 @@ def policy_easing_support_score(
     )
 
 
+def peak_reversal_score_refined(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "initial_jobless_claims_peak_reversal",
+    as_of: str | date | None = None,
+    config: dict[str, Any] | None = None,
+) -> ExperimentalIndicatorScore:
+    """Refined peak-reversal score for recovery diagnostics only."""
+
+    cfg = config or {}
+    moving_average_window = int(cfg.get("moving_average_window", 4))
+    peak_lookback_periods = int(cfg.get("peak_lookback_months", cfg.get("peak_lookback_periods", 12)))
+    min_drawdown = float(cfg.get("min_drawdown_from_peak_for_watch", 0.08))
+    min_persistence = float(cfg.get("min_persistence_share_for_watch", 0.5))
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "peak_reversal_score_refined"})
+    smoothed = cleaned["value"].astype(float).rolling(
+        moving_average_window,
+        min_periods=moving_average_window,
+    ).mean()
+    recent = smoothed.dropna().tail(peak_lookback_periods)
+    if len(recent) < max(6, moving_average_window + 2):
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法以 refined peak reversal 判斷復甦落底。",
+            {"method": "peak_reversal_score_refined", "moving_average_window": moving_average_window},
+            24,
+            "peak_reversal_score_refined",
+        )
+
+    recent_peak = float(recent.max())
+    latest_value = float(recent.iloc[-1])
+    drawdown = 0.0 if recent_peak == 0 else max(0.0, (recent_peak - latest_value) / abs(recent_peak))
+    recent_changes = recent.diff().dropna().tail(max(3, min(6, len(recent) - 1)))
+    persistence_share = float((recent_changes < 0.0).mean()) if not recent_changes.empty else 0.0
+    slow_recovery_component = 0.0
+    if cfg.get("slow_recovery_sensitivity", False):
+        longer_changes = recent.diff().dropna().tail(min(8, max(1, len(recent) - 1)))
+        slow_recovery_component = (
+            float((longer_changes < 0.0).mean()) if not longer_changes.empty else 0.0
+        )
+    drawdown_component = min(1.0, drawdown / max(min_drawdown, 0.001))
+    persistence_component = min(1.0, persistence_share / max(min_persistence, 0.001))
+    final_score = _clamp_score(
+        35.0
+        + 35.0 * drawdown_component
+        + 20.0 * persistence_component
+        + 10.0 * slow_recovery_component
+    )
+    confidence = _confidence(cleaned, max(12, moving_average_window + peak_lookback_periods // 2)) * max(
+        0.35,
+        persistence_share,
+    )
+    confidence_reason = "persistent_reversal"
+    if persistence_share < min_persistence:
+        confidence *= 0.7
+        confidence_reason = "low_persistence"
+    if drawdown < min_drawdown * 0.5:
+        confidence *= 0.8
+        confidence_reason = "low_drawdown"
+    reason = "以 refined 高點反轉、回落深度與持續性判斷 recovery trough 訊號，避免單期回落。"
+    return _result(
+        indicator_id,
+        final_score,
+        confidence,
+        cleaned,
+        reason,
+        "peak_reversal_score_refined",
+        {
+            "recent_peak": recent_peak,
+            "latest_value": latest_value,
+            "drawdown_from_peak": drawdown,
+            "persistence_share": persistence_share,
+            "slow_recovery_component": slow_recovery_component,
+            "final_score_before_context_gate": final_score,
+            "confidence_reason": confidence_reason,
+            "moving_average_window": moving_average_window,
+            "peak_lookback_periods": peak_lookback_periods,
+        },
+    )
+
+
+def bottoming_momentum_score_refined(
+    series: pd.DataFrame,
+    *,
+    indicator_id: str = "real_retail_sales_bottoming",
+    as_of: str | date | None = None,
+    config: dict[str, Any] | None = None,
+) -> ExperimentalIndicatorScore:
+    """Refined bottoming momentum score for recovery diagnostics only."""
+
+    cfg = config or {}
+    moving_average_window = int(cfg.get("moving_average_window", 3))
+    trough_lookback_periods = int(cfg.get("trough_lookback_months", cfg.get("trough_lookback_periods", 12)))
+    min_rebound = float(cfg.get("min_rebound_from_trough_for_watch", 0.01))
+    cleaned = _prepare(series, as_of=as_of)
+    if cleaned.empty:
+        return _empty_result(indicator_id, as_of, "沒有可用資料。", {"method": "bottoming_momentum_score_refined"})
+    smoothed = cleaned["value"].astype(float).rolling(
+        moving_average_window,
+        min_periods=moving_average_window,
+    ).mean()
+    recent = smoothed.dropna().tail(trough_lookback_periods)
+    if len(recent) < max(6, moving_average_window + 2):
+        return _low_information_result(
+            indicator_id,
+            cleaned,
+            "資料不足，尚無法以 refined bottoming momentum 判斷落底回升。",
+            {"method": "bottoming_momentum_score_refined", "moving_average_window": moving_average_window},
+            24,
+            "bottoming_momentum_score_refined",
+        )
+
+    recent_trough = float(recent.min())
+    latest_value = float(recent.iloc[-1])
+    rebound = 0.0 if recent_trough == 0 else max(0.0, (latest_value - recent_trough) / abs(recent_trough))
+    recent_slopes = recent.diff().dropna().tail(max(3, min(6, len(recent) - 1)))
+    positive_slope_share = float((recent_slopes > 0.0).mean()) if not recent_slopes.empty else 0.0
+    slope_signal = max(0.0, _tanh_signal(float(recent_slopes.mean()), _scale(recent.diff().dropna()))) if not recent_slopes.empty else 0.0
+    slow_recovery_component = 0.0
+    if cfg.get("allow_slow_recovery_momentum", False):
+        longer = recent.diff().dropna().tail(min(8, max(1, len(recent) - 1)))
+        slow_recovery_component = float((longer > 0.0).mean()) if not longer.empty else 0.0
+    rebound_component = min(1.0, rebound / max(min_rebound, 0.001))
+    final_score = _clamp_score(
+        35.0
+        + 35.0 * rebound_component
+        + 15.0 * positive_slope_share
+        + 10.0 * slope_signal
+        + 5.0 * slow_recovery_component
+    )
+    if cfg.get("require_positive_recent_slope", False) and positive_slope_share < 0.34:
+        final_score = min(final_score, 62.0)
+    confidence = _confidence(cleaned, max(12, moving_average_window + trough_lookback_periods // 2)) * max(
+        0.35,
+        positive_slope_share,
+    )
+    confidence_reason = "persistent_rebound"
+    if positive_slope_share < 0.5:
+        confidence *= 0.75
+        confidence_reason = "low_positive_slope_share"
+    reason = "以 refined 低點反彈、近期斜率與慢速復甦動能判斷 recovery bottoming。"
+    return _result(
+        indicator_id,
+        final_score,
+        confidence,
+        cleaned,
+        reason,
+        "bottoming_momentum_score_refined",
+        {
+            "recent_trough": recent_trough,
+            "latest_value": latest_value,
+            "rebound_from_trough": rebound,
+            "recent_slopes": recent_slopes.tolist(),
+            "positive_slope_share": positive_slope_share,
+            "slow_recovery_component": slow_recovery_component,
+            "final_score_before_context_gate": final_score,
+            "confidence_reason": confidence_reason,
+            "moving_average_window": moving_average_window,
+            "trough_lookback_periods": trough_lookback_periods,
+        },
+    )
+
+
+def recovery_support_signal_score_cap(
+    scores: list[dict[str, Any]],
+    groups: dict[str, list[str]] | dict[str, str],
+    config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Evaluate support-only recovery signal cap for diagnostics."""
+
+    cfg = config or {}
+    groups_by_indicator = _groups_by_indicator_for_cap(groups)
+    high_scores = [
+        score for score in scores if _score_value(score) >= 65.0 and _confidence_value(score) >= 0.5
+    ]
+    high_groups = {
+        groups_by_indicator.get(str(score.get("indicator_id")))
+        for score in high_scores
+        if groups_by_indicator.get(str(score.get("indicator_id")))
+    }
+    support_groups = {"policy_support", "credit_financial_easing"}
+    confirmation_groups = {"labor_reversal", "consumption_recovery", "production_recovery"}
+    support_only = bool(high_groups) and bool(high_groups <= support_groups)
+    has_labor_or_real_activity = bool(high_groups & confirmation_groups)
+    support_only_cap_applied = bool(cfg.get("enabled", True)) and (
+        support_only or (cfg.get("require_labor_or_real_activity_for_watch", True) and not has_labor_or_real_activity)
+    )
+    max_status = str(cfg.get("policy_financial_only_max_status", "weak")) if support_only_cap_applied else "strong"
+    return {
+        "support_only_signal": support_only,
+        "support_only_cap_applied": support_only_cap_applied,
+        "high_signal_groups": sorted(group for group in high_groups if group),
+        "has_labor_or_real_activity": has_labor_or_real_activity,
+        "max_allowed_status_after_support_cap": max_status,
+        "notes_zh": [
+            "policy / financial easing 不得單獨確認 recovery。"
+        ] if support_only_cap_applied else [],
+    }
+
+
+def recession_context_gate_score(
+    context: dict[str, Any],
+    scores: list[dict[str, Any]],
+    config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Evaluate recession-context gate for refined recovery diagnostics."""
+
+    cfg = config or {}
+    min_depth = float(cfg.get("min_recession_depth_score", 60.0))
+    recent_formal = bool(context.get("recent_formal_recession_phase"))
+    recent_watch = bool(context.get("recent_recession_candidate_watch_or_confirmed"))
+    depth_score = float(context.get("recession_depth_proxy_score") or 0.0)
+    exogenous = bool(context.get("exogenous_shock_caveat"))
+    context_sources: list[str] = []
+    if recent_formal:
+        context_sources.append("recent_formal_recession_phase")
+    if recent_watch:
+        context_sources.append("recent_recession_candidate_confirmed_or_watch")
+    if depth_score >= min_depth:
+        context_sources.append("sufficient_recession_depth_proxy")
+    recession_context_detected = bool(context_sources)
+    max_allowed = "strong" if recession_context_detected else "weak"
+    if exogenous:
+        max_allowed = str(cfg.get("exogenous_max_status", "watch"))
+    if not bool(cfg.get("enabled", True)):
+        max_allowed = "strong"
+    return {
+        "recession_context_detected": recession_context_detected,
+        "context_sources": context_sources,
+        "context_gate_applied": bool(cfg.get("enabled", True)) and not recession_context_detected,
+        "max_allowed_status_after_context": max_allowed,
+        "exogenous_shock_caveat": exogenous,
+        "recession_depth_proxy_score": depth_score,
+        "score_count": len(scores),
+    }
+
+
 def score_to_dict(score: ExperimentalIndicatorScore) -> dict[str, Any]:
     """Serialize an experimental score."""
 
@@ -1067,6 +1307,35 @@ def _credit_spread_candidate(
         "widening_share": widening_share,
         "velocity_scale": velocity_scale,
     }
+
+
+def _groups_by_indicator_for_cap(groups: dict[str, list[str]] | dict[str, str]) -> dict[str, str]:
+    if not groups:
+        return {}
+    sample = next(iter(groups.values()))
+    if isinstance(sample, str):
+        return {str(indicator_id): str(group_id) for indicator_id, group_id in groups.items()}
+    return {
+        str(indicator_id): str(group_id)
+        for group_id, indicator_ids in groups.items()
+        for indicator_id in indicator_ids
+    }
+
+
+def _score_value(score: dict[str, Any]) -> float:
+    value = score.get("score")
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _confidence_value(score: dict[str, Any]) -> float:
+    value = score.get("confidence")
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def _first_sustained_true_run(

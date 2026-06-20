@@ -399,6 +399,23 @@ specs/backtests/recovery_refinement_plan.yaml
 
 此階段結論聚焦於後續需要 `recession_context_gate` 與 `policy_and_financial_support_cap`：policy / financial easing 可支持 recovery，但不得單獨確認 recovery。下一步 Phase 7F3.3 才會實作 experimental scoring refinements。本階段不改正式模型、不進 dashboard，也不構成投資建議。
 
+## Phase 7F3.3 Recovery Scoring Refinement Experiment
+
+Phase 7F3.3 實作 experimental recovery scoring refinements，加入 recession-context gate 與 policy/financial support cap，並比較 baseline diagnostics 與 refined diagnostics。
+
+```bash
+python scripts/run_recovery_diagnostics.py
+python scripts/run_recovery_refinement_experiment.py
+```
+
+輸出：
+
+```text
+data/backtests/candidate_indicators/recovery_refinement/recovery_refinement_experiment.json
+```
+
+Refinement 目標是降低 euro debt / 2018 non-recession false positives，同時保留 GFC trough / recovery evidence，並改善 dotcom 與 COVID trough watch。COVID 仍需保留 exogenous shock caveat。此階段仍不接正式模型、不改 phase scoring、不改 resolver、不進 dashboard，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：
