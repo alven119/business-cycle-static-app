@@ -69,6 +69,7 @@ def summarize_point_in_time_coverage(
     formal_direct = list(formal_dependencies.direct_series_ids)
     formal_covered: dict[str, bool] = {}
     formal_blockers: dict[str, str] = {}
+    per_series_pairs: dict[str, dict[str, Any]] = {}
     covered_pair_count = 0
     missing_pair_count = 0
     invalid_realtime_interval_count = 0
@@ -81,10 +82,20 @@ def summarize_point_in_time_coverage(
     total_pair_count = len(formal_direct) * len(as_of_dates)
     for series_id in formal_direct:
         row = row_by_id.get(series_id, {})
+        per_series_pairs[series_id] = {
+            "required_pair_count": len(as_of_dates),
+            "covered_pair_count": 0,
+            "missing_pair_count": 0,
+            "first_covered_as_of": None,
+            "last_covered_as_of": None,
+            "first_missing_as_of": None,
+            "last_missing_as_of": None,
+        }
         if not row.get("point_in_time_eligible"):
             formal_covered[series_id] = False
             formal_blockers[series_id] = str(row.get("caveats") or "not point-in-time eligible")
             missing_pair_count += len(as_of_dates)
+            _mark_all_missing(per_series_pairs[series_id], as_of_dates)
             continue
         try:
             cached = cache.read_series(series_id)
@@ -94,6 +105,7 @@ def summarize_point_in_time_coverage(
             if cache.exists(series_id):
                 cache_validation_failure_series.add(series_id)
             missing_pair_count += len(as_of_dates)
+            _mark_all_missing(per_series_pairs[series_id], as_of_dates)
             continue
         if _manifest_is_live_verified_exact(cached.manifest):
             live_verified_exact_series.add(series_id)
@@ -122,14 +134,26 @@ def summarize_point_in_time_coverage(
             if snapshot.observations:
                 series_as_of_covered += 1
                 covered_pair_count += 1
+                _mark_covered(per_series_pairs[series_id], as_of)
             else:
                 missing_pair_count += 1
+                _mark_missing(per_series_pairs[series_id], as_of)
         formal_covered[series_id] = series_as_of_covered == len(as_of_dates)
         if not formal_covered[series_id] and series_id not in formal_blockers:
             formal_blockers[series_id] = "cache lacks one or more required as_of snapshots"
 
     formal_exact = [series_id for series_id, covered in formal_covered.items() if covered]
     formal_missing = [series_id for series_id, covered in formal_covered.items() if not covered]
+    partial_ready_series = [
+        series_id
+        for series_id, summary in per_series_pairs.items()
+        if 0 < int(summary["covered_pair_count"]) < int(summary["required_pair_count"])
+    ]
+    full_blocked_date_local_ready = [
+        series_id
+        for series_id, summary in per_series_pairs.items()
+        if not formal_covered.get(series_id, False) and int(summary["covered_pair_count"]) > 0
+    ]
     archive_reconstructed = [
         series_id
         for series_id in formal_direct
@@ -216,6 +240,17 @@ def summarize_point_in_time_coverage(
         "observational_archive_covered_pair_count": 0,
         "derived_point_in_time_covered_pair_count": 0,
         "formal_scenario_as_of_coverage_ratio": round(coverage_ratio, 6),
+        "date_local_strict_ready_snapshot_count": covered_pair_count,
+        "partial_horizon_strict_ready_series_count": len(partial_ready_series),
+        "full_horizon_blocked_but_date_local_ready_series_count": len(
+            full_blocked_date_local_ready
+        ),
+        "series_with_authoritative_cache_count": len(cached_series_ids & set(formal_direct)),
+        "series_with_valid_manifest_count": len(cached_series_ids & set(formal_direct))
+        - len(cache_validation_failure_series),
+        "series_with_segmented_cache_count": _segmented_cache_count(cache, formal_direct),
+        "segment_merge_failure_count": _segment_merge_failure_count(cache, formal_direct),
+        **_dgs10_pair_summary(per_series_pairs),
         "blocker_class": blocker_class,
         "official_query_supported_series_count": len(live_verified_exact_series),
         "official_query_attempted_series_count": len(official_query_attempted_series),
@@ -404,10 +439,68 @@ def _recommended_next_phase(*, formal_ready: bool, blocker_class: str) -> str:
     if blocker_class == "official_query_not_attempted":
         return "QA1B.1_RETRY"
     if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
-        return "QA1D_REVIEW"
+        return "QA1E"
     if blocker_class in {"strict_coverage_incomplete", "provider_or_parser_failed"}:
         return "QA1D_REVIEW"
     return "QA1B.1_REPAIR"
+
+
+def _mark_covered(summary: dict[str, Any], as_of: str) -> None:
+    summary["covered_pair_count"] += 1
+    summary["first_covered_as_of"] = summary["first_covered_as_of"] or as_of
+    summary["last_covered_as_of"] = as_of
+
+
+def _mark_missing(summary: dict[str, Any], as_of: str) -> None:
+    summary["missing_pair_count"] += 1
+    summary["first_missing_as_of"] = summary["first_missing_as_of"] or as_of
+    summary["last_missing_as_of"] = as_of
+
+
+def _mark_all_missing(summary: dict[str, Any], as_of_dates: list[str]) -> None:
+    summary["missing_pair_count"] = len(as_of_dates)
+    if as_of_dates:
+        summary["first_missing_as_of"] = as_of_dates[0]
+        summary["last_missing_as_of"] = as_of_dates[-1]
+
+
+def _dgs10_pair_summary(per_series_pairs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    summary = per_series_pairs.get("DGS10", {})
+    required = int(summary.get("required_pair_count", 0) or 0)
+    covered = int(summary.get("covered_pair_count", 0) or 0)
+    missing = int(summary.get("missing_pair_count", 0) or 0)
+    return {
+        "dgs10_required_pair_count": required,
+        "dgs10_covered_pair_count": covered,
+        "dgs10_missing_pair_count": missing,
+        "dgs10_coverage_ratio": 0.0 if required == 0 else round(covered / required, 6),
+        "dgs10_partial_horizon_ready": 0 < covered < required,
+        "dgs10_full_required_horizon_ready": required > 0 and covered == required,
+        "dgs10_first_covered_as_of": summary.get("first_covered_as_of"),
+        "dgs10_last_covered_as_of": summary.get("last_covered_as_of"),
+        "dgs10_first_missing_as_of": summary.get("first_missing_as_of"),
+        "dgs10_last_missing_as_of": summary.get("last_missing_as_of"),
+    }
+
+
+def _segmented_cache_count(cache: PointInTimeCache, series_ids: list[str]) -> int:
+    count = 0
+    for series_id in series_ids:
+        try:
+            count += int(bool(cache.read_series(series_id).manifest.get("segmented_cache")))
+        except PointInTimeCacheError:
+            continue
+    return count
+
+
+def _segment_merge_failure_count(cache: PointInTimeCache, series_ids: list[str]) -> int:
+    count = 0
+    for series_id in series_ids:
+        try:
+            count += int(cache.read_series(series_id).manifest.get("segment_merge_failure_count", 0))
+        except PointInTimeCacheError:
+            continue
+    return count
 
 
 def _archive_progress_summary(cache: OfficialReleaseArchiveCache) -> dict[str, int]:

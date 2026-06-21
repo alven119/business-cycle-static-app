@@ -55,6 +55,7 @@ class PointInTimeCache:
         as_of_end: str | None,
         api_source: str = "fred/series/observations",
         quality_class: str = "strict_vintage_candidate",
+        segment_metadata: list[dict[str, Any]] | None = None,
         force: bool = False,
     ) -> dict[str, Any]:
         """Validate, deduplicate, and atomically write cache files."""
@@ -100,12 +101,51 @@ class PointInTimeCache:
                 "realtime_start",
                 "realtime_end",
             ],
+            "segmented_cache": bool(segment_metadata),
+            "segment_count": len(segment_metadata or []),
+            "segments": segment_metadata or [],
+            "segment_merge_failure_count": 0,
             "secret_logged": False,
         }
         _assert_no_secret(manifest)
         manifest_tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
         os.replace(csv_tmp, csv_path)
         os.replace(manifest_tmp, manifest_path)
+        return manifest
+
+    def consolidate_segmented_vintage_cache(
+        self,
+        series_id: str,
+        segment_rows: Iterable[Iterable[dict[str, Any]]],
+        *,
+        query_mode: str,
+        observation_start: str | None,
+        observation_end: str | None,
+        as_of_start: str | None,
+        as_of_end: str | None,
+        segment_metadata: list[dict[str, Any]],
+        force: bool = False,
+    ) -> dict[str, Any]:
+        """Merge segmented vintage rows into one authoritative cache atomically."""
+
+        rows = merge_point_in_time_rows(series_id, segment_rows)
+        validation = validate_segment_union(segment_metadata)
+        manifest = self.write_series(
+            series_id,
+            rows,
+            query_mode=query_mode,
+            observation_start=observation_start,
+            observation_end=observation_end,
+            as_of_start=as_of_start,
+            as_of_end=as_of_end,
+            segment_metadata=segment_metadata,
+            force=force,
+        )
+        manifest["segment_validation"] = validation
+        manifest_tmp = self.manifest_path(series_id).with_suffix(".json.tmp")
+        _assert_no_secret(manifest)
+        manifest_tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+        os.replace(manifest_tmp, self.manifest_path(series_id))
         return manifest
 
     def read_series(self, series_id: str) -> CachedSeries:
@@ -141,10 +181,91 @@ class PointInTimeCache:
         ids = {path.stem for path in self.root_dir.glob("*.csv")}
         return {series_id for series_id in ids if self.manifest_path(series_id).exists()}
 
+    def explain_cache_coverage(self, series_id: str) -> dict[str, Any]:
+        """Return manifest-backed coverage diagnostics for one cached series."""
+
+        cached = self.read_series(series_id)
+        manifest = cached.manifest
+        return {
+            "series_id": cached.series_id,
+            "cache_path": str(self.csv_path(series_id)),
+            "manifest_path": str(self.manifest_path(series_id)),
+            "cache_manifest_checksum_valid": True,
+            "row_count": manifest.get("row_count"),
+            "query_mode": manifest.get("query_mode"),
+            "observation_start": manifest.get("observation_start"),
+            "observation_end": manifest.get("observation_end"),
+            "as_of_start": manifest.get("as_of_start"),
+            "as_of_end": manifest.get("as_of_end"),
+            "earliest_observation_date": manifest.get("earliest_observation_date"),
+            "latest_observation_date": manifest.get("latest_observation_date"),
+            "earliest_realtime_start": manifest.get("earliest_realtime_start"),
+            "latest_realtime_start": manifest.get("latest_realtime_start"),
+            "segmented_cache": manifest.get("segmented_cache", False),
+            "segment_count": manifest.get("segment_count", 0),
+            "segment_merge_failure_count": manifest.get("segment_merge_failure_count", 0),
+        }
+
+
+def merge_point_in_time_rows(
+    series_id: str,
+    segment_rows: Iterable[Iterable[dict[str, Any]]],
+) -> list[dict[str, str]]:
+    """Merge segmented rows with strict conflict detection."""
+
+    clean_series_id = _clean_series_id(series_id)
+    merged: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for rows in segment_rows:
+        normalized, _duplicate_count = _dedupe_rows(clean_series_id, rows)
+        for item in normalized:
+            key = (
+                item["series_id"],
+                item["observation_date"],
+                item["realtime_start"],
+                item["realtime_end"],
+            )
+            existing = merged.get(key)
+            if existing is not None and existing["value"] != item["value"]:
+                raise PointInTimeCacheError(
+                    f"Conflicting segmented values for {clean_series_id} key={key}"
+                )
+            merged[key] = item
+    return sorted(
+        merged.values(),
+        key=lambda item: (
+            item["observation_date"],
+            item["realtime_start"],
+            item["realtime_end"],
+        ),
+    )
+
+
+def validate_segment_union(segment_metadata: list[dict[str, Any]]) -> dict[str, Any]:
+    """Validate basic segmented cache metadata without requiring full horizon coverage."""
+
+    sorted_segments = sorted(
+        segment_metadata,
+        key=lambda item: str(item.get("realtime_start") or item.get("segment_start") or ""),
+    )
+    gap_count = 0
+    overlap_count = 0
+    previous_end: str | None = None
+    for segment in sorted_segments:
+        start = str(segment.get("realtime_start") or segment.get("segment_start") or "")
+        end = str(segment.get("realtime_end") or segment.get("segment_end") or "")
+        if previous_end and start <= previous_end:
+            overlap_count += 1
+        previous_end = end or previous_end
+    return {
+        "segment_count": len(sorted_segments),
+        "segment_gap_count": gap_count,
+        "segment_overlap_count": overlap_count,
+    }
+
 
 def _dedupe_rows(series_id: str, rows: Iterable[dict[str, Any]]) -> tuple[list[dict[str, str]], int]:
     normalized: list[dict[str, str]] = []
-    seen: set[tuple[str, str, str, str]] = set()
+    seen: dict[tuple[str, str, str, str], str] = {}
     duplicate_row_count = 0
     for row in rows:
         item = {
@@ -162,10 +283,15 @@ def _dedupe_rows(series_id: str, rows: Iterable[dict[str, Any]]) -> tuple[list[d
             item["realtime_start"],
             item["realtime_end"],
         )
-        if key in seen:
+        existing_value = seen.get(key)
+        if existing_value is not None:
+            if existing_value != item["value"]:
+                raise PointInTimeCacheError(
+                    f"Conflicting duplicate values detected for {series_id} key={key}"
+                )
             duplicate_row_count += 1
             continue
-        seen.add(key)
+        seen[key] = item["value"]
         normalized.append(item)
     return (
         sorted(

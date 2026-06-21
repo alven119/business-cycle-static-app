@@ -93,4 +93,4 @@ def test_live_verified_partial_history_recommends_qa1c(
 
     assert summary["blocker_class"] == "official_history_insufficient"
     assert summary["live_verified_history_insufficient_series_count"] == 1
-    assert summary["recommended_next_phase"] == "QA1D_REVIEW"
+    assert summary["recommended_next_phase"] == "QA1E"

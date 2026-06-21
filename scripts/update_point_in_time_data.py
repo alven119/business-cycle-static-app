@@ -220,9 +220,7 @@ def main(argv: list[str] | None = None) -> int:
             api_requests += series_request_count
             pagination_requests += fetch_result.pagination_count
             api_requests_by_series[series_id] = series_request_count
-            manifest = cache.write_series(
-                series_id,
-                [
+            cache_rows = [
                     {
                         "series_id": item.series_id,
                         "observation_date": item.observation_date,
@@ -231,14 +229,30 @@ def main(argv: list[str] | None = None) -> int:
                         "realtime_end": item.realtime_end,
                     }
                     for item in observations
-                ],
-                query_mode="vintage_as_of_realtime_periods",
-                observation_start=observation_start,
-                observation_end=observation_end,
-                as_of_start=as_of_start,
-                as_of_end=as_of_end,
-                force=args.force or repair_corrupt_cache,
-            )
+                ]
+            if fetch_result.segmented:
+                manifest = cache.consolidate_segmented_vintage_cache(
+                    series_id,
+                    [cache_rows],
+                    query_mode="vintage_as_of_realtime_periods",
+                    observation_start=observation_start,
+                    observation_end=observation_end,
+                    as_of_start=as_of_start,
+                    as_of_end=as_of_end,
+                    segment_metadata=fetch_result.segment_summaries,
+                    force=args.force or repair_corrupt_cache,
+                )
+            else:
+                manifest = cache.write_series(
+                    series_id,
+                    cache_rows,
+                    query_mode="vintage_as_of_realtime_periods",
+                    observation_start=observation_start,
+                    observation_end=observation_end,
+                    as_of_start=as_of_start,
+                    as_of_end=as_of_end,
+                    force=args.force or repair_corrupt_cache,
+                )
         except (AlfredProviderError, PointInTimeCacheError) as exc:
             failed += 1
             if series_id in official_query_attempted:
@@ -535,6 +549,8 @@ def _dgs10_segment_summary(
             "series_id=DGS10,"
             f"realtime_start={segment_start},realtime_end={segment_end}"
         ),
+        "realtime_start": segment_start,
+        "realtime_end": segment_end,
         "http_status": getattr(provider, "last_http_status", None),
         "response_content_type": getattr(provider, "last_response_content_type", None),
         "response_byte_count": getattr(provider, "last_response_byte_count", 0),
