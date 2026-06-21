@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -63,6 +64,11 @@ def summarize_point_in_time_coverage(
     missing_pair_count = 0
     invalid_realtime_interval_count = 0
     strict_snapshot_validation_failure_count = 0
+    cache_validation_failure_series: set[str] = set()
+    live_verified_exact_series: set[str] = set()
+    live_verified_history_insufficient_series: set[str] = set()
+    official_query_attempted_series: set[str] = set()
+    official_query_succeeded_series: set[str] = set()
     total_pair_count = len(formal_direct) * len(as_of_dates)
     for series_id in formal_direct:
         row = row_by_id.get(series_id, {})
@@ -76,8 +82,19 @@ def summarize_point_in_time_coverage(
         except PointInTimeCacheError as exc:
             formal_covered[series_id] = False
             formal_blockers[series_id] = str(exc)
+            if cache.exists(series_id):
+                cache_validation_failure_series.add(series_id)
             missing_pair_count += len(as_of_dates)
             continue
+        if _manifest_is_live_verified_exact(cached.manifest):
+            live_verified_exact_series.add(series_id)
+            official_query_attempted_series.add(series_id)
+            official_query_succeeded_series.add(series_id)
+            if _registry_scenario_history_insufficient(
+                row,
+                as_of_dates,
+            ) or _cache_history_insufficient(cached.manifest, as_of_dates):
+                live_verified_history_insufficient_series.add(series_id)
         series_as_of_covered = 0
         for as_of in as_of_dates:
             try:
@@ -122,6 +139,14 @@ def summarize_point_in_time_coverage(
         )
     ]
     experimental_count = inventory["discovered_experimental_indicator_count"] or 1
+    blocker_class = _coverage_blocker_class(
+        formal_ready=formal_ready,
+        fred_api_key_present=bool(os.getenv("FRED_API_KEY")),
+        official_query_attempted_count=len(official_query_attempted_series),
+        cache_validation_failure_count=len(cache_validation_failure_series),
+        live_verified_history_insufficient_count=len(live_verified_history_insufficient_series),
+        formal_missing_count=len(formal_missing),
+    )
 
     return {
         "discovered_unique_series_count": inventory["discovered_unique_series_count"],
@@ -149,6 +174,17 @@ def summarize_point_in_time_coverage(
         "formal_invalid_realtime_interval_count": invalid_realtime_interval_count,
         "strict_snapshot_validation_failure_count": strict_snapshot_validation_failure_count,
         "formal_scenario_as_of_coverage_ratio": round(coverage_ratio, 6),
+        "blocker_class": blocker_class,
+        "official_query_attempted_series_count": len(official_query_attempted_series),
+        "official_query_succeeded_series_count": len(official_query_succeeded_series),
+        "official_query_failed_series_count": 0,
+        "registry_declared_exact_vintage_series_count": len(exact_rows),
+        "live_verified_exact_vintage_series_count": len(live_verified_exact_series),
+        "live_verified_initial_release_series_count": 0,
+        "live_verified_unsupported_series_count": 0,
+        "live_verified_history_insufficient_series_count": len(
+            live_verified_history_insufficient_series
+        ),
         "experimental_exact_vintage_coverage_ratio": round(
             len(exact_experimental) / experimental_count,
             6,
@@ -176,7 +212,10 @@ def summarize_point_in_time_coverage(
         "book_alignment_claim_allowed": False,
         "real_backtest_progression_allowed": False,
         "phase_9b1_allowed": False,
-        "recommended_next_phase": "QA2" if formal_ready else "QA1C",
+        "recommended_next_phase": _recommended_next_phase(
+            formal_ready=formal_ready,
+            blocker_class=blocker_class,
+        ),
         "result": "passed" if formal_ready else "blocked",
     }
 
@@ -267,3 +306,81 @@ def _extract_series_ids(value: Any) -> set[str]:
 
     visit(value)
     return series_ids
+
+
+def _manifest_is_live_verified_exact(manifest: dict[str, Any]) -> bool:
+    return (
+        int(manifest.get("row_count", 0)) > 0
+        and manifest.get("api_source") == "fred/series/observations"
+        and manifest.get("query_mode") in {"vintage_as_of", "vintage_as_of_realtime_periods"}
+        and bool(manifest.get("checksum"))
+    )
+
+
+def _coverage_blocker_class(
+    *,
+    formal_ready: bool,
+    fred_api_key_present: bool,
+    official_query_attempted_count: int,
+    cache_validation_failure_count: int,
+    live_verified_history_insufficient_count: int,
+    formal_missing_count: int,
+) -> str:
+    if formal_ready:
+        return "strict_coverage_complete"
+    if cache_validation_failure_count:
+        return "cache_validation_failed"
+    if live_verified_history_insufficient_count:
+        return "official_history_insufficient"
+    if not fred_api_key_present and official_query_attempted_count == 0:
+        return "environment_configuration_blocked"
+    if official_query_attempted_count == 0:
+        return "official_query_not_attempted"
+    if formal_missing_count:
+        return "strict_coverage_incomplete"
+    return "provider_or_parser_failed"
+
+
+def _recommended_next_phase(*, formal_ready: bool, blocker_class: str) -> str:
+    if formal_ready:
+        return "QA2"
+    if blocker_class == "environment_configuration_blocked":
+        return "QA1B.1_RETRY"
+    if blocker_class == "official_query_not_attempted":
+        return "QA1B.1_RETRY"
+    if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
+        return "QA1C"
+    return "QA1B.1_REPAIR"
+
+
+def _registry_scenario_history_insufficient(row: dict[str, Any], as_of_dates: list[str]) -> bool:
+    if not as_of_dates:
+        return False
+    scenario_start = row.get("scenario_coverage_start")
+    if not isinstance(scenario_start, str):
+        return False
+    if not _looks_like_iso_date(scenario_start):
+        return False
+    return scenario_start > min(as_of_dates)
+
+
+def _cache_history_insufficient(manifest: dict[str, Any], as_of_dates: list[str]) -> bool:
+    if not as_of_dates:
+        return False
+    earliest_realtime_start = manifest.get("earliest_realtime_start")
+    if not isinstance(earliest_realtime_start, str):
+        return False
+    if not _looks_like_iso_date(earliest_realtime_start):
+        return False
+    return earliest_realtime_start > min(as_of_dates)
+
+
+def _looks_like_iso_date(value: str) -> bool:
+    parts = value.split("-")
+    return (
+        len(parts) == 3
+        and len(parts[0]) == 4
+        and len(parts[1]) == 2
+        and len(parts[2]) == 2
+        and all(part.isdigit() for part in parts)
+    )

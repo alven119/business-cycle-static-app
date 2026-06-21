@@ -144,7 +144,10 @@ def _latest_value_as_of(frame: pd.DataFrame, as_of: str) -> float | None:
     eligible = frame[pd.to_datetime(frame["date"], errors="coerce") <= pd.Timestamp(as_of)]
     if eligible.empty:
         return None
-    return float(pd.to_numeric(eligible["value"], errors="coerce").dropna().iloc[-1])
+    numeric_values = pd.to_numeric(eligible["value"], errors="coerce").dropna()
+    if numeric_values.empty:
+        return None
+    return float(numeric_values.iloc[-1])
 
 
 def _format(value: object) -> str:

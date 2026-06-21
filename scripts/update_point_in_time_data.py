@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +48,9 @@ def main(argv: list[str] | None = None) -> int:
     requested = _requested_series(args)
     formal_deps = discover_formal_dependencies("specs/indicator_catalog.yaml")
     as_of_dates = scenario_month_end_dates("specs/backtests/scenarios.yaml") if args.scenario_horizons else []
-    observation_start = args.observation_start or (_window_start(as_of_dates) if as_of_dates else None)
+    observation_start = args.observation_start or (
+        _observation_window_start(as_of_dates) if as_of_dates else None
+    )
     observation_end = args.observation_end or (_window_end(as_of_dates) if as_of_dates else None)
     as_of_start = args.as_of_start or (ALFRED_EARLIEST_REALTIME_START if as_of_dates else None)
     as_of_end = args.as_of_end or (_window_end(as_of_dates) if as_of_dates else None)
@@ -56,6 +59,13 @@ def main(argv: list[str] | None = None) -> int:
     pagination_requests = 0
     bulk_series_query_count = 0
     api_requests_by_series: dict[str, int] = {}
+    official_query_attempted: set[str] = set()
+    official_query_succeeded: set[str] = set()
+    official_query_failed: set[str] = set()
+    live_verified_exact: set[str] = set()
+    live_verified_initial: set[str] = set()
+    live_verified_unsupported: set[str] = set()
+    live_verified_history_insufficient: set[str] = set()
     blockers: dict[str, str] = {}
     series_summaries: list[dict[str, object]] = []
     provider = None
@@ -77,6 +87,7 @@ def main(argv: list[str] | None = None) -> int:
             unsupported += 1
             failed += 1
             blockers[series_id] = str(row.get("caveats") or "unsupported")
+            live_verified_unsupported.add(series_id)
             continue
 
         if args.reuse_existing and cache.exists(series_id):
@@ -100,18 +111,42 @@ def main(argv: list[str] | None = None) -> int:
                     continue
                 repair_corrupt_cache = True
             else:
-                reused += 1
-                series_summaries.append(
-                    _series_summary_from_manifest(
-                        cached.manifest,
-                        observation_start=observation_start,
-                        observation_end=observation_end,
-                        as_of_start=as_of_start,
-                        as_of_end=as_of_end,
-                        cache_status="reused",
+                if _cache_manifest_covers(
+                    cached.manifest,
+                    observation_start=observation_start,
+                    observation_end=observation_end,
+                    as_of_start=as_of_start,
+                    as_of_end=as_of_end,
+                ):
+                    reused += 1
+                    if int(cached.manifest.get("row_count", 0)) > 0:
+                        live_verified_exact.add(series_id)
+                    series_summaries.append(
+                        _series_summary_from_manifest(
+                            cached.manifest,
+                            observation_start=observation_start,
+                            observation_end=observation_end,
+                            as_of_start=as_of_start,
+                            as_of_end=as_of_end,
+                            cache_status="reused",
+                        )
                     )
-                )
-                continue
+                    continue
+                if not api_available or provider is None:
+                    failed += 1
+                    blockers[series_id] = "existing cache does not cover requested scenario range"
+                    series_summaries.append(
+                        _series_summary_from_manifest(
+                            cached.manifest,
+                            observation_start=observation_start,
+                            observation_end=observation_end,
+                            as_of_start=as_of_start,
+                            as_of_end=as_of_end,
+                            cache_status="range_incomplete",
+                        )
+                    )
+                    continue
+                repair_corrupt_cache = True
         if args.dry_run:
             series_summaries.append(
                 _series_summary(
@@ -157,6 +192,7 @@ def main(argv: list[str] | None = None) -> int:
 
         try:
             bulk_series_query_count += 1
+            official_query_attempted.add(series_id)
             observations = provider.fetch_observations(
                 series_id,
                 observation_start=observation_start,
@@ -190,7 +226,18 @@ def main(argv: list[str] | None = None) -> int:
             )
         except (AlfredProviderError, PointInTimeCacheError) as exc:
             failed += 1
+            if series_id in official_query_attempted:
+                official_query_failed.add(series_id)
             blockers[series_id] = str(exc)
+            if _registry_scenario_history_insufficient(row, as_of_dates):
+                live_verified_history_insufficient.add(series_id)
+                blockers[series_id] = (
+                    f"official history insufficient for required scenario range: {exc}"
+                )
+            elif _looks_like_history_insufficient(str(exc)):
+                live_verified_history_insufficient.add(series_id)
+            elif _looks_like_unsupported(str(exc)):
+                live_verified_unsupported.add(series_id)
             series_summaries.append(
                 _series_summary(
                     series_id=series_id,
@@ -206,6 +253,9 @@ def main(argv: list[str] | None = None) -> int:
             )
             continue
         written += 1
+        official_query_succeeded.add(series_id)
+        if observations:
+            live_verified_exact.add(series_id)
         series_summaries.append(
             _series_summary_from_manifest(
                 manifest,
@@ -219,12 +269,23 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
 
+    blocker_class = _blocker_class(
+        requested_series_count=len(requested),
+        failed_series_count=failed,
+        fred_api_key_present=bool(os.getenv("FRED_API_KEY")),
+        official_query_attempted_count=len(official_query_attempted),
+        official_query_failed_count=len(official_query_failed),
+        live_verified_unsupported_count=len(live_verified_unsupported),
+        live_verified_history_insufficient_count=len(live_verified_history_insufficient),
+    )
     result = "passed" if failed == 0 and requested else "blocked"
     average_requests = (
         round(api_requests / len(api_requests_by_series), 6) if api_requests_by_series else 0.0
     )
     summary = {
+        "env_file_entry_present": _env_file_entry_present(),
         "fred_api_key_present": bool(os.getenv("FRED_API_KEY")),
+        "blocker_class": blocker_class,
         "requested_series_count": len(requested),
         "formal_indicator_count": formal_deps.formal_indicator_count,
         "direct_dependency_count": len(formal_deps.direct_series_ids),
@@ -239,12 +300,26 @@ def main(argv: list[str] | None = None) -> int:
         "cache_written_series_count": written,
         "failed_series_count": failed,
         "api_request_count": api_requests,
+        "official_query_attempted_series_count": len(official_query_attempted),
+        "official_query_succeeded_series_count": len(official_query_succeeded),
+        "official_query_failed_series_count": len(official_query_failed),
+        "registry_declared_exact_vintage_series_count": exact,
+        "live_verified_exact_vintage_series_count": len(live_verified_exact),
+        "live_verified_initial_release_series_count": len(live_verified_initial),
+        "live_verified_unsupported_series_count": len(live_verified_unsupported),
+        "live_verified_history_insufficient_series_count": len(
+            live_verified_history_insufficient
+        ),
         "bulk_series_query_count": bulk_series_query_count,
         "pagination_request_count": pagination_requests,
         "per_as_of_network_request_count": 0,
         "monthly_as_of_network_loop_detected": False,
         "average_api_requests_per_series": average_requests,
         "max_api_requests_per_series": max(api_requests_by_series.values(), default=0),
+        "retry_count": getattr(provider, "retry_count", 0) if provider is not None else 0,
+        "rate_limit_retry_count": (
+            getattr(provider, "rate_limit_retry_count", 0) if provider is not None else 0
+        ),
         "cache_dir": str(Path(args.cache_dir)),
         "secret_logged": False,
         "result": result,
@@ -288,6 +363,16 @@ def _window_start(dates: list[str]) -> str | None:
     return min(dates) if dates else None
 
 
+def _observation_window_start(dates: list[str], lookback_years: int = 3) -> str | None:
+    if not dates:
+        return None
+    start = date.fromisoformat(min(dates))
+    try:
+        return start.replace(year=start.year - lookback_years).isoformat()
+    except ValueError:
+        return start.replace(year=start.year - lookback_years, month=2, day=28).isoformat()
+
+
 def _window_end(dates: list[str]) -> str | None:
     return max(dates) if dates else None
 
@@ -296,6 +381,115 @@ def _format(value: object) -> str:
     if isinstance(value, bool):
         return str(value).lower()
     return str(value)
+
+
+def _env_file_entry_present(path: str | Path = ".env") -> bool:
+    env_path = Path(path)
+    if not env_path.exists():
+        return False
+    try:
+        lines = env_path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return False
+    key_name = "FRED_API_KEY"
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if stripped == key_name or stripped.startswith(f"{key_name} ") or stripped.startswith(
+            f"{key_name}="
+        ):
+            return True
+    return False
+
+
+def _cache_manifest_covers(
+    manifest: dict[str, Any],
+    *,
+    observation_start: str | None,
+    observation_end: str | None,
+    as_of_start: str | None,
+    as_of_end: str | None,
+) -> bool:
+    if int(manifest.get("row_count", 0)) <= 0:
+        return False
+    checks = (
+        ("observation_start", observation_start, "lte"),
+        ("observation_end", observation_end, "gte"),
+        ("as_of_start", as_of_start, "lte"),
+        ("as_of_end", as_of_end, "gte"),
+    )
+    for field, requested, direction in checks:
+        if requested is None:
+            continue
+        cached = manifest.get(field)
+        if not isinstance(cached, str) or not cached:
+            return False
+        if direction == "lte" and cached > requested:
+            return False
+        if direction == "gte" and cached < requested:
+            return False
+    return True
+
+
+def _registry_scenario_history_insufficient(
+    row: dict[str, Any],
+    as_of_dates: list[str],
+) -> bool:
+    if not as_of_dates:
+        return False
+    scenario_start = row.get("scenario_coverage_start")
+    if not isinstance(scenario_start, str) or not _looks_like_iso_date(scenario_start):
+        return False
+    return scenario_start > min(as_of_dates)
+
+
+def _looks_like_iso_date(value: str) -> bool:
+    parts = value.split("-")
+    return (
+        len(parts) == 3
+        and len(parts[0]) == 4
+        and len(parts[1]) == 2
+        and len(parts[2]) == 2
+        and all(part.isdigit() for part in parts)
+    )
+
+
+def _blocker_class(
+    *,
+    requested_series_count: int,
+    failed_series_count: int,
+    fred_api_key_present: bool,
+    official_query_attempted_count: int,
+    official_query_failed_count: int,
+    live_verified_unsupported_count: int,
+    live_verified_history_insufficient_count: int,
+) -> str:
+    if requested_series_count == 0:
+        return "official_query_not_attempted"
+    if failed_series_count == 0:
+        return "strict_coverage_complete"
+    if not fred_api_key_present and official_query_attempted_count == 0:
+        return "environment_configuration_blocked"
+    if official_query_attempted_count == 0:
+        return "official_query_not_attempted"
+    if live_verified_history_insufficient_count:
+        return "official_history_insufficient"
+    if live_verified_unsupported_count:
+        return "official_series_unsupported"
+    if official_query_failed_count:
+        return "provider_or_parser_failed"
+    return "strict_coverage_incomplete"
+
+
+def _looks_like_history_insufficient(message: str) -> bool:
+    lower = message.lower()
+    return any(token in lower for token in ("history insufficient", "no observations", "empty"))
+
+
+def _looks_like_unsupported(message: str) -> bool:
+    lower = message.lower()
+    return any(token in lower for token in ("not found", "unknown series", "unsupported"))
 
 
 def _series_summary(

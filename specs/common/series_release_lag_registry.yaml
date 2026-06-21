@@ -157,18 +157,20 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: false
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
+    earliest_observation_date: '1995-01-31'
+    earliest_vintage_date: '2011-04-06'
+    latest_verified_vintage_date: '2021-12-29'
+    scenario_coverage_start: '2011-04-06'
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: daily market/rate observation; revisions uncommon but
       cache still requires realtime metadata
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live cache has earliest realtime_start 2011-04-06;
+      required scenario months before that date are official history insufficient
+      for strict ALFRED selection. Release calendars are not inferred from
+      observation_date.
   - series_id: DFF
     source: FRED/ALFRED
     frequency: daily
@@ -204,18 +206,20 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: true
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
+    earliest_observation_date: '1995-01-01'
+    earliest_vintage_date: '1999-08-04'
+    latest_verified_vintage_date: '2021-12-23'
+    scenario_coverage_start: '1999-08-04'
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: revised_or_republished_by_source; strict selection must
       use realtime_start/realtime_end
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live cache has earliest realtime_start 1999-08-04;
+      required scenario months before that date are official history insufficient
+      for strict ALFRED selection. Release calendars are not inferred from
+      observation_date.
   - series_id: DGS10
     source: FRED/ALFRED
     frequency: daily
@@ -227,18 +231,21 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: false
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
-    scenario_coverage_end: '2021-12-31'
+    earliest_observation_date: live_verified_from_2004-01-01
+    earliest_vintage_date: '2005-06-28'
+    latest_verified_vintage_date: '2005-12-28'
+    scenario_coverage_start: '2005-06-28'
+    scenario_coverage_end: live_verified_through_2005-12-31
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: daily market/rate observation; revisions uncommon but
       cache still requires realtime metadata
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live probes verified output_type=1 support for 2004-2005
+      with earliest realtime_start 2005-06-28, while 1995-2003 and full
+      1995-2021 queries failed; strict scenario coverage from 1998 is history
+      insufficient until an official or provider-supported earlier vintage source
+      is identified. Release calendars are not inferred from observation_date.
   - series_id: EXPGS
     source: FRED/ALFRED
     frequency: quarterly
@@ -347,18 +354,20 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: true
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
+    earliest_observation_date: '1995-02-04'
+    earliest_vintage_date: '2009-05-28'
+    latest_verified_vintage_date: '2021-12-30'
+    scenario_coverage_start: '2009-05-28'
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: revised_or_republished_by_source; strict selection must
       use realtime_start/realtime_end
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live cache has earliest realtime_start 2009-05-28;
+      required scenario months before that date are official history insufficient
+      for strict ALFRED selection. Release calendars are not inferred from
+      observation_date.
   - series_id: IMPGS
     source: FRED/ALFRED
     frequency: quarterly
@@ -466,18 +475,20 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: false
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
+    earliest_observation_date: '1995-02-03'
+    earliest_vintage_date: '2010-06-17'
+    latest_verified_vintage_date: '2021-12-30'
+    scenario_coverage_start: '2010-06-17'
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: daily market/rate observation; revisions uncommon but
       cache still requires realtime metadata
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live cache has earliest realtime_start 2010-06-17;
+      required scenario months before that date are official history insufficient
+      for strict ALFRED selection. Release calendars are not inferred from
+      observation_date.
   - series_id: NFCI
     source: FRED/ALFRED
     frequency: daily
@@ -586,18 +597,20 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: true
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
+    earliest_observation_date: '1995-01-01'
+    earliest_vintage_date: '2001-06-15'
+    latest_verified_vintage_date: '2021-12-15'
+    scenario_coverage_start: '2001-06-15'
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: revised_or_republished_by_source; strict selection must
       use realtime_start/realtime_end
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live cache has earliest realtime_start 2001-06-15;
+      required scenario months before that date are official history insufficient
+      for strict ALFRED selection. Release calendars are not inferred from
+      observation_date.
   - series_id: RSAFS
     source: FRED/ALFRED
     frequency: monthly
@@ -610,18 +623,20 @@ series_release_lag_registry:
     release_lag_days_if_fixed: null
     vintage_query_supported: true
     initial_release_query_supported: true
-    earliest_observation_date: unknown
-    earliest_vintage_date: unknown
-    latest_verified_vintage_date: not_verified_in_repo
-    scenario_coverage_start: '1998-01-31'
+    earliest_observation_date: '1995-01-01'
+    earliest_vintage_date: '2001-06-13'
+    latest_verified_vintage_date: '2021-12-15'
+    scenario_coverage_start: '2001-06-13'
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
     known_revision_behavior: revised_or_republished_by_source; strict selection must
       use realtime_start/realtime_end
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: QA1B.1 live cache has earliest realtime_start 2001-06-13;
+      required scenario months before that date are official history insufficient
+      for strict ALFRED selection. Release calendars are not inferred from
+      observation_date.
   - series_id: STLFSI4
     source: FRED/ALFRED
     frequency: daily

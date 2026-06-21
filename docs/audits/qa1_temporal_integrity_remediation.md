@@ -33,9 +33,22 @@ quality class without API keys.
 Formal readiness requires 15 formal direct dependencies and 3420 formal
 series-date coverage pairs to pass strict `vintage_as_of` selection. If
 `FRED_API_KEY` is absent, official API coverage cannot be attempted and formal
-coverage remains blocked. If any official series lacks usable vintage coverage,
-that series must remain blocked; revised data, release-lag proxy, and
-initial-release-only are not acceptable substitutes.
+coverage remains blocked as an environment configuration issue. That condition
+must recommend a retry after loading the key, not an official-data remediation
+phase.
+
+QA1B.1 separates registry-declared support from live-verified support. A registry
+entry marked exact-vintage-ready only describes expected provider capability; it
+does not count as live verification until an ALFRED/FRED response has been
+cached and strict as-of selection succeeds. If no official request has been
+attempted, the blocker is `official_query_not_attempted` or
+`environment_configuration_blocked`, not `official_series_unsupported`.
+
+Only after an actual official query shows that a formal dependency is
+unsupported or lacks the needed historical vintage range should the blocker move
+to QA1C. If any official series lacks usable vintage coverage, that series must
+remain blocked; revised data, release-lag proxy, and initial-release-only are
+not acceptable substitutes.
 
 The live dashboard default is unchanged. Resolver decision logic, phase weights,
 and dashboard behavior are unchanged.

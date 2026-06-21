@@ -45,6 +45,8 @@ class AlfredProvider(FredProvider):
         self.page_limit = page_limit
         self.last_request_count = 0
         self.last_pagination_count = 0
+        self.retry_count = 0
+        self.rate_limit_retry_count = 0
 
     def fetch_observations(
         self,
@@ -85,6 +87,8 @@ class AlfredProvider(FredProvider):
         observations: list[AlfredObservation] = []
         self.last_request_count = 0
         self.last_pagination_count = 0
+        self.retry_count = 0
+        self.rate_limit_retry_count = 0
         while True:
             payload = self._get_json("series/observations", params, clean_series_id)
             self.last_request_count += 1
@@ -161,10 +165,12 @@ class AlfredProvider(FredProvider):
                     raise AlfredProviderError(f"FRED API error for {series_id}: {message}")
                 return payload
             if attempt < self.max_retries:
+                self.retry_count += 1
                 sleep_seconds = self.retry_sleep_seconds
                 response = getattr(last_error, "response", None)
                 retry_after = getattr(response, "headers", {}).get("Retry-After") if response else None
                 if retry_after:
+                    self.rate_limit_retry_count += 1
                     try:
                         sleep_seconds = min(float(retry_after), 5.0)
                     except ValueError:

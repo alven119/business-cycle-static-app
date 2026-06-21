@@ -97,6 +97,10 @@ def test_updater_single_series_smoke_writes_cache_and_efficiency_summary(
     output = capsys.readouterr().out
     assert exit_code == 0
     assert "fred_api_key_present=true" in output
+    assert "blocker_class=strict_coverage_complete" in output
+    assert "official_query_attempted_series_count=1" in output
+    assert "official_query_succeeded_series_count=1" in output
+    assert "live_verified_exact_vintage_series_count=1" in output
     assert "cache_written_series_count=1" in output
     assert "per_as_of_network_request_count=0" in output
     assert "monthly_as_of_network_loop_detected=false" in output

@@ -57,6 +57,8 @@ def select_vintage_as_of(
     normalized = _normalize_rows(rows, require_realtime=True)
     eligible: list[dict[str, Any]] = []
     for row in normalized:
+        if _parse_numeric_value(row["value"]) is None:
+            continue
         observation_date = _parse_date(row["observation_date"], "observation_date")
         realtime_start = _parse_date(row["realtime_start"], "realtime_start")
         realtime_end = _parse_open_end(row.get("realtime_end"))
@@ -110,6 +112,8 @@ def select_initial_release_only(
     normalized = _normalize_rows(rows, require_realtime=True)
     first_by_observation: dict[date, dict[str, Any]] = {}
     for row in normalized:
+        if _parse_numeric_value(row["value"]) is None:
+            continue
         observation_date = _parse_date(row["observation_date"], "observation_date")
         realtime_start = _parse_date(row["realtime_start"], "realtime_start")
         if observation_date > as_of_date or realtime_start > as_of_date:
@@ -154,6 +158,9 @@ def select_release_lag_proxy(
     normalized = _normalize_rows(rows, require_realtime=False)
     observations: list[PointInTimeObservation] = []
     for row in normalized:
+        value = _parse_numeric_value(row["value"])
+        if value is None:
+            continue
         observation_date = _parse_date(row["observation_date"], "observation_date")
         available_at = observation_date + timedelta(days=release_lag_days)
         if available_at > as_of_date:
@@ -162,7 +169,7 @@ def select_release_lag_proxy(
             PointInTimeObservation(
                 series_id=series_id,
                 observation_date=observation_date,
-                value=float(row["value"]),
+                value=value,
                 realtime_start=available_at,
                 realtime_end=None,
                 source=source,
@@ -324,10 +331,13 @@ def _make_observation(
     data_mode: str,
     availability_precision: str,
 ) -> PointInTimeObservation:
+    value = _parse_numeric_value(row["value"])
+    if value is None:
+        raise PointInTimeError("Observation value is missing")
     return PointInTimeObservation(
         series_id=str(row.get("series_id") or series_id),
         observation_date=_parse_date(row["observation_date"], "observation_date"),
-        value=float(row["value"]),
+        value=value,
         realtime_start=_parse_date(row["realtime_start"], "realtime_start"),
         realtime_end=_parse_open_end(row.get("realtime_end")),
         source=source,
@@ -351,6 +361,15 @@ def _parse_open_end(value: Any) -> date | None:
     if value in (None, "", ".", "9999-12-31"):
         return None
     return _parse_date(value, "realtime_end")
+
+
+def _parse_numeric_value(value: Any) -> float | None:
+    if value in (None, "", "."):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise PointInTimeError(f"Observation value must be numeric or missing: {value}") from exc
 
 
 def _now_iso() -> str:

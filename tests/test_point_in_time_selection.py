@@ -61,6 +61,31 @@ def test_open_ended_realtime_end_is_handled() -> None:
     assert snapshot.observations[-1].value == 3.0
 
 
+def test_fred_missing_value_placeholder_is_excluded() -> None:
+    snapshot = select_vintage_as_of(
+        [
+            {
+                "series_id": "TEST",
+                "observation_date": "2020-01-31",
+                "value": "1.0",
+                "realtime_start": "2020-02-15",
+                "realtime_end": "9999-12-31",
+            },
+            {
+                "series_id": "TEST",
+                "observation_date": "2020-02-01",
+                "value": ".",
+                "realtime_start": "2020-02-16",
+                "realtime_end": "9999-12-31",
+            },
+        ],
+        series_id="TEST",
+        as_of="2020-02-29",
+    )
+
+    assert [observation.value for observation in snapshot.observations] == [1.0]
+
+
 def test_initial_release_is_semantically_separate() -> None:
     snapshot = select_initial_release_only(ROWS, series_id="TEST", as_of="2020-12-31")
 
