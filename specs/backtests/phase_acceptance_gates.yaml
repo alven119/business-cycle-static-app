@@ -371,3 +371,29 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - invalid_result_fixture_count > 0 because invalid fixtures intentionally test rejection paths
+
+  backtest_result_writer_contract:
+    hard_gates:
+      - explicit_user_command_required == true
+      - automatic_write_allowed == false
+      - implement_writer_runtime_allowed == false
+      - write_result_files_allowed == false
+      - create_output_directories_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - write_docs_output_allowed == false
+      - write_dashboard_output_allowed == false
+      - write_github_pages_output_allowed == false
+      - execute_backtest_allowed == false
+      - compute_metric_values_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - writer_runtime_allowed_now == false
+      - result_file_write_allowed_now == false
+      - output_directory_creation_allowed_now == false
+      - data_backtests_write_allowed_now == false
+      - public_write_allowed_now == false
+      - phase_9a7_closure_status == writer_contract_design_only
+      - recommended_next_phase == 9A8
+    soft_warnings_allowed:
+      - prohibited_write_location_count > 0 because locations are contract-only and writing is not allowed now

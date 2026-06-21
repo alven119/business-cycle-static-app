@@ -727,6 +727,18 @@ Valid fixtures 是 schema/safety samples，必須標記 sample-only、fixture-on
 
 本階段仍不執行 backtest、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。
 
+## Phase 9A7 Backtest Result Writer Contract
+
+Phase 9A7 新增 `specs/portfolio/backtest_result_writer_contract.yaml` 與 writer contract validator。此階段只定義 future writer contract，不實作 writer runtime，也不寫任何 result file。
+
+```bash
+python scripts/show_backtest_result_writer_contract.py
+```
+
+Contract 要求 future writer 必須由 explicit user command 觸發，且寫入前必須通過 result output contract、metric registry、output location policy、result caveat policy、safety validator runtime 與 result safety validation。Future controlled research path `data/backtests/research` 只作為 contract definition，本階段不得建立或寫入。
+
+本階段仍不執行 backtest、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A8：real backtest execution readiness closure。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

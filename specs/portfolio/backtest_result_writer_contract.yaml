@@ -1,0 +1,206 @@
+backtest_result_writer_contract:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future backtest result writer 的 contract、安全邊界、輸出位置限制、
+    pre-write validation requirements、explicit command requirements 與 prohibited outputs。
+    本 contract 只允許 writer contract design，不允許實作 writer runtime、
+    不允許建立 output directory、不允許寫入任何 result file。
+  caveats_zh:
+    - 此為 backtest result writer contract，不是 writer runtime。
+    - 本階段不寫入 result file。
+    - 本階段不建立 output directory。
+    - 本階段不寫入 data/backtests 或 public。
+    - 本階段不計算績效。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 不構成投資建議。
+
+  source_contracts:
+    backtest_result_output_contract:
+      path: specs/portfolio/backtest_result_output_contract.yaml
+      required: true
+      required_phase_9a1_closure_status: result_contract_design_only
+    backtest_metric_formula_registry:
+      path: specs/portfolio/backtest_metric_formula_registry.yaml
+      required: true
+      required_phase_9a2_closure_status: formula_registry_design_only
+    backtest_output_location_policy:
+      path: specs/portfolio/backtest_output_location_policy.yaml
+      required: true
+      required_phase_9a3_closure_status: output_location_policy_design_only
+    backtest_result_caveat_policy:
+      path: specs/portfolio/backtest_result_caveat_policy.yaml
+      required: true
+      required_phase_9a4_closure_status: caveat_policy_design_only
+    backtest_result_safety_validator_contract:
+      path: specs/portfolio/backtest_result_safety_validator_contract.yaml
+      required: true
+      required_phase_9a5_closure_status: safety_validator_contract_design_only
+    backtest_result_safety_validator_fixtures:
+      path: specs/portfolio/backtest_result_safety_validator_fixtures.yaml
+      required: true
+      required_validation_result: passed
+
+  writer_contract_scope:
+    allowed_now:
+      define_writer_contract: true
+      define_pre_write_validations: true
+      define_allowed_future_output_paths: true
+      define_prohibited_write_locations: true
+      define_writer_status_fields: true
+      define_future_acceptance_gates: true
+    disallowed_now:
+      implement_writer_runtime: true
+      write_result_files: true
+      create_output_directories: true
+      write_data_backtests_output: true
+      write_public_output: true
+      write_docs_output: true
+      write_dashboard_output: true
+      write_github_pages_output: true
+      execute_backtest: true
+      compute_metric_values: true
+      produce_backtest_results: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+      resolver_integration: true
+
+  future_writer_trigger_policy:
+    explicit_user_command_required: true
+    automatic_write_allowed: false
+    scheduled_write_allowed: false
+    dashboard_triggered_write_allowed: false
+    github_pages_triggered_write_allowed: false
+    ci_auto_write_allowed: false
+    dry_run_default_required: true
+    overwrite_default_allowed: false
+    append_default_allowed: false
+
+  allowed_future_output_paths:
+    controlled_research_path:
+      path: data/backtests/research
+      allowed_only_after_future_writer_runtime_phase: true
+      requires_explicit_user_command: true
+      requires_safety_validator_pass: true
+      requires_caveat_policy_pass: true
+      requires_output_location_policy_pass: true
+      auto_publication_allowed: false
+      git_tracking_allowed: false
+      note_zh: >
+        此路徑僅為 future contract definition。本階段不得建立資料夾或寫入任何檔案。
+
+  prohibited_write_locations:
+    - public
+    - docs
+    - site
+    - dashboard
+    - github_pages
+    - data/backtests
+    - data/raw
+    - specs
+    - src
+    - tests
+
+  required_pre_write_validations:
+    - validation_id: result_output_contract_validated
+      required: true
+      description_zh: backtest result output contract 必須先通過 validator。
+    - validation_id: metric_formula_registry_validated
+      required: true
+      description_zh: metric formula registry 必須先通過 validator。
+    - validation_id: output_location_policy_validated
+      required: true
+      description_zh: output location policy 必須先通過 validator。
+    - validation_id: result_caveat_policy_validated
+      required: true
+      description_zh: result caveat policy 必須先通過 validator。
+    - validation_id: result_safety_validator_contract_validated
+      required: true
+      description_zh: result safety validator contract 必須先通過 validator。
+    - validation_id: result_safety_validator_fixtures_passed
+      required: true
+      description_zh: safety validator fixtures 必須全部通過。
+    - validation_id: result_safety_validator_runtime_available
+      required: true
+      future_only: true
+      description_zh: future runtime phase 必須提供實際 safety validator。
+    - validation_id: result_safety_validation_passed
+      required: true
+      future_only: true
+      description_zh: future writer 寫入前必須先通過 safety validation。
+    - validation_id: explicit_user_command_present
+      required: true
+      description_zh: 寫入必須由 explicit user command 觸發。
+    - validation_id: no_public_auto_output
+      required: true
+      description_zh: 不得自動輸出到 public/dashboard/github pages。
+    - validation_id: no_live_allocation_or_trade_signal
+      required: true
+      description_zh: result 不得包含 live allocation 或 trade signal。
+
+  writer_status_contract:
+    writer_runtime_allowed_now: false
+    result_file_write_allowed_now: false
+    output_directory_creation_allowed_now: false
+    data_backtests_write_allowed_now: false
+    public_write_allowed_now: false
+    docs_write_allowed_now: false
+    dashboard_write_allowed_now: false
+    github_pages_write_allowed_now: false
+    future_writer_statuses:
+      - dry_run_passed
+      - write_blocked
+      - write_completed
+      - validation_failed
+    required_future_writer_fields:
+      - writer_status
+      - output_path
+      - dry_run
+      - explicit_user_command
+      - safety_validation_status
+      - caveat_validation_status
+      - output_location_validation_status
+      - written_file_count
+      - public_output_written
+      - data_backtests_output_written
+      - blocked_reason_zh
+
+  prohibited_result_fields_for_writer:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - rebalance_now
+    - current_market_recommendation
+    - public_dashboard_output
+    - dashboard_portfolio_action
+    - live_recommendation
+    - current_phase_override
+    - decision_status_override
+
+  required_writer_caveats_zh:
+    - backtest-only，不是目前配置建議。
+    - 回測結果不代表未來績效。
+    - 本結果僅供研究與模型驗證。
+    - 不構成投資建議。
+
+  phase_9a7_closure:
+    status: writer_contract_design_only
+    conclusion_zh: >
+      Phase 9A7 只完成 backtest result writer contract design。
+      尚未實作 writer runtime、未建立 output directory、未寫入 result file、
+      未執行 real backtest、未計算績效、未寫入 data/backtests 或 public。
+  recommended_next_phase:
+    phase_id: 9A8
+    title: real backtest execution readiness closure
+    reason_zh: >
+      已完成 writer contract。下一步應建立 real backtest execution readiness closure，
+      彙整 9A–9A7 的 engine、result、metric、location、caveat、safety validator、
+      fixtures 與 writer contracts，確認是否已具備進入 9B real backtest prototype 的前置條件。

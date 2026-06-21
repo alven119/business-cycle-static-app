@@ -913,6 +913,18 @@ Fixtures 包含合法 schema/safety samples，以及故意違規的 live allocat
 
 本階段不驗證真實 backtest result、不執行回測、不計算績效、不產生 result file、不建立 output directory、不寫入 `data/backtests` 或 `public`。
 
+## Phase 9A7 Backtest Result Writer Contract
+
+Phase 9A7 建立 backtest result writer contract。
+
+```bash
+python scripts/show_backtest_result_writer_contract.py
+```
+
+Writer contract 定義 future writer 的 explicit user command requirement、allowed future controlled research path、prohibited write locations、required pre-write validations、writer status fields 與 prohibited result fields。Future writer 即使未來允許寫入，也必須先通過 result output contract、metric registry、output location policy、caveat policy、safety validator runtime 與 result safety validation。
+
+本階段不實作 writer runtime、不建立 output directory、不寫 result file、不執行回測、不計算績效、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A8：real backtest execution readiness closure。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

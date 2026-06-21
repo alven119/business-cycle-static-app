@@ -239,6 +239,18 @@ Fixtures 用來驗證 future safety validator contract 的拒絕路徑。Valid f
 
 本階段不驗證真實 result、不執行回測、不計算績效、不產生 result file、不建立 output directory、不寫入 `data/backtests` 或 `public`。所有內容不構成投資建議。
 
+## Phase 9A7 Backtest Result Writer Contract
+
+Phase 9A7 新增 backtest result writer contract。
+
+```bash
+python scripts/show_backtest_result_writer_contract.py
+```
+
+Writer contract 定義 future writer scope、explicit user command requirement、allowed future controlled research path、prohibited write locations、required pre-write validations、writer status fields 與 prohibited result fields。它要求 future writer 不得自動寫入 public/dashboard/github pages，且必須先通過 safety validator runtime 與 result safety validation。
+
+本階段只做 contract design，不實作 writer runtime、不建立 output directory、不寫 result file、不執行回測、不計算績效、不寫入 `data/backtests` 或 `public`。下一步應建立 real backtest execution readiness closure。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

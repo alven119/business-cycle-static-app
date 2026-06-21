@@ -977,6 +977,23 @@ python scripts/validate_backtest_result_safety_validator_fixtures.py
 
 This phase is fixture-only. It provides valid sample results and intentionally invalid examples for live allocation, target weight, buy/sell signal, current recommendation, public dashboard output, phase override, prohibited text, caveat visibility, and output-location violations. It does not implement validator runtime, validate real results, produce result files, create output directories, write `data/backtests`, or generate public output.
 
+## Phase 9A7 backtest result writer contract
+
+Phase 9A7 defines the future backtest result writer contract.
+
+```text
+specs/portfolio/backtest_result_writer_contract.yaml
+docs/backtest_result_writer_contract.md
+```
+
+Inspect the contract with:
+
+```bash
+python scripts/show_backtest_result_writer_contract.py
+```
+
+This phase is contract-only. It defines explicit user command requirements, future controlled research path policy, pre-write validations, writer status fields, prohibited write locations, and prohibited result fields. It does not implement writer runtime, create output directories, write result files, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

@@ -76,6 +76,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     safety_validator_fixture_gates = phase_specific[
         "backtest_result_safety_validator_fixtures"
     ]["hard_gates"]
+    result_writer_gates = phase_specific["backtest_result_writer_contract"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -169,6 +170,11 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     )
     assert "public_output_written == false" in safety_validator_fixture_gates
     assert "result == passed" in safety_validator_fixture_gates
+    assert "explicit_user_command_required == true" in result_writer_gates
+    assert "implement_writer_runtime_allowed == false" in result_writer_gates
+    assert "write_result_files_allowed == false" in result_writer_gates
+    assert "output_directory_creation_allowed_now == false" in result_writer_gates
+    assert "recommended_next_phase == 9A8" in result_writer_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:
