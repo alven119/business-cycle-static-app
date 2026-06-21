@@ -1,0 +1,117 @@
+strict_temporal_evidence_class_contract:
+  version: 1
+  objective: Define evidence classes that may or may not support strict point-in-time claims.
+  hard_gates:
+    initial_release_misclassified_as_vintage_count: 0
+    proxy_misclassified_as_strict_count: 0
+    current_history_plus_lag_misclassified_as_strict_count: 0
+    strict_series_without_source_provenance_count: 0
+  evidence_classes:
+    - evidence_class: exact_vintage_interval
+      strict_point_in_time_eligible: true
+      point_in_time_evidence_class: exact_vintage_interval
+      source_artifact_required: false
+      revision_reconstruction_required: false
+      economic_semantic_review_required: false
+      required_fields:
+        - series_id
+        - observation_date
+        - value
+        - realtime_start
+        - realtime_end
+        - source
+      allowed_claims:
+        - strict point-in-time when realtime interval covers the requested as_of date
+      prohibited_claims:
+        - intraday point-in-time precision
+    - evidence_class: official_release_archive
+      strict_point_in_time_eligible: true
+      point_in_time_evidence_class: official_release_archive
+      source_artifact_required: true
+      revision_reconstruction_required: true
+      economic_semantic_review_required: false
+      required_fields:
+        - source_domain
+        - artifact_url
+        - artifact_type
+        - release_date
+        - reference_period
+        - checksum
+        - parser_id
+        - extracted_row_count
+      allowed_claims:
+        - strict point-in-time when archived releases reconstruct as-of latest visible values
+      prohibited_claims:
+        - ALFRED vintage equivalence unless realtime intervals are present
+    - evidence_class: official_observational_archive
+      strict_point_in_time_eligible: true
+      point_in_time_evidence_class: official_observational_archive
+      source_artifact_required: true
+      revision_reconstruction_required: false
+      economic_semantic_review_required: true
+      required_fields:
+        - source_domain
+        - observation_date
+        - availability_rule
+        - revision_policy
+        - source_url
+        - checksum
+      allowed_claims:
+        - strict point-in-time for non-revised or correction-audited official observations
+      prohibited_claims:
+        - current revised history plus arbitrary lag as strict point-in-time
+    - evidence_class: derived_point_in_time
+      strict_point_in_time_eligible: true
+      point_in_time_evidence_class: derived_point_in_time
+      source_artifact_required: false
+      revision_reconstruction_required: false
+      economic_semantic_review_required: true
+      required_fields:
+        - input_series_ids
+        - same_as_of_snapshot
+        - availability_rule
+      allowed_claims:
+        - strict point-in-time when every input is strict-ready at the same as_of date
+      prohibited_claims:
+        - silent fallback to revised input
+    - evidence_class: initial_release_only
+      strict_point_in_time_eligible: false
+      point_in_time_evidence_class: initial_release_only
+      source_artifact_required: true
+      revision_reconstruction_required: false
+      economic_semantic_review_required: false
+      required_fields:
+        - observation_date
+        - initial_release_date
+        - initial_value
+      allowed_claims:
+        - first-release sensitivity
+      prohibited_claims:
+        - as-of latest visible vintage
+    - evidence_class: release_lag_revised_proxy
+      strict_point_in_time_eligible: false
+      point_in_time_evidence_class: release_lag_revised_proxy
+      source_artifact_required: false
+      revision_reconstruction_required: false
+      economic_semantic_review_required: false
+      required_fields:
+        - observation_date
+        - current_revised_value
+        - release_lag_rule
+      allowed_claims:
+        - sensitivity diagnostic
+      prohibited_claims:
+        - strict point-in-time
+    - evidence_class: unsupported
+      strict_point_in_time_eligible: false
+      point_in_time_evidence_class: unsupported
+      source_artifact_required: true
+      revision_reconstruction_required: true
+      economic_semantic_review_required: true
+      required_fields:
+        - blocker_class
+        - blocker_reason
+      allowed_claims:
+        - blocked
+      prohibited_claims:
+        - historical tradeability

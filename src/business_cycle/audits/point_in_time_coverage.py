@@ -11,6 +11,9 @@ import pandas as pd
 import yaml
 
 from business_cycle.audits.repository_inventory import collect_repository_inventory
+from business_cycle.audits.temporal_equivalence import (
+    load_formal_temporal_gap_remediation,
+)
 from business_cycle.data_sources.point_in_time import PointInTimeError, select_vintage_as_of
 from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
@@ -43,6 +46,10 @@ def summarize_point_in_time_coverage(
     formal_dependencies = discover_formal_dependencies(root_path / "specs/indicator_catalog.yaml")
     as_of_dates = scenario_month_end_dates(root_path / "specs/backtests/scenarios.yaml")
     cached_series_ids = cache.cached_series_ids() if cache.root_dir.exists() else set()
+    remediation = load_formal_temporal_gap_remediation(
+        root_path / "specs/audits/formal_temporal_gap_remediation.yaml"
+    )
+    remediation_by_id = {str(row["series_id"]): row for row in remediation["rows"]}
 
     row_by_id = {str(row["series_id"]): row for row in rows}
     metadata_complete = [row for row in rows if _row_metadata_complete(row)]
@@ -121,9 +128,37 @@ def summarize_point_in_time_coverage(
 
     formal_exact = [series_id for series_id, covered in formal_covered.items() if covered]
     formal_missing = [series_id for series_id, covered in formal_covered.items() if not covered]
+    archive_reconstructed = [
+        series_id
+        for series_id in formal_direct
+        if remediation_by_id.get(series_id, {}).get("final_strict_ready")
+        and remediation_by_id.get(series_id, {}).get("point_in_time_evidence_class")
+        == "official_release_archive"
+    ]
+    observational_ready = [
+        series_id
+        for series_id in formal_direct
+        if remediation_by_id.get(series_id, {}).get("final_strict_ready")
+        and remediation_by_id.get(series_id, {}).get("point_in_time_evidence_class")
+        == "official_observational_archive"
+    ]
+    derived_ready = [
+        series_id
+        for series_id in formal_direct
+        if remediation_by_id.get(series_id, {}).get("final_strict_ready")
+        and remediation_by_id.get(series_id, {}).get("point_in_time_evidence_class")
+        == "derived_point_in_time"
+    ]
+    provider_full_range_failed = [
+        series_id
+        for series_id in formal_direct
+        if remediation_by_id.get(series_id, {}).get("provider_full_range_query_status")
+        == "failed"
+    ]
+    unresolved_formal = sorted(formal_missing)
     coverage_ratio = 1.0 if total_pair_count == 0 else covered_pair_count / total_pair_count
     formal_ready = (
-        len(formal_missing) == 0
+        len(unresolved_formal) == 0
         and total_pair_count > 0
         and covered_pair_count == total_pair_count
         and not release_lag_proxy_misclassified
@@ -173,11 +208,27 @@ def summarize_point_in_time_coverage(
         "formal_revised_fallback_pair_count": 0,
         "formal_invalid_realtime_interval_count": invalid_realtime_interval_count,
         "strict_snapshot_validation_failure_count": strict_snapshot_validation_failure_count,
+        "exact_vintage_covered_pair_count": covered_pair_count,
+        "release_archive_covered_pair_count": 0,
+        "observational_archive_covered_pair_count": 0,
+        "derived_point_in_time_covered_pair_count": 0,
         "formal_scenario_as_of_coverage_ratio": round(coverage_ratio, 6),
         "blocker_class": blocker_class,
+        "official_query_supported_series_count": len(live_verified_exact_series),
         "official_query_attempted_series_count": len(official_query_attempted_series),
         "official_query_succeeded_series_count": len(official_query_succeeded_series),
         "official_query_failed_series_count": 0,
+        "partial_vintage_history_series_count": len(live_verified_history_insufficient_series),
+        "full_required_horizon_exact_vintage_series_count": len(formal_exact),
+        "full_required_horizon_archive_reconstructed_series_count": len(archive_reconstructed),
+        "full_required_horizon_observational_series_count": len(observational_ready),
+        "full_required_horizon_strict_ready_series_count": (
+            len(formal_exact) + len(archive_reconstructed) + len(observational_ready) + len(derived_ready)
+        ),
+        "history_insufficient_series_count": len(live_verified_history_insufficient_series),
+        "provider_full_range_failed_series_count": len(provider_full_range_failed),
+        "unresolved_formal_series_count": len(unresolved_formal),
+        "unresolved_formal_series_ids": unresolved_formal,
         "registry_declared_exact_vintage_series_count": len(exact_rows),
         "live_verified_exact_vintage_series_count": len(live_verified_exact_series),
         "live_verified_initial_release_series_count": 0,
@@ -349,7 +400,7 @@ def _recommended_next_phase(*, formal_ready: bool, blocker_class: str) -> str:
     if blocker_class == "official_query_not_attempted":
         return "QA1B.1_RETRY"
     if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
-        return "QA1C"
+        return "QA1C_REVIEW"
     return "QA1B.1_REPAIR"
 
 

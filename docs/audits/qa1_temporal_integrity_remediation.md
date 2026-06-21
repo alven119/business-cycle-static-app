@@ -56,3 +56,22 @@ and dashboard behavior are unchanged.
 Phase 9B remains a synthetic harness. Phase 9B1, book benchmark execution, and
 real historical backtest progression remain blocked until later methodology,
 market total-return, book-label, and calibration gates are complete.
+
+## QA1C Archive Reconstruction Boundary
+
+QA1C adds temporal evidence classes so partial official query support is not
+confused with full required-horizon strict coverage. ALFRED history
+insufficiency does not mean the economic indicator is invalid or nonexistent; it
+means the ALFRED realtime interval cache cannot by itself reconstruct every
+required scenario as-of date.
+
+Official release archive reconstruction and official observational archives are
+separate evidence classes from ALFRED vintage intervals. They may support strict
+point-in-time only when source artifact metadata, publication or availability
+rules, revision behavior, parser identity, checksum, and no-future-data
+selection are explicit.
+
+Current revised history plus an arbitrary lag remains a proxy, not strict
+point-in-time. Initial release data remain first-release sensitivity data, not
+as-of latest visible vintage. QA1C does not change formal scoring weights,
+resolver logic, dashboard defaults, or production revised-mode behavior.

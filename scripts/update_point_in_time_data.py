@@ -282,6 +282,12 @@ def main(argv: list[str] | None = None) -> int:
     average_requests = (
         round(api_requests / len(api_requests_by_series), 6) if api_requests_by_series else 0.0
     )
+    qa1c_counts = _qa1c_semantic_counts(
+        requested=requested,
+        cache=cache,
+        as_of_dates=as_of_dates,
+        live_verified_unsupported=live_verified_unsupported,
+    )
     summary = {
         "env_file_entry_present": _env_file_entry_present(),
         "fred_api_key_present": bool(os.getenv("FRED_API_KEY")),
@@ -303,6 +309,7 @@ def main(argv: list[str] | None = None) -> int:
         "official_query_attempted_series_count": len(official_query_attempted),
         "official_query_succeeded_series_count": len(official_query_succeeded),
         "official_query_failed_series_count": len(official_query_failed),
+        **qa1c_counts,
         "registry_declared_exact_vintage_series_count": exact,
         "live_verified_exact_vintage_series_count": len(live_verified_exact),
         "live_verified_initial_release_series_count": len(live_verified_initial),
@@ -354,6 +361,15 @@ def _registry_rows() -> dict[str, dict[str, Any]]:
     return {str(row["series_id"]): row for row in rows}
 
 
+def _remediation_rows() -> dict[str, dict[str, Any]]:
+    path = Path("specs/audits/formal_temporal_gap_remediation.yaml")
+    if not path.exists():
+        return {}
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    rows = payload["formal_temporal_gap_remediation"]["rows"]
+    return {str(row["series_id"]): row for row in rows}
+
+
 def _scenario_count() -> int:
     payload = yaml.safe_load(Path("specs/backtests/scenarios.yaml").read_text())
     return len(payload.get("scenarios", []))
@@ -381,6 +397,68 @@ def _format(value: object) -> str:
     if isinstance(value, bool):
         return str(value).lower()
     return str(value)
+
+
+def _qa1c_semantic_counts(
+    *,
+    requested: list[str],
+    cache: PointInTimeCache,
+    as_of_dates: list[str],
+    live_verified_unsupported: set[str],
+) -> dict[str, int]:
+    remediation = _remediation_rows()
+    required_start = min(as_of_dates) if as_of_dates else None
+    official_supported = 0
+    partial_history = 0
+    full_exact = 0
+    archive_reconstructed = 0
+    observational_ready = 0
+    provider_full_range_failed = 0
+    unresolved: set[str] = set()
+    for series_id in requested:
+        row = remediation.get(series_id, {})
+        if row.get("provider_full_range_query_status") == "failed":
+            provider_full_range_failed += 1
+        if row.get("final_strict_ready") and row.get("point_in_time_evidence_class") == "official_release_archive":
+            archive_reconstructed += 1
+        if (
+            row.get("final_strict_ready")
+            and row.get("point_in_time_evidence_class") == "official_observational_archive"
+        ):
+            observational_ready += 1
+        if series_id in live_verified_unsupported:
+            unresolved.add(series_id)
+            continue
+        try:
+            cached = cache.read_series(series_id)
+        except PointInTimeCacheError:
+            unresolved.add(series_id)
+            continue
+        if int(cached.manifest.get("row_count", 0)) > 0:
+            official_supported += 1
+        if required_start and _cache_history_gap(cached.manifest, required_start):
+            partial_history += 1
+            unresolved.add(series_id)
+            continue
+        if required_start and int(cached.manifest.get("row_count", 0)) > 0:
+            full_exact += 1
+    strict_ready = full_exact + archive_reconstructed + observational_ready
+    return {
+        "official_query_supported_series_count": official_supported,
+        "partial_vintage_history_series_count": partial_history,
+        "full_required_horizon_exact_vintage_series_count": full_exact,
+        "full_required_horizon_archive_reconstructed_series_count": archive_reconstructed,
+        "full_required_horizon_observational_series_count": observational_ready,
+        "full_required_horizon_strict_ready_series_count": strict_ready,
+        "history_insufficient_series_count": partial_history,
+        "provider_full_range_failed_series_count": provider_full_range_failed,
+        "unresolved_formal_series_count": len(unresolved),
+    }
+
+
+def _cache_history_gap(manifest: dict[str, Any], required_start: str) -> bool:
+    earliest = manifest.get("earliest_realtime_start")
+    return isinstance(earliest, str) and _looks_like_iso_date(earliest) and earliest > required_start
 
 
 def _env_file_entry_present(path: str | Path = ".env") -> bool:

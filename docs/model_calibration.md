@@ -50,6 +50,11 @@ Phase 6F attribution smoke summary 顯示：
 
 QA1 已建立 strict `vintage_as_of` data-mode contract 與 cache/selector，但這不會自動解除 calibration holdout 或書籍 benchmark blockers。發布延遲 proxy 仍不屬於 strict vintage mode；initial-release-only 只用於 revision diagnostics。校準與 golden benchmark 必須等 formal strict cache coverage、book method labels、market total-return contract 與 parameter-freeze policy 都完成後才能往 real backtest progression 前進。
 
+QA1C 的 official archive reconstruction 只處理 temporal evidence。即使未來
+formal coverage 由 ALFRED vintage、official release archive、official
+observational archive 或 derived point-in-time 補齊，也不代表 calibration
+holdout、context dependency、book benchmark 或投資策略驗證已完成。
+
 ## Candidate Controls
 
 7A 只定義候選控制項，不啟用任何行為：

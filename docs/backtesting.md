@@ -23,6 +23,20 @@ Inventory complete 不等於 point-in-time ready。`data/raw/fred_vintages/` cac
 
 Phase 9B 仍是 synthetic harness。9B1、book benchmark execution、dashboard portfolio integration 與 real backtest progression 仍 blocked。
 
+## QA1C official archive boundary
+
+QA1C adds an official archive reconstruction audit. ALFRED history
+insufficiency is not the same as an absent economic indicator, but it does mean
+ALFRED alone cannot reconstruct every required historical as-of snapshot.
+Official release archives and official observational archives are distinct
+evidence classes and must carry source artifact metadata, publication or
+availability rules, parser identity, checksum, and revision policy evidence.
+
+No backtest may call current revised history plus an arbitrary lag strict
+point-in-time. Initial-release-only data remain a sensitivity mode, not as-of
+latest visible vintage. Any substitute series must pass temporal, economic, and
+signal equivalence review before it can be proposed behind a feature gate.
+
 ## Phase 6B Runner Skeleton
 
 Phase 6B 新增 historical backtest runner skeleton。它可以針對單一 scenario 依每月月底 as-of 日期跑出 timeline JSON，但尚未新增 dashboard 歷史頁、圖表或前端互動。

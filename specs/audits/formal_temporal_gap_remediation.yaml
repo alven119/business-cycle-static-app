@@ -1,0 +1,255 @@
+formal_temporal_gap_remediation:
+  version: 1
+  phase: QA1C
+  required_earliest_as_of: '1998-01-31'
+  required_latest_as_of: '2021-12-31'
+  required_scenario_ids:
+    - dotcom_bust
+    - global_financial_crisis
+    - covid_shock
+    - inflation_shock_2021
+    - soft_landing_2019
+  prohibited_shortcuts:
+    - current revised history plus arbitrary lag
+    - release-lag proxy as strict point-in-time
+    - initial-release-only as as-of latest vintage
+    - silent substitute series
+    - dropping formal indicators
+    - shrinking scenario horizons
+  rows:
+    - series_id: DCOILWTICO
+      formal_indicator_ids: [wti_oil_price]
+      book_role: oil price pressure / inflation input
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '2011-04-06'
+      current_alfred_latest_realtime_start: '2021-12-29'
+      missing_pair_count: 147
+      provider_full_range_query_status: succeeded_partial_history
+      official_source_candidates:
+        - source_id: eia_wti_spot_price_history
+          source_domain: eia.gov
+          source_url: https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm
+          artifact_type: official_observational_archive_candidate
+      preferred_reconstruction_method: official_observational_archive
+      fallback_methods: []
+      prohibited_shortcuts: [current history plus one-day lag, non-official commodity portal]
+      revision_behavior: daily market observation; correction policy requires official evidence
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: null
+      temporal_equivalence_status: not_applicable
+      economic_equivalence_status: not_applicable
+      point_in_time_evidence_class: official_observational_archive
+      implementation_status: blocked_pending_official_availability_rule_and_revision_policy
+      blocker_class: official_archive_not_reconstructed
+      final_strict_ready: false
+    - series_id: DGORDER
+      formal_indicator_ids: [durable_goods_orders]
+      book_role: durable goods / manufacturing demand
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '1999-08-04'
+      current_alfred_latest_realtime_start: '2021-12-23'
+      missing_pair_count: 19
+      provider_full_range_query_status: succeeded_partial_history
+      official_source_candidates:
+        - source_id: census_durable_goods_advance_reports
+          source_domain: census.gov
+          source_url: https://www.census.gov/manufacturing/m3/
+          artifact_type: official_release_archive_candidate
+      preferred_reconstruction_method: official_release_archive
+      fallback_methods: [archived Census M3 tables]
+      prohibited_shortcuts: [current revised DGORDER plus monthly lag, full report revision before publication]
+      revision_behavior: advance estimate followed by revisions in later releases
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: null
+      temporal_equivalence_status: not_applicable
+      economic_equivalence_status: not_applicable
+      point_in_time_evidence_class: official_release_archive
+      implementation_status: blocked_pending_release_archive_parser
+      blocker_class: official_archive_not_reconstructed
+      final_strict_ready: false
+    - series_id: DGS10
+      formal_indicator_ids: [ten_year_treasury_yield]
+      book_role: long Treasury yield / rate regime
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '2005-06-28'
+      current_alfred_latest_realtime_start: '2005-12-28'
+      missing_pair_count: 221
+      provider_full_range_query_status: failed
+      segmented_query_status:
+        segment_query_count: 4
+        segment_query_success_count: 1
+        segment_query_failure_count: 3
+        empty_history_segment_count: 0
+        provider_parse_failure_count: 2
+        earliest_exact_alfred_realtime_start: '2005-06-28'
+        segments:
+          - range: 1995-1999
+            status: failed
+          - range: 2000-2004
+            status: failed
+          - range: 2005-2009
+            status: succeeded
+          - range: 2010-latest
+            status: failed
+      full_range_query_status: failed
+      earliest_live_realtime_start: '2005-06-28'
+      required_earliest_as_of: '1998-01-31'
+      alfred_history_gap: true
+      provider_or_parser_error: full-range and pre-2004 ALFRED queries fail while 2008 and 2004-2005 probes succeed
+      final_blocker_class: official_history_insufficient
+      official_source_candidates:
+        - source_id: federal_reserve_h15_archive
+          source_domain: federalreserve.gov
+          source_url: https://www.federalreserve.gov/releases/h15/
+          artifact_type: official_release_archive_candidate
+        - source_id: fraser_h15_archive
+          source_domain: fraser.stlouisfed.org
+          source_url: https://fraser.stlouisfed.org/title/h15-selected-interest-rates-86
+          artifact_type: official_release_archive_candidate
+        - source_id: treasury_daily_rates
+          source_domain: treasury.gov
+          source_url: https://home.treasury.gov/resource-center/data-chart-center/interest-rates
+          artifact_type: official_observational_archive_candidate
+      preferred_reconstruction_method: official_release_archive
+      fallback_methods: [official_observational_archive_after_equivalence_audit]
+      prohibited_shortcuts: [GS10 silent substitution, current DGS10 history as vintage]
+      revision_behavior: daily official rate observation; pre-2005 publication archive required
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: GS10
+      temporal_equivalence_status: rejected_pending_review
+      economic_equivalence_status: rejected_pending_review
+      point_in_time_evidence_class: official_release_archive
+      implementation_status: blocked_pending_h15_archive_parser
+      blocker_class: official_history_insufficient
+      final_strict_ready: false
+    - series_id: ICSA
+      formal_indicator_ids: [initial_jobless_claims]
+      book_role: labor market deterioration / recession pressure
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '2009-05-28'
+      current_alfred_latest_realtime_start: '2021-12-30'
+      missing_pair_count: 124
+      provider_full_range_query_status: succeeded_partial_history
+      official_source_candidates:
+        - source_id: dol_ui_weekly_claims_archive
+          source_domain: dol.gov
+          source_url: https://oui.doleta.gov/unemploy/claims.asp
+          artifact_type: official_release_archive_candidate
+        - source_id: oui_prior_weekly_claims_releases
+          source_domain: oui.doleta.gov
+          source_url: https://oui.doleta.gov/press/
+          artifact_type: official_release_archive_candidate
+      preferred_reconstruction_method: official_release_archive
+      fallback_methods: []
+      prohibited_shortcuts: [IC4WSA substitution, ICNSA substitution without seasonal-adjustment review, current ICSA plus Thursday lag]
+      revision_behavior: advance weekly value plus prior-week revision in subsequent release
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: null
+      temporal_equivalence_status: not_applicable
+      economic_equivalence_status: not_applicable
+      point_in_time_evidence_class: official_release_archive
+      implementation_status: blocked_pending_weekly_claims_release_parser
+      blocker_class: official_archive_not_reconstructed
+      final_strict_ready: false
+    - series_id: MORTGAGE30US
+      formal_indicator_ids: [thirty_year_mortgage_rate]
+      book_role: housing finance conditions
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '2010-06-17'
+      current_alfred_latest_realtime_start: '2021-12-30'
+      missing_pair_count: 137
+      provider_full_range_query_status: succeeded_partial_history
+      official_source_candidates:
+        - source_id: freddie_mac_pmms_archive
+          source_domain: freddiemac.com
+          source_url: https://www.freddiemac.com/pmms
+          artifact_type: official_observational_archive_candidate
+      preferred_reconstruction_method: official_observational_archive
+      fallback_methods: [archived PMMS weekly releases if available]
+      prohibited_shortcuts: [current PMMS history plus weekly lag, non-official mortgage portal]
+      revision_behavior: methodology epochs and restatement policy require official evidence
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: null
+      temporal_equivalence_status: not_applicable
+      economic_equivalence_status: not_applicable
+      point_in_time_evidence_class: official_observational_archive
+      implementation_status: blocked_pending_pmms_methodology_and_archive_review
+      blocker_class: official_archive_not_reconstructed
+      final_strict_ready: false
+    - series_id: RSAFS
+      formal_indicator_ids: [real_retail_sales]
+      book_role: nominal retail sales input / consumer demand
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '2001-06-13'
+      current_alfred_latest_realtime_start: '2021-12-15'
+      missing_pair_count: 41
+      provider_full_range_query_status: succeeded_partial_history
+      official_source_candidates:
+        - source_id: census_advance_monthly_retail_trade
+          source_domain: census.gov
+          source_url: https://www.census.gov/retail/marts/www/marts_current.pdf
+          artifact_type: official_release_archive_candidate
+      preferred_reconstruction_method: official_release_archive
+      fallback_methods: [Census historical XLS/CSV tables if publication dated]
+      prohibited_shortcuts: [current revised RSAFS plus fixed lag, ignoring benchmark revisions]
+      revision_behavior: advance estimate plus subsequent revisions and benchmark revisions
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: null
+      temporal_equivalence_status: not_applicable
+      economic_equivalence_status: not_applicable
+      point_in_time_evidence_class: official_release_archive
+      implementation_status: blocked_pending_retail_release_archive_parser
+      blocker_class: official_archive_not_reconstructed
+      final_strict_ready: false
+    - series_id: RRSFS
+      formal_indicator_ids: [real_retail_sales]
+      book_role: real retail sales / consumer demand after inflation adjustment
+      required_scenario_ids: [dotcom_bust, global_financial_crisis, covid_shock, inflation_shock_2021, soft_landing_2019]
+      required_earliest_as_of: '1998-01-31'
+      required_latest_as_of: '2021-12-31'
+      current_alfred_earliest_realtime_start: '2001-06-15'
+      current_alfred_latest_realtime_start: '2021-12-15'
+      missing_pair_count: 41
+      provider_full_range_query_status: succeeded_partial_history
+      official_source_candidates:
+        - source_id: census_retail_sales_plus_cpi_deflation
+          source_domain: census.gov
+          source_url: https://www.census.gov/retail/
+          artifact_type: derived_point_in_time_candidate
+        - source_id: bls_cpi_archive
+          source_domain: bls.gov
+          source_url: https://www.bls.gov/cpi/
+          artifact_type: official_release_archive_candidate
+      preferred_reconstruction_method: derived_point_in_time
+      fallback_methods: [official_release_archive_if_direct_RRSFS_artifacts_exist]
+      prohibited_shortcuts: [current revised RRSFS plus lag, direct-to-derived switch without formula/unit validation]
+      revision_behavior: inherits RSAFS and CPI release/revision behavior
+      economic_semantic_substitution_allowed: false
+      proposed_substitute_series: null
+      temporal_equivalence_status: not_applicable
+      economic_equivalence_status: not_applicable
+      point_in_time_evidence_class: derived_point_in_time
+      rrsfs_current_dependency_class: direct
+      rrsfs_proposed_dependency_class: derived
+      rrsfs_underlying_series: [RSAFS, CPIAUCSL]
+      rrsfs_formula_validated: false
+      rrsfs_unit_validated: false
+      rrsfs_base_period_validated: false
+      rrsfs_point_in_time_reconstruction_ready: false
+      dependency_graph_changed: false
+      revised_default_unchanged: true
+      implementation_status: blocked_pending_rsa_and_cpi_same_as_of_derivation
+      blocker_class: official_archive_not_reconstructed
+      final_strict_ready: false

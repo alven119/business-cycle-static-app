@@ -72,6 +72,18 @@ python scripts/fred_smoke_test.py
 
 See `docs/fred_live_smoke_test.md` for the full safe workflow.
 
+## Temporal Integrity Status
+
+QA1C distinguishes ALFRED vintage intervals from official release archives,
+official observational archives, and derived point-in-time reconstructions.
+Partial official history is not full required-horizon strict coverage. Current
+historical values plus an arbitrary lag are not strict point-in-time data, and
+substitute series require temporal, economic, and signal equivalence review.
+
+Production live scoring still defaults to revised data unless a point-in-time
+mode is explicitly requested. Phase 9B1, real historical backtesting, book
+benchmark execution, and dashboard portfolio integration remain blocked.
+
 ## Phase 2A transformations
 
 Phase 2A adds deterministic indicator time-series transformations in `src/business_cycle/indicators/transformations.py`: cleaning, moving averages, percent changes, rolling slopes, rolling z-scores, rolling percentiles, and trailing peak/trough detection. These functions support later trend-aware scoring but do not produce phase decisions.
