@@ -69,6 +69,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     result_output_gates = phase_specific["backtest_result_output_contract"]["hard_gates"]
     metric_registry_gates = phase_specific["backtest_metric_formula_registry"]["hard_gates"]
     output_location_gates = phase_specific["backtest_output_location_policy"]["hard_gates"]
+    result_caveat_gates = phase_specific["backtest_result_caveat_policy"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -147,6 +148,10 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "write_data_backtests_output_allowed == false" in output_location_gates
     assert "create_output_directories_allowed == false" in output_location_gates
     assert "recommended_next_phase == 9A4" in output_location_gates
+    assert "produce_backtest_results_allowed == false" in result_caveat_gates
+    assert "compute_metric_values_allowed == false" in result_caveat_gates
+    assert "caveats_visible_before_metrics == true" in result_caveat_gates
+    assert "recommended_next_phase == 9A5" in result_caveat_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

@@ -691,6 +691,18 @@ Policy 定義 `data/backtests/research` 只能作為 future controlled research 
 
 本階段仍不執行 backtest、不計算績效、不產生 result、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A4：backtest result caveat policy。
 
+## Phase 9A4 Backtest Result Caveat Policy
+
+Phase 9A4 新增 `specs/portfolio/backtest_result_caveat_policy.yaml` 與 caveat policy validator。此階段只定義 future result 必須附帶的 caveats 與禁止語意，不產生任何 result。
+
+```bash
+python scripts/show_backtest_result_caveat_policy.py
+```
+
+Policy 要求 future result 必須標記 backtest-only、不是目前配置建議、回測結果不代表未來績效、本結果僅供研究與模型驗證、不構成投資建議。Policy 同時要求 revised data、transaction cost、false signal cost、scenario-specific 與 COVID exogenous shock caveats。
+
+本階段仍不執行 backtest、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A5：backtest result safety validator contract。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

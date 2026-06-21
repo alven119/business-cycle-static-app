@@ -320,3 +320,19 @@ phase_specific_gates:
       - recommended_next_phase == 9A4
     soft_warnings_allowed:
       - future_controlled_research_path_count > 0 because paths are policy-only and writing is not allowed now
+
+  backtest_result_caveat_policy:
+    hard_gates:
+      - produce_backtest_results_allowed == false
+      - compute_metric_values_allowed == false
+      - write_result_files_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - create_output_directories_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - caveats_visible_before_metrics == true
+      - phase_9a4_closure_status == caveat_policy_design_only
+      - recommended_next_phase == 9A5
+    soft_warnings_allowed:
+      - required_global_caveat_count > 0 because caveats are policy-only and no results are generated now

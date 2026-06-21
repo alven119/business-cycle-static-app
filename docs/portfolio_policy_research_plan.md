@@ -203,6 +203,18 @@ Output location policy 定義 future controlled research path、prohibited auto-
 
 本階段禁止 write result files、write `data/backtests`、write `public`、create output directories、execute backtest、compute metric values、produce allocation 與 produce trade signal。下一步應定義 result caveat policy，確保 future result 明確標記 backtest-only、不代表未來績效、不構成投資建議。
 
+## Phase 9A4 Backtest Result Caveat Policy
+
+Phase 9A4 新增 backtest result caveat policy。
+
+```bash
+python scripts/show_backtest_result_caveat_policy.py
+```
+
+Result caveat policy 定義 future result 必須包含的 global caveats、contextual caveats、display requirements、禁止文字、禁止解讀與 future validation rules。Future result 必須標記 backtest-only、不是目前配置建議、回測結果不代表未來績效、不構成投資建議，且 caveats 必須在 metric values 前可見。
+
+本階段禁止 produce backtest results、compute metric values、write result files、create output directories、produce allocation 與 produce trade signal。下一步應定義 result safety validator contract，讓 future result 能被系統性驗證為 no live allocation、no trade signal、no public auto-output。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

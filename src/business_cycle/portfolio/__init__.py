@@ -61,6 +61,13 @@ from business_cycle.portfolio.output_location_policy import (
     summarize_backtest_output_location_policy,
     validate_backtest_output_location_policy,
 )
+from business_cycle.portfolio.result_caveat_policy import (
+    BacktestResultCaveatPolicy,
+    BacktestResultCaveatPolicyError,
+    load_backtest_result_caveat_policy,
+    summarize_backtest_result_caveat_policy,
+    validate_backtest_result_caveat_policy,
+)
 from business_cycle.portfolio.policy_research import (
     PortfolioPolicyResearchPlan,
     PortfolioPolicyResearchPlanError,
@@ -100,6 +107,8 @@ __all__ = [
     "BacktestMetricFormulaRegistryError",
     "BacktestOutputLocationPolicy",
     "BacktestOutputLocationPolicyError",
+    "BacktestResultCaveatPolicy",
+    "BacktestResultCaveatPolicyError",
     "BacktestResultOutputContract",
     "BacktestResultOutputContractError",
     "PortfolioBacktestDryRunContract",
@@ -126,6 +135,7 @@ __all__ = [
     "load_backtest_result_output_contract",
     "load_backtest_metric_formula_registry",
     "load_backtest_output_location_policy",
+    "load_backtest_result_caveat_policy",
     "load_portfolio_backtest_input_contract",
     "load_portfolio_backtest_dry_run_contract",
     "load_portfolio_backtest_dry_run_fixtures",
@@ -141,6 +151,7 @@ __all__ = [
     "summarize_dry_run_outputs",
     "summarize_backtest_metric_formula_registry",
     "summarize_backtest_output_location_policy",
+    "summarize_backtest_result_caveat_policy",
     "summarize_backtest_result_output_contract",
     "summarize_portfolio_backtest_input_contract",
     "summarize_portfolio_backtest_dry_run_contract",
@@ -158,6 +169,7 @@ __all__ = [
     "validate_dry_run_runner_summary",
     "validate_backtest_metric_formula_registry",
     "validate_backtest_output_location_policy",
+    "validate_backtest_result_caveat_policy",
     "validate_backtest_result_output_contract",
     "validate_portfolio_policy_research_plan",
     "validate_portfolio_policy_template",

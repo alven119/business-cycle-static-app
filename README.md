@@ -927,6 +927,23 @@ python scripts/show_backtest_output_location_policy.py
 
 This phase is policy-only. It defines future controlled research path requirements, prohibited auto-write locations, write preconditions, and safety dependencies. It does not create output directories, write result files, write `data/backtests`, or generate public output.
 
+## Phase 9A4 backtest result caveat policy
+
+Phase 9A4 defines the future backtest result caveat policy.
+
+```text
+specs/portfolio/backtest_result_caveat_policy.yaml
+docs/backtest_result_caveat_policy.md
+```
+
+Inspect the policy with:
+
+```bash
+python scripts/show_backtest_result_caveat_policy.py
+```
+
+This phase is policy-only. It defines required global/contextual caveats, display requirements, prohibited text patterns, prohibited interpretations, and future validation rules. It does not compute metric values, produce result files, create output directories, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
