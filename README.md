@@ -944,6 +944,23 @@ python scripts/show_backtest_result_caveat_policy.py
 
 This phase is policy-only. It defines required global/contextual caveats, display requirements, prohibited text patterns, prohibited interpretations, and future validation rules. It does not compute metric values, produce result files, create output directories, write `data/backtests`, or generate public output.
 
+## Phase 9A5 backtest result safety validator contract
+
+Phase 9A5 defines the future backtest result safety validator contract.
+
+```text
+specs/portfolio/backtest_result_safety_validator_contract.yaml
+docs/backtest_result_safety_validator_contract.md
+```
+
+Inspect the contract with:
+
+```bash
+python scripts/show_backtest_result_safety_validator_contract.py
+```
+
+This phase is contract-only. It defines required check groups, prohibited fields, prohibited text, caveat checks, output location enforcement, and future validator result fields. It does not implement validator runtime, validate real results, produce result files, create output directories, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

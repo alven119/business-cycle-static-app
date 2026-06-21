@@ -1,0 +1,211 @@
+backtest_result_safety_validator_contract:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future backtest result safety validator 的檢查範圍、禁止欄位、禁止文字、
+    caveat requirements、output location enforcement 與 acceptance gates。
+    本 contract 只允許 safety validator contract design，不允許驗證真實 result、
+    不允許產生 result file、績效值、allocation 或交易訊號。
+  caveats_zh:
+    - 此為 backtest result safety validator contract，不是 validator runtime。
+    - 本階段不驗證真實 backtest result。
+    - 本階段不計算績效。
+    - 本階段不產生 result file。
+    - 本階段不寫入 data/backtests 或 public。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 不構成投資建議。
+
+  source_contracts:
+    backtest_result_output_contract:
+      path: specs/portfolio/backtest_result_output_contract.yaml
+      required: true
+      required_phase_9a1_closure_status: result_contract_design_only
+    backtest_metric_formula_registry:
+      path: specs/portfolio/backtest_metric_formula_registry.yaml
+      required: true
+      required_phase_9a2_closure_status: formula_registry_design_only
+    backtest_output_location_policy:
+      path: specs/portfolio/backtest_output_location_policy.yaml
+      required: true
+      required_phase_9a3_closure_status: output_location_policy_design_only
+    backtest_result_caveat_policy:
+      path: specs/portfolio/backtest_result_caveat_policy.yaml
+      required: true
+      required_phase_9a4_closure_status: caveat_policy_design_only
+
+  validator_contract_scope:
+    allowed_now:
+      define_safety_validator_contract: true
+      define_check_groups: true
+      define_required_caveat_checks: true
+      define_prohibited_field_checks: true
+      define_prohibited_text_checks: true
+      define_output_location_checks: true
+      define_future_acceptance_gates: true
+    disallowed_now:
+      run_validator_on_real_results: true
+      produce_backtest_results: true
+      compute_metric_values: true
+      write_result_files: true
+      write_data_backtests_output: true
+      write_public_output: true
+      create_output_directories: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+      resolver_integration: true
+
+  safety_check_groups:
+    required_check_groups:
+      - check_group_id: prohibited_field_checks
+        required: true
+        description_zh: 阻擋 live allocation、target weight、trade signal、current recommendation、phase override。
+      - check_group_id: prohibited_text_checks
+        required: true
+        description_zh: 阻擋目前建議、建議買進、建議賣出、買進訊號、賣出訊號、target weight、investment advice 等文字。
+      - check_group_id: required_caveat_checks
+        required: true
+        description_zh: 確認 backtest-only、不代表未來績效、不構成投資建議等 caveat 存在。
+      - check_group_id: caveat_visibility_checks
+        required: true
+        description_zh: 確認 caveat 在 metric value 前可見，且不能只有 collapsed display。
+      - check_group_id: output_location_checks
+        required: true
+        description_zh: 確認 output location policy 已被遵守，不得 public auto-output。
+      - check_group_id: metadata_caveat_checks
+        required: true
+        description_zh: 確認 export metadata 包含 caveats。
+      - check_group_id: scenario_specific_caveat_checks
+        required: true
+        description_zh: 確認 COVID 等特殊 scenario 有對應 caveat。
+      - check_group_id: no_live_decision_checks
+        required: true
+        description_zh: 確認 result 不含 live decision / current recommendation / dashboard action。
+
+  prohibited_result_fields:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - rebalance_now
+    - current_market_recommendation
+    - public_dashboard_output
+    - dashboard_portfolio_action
+    - live_recommendation
+    - current_phase_override
+    - decision_status_override
+
+  prohibited_text_patterns:
+    zh:
+      - 目前建議
+      - 建議買進
+      - 建議賣出
+      - 立即買進
+      - 立即賣出
+      - 目標配置
+      - 買進訊號
+      - 賣出訊號
+      - 加碼
+      - 減碼
+      - 保證
+      - 穩賺
+    en:
+      - current recommendation
+      - buy signal
+      - sell signal
+      - target weight
+      - live allocation
+      - rebalance now
+      - guaranteed return
+      - investment advice
+
+  required_caveat_checks:
+    required_global_caveats_zh:
+      - backtest-only，不是目前配置建議。
+      - 回測結果不代表未來績效。
+      - 本結果僅供研究與模型驗證。
+      - 不構成投資建議。
+    required_contextual_caveats:
+      - revised_data
+      - transaction_cost
+      - false_signal_cost
+      - scenario_specific
+      - covid_exogenous_shock
+    caveats_visible_before_metrics_required: true
+    caveats_in_export_metadata_required: true
+    caveats_not_collapsible_only_required: true
+
+  output_location_enforcement:
+    required_output_location_policy_path: specs/portfolio/backtest_output_location_policy.yaml
+    public_auto_output_allowed: false
+    github_pages_auto_output_allowed: false
+    dashboard_auto_output_allowed: false
+    docs_auto_output_allowed: false
+    site_auto_output_allowed: false
+    data_backtests_write_allowed_now: false
+    output_directory_creation_allowed_now: false
+    future_controlled_research_path_requires_explicit_writer: true
+    future_controlled_research_path_requires_explicit_user_command: true
+
+  validator_result_contract:
+    allowed_future_validator_statuses:
+      - passed
+      - failed
+    required_future_validator_fields:
+      - validation_status
+      - failed_check_ids
+      - warning_check_ids
+      - blocked_reason_zh
+      - caveat_presence_status
+      - prohibited_field_status
+      - prohibited_text_status
+      - output_location_status
+      - no_live_decision_status
+    validator_runtime_allowed_now: false
+    real_result_validation_allowed_now: false
+
+  required_acceptance_before_validator_runtime:
+    - target_id: safety_validator_contract_validated
+      required: true
+      description_zh: safety validator contract 必須先通過 validator。
+    - target_id: result_output_contract_validated
+      required: true
+      description_zh: result output contract 必須先通過 validator。
+    - target_id: output_location_policy_validated
+      required: true
+      description_zh: output location policy 必須先通過 validator。
+    - target_id: result_caveat_policy_validated
+      required: true
+      description_zh: result caveat policy 必須先通過 validator。
+    - target_id: safety_validator_fixtures_defined
+      required: true
+      description_zh: 必須定義合法與非法 result fixture。
+    - target_id: prohibited_text_fixture_rejection_verified
+      required: true
+      description_zh: 必須驗證 prohibited text 可被拒絕。
+    - target_id: live_allocation_fixture_rejection_verified
+      required: true
+      description_zh: 必須驗證 live allocation / target weight 可被拒絕。
+    - target_id: public_auto_output_fixture_rejection_verified
+      required: true
+      description_zh: 必須驗證 public auto-output 可被拒絕。
+
+  phase_9a5_closure:
+    status: safety_validator_contract_design_only
+    conclusion_zh: >
+      Phase 9A5 只完成 backtest result safety validator contract design。
+      尚未實作 validator runtime、未驗證真實 result、未執行 real backtest、
+      未計算績效、未產生 result、未建立 output directory、未寫入 data/backtests 或 public。
+  recommended_next_phase:
+    phase_id: 9A6
+    title: backtest result safety validator fixtures
+    reason_zh: >
+      已完成 result safety validator contract。下一步應建立合法與非法 result fixtures，
+      驗證 future safety validator 能阻擋 live allocation、trade signal、public auto-output、
+      prohibited text 與 caveat 缺失。

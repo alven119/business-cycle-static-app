@@ -215,6 +215,18 @@ Result caveat policy 定義 future result 必須包含的 global caveats、conte
 
 本階段禁止 produce backtest results、compute metric values、write result files、create output directories、produce allocation 與 produce trade signal。下一步應定義 result safety validator contract，讓 future result 能被系統性驗證為 no live allocation、no trade signal、no public auto-output。
 
+## Phase 9A5 Backtest Result Safety Validator Contract
+
+Phase 9A5 新增 backtest result safety validator contract。
+
+```bash
+python scripts/show_backtest_result_safety_validator_contract.py
+```
+
+Safety validator contract 定義 future validator 必須執行的 prohibited field checks、prohibited text checks、required caveat checks、caveat visibility checks、output location checks、metadata caveat checks、scenario-specific caveat checks 與 no-live-decision checks。它同時定義 validator result contract，但 `validator_runtime_allowed_now=false` 且 `real_result_validation_allowed_now=false`。
+
+本階段不實作 validator runtime、不驗證真實 result、不產生 result file、不計算績效、不建立 output directory、不寫入 `data/backtests` 或 `public`。下一步應建立 safety validator fixtures。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

@@ -889,6 +889,18 @@ Caveat policy 定義 future result 必須包含的 global caveats、contextual c
 
 本階段仍不執行回測、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A5：backtest result safety validator contract。
 
+## Phase 9A5 Backtest Result Safety Validator Contract
+
+Phase 9A5 建立 backtest result safety validator contract。
+
+```bash
+python scripts/show_backtest_result_safety_validator_contract.py
+```
+
+Safety validator contract 定義 future validator 的 check groups、禁止欄位、禁止文字、required caveat checks、output location enforcement 與 future validator result contract。它要求 future validator 阻擋 live allocation、target weight、buy/sell signal、current recommendation、public auto-output、phase override、decision override 與 caveat 缺失。
+
+本階段不實作 validator runtime、不驗證真實 result、不執行回測、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A6：backtest result safety validator fixtures。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

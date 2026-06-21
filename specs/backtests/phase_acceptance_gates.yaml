@@ -336,3 +336,22 @@ phase_specific_gates:
       - recommended_next_phase == 9A5
     soft_warnings_allowed:
       - required_global_caveat_count > 0 because caveats are policy-only and no results are generated now
+
+  backtest_result_safety_validator_contract:
+    hard_gates:
+      - run_validator_on_real_results_allowed == false
+      - produce_backtest_results_allowed == false
+      - compute_metric_values_allowed == false
+      - write_result_files_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - create_output_directories_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - public_auto_output_allowed == false
+      - validator_runtime_allowed_now == false
+      - real_result_validation_allowed_now == false
+      - phase_9a5_closure_status == safety_validator_contract_design_only
+      - recommended_next_phase == 9A6
+    soft_warnings_allowed:
+      - safety_check_group_count > 0 because checks are contract-only and validator runtime is not implemented now

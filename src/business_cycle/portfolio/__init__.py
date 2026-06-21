@@ -68,6 +68,13 @@ from business_cycle.portfolio.result_caveat_policy import (
     summarize_backtest_result_caveat_policy,
     validate_backtest_result_caveat_policy,
 )
+from business_cycle.portfolio.result_safety_validator_contract import (
+    BacktestResultSafetyValidatorContract,
+    BacktestResultSafetyValidatorContractError,
+    load_backtest_result_safety_validator_contract,
+    summarize_backtest_result_safety_validator_contract,
+    validate_backtest_result_safety_validator_contract,
+)
 from business_cycle.portfolio.policy_research import (
     PortfolioPolicyResearchPlan,
     PortfolioPolicyResearchPlanError,
@@ -111,6 +118,8 @@ __all__ = [
     "BacktestResultCaveatPolicyError",
     "BacktestResultOutputContract",
     "BacktestResultOutputContractError",
+    "BacktestResultSafetyValidatorContract",
+    "BacktestResultSafetyValidatorContractError",
     "PortfolioBacktestDryRunContract",
     "PortfolioBacktestDryRunContractError",
     "PortfolioBacktestDryRunFixtureValidationSummary",
@@ -136,6 +145,7 @@ __all__ = [
     "load_backtest_metric_formula_registry",
     "load_backtest_output_location_policy",
     "load_backtest_result_caveat_policy",
+    "load_backtest_result_safety_validator_contract",
     "load_portfolio_backtest_input_contract",
     "load_portfolio_backtest_dry_run_contract",
     "load_portfolio_backtest_dry_run_fixtures",
@@ -152,6 +162,7 @@ __all__ = [
     "summarize_backtest_metric_formula_registry",
     "summarize_backtest_output_location_policy",
     "summarize_backtest_result_caveat_policy",
+    "summarize_backtest_result_safety_validator_contract",
     "summarize_backtest_result_output_contract",
     "summarize_portfolio_backtest_input_contract",
     "summarize_portfolio_backtest_dry_run_contract",
@@ -170,6 +181,7 @@ __all__ = [
     "validate_backtest_metric_formula_registry",
     "validate_backtest_output_location_policy",
     "validate_backtest_result_caveat_policy",
+    "validate_backtest_result_safety_validator_contract",
     "validate_backtest_result_output_contract",
     "validate_portfolio_policy_research_plan",
     "validate_portfolio_policy_template",
