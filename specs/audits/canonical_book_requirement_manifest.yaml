@@ -1,0 +1,289 @@
+canonical_book_requirement_manifest:
+  version: 1
+  status: draft
+  source_title_zh: 景氣循環投資
+  requirements:
+    - &cycle {requirement_id: cycle_four_phase_sequence, group: cycle_rules, book_section: 四階段與狀態順序, book_page_reference: "約第 37-38 頁", requirement_zh: 四階段順序為 recession -> recovery -> growth -> boom -> recession。, requirement_type: phase_rule, expected_traceability_category: phase_rule, book_core: true, mandatory_for_book_alignment_claim: true}
+    - <<: *cycle
+      requirement_id: cycle_no_skip_normal_state
+      requirement_zh: 正常循環不應跳過中間階段。
+    - <<: *cycle
+      requirement_id: cycle_no_reverse_normal_state
+      requirement_zh: 正常循環不應反向運行。
+    - <<: *cycle
+      requirement_id: cycle_duration_not_predefined
+      requirement_zh: 各階段長度不可預設。
+    - <<: *cycle
+      requirement_id: cycle_strength_not_predefined
+      requirement_zh: 各階段強度不可預設。
+    - <<: *cycle
+      requirement_id: objective_data_should_determine_phase
+      requirement_zh: 應由客觀資料決定階段，不可由人工基準情境直接決定。
+    - <<: *cycle
+      requirement_id: normal_cycle_vs_exogenous_shock_separation
+      requirement_zh: 正常循環 state machine 與外生衝擊 exception 必須分開。
+
+    - &regime {requirement_id: productivity_driven_expansion, group: long_cycle_regime, book_section: 長週期 regime, book_page_reference: "約第 39-57 頁、第 134-137 頁", requirement_zh: productivity-driven expansion 必須可追溯。, requirement_type: regime_rule, expected_traceability_category: regime_rule, book_core: true, mandatory_for_book_alignment_claim: true}
+    - <<: *regime
+      requirement_id: inflation_driven_expansion
+      requirement_zh: inflation-driven expansion 必須可追溯。
+    - <<: *regime
+      requirement_id: mixed_or_uncertain_regime
+      requirement_zh: mixed_or_uncertain regime 必須可表示。
+    - <<: *regime
+      requirement_id: regime_equity_implication
+      requirement_zh: regime 對股票角色的影響必須明確。
+    - <<: *regime
+      requirement_id: regime_commodity_implication
+      requirement_zh: regime 對原物料角色的影響必須明確。
+    - <<: *regime
+      requirement_id: regime_gold_implication
+      requirement_zh: 黃金不能僅依四階段固定處理。
+    - <<: *regime
+      requirement_id: regime_real_estate_implication
+      requirement_zh: regime 對房地產角色的影響必須明確。
+    - <<: *regime
+      requirement_id: regime_long_treasury_implication
+      requirement_zh: regime 對長債角色的影響必須明確。
+
+    - &indicator {requirement_id: recovery_initial_jobless_claims, group: recovery_indicators, book_section: 復甦期核心, book_page_reference: "約第 106-117 頁", requirement_zh: initial jobless claims 必須映射。, requirement_type: indicator, expected_traceability_category: indicator, book_core: true, mandatory_for_book_alignment_claim: true, requires_indicator_coverage: true}
+    - <<: *indicator
+      requirement_id: recovery_short_term_unemployment
+      requirement_zh: unemployed less than 5 weeks / short-term unemployment 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_real_retail_sales
+      requirement_zh: real retail sales 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_real_pce_durable_goods
+      requirement_zh: real PCE durable goods 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_private_nonresidential_fixed_investment
+      requirement_zh: private nonresidential fixed investment 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_durable_goods_new_orders
+      requirement_zh: durable goods new orders 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_imports
+      requirement_zh: imports recovery 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_exports
+      requirement_zh: exports subsequent recovery 必須映射。
+    - <<: *indicator
+      requirement_id: recovery_publication_lag_awareness
+      requirement_zh: 復甦期資料發布時差必須映射。
+    - <<: *indicator
+      requirement_id: recovery_weekly_claim_noise_filter
+      requirement_zh: weekly claims 必須有 noise filter / persistence 處理。
+
+    - &growth {<<: *indicator, group: growth_indicators, book_section: 成長期核心, book_page_reference: "約第 149-156 頁", requirement_id: growth_personal_saving_rate, requirement_zh: personal saving rate 必須映射。}
+    - <<: *growth
+      requirement_id: growth_real_disposable_income_vs_consumption
+      requirement_zh: real disposable income vs consumption 必須映射。
+    - <<: *growth
+      requirement_id: growth_nonfarm_payrolls
+      requirement_zh: nonfarm payrolls 必須映射。
+    - <<: *growth
+      requirement_id: growth_adp_employment
+      requirement_zh: ADP employment 必須映射或標明缺失。
+    - <<: *growth
+      requirement_id: growth_initial_claims_decline
+      requirement_zh: initial claims decline 必須映射。
+    - <<: *growth
+      requirement_id: growth_private_nonresidential_fixed_investment
+      requirement_zh: private nonresidential fixed investment 必須映射。
+    - <<: *growth
+      requirement_id: growth_residential_investment
+      requirement_zh: residential investment 必須映射。
+    - <<: *growth
+      requirement_id: growth_core_cpi
+      requirement_zh: core CPI 必須映射。
+    - <<: *growth
+      requirement_id: growth_core_pce
+      requirement_zh: core PCE 必須映射。
+    - <<: *growth
+      requirement_id: growth_sustainable_inflation_interpretation
+      requirement_zh: sustainable inflation interpretation 必須分離。
+
+    - &boom {<<: *indicator, group: boom_ending_indicators, book_section: 榮景期與結束訊號, book_page_reference: "約第 175-205 頁", requirement_id: boom_claims_u_shape, requirement_zh: initial jobless claims U-shape 必須映射。}
+    - <<: *boom
+      requirement_id: boom_retail_sales_vs_broad_pce
+      requirement_zh: retail sales vs broader PCE slowdown 必須映射。
+    - <<: *boom
+      requirement_id: boom_consumer_confidence
+      requirement_zh: consumer confidence 必須映射。
+    - <<: *boom
+      requirement_id: boom_private_investment
+      requirement_zh: private investment 必須映射。
+    - <<: *boom
+      requirement_id: boom_durable_goods_second_surge
+      requirement_zh: second durable-goods spending surge 必須映射。
+    - <<: *boom
+      requirement_id: boom_state_local_government_spending
+      requirement_zh: state and local government spending 必須映射。
+    - <<: *boom
+      requirement_id: boom_government_revenue
+      requirement_zh: government revenue 必須映射。
+    - <<: *boom
+      requirement_id: boom_inventory_level
+      requirement_zh: inventory level 必須映射。
+    - <<: *boom
+      requirement_id: boom_inventory_accumulation_context
+      requirement_zh: inventory accumulation context 必須映射。
+    - <<: *boom
+      requirement_id: boom_personal_delinquency_or_default
+      requirement_zh: personal delinquency/default 必須映射。
+    - <<: *boom
+      requirement_id: boom_corporate_delinquency_or_default
+      requirement_zh: corporate delinquency/default 必須映射。
+
+    - &recession {<<: *indicator, group: recession_trough_requirements, book_section: 衰退確認與落底, book_page_reference: "canonical QA0", requirement_id: recession_confirmation_breadth, requirement_zh: recession confirmation breadth 必須存在。}
+    - <<: *recession
+      requirement_id: recession_employment_confirmation
+      requirement_zh: employment confirmation 必須存在。
+    - <<: *recession
+      requirement_id: recession_consumption_confirmation
+      requirement_zh: consumption confirmation 必須存在。
+    - <<: *recession
+      requirement_id: recession_investment_or_industrial_confirmation
+      requirement_zh: investment or industrial confirmation 必須存在。
+    - <<: *recession
+      requirement_id: recession_credit_financial_confirmation
+      requirement_zh: credit/financial confirmation 必須存在。
+    - <<: *recession
+      requirement_id: trough_claims_reversal
+      requirement_zh: claims reversal 必須存在。
+    - <<: *recession
+      requirement_id: trough_labor_reversal
+      requirement_zh: labor reversal 必須存在。
+    - <<: *recession
+      requirement_id: trough_real_activity_reversal
+      requirement_zh: real activity reversal 必須存在。
+    - <<: *recession
+      requirement_id: trough_policy_financial_not_sufficient_alone
+      requirement_zh: policy/financial easing 不可單獨確認 trough。
+
+    - &portfolio {requirement_id: passive_all_stock_baseline, group: book_portfolio_strategies, book_section: 投資策略忠實度, book_page_reference: "約第 77-90 頁", requirement_zh: passive all-stock baseline 必須定義。, requirement_type: portfolio_rule, expected_traceability_category: portfolio_rule, book_core: true, mandatory_for_book_alignment_claim: true}
+    - <<: *portfolio
+      requirement_id: stock_cash_basic
+      requirement_zh: stock/cash basic strategy 必須定義。
+    - <<: *portfolio
+      requirement_id: stock_cash_advanced
+      requirement_zh: stock/cash advanced strategy 必須定義。
+    - <<: *portfolio
+      requirement_id: stock_long_treasury_basic
+      requirement_zh: stock/long-Treasury basic strategy 必須定義。
+    - <<: *portfolio
+      requirement_id: stock_long_treasury_advanced
+      requirement_zh: stock/long-Treasury advanced strategy 必須定義。
+    - <<: *portfolio
+      requirement_id: recession_stock_weight_100
+      requirement_zh: recession stock weight 100%。
+    - <<: *portfolio
+      requirement_id: recovery_stock_weight_100
+      requirement_zh: recovery stock weight 100%。
+    - <<: *portfolio
+      requirement_id: growth_stock_weight_100
+      requirement_zh: growth stock weight 100%。
+    - <<: *portfolio
+      requirement_id: boom_basic_stock_weight_50
+      requirement_zh: boom basic stock weight 50%。
+    - <<: *portfolio
+      requirement_id: boom_advanced_year_1_stock_weight_70
+      requirement_zh: boom advanced year 1 stock weight 70%。
+    - <<: *portfolio
+      requirement_id: boom_advanced_year_2_stock_weight_50
+      requirement_zh: boom advanced year 2 stock weight 50%。
+    - <<: *portfolio
+      requirement_id: boom_advanced_year_3_stock_weight_30
+      requirement_zh: boom advanced year 3 stock weight 30%。
+    - <<: *portfolio
+      requirement_id: boom_advanced_year_4_plus_stock_weight_30
+      requirement_zh: boom advanced year 4+ stock weight 30%。
+    - <<: *portfolio
+      requirement_id: boom_two_year_minimum_stock_weight_50
+      requirement_zh: two-year boom minimum stock weight 50%。
+    - <<: *portfolio
+      requirement_id: long_treasury_maturity_7_years_or_more
+      requirement_zh: long Treasury maturity 7 years or more。
+    - <<: *portfolio
+      requirement_id: cash_return_proxy_explicit
+      requirement_zh: cash return proxy 必須明確。
+    - <<: *portfolio
+      requirement_id: equity_total_return_explicit
+      requirement_zh: equity total-return handling 必須明確。
+    - <<: *portfolio
+      requirement_id: treasury_total_return_explicit
+      requirement_zh: Treasury total-return handling 必須明確。
+
+    - &benchmark {<<: *portfolio, group: book_benchmark_procedure, requirement_id: benchmark_start_first_trading_day_1994, requirement_zh: benchmark start 為 1994 年第一個交易日。}
+    - <<: *benchmark
+      requirement_id: benchmark_end_2018
+      requirement_zh: benchmark end 為 2018 年末。
+    - <<: *benchmark
+      requirement_id: benchmark_initial_contribution_10000
+      requirement_zh: initial contribution 10,000 USD。
+    - <<: *benchmark
+      requirement_id: benchmark_annual_contribution_10000
+      requirement_zh: annual contribution 10,000 USD。
+    - <<: *benchmark
+      requirement_id: benchmark_contribution_last_trading_day
+      requirement_zh: annual contribution 在每年最後一個交易日。
+    - <<: *benchmark
+      requirement_id: benchmark_rebalance_first_trading_day
+      requirement_zh: rebalance 在每年第一個交易日。
+    - <<: *benchmark
+      requirement_id: benchmark_annual_not_monthly_baseline
+      requirement_zh: 書中基準不是每月頻繁交易。
+    - <<: *benchmark
+      requirement_id: transaction_cost_assumption_explicit
+      requirement_zh: transaction cost assumption 必須明確。
+    - <<: *benchmark
+      requirement_id: tax_assumption_explicit
+      requirement_zh: tax assumption 必須明確。
+    - <<: *benchmark
+      requirement_id: dividend_treatment_explicit
+      requirement_zh: dividend treatment 必須明確。
+    - <<: *benchmark
+      requirement_id: bond_coupon_treatment_explicit
+      requirement_zh: bond coupon treatment 必須明確。
+
+    - &method {requirement_id: external_cashflow_detection, group: backtest_methodology, book_section: 回測方法論, book_page_reference: "QA0 canonical methodology", requirement_zh: external cashflow detection 必須存在。, requirement_type: backtest_method, expected_traceability_category: backtest_method, book_core: true, mandatory_for_book_alignment_claim: true}
+    - <<: *method
+      requirement_id: terminal_wealth
+      requirement_zh: terminal wealth 必須定義且不得稱為 total return。
+    - <<: *method
+      requirement_id: total_contributions
+      requirement_zh: total contributions 必須定義。
+    - <<: *method
+      requirement_id: net_investment_gain
+      requirement_zh: net investment gain 必須定義。
+    - <<: *method
+      requirement_id: time_weighted_return
+      requirement_zh: time-weighted return 必須定義。
+    - <<: *method
+      requirement_id: annualized_time_weighted_return
+      requirement_zh: annualized TWR 必須定義。
+    - <<: *method
+      requirement_id: money_weighted_return_or_xirr
+      requirement_zh: money-weighted return / XIRR 必須定義或 blocked。
+    - <<: *method
+      requirement_id: unitized_nav
+      requirement_zh: unitized NAV 必須定義。
+    - <<: *method
+      requirement_id: max_drawdown_on_unitized_nav
+      requirement_zh: max drawdown 必須基於 unitized NAV。
+    - <<: *method
+      requirement_id: no_simple_cagr_with_external_cashflows
+      requirement_zh: external cashflows present 時不得使用 simple CAGR。
+    - <<: *method
+      requirement_id: revised_vs_vintage_separation
+      requirement_zh: revised data 與 vintage data 必須分離。
+    - <<: *method
+      requirement_id: publication_lag_enforcement
+      requirement_zh: publication lag 必須 enforcement。
+    - <<: *method
+      requirement_id: untouched_holdout_required
+      requirement_zh: final untouched holdout 必須保留。
+    - <<: *method
+      requirement_id: parameter_freeze_before_holdout
+      requirement_zh: holdout 前必須 parameter freeze。

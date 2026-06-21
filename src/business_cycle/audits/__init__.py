@@ -7,7 +7,9 @@ from business_cycle.audits.cashflow_methodology import (
     guard_simple_return_usage,
 )
 from business_cycle.audits.context_ablation import run_context_ablation_audit
+from business_cycle.audits.inventory_reconciliation import run_qa0_inventory_reconciliation
 from business_cycle.audits.qa0_integrity_audit import run_qa0_integrity_audit
+from business_cycle.audits.repository_inventory import collect_repository_inventory
 from business_cycle.audits.temporal_integrity import (
     TemporalIntegrityError,
     filter_point_in_time_records,
@@ -20,9 +22,10 @@ __all__ = [
     "calculate_cashflow_aware_metrics",
     "filter_point_in_time_records",
     "guard_simple_return_usage",
+    "collect_repository_inventory",
     "run_context_ablation_audit",
     "run_qa0_integrity_audit",
+    "run_qa0_inventory_reconciliation",
     "summarize_calibration_integrity",
     "summarize_temporal_integrity",
 ]
-

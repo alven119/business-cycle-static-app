@@ -1,219 +1,993 @@
 book_indicator_coverage:
   version: 1
   status: draft
-  objective_zh: >
-    QA0 book indicator coverage matrix。Modern extensions 不得替代 missing book core 後仍宣稱完整書籍對齊。
+  objective_zh: QA0.1 complete book indicator and repository indicator provenance
+    coverage. Missing rows remain missing and block alignment claims.
   indicators:
-    - indicator_id: initial_jobless_claims
-      phase: recovery
-      book_page_reference: "約第 106-117 頁"
-      book_role: employment turn
-      provenance_class: book_core
-      formal_or_experimental: formal
-      series_id: initial_jobless_claims
-      transformation: trend / reversal
-      publication_lag: known_policy_default
-      vintage_support: missing
-      current_weight: existing
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: partial
-    - indicator_id: short_term_unemployment
-      phase: recovery
-      book_page_reference: "約第 106-117 頁"
-      book_role: early employment recovery
-      provenance_class: book_core
-      formal_or_experimental: experimental
-      series_id: short_term_unemployment
-      transformation: trend / reversal
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: candidate
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: partial
-    - indicator_id: real_retail_sales
-      phase: recovery
-      book_page_reference: "約第 106-117 頁"
-      book_role: consumption recovery
-      provenance_class: book_core
-      formal_or_experimental: formal
-      series_id: real_retail_sales
-      transformation: real growth momentum
-      publication_lag: known_policy_default
-      vintage_support: missing
-      current_weight: existing
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: partial
-    - indicator_id: real_pce_durable_goods
-      phase: recovery
-      book_page_reference: "約第 106-117 頁"
-      book_role: durable goods consumption
-      provenance_class: book_core
-      formal_or_experimental: experimental
-      series_id: real_pce_durable_goods
-      transformation: real growth momentum
-      publication_lag: known_policy_default
-      vintage_support: missing
-      current_weight: candidate
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: partial
-    - indicator_id: imports_goods_services
-      phase: recovery
-      book_page_reference: "約第 106-117 頁"
-      book_role: imports recovery
-      provenance_class: book_core
-      formal_or_experimental: experimental
-      series_id: imports_goods_services
-      transformation: delayed trade recovery
-      publication_lag: known_policy_default
-      vintage_support: missing
-      current_weight: candidate
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: partial
-    - indicator_id: exports_goods_services
-      phase: recovery
-      book_page_reference: "約第 106-117 頁"
-      book_role: exports subsequent recovery
-      provenance_class: book_core
-      formal_or_experimental: experimental
-      series_id: exports_goods_services
-      transformation: delayed trade recovery
-      publication_lag: known_policy_default
-      vintage_support: missing
-      current_weight: candidate
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: partial
-    - indicator_id: personal_saving_rate
-      phase: growth
-      book_page_reference: "約第 149-156 頁"
-      book_role: deferred consumption release
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: personal_saving_rate
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented in formal scoring
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: real_disposable_income
-      phase: growth
-      book_page_reference: "約第 149-156 頁"
-      book_role: income vs consumption
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: real_disposable_income
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented in formal scoring
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: consumer_confidence
-      phase: boom
-      book_page_reference: "約第 175-205 頁"
-      book_role: boom ending consumer sentiment
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: consumer_confidence
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: state_local_government_spending
-      phase: boom
-      book_page_reference: "約第 175-205 頁"
-      book_role: government spending context
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: state_local_government_spending
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: inventories
-      phase: boom
-      book_page_reference: "約第 175-205 頁"
-      book_role: inventory accumulation context
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: inventories
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: personal_default_rate
-      phase: boom
-      book_page_reference: "約第 175-205 頁"
-      book_role: delinquency/default risk
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: personal_default_rate
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: corporate_default_rate
-      phase: boom
-      book_page_reference: "約第 175-205 頁"
-      book_role: delinquency/default risk
-      provenance_class: book_core
-      formal_or_experimental: missing
-      series_id: corporate_default_rate
-      transformation: missing
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: none
-      missing_reason: not implemented
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: missing
-    - indicator_id: yield_curve_spread
-      phase: recession
-      book_page_reference: modern extension
-      book_role: financial condition warning
-      provenance_class: modern_extension
-      formal_or_experimental: formal
-      series_id: yield_curve_spread
-      transformation: curve inversion / spread
-      publication_lag: unknown
-      vintage_support: missing
-      current_weight: existing
-      missing_reason: null
-      substitute_indicator: null
-      substitute_is_equivalent: false
-      book_alignment_status: modern_extension
+  - coverage_requirement_id: recovery_initial_jobless_claims
+    indicator_id: initial_jobless_claims
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: initial jobless claims 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: initial_jobless_claims
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_short_term_unemployment
+    indicator_id: short_term_unemployment
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: unemployed less than 5 weeks / short-term unemployment 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: short_term_unemployment
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_real_retail_sales
+    indicator_id: real_retail_sales
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: real retail sales 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: real_retail_sales
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_real_pce_durable_goods
+    indicator_id: real_pce_durable_goods
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: real PCE durable goods 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: real_pce_durable_goods
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_private_nonresidential_fixed_investment
+    indicator_id: real_private_fixed_investment
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: private nonresidential fixed investment 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: real_private_fixed_investment
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_durable_goods_new_orders
+    indicator_id: durable_goods_orders
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: durable goods new orders 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: durable_goods_orders
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_imports
+    indicator_id: imports_goods_services
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: imports recovery 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: imports_goods_services
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_exports
+    indicator_id: exports_goods_services
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: exports subsequent recovery 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: exports_goods_services
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recovery_publication_lag_awareness
+    indicator_id: publication_lag_awareness
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: 復甦期資料發布時差必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: publication_lag_awareness
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: recovery_weekly_claim_noise_filter
+    indicator_id: initial_jobless_claims
+    phase: recovery_indicators
+    book_page_reference: 約第 106-117 頁
+    book_role: weekly claims 必須有 noise filter / persistence 處理。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: initial_jobless_claims
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: growth_personal_saving_rate
+    indicator_id: personal_saving_rate
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: personal saving rate 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: personal_saving_rate
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_real_disposable_income_vs_consumption
+    indicator_id: real_disposable_income
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: real disposable income vs consumption 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: real_disposable_income
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_nonfarm_payrolls
+    indicator_id: nonfarm_payrolls
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: nonfarm payrolls 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: nonfarm_payrolls
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_adp_employment
+    indicator_id: adp_employment
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: ADP employment 必須映射或標明缺失。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: adp_employment
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_initial_claims_decline
+    indicator_id: initial_jobless_claims
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: initial claims decline 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: initial_jobless_claims
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: growth_private_nonresidential_fixed_investment
+    indicator_id: real_private_fixed_investment
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: private nonresidential fixed investment 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: real_private_fixed_investment
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: growth_residential_investment
+    indicator_id: residential_investment
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: residential investment 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: residential_investment
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_core_cpi
+    indicator_id: core_cpi_proxy
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: core CPI 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: core_cpi_proxy
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_core_pce
+    indicator_id: core_pce_proxy
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: core PCE 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: core_pce_proxy
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: growth_sustainable_inflation_interpretation
+    indicator_id: sustainable_inflation_interpretation
+    phase: growth_indicators
+    book_page_reference: 約第 149-156 頁
+    book_role: sustainable inflation interpretation 必須分離。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: sustainable_inflation_interpretation
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_claims_u_shape
+    indicator_id: initial_jobless_claims
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: initial jobless claims U-shape 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: initial_jobless_claims
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: boom_retail_sales_vs_broad_pce
+    indicator_id: real_retail_sales
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: retail sales vs broader PCE slowdown 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: real_retail_sales
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: boom_consumer_confidence
+    indicator_id: consumer_confidence
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: consumer confidence 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: consumer_confidence
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_private_investment
+    indicator_id: real_private_fixed_investment
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: private investment 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: real_private_fixed_investment
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: boom_durable_goods_second_surge
+    indicator_id: durable_goods_orders
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: second durable-goods spending surge 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: formal
+    series_id: durable_goods_orders
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: boom_state_local_government_spending
+    indicator_id: state_local_government_spending
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: state and local government spending 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: state_local_government_spending
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_government_revenue
+    indicator_id: government_revenue
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: government revenue 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: government_revenue
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_inventory_level
+    indicator_id: inventories
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: inventory level 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: inventories
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_inventory_accumulation_context
+    indicator_id: inventory_accumulation_context
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: inventory accumulation context 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: inventory_accumulation_context
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_personal_delinquency_or_default
+    indicator_id: personal_default_rate
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: personal delinquency/default 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: personal_default_rate
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: boom_corporate_delinquency_or_default
+    indicator_id: corporate_default_rate
+    phase: boom_ending_indicators
+    book_page_reference: 約第 175-205 頁
+    book_role: corporate delinquency/default 必須映射。
+    provenance_class: book_core
+    formal_or_experimental: missing
+    series_id: corporate_default_rate
+    transformation: missing
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: none
+    missing_reason: not implemented or not mapped to repository indicator
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: missing
+  - coverage_requirement_id: recession_confirmation_breadth
+    indicator_id: industrial_production
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: recession confirmation breadth 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: industrial_production
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recession_employment_confirmation
+    indicator_id: continuing_jobless_claims
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: employment confirmation 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: continuing_jobless_claims
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recession_consumption_confirmation
+    indicator_id: real_personal_consumption_expenditures
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: consumption confirmation 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: real_personal_consumption_expenditures
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recession_investment_or_industrial_confirmation
+    indicator_id: industrial_production
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: investment or industrial confirmation 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: industrial_production
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: recession_credit_financial_confirmation
+    indicator_id: credit_spread_baa_aaa
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: credit/financial confirmation 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: credit_spread_baa_aaa
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: trough_claims_reversal
+    indicator_id: initial_jobless_claims_peak_reversal
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: claims reversal 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: initial_jobless_claims_peak_reversal
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: trough_labor_reversal
+    indicator_id: short_term_unemployment_peak_reversal
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: labor reversal 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: short_term_unemployment_peak_reversal
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: trough_real_activity_reversal
+    indicator_id: industrial_production_bottoming
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: real activity reversal 必須存在。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: industrial_production_bottoming
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - coverage_requirement_id: trough_policy_financial_not_sufficient_alone
+    indicator_id: fed_policy_easing_signal
+    phase: recession_trough_requirements
+    book_page_reference: canonical QA0
+    book_role: policy/financial easing 不可單獨確認 trough。
+    provenance_class: book_core
+    formal_or_experimental: experimental
+    series_id: fed_policy_easing_signal
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: partial
+  - indicator_id: continuing_jobless_claims_peak_reversal
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: continuing_jobless_claims_peak_reversal
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: credit_spread_baa_10y
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: credit_spread_baa_10y
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: credit_spread_easing
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: credit_spread_easing
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: durable_goods_orders_bottoming
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: durable_goods_orders_bottoming
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: fed_policy_restrictive_pressure
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: fed_policy_restrictive_pressure
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: federal_funds_rate
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: formal
+    series_id: federal_funds_rate
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: financial_conditions_tightening
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: financial_conditions_tightening
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: financial_stress_easing
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: financial_stress_easing
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: financial_stress_index
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: financial_stress_index
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: industrial_production_momentum_loss
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: industrial_production_momentum_loss
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: insured_unemployment_rate
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: insured_unemployment_rate
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: oil_price_pressure
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: oil_price_pressure
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: real_pce_bottoming
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: real_pce_bottoming
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: real_retail_sales_bottoming
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: real_retail_sales_bottoming
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: ten_year_treasury_yield
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: formal
+    series_id: ten_year_treasury_yield
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: thirty_year_mortgage_rate
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: formal
+    series_id: thirty_year_mortgage_rate
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: unemployment_duration_15_weeks_over
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: unemployment_duration_15_weeks_over
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: unemployment_rate
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: formal
+    series_id: unemployment_rate
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: unemployment_rate_cycle_low_pressure
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: experimental_only
+    formal_or_experimental: experimental
+    series_id: unemployment_rate_cycle_low_pressure
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: experimental_only
+  - indicator_id: wti_oil_price
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: formal
+    series_id: wti_oil_price
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: yield_curve_10y_2y
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: yield_curve_10y_2y
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: yield_curve_10y_3m
+    phase: repository_inventory
+    book_page_reference: repository inventory
+    book_role: formal or experimental repository indicator requiring provenance mapping
+    provenance_class: modern_extension
+    formal_or_experimental: experimental
+    series_id: yield_curve_10y_3m
+    transformation: repository_defined
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: candidate
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
+  - indicator_id: yield_curve_spread
+    phase: recession
+    book_page_reference: modern extension
+    book_role: financial condition warning
+    provenance_class: modern_extension
+    formal_or_experimental: formal
+    series_id: yield_curve_spread
+    transformation: curve spread
+    publication_lag: registry_required
+    vintage_support: missing
+    current_weight: existing
+    missing_reason: null
+    substitute_indicator: null
+    substitute_is_equivalent: false
+    book_alignment_status: modern_extension
   summary:
     book_alignment_claim_allowed: false
-

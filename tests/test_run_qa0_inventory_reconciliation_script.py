@@ -4,10 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCRIPT = Path("scripts/run_qa0_integrity_audit.py")
+SCRIPT = Path("scripts/run_qa0_inventory_reconciliation.py")
 
 
-def test_run_qa0_integrity_audit_script_succeeds_and_blocks_9b1() -> None:
+def test_run_qa0_inventory_reconciliation_script_succeeds() -> None:
     result = subprocess.run(
         [sys.executable, str(SCRIPT)],
         check=False,
@@ -16,17 +16,9 @@ def test_run_qa0_integrity_audit_script_succeeds_and_blocks_9b1() -> None:
     )
 
     assert result.returncode == 0
-    assert "phase=QA0.1" in result.stdout
-    assert "audit_status=passed" in result.stdout
     assert "canonical_requirement_count=" in result.stdout
     assert "missing_traceability_requirement_count=0" in result.stdout
     assert "unmapped_indicator_count=0" in result.stdout
     assert "unaudited_series_count=0" in result.stdout
     assert "hard_coded_summary_value_count=0" in result.stdout
     assert "qa0_inventory_complete=true" in result.stdout
-    assert "unsupported_claim_count=0" in result.stdout
-    assert "real_backtest_progression_allowed=false" in result.stdout
-    assert "phase_9b1_allowed=false" in result.stdout
-    assert "recommended_next_phase=QA1" in result.stdout
-    assert "result=passed" in result.stdout
-    assert not Path("data/backtests/research").exists()

@@ -29,3 +29,25 @@ def test_modern_extension_is_not_marked_book_core() -> None:
     assert yield_curve["provenance_class"] == "modern_extension"
     assert yield_curve["substitute_is_equivalent"] is False
 
+
+def test_every_canonical_indicator_requirement_has_coverage_row() -> None:
+    indicators = yaml.safe_load(COVERAGE_PATH.read_text(encoding="utf-8"))[
+        "book_indicator_coverage"
+    ]["indicators"]
+    manifest = yaml.safe_load(
+        Path("specs/audits/canonical_book_requirement_manifest.yaml").read_text(
+            encoding="utf-8"
+        )
+    )["canonical_book_requirement_manifest"]["requirements"]
+    required = {
+        row["requirement_id"]
+        for row in manifest
+        if row.get("requires_indicator_coverage") is True
+    }
+    covered = {
+        row["coverage_requirement_id"]
+        for row in indicators
+        if row.get("coverage_requirement_id")
+    }
+
+    assert covered == required

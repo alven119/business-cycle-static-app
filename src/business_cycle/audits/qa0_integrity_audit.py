@@ -7,9 +7,13 @@ from typing import Any
 
 import yaml
 
+from business_cycle.audits.audit_implementation_integrity import (
+    summarize_audit_implementation_integrity,
+)
 from business_cycle.audits.calibration_integrity import summarize_calibration_integrity
 from business_cycle.audits.cashflow_methodology import calculate_cashflow_aware_metrics
 from business_cycle.audits.context_ablation import run_context_ablation_audit
+from business_cycle.audits.inventory_reconciliation import run_qa0_inventory_reconciliation
 from business_cycle.audits.temporal_integrity import summarize_temporal_integrity
 from business_cycle.portfolio import (
     load_controlled_real_backtest_prototype_fixtures,
@@ -25,6 +29,8 @@ class QA0IntegrityAuditError(ValueError):
 def run_qa0_integrity_audit() -> dict[str, Any]:
     """Run QA0 audit using local specs and synthetic fixtures only."""
 
+    reconciliation = run_qa0_inventory_reconciliation()
+    implementation_integrity = summarize_audit_implementation_integrity()
     traceability = _summarize_traceability()
     temporal = summarize_temporal_integrity()
     cashflow = _summarize_cashflow_methodology()
@@ -44,8 +50,10 @@ def run_qa0_integrity_audit() -> dict[str, Any]:
     p2_count = traceability["p2_finding_count"]
 
     summary = {
-        "phase": "QA0",
+        "phase": "QA0.1",
         "audit_status": "passed",
+        **reconciliation,
+        **implementation_integrity,
         **traceability,
         **temporal,
         **cashflow,
@@ -341,6 +349,34 @@ def _validate_summary(summary: dict[str, Any]) -> None:
         raise QA0IntegrityAuditError("untriaged_finding_count must be 0")
     if summary["recommended_next_phase"] != "QA1" or summary["result"] != "passed":
         raise QA0IntegrityAuditError("QA0 must recommend QA1 and pass")
+    if summary["phase"] != "QA0.1":
+        raise QA0IntegrityAuditError("QA0.1 audit must report phase=QA0.1")
+    required_zero = (
+        "missing_traceability_requirement_count",
+        "duplicate_traceability_requirement_count",
+        "unknown_traceability_requirement_count",
+        "unmapped_indicator_count",
+        "unaudited_series_count",
+        "series_without_temporal_status_count",
+        "provenance_unmapped_indicator_count",
+        "orphaned_implementation_path_count",
+        "duplicate_inventory_id_count",
+        "missing_book_indicator_coverage_row_count",
+        "hard_coded_summary_value_count",
+    )
+    for field in required_zero:
+        if summary[field] != 0:
+            raise QA0IntegrityAuditError(f"{field} must be 0")
+    required_true = (
+        "inventory_drift_detection_ready",
+        "traceability_drift_detection_ready",
+        "series_drift_detection_ready",
+        "provenance_drift_detection_ready",
+        "qa0_inventory_complete",
+    )
+    for field in required_true:
+        if summary[field] is not True:
+            raise QA0IntegrityAuditError(f"{field} must be true")
 
 
 def _load_root(path: str | Path, root_key: str) -> dict[str, Any]:

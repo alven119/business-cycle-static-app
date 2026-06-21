@@ -951,12 +951,12 @@ Prototype 只使用 controlled synthetic fixtures，在 memory 中建立 value p
 
 ## Scenario Split
 
-計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
+QA0/QA0.1 將目前五個歷史案例全部重新分類為 development / diagnostics。它們已被反覆用於調整、觀察與驗收，因此不得稱為 final untouched holdout。
 
-- in-sample：`dotcom_bubble`、`global_financial_crisis`、`covid_recession`
-- out-of-sample：`euro_debt_slowdown`、`late_cycle_2018`
+- development / diagnostics：`dotcom_bubble`、`global_financial_crisis`、`covid_recession`、`euro_debt_slowdown`、`late_cycle_2018`
+- validation 與 final untouched holdout：尚未建立
 
-校準後應確認 out-of-sample cases 不因過度敏感而新增誤判衰退。
+QA0.1 pass 只代表 inventory reconciliation 完整。`calibration_holdout_ready=false`，`point_in_time_backtest_ready=false`，`real_backtest_progression_allowed=false`，Phase 9B1 blocked。下一步是 QA1 temporal integrity remediation。
 
 ## Acceptance Criteria
 

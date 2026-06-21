@@ -200,7 +200,15 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "book_fidelity_validated == false" in controlled_prototype_gates
     assert "point_in_time_validated == false" in controlled_prototype_gates
     assert "recommended_next_phase == QA0" in controlled_prototype_gates
+    assert "phase == QA0.1" in qa0_gates
     assert "audit_status == passed" in qa0_gates
+    assert "canonical_requirement_count > 22" in qa0_gates
+    assert "traceability_row_count == canonical_requirement_count" in qa0_gates
+    assert "missing_traceability_requirement_count == 0" in qa0_gates
+    assert "unmapped_indicator_count == 0" in qa0_gates
+    assert "audited_series_count == discovered_unique_series_count" in qa0_gates
+    assert "hard_coded_summary_value_count == 0" in qa0_gates
+    assert "qa0_inventory_complete == true" in qa0_gates
     assert "unsupported_claim_count == 0" in qa0_gates
     assert "phase_9b_synthetic_harness_valid == true" in qa0_gates
     assert "phase_9b_economic_validation_claim_allowed == false" in qa0_gates

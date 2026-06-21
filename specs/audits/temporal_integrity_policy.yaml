@@ -30,7 +30,9 @@ temporal_integrity_policy:
     vintage_data_supported: false
     point_in_time_backtest_ready: false
     real_backtest_progression_allowed: false
-    reason_zh: local cache and current backtest outputs do not carry complete release/vintage metadata.
+    audited_series_source: repository_inventory
+    release_lag_registry_path: specs/common/series_release_lag_registry.yaml
+    reason_zh: local cache and current backtest outputs do not carry complete release/vintage metadata. QA0.1 requires every discovered repository series to appear in the release-lag registry, even when metadata is missing and blocking.
   blocking_rules:
     - rule_id: missing_availability_metadata_blocks_point_in_time_claim
       severity: P0
@@ -48,4 +50,3 @@ temporal_integrity_policy:
     revised_data_only: true
     vintage_data_supported: false
     point_in_time_backtest_ready: false
-

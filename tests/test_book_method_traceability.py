@@ -17,7 +17,7 @@ def test_book_method_traceability_yaml_loads_and_blocks_full_alignment_claim() -
         row for row in book_core if row["implementation_status"] == "conflicting"
     ]
 
-    assert len(rows) >= 20
+    assert len(rows) > 22
     assert book_core
     assert missing
     assert conflicting
@@ -30,25 +30,26 @@ def test_book_method_traceability_covers_canonical_requirement_groups() -> None:
     ]["rows"]
     requirement_ids = {row["requirement_id"] for row in rows}
 
-    assert "phase_order_recession_recovery_growth_boom" in requirement_ids
-    assert "productivity_driven_expansion_regime" in requirement_ids
-    assert "inflation_driven_expansion_regime" in requirement_ids
-    assert "recovery_initial_claims" in requirement_ids
-    assert "growth_saving_rate_and_income_consumption" in requirement_ids
-    assert "boom_consumption_confidence_investment_inventory_defaults" in requirement_ids
-    assert "portfolio_annual_contribution_rebalance" in requirement_ids
-    assert "portfolio_boom_basic_and_advanced_weights" in requirement_ids
+    assert "cycle_four_phase_sequence" in requirement_ids
+    assert "productivity_driven_expansion" in requirement_ids
+    assert "inflation_driven_expansion" in requirement_ids
+    assert "recovery_initial_jobless_claims" in requirement_ids
+    assert "growth_personal_saving_rate" in requirement_ids
+    assert "boom_consumer_confidence" in requirement_ids
+    assert "benchmark_annual_contribution_10000" in requirement_ids
+    assert "boom_advanced_year_1_stock_weight_70" in requirement_ids
 
 
-def test_modern_extensions_are_not_book_core() -> None:
+def test_traceability_has_no_unknown_canonical_requirement_ids() -> None:
     rows = yaml.safe_load(TRACEABILITY_PATH.read_text(encoding="utf-8"))[
         "book_method_traceability"
     ]["rows"]
-    modern_ids = {
-        row["requirement_id"]
-        for row in rows
-        if row["fidelity_class"] == "modern_extension"
-    }
+    manifest = yaml.safe_load(
+        Path("specs/audits/canonical_book_requirement_manifest.yaml").read_text(
+            encoding="utf-8"
+        )
+    )["canonical_book_requirement_manifest"]["requirements"]
+    manifest_ids = {row["requirement_id"] for row in manifest}
+    trace_ids = {row["requirement_id"] for row in rows}
 
-    assert "modern_extensions_not_book_core" in modern_ids
-
+    assert trace_ids == manifest_ids

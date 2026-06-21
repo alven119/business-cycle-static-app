@@ -1,4 +1,4 @@
-"""Run QA0 book fidelity, temporal integrity, and methodology audit."""
+"""Run QA0.1 inventory-complete integrity audit."""
 
 from __future__ import annotations
 
@@ -25,7 +25,38 @@ def main() -> int:
     ordered_fields = [
         "phase",
         "audit_status",
+        "canonical_requirement_count",
         "traceability_row_count",
+        "missing_traceability_requirement_count",
+        "duplicate_traceability_requirement_count",
+        "unknown_traceability_requirement_count",
+        "discovered_formal_indicator_count",
+        "discovered_experimental_indicator_count",
+        "discovered_unique_indicator_count",
+        "mapped_indicator_count",
+        "unmapped_indicator_count",
+        "discovered_direct_series_count",
+        "discovered_derived_series_count",
+        "discovered_unique_series_count",
+        "audited_series_count",
+        "unaudited_series_count",
+        "release_lag_registry_series_count",
+        "series_without_release_lag_registry_count",
+        "series_without_temporal_status_count",
+        "provenance_mapped_indicator_count",
+        "provenance_unmapped_indicator_count",
+        "orphaned_implementation_path_count",
+        "duplicate_inventory_id_count",
+        "duplicate_series_alias_count",
+        "book_indicator_manifest_count",
+        "book_indicator_coverage_row_count",
+        "missing_book_indicator_coverage_row_count",
+        "hard_coded_summary_value_count",
+        "inventory_drift_detection_ready",
+        "traceability_drift_detection_ready",
+        "series_drift_detection_ready",
+        "provenance_drift_detection_ready",
+        "qa0_inventory_complete",
         "book_core_row_count",
         "book_core_missing_count",
         "book_core_conflicting_count",
@@ -86,4 +117,3 @@ def _format_value(value: object) -> str:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1,61 +1,239 @@
 series_release_lag_registry:
   version: 1
   status: draft
-  objective_zh: >
-    定義 QA0 temporal integrity audit 使用的 series release lag 與 vintage support 狀態。
-    若 series 缺 release/vintage metadata，不得宣稱 point-in-time backtest ready。
+  objective_zh: QA0.1 repository-wide release lag and vintage support inventory. Missing
+    metadata is audited and blocking, not silently ignored.
   series:
-    - series_id: initial_jobless_claims
-      frequency: weekly
-      default_release_lag_days: 5
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: release_lag_spec_only
-    - series_id: real_retail_sales
-      frequency: monthly
-      default_release_lag_days: 15
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: release_lag_spec_only
-    - series_id: real_pce_durable_goods
-      frequency: monthly
-      default_release_lag_days: 30
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: release_lag_spec_only
-    - series_id: private_nonresidential_fixed_investment
-      frequency: quarterly
-      default_release_lag_days: 45
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: release_lag_spec_only
-    - series_id: durable_goods_new_orders
-      frequency: monthly
-      default_release_lag_days: 25
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: release_lag_spec_only
-    - series_id: imports_goods_services
-      frequency: monthly
-      default_release_lag_days: 35
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: delayed_release_spec_only
-    - series_id: exports_goods_services
-      frequency: monthly
-      default_release_lag_days: 35
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: delayed_release_spec_only
-    - series_id: core_cpi
-      frequency: monthly
-      default_release_lag_days: 15
-      availability_source: policy_default
-      vintage_support: false
-      temporal_integrity_status: release_lag_spec_only
+  - series_id: AAA
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: AMDMNO
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: BAA
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: CCNSA
+    frequency: weekly
+    default_release_lag_days: 5
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: CCSA
+    frequency: weekly
+    default_release_lag_days: 5
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: CPIAUCSL
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: DCOILWTICO
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: DFF
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: DGORDER
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: DGS10
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: EXPGS
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: FEDFUNDS
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: FPIC1
+    frequency: quarterly
+    default_release_lag_days: 45
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: ICNSA
+    frequency: weekly
+    default_release_lag_days: 5
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: ICSA
+    frequency: weekly
+    default_release_lag_days: 5
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: IMPGS
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: INDPRO
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: IURNSA
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: IURSA
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: MORTGAGE30US
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: NFCI
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: PCEC96
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: PCEDGC96
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: PPIACO
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: RRSFS
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: RSAFS
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: STLFSI4
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: T10Y2Y
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: T10Y3M
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: UEMP15OV
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: UEMPLT5
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: UNRATE
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: WTI
+    frequency: monthly_or_daily
+    default_release_lag_days: 30
+    availability_source: inventory_required_missing_metadata
+    vintage_support: false
+    temporal_integrity_status: missing_release_or_vintage_metadata
+  - series_id: derived:credit_spread_baa_10y
+    frequency: derived
+    default_release_lag_days: 0
+    availability_source: derived_series
+    vintage_support: false
+    temporal_integrity_status: derived_series
+  - series_id: derived:credit_spread_baa_aaa
+    frequency: derived
+    default_release_lag_days: 0
+    availability_source: derived_series
+    vintage_support: false
+    temporal_integrity_status: derived_series
+  - series_id: derived:credit_spread_easing
+    frequency: derived
+    default_release_lag_days: 0
+    availability_source: derived_series
+    vintage_support: false
+    temporal_integrity_status: derived_series
+  - series_id: derived:yield_curve_10y_2y
+    frequency: derived
+    default_release_lag_days: 0
+    availability_source: derived_series
+    vintage_support: false
+    temporal_integrity_status: derived_series
+  - series_id: derived:yield_curve_10y_3m
+    frequency: derived
+    default_release_lag_days: 0
+    availability_source: derived_series
+    vintage_support: false
+    temporal_integrity_status: derived_series
   summary:
     revised_data_only: true
     vintage_data_supported: false
     point_in_time_backtest_ready: false
     real_backtest_progression_allowed: false
-

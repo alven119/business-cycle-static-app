@@ -101,7 +101,20 @@ Dashboard 必須區分 data completeness、freshness、indicator confidence、ph
 
 Phase 9B 只能稱為 controlled synthetic in-memory calculation harness。它不驗證書籍策略、歷史績效、景氣模型或 point-in-time 可交易性。
 
+## Phase QA0.1 inventory reconciliation
+
+QA0 是 initial audit baseline。QA0.1 補上 canonical requirement manifest、repository inventory、inventory reconciliation 與 anti-hardcoding checks。
+
+QA0.1 要求：
+
+- 每個 canonical requirement 恰好有一個 traceability row。
+- 每個 formal / experimental indicator 都有 provenance mapping。
+- 每個 discovered series 都被 temporal audit inventory 納入。
+- 每個 canonical indicator requirement 都有 coverage row，即使狀態是 missing。
+- QA0 aggregate summary 必須由 specs / inventory 動態計算，不得使用固定 count。
+
+QA0.1 pass 只代表清冊完整與 drift detection 可運作，不代表 book alignment、point-in-time readiness、real backtest readiness 或 investment readiness。
+
 ## Next phase
 
-QA0 完成後 recommended next phase 是 QA1，不是 9B1。QA1 應處理 P0 blockers 與 methodology gaps。
-
+QA0.1 完成後 recommended next phase 仍是 QA1，不是 9B1。QA1 應處理 temporal integrity P0 blockers 與 methodology gaps。

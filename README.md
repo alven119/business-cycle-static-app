@@ -1042,6 +1042,18 @@ Current limits:
 - No investment decision should rely solely on current outputs.
 - Real backtest progression remains blocked until QA0 and follow-up gates explicitly allow it.
 
+## Phase QA0.1 inventory reconciliation
+
+Phase QA0 is the initial audit baseline. Phase QA0.1 adds the inventory reconciliation layer:
+
+```bash
+python scripts/show_qa0_repository_inventory.py
+python scripts/run_qa0_inventory_reconciliation.py
+python scripts/run_qa0_integrity_audit.py
+```
+
+QA0.1 verifies that canonical book requirements, repository indicators, series references, provenance mappings, release-lag registry rows, and book indicator coverage rows reconcile without drift. A QA0.1 pass does not mean model validation. Current hard limits remain: `book_alignment_claim_allowed=false`, `point_in_time_backtest_ready=false`, `real_backtest_progression_allowed=false`, and Phase 9B1 remains blocked. The next methodology phase is QA1 temporal integrity remediation.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

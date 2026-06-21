@@ -405,3 +405,16 @@ python scripts/list_backtest_scenarios.py --scenario-id global_financial_crisis
 ## 不是投資建議
 
 Backtest scenario 與 timeline JSON 用於研究模型在歷史總經資料中的行為，不提供資產配置、不提供交易訊號，也不構成投資建議。使用 revised data 的結果尤其不能直接視為當時可交易的即時訊號。
+
+## Phase QA0.1 Inventory Reconciliation
+
+QA0 是 initial audit baseline。QA0.1 建立 canonical book requirement manifest 與 repository inventory reconciliation，確認 indicator、series、traceability、release lag registry、book indicator coverage 與 anti-hardcoding checks 會一起防止 audit drift。
+
+QA0.1 通過不代表模型已驗證、書籍方法已完整對齊或 point-in-time backtest ready。現況仍是：
+
+- `book_alignment_claim_allowed=false`
+- `point_in_time_backtest_ready=false`
+- `real_backtest_progression_allowed=false`
+- Phase 9B1 blocked
+
+下一步是 QA1 temporal integrity remediation。

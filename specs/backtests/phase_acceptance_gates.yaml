@@ -444,7 +444,30 @@ phase_specific_gates:
 
   qa0_integrity_audit:
     hard_gates:
+      - phase == QA0.1
       - audit_status == passed
+      - canonical_requirement_count > 22
+      - traceability_row_count == canonical_requirement_count
+      - missing_traceability_requirement_count == 0
+      - duplicate_traceability_requirement_count == 0
+      - unknown_traceability_requirement_count == 0
+      - discovered_formal_indicator_count >= 13
+      - discovered_unique_series_count > 8
+      - mapped_indicator_count == discovered_unique_indicator_count
+      - unmapped_indicator_count == 0
+      - audited_series_count == discovered_unique_series_count
+      - unaudited_series_count == 0
+      - series_without_temporal_status_count == 0
+      - provenance_unmapped_indicator_count == 0
+      - orphaned_implementation_path_count == 0
+      - duplicate_inventory_id_count == 0
+      - missing_book_indicator_coverage_row_count == 0
+      - hard_coded_summary_value_count == 0
+      - inventory_drift_detection_ready == true
+      - traceability_drift_detection_ready == true
+      - series_drift_detection_ready == true
+      - provenance_drift_detection_ready == true
+      - qa0_inventory_complete == true
       - untriaged_finding_count == 0
       - p0_without_blocking_gate_count == 0
       - unsupported_claim_count == 0
