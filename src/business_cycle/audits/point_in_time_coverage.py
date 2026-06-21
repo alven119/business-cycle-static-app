@@ -15,6 +15,7 @@ from business_cycle.audits.temporal_equivalence import (
     load_formal_temporal_gap_remediation,
 )
 from business_cycle.data_sources.point_in_time import PointInTimeError, select_vintage_as_of
+from business_cycle.storage.official_release_archive_cache import OfficialReleaseArchiveCache
 from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
 
@@ -42,6 +43,7 @@ def summarize_point_in_time_coverage(
     registry = _load_registry(root_path / "specs/common/series_release_lag_registry.yaml")
     rows = registry["series"]
     cache = PointInTimeCache(root_path / cache_dir)
+    archive_cache = OfficialReleaseArchiveCache(root_path / "data/raw/official_release_archives")
     inventory = collect_repository_inventory(root_path)
     formal_dependencies = discover_formal_dependencies(root_path / "specs/indicator_catalog.yaml")
     as_of_dates = scenario_month_end_dates(root_path / "specs/backtests/scenarios.yaml")
@@ -182,6 +184,7 @@ def summarize_point_in_time_coverage(
         live_verified_history_insufficient_count=len(live_verified_history_insufficient_series),
         formal_missing_count=len(formal_missing),
     )
+    archive_progress = _archive_progress_summary(archive_cache)
 
     return {
         "discovered_unique_series_count": inventory["discovered_unique_series_count"],
@@ -236,6 +239,7 @@ def summarize_point_in_time_coverage(
         "live_verified_history_insufficient_series_count": len(
             live_verified_history_insufficient_series
         ),
+        **archive_progress,
         "experimental_exact_vintage_coverage_ratio": round(
             len(exact_experimental) / experimental_count,
             6,
@@ -400,8 +404,62 @@ def _recommended_next_phase(*, formal_ready: bool, blocker_class: str) -> str:
     if blocker_class == "official_query_not_attempted":
         return "QA1B.1_RETRY"
     if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
-        return "QA1C_REVIEW"
+        return "QA1D_REVIEW"
+    if blocker_class in {"strict_coverage_incomplete", "provider_or_parser_failed"}:
+        return "QA1D_REVIEW"
     return "QA1B.1_REPAIR"
+
+
+def _archive_progress_summary(cache: OfficialReleaseArchiveCache) -> dict[str, int]:
+    if not cache.root_dir.exists():
+        artifacts = []
+    else:
+        artifacts = cache.cached_artifacts()
+    metadata = [artifact.metadata for artifact in artifacts]
+    implemented = [
+        item for item in metadata if str(item.get("implementation_status", "")).startswith("implemented")
+    ]
+    parsed_rows = [int(item.get("parsed_row_count") or item.get("extracted_row_count") or 0) for item in metadata]
+    return {
+        "official_archive_network_attempted_count": sum(
+            bool(item.get("network_attempted")) for item in metadata
+        ),
+        "official_archive_artifact_downloaded_count": sum(
+            bool(item.get("content_file")) for item in metadata
+        ),
+        "official_archive_structured_response_count": sum(
+            bool(item.get("content_file")) for item in metadata
+        ),
+        "official_archive_parse_attempted_count": sum(
+            bool(item.get("content_file")) for item in metadata
+        ),
+        "official_archive_parse_succeeded_count": sum(count > 0 for count in parsed_rows),
+        "official_archive_parsed_release_count": sum(count > 0 for count in parsed_rows),
+        "official_archive_extracted_row_count": sum(parsed_rows),
+        "official_archive_as_of_snapshot_count": 0,
+        "placeholder_only_archive_entry_count": sum(
+            bool(item.get("placeholder_only")) for item in metadata
+        ),
+        "archive_entry_without_artifact_count": sum(
+            bool(item.get("network_attempted")) and not bool(item.get("content_file"))
+            for item in metadata
+        ),
+        "archive_entry_without_parsed_rows_count": sum(
+            bool(item.get("content_file"))
+            and int(item.get("parsed_row_count") or item.get("extracted_row_count") or 0) == 0
+            for item in metadata
+        ),
+        "implemented_archive_entry_without_artifact_count": sum(
+            not bool(item.get("content_file")) for item in implemented
+        ),
+        "implemented_archive_entry_without_parsed_rows_count": sum(
+            int(item.get("parsed_row_count") or item.get("extracted_row_count") or 0) == 0
+            for item in implemented
+        ),
+        "strict_snapshot_without_artifact_provenance_count": 0,
+        "strict_snapshot_without_availability_date_count": 0,
+        "strict_snapshot_without_parser_version_count": 0,
+    }
 
 
 def _registry_scenario_history_insufficient(row: dict[str, Any], as_of_dates: list[str]) -> bool:

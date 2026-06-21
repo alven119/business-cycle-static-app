@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -47,6 +48,11 @@ class AlfredProvider(FredProvider):
         self.last_pagination_count = 0
         self.retry_count = 0
         self.rate_limit_retry_count = 0
+        self.last_http_status: int | None = None
+        self.last_response_content_type: str | None = None
+        self.last_response_byte_count = 0
+        self.last_error_class: str | None = None
+        self.last_error_message_redacted: str | None = None
 
     def fetch_observations(
         self,
@@ -89,6 +95,11 @@ class AlfredProvider(FredProvider):
         self.last_pagination_count = 0
         self.retry_count = 0
         self.rate_limit_retry_count = 0
+        self.last_http_status = None
+        self.last_response_content_type = None
+        self.last_response_byte_count = 0
+        self.last_error_class = None
+        self.last_error_message_redacted = None
         while True:
             payload = self._get_json("series/observations", params, clean_series_id)
             self.last_request_count += 1
@@ -143,6 +154,15 @@ class AlfredProvider(FredProvider):
         for attempt in range(self.max_retries + 1):
             try:
                 response = self.session.get(url, params=params, timeout=self.timeout_seconds)
+                self.last_http_status = getattr(response, "status_code", None)
+                headers = getattr(response, "headers", {}) or {}
+                self.last_response_content_type = headers.get("Content-Type")
+                content = getattr(response, "content", None)
+                if isinstance(content, bytes):
+                    self.last_response_byte_count = len(content)
+                else:
+                    text = getattr(response, "text", "")
+                    self.last_response_byte_count = len(str(text).encode("utf-8"))
                 if getattr(response, "status_code", None) == 429:
                     retry_after = response.headers.get("Retry-After") if hasattr(response, "headers") else None
                     raise requests.HTTPError(
@@ -153,9 +173,15 @@ class AlfredProvider(FredProvider):
                 payload = response.json()
             except requests.Timeout as exc:
                 last_error = exc
+                self.last_error_class = type(exc).__name__
+                self.last_error_message_redacted = _redact(str(exc))
             except requests.RequestException as exc:
                 last_error = exc
+                self.last_error_class = type(exc).__name__
+                self.last_error_message_redacted = _redact(str(exc))
             except ValueError as exc:
+                self.last_error_class = type(exc).__name__
+                self.last_error_message_redacted = "invalid JSON"
                 raise AlfredProviderError(f"FRED series {series_id} returned invalid JSON") from exc
             else:
                 if not isinstance(payload, dict):
@@ -177,7 +203,13 @@ class AlfredProvider(FredProvider):
                         sleep_seconds = self.retry_sleep_seconds
                 time.sleep(sleep_seconds)
         raise AlfredProviderError(
-            f"Failed to download FRED series {series_id} endpoint={endpoint} params={safe_params}"
+            "Failed to download FRED series "
+            f"{series_id} endpoint={endpoint} params={safe_params} "
+            f"http_status={self.last_http_status} "
+            f"content_type={self.last_response_content_type} "
+            f"byte_count={self.last_response_byte_count} "
+            f"error_class={self.last_error_class} "
+            f"error_message={self.last_error_message_redacted}"
         ) from last_error
 
     @staticmethod
@@ -197,3 +229,9 @@ class AlfredProvider(FredProvider):
             realtime_start=str(row["realtime_start"]),
             realtime_end=str(row["realtime_end"]),
         )
+
+
+def _redact(message: str) -> str:
+    text = message.replace("FRED_API_KEY", "redacted_key")
+    text = re.sub(r"(?i)(api_key|redacted_key)=([^&\\s)\"']+)", r"\1=[REDACTED]", text)
+    return text.replace("api_key", "redacted_key")

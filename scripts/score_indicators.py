@@ -56,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
             "release_lag_adjusted_revised_proxy",
             "initial_release_only",
             "vintage_as_of",
+            "strict_point_in_time",
         ],
         default="revised",
     )
@@ -80,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
     specs = filter_specs(specs, indicator_ids=args.indicator_id)
     catalog_entries = filter_entries(catalog_entries, indicator_ids=args.indicator_id)
 
+    effective_data_mode = "vintage_as_of" if args.data_mode == "strict_point_in_time" else args.data_mode
     if args.data_mode == "revised":
         observations_by_indicator, load_failures, selected_inputs = load_observations_by_indicator(
             catalog_entries,
@@ -90,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
             load_point_in_time_observations_by_indicator(
                 catalog_entries,
                 cache_dir=Path(args.point_in_time_cache_dir),
-                data_mode=args.data_mode,
+                data_mode=effective_data_mode,
                 as_of=args.as_of,
             )
         )
@@ -407,8 +409,13 @@ def _add_data_mode_metadata(
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["summary"]["requested_data_mode"] = requested_data_mode
     payload["summary"]["actual_data_mode"] = actual_data_mode
-    payload["summary"]["point_in_time"] = actual_data_mode == "vintage_as_of"
-    payload["summary"]["vintage_as_of"] = as_of if requested_data_mode == "vintage_as_of" else None
+    payload["summary"]["point_in_time"] = actual_data_mode in {
+        "vintage_as_of",
+        "strict_point_in_time",
+    }
+    payload["summary"]["vintage_as_of"] = (
+        as_of if requested_data_mode in {"vintage_as_of", "strict_point_in_time"} else None
+    )
     payload["summary"]["missing_series"] = missing_series
     payload["summary"]["proxy_series"] = proxy_series
     payload["summary"]["revised_fallback_series"] = []

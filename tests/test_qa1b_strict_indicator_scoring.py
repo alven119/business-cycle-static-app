@@ -59,3 +59,26 @@ def test_strict_indicator_scoring_scores_all_formal_indicators(tmp_path: Path) -
     assert payload["summary"]["revised_fallback_series"] == []
     assert payload["summary"]["missing_series"] == []
     assert payload["summary"]["vintage_as_of"] == "2008-09-30"
+
+
+def test_strict_point_in_time_alias_blocks_missing_cache(tmp_path: Path) -> None:
+    output = tmp_path / "scores.json"
+
+    score_script.main(
+        [
+            "--as-of",
+            "2008-09-30",
+            "--data-mode",
+            "strict_point_in_time",
+            "--point-in-time-cache-dir",
+            str(tmp_path / "cache"),
+            "--output",
+            str(output),
+        ]
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["summary"]["requested_data_mode"] == "strict_point_in_time"
+    assert payload["summary"]["actual_data_mode"] == "blocked"
+    assert payload["summary"]["point_in_time"] is False
+    assert payload["summary"]["revised_fallback_series"] == []

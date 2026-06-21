@@ -27,7 +27,7 @@ class CachedOfficialArchiveArtifact:
 class OfficialReleaseArchiveCache:
     """Atomic metadata/content cache for official release archive reconstruction."""
 
-    schema_version = 1
+    schema_version = 2
 
     def __init__(self, root_dir: str | Path = "data/raw/official_release_archives") -> None:
         self.root_dir = Path(root_dir)
@@ -55,13 +55,22 @@ class OfficialReleaseArchiveCache:
         parse_status: str,
         extracted_row_count: int,
         content: bytes | None = None,
+        source_type: str | None = None,
+        content_type: str | None = None,
+        network_attempted: bool = False,
+        http_status: int | None = None,
+        byte_count: int | None = None,
+        implementation_status: str | None = None,
         force: bool = False,
     ) -> dict[str, Any]:
         """Write artifact metadata atomically; content is optional for blocked attempts."""
 
         clean_source_id = _clean_source_id(source_id)
         if self.exists(clean_source_id) and not force:
-            return self.read(clean_source_id).metadata
+            try:
+                return self.read(clean_source_id).metadata
+            except OfficialReleaseArchiveCacheError:
+                pass
         self.root_dir.mkdir(parents=True, exist_ok=True)
         content_checksum = None
         content_file: str | None = None
@@ -71,12 +80,17 @@ class OfficialReleaseArchiveCache:
             content_tmp.write_bytes(content)
             content_checksum = _sha256(content_tmp)
             os.replace(content_tmp, self.root_dir / content_file)
+        parsed_row_count = extracted_row_count
         metadata = {
             "schema_version": self.schema_version,
+            "artifact_id": clean_source_id,
             "source_id": clean_source_id,
             "source_domain": source_domain,
+            "source_url_without_secret": artifact_url,
             "artifact_url": artifact_url,
+            "source_type": source_type or artifact_type,
             "artifact_type": artifact_type,
+            "content_type": content_type,
             "release_date": release_date,
             "reference_period": reference_period,
             "downloaded_at": _now_iso(),
@@ -85,11 +99,17 @@ class OfficialReleaseArchiveCache:
                 "artifact_url": artifact_url,
                 "parse_status": parse_status,
             }, sort_keys=True).encode("utf-8")),
+            "byte_count": byte_count if byte_count is not None else len(content or b""),
             "content_file": content_file,
             "parser_id": parser_id,
             "parser_version": parser_version,
             "parse_status": parse_status,
             "extracted_row_count": extracted_row_count,
+            "parsed_row_count": parsed_row_count,
+            "network_attempted": network_attempted,
+            "http_status": http_status,
+            "implementation_status": implementation_status or parse_status,
+            "placeholder_only": content is None and not network_attempted,
             "no_secret": True,
         }
         _assert_no_secret(metadata)
@@ -134,6 +154,17 @@ class OfficialReleaseArchiveCache:
         """Return cached official archive source IDs."""
 
         return {path.name.removesuffix(".metadata.json") for path in self.root_dir.glob("*.metadata.json")}
+
+    def cached_artifacts(self) -> list[CachedOfficialArchiveArtifact]:
+        """Return all readable cached official archive artifacts."""
+
+        artifacts: list[CachedOfficialArchiveArtifact] = []
+        for source_id in sorted(self.cached_source_ids()):
+            try:
+                artifacts.append(self.read(source_id))
+            except OfficialReleaseArchiveCacheError:
+                continue
+        return artifacts
 
 
 def _clean_source_id(source_id: str) -> str:

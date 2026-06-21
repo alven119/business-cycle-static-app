@@ -80,28 +80,28 @@ formal_temporal_gap_remediation:
       current_alfred_earliest_realtime_start: '2005-06-28'
       current_alfred_latest_realtime_start: '2005-12-28'
       missing_pair_count: 221
-      provider_full_range_query_status: failed
+      provider_full_range_query_status: repaired_by_realtime_segmentation
       segmented_query_status:
         segment_query_count: 4
-        segment_query_success_count: 1
-        segment_query_failure_count: 3
+        segment_query_success_count: 4
+        segment_query_failure_count: 0
         empty_history_segment_count: 0
-        provider_parse_failure_count: 2
-        earliest_exact_alfred_realtime_start: '2005-06-28'
+        provider_parse_failure_count: 0
+        earliest_exact_alfred_realtime_start: '2005-07-06'
         segments:
-          - range: 1995-1999
-            status: failed
-          - range: 2000-2004
-            status: failed
-          - range: 2005-2009
+          - range: 2005-06-28 to 2009-12-31
             status: succeeded
-          - range: 2010-latest
-            status: failed
+          - range: 2010-01-01 to 2014-12-31
+            status: succeeded
+          - range: 2015-01-01 to 2019-12-31
+            status: succeeded
+          - range: 2020-01-01 to 2021-12-31
+            status: succeeded
       full_range_query_status: failed
-      earliest_live_realtime_start: '2005-06-28'
+      earliest_live_realtime_start: '2005-07-06'
       required_earliest_as_of: '1998-01-31'
       alfred_history_gap: true
-      provider_or_parser_error: full-range and pre-2004 ALFRED queries fail while 2008 and 2004-2005 probes succeed
+      provider_or_parser_error: full-range ALFRED query exceeds FRED vintage-date limit; realtime segmentation repairs 2005-06-28 onward but does not solve pre-2005 history gap
       final_blocker_class: official_history_insufficient
       official_source_candidates:
         - source_id: federal_reserve_h15_archive

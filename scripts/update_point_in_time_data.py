@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -20,6 +22,16 @@ from business_cycle.data_sources.alfred_provider import AlfredProvider, AlfredPr
 from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
 ALFRED_EARLIEST_REALTIME_START = "1776-07-04"
+DGS10_MODERN_START = "2005-06-28"
+
+
+@dataclass(frozen=True)
+class FetchResult:
+    observations: list[Any]
+    request_count: int
+    pagination_count: int
+    segmented: bool
+    segment_summaries: list[dict[str, object]]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -69,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
     blockers: dict[str, str] = {}
     series_summaries: list[dict[str, object]] = []
     provider = None
+    dgs10_segment_summaries: list[dict[str, object]] = []
     api_available = bool(os.getenv("FRED_API_KEY")) and not args.no_api and not args.dry_run
     if api_available:
         provider = AlfredProvider()
@@ -193,17 +206,19 @@ def main(argv: list[str] | None = None) -> int:
         try:
             bulk_series_query_count += 1
             official_query_attempted.add(series_id)
-            observations = provider.fetch_observations(
-                series_id,
+            fetch_result = _fetch_observations_with_dgs10_repair(
+                provider,
+                series_id=series_id,
                 observation_start=observation_start,
                 observation_end=observation_end,
                 realtime_start=as_of_start,
                 realtime_end=as_of_end,
-                output_type=1,
             )
-            series_request_count = provider.last_request_count
+            observations = fetch_result.observations
+            dgs10_segment_summaries.extend(fetch_result.segment_summaries)
+            series_request_count = fetch_result.request_count
             api_requests += series_request_count
-            pagination_requests += provider.last_pagination_count
+            pagination_requests += fetch_result.pagination_count
             api_requests_by_series[series_id] = series_request_count
             manifest = cache.write_series(
                 series_id,
@@ -246,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
                     as_of_start=as_of_start,
                     as_of_end=as_of_end,
                     response_row_count=0,
-                    pagination_count=provider.last_pagination_count if provider else 0,
+                pagination_count=provider.last_pagination_count if provider else 0,
                     cache_status="failed",
                     blocker=str(exc),
                 )
@@ -264,7 +279,7 @@ def main(argv: list[str] | None = None) -> int:
                 as_of_start=as_of_start,
                 as_of_end=as_of_end,
                 response_row_count=len(observations),
-                pagination_count=provider.last_pagination_count,
+                pagination_count=fetch_result.pagination_count,
                 cache_status="written",
             )
         )
@@ -328,6 +343,23 @@ def main(argv: list[str] | None = None) -> int:
             getattr(provider, "rate_limit_retry_count", 0) if provider is not None else 0
         ),
         "cache_dir": str(Path(args.cache_dir)),
+        "dgs10_modern_provider_ready": _dgs10_modern_provider_ready(
+            requested=requested,
+            observation_start=observation_start,
+            dgs10_segment_summaries=dgs10_segment_summaries,
+            failed_series=blockers,
+        ),
+        "dgs10_segment_query_count": len(dgs10_segment_summaries),
+        "dgs10_segment_query_success_count": sum(
+            item.get("parse_status") == "parsed" for item in dgs10_segment_summaries
+        ),
+        "dgs10_segment_query_failure_count": sum(
+            item.get("parse_status") != "parsed" for item in dgs10_segment_summaries
+        ),
+        "dgs10_earliest_exact_alfred_realtime_start": _earliest_dgs10_realtime_start(
+            cache=cache,
+            requested=requested,
+        ),
         "secret_logged": False,
         "result": result,
     }
@@ -337,6 +369,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"blocker series_id={series_id} reason={reason}")
     for item in series_summaries:
         print("series_summary " + " ".join(f"{key}={_format(value)}" for key, value in item.items()))
+    for item in dgs10_segment_summaries:
+        print("dgs10_segment_summary " + " ".join(f"{key}={_format(value)}" for key, value in item.items()))
     return 0 if result in {"passed", "blocked"} else 1
 
 
@@ -353,6 +387,199 @@ def _requested_series(args: argparse.Namespace) -> list[str]:
             if item["inventory_type"] == "direct_series"
         )
     return list(discover_formal_dependencies("specs/indicator_catalog.yaml").direct_series_ids)
+
+
+def _fetch_observations_with_dgs10_repair(
+    provider: AlfredProvider,
+    *,
+    series_id: str,
+    observation_start: str | None,
+    observation_end: str | None,
+    realtime_start: str | None,
+    realtime_end: str | None,
+) -> FetchResult:
+    try:
+        observations = provider.fetch_observations(
+            series_id,
+            observation_start=observation_start,
+            observation_end=observation_end,
+            realtime_start=realtime_start,
+            realtime_end=realtime_end,
+            output_type=1,
+        )
+    except AlfredProviderError as exc:
+        if series_id != "DGS10" or not observation_start or not observation_end:
+            raise
+        segmented = _fetch_dgs10_segments(
+            provider,
+            observation_start=observation_start,
+            observation_end=observation_end,
+            realtime_start=realtime_start,
+            realtime_end=realtime_end,
+        )
+        failures = [item for item in segmented.segment_summaries if item.get("parse_status") != "parsed"]
+        if failures:
+            raise AlfredProviderError(
+                "DGS10 segmented query failed after full-range failure; "
+                f"full_range_error={exc}; segment_failure_count={len(failures)}"
+            ) from exc
+        return segmented
+    return FetchResult(
+        observations=observations,
+        request_count=provider.last_request_count,
+        pagination_count=provider.last_pagination_count,
+        segmented=False,
+        segment_summaries=[],
+    )
+
+
+def _fetch_dgs10_segments(
+    provider: AlfredProvider,
+    *,
+    observation_start: str,
+    observation_end: str,
+    realtime_start: str | None,
+    realtime_end: str | None,
+) -> FetchResult:
+    all_observations: list[Any] = []
+    segment_summaries: list[dict[str, object]] = []
+    request_count = 0
+    pagination_count = 0
+    segment_source_start = realtime_start or observation_start
+    segment_source_end = realtime_end or observation_end
+    for segment_start, segment_end in _five_year_segments(segment_source_start, segment_source_end):
+        segment_id = f"{segment_start}_{segment_end}"
+        try:
+            observations = provider.fetch_observations(
+                "DGS10",
+                observation_start=observation_start,
+                observation_end=observation_end,
+                realtime_start=segment_start,
+                realtime_end=segment_end,
+                output_type=1,
+            )
+        except AlfredProviderError as exc:
+            request_count += getattr(provider, "last_request_count", 0)
+            pagination_count += getattr(provider, "last_pagination_count", 0)
+            segment_summaries.append(
+                _dgs10_segment_summary(
+                    segment_id=segment_id,
+                    segment_start=segment_start,
+                    segment_end=segment_end,
+                    response_row_count=0,
+                    pagination_count=getattr(provider, "last_pagination_count", 0),
+                    parse_status="failed",
+                    cache_status="not_written",
+                    provider=provider,
+                    error_class=getattr(provider, "last_error_class", type(exc).__name__),
+                    error_message=str(exc),
+                )
+            )
+            continue
+        request_count += provider.last_request_count
+        pagination_count += provider.last_pagination_count
+        all_observations.extend(observations)
+        segment_summaries.append(
+            _dgs10_segment_summary(
+                    segment_id=segment_id,
+                    segment_start=segment_start,
+                    segment_end=segment_end,
+                response_row_count=len(observations),
+                pagination_count=provider.last_pagination_count,
+                parse_status="parsed",
+                cache_status="pending_combined_write",
+                provider=provider,
+                error_class="none",
+                error_message="none",
+            )
+        )
+    return FetchResult(
+        observations=all_observations,
+        request_count=request_count,
+        pagination_count=pagination_count,
+        segmented=True,
+        segment_summaries=segment_summaries,
+    )
+
+
+def _five_year_segments(observation_start: str, observation_end: str) -> list[tuple[str, str]]:
+    start = date.fromisoformat(observation_start)
+    end = date.fromisoformat(observation_end)
+    segments: list[tuple[str, str]] = []
+    current_year = start.year
+    while current_year <= end.year:
+        segment_start = max(start, date(current_year, 1, 1))
+        segment_end = min(end, date(current_year + 4, 12, 31))
+        segments.append((segment_start.isoformat(), segment_end.isoformat()))
+        current_year += 5
+    return segments
+
+
+def _dgs10_segment_summary(
+    *,
+    segment_id: str,
+    segment_start: str,
+    segment_end: str,
+    response_row_count: int,
+    pagination_count: int,
+    parse_status: str,
+    cache_status: str,
+    provider: AlfredProvider,
+    error_class: str | None,
+    error_message: str,
+) -> dict[str, object]:
+    return {
+        "segment_id": segment_id,
+        "request_endpoint": "series/observations",
+        "request_parameter_summary_without_key": (
+            "series_id=DGS10,"
+            f"realtime_start={segment_start},realtime_end={segment_end}"
+        ),
+        "http_status": getattr(provider, "last_http_status", None),
+        "response_content_type": getattr(provider, "last_response_content_type", None),
+        "response_byte_count": getattr(provider, "last_response_byte_count", 0),
+        "response_row_count": response_row_count,
+        "pagination_count": pagination_count,
+        "parse_status": parse_status,
+        "cache_status": cache_status,
+        "error_class": error_class or "none",
+        "error_message_redacted": _redact(str(error_message)),
+    }
+
+
+def _dgs10_modern_provider_ready(
+    *,
+    requested: list[str],
+    observation_start: str | None,
+    dgs10_segment_summaries: list[dict[str, object]],
+    failed_series: dict[str, str],
+) -> bool:
+    if "DGS10" not in requested:
+        return False
+    if "DGS10" in failed_series:
+        return False
+    if observation_start is None:
+        return False
+    if observation_start < DGS10_MODERN_START:
+        return False
+    return not dgs10_segment_summaries or all(
+        item.get("parse_status") == "parsed" for item in dgs10_segment_summaries
+    )
+
+
+def _earliest_dgs10_realtime_start(*, cache: PointInTimeCache, requested: list[str]) -> str | None:
+    if "DGS10" not in requested or not cache.exists("DGS10"):
+        return None
+    try:
+        return cache.read_series("DGS10").manifest.get("earliest_realtime_start")
+    except PointInTimeCacheError:
+        return None
+
+
+def _redact(message: str) -> str:
+    text = message.replace("FRED_API_KEY", "redacted_key")
+    text = re.sub(r"(?i)(api_key|redacted_key)=([^&\\s)\"']+)", r"\1=[REDACTED]", text)
+    return text.replace("api_key", "redacted_key")
 
 
 def _registry_rows() -> dict[str, dict[str, Any]]:
