@@ -1,0 +1,161 @@
+portfolio_research_safety_closure:
+  version: 1
+  status: draft
+  objective_zh: >
+    彙整 Phase 8A 至 Phase 8G 的 portfolio research artifacts、validators、fixtures、
+    dry-run runner 與安全邊界，確認目前仍屬 research-only / structural dry-run-only 狀態，
+    尚未進入正式 portfolio backtest 或 live allocation。
+  caveats_zh:
+    - 此為 portfolio research safety closure checklist，不是正式回測。
+    - Phase 8A–8G 沒有產生績效結論。
+    - Phase 8A–8G 沒有產生 portfolio allocation。
+    - Phase 8A–8G 沒有產生買賣訊號。
+    - 不構成投資建議。
+
+  artifact_readiness:
+    portfolio_policy_research_plan:
+      path: specs/portfolio/portfolio_policy_research_plan.yaml
+      required: true
+      expected_status: draft
+    portfolio_policy_template_schema:
+      path: specs/portfolio/portfolio_policy_template_schema.yaml
+      required: true
+      expected_status: draft
+    portfolio_policy_template_fixtures:
+      path: specs/portfolio/portfolio_policy_template_fixtures.yaml
+      required: true
+      expected_status: draft
+    portfolio_backtest_input_contract:
+      path: specs/portfolio/portfolio_backtest_input_contract.yaml
+      required: true
+      expected_status: draft
+    portfolio_backtest_scenario_mapping:
+      path: specs/portfolio/portfolio_backtest_scenario_mapping.yaml
+      required: true
+      expected_status: draft
+    portfolio_backtest_input_fixtures:
+      path: specs/portfolio/portfolio_backtest_input_fixtures.yaml
+      required: true
+      expected_status: draft
+    portfolio_backtest_dry_run_contract:
+      path: specs/portfolio/portfolio_backtest_dry_run_contract.yaml
+      required: true
+      expected_status: draft
+    portfolio_backtest_dry_run_fixtures:
+      path: specs/portfolio/portfolio_backtest_dry_run_fixtures.yaml
+      required: true
+      expected_status: draft
+
+  validator_readiness:
+    policy_research_plan_summary:
+      command: python scripts/show_portfolio_policy_research_plan.py
+      required: true
+    policy_template_schema_summary:
+      command: python scripts/show_portfolio_policy_template_schema.py
+      required: true
+    policy_template_fixture_validation:
+      command: python scripts/validate_portfolio_policy_template_fixtures.py
+      required: true
+      required_result: passed
+    backtest_input_contract_summary:
+      command: python scripts/show_portfolio_backtest_input_contract.py
+      required: true
+    backtest_input_fixture_validation:
+      command: python scripts/validate_portfolio_backtest_input_fixtures.py
+      required: true
+      required_result: passed
+    dry_run_contract_summary:
+      command: python scripts/show_portfolio_backtest_dry_run_contract.py
+      required: true
+    dry_run_fixture_validation:
+      command: python scripts/validate_portfolio_backtest_dry_run_fixtures.py
+      required: true
+      required_result: passed
+    structural_dry_run_runner:
+      command: python scripts/run_portfolio_backtest_structural_dry_run.py
+      required: true
+      required_result: passed
+
+  safety_boundaries:
+    research_only: true
+    structural_dry_run_only: true
+    formal_backtest_executed: false
+    performance_metrics_computed: false
+    allocation_output_generated: false
+    trade_signal_generated: false
+    target_weight_generated: false
+    data_backtests_output_written: false
+    public_output_written: false
+    dashboard_integration_done: false
+    resolver_integration_done: false
+    live_recommendation_allowed: false
+
+  active_blockers_before_real_backtest:
+    - blocker_id: no_backtest_engine_contract_for_real_metrics
+      active: true
+      reason_zh: 尚未定義真正績效計算 engine 的輸入、輸出與安全限制。
+    - blocker_id: no_result_output_contract
+      active: true
+      reason_zh: 尚未定義 backtest result output contract 與儲存路徑。
+    - blocker_id: no_metric_computation_validator
+      active: true
+      reason_zh: 尚未定義績效指標計算 validator。
+    - blocker_id: no_result_caveat_validator
+      active: true
+      reason_zh: 尚未定義回測結果必須顯示 backtest-only / not investment advice 的驗證。
+    - blocker_id: no_public_output_policy
+      active: true
+      reason_zh: 尚未定義回測結果不得自動進 public/dashboard 的 policy。
+    - blocker_id: no_live_allocation_guard_for_results
+      active: true
+      reason_zh: 尚未定義 result 層級禁止 live allocation / current recommendation 的 guardrails。
+
+  required_before_real_backtest_prototype:
+    - target_id: real_backtest_engine_contract_defined
+      required: true
+      description_zh: 必須先定義真正 backtest engine contract。
+    - target_id: result_output_contract_defined
+      required: true
+      description_zh: 必須定義回測結果輸出 schema 與儲存路徑。
+    - target_id: metric_formula_registry_defined
+      required: true
+      description_zh: 必須定義績效與風險指標公式 registry。
+    - target_id: no_live_allocation_result_validator_defined
+      required: true
+      description_zh: 必須定義 result validator，阻擋 live allocation / current recommendation。
+    - target_id: backtest_result_caveat_required
+      required: true
+      description_zh: 回測結果必須標記不代表未來績效、不構成投資建議。
+    - target_id: output_location_policy_defined
+      required: true
+      description_zh: 必須明確規定 output 位置，且不得自動寫入 public。
+
+  allowed_future_work:
+    - phase_id: 8I
+      title: real backtest prototype readiness gate
+      allowed: true
+      description_zh: 可設計真正 backtest prototype 的 readiness gate，但仍不計算績效。
+    - phase_id: 9A
+      title: real backtest engine contract
+      allowed: false
+      description_zh: 需等 8I readiness gate 完成後才能開始真正 backtest engine contract。
+    - phase_id: 9B
+      title: real backtest prototype
+      allowed: false
+      description_zh: 需等 real backtest engine contract、result output contract、metric registry 與 result safety validator 完成後才能開始。
+
+  phase_8_closure:
+    status: ready_to_close_research_only
+    conclusion_zh: >
+      Phase 8A–8G 已完成 portfolio policy research planning、template schema、input contract、
+      fixtures、dry-run contract 與 stdout-only structural runner。
+      目前可安全收斂為 research-only / structural dry-run-only 狀態。
+      尚未執行正式 portfolio backtest，也未產生績效、allocation 或交易訊號。
+
+  recommended_next_phase:
+    phase_id: 8I
+    title: real backtest prototype readiness gate
+    reason_zh: >
+      Phase 8A–8G 已完成 research-only 與 structural dry-run 安全閉環。
+      下一步若要接近真正 backtest，應先建立 real backtest prototype readiness gate，
+      定義績效計算、結果輸出、caveat、禁止 live allocation 與禁止 public auto-output 的前置條件。

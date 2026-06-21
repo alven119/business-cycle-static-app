@@ -805,6 +805,18 @@ python scripts/run_portfolio_backtest_structural_dry_run.py
 
 Runner 只做 contract validation 與 in-memory structural summary。它不計算績效、不產生 portfolio weights、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。此階段確認 future dry-run engine wiring 的安全邊界，但仍不是正式 backtest，也不構成投資建議。
 
+## Phase 8H Portfolio Research Safety Closure
+
+Phase 8H 建立 portfolio research safety closure checklist。
+
+```bash
+python scripts/show_portfolio_research_safety_closure.py
+```
+
+Closure checklist 彙整 Phase 8A-8G 的 research plan、template schema、fixtures、input contract、scenario mapping、dry-run contract、dry-run fixtures 與 structural runner。它確認目前仍是 research-only / structural dry-run-only：沒有正式 backtest、沒有績效結論、沒有 allocation、沒有 trade signal、沒有 `data/backtests` 或 `public` output。
+
+下一步若要接近真正 backtest，必須先做 Phase 8I readiness gate，定義 real engine contract、result output contract、metric formula registry、result caveat validator 與 output location policy。本階段不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

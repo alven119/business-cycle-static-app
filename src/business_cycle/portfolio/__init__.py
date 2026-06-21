@@ -51,6 +51,13 @@ from business_cycle.portfolio.policy_templates import (
     validate_portfolio_policy_template_fixtures,
     validate_portfolio_policy_template_schema,
 )
+from business_cycle.portfolio.safety_closure import (
+    PortfolioResearchSafetyClosure,
+    PortfolioResearchSafetyClosureError,
+    load_portfolio_research_safety_closure,
+    summarize_portfolio_research_safety_closure,
+    validate_portfolio_research_safety_closure,
+)
 
 __all__ = [
     "PortfolioBacktestContractError",
@@ -68,6 +75,8 @@ __all__ = [
     "PortfolioPolicyTemplateFixtureValidationSummary",
     "PortfolioPolicyTemplateFixtures",
     "PortfolioPolicyTemplateSchema",
+    "PortfolioResearchSafetyClosure",
+    "PortfolioResearchSafetyClosureError",
     "build_dry_run_output_for_input",
     "load_portfolio_backtest_input_contract",
     "load_portfolio_backtest_dry_run_contract",
@@ -77,11 +86,13 @@ __all__ = [
     "load_portfolio_policy_research_plan",
     "load_portfolio_policy_template_fixtures",
     "load_portfolio_policy_template_schema",
+    "load_portfolio_research_safety_closure",
     "run_portfolio_backtest_structural_dry_run",
     "summarize_dry_run_outputs",
     "summarize_portfolio_backtest_input_contract",
     "summarize_portfolio_backtest_dry_run_contract",
     "summarize_portfolio_policy_research_plan",
+    "summarize_portfolio_research_safety_closure",
     "validate_portfolio_backtest_input",
     "validate_portfolio_backtest_input_contract",
     "validate_portfolio_backtest_input_fixtures",
@@ -94,4 +105,5 @@ __all__ = [
     "validate_portfolio_policy_template",
     "validate_portfolio_policy_template_fixtures",
     "validate_portfolio_policy_template_schema",
+    "validate_portfolio_research_safety_closure",
 ]

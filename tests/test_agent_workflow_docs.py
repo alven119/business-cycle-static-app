@@ -57,6 +57,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     portfolio_dry_run_runner_gates = phase_specific[
         "portfolio_backtest_structural_dry_run_runner"
     ]["hard_gates"]
+    portfolio_safety_closure_gates = phase_specific["portfolio_research_safety_closure"][
+        "hard_gates"
+    ]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -109,6 +112,11 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "data_backtests_output_written == false" in portfolio_dry_run_runner_gates
     assert "trade_signal_generated == false" in portfolio_dry_run_runner_gates
     assert "result == passed" in portfolio_dry_run_runner_gates
+    assert "research_only == true" in portfolio_safety_closure_gates
+    assert "formal_backtest_executed == false" in portfolio_safety_closure_gates
+    assert "performance_metrics_computed == false" in portfolio_safety_closure_gates
+    assert "data_backtests_output_written == false" in portfolio_safety_closure_gates
+    assert "recommended_next_phase == 8I" in portfolio_safety_closure_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

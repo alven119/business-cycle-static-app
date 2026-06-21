@@ -223,3 +223,19 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - none
+
+  portfolio_research_safety_closure:
+    hard_gates:
+      - research_only == true
+      - structural_dry_run_only == true
+      - formal_backtest_executed == false
+      - performance_metrics_computed == false
+      - allocation_output_generated == false
+      - trade_signal_generated == false
+      - data_backtests_output_written == false
+      - public_output_written == false
+      - live_recommendation_allowed == false
+      - phase_8_closure_status == ready_to_close_research_only
+      - recommended_next_phase == 8I
+    soft_warnings_allowed:
+      - active_blocker_count > 0 because real backtest is intentionally blocked

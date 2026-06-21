@@ -825,6 +825,23 @@ python scripts/run_portfolio_backtest_structural_dry_run.py
 
 The runner loads contracts, scenario mapping, and valid input fixtures; validates them; builds in-memory structural summaries; and prints aggregate safety flags. It does not compute performance, produce allocation, write `data/backtests`, or generate public output.
 
+## Phase 8H portfolio research safety closure
+
+Phase 8H closes Phase 8A-8G as research-only / structural dry-run-only.
+
+```text
+specs/portfolio/portfolio_research_safety_closure.yaml
+docs/portfolio_research_safety_closure.md
+```
+
+Inspect the closure checklist with:
+
+```bash
+python scripts/show_portfolio_research_safety_closure.py
+```
+
+The checklist confirms Phase 8A-8G produced no formal backtest, performance conclusion, allocation, trade signal, `data/backtests` output, or public output. It blocks real backtest work until a real engine contract, result output contract, metric registry, result caveat validator, and output location policy are defined.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

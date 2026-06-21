@@ -131,6 +131,18 @@ python scripts/run_portfolio_backtest_structural_dry_run.py
 
 Runner 只回報 aggregate structural summary，例如 dry-run 數量、scenario/template 數量與安全 flags。它不計算 total return、max drawdown、turnover 等績效，不產生 portfolio weights、不產生 allocation、不輸出 trade signal，也不寫入 `data/backtests` 或 `public`。Runner output 不是 backtest result，不構成投資建議。
 
+## Phase 8H Portfolio Research Safety Closure
+
+Phase 8H 新增 portfolio research safety closure checklist，作為 Phase 8A-8G 的收斂關卡。
+
+```bash
+python scripts/show_portfolio_research_safety_closure.py
+```
+
+Closure checklist 彙整 research plan、policy template schema、template fixtures、backtest input contract、scenario mapping、input fixtures、dry-run contract、dry-run fixtures 與 structural runner。它確認目前只完成 research-only / structural dry-run-only foundation，沒有正式 portfolio backtest、沒有績效結論、沒有 allocation、沒有 trade signal、沒有 `data/backtests` 或 `public` output。
+
+下一步若要接近真正 backtest，必須先定義 readiness gate，包含 real backtest engine contract、result output contract、metric formula registry、result caveat validator 與 output location policy。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。
