@@ -893,6 +893,23 @@ python scripts/show_backtest_result_output_contract.py
 
 This phase is contract-only. It defines result schema, future metric field names, prohibited result fields, required caveats, output-location dependency, result-safety dependency, and caveat-policy dependency. It does not compute metric values, write result files, produce allocation, write `data/backtests`, or generate public output.
 
+## Phase 9A2 backtest metric formula registry
+
+Phase 9A2 defines the future backtest metric formula registry.
+
+```text
+specs/portfolio/backtest_metric_formula_registry.yaml
+docs/backtest_metric_formula_registry.md
+```
+
+Inspect the registry with:
+
+```bash
+python scripts/show_backtest_metric_formula_registry.py
+```
+
+This phase is formula-only. It defines performance, risk, trading behavior, false signal cost, and opportunity cost formulas for future backtests, but every metric has `compute_allowed_now=false`. It does not calculate metric values, produce result files, produce allocation, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

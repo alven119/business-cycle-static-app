@@ -286,3 +286,18 @@ phase_specific_gates:
       - recommended_next_phase == 9A2
     soft_warnings_allowed:
       - future_metric_field_count > 0 because metric fields are schema-only and values are not allowed now
+
+  backtest_metric_formula_registry:
+    hard_gates:
+      - compute_metric_values_allowed == false
+      - execute_backtest_allowed == false
+      - produce_backtest_results_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - all_metric_compute_allowed_now == false
+      - phase_9a2_closure_status == formula_registry_design_only
+      - recommended_next_phase == 9A3
+    soft_warnings_allowed:
+      - metric_count > 0 because formulas are schema-only and no values are computed now

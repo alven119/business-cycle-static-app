@@ -853,6 +853,18 @@ Result output contract 定義 future result object schema、future metric field 
 
 本階段不執行回測、不產生 result file、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A2：metric formula registry。
 
+## Phase 9A2 Backtest Metric Formula Registry
+
+Phase 9A2 建立 backtest metric formula registry。
+
+```bash
+python scripts/show_backtest_metric_formula_registry.py
+```
+
+Registry 定義 future backtest 會用到的 performance、risk、trading behavior、false signal cost 與 opportunity cost 公式。它只規格化 formula text、required inputs、output unit、directionality 與 future output 欄位，所有 metric 都維持 `compute_allowed_now=false`。
+
+本階段不執行回測、不計算任何實際績效值、不產生 result file、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A3：backtest output location policy。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

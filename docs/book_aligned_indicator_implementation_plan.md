@@ -667,6 +667,18 @@ Contract 可列出 future metric fields，例如 total return、annualized retur
 
 Recommended next phase 是 9A2：backtest metric formula registry。
 
+## Phase 9A2 Backtest Metric Formula Registry
+
+Phase 9A2 新增 `specs/portfolio/backtest_metric_formula_registry.yaml` 與 formula registry validator。此階段只定義 future backtest metric formulas，不計算任何 metric values。
+
+```bash
+python scripts/show_backtest_metric_formula_registry.py
+```
+
+Registry 定義 total return、annualized return、volatility、max drawdown、turnover、whipsaw、false de-risk cost、false re-risk cost、missed recovery cost、late exit cost 與 late re-entry cost。每個 metric 都必須有 category、formula text、required inputs、output unit、directionality，且 `compute_allowed_now=false`。
+
+本階段仍不執行回測、不產生 result、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A3：backtest output location policy。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

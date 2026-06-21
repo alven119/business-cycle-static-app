@@ -1,0 +1,241 @@
+backtest_metric_formula_registry:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future portfolio backtest 使用的績效、風險、交易行為與錯誤訊號成本指標公式。
+    本 registry 只允許公式與欄位規格設計，不允許計算實際績效值或產生回測結果。
+  caveats_zh:
+    - 此為 metric formula registry，不是回測結果。
+    - 本階段不計算任何實際績效值。
+    - 本階段不產生 backtest result。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 本階段不寫入 data/backtests 或 public。
+    - 不構成投資建議。
+
+  source_contracts:
+    real_backtest_engine_contract:
+      path: specs/portfolio/real_backtest_engine_contract.yaml
+      required: true
+      required_phase_9a_closure_status: contract_design_only
+    backtest_result_output_contract:
+      path: specs/portfolio/backtest_result_output_contract.yaml
+      required: true
+      required_phase_9a1_closure_status: result_contract_design_only
+
+  registry_scope:
+    allowed_now:
+      define_metric_formulas: true
+      define_required_inputs: true
+      define_output_fields: true
+      define_units: true
+      define_metric_directionality: true
+      define_future_acceptance_gates: true
+    disallowed_now:
+      compute_metric_values: true
+      execute_backtest: true
+      produce_backtest_results: true
+      write_data_backtests_output: true
+      write_public_output: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+      resolver_integration: true
+
+  required_series_inputs:
+    portfolio_value_series:
+      required: true
+      description_zh: future backtest 每期 portfolio value time series。
+    benchmark_value_series:
+      required: false
+      description_zh: future benchmark comparison time series。
+    contribution_series:
+      required: false
+      description_zh: future contribution / cash flow series。
+    weight_series:
+      required: false
+      description_zh: future backtest-only portfolio weights；不得代表 live allocation。
+    signal_state_series:
+      required: false
+      description_zh: future policy state / evidence state series；不得代表 trade signal。
+
+  metric_definitions:
+    total_return:
+      category: performance
+      formula_text: "ending_value / beginning_value - 1"
+      required_inputs:
+        - beginning_value
+        - ending_value
+      output_unit: ratio
+      higher_is_better: true
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    annualized_return:
+      category: performance
+      formula_text: "(ending_value / beginning_value) ** (12 / month_count) - 1"
+      required_inputs:
+        - beginning_value
+        - ending_value
+        - month_count
+      output_unit: ratio
+      higher_is_better: true
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    volatility:
+      category: risk
+      formula_text: "std(monthly_returns) * sqrt(12)"
+      required_inputs:
+        - monthly_returns
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    max_drawdown:
+      category: risk
+      formula_text: "min(portfolio_value / rolling_peak(portfolio_value) - 1)"
+      required_inputs:
+        - portfolio_value_series
+      output_unit: ratio
+      higher_is_better: true
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    turnover:
+      category: trading_behavior
+      formula_text: "sum(abs(weight_t - weight_t_minus_1)) / 2"
+      required_inputs:
+        - weight_series
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    whipsaw_count:
+      category: trading_behavior
+      formula_text: "count(policy_state_changes_reversed_within_cooldown_window)"
+      required_inputs:
+        - policy_state_series
+        - cooldown_months
+      output_unit: count
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    false_de_risk_cost:
+      category: false_signal_cost
+      formula_text: "benchmark_return_during_false_de_risk_window - policy_return_during_false_de_risk_window"
+      required_inputs:
+        - benchmark_return_series
+        - policy_return_series
+        - false_de_risk_windows
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    false_re_risk_cost:
+      category: false_signal_cost
+      formula_text: "policy_loss_or_underperformance_after_false_re_risk_window"
+      required_inputs:
+        - benchmark_return_series
+        - policy_return_series
+        - false_re_risk_windows
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    missed_recovery_cost:
+      category: opportunity_cost
+      formula_text: "benchmark_return_after_recovery_window - policy_return_after_recovery_window"
+      required_inputs:
+        - benchmark_return_series
+        - policy_return_series
+        - recovery_windows
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    late_exit_cost:
+      category: opportunity_cost
+      formula_text: "drawdown_or_underperformance_from_delayed_de_risking"
+      required_inputs:
+        - policy_return_series
+        - delayed_exit_windows
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+    late_reentry_cost:
+      category: opportunity_cost
+      formula_text: "benchmark_return_during_late_reentry_window - policy_return_during_late_reentry_window"
+      required_inputs:
+        - benchmark_return_series
+        - policy_return_series
+        - late_reentry_windows
+      output_unit: ratio
+      higher_is_better: false
+      allowed_in_future_results: true
+      compute_allowed_now: false
+
+  prohibited_metric_outputs_now:
+    - total_return
+    - annualized_return
+    - volatility
+    - max_drawdown
+    - turnover
+    - whipsaw_count
+    - false_de_risk_cost
+    - false_re_risk_cost
+    - missed_recovery_cost
+    - late_exit_cost
+    - late_reentry_cost
+
+  prohibited_result_fields:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - current_market_recommendation
+    - public_dashboard_output
+    - dashboard_portfolio_action
+    - current_phase_override
+    - decision_status_override
+
+  required_metric_caveats_zh:
+    - metric formula registry，不是回測結果。
+    - 本階段不計算任何實際績效值。
+    - 回測結果不代表未來績效。
+    - 不構成投資建議。
+
+  required_acceptance_before_metric_computation:
+    - target_id: metric_formula_registry_validated
+      required: true
+      description_zh: metric formula registry 必須先通過 validator。
+    - target_id: backtest_result_output_contract_validated
+      required: true
+      description_zh: result output contract 必須先通過 validator。
+    - target_id: result_safety_validator_available
+      required: true
+      description_zh: result safety validator 必須已可執行。
+    - target_id: output_location_policy_validated
+      required: true
+      description_zh: output location policy 必須先通過 validator。
+    - target_id: no_metric_values_now
+      required: true
+      description_zh: 本階段不得產生任何實際 metric values。
+    - target_id: not_investment_advice_caveat
+      required: true
+      description_zh: 必須明確標記不構成投資建議。
+
+  phase_9a2_closure:
+    status: formula_registry_design_only
+    conclusion_zh: >
+      Phase 9A2 只完成 backtest metric formula registry design。
+      尚未執行 real backtest、未計算績效、未產生 result、未寫入 data/backtests 或 public。
+  recommended_next_phase:
+    phase_id: 9A3
+    title: backtest output location policy
+    reason_zh: >
+      已完成 metric formula registry。下一步應定義 backtest output location policy，
+      明確規定 future result 只能寫入受控 research path，且不得自動寫入 public/dashboard。
