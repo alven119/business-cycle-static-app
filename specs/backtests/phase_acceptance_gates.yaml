@@ -255,3 +255,18 @@ phase_specific_gates:
       - recommended_next_phase == 9A
     soft_warnings_allowed:
       - active_blocker_count > 0 because real backtest execution is intentionally blocked
+
+  real_backtest_engine_contract:
+    hard_gates:
+      - implement_engine_runtime_allowed == false
+      - execute_backtest_allowed == false
+      - compute_performance_metrics_allowed == false
+      - produce_backtest_results_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - phase_9a_closure_status == contract_design_only
+      - recommended_next_phase == 9A1
+    soft_warnings_allowed:
+      - future_dependency_contract_count > 0 because real backtest execution is intentionally blocked

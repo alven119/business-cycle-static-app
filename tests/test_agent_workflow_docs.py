@@ -63,6 +63,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     real_backtest_readiness_gates = phase_specific[
         "real_backtest_prototype_readiness_gate"
     ]["hard_gates"]
+    real_backtest_engine_gates = phase_specific["real_backtest_engine_contract"][
+        "hard_gates"
+    ]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -124,6 +127,10 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "performance_metrics_allowed == false" in real_backtest_readiness_gates
     assert "data_backtests_output_allowed == false" in real_backtest_readiness_gates
     assert "recommended_next_phase == 9A" in real_backtest_readiness_gates
+    assert "execute_backtest_allowed == false" in real_backtest_engine_gates
+    assert "compute_performance_metrics_allowed == false" in real_backtest_engine_gates
+    assert "write_data_backtests_output_allowed == false" in real_backtest_engine_gates
+    assert "recommended_next_phase == 9A1" in real_backtest_engine_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

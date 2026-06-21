@@ -643,6 +643,18 @@ Gate 明確禁止本階段實作 real backtest engine、計算績效、產生 ba
 
 Recommended next phase 是 9A：real backtest engine contract，但 9A 仍只能做 contract design。
 
+## Phase 9A Real Backtest Engine Contract
+
+Phase 9A 新增 `specs/portfolio/real_backtest_engine_contract.yaml` 與 engine contract validator。此階段只設計 future real backtest engine 的 scope、input contracts、dependency contracts、stage contract 與 safety guards。
+
+```bash
+python scripts/show_real_backtest_engine_contract.py
+```
+
+Contract 明確禁止本階段實作 engine runtime、執行 backtest、計算績效、產生 result、產生 allocation、產生 trade signal、寫入 `data/backtests` 或 `public`。Compute metrics 必須等 metric formula registry；build result output 必須等 result output contract；write research output 必須等 output location policy。
+
+Recommended next phase 是 9A1：backtest result output contract。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

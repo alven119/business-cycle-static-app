@@ -1,0 +1,167 @@
+real_backtest_engine_contract:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future real portfolio backtest engine 的輸入、流程、依賴、安全邊界與禁止事項。
+    本 contract 只允許進行 engine design，不允許執行回測、計算績效或產生結果輸出。
+  caveats_zh:
+    - 此為 real backtest engine contract，不是正式回測。
+    - 本階段不計算績效。
+    - 本階段不產生 backtest result。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 本階段不寫入 data/backtests 或 public。
+    - 不構成投資建議。
+
+  source_readiness_gate:
+    path: specs/portfolio/real_backtest_prototype_readiness_gate.yaml
+    required: true
+    required_status: ready_for_contract_design_only
+
+  engine_scope:
+    allowed_now:
+      define_engine_contract: true
+      define_engine_stages: true
+      define_required_dependencies: true
+      define_safety_requirements: true
+      define_future_acceptance_gates: true
+    disallowed_now:
+      implement_engine_runtime: true
+      execute_backtest: true
+      compute_performance_metrics: true
+      produce_backtest_results: true
+      write_data_backtests_output: true
+      write_public_output: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+      resolver_integration: true
+
+  required_input_contracts:
+    backtest_input_contract:
+      path: specs/portfolio/portfolio_backtest_input_contract.yaml
+      required: true
+    backtest_scenario_mapping:
+      path: specs/portfolio/portfolio_backtest_scenario_mapping.yaml
+      required: true
+    backtest_input_fixtures:
+      path: specs/portfolio/portfolio_backtest_input_fixtures.yaml
+      required: true
+    policy_template_schema:
+      path: specs/portfolio/portfolio_policy_template_schema.yaml
+      required: true
+    policy_template_fixtures:
+      path: specs/portfolio/portfolio_policy_template_fixtures.yaml
+      required: true
+
+  required_future_dependency_contracts:
+    metric_formula_registry:
+      required: true
+      future_path: specs/portfolio/backtest_metric_formula_registry.yaml
+      required_before_execution: true
+      description_zh: 定義 total_return、annualized_return、volatility、max_drawdown、turnover、whipsaw 與 false signal cost 等公式。
+    backtest_result_output_contract:
+      required: true
+      future_path: specs/portfolio/backtest_result_output_contract.yaml
+      required_before_execution: true
+      description_zh: 定義回測結果 schema、允許欄位、禁止欄位與 caveats。
+    backtest_result_safety_validator:
+      required: true
+      future_path: specs/portfolio/backtest_result_safety_validator_contract.yaml
+      required_before_execution: true
+      description_zh: 驗證 result 不包含 live allocation、current recommendation、trade signal 或 public auto-output。
+    output_location_policy:
+      required: true
+      future_path: specs/portfolio/backtest_output_location_policy.yaml
+      required_before_execution: true
+      description_zh: 定義 backtest result 只能寫入受控 research path，不得自動進 public/dashboard。
+    result_caveat_policy:
+      required: true
+      future_path: specs/portfolio/backtest_result_caveat_policy.yaml
+      required_before_execution: true
+      description_zh: 定義所有 backtest result 必須顯示 backtest-only、不代表未來績效、不構成投資建議。
+
+  engine_stage_contract:
+    stages:
+      - stage_id: load_contracts
+        allowed_now: design_only
+        description_zh: 載入 input contract、scenario mapping、policy template schema 與 fixtures。
+      - stage_id: validate_inputs
+        allowed_now: design_only
+        description_zh: 驗證 backtest input 是否符合 contract。
+      - stage_id: build_time_series_panel
+        allowed_now: future_only
+        description_zh: 建立 scenario time-series panel；本階段不得實作。
+      - stage_id: apply_policy_template
+        allowed_now: future_only
+        description_zh: 將 policy template 套用於歷史資料；本階段不得實作。
+      - stage_id: compute_metrics
+        allowed_now: blocked_until_metric_registry
+        description_zh: 依 metric formula registry 計算績效；本階段不得實作。
+      - stage_id: build_result_output
+        allowed_now: blocked_until_result_output_contract
+        description_zh: 依 result output contract 建立結果；本階段不得實作。
+      - stage_id: validate_result_safety
+        allowed_now: blocked_until_result_safety_validator
+        description_zh: 驗證結果不含 live recommendation；本階段不得實作。
+      - stage_id: write_research_output
+        allowed_now: blocked_until_output_location_policy
+        description_zh: 寫入受控 research output path；本階段不得實作。
+
+  prohibited_engine_outputs:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - current_market_recommendation
+    - public_dashboard_output
+    - dashboard_portfolio_action
+    - live_recommendation
+
+  prohibited_auto_write_locations:
+    - public
+    - docs
+    - site
+    - dashboard
+    - github_pages
+    - data/backtests
+
+  required_safety_guards_before_execution:
+    - guard_id: metric_formula_registry_validated
+      required: true
+      description_zh: metric formula registry 必須先通過 validator。
+    - guard_id: result_output_contract_validated
+      required: true
+      description_zh: result output contract 必須先通過 validator。
+    - guard_id: result_safety_validator_available
+      required: true
+      description_zh: result safety validator 必須可執行。
+    - guard_id: output_location_policy_validated
+      required: true
+      description_zh: output location policy 必須先通過 validator。
+    - guard_id: result_caveat_policy_validated
+      required: true
+      description_zh: result caveat policy 必須先通過 validator。
+    - guard_id: no_public_auto_output
+      required: true
+      description_zh: 回測結果不得自動輸出到 public/dashboard。
+    - guard_id: no_live_allocation_or_trade_signal
+      required: true
+      description_zh: 結果不得包含 live allocation 或 trade signal。
+
+  phase_9a_closure:
+    status: contract_design_only
+    conclusion_zh: >
+      Phase 9A 只完成 real backtest engine contract design。
+      尚未執行 real backtest、未計算績效、未產生 result、未寫入 data/backtests 或 public。
+  recommended_next_phase:
+    phase_id: 9A1
+    title: backtest result output contract
+    reason_zh: >
+      已完成 real backtest engine contract。下一步應定義 backtest result output contract，
+      明確規定允許欄位、禁止欄位、結果 caveat 與輸出位置，仍不得執行回測。

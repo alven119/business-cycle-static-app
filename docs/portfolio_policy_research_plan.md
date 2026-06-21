@@ -155,6 +155,18 @@ Readiness gate 只規格化進入 real backtest prototype 前的必要 contracts
 
 進入真正 prototype 前，必須完成 real backtest engine contract、backtest result output contract、metric formula registry、backtest result safety validator、output location policy 與 result caveat policy。Phase 9A 仍只能做 contract design，不得執行回測。
 
+## Phase 9A Real Backtest Engine Contract
+
+Phase 9A 新增 real backtest engine contract。
+
+```bash
+python scripts/show_real_backtest_engine_contract.py
+```
+
+Engine contract 定義 future engine 的允許與禁止範圍、required input contracts、future dependency contracts、stage contract、prohibited outputs、prohibited auto-write locations 與 required safety guards。它明確要求 metric formula registry、result output contract、result safety validator、output location policy 與 result caveat policy 都先完成，才能進入任何 real backtest execution。
+
+本階段仍是 contract design only，不實作 runtime、不執行回測、不計算績效、不產生 result、不產生 allocation、不寫入 `data/backtests` 或 `public`，也不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

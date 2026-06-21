@@ -859,6 +859,23 @@ python scripts/show_real_backtest_prototype_readiness_gate.py
 
 This phase only allows contract design for future backtesting. It keeps real backtest execution, performance metrics, result output, allocation, trade signals, `data/backtests` output, and public output blocked until the required engine, result, metric, safety, caveat, and output-location contracts are defined.
 
+## Phase 9A real backtest engine contract
+
+Phase 9A defines the future real backtest engine contract.
+
+```text
+specs/portfolio/real_backtest_engine_contract.yaml
+docs/real_backtest_engine_contract.md
+```
+
+Inspect the contract with:
+
+```bash
+python scripts/show_real_backtest_engine_contract.py
+```
+
+This phase is contract-only. It defines engine scope, stages, dependencies, prohibited outputs, prohibited write locations, and required safety guards. It does not implement a runtime, execute backtests, compute performance metrics, produce allocation, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
