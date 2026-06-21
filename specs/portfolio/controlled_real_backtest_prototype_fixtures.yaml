@@ -1,0 +1,145 @@
+controlled_real_backtest_prototype_fixtures:
+  version: 1
+  status: experimental
+  objective_zh: >
+    提供 Phase 9B controlled in-memory real backtest prototype 的 deterministic fixtures。
+    Fixtures 僅用於測試 engine pipeline、policy schedule application 與 controlled metric computation。
+    不是真實回測結果，不得寫入 data/backtests 或 public。
+  caveats_zh:
+    - 此為 controlled prototype fixtures，不是真實回測結果。
+    - 本階段僅允許 in-memory controlled metric computation。
+    - 本階段不寫 result file。
+    - 本階段不建立 output directory。
+    - 本階段不產生 live allocation。
+    - 本階段不產生買賣訊號。
+    - 不構成投資建議。
+
+  prototype_cases:
+    - case_id: gfc_boom_de_risking_controlled_monthly_v1
+      scenario_id: global_financial_crisis
+      policy_template_id: boom_de_risking_template
+      parameter_set_id: boom_705030_controlled_fixture
+      data_mode: controlled_fixture_only
+      backtest_only: true
+      initial_value: 100.0
+      periods:
+        - 2007-01
+        - 2007-02
+        - 2007-03
+        - 2007-04
+        - 2007-05
+        - 2007-06
+      asset_return_series:
+        stock_return:
+          - 0.020
+          - -0.010
+          - -0.030
+          - -0.050
+          - 0.010
+          - -0.020
+        bond_return:
+          - 0.005
+          - 0.006
+          - 0.010
+          - 0.015
+          - 0.004
+          - 0.007
+      backtest_policy_weights:
+        stock:
+          - 0.70
+          - 0.70
+          - 0.50
+          - 0.50
+          - 0.30
+          - 0.30
+        bond:
+          - 0.30
+          - 0.30
+          - 0.50
+          - 0.50
+          - 0.70
+          - 0.70
+      expected_behavior:
+        in_memory_only: true
+        controlled_metric_computation_allowed: true
+        output_write_allowed: false
+        public_output_allowed: false
+        allocation_output_allowed: false
+        trade_signal_allowed: false
+
+    - case_id: recovery_re_risking_controlled_monthly_v1
+      scenario_id: dotcom_bubble
+      policy_template_id: recovery_re_risking_template
+      parameter_set_id: recovery_rerisk_controlled_fixture
+      data_mode: controlled_fixture_only
+      backtest_only: true
+      initial_value: 100.0
+      periods:
+        - 2002-10
+        - 2002-11
+        - 2002-12
+        - 2003-01
+        - 2003-02
+        - 2003-03
+      asset_return_series:
+        stock_return:
+          - -0.010
+          - 0.020
+          - 0.015
+          - 0.025
+          - -0.005
+          - 0.030
+        bond_return:
+          - 0.006
+          - 0.004
+          - 0.003
+          - 0.002
+          - 0.004
+          - 0.001
+      backtest_policy_weights:
+        stock:
+          - 0.50
+          - 0.60
+          - 0.70
+          - 0.80
+          - 0.90
+          - 1.00
+        bond:
+          - 0.50
+          - 0.40
+          - 0.30
+          - 0.20
+          - 0.10
+          - 0.00
+      expected_behavior:
+        in_memory_only: true
+        controlled_metric_computation_allowed: true
+        output_write_allowed: false
+        public_output_allowed: false
+        allocation_output_allowed: false
+        trade_signal_allowed: false
+
+  required_metric_ids:
+    - total_return
+    - annualized_return
+    - volatility
+    - max_drawdown
+    - turnover
+
+  prohibited_fixture_fields:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - rebalance_now
+    - current_market_recommendation
+    - public_dashboard_output
+    - dashboard_portfolio_action
+    - live_recommendation
+    - current_phase_override
+    - decision_status_override

@@ -739,6 +739,26 @@ Contract 要求 future writer 必須由 explicit user command 觸發，且寫入
 
 本階段仍不執行 backtest、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A8：real backtest execution readiness closure。
 
+## Phase 9A8 Real Backtest Execution Readiness Closure
+
+Phase 9A8 新增 `specs/portfolio/real_backtest_execution_readiness_closure.yaml` 與 readiness closure validator。此階段只檢查 9A–9A7 contract stack 是否具備進入 controlled 9B prototype 的前置條件。
+
+```bash
+python scripts/show_real_backtest_execution_readiness_closure.py
+```
+
+Closure 要求 source artifact count 為 10、contract stack complete，並明確保留 no execution、no runtime implementation、no metric computation、no result generation、no output directory、no `data/backtests` / public write、no allocation、no trade signal。9B 可開始 controlled in-memory prototype，但預設不得寫 output、不接 dashboard、不產生 live allocation 或 trade signal。
+
+## Phase 9B Controlled Real Backtest Prototype
+
+Phase 9B 新增 `specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml` 與 controlled in-memory prototype runner。此階段只使用 deterministic fixtures，不讀外部 market data、不呼叫 FRED、不寫任何 result file。
+
+```bash
+python scripts/run_controlled_real_backtest_prototype.py
+```
+
+Prototype 可在 memory 中計算 controlled fixture metrics，包含 total return、annualized return、volatility、max drawdown 與 turnover。CLI 只輸出 counts 與 safety flags，且必須維持 no result file、no output directory、no `data/backtests` / public write、no dashboard integration、no allocation、no trade signal。Recommended next phase 是 9B1：market return data contract。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

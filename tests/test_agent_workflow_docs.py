@@ -77,6 +77,12 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
         "backtest_result_safety_validator_fixtures"
     ]["hard_gates"]
     result_writer_gates = phase_specific["backtest_result_writer_contract"]["hard_gates"]
+    execution_readiness_gates = phase_specific[
+        "real_backtest_execution_readiness_closure"
+    ]["hard_gates"]
+    controlled_prototype_gates = phase_specific["controlled_real_backtest_prototype"][
+        "hard_gates"
+    ]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -175,6 +181,20 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "write_result_files_allowed == false" in result_writer_gates
     assert "output_directory_creation_allowed_now == false" in result_writer_gates
     assert "recommended_next_phase == 9A8" in result_writer_gates
+    assert "phase_9a_contract_stack_complete == true" in execution_readiness_gates
+    assert "real_backtest_execution_allowed_now == false" in execution_readiness_gates
+    assert "result_file_write_allowed_now == false" in execution_readiness_gates
+    assert "controlled_9b_prototype_entry_allowed == true" in execution_readiness_gates
+    assert "recommended_next_phase == 9B" in execution_readiness_gates
+    assert "in_memory_only == true" in controlled_prototype_gates
+    assert (
+        "controlled_metric_computation_allowed == true" in controlled_prototype_gates
+    )
+    assert "result_file_written == false" in controlled_prototype_gates
+    assert "data_backtests_output_written == false" in controlled_prototype_gates
+    assert "public_output_written == false" in controlled_prototype_gates
+    assert "output_directory_created == false" in controlled_prototype_gates
+    assert "recommended_next_phase == 9B1" in controlled_prototype_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

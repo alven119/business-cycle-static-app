@@ -397,3 +397,43 @@ phase_specific_gates:
       - recommended_next_phase == 9A8
     soft_warnings_allowed:
       - prohibited_write_location_count > 0 because locations are contract-only and writing is not allowed now
+
+  real_backtest_execution_readiness_closure:
+    hard_gates:
+      - phase_9a_contract_stack_complete == true
+      - real_backtest_execution_allowed_now == false
+      - engine_runtime_allowed_now == false
+      - writer_runtime_allowed_now == false
+      - real_result_validator_runtime_allowed_now == false
+      - metric_computation_allowed_now == false
+      - result_generation_allowed_now == false
+      - result_file_write_allowed_now == false
+      - output_directory_creation_allowed_now == false
+      - data_backtests_write_allowed_now == false
+      - public_write_allowed_now == false
+      - allocation_output_allowed_now == false
+      - trade_signal_output_allowed_now == false
+      - live_recommendation_allowed_now == false
+      - controlled_9b_prototype_entry_allowed == true
+      - default_9b_output_write_allowed == false
+      - phase_9a8_closure_status == ready_for_controlled_9b_prototype
+      - recommended_next_phase == 9B
+    soft_warnings_allowed:
+      - remaining_output_write_blocker_count > 0 because output writing must remain blocked before future writer runtime
+
+  controlled_real_backtest_prototype:
+    hard_gates:
+      - in_memory_only == true
+      - controlled_metric_computation_allowed == true
+      - result_file_written == false
+      - data_backtests_output_written == false
+      - public_output_written == false
+      - output_directory_created == false
+      - allocation_output_generated == false
+      - trade_signal_generated == false
+      - live_recommendation_generated == false
+      - dashboard_integration == false
+      - result == passed
+      - recommended_next_phase == 9B1
+    soft_warnings_allowed:
+      - computed_metric_count > 0 because Phase 9B allows controlled in-memory metric computation from fixtures only

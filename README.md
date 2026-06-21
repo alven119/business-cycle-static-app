@@ -994,6 +994,41 @@ python scripts/show_backtest_result_writer_contract.py
 
 This phase is contract-only. It defines explicit user command requirements, future controlled research path policy, pre-write validations, writer status fields, prohibited write locations, and prohibited result fields. It does not implement writer runtime, create output directories, write result files, write `data/backtests`, or generate public output.
 
+## Phase 9A8 real backtest execution readiness closure
+
+Phase 9A8 closes the Phase 9A contract stack and checks readiness for a controlled Phase 9B prototype.
+
+```text
+specs/portfolio/real_backtest_execution_readiness_closure.yaml
+docs/real_backtest_execution_readiness_closure.md
+```
+
+Inspect the closure with:
+
+```bash
+python scripts/show_real_backtest_execution_readiness_closure.py
+```
+
+This phase is readiness-only. It confirms the 9A–9A7 contracts, policies, fixtures, and writer contract are in place for 9B entry, while still blocking execution, runtime implementation, metric computation, result generation, output directory creation, `data/backtests` writes, public output, allocation, and trade signals. Phase 9B should begin as a controlled in-memory prototype with no default output writing.
+
+## Phase 9B controlled real backtest prototype
+
+Phase 9B adds the controlled in-memory real backtest prototype.
+
+```text
+specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml
+src/business_cycle/portfolio/controlled_backtest_prototype.py
+docs/controlled_real_backtest_prototype.md
+```
+
+Run the prototype summary with:
+
+```bash
+python scripts/run_controlled_real_backtest_prototype.py
+```
+
+This phase uses controlled fixtures only. It may compute controlled fixture metrics in memory, but it does not write result files, create output directories, write `data/backtests`, generate public output, connect dashboard rendering, produce allocation output, or produce trade signals.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

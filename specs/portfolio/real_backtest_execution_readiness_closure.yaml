@@ -1,0 +1,190 @@
+real_backtest_execution_readiness_closure:
+  version: 1
+  status: draft
+  objective_zh: >
+    彙整 Phase 9A–9A7 的 real backtest contract stack，確認是否具備進入
+    Phase 9B controlled real backtest prototype 的前置條件。
+    本 closure 只允許 readiness validation，不允許執行回測、計算績效、
+    產生 result、建立 output directory 或寫入 data/backtests/public。
+  caveats_zh:
+    - 此為 real backtest execution readiness closure，不是 real backtest execution。
+    - 本階段不執行回測。
+    - 本階段不計算績效。
+    - 本階段不產生 result file。
+    - 本階段不建立 output directory。
+    - 本階段不寫入 data/backtests 或 public。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 不構成投資建議。
+
+  source_artifacts:
+    portfolio_research_safety_closure:
+      path: specs/portfolio/portfolio_research_safety_closure.yaml
+      required: true
+      required_phase_8_closure_status: ready_to_close_research_only
+    real_backtest_prototype_readiness_gate:
+      path: specs/portfolio/real_backtest_prototype_readiness_gate.yaml
+      required: true
+      required_readiness_conclusion_status: ready_for_contract_design_only
+    real_backtest_engine_contract:
+      path: specs/portfolio/real_backtest_engine_contract.yaml
+      required: true
+      required_phase_9a_closure_status: contract_design_only
+    backtest_result_output_contract:
+      path: specs/portfolio/backtest_result_output_contract.yaml
+      required: true
+      required_phase_9a1_closure_status: result_contract_design_only
+    backtest_metric_formula_registry:
+      path: specs/portfolio/backtest_metric_formula_registry.yaml
+      required: true
+      required_phase_9a2_closure_status: formula_registry_design_only
+    backtest_output_location_policy:
+      path: specs/portfolio/backtest_output_location_policy.yaml
+      required: true
+      required_phase_9a3_closure_status: output_location_policy_design_only
+    backtest_result_caveat_policy:
+      path: specs/portfolio/backtest_result_caveat_policy.yaml
+      required: true
+      required_phase_9a4_closure_status: caveat_policy_design_only
+    backtest_result_safety_validator_contract:
+      path: specs/portfolio/backtest_result_safety_validator_contract.yaml
+      required: true
+      required_phase_9a5_closure_status: safety_validator_contract_design_only
+    backtest_result_safety_validator_fixtures:
+      path: specs/portfolio/backtest_result_safety_validator_fixtures.yaml
+      required: true
+      required_validation_result: passed
+    backtest_result_writer_contract:
+      path: specs/portfolio/backtest_result_writer_contract.yaml
+      required: true
+      required_phase_9a7_closure_status: writer_contract_design_only
+
+  required_validator_commands:
+    - command_id: show_real_backtest_engine_contract
+      command: python scripts/show_real_backtest_engine_contract.py
+      required: true
+    - command_id: show_backtest_result_output_contract
+      command: python scripts/show_backtest_result_output_contract.py
+      required: true
+    - command_id: show_backtest_metric_formula_registry
+      command: python scripts/show_backtest_metric_formula_registry.py
+      required: true
+    - command_id: show_backtest_output_location_policy
+      command: python scripts/show_backtest_output_location_policy.py
+      required: true
+    - command_id: show_backtest_result_caveat_policy
+      command: python scripts/show_backtest_result_caveat_policy.py
+      required: true
+    - command_id: show_backtest_result_safety_validator_contract
+      command: python scripts/show_backtest_result_safety_validator_contract.py
+      required: true
+    - command_id: validate_backtest_result_safety_validator_fixtures
+      command: python scripts/validate_backtest_result_safety_validator_fixtures.py
+      required: true
+    - command_id: show_backtest_result_writer_contract
+      command: python scripts/show_backtest_result_writer_contract.py
+      required: true
+
+  readiness_scope:
+    allowed_now:
+      validate_contract_stack_readiness: true
+      summarize_source_artifacts: true
+      summarize_safety_boundaries: true
+      declare_9b_entry_readiness: true
+      define_9b_entry_conditions: true
+      define_future_9b_hard_gates: true
+    disallowed_now:
+      execute_backtest: true
+      implement_engine_runtime: true
+      implement_writer_runtime: true
+      implement_real_result_validator_runtime: true
+      compute_metric_values: true
+      produce_backtest_results: true
+      write_result_files: true
+      create_output_directories: true
+      write_data_backtests_output: true
+      write_public_output: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+      resolver_integration: true
+
+  source_artifact_readiness:
+    required_artifact_count: 10
+    all_required_artifacts_present: true
+    all_required_artifacts_validated: true
+    phase_9a_contract_stack_complete: true
+
+  safety_boundary_summary:
+    research_only_required: true
+    backtest_only_required: true
+    not_investment_advice_required: true
+    real_backtest_execution_allowed_now: false
+    engine_runtime_allowed_now: false
+    writer_runtime_allowed_now: false
+    real_result_validator_runtime_allowed_now: false
+    metric_computation_allowed_now: false
+    result_generation_allowed_now: false
+    result_file_write_allowed_now: false
+    output_directory_creation_allowed_now: false
+    data_backtests_write_allowed_now: false
+    public_write_allowed_now: false
+    docs_write_allowed_now: false
+    dashboard_write_allowed_now: false
+    github_pages_write_allowed_now: false
+    allocation_output_allowed_now: false
+    trade_signal_output_allowed_now: false
+    live_recommendation_allowed_now: false
+
+  phase_9b_entry_conditions:
+    controlled_real_backtest_prototype_entry_allowed_after_closure: true
+    default_mode_must_be_research_only: true
+    default_mode_must_be_backtest_only: true
+    default_output_write_allowed: false
+    default_public_output_allowed: false
+    default_allocation_output_allowed: false
+    default_trade_signal_allowed: false
+    default_live_recommendation_allowed: false
+    required_9b_runtime_constraints:
+      - no_public_output
+      - no_result_file_write_by_default
+      - no_dashboard_integration
+      - no_live_allocation
+      - no_trade_signal
+      - no_current_market_recommendation
+      - no_phase_override
+      - no_decision_override
+      - not_investment_advice_caveat
+    recommended_9b_initial_scope_zh: >
+      Phase 9B 應先實作 controlled in-memory real backtest prototype，
+      只允許在 memory 中建立 backtest panel、套用 policy template、計算受控 metrics，
+      不得自動寫檔、不接 dashboard、不產生 live allocation 或 trade signal。
+
+  remaining_blockers_for_output_writing:
+    output_writer_runtime_missing:
+      active: true
+      description_zh: 尚未實作 writer runtime，因此不得寫 result file。
+    real_result_safety_validator_runtime_missing:
+      active: true
+      description_zh: 尚未實作 real result safety validator runtime，因此不得寫 result file。
+    explicit_user_command_not_present:
+      active: true
+      description_zh: 本階段沒有 explicit user command 寫入結果，因此不得寫 result file。
+    public_output_forbidden:
+      active: true
+      description_zh: public/dashboard/github pages auto-output 仍禁止。
+
+  phase_9a8_closure:
+    status: ready_for_controlled_9b_prototype
+    conclusion_zh: >
+      Phase 9A8 完成 real backtest execution readiness closure。
+      9A–9A7 的 contract stack 已具備進入 Phase 9B controlled real backtest prototype 的前置條件。
+      但本階段尚未執行回測、未計算績效、未產生 result、未建立 output directory、
+      未寫入 data/backtests 或 public。
+  recommended_next_phase:
+    phase_id: 9B
+    title: controlled real backtest prototype
+    reason_zh: >
+      9A contract stack 已完成。下一步可開始 9B controlled real backtest prototype，
+      但初始 9B 必須維持 research-only / backtest-only，預設不得寫 output、
+      不接 dashboard、不產生 live allocation 或 trade signal。

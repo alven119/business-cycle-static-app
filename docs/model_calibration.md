@@ -925,6 +925,30 @@ Writer contract 定義 future writer 的 explicit user command requirement、all
 
 本階段不實作 writer runtime、不建立 output directory、不寫 result file、不執行回測、不計算績效、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A8：real backtest execution readiness closure。
 
+## Phase 9A8 Real Backtest Execution Readiness Closure
+
+Phase 9A8 建立 real backtest execution readiness closure。
+
+```bash
+python scripts/show_real_backtest_execution_readiness_closure.py
+```
+
+Readiness closure 彙整 9A–9A7 的 engine、result output、metric registry、output location、caveat、safety validator、fixtures 與 writer contracts，確認 9A contract stack 已具備進入 9B controlled prototype 的前置規格。
+
+本階段仍不是 execution，不執行回測、不實作 runtime、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。9B 初始 scope 應為 controlled in-memory prototype，預設不得寫 output、不接 dashboard、不產生 allocation 或 trade signal。
+
+## Phase 9B Controlled Real Backtest Prototype
+
+Phase 9B 建立 controlled in-memory real backtest prototype。
+
+```bash
+python scripts/run_controlled_real_backtest_prototype.py
+```
+
+Prototype 只使用 controlled fixtures，在 memory 中建立 backtest value path、套用 backtest-only policy schedule，並計算受控 metrics count。CLI 只輸出 summary flags 與 counts，不輸出完整 metric table。
+
+本階段仍不寫 result file、不建立 output directory、不寫入 `data/backtests` 或 `public`、不接 dashboard、不產生 allocation、不產生 trade signal。下一步是 Phase 9B1：market return data contract。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：
