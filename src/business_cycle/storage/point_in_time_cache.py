@@ -63,7 +63,7 @@ class PointInTimeCache:
         if self.exists(clean_series_id) and not force:
             return self.read_series(clean_series_id).manifest
 
-        normalized = _dedupe_rows(clean_series_id, rows)
+        normalized, duplicate_row_count = _dedupe_rows(clean_series_id, rows)
         self.root_dir.mkdir(parents=True, exist_ok=True)
         csv_path = self.csv_path(clean_series_id)
         manifest_path = self.manifest_path(clean_series_id)
@@ -86,9 +86,14 @@ class PointInTimeCache:
             "as_of_end": as_of_end,
             "fetched_at": _now_iso(),
             "row_count": len(normalized),
+            "duplicate_row_count": duplicate_row_count,
             "checksum": checksum,
             "api_source": api_source,
             "point_in_time_quality_class": quality_class,
+            "earliest_observation_date": _min_field(normalized, "observation_date"),
+            "latest_observation_date": _max_field(normalized, "observation_date"),
+            "earliest_realtime_start": _min_field(normalized, "realtime_start"),
+            "latest_realtime_start": _max_field(normalized, "realtime_start"),
             "deduplication_key": [
                 "series_id",
                 "observation_date",
@@ -122,7 +127,9 @@ class PointInTimeCache:
 
         with csv_path.open("r", newline="", encoding="utf-8") as csv_file:
             rows = [dict(row) for row in csv.DictReader(csv_file)]
-        _dedupe_rows(clean_series_id, rows)
+        normalized, duplicate_row_count = _dedupe_rows(clean_series_id, rows)
+        if duplicate_row_count:
+            raise PointInTimeCacheError(f"Duplicate rows detected for {clean_series_id}")
         if int(manifest.get("row_count", -1)) != len(rows):
             raise PointInTimeCacheError(f"Row count mismatch for {clean_series_id}")
         _assert_no_secret(manifest)
@@ -135,9 +142,10 @@ class PointInTimeCache:
         return {series_id for series_id in ids if self.manifest_path(series_id).exists()}
 
 
-def _dedupe_rows(series_id: str, rows: Iterable[dict[str, Any]]) -> list[dict[str, str]]:
+def _dedupe_rows(series_id: str, rows: Iterable[dict[str, Any]]) -> tuple[list[dict[str, str]], int]:
     normalized: list[dict[str, str]] = []
     seen: set[tuple[str, str, str, str]] = set()
+    duplicate_row_count = 0
     for row in rows:
         item = {
             "series_id": _clean_series_id(str(row.get("series_id") or series_id)),
@@ -155,16 +163,20 @@ def _dedupe_rows(series_id: str, rows: Iterable[dict[str, Any]]) -> list[dict[st
             item["realtime_end"],
         )
         if key in seen:
+            duplicate_row_count += 1
             continue
         seen.add(key)
         normalized.append(item)
-    return sorted(
-        normalized,
-        key=lambda item: (
-            item["observation_date"],
-            item["realtime_start"],
-            item["realtime_end"],
+    return (
+        sorted(
+            normalized,
+            key=lambda item: (
+                item["observation_date"],
+                item["realtime_start"],
+                item["realtime_end"],
+            ),
         ),
+        duplicate_row_count,
     )
 
 
@@ -184,6 +196,16 @@ def _assert_no_secret(value: Any) -> None:
 
 def _clean_series_id(series_id: str) -> str:
     return series_id.strip().upper()
+
+
+def _min_field(rows: list[dict[str, str]], field: str) -> str | None:
+    values = [row[field] for row in rows if row.get(field)]
+    return min(values) if values else None
+
+
+def _max_field(rows: list[dict[str, str]], field: str) -> str | None:
+    values = [row[field] for row in rows if row.get(field)]
+    return max(values) if values else None
 
 
 def _now_iso() -> str:

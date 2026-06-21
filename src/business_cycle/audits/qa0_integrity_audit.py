@@ -14,6 +14,7 @@ from business_cycle.audits.calibration_integrity import summarize_calibration_in
 from business_cycle.audits.cashflow_methodology import calculate_cashflow_aware_metrics
 from business_cycle.audits.context_ablation import run_context_ablation_audit
 from business_cycle.audits.inventory_reconciliation import run_qa0_inventory_reconciliation
+from business_cycle.audits.point_in_time_coverage import summarize_point_in_time_coverage
 from business_cycle.audits.temporal_integrity import summarize_temporal_integrity
 from business_cycle.portfolio import (
     load_controlled_real_backtest_prototype_fixtures,
@@ -33,6 +34,7 @@ def run_qa0_integrity_audit() -> dict[str, Any]:
     implementation_integrity = summarize_audit_implementation_integrity()
     traceability = _summarize_traceability()
     temporal = summarize_temporal_integrity()
+    point_in_time_coverage = _summarize_point_in_time_coverage()
     cashflow = _summarize_cashflow_methodology()
     calibration = summarize_calibration_integrity()
     context = run_context_ablation_audit()
@@ -56,6 +58,7 @@ def run_qa0_integrity_audit() -> dict[str, Any]:
         **implementation_integrity,
         **traceability,
         **temporal,
+        **point_in_time_coverage,
         **cashflow,
         **calibration,
         **context,
@@ -156,6 +159,34 @@ def _summarize_cashflow_methodology() -> dict[str, Any]:
         "cashflow_zero_return_twr": zero_return.time_weighted_return,
         "cashflow_positive_return_twr": round(positive_return.time_weighted_return, 8),
     }
+
+
+def _summarize_point_in_time_coverage() -> dict[str, Any]:
+    summary = summarize_point_in_time_coverage()
+    keys = (
+        "cached_series_count",
+        "formal_indicator_count",
+        "formal_direct_dependency_count",
+        "formal_derived_dependency_count",
+        "formal_exact_vintage_dependency_count",
+        "formal_missing_vintage_dependency_count",
+        "formal_scenario_as_of_date_count",
+        "formal_scenario_as_of_covered_count",
+        "formal_total_coverage_pair_count",
+        "formal_covered_pair_count",
+        "formal_missing_pair_count",
+        "formal_proxy_pair_count",
+        "formal_initial_release_only_pair_count",
+        "formal_revised_fallback_pair_count",
+        "formal_invalid_realtime_interval_count",
+        "strict_snapshot_validation_failure_count",
+        "formal_scenario_as_of_coverage_ratio",
+        "point_in_time_selector_ready",
+        "formal_phase_point_in_time_ready",
+        "golden_benchmark_point_in_time_ready",
+        "no_silent_revised_fallback",
+    )
+    return {key: summary[key] for key in keys}
 
 
 def _summarize_book_indicator_coverage() -> dict[str, Any]:

@@ -59,19 +59,24 @@ def summarize_point_in_time_coverage(
     formal_direct = list(formal_dependencies.direct_series_ids)
     formal_covered: dict[str, bool] = {}
     formal_blockers: dict[str, str] = {}
-    covered_as_of_count = 0
-    total_as_of_count = len(formal_direct) * len(as_of_dates)
+    covered_pair_count = 0
+    missing_pair_count = 0
+    invalid_realtime_interval_count = 0
+    strict_snapshot_validation_failure_count = 0
+    total_pair_count = len(formal_direct) * len(as_of_dates)
     for series_id in formal_direct:
         row = row_by_id.get(series_id, {})
         if not row.get("point_in_time_eligible"):
             formal_covered[series_id] = False
             formal_blockers[series_id] = str(row.get("caveats") or "not point-in-time eligible")
+            missing_pair_count += len(as_of_dates)
             continue
         try:
             cached = cache.read_series(series_id)
         except PointInTimeCacheError as exc:
             formal_covered[series_id] = False
             formal_blockers[series_id] = str(exc)
+            missing_pair_count += len(as_of_dates)
             continue
         series_as_of_covered = 0
         for as_of in as_of_dates:
@@ -84,22 +89,28 @@ def summarize_point_in_time_coverage(
                 )
             except PointInTimeError as exc:
                 formal_blockers[series_id] = str(exc)
+                invalid_realtime_interval_count += 1
+                strict_snapshot_validation_failure_count += 1
+                missing_pair_count += 1
                 continue
             if snapshot.observations:
                 series_as_of_covered += 1
-        covered_as_of_count += series_as_of_covered
+                covered_pair_count += 1
+            else:
+                missing_pair_count += 1
         formal_covered[series_id] = series_as_of_covered == len(as_of_dates)
         if not formal_covered[series_id] and series_id not in formal_blockers:
             formal_blockers[series_id] = "cache lacks one or more required as_of snapshots"
 
     formal_exact = [series_id for series_id, covered in formal_covered.items() if covered]
     formal_missing = [series_id for series_id, covered in formal_covered.items() if not covered]
-    coverage_ratio = 1.0 if total_as_of_count == 0 else covered_as_of_count / total_as_of_count
+    coverage_ratio = 1.0 if total_pair_count == 0 else covered_pair_count / total_pair_count
     formal_ready = (
         len(formal_missing) == 0
-        and total_as_of_count > 0
-        and covered_as_of_count == total_as_of_count
+        and total_pair_count > 0
+        and covered_pair_count == total_pair_count
         and not release_lag_proxy_misclassified
+        and strict_snapshot_validation_failure_count == 0
     )
     exact_experimental = [
         item
@@ -127,8 +138,16 @@ def summarize_point_in_time_coverage(
         "formal_missing_vintage_dependency_count": len(formal_missing),
         "formal_missing_vintage_dependency_series_ids": formal_missing,
         "formal_missing_vintage_dependency_blockers": formal_blockers,
-        "formal_scenario_as_of_date_count": total_as_of_count,
-        "formal_scenario_as_of_covered_count": covered_as_of_count,
+        "formal_scenario_as_of_date_count": len(as_of_dates),
+        "formal_scenario_as_of_covered_count": covered_pair_count,
+        "formal_total_coverage_pair_count": total_pair_count,
+        "formal_covered_pair_count": covered_pair_count,
+        "formal_missing_pair_count": missing_pair_count,
+        "formal_proxy_pair_count": 0,
+        "formal_initial_release_only_pair_count": 0,
+        "formal_revised_fallback_pair_count": 0,
+        "formal_invalid_realtime_interval_count": invalid_realtime_interval_count,
+        "strict_snapshot_validation_failure_count": strict_snapshot_validation_failure_count,
         "formal_scenario_as_of_coverage_ratio": round(coverage_ratio, 6),
         "experimental_exact_vintage_coverage_ratio": round(
             len(exact_experimental) / experimental_count,
@@ -157,7 +176,7 @@ def summarize_point_in_time_coverage(
         "book_alignment_claim_allowed": False,
         "real_backtest_progression_allowed": False,
         "phase_9b1_allowed": False,
-        "recommended_next_phase": "QA2" if formal_ready else "QA1B",
+        "recommended_next_phase": "QA2" if formal_ready else "QA1C",
         "result": "passed" if formal_ready else "blocked",
     }
 

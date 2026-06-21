@@ -37,10 +37,14 @@ class AlfredProvider(FredProvider):
         session: requests.Session | None = None,
         max_retries: int = 2,
         retry_sleep_seconds: float = 0.2,
+        page_limit: int = 100000,
     ) -> None:
         super().__init__(base_url=base_url, timeout_seconds=timeout_seconds, session=session)
         self.max_retries = max_retries
         self.retry_sleep_seconds = retry_sleep_seconds
+        self.page_limit = page_limit
+        self.last_request_count = 0
+        self.last_pagination_count = 0
 
     def fetch_observations(
         self,
@@ -66,6 +70,8 @@ class AlfredProvider(FredProvider):
             "file_type": "json",
             "units": "lin",
             "output_type": str(output_type),
+            "limit": str(self.page_limit),
+            "offset": "0",
         }
         if observation_start:
             params["observation_start"] = observation_start
@@ -76,13 +82,30 @@ class AlfredProvider(FredProvider):
         if realtime_end:
             params["realtime_end"] = realtime_end
 
-        payload = self._get_json("series/observations", params, clean_series_id)
-        raw_observations = payload.get("observations")
-        if not isinstance(raw_observations, list):
-            raise AlfredProviderError(
-                f"FRED series {clean_series_id} response did not include observations"
+        observations: list[AlfredObservation] = []
+        self.last_request_count = 0
+        self.last_pagination_count = 0
+        while True:
+            payload = self._get_json("series/observations", params, clean_series_id)
+            self.last_request_count += 1
+            raw_observations = payload.get("observations")
+            if not isinstance(raw_observations, list):
+                raise AlfredProviderError(
+                    f"FRED series {clean_series_id} response did not include observations"
+                )
+            observations.extend(
+                self._parse_alfred_observation(clean_series_id, row)
+                for row in raw_observations
             )
-        return [self._parse_alfred_observation(clean_series_id, row) for row in raw_observations]
+            count = int(payload.get("count", len(raw_observations)))
+            limit = int(payload.get("limit", params["limit"]))
+            offset = int(payload.get("offset", params["offset"]))
+            next_offset = offset + limit
+            if next_offset >= count or not raw_observations:
+                break
+            params["offset"] = str(next_offset)
+            self.last_pagination_count += 1
+        return observations
 
     def fetch_vintage_dates(
         self,
@@ -116,6 +139,12 @@ class AlfredProvider(FredProvider):
         for attempt in range(self.max_retries + 1):
             try:
                 response = self.session.get(url, params=params, timeout=self.timeout_seconds)
+                if getattr(response, "status_code", None) == 429:
+                    retry_after = response.headers.get("Retry-After") if hasattr(response, "headers") else None
+                    raise requests.HTTPError(
+                        f"rate limited; retry_after={retry_after or 'unspecified'}",
+                        response=response,
+                    )
                 response.raise_for_status()
                 payload = response.json()
             except requests.Timeout as exc:
@@ -132,7 +161,15 @@ class AlfredProvider(FredProvider):
                     raise AlfredProviderError(f"FRED API error for {series_id}: {message}")
                 return payload
             if attempt < self.max_retries:
-                time.sleep(self.retry_sleep_seconds)
+                sleep_seconds = self.retry_sleep_seconds
+                response = getattr(last_error, "response", None)
+                retry_after = getattr(response, "headers", {}).get("Retry-After") if response else None
+                if retry_after:
+                    try:
+                        sleep_seconds = min(float(retry_after), 5.0)
+                    except ValueError:
+                        sleep_seconds = self.retry_sleep_seconds
+                time.sleep(sleep_seconds)
         raise AlfredProviderError(
             f"Failed to download FRED series {series_id} endpoint={endpoint} params={safe_params}"
         ) from last_error

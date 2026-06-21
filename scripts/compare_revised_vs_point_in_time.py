@@ -34,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     compared_series = 0
     compared_periods = 0
     value_difference_count = 0
+    initial_release_difference_count = 0
     missing_vintage_count = 0
     post_as_of_revision_blocked_count = 0
     not_yet_released_observation_blocked_count = 0
@@ -67,6 +68,8 @@ def main(argv: list[str] | None = None) -> int:
             if revised_value is not None and revised_value != vintage_value:
                 value_difference_count += 1
                 post_as_of_revision_blocked_count += 1
+            if initial_value is not None and initial_value != vintage_value:
+                initial_release_difference_count += 1
             rows.append(
                 {
                     "series_id": series_id,
@@ -85,11 +88,13 @@ def main(argv: list[str] | None = None) -> int:
         "compared_series_count": compared_series,
         "compared_period_count": compared_periods,
         "value_difference_count": value_difference_count,
+        "initial_release_difference_count": initial_release_difference_count,
         "missing_vintage_count": missing_vintage_count,
         "post_as_of_revision_blocked_count": post_as_of_revision_blocked_count,
         "not_yet_released_observation_blocked_count": not_yet_released_observation_blocked_count,
         "silent_fallback_count": silent_fallback_count,
         "point_in_time_comparison_ready": missing_vintage_count == 0,
+        "comparison_ready": missing_vintage_count == 0,
     }
     if args.output:
         import json

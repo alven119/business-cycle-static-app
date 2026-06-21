@@ -411,6 +411,7 @@ def _add_data_mode_metadata(
     payload["summary"]["vintage_as_of"] = as_of if requested_data_mode == "vintage_as_of" else None
     payload["summary"]["missing_series"] = missing_series
     payload["summary"]["proxy_series"] = proxy_series
+    payload["summary"]["revised_fallback_series"] = []
     payload["summary"]["warnings"] = [] if not proxy_series else ["proxy_series_not_point_in_time"]
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 

@@ -22,6 +22,21 @@ end-of-day. The project does not claim intraday point-in-time precision.
 Strict mode fails closed when cache rows or real-time metadata are missing. It
 does not silently use revised data or a release-lag proxy.
 
+## QA1B Backfill Verification
+
+QA1B is the live formal vintage backfill and coverage verification step. It uses
+bulk per-series ALFRED/FRED requests plus local cache selection; it must not send
+one network request per monthly as-of date. The cache manifest records row count,
+checksum, observation range, realtime range, duplicate-row count, query mode, and
+quality class without API keys.
+
+Formal readiness requires 15 formal direct dependencies and 3420 formal
+series-date coverage pairs to pass strict `vintage_as_of` selection. If
+`FRED_API_KEY` is absent, official API coverage cannot be attempted and formal
+coverage remains blocked. If any official series lacks usable vintage coverage,
+that series must remain blocked; revised data, release-lag proxy, and
+initial-release-only are not acceptable substitutes.
+
 The live dashboard default is unchanged. Resolver decision logic, phase weights,
 and dashboard behavior are unchanged.
 

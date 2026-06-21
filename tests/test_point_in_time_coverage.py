@@ -15,7 +15,10 @@ def test_current_repo_metadata_complete_but_cache_not_ready(tmp_path: Path) -> N
     assert summary["formal_phase_point_in_time_ready"] is False
     assert summary["real_backtest_progression_allowed"] is False
     assert summary["phase_9b1_allowed"] is False
-    assert summary["recommended_next_phase"] == "QA1B"
+    assert summary["recommended_next_phase"] == "QA1C"
+    assert summary["formal_scenario_as_of_date_count"] == 228
+    assert summary["formal_total_coverage_pair_count"] == 3420
+    assert summary["formal_missing_pair_count"] == 3420
 
 
 def test_formal_scenario_coverage_calculates_complete_ratio(
@@ -51,6 +54,14 @@ def test_formal_scenario_coverage_calculates_complete_ratio(
     summary = coverage.summarize_point_in_time_coverage(cache_dir=tmp_path)
 
     assert summary["formal_missing_vintage_dependency_count"] == 0
+    assert summary["formal_scenario_as_of_date_count"] == 1
+    assert summary["formal_total_coverage_pair_count"] == len(deps.direct_series_ids)
+    assert summary["formal_covered_pair_count"] == len(deps.direct_series_ids)
+    assert summary["formal_missing_pair_count"] == 0
+    assert summary["formal_proxy_pair_count"] == 0
+    assert summary["formal_initial_release_only_pair_count"] == 0
+    assert summary["formal_revised_fallback_pair_count"] == 0
+    assert summary["strict_snapshot_validation_failure_count"] == 0
     assert summary["formal_scenario_as_of_coverage_ratio"] == 1.0
     assert summary["formal_phase_point_in_time_ready"] is True
     assert summary["recommended_next_phase"] == "QA2"
