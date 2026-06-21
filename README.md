@@ -842,6 +842,23 @@ python scripts/show_portfolio_research_safety_closure.py
 
 The checklist confirms Phase 8A-8G produced no formal backtest, performance conclusion, allocation, trade signal, `data/backtests` output, or public output. It blocks real backtest work until a real engine contract, result output contract, metric registry, result caveat validator, and output location policy are defined.
 
+## Phase 8I real backtest prototype readiness gate
+
+Phase 8I defines the readiness gate before any real backtest prototype.
+
+```text
+specs/portfolio/real_backtest_prototype_readiness_gate.yaml
+docs/real_backtest_prototype_readiness_gate.md
+```
+
+Inspect the gate with:
+
+```bash
+python scripts/show_real_backtest_prototype_readiness_gate.py
+```
+
+This phase only allows contract design for future backtesting. It keeps real backtest execution, performance metrics, result output, allocation, trade signals, `data/backtests` output, and public output blocked until the required engine, result, metric, safety, caveat, and output-location contracts are defined.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

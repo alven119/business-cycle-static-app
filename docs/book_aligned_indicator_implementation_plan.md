@@ -631,6 +631,18 @@ Closure 明確標記尚未執行正式回測、尚未計算績效、尚未產生
 
 本階段仍不改正式模型、不接 dashboard、不跑回測，也不構成投資建議。
 
+## Phase 8I Real Backtest Prototype Readiness Gate
+
+Phase 8I 新增 `specs/portfolio/real_backtest_prototype_readiness_gate.yaml` 與 readiness gate validator。此階段只定義從 research-only / structural dry-run-only 進入 real backtest prototype 前的前置條件。
+
+```bash
+python scripts/show_real_backtest_prototype_readiness_gate.py
+```
+
+Gate 明確禁止本階段實作 real backtest engine、計算績效、產生 backtest result、產生 allocation、產生交易訊號、寫入 `data/backtests` 或 `public`。真正 prototype 前必須先定義 engine contract、result output contract、metric formula registry、result safety validator、output location policy 與 result caveat policy。
+
+Recommended next phase 是 9A：real backtest engine contract，但 9A 仍只能做 contract design。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

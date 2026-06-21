@@ -239,3 +239,19 @@ phase_specific_gates:
       - recommended_next_phase == 8I
     soft_warnings_allowed:
       - active_blocker_count > 0 because real backtest is intentionally blocked
+
+  real_backtest_prototype_readiness_gate:
+    hard_gates:
+      - research_only_required == true
+      - structural_dry_run_only_required == true
+      - real_backtest_execution_allowed == false
+      - performance_metrics_allowed == false
+      - backtest_result_output_allowed == false
+      - allocation_output_allowed == false
+      - trade_signal_output_allowed == false
+      - data_backtests_output_allowed == false
+      - public_output_allowed == false
+      - readiness_conclusion_status == ready_for_contract_design_only
+      - recommended_next_phase == 9A
+    soft_warnings_allowed:
+      - active_blocker_count > 0 because real backtest execution is intentionally blocked

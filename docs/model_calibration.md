@@ -817,6 +817,18 @@ Closure checklist 彙整 Phase 8A-8G 的 research plan、template schema、fixtu
 
 下一步若要接近真正 backtest，必須先做 Phase 8I readiness gate，定義 real engine contract、result output contract、metric formula registry、result caveat validator 與 output location policy。本階段不構成投資建議。
 
+## Phase 8I Real Backtest Prototype Readiness Gate
+
+Phase 8I 建立 real backtest prototype readiness gate。
+
+```bash
+python scripts/show_real_backtest_prototype_readiness_gate.py
+```
+
+Readiness gate 只允許定義下一階段 contract requirements，不允許執行 real backtest、不允許計算 total return / max drawdown / turnover 等績效、不允許產生 backtest result、不允許 allocation 或 trade signal，也不允許寫入 `data/backtests` 或 `public`。
+
+Gate 要求真正 prototype 前先完成 real backtest engine contract、backtest result output contract、metric formula registry、result safety validator、output location policy 與 result caveat policy。Recommended next phase 是 9A，但 9A 仍只能做 contract design。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

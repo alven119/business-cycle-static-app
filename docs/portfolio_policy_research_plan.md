@@ -143,6 +143,18 @@ Closure checklist 彙整 research plan、policy template schema、template fixtu
 
 下一步若要接近真正 backtest，必須先定義 readiness gate，包含 real backtest engine contract、result output contract、metric formula registry、result caveat validator 與 output location policy。
 
+## Phase 8I Real Backtest Prototype Readiness Gate
+
+Phase 8I 新增 real backtest prototype readiness gate。
+
+```bash
+python scripts/show_real_backtest_prototype_readiness_gate.py
+```
+
+Readiness gate 只規格化進入 real backtest prototype 前的必要 contracts 與 blockers。它要求 Phase 8 safety closure 仍維持 research-only / structural dry-run-only，並明確禁止本階段 real backtest execution、performance metrics、backtest result output、allocation、trade signal、`data/backtests` output 與 public output。
+
+進入真正 prototype 前，必須完成 real backtest engine contract、backtest result output contract、metric formula registry、backtest result safety validator、output location policy 與 result caveat policy。Phase 9A 仍只能做 contract design，不得執行回測。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

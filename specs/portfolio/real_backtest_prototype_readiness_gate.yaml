@@ -1,0 +1,156 @@
+real_backtest_prototype_readiness_gate:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義從 research-only / structural dry-run-only 階段進入 real backtest prototype 前的 readiness gate。
+    本 gate 只規格化前置條件，不計算績效、不產生回測結果、不產生 allocation、不產生交易訊號。
+  caveats_zh:
+    - 此為 real backtest prototype readiness gate，不是正式回測。
+    - 本階段不計算績效。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 本階段不寫入 data/backtests 或 public。
+    - 不構成投資建議。
+
+  current_phase_8_closure:
+    source_path: specs/portfolio/portfolio_research_safety_closure.yaml
+    required_status: ready_to_close_research_only
+    research_only_required: true
+    structural_dry_run_only_required: true
+    formal_backtest_executed_required: false
+    performance_metrics_computed_required: false
+    allocation_output_generated_required: false
+    trade_signal_generated_required: false
+    data_backtests_output_written_required: false
+    public_output_written_required: false
+    live_recommendation_allowed_required: false
+
+  readiness_scope:
+    allowed_now:
+      define_real_backtest_engine_contract_requirements: true
+      define_result_output_contract_requirements: true
+      define_metric_formula_registry_requirements: true
+      define_result_safety_validator_requirements: true
+      define_output_location_policy_requirements: true
+      define_next_phase_acceptance_gates: true
+    disallowed_now:
+      implement_real_backtest_engine: true
+      compute_performance_metrics: true
+      produce_backtest_results: true
+      write_data_backtests_output: true
+      write_public_output: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+
+  required_contracts_before_real_backtest:
+    real_backtest_engine_contract:
+      required: true
+      future_path: specs/portfolio/real_backtest_engine_contract.yaml
+      required_before_phase: 9B
+      description_zh: 定義真實績效計算 engine 的輸入、流程、安全限制與禁止 live recommendation 規則。
+    backtest_result_output_contract:
+      required: true
+      future_path: specs/portfolio/backtest_result_output_contract.yaml
+      required_before_phase: 9B
+      description_zh: 定義回測結果 schema、允許欄位、禁止欄位、儲存位置與 caveat。
+    metric_formula_registry:
+      required: true
+      future_path: specs/portfolio/backtest_metric_formula_registry.yaml
+      required_before_phase: 9B
+      description_zh: 定義 total_return、annualized_return、volatility、max_drawdown、turnover、whipsaw 與 false signal cost 等公式。
+    backtest_result_safety_validator:
+      required: true
+      future_path: specs/portfolio/backtest_result_safety_validator_contract.yaml
+      required_before_phase: 9B
+      description_zh: 驗證 result 不包含 live allocation、current recommendation、trade signal 或 public auto-output。
+    output_location_policy:
+      required: true
+      future_path: specs/portfolio/backtest_output_location_policy.yaml
+      required_before_phase: 9B
+      description_zh: 定義 backtest result 只能寫入受控 research path，不得自動進 public/dashboard。
+    result_caveat_policy:
+      required: true
+      future_path: specs/portfolio/backtest_result_caveat_policy.yaml
+      required_before_phase: 9B
+      description_zh: 定義所有 backtest result 必須顯示 backtest-only、不代表未來績效、不構成投資建議。
+
+  prototype_blockers:
+    - blocker_id: real_backtest_engine_contract_missing
+      active: true
+      reason_zh: 尚未定義 real backtest engine contract。
+    - blocker_id: backtest_result_output_contract_missing
+      active: true
+      reason_zh: 尚未定義 backtest result output contract。
+    - blocker_id: metric_formula_registry_missing
+      active: true
+      reason_zh: 尚未定義 metric formula registry。
+    - blocker_id: result_safety_validator_missing
+      active: true
+      reason_zh: 尚未定義 result safety validator。
+    - blocker_id: output_location_policy_missing
+      active: true
+      reason_zh: 尚未定義 output location policy。
+    - blocker_id: result_caveat_policy_missing
+      active: true
+      reason_zh: 尚未定義 result caveat policy。
+    - blocker_id: public_auto_output_forbidden
+      active: true
+      reason_zh: 回測結果不得自動寫入 public 或 dashboard。
+    - blocker_id: live_allocation_forbidden
+      active: true
+      reason_zh: 回測結果不得產生 live allocation 或目前配置建議。
+
+  allowed_future_phases:
+    - phase_id: 9A
+      title: real backtest engine contract
+      allowed: true
+      description_zh: 可先定義真實 backtest engine contract，但仍不執行回測。
+    - phase_id: 9A1
+      title: backtest result output contract
+      allowed: true
+      description_zh: 可定義結果輸出 schema 與儲存 policy，但仍不產生結果。
+    - phase_id: 9A2
+      title: metric formula registry
+      allowed: true
+      description_zh: 可定義績效與風險指標公式 registry，但仍不計算實際績效。
+    - phase_id: 9B
+      title: real backtest prototype
+      allowed: false
+      description_zh: 必須等 9A / 9A1 / 9A2 與 result safety validator 完成後才能開始。
+
+  required_acceptance_before_phase_9A:
+    - target_id: readiness_gate_validated
+      required: true
+      description_zh: 本 readiness gate 必須通過 validator。
+    - target_id: phase_8_safety_closure_still_valid
+      required: true
+      description_zh: Phase 8 safety closure 必須仍顯示 research-only / structural dry-run-only。
+    - target_id: real_backtest_still_blocked
+      required: true
+      description_zh: 本階段必須明確 blocked real backtest execution。
+    - target_id: output_policy_requirements_defined
+      required: true
+      description_zh: 必須定義 output location policy requirement。
+    - target_id: metric_registry_requirement_defined
+      required: true
+      description_zh: 必須定義 metric formula registry requirement。
+    - target_id: result_safety_validator_requirement_defined
+      required: true
+      description_zh: 必須定義 result safety validator requirement。
+    - target_id: not_investment_advice_caveat
+      required: true
+      description_zh: 必須明確標示不構成投資建議。
+
+  readiness_conclusion:
+    status: ready_for_contract_design_only
+    conclusion_zh: >
+      Phase 8I 僅允許進入 real backtest engine contract design。
+      目前仍不得執行 real backtest，不得計算績效，不得產生 allocation，不得寫入 data/backtests 或 public。
+
+  recommended_next_phase:
+    phase_id: 9A
+    title: real backtest engine contract
+    reason_zh: >
+      已完成 real backtest prototype readiness gate。下一步可定義 real backtest engine contract，
+      但仍不得執行回測或產生績效結果。
