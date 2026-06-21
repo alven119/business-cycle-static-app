@@ -63,6 +63,9 @@ backtest_metric_formula_registry:
     total_return:
       category: performance
       formula_text: "ending_value / beginning_value - 1"
+      valid_only_when_external_cashflows_present: false
+      prohibited_when_external_cashflows_present: true
+      misuse_blocked_by_qa0: true
       required_inputs:
         - beginning_value
         - ending_value
@@ -93,6 +96,8 @@ backtest_metric_formula_registry:
     max_drawdown:
       category: risk
       formula_text: "min(portfolio_value / rolling_peak(portfolio_value) - 1)"
+      valid_only_when_series_is_cashflow_neutral: true
+      use_unitized_nav_when_external_cashflows_present: true
       required_inputs:
         - portfolio_value_series
       output_unit: ratio
@@ -172,6 +177,63 @@ backtest_metric_formula_registry:
       higher_is_better: false
       allowed_in_future_results: true
       compute_allowed_now: false
+
+  cashflow_aware_methodology:
+    external_cashflow_guard_enabled: true
+    simple_cagr_misuse_blocked: true
+    rules:
+      - rule_id: total_return_requires_no_external_cashflows
+        description_zh: 若 external_cashflows_present=true，禁止使用 ending_value / beginning_value - 1 當策略收益。
+      - rule_id: terminal_wealth_not_total_return
+        description_zh: terminal wealth 不可被稱為 total return。
+      - rule_id: drawdown_requires_cashflow_neutral_series
+        description_zh: max drawdown 必須使用 unitized NAV 或等價 cash-flow-neutral series。
+      - rule_id: annualized_return_label_required
+        description_zh: annualized return 必須標記為 annualized TWR、money-weighted return 或 no-cashflow CAGR。
+      - rule_id: xirr_required_for_book_benchmark_execution
+        description_zh: 若 XIRR 尚未實作，book benchmark execution 必須維持 blocked。
+    required_cashflow_metrics:
+      terminal_wealth:
+        formula_text: ending_account_value
+        required_inputs:
+          - account_value_series
+      total_contributions:
+        formula_text: sum(contribution_cashflows)
+        required_inputs:
+          - contribution_cashflows
+      net_investment_gain:
+        formula_text: terminal_wealth - total_contributions - initial_value
+        required_inputs:
+          - terminal_wealth
+          - total_contributions
+          - initial_value
+      time_weighted_return:
+        formula_text: product(1 + subperiod_return_excluding_external_cashflows) - 1
+        required_inputs:
+          - subperiod_returns_excluding_external_cashflows
+      annualized_time_weighted_return:
+        formula_text: (1 + time_weighted_return) ** (periods_per_year / period_count) - 1
+        required_inputs:
+          - time_weighted_return
+          - period_count
+          - periods_per_year
+      money_weighted_return_xirr:
+        formula_text: discount_rate_that_sets_cashflow_npv_to_zero
+        required_inputs:
+          - dated_external_cashflows
+          - terminal_value
+        implementation_status: missing
+      unitized_nav:
+        formula_text: cashflow_neutral_units_based_nav
+        required_inputs:
+          - account_value_series
+          - external_cashflows
+      max_drawdown_on_unitized_nav:
+        formula_text: min(unitized_nav / rolling_peak(unitized_nav) - 1)
+        required_inputs:
+          - unitized_nav
+    book_cashflow_methodology_ready: false
+    book_benchmark_execution_allowed: false
 
   prohibited_metric_outputs_now:
     - total_return

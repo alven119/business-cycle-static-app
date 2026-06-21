@@ -1,16 +1,16 @@
-# Controlled real backtest prototype
+# Controlled synthetic in-memory calculation harness
 
 ## 背景
 
-Phase 9B 是 portfolio research pipeline 的第一個 controlled real backtest prototype。它建立在 Phase 9A8 readiness closure 之後，只允許使用 deterministic fixtures，在 memory 中測試 backtest panel、policy schedule application 與 controlled metric computation。
+Phase 9B 是 portfolio research pipeline 的 controlled synthetic in-memory calculation harness。它建立在 Phase 9A8 readiness closure 之後，只允許使用 deterministic fixtures，在 memory 中測試 backtest panel、policy schedule application 與 controlled metric computation。
 
 ## 9A8 readiness closure 與 9B 的關係
 
-Phase 9A8 已彙整 engine contract、result output contract、metric formula registry、output location policy、caveat policy、result safety validator contract、fixtures 與 writer contract。9B 可以開始 controlled prototype，但仍必須維持 research-only、backtest-only、in-memory-only。
+Phase 9A8 已彙整 engine contract、result output contract、metric formula registry、output location policy、caveat policy、result safety validator contract、fixtures 與 writer contract。9B 只允許 synthetic harness，不得宣稱已驗證書籍策略、歷史績效、景氣模型或 point-in-time 可交易性。
 
-## 為什麼 9B 是 controlled in-memory prototype，不是 production backtest
+## 為什麼 9B 是 synthetic harness，不是 production backtest
 
-9B 不讀取外部 market data，不呼叫 FRED，不接 dashboard，不寫 result file，也不建立 output directory。它只用 fixture data 驗證 future engine pipeline 的最小可行計算流程，因此不是 production backtest，也不是可發布結果。
+9B 不讀取外部 market data，不呼叫 FRED，不接 dashboard，不寫 result file，也不建立 output directory。它只用 fixture data 驗證 arithmetic flow，因此不是 production backtest、不是書籍策略重現，也不是可發布結果。
 
 ## Prototype fixture data
 
@@ -20,7 +20,7 @@ Fixture 位於：
 specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml
 ```
 
-每個 case 都必須標記 `data_mode=controlled_fixture_only` 與 `backtest_only=true`。Policy 權重只能使用 `backtest_policy_weights`，不得使用 live allocation、current allocation、target weight、buy/sell/add/reduce signal 或 current market recommendation。
+每個 case 都必須標記 `data_mode=controlled_fixture_only`、`backtest_only=true`、`synthetic_fixture_only=true`、`economic_validity_established=false`、`book_fidelity_validated=false` 與 `point_in_time_validated=false`。Policy 權重只能使用 `backtest_policy_weights`，不得使用 live allocation、current allocation、target weight、buy/sell/add/reduce signal 或 current market recommendation。
 
 ## In-memory calculation flow
 
@@ -60,7 +60,11 @@ CLI 必須輸出：
 
 ```text
 in_memory_only=true
+synthetic_fixture_only=true
 controlled_metric_computation_allowed=true
+economic_validity_established=false
+book_fidelity_validated=false
+point_in_time_validated=false
 result_file_written=false
 data_backtests_output_written=false
 public_output_written=false
@@ -72,9 +76,9 @@ dashboard_integration=false
 result=passed
 ```
 
-## 為什麼下一步應做 9B1 market return data contract
+## 為什麼暫停 9B1
 
-9B 只驗證 controlled fixture pipeline。下一步應先定義 market return data contract，規格化 future prototype 可使用的 market return inputs、資料來源、安全邊界與 validation，而不是直接擴大輸出或接 dashboard。
+QA0 完成審核前暫停 9B1。9B 只驗證 controlled synthetic arithmetic flow；尚未建立 book-to-code traceability、point-in-time release/vintage protection、cash-flow-aware book benchmark methodology 或 calibration holdout policy。
 
 ## Caveats
 

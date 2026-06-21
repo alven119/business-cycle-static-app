@@ -1,0 +1,106 @@
+book_strategy_golden_benchmark:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義《景氣循環投資》策略重現的 golden benchmark 規格。本 spec 不執行真實市場回測，
+    也不代表書中結果已重現。
+  benchmark_period:
+    start: first_trading_day_of_1994
+    end: end_of_2018
+  contributions:
+    currency: USD
+    initial_contribution:
+      amount: 10000
+      timing: first_trading_day_of_1994
+    annual_contribution:
+      amount: 10000
+      timing: last_trading_day_of_each_year
+      required: true
+  rebalance:
+    frequency: annual
+    timing: first_trading_day_of_each_year
+    required: true
+  return_handling:
+    stock_total_return_required: true
+    dividends_included: required
+    bond_total_return_required: true
+    bond_coupons_included: required
+    cash_return_proxy_required: true
+    transaction_cost_assumption_required: true
+    taxes_assumption_required: true
+  asset_definitions:
+    stock:
+      asset_class: U.S. equities
+      total_return_series_required: true
+    cash:
+      asset_class: cash_or_short_term_risk_free_proxy
+      explicit_return_proxy_required: true
+    long_treasury:
+      issuer: U.S. Treasury
+      maturity: 7_years_or_longer
+      total_return_series_required: true
+  phase_exposures:
+    recession:
+      stock_weight: 1.0
+    recovery:
+      stock_weight: 1.0
+    growth:
+      stock_weight: 1.0
+    boom_basic:
+      stock_weight: 0.5
+    boom_advanced:
+      year_1_stock_weight: 0.7
+      year_2_stock_weight: 0.5
+      year_3_stock_weight: 0.3
+      year_4_plus_stock_weight: 0.3
+      two_year_boom_minimum_stock_weight: 0.5
+  strategies:
+    - strategy_id: passive_all_stock
+      category: book_reproduction
+      description_zh: 被動全股票 baseline。
+      non_stock_asset: none
+    - strategy_id: stock_cash_basic
+      category: book_reproduction
+      description_zh: recession/recovery/growth 100% stock，boom 50% stock / 50% cash。
+      non_stock_asset: cash
+    - strategy_id: stock_cash_advanced
+      category: book_reproduction
+      description_zh: boom 按 70/50/30/30+ stock schedule，其餘為 cash。
+      non_stock_asset: cash
+    - strategy_id: stock_long_treasury_basic
+      category: book_reproduction
+      description_zh: recession/recovery/growth 100% stock，boom 50% stock / 50% 7+ year U.S. Treasury。
+      non_stock_asset: long_treasury
+    - strategy_id: stock_long_treasury_advanced
+      category: book_reproduction
+      description_zh: boom 按 70/50/30/30+ stock schedule，其餘為 7+ year U.S. Treasury。
+      non_stock_asset: long_treasury
+  required_cashflow_aware_metrics:
+    - terminal_wealth
+    - total_contributions
+    - net_investment_gain
+    - time_weighted_return
+    - annualized_time_weighted_return
+    - money_weighted_return_xirr
+    - unitized_nav
+    - max_drawdown_on_unitized_nav
+  execution_blockers:
+    - blocker_id: point_in_time_phase_labels_missing
+      active: true
+    - blocker_id: market_total_return_data_contract_missing
+      active: true
+    - blocker_id: cashflow_aware_methodology_not_runtime_ready
+      active: true
+    - blocker_id: long_treasury_total_return_series_missing
+      active: true
+    - blocker_id: benchmark_reproduction_tolerance_missing
+      active: true
+  summary:
+    golden_strategy_count: 5
+    annual_contribution_defined: true
+    annual_rebalance_defined: true
+    advanced_705030_defined: true
+    long_treasury_7y_plus_defined: true
+    external_cashflow_metrics_required: true
+    book_benchmark_spec_ready: true
+    book_benchmark_execution_allowed: false

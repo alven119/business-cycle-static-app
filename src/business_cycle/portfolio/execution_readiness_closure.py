@@ -307,7 +307,7 @@ def _validate_phase_9b_entry_conditions(entry: dict[str, Any]) -> None:
             )
     scope = str(entry.get("recommended_9b_initial_scope_zh") or "")
     for required in (
-        "controlled in-memory real backtest prototype",
+        "controlled synthetic in-memory calculation harness",
         "不得自動寫檔",
         "不接 dashboard",
         "不產生 live allocation 或 trade signal",

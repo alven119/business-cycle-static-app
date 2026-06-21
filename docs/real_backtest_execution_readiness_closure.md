@@ -59,7 +59,7 @@ Closure 要求 `required_artifact_count=10`、all required artifacts present、a
 
 ## Phase 9B Entry Conditions
 
-9A8 可以宣告進入 Phase 9B controlled prototype 的 readiness，但 9B 初始條件必須是 research-only / backtest-only。Default output write、public output、allocation output、trade signal 與 live recommendation 都必須 false。
+9A8 可以宣告進入 Phase 9B controlled synthetic harness 的 readiness，但 9B 初始條件必須是 research-only / backtest-only。Default output write、public output、allocation output、trade signal 與 live recommendation 都必須 false。
 
 ## Remaining Blockers For Output Writing
 
@@ -67,11 +67,11 @@ Output writing 仍被 blocker 擋住：writer runtime 尚未實作、real result
 
 ## 為什麼下一步可以進 Controlled 9B Prototype
 
-9A contract stack 已完成必要前置規格，因此可以進入 9B controlled real backtest prototype。但 9B 初始實作應先保持 in-memory controlled prototype，不自動寫 output，不接 dashboard，不產生 live allocation、trade signal 或 current recommendation。
+9A contract stack 已完成必要前置規格，因此可以進入 9B controlled synthetic in-memory calculation harness。但 9B 初始實作應先保持 synthetic fixture-only、不自動寫 output、不接 dashboard、不產生 live allocation、trade signal 或 current recommendation。
 
 ## 9B 初始 Scope 建議
 
-- in-memory controlled prototype。
+- controlled synthetic in-memory calculation harness。
 - no output write by default。
 - no dashboard integration。
 - no allocation / trade signal / current recommendation。

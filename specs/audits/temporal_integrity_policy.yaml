@@ -1,0 +1,51 @@
+temporal_integrity_policy:
+  version: 1
+  status: draft
+  objective_zh: >
+    QA0 temporal integrity audit policy。Backtest record 必須同時滿足
+    observation_date <= as_of、available_at <= as_of、vintage_date <= as_of。
+  required_date_fields:
+    - observation_date
+    - period_end
+    - release_date
+    - available_at
+    - vintage_date
+    - as_of
+  point_in_time_filter:
+    observation_date_lte_as_of: true
+    available_at_lte_as_of: true
+    vintage_date_lte_as_of: true
+  audited_components:
+    - FRED provider
+    - local CSV cache
+    - transformations
+    - score scripts
+    - monthly backtest runner
+    - candidate scoring
+    - calibration runner
+    - portfolio prototype
+    - scenario timelines
+  known_current_state:
+    revised_data_only: true
+    vintage_data_supported: false
+    point_in_time_backtest_ready: false
+    real_backtest_progression_allowed: false
+    reason_zh: local cache and current backtest outputs do not carry complete release/vintage metadata.
+  blocking_rules:
+    - rule_id: missing_availability_metadata_blocks_point_in_time_claim
+      severity: P0
+      active: true
+    - rule_id: post_release_data_excluded
+      severity: P0
+      active: true
+    - rule_id: post_as_of_revision_excluded
+      severity: P0
+      active: true
+    - rule_id: delayed_monthly_trade_data_lag_required
+      severity: P1
+      active: true
+  summary:
+    revised_data_only: true
+    vintage_data_supported: false
+    point_in_time_backtest_ready: false
+

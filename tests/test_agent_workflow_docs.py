@@ -83,6 +83,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     controlled_prototype_gates = phase_specific["controlled_real_backtest_prototype"][
         "hard_gates"
     ]
+    qa0_gates = phase_specific["qa0_integrity_audit"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -194,7 +195,18 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "data_backtests_output_written == false" in controlled_prototype_gates
     assert "public_output_written == false" in controlled_prototype_gates
     assert "output_directory_created == false" in controlled_prototype_gates
-    assert "recommended_next_phase == 9B1" in controlled_prototype_gates
+    assert "synthetic_fixture_only == true" in controlled_prototype_gates
+    assert "economic_validity_established == false" in controlled_prototype_gates
+    assert "book_fidelity_validated == false" in controlled_prototype_gates
+    assert "point_in_time_validated == false" in controlled_prototype_gates
+    assert "recommended_next_phase == QA0" in controlled_prototype_gates
+    assert "audit_status == passed" in qa0_gates
+    assert "unsupported_claim_count == 0" in qa0_gates
+    assert "phase_9b_synthetic_harness_valid == true" in qa0_gates
+    assert "phase_9b_economic_validation_claim_allowed == false" in qa0_gates
+    assert "real_backtest_progression_allowed == false" in qa0_gates
+    assert "phase_9b1_allowed == false" in qa0_gates
+    assert "recommended_next_phase == QA1" in qa0_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

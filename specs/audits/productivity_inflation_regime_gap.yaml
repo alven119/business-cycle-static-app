@@ -1,0 +1,34 @@
+productivity_inflation_regime_gap:
+  version: 1
+  status: draft
+  regimes:
+    - regime_id: productivity_driven
+      required: true
+      formal_ready: false
+    - regime_id: inflation_driven
+      required: true
+      formal_ready: false
+    - regime_id: mixed_or_uncertain
+      required: true
+      formal_ready: false
+  candidate_indicators:
+    - labor_productivity
+    - potential_gdp_growth
+    - cpi
+    - core_cpi
+    - pce
+    - commodity_trend
+    - real_asset_trend
+    - business_investment
+    - technology_investment
+  asset_research_implications:
+    equities: regime-dependent expected role, not formal policy.
+    commodities: different holding logic in productivity vs inflation regimes.
+    gold: cannot be handled only by fixed four-phase mapping.
+    real_estate: regime-dependent inflation/real asset behavior.
+    long_duration_treasuries: sensitive to inflation regime and duration risk.
+  summary:
+    formal_regime_layer_ready: false
+    regime_aware_portfolio_policy_ready: false
+    book_regime_alignment_claim_allowed: false
+

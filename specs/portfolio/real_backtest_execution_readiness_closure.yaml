@@ -3,7 +3,7 @@ real_backtest_execution_readiness_closure:
   status: draft
   objective_zh: >
     彙整 Phase 9A–9A7 的 real backtest contract stack，確認是否具備進入
-    Phase 9B controlled real backtest prototype 的前置條件。
+    Phase 9B controlled synthetic in-memory harness 的前置條件。
     本 closure 只允許 readiness validation，不允許執行回測、計算績效、
     產生 result、建立 output directory 或寫入 data/backtests/public。
   caveats_zh:
@@ -156,7 +156,7 @@ real_backtest_execution_readiness_closure:
       - no_decision_override
       - not_investment_advice_caveat
     recommended_9b_initial_scope_zh: >
-      Phase 9B 應先實作 controlled in-memory real backtest prototype，
+      Phase 9B 應先實作 controlled synthetic in-memory calculation harness，
       只允許在 memory 中建立 backtest panel、套用 policy template、計算受控 metrics，
       不得自動寫檔、不接 dashboard、不產生 live allocation 或 trade signal。
 
@@ -178,13 +178,13 @@ real_backtest_execution_readiness_closure:
     status: ready_for_controlled_9b_prototype
     conclusion_zh: >
       Phase 9A8 完成 real backtest execution readiness closure。
-      9A–9A7 的 contract stack 已具備進入 Phase 9B controlled real backtest prototype 的前置條件。
+      9A–9A7 的 contract stack 已具備進入 Phase 9B controlled synthetic harness 的前置條件。
       但本階段尚未執行回測、未計算績效、未產生 result、未建立 output directory、
       未寫入 data/backtests 或 public。
   recommended_next_phase:
     phase_id: 9B
-    title: controlled real backtest prototype
+    title: controlled synthetic in-memory calculation harness
     reason_zh: >
-      9A contract stack 已完成。下一步可開始 9B controlled real backtest prototype，
+      9A contract stack 已完成。下一步可開始 9B controlled synthetic in-memory harness，
       但初始 9B 必須維持 research-only / backtest-only，預設不得寫 output、
       不接 dashboard、不產生 live allocation 或 trade signal。

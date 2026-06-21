@@ -1,4 +1,4 @@
-"""Controlled in-memory real backtest prototype for fixture data."""
+"""Controlled synthetic in-memory calculation harness for fixture data."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import yaml
 
 
 class ControlledRealBacktestPrototypeError(ValueError):
-    """Raised when controlled real backtest prototype validation fails."""
+    """Raised when controlled synthetic prototype validation fails."""
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,7 @@ class ControlledRealBacktestPrototypeRunResult:
 def load_controlled_real_backtest_prototype_fixtures(
     path: str | Path,
 ) -> ControlledRealBacktestPrototypeFixtures:
-    """Load controlled real backtest prototype fixtures YAML."""
+    """Load controlled synthetic prototype fixtures YAML."""
 
     yaml_path = Path(path)
     if not yaml_path.exists():
@@ -84,7 +84,7 @@ def load_controlled_real_backtest_prototype_fixtures(
 def validate_controlled_prototype_fixtures(
     fixtures: ControlledRealBacktestPrototypeFixtures,
 ) -> None:
-    """Validate controlled prototype fixtures."""
+    """Validate controlled synthetic prototype fixtures."""
 
     if not isinstance(fixtures.version, int):
         raise ControlledRealBacktestPrototypeError(
@@ -164,7 +164,7 @@ def run_controlled_backtest_case(case: dict[str, Any]) -> ControlledBacktestCase
 def run_controlled_real_backtest_prototype(
     fixtures: ControlledRealBacktestPrototypeFixtures,
 ) -> ControlledRealBacktestPrototypeRunResult:
-    """Run all controlled fixture cases in memory."""
+    """Run all controlled synthetic fixture cases in memory."""
 
     validate_controlled_prototype_fixtures(fixtures)
     return ControlledRealBacktestPrototypeRunResult(
@@ -197,8 +197,12 @@ def summarize_controlled_real_backtest_prototype(
         "prototype_run_count": case_count,
         "computed_metric_count": len(computed_metric_ids),
         "required_metric_count": len(run_result.required_metric_ids),
+        "synthetic_fixture_only": True,
         "in_memory_only": True,
         "controlled_metric_computation_allowed": True,
+        "economic_validity_established": False,
+        "book_fidelity_validated": False,
+        "point_in_time_validated": False,
         "result_file_written": False,
         "data_backtests_output_written": False,
         "public_output_written": False,
@@ -208,10 +212,10 @@ def summarize_controlled_real_backtest_prototype(
         "live_recommendation_generated": False,
         "dashboard_integration": False,
         "result": result,
-        "recommended_next_phase": "9B1",
+        "recommended_next_phase": "QA0",
         "reason": (
-            "已完成 controlled in-memory prototype。下一步應定義 market return "
-            "data contract，仍不得自動寫 output 或接 dashboard。"
+            "Phase 9B 僅為 controlled synthetic in-memory calculation harness。"
+            "QA0 完成審核前暫停 9B1。"
         ),
     }
 
@@ -271,6 +275,12 @@ def _validate_case(case: dict[str, Any], prohibited_fields: list[str]) -> None:
         )
     if case.get("backtest_only") is not True:
         raise ControlledRealBacktestPrototypeError("prototype case backtest_only must be true")
+    _require_case_bool(case, "synthetic_fixture_only", True)
+    _require_case_bool(case, "external_cashflows_present", False)
+    _require_case_bool(case, "no_external_cashflow_fixture", True)
+    _require_case_bool(case, "economic_validity_established", False)
+    _require_case_bool(case, "book_fidelity_validated", False)
+    _require_case_bool(case, "point_in_time_validated", False)
     behavior = _mapping(case.get("expected_behavior"), "expected_behavior")
     if behavior.get("in_memory_only") is not True:
         raise ControlledRealBacktestPrototypeError(
@@ -291,6 +301,14 @@ def _validate_case(case: dict[str, Any], prohibited_fields: list[str]) -> None:
                 f"expected_behavior.{field} must be false"
             )
     _validate_series_lengths(case)
+
+
+def _require_case_bool(case: dict[str, Any], field: str, expected: bool) -> None:
+    if case.get(field) is not expected:
+        expected_text = str(expected).lower()
+        raise ControlledRealBacktestPrototypeError(
+            f"prototype case {field} must be {expected_text}"
+        )
 
 
 def _validate_series_lengths(case: dict[str, Any]) -> None:

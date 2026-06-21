@@ -57,7 +57,7 @@ def test_real_backtest_execution_readiness_closure_recommends_controlled_9b_scop
     assert "no_dashboard_integration" in entry["required_9b_runtime_constraints"]
     assert "no_live_allocation" in entry["required_9b_runtime_constraints"]
     assert "no_trade_signal" in entry["required_9b_runtime_constraints"]
-    assert "controlled in-memory real backtest prototype" in entry[
+    assert "controlled synthetic in-memory calculation harness" in entry[
         "recommended_9b_initial_scope_zh"
     ]
 

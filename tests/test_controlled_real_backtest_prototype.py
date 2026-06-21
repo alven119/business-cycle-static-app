@@ -30,6 +30,12 @@ def test_controlled_real_backtest_prototype_cases_are_fixture_only() -> None:
         behavior = case["expected_behavior"]
         assert case["data_mode"] == "controlled_fixture_only"
         assert case["backtest_only"] is True
+        assert case["synthetic_fixture_only"] is True
+        assert case["external_cashflows_present"] is False
+        assert case["no_external_cashflow_fixture"] is True
+        assert case["economic_validity_established"] is False
+        assert case["book_fidelity_validated"] is False
+        assert case["point_in_time_validated"] is False
         assert behavior["output_write_allowed"] is False
         assert behavior["public_output_allowed"] is False
         assert behavior["allocation_output_allowed"] is False
@@ -59,8 +65,12 @@ def test_controlled_real_backtest_prototype_summary_flags_are_safe() -> None:
     assert summary["case_count"] >= 2
     assert summary["prototype_run_count"] == summary["case_count"]
     assert summary["computed_metric_count"] >= 5
+    assert summary["synthetic_fixture_only"] is True
     assert summary["in_memory_only"] is True
     assert summary["controlled_metric_computation_allowed"] is True
+    assert summary["economic_validity_established"] is False
+    assert summary["book_fidelity_validated"] is False
+    assert summary["point_in_time_validated"] is False
     assert summary["result_file_written"] is False
     assert summary["data_backtests_output_written"] is False
     assert summary["public_output_written"] is False
@@ -70,7 +80,7 @@ def test_controlled_real_backtest_prototype_summary_flags_are_safe() -> None:
     assert summary["live_recommendation_generated"] is False
     assert summary["dashboard_integration"] is False
     assert summary["result"] == "passed"
-    assert summary["recommended_next_phase"] == "9B1"
+    assert summary["recommended_next_phase"] == "QA0"
 
 
 def test_controlled_real_backtest_prototype_fixtures_do_not_contain_prohibited_content() -> None:

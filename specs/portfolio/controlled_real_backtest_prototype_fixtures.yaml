@@ -2,16 +2,18 @@ controlled_real_backtest_prototype_fixtures:
   version: 1
   status: experimental
   objective_zh: >
-    提供 Phase 9B controlled in-memory real backtest prototype 的 deterministic fixtures。
+    提供 Phase 9B controlled synthetic in-memory calculation harness 的 deterministic fixtures。
     Fixtures 僅用於測試 engine pipeline、policy schedule application 與 controlled metric computation。
-    不是真實回測結果，不得寫入 data/backtests 或 public。
+    不是真實歷史回測結果，不驗證書籍策略、歷史績效、景氣模型或 point-in-time 可交易性，
+    不得寫入 data/backtests 或 public。
   caveats_zh:
-    - 此為 controlled prototype fixtures，不是真實回測結果。
+    - 此為 controlled synthetic prototype fixtures，不是真實回測結果。
     - 本階段僅允許 in-memory controlled metric computation。
     - 本階段不寫 result file。
     - 本階段不建立 output directory。
     - 本階段不產生 live allocation。
     - 本階段不產生買賣訊號。
+    - 本階段不驗證書籍策略、歷史績效、景氣模型或 point-in-time 可交易性。
     - 不構成投資建議。
 
   prototype_cases:
@@ -21,6 +23,12 @@ controlled_real_backtest_prototype_fixtures:
       parameter_set_id: boom_705030_controlled_fixture
       data_mode: controlled_fixture_only
       backtest_only: true
+      synthetic_fixture_only: true
+      external_cashflows_present: false
+      no_external_cashflow_fixture: true
+      economic_validity_established: false
+      book_fidelity_validated: false
+      point_in_time_validated: false
       initial_value: 100.0
       periods:
         - 2007-01
@@ -73,6 +81,12 @@ controlled_real_backtest_prototype_fixtures:
       parameter_set_id: recovery_rerisk_controlled_fixture
       data_mode: controlled_fixture_only
       backtest_only: true
+      synthetic_fixture_only: true
+      external_cashflows_present: false
+      no_external_cashflow_fixture: true
+      economic_validity_established: false
+      book_fidelity_validated: false
+      point_in_time_validated: false
       initial_value: 100.0
       periods:
         - 2002-10

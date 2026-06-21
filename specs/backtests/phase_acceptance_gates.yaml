@@ -434,6 +434,34 @@ phase_specific_gates:
       - live_recommendation_generated == false
       - dashboard_integration == false
       - result == passed
-      - recommended_next_phase == 9B1
+      - synthetic_fixture_only == true
+      - economic_validity_established == false
+      - book_fidelity_validated == false
+      - point_in_time_validated == false
+      - recommended_next_phase == QA0
     soft_warnings_allowed:
       - computed_metric_count > 0 because Phase 9B allows controlled in-memory metric computation from fixtures only
+
+  qa0_integrity_audit:
+    hard_gates:
+      - audit_status == passed
+      - untriaged_finding_count == 0
+      - p0_without_blocking_gate_count == 0
+      - unsupported_claim_count == 0
+      - book_alignment_claim_allowed == false
+      - point_in_time_backtest_ready == false
+      - revised_data_only == true
+      - vintage_data_supported == false
+      - external_cashflow_guard_enabled == true
+      - unitized_nav_drawdown_defined == true
+      - book_cashflow_methodology_ready == false
+      - calibration_holdout_ready == false
+      - out_of_sample_claim_allowed == false
+      - phase_9b_synthetic_harness_valid == true
+      - phase_9b_economic_validation_claim_allowed == false
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_phase == QA1
+      - result == passed
+    soft_warnings_allowed:
+      - p0_finding_count > 0 because unresolved P0 findings are explicitly blocked before real backtest progression

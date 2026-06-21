@@ -55,6 +55,8 @@ Registry 定義 future backtest 可能需要的 series：portfolio value、bench
 
 Performance metrics 包含 `total_return` 與 `annualized_return`。公式只描述 future calculation method，不產生任何績效值。
 
+QA0 補充 cash-flow guard：`ending_value / beginning_value - 1` 只可用於沒有 external cash flows 的 no-cashflow harness。若有年度追加投入、提領或其他外部 cash flow，必須改用 terminal wealth、total contributions、net investment gain、time-weighted return、money-weighted return / XIRR、unitized NAV 與 unitized NAV drawdown。Terminal wealth 不可稱為 total return，含投入的 account balance 也不可直接拿來計算 max drawdown。
+
 ## Risk Metrics
 
 Risk metrics 包含 `volatility` 與 `max_drawdown`。本階段只定義需要 monthly returns 或 portfolio value series。

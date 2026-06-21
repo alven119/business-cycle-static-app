@@ -263,17 +263,17 @@ Closure 彙整 Phase 9A–9A7 的 contract stack，確認 engine、result output
 
 Phase 9B 初始 scope 應是 controlled in-memory prototype，預設不得寫 output、不接 dashboard、不產生 live allocation、trade signal 或 current recommendation，並必須保留不構成投資建議 caveat。
 
-## Phase 9B Controlled Real Backtest Prototype
+## Phase 9B Controlled Synthetic In-Memory Harness
 
-Phase 9B 新增 controlled real backtest prototype fixtures 與 in-memory runner。
+Phase 9B 新增 controlled synthetic calculation fixtures 與 in-memory runner。
 
 ```bash
 python scripts/run_controlled_real_backtest_prototype.py
 ```
 
-Prototype 只使用 `controlled_fixture_only` cases，將 `backtest_policy_weights` 套用於 fixture return series，在 memory 中計算 controlled metrics。CLI 僅輸出 `case_count`、`prototype_run_count`、`computed_metric_count` 與 safety flags。
+Prototype 只使用 `controlled_fixture_only` cases，將 `backtest_policy_weights` 套用於 fixture return series，在 memory 中計算 controlled arithmetic metrics。CLI 僅輸出 `case_count`、`prototype_run_count`、`computed_metric_count` 與 safety flags。
 
-本階段不產生 result file、不建立 output directory、不寫入 `data/backtests` 或 `public`、不接 dashboard、不產生 live allocation、trade signal 或 current recommendation。下一步應定義 Phase 9B1 market return data contract。
+本階段不產生 result file、不建立 output directory、不寫入 `data/backtests` 或 `public`、不接 dashboard、不產生 live allocation、trade signal 或 current recommendation。QA0 完成前暫停 9B1；9B 不得宣稱已驗證書籍策略、歷史績效、景氣模型或 point-in-time 可交易性。
 
 ## Caveats
 

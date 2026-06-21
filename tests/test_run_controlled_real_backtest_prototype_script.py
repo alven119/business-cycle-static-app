@@ -21,8 +21,12 @@ def test_run_controlled_real_backtest_prototype_script_succeeds() -> None:
     result = _run_script()
 
     assert result.returncode == 0
+    assert "synthetic_fixture_only=true" in result.stdout
     assert "in_memory_only=true" in result.stdout
     assert "controlled_metric_computation_allowed=true" in result.stdout
+    assert "economic_validity_established=false" in result.stdout
+    assert "book_fidelity_validated=false" in result.stdout
+    assert "point_in_time_validated=false" in result.stdout
     assert "result_file_written=false" in result.stdout
     assert "data_backtests_output_written=false" in result.stdout
     assert "public_output_written=false" in result.stdout
@@ -32,7 +36,7 @@ def test_run_controlled_real_backtest_prototype_script_succeeds() -> None:
     assert "live_recommendation_generated=false" in result.stdout
     assert "dashboard_integration=false" in result.stdout
     assert "result=passed" in result.stdout
-    assert "recommended_next_phase=9B1" in result.stdout
+    assert "recommended_next_phase=QA0" in result.stdout
     assert not Path("data/backtests/research").exists()
 
 
@@ -40,7 +44,7 @@ def test_run_controlled_real_backtest_prototype_script_accepts_custom_path() -> 
     result = _run_script("--fixtures", str(FIXTURES_PATH))
 
     assert result.returncode == 0
-    assert "recommended_next_phase=9B1" in result.stdout
+    assert "recommended_next_phase=QA0" in result.stdout
 
 
 def test_run_controlled_real_backtest_prototype_script_missing_path_fails() -> None:

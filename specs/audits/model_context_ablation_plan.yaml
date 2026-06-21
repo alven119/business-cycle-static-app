@@ -1,0 +1,27 @@
+model_context_ablation_plan:
+  version: 1
+  status: draft
+  objective_zh: >
+    QA0 context ablation audit。量化 baseline context 對 final phase、confidence 與 display stage hint 的影響。
+  phase_roles:
+    data_only_phase: score-only candidate before external context.
+    context_prior_phase: phase supplied by current_cycle_context or explicit previous phase.
+    final_state_machine_phase: resolver output after state machine constraints.
+    display_only_stage_hint: stage text shown in dashboard; may be context-derived.
+  synthetic_ablation_cases:
+    - case_id: same_scores_no_baseline_context
+      context_prior_phase: null
+    - case_id: same_scores_recovery_baseline
+      context_prior_phase: recovery
+    - case_id: same_scores_boom_baseline
+      context_prior_phase: boom
+  required_outputs:
+    - current_phase_id
+    - candidate_phase_id
+    - decision_status
+    - confidence
+    - stage_hint
+  policy:
+    data_only_model_validated: false
+    real_backtest_progression_allowed: false
+

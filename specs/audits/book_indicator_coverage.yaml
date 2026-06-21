@@ -1,0 +1,219 @@
+book_indicator_coverage:
+  version: 1
+  status: draft
+  objective_zh: >
+    QA0 book indicator coverage matrix。Modern extensions 不得替代 missing book core 後仍宣稱完整書籍對齊。
+  indicators:
+    - indicator_id: initial_jobless_claims
+      phase: recovery
+      book_page_reference: "約第 106-117 頁"
+      book_role: employment turn
+      provenance_class: book_core
+      formal_or_experimental: formal
+      series_id: initial_jobless_claims
+      transformation: trend / reversal
+      publication_lag: known_policy_default
+      vintage_support: missing
+      current_weight: existing
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: partial
+    - indicator_id: short_term_unemployment
+      phase: recovery
+      book_page_reference: "約第 106-117 頁"
+      book_role: early employment recovery
+      provenance_class: book_core
+      formal_or_experimental: experimental
+      series_id: short_term_unemployment
+      transformation: trend / reversal
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: candidate
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: partial
+    - indicator_id: real_retail_sales
+      phase: recovery
+      book_page_reference: "約第 106-117 頁"
+      book_role: consumption recovery
+      provenance_class: book_core
+      formal_or_experimental: formal
+      series_id: real_retail_sales
+      transformation: real growth momentum
+      publication_lag: known_policy_default
+      vintage_support: missing
+      current_weight: existing
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: partial
+    - indicator_id: real_pce_durable_goods
+      phase: recovery
+      book_page_reference: "約第 106-117 頁"
+      book_role: durable goods consumption
+      provenance_class: book_core
+      formal_or_experimental: experimental
+      series_id: real_pce_durable_goods
+      transformation: real growth momentum
+      publication_lag: known_policy_default
+      vintage_support: missing
+      current_weight: candidate
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: partial
+    - indicator_id: imports_goods_services
+      phase: recovery
+      book_page_reference: "約第 106-117 頁"
+      book_role: imports recovery
+      provenance_class: book_core
+      formal_or_experimental: experimental
+      series_id: imports_goods_services
+      transformation: delayed trade recovery
+      publication_lag: known_policy_default
+      vintage_support: missing
+      current_weight: candidate
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: partial
+    - indicator_id: exports_goods_services
+      phase: recovery
+      book_page_reference: "約第 106-117 頁"
+      book_role: exports subsequent recovery
+      provenance_class: book_core
+      formal_or_experimental: experimental
+      series_id: exports_goods_services
+      transformation: delayed trade recovery
+      publication_lag: known_policy_default
+      vintage_support: missing
+      current_weight: candidate
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: partial
+    - indicator_id: personal_saving_rate
+      phase: growth
+      book_page_reference: "約第 149-156 頁"
+      book_role: deferred consumption release
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: personal_saving_rate
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented in formal scoring
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: real_disposable_income
+      phase: growth
+      book_page_reference: "約第 149-156 頁"
+      book_role: income vs consumption
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: real_disposable_income
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented in formal scoring
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: consumer_confidence
+      phase: boom
+      book_page_reference: "約第 175-205 頁"
+      book_role: boom ending consumer sentiment
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: consumer_confidence
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: state_local_government_spending
+      phase: boom
+      book_page_reference: "約第 175-205 頁"
+      book_role: government spending context
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: state_local_government_spending
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: inventories
+      phase: boom
+      book_page_reference: "約第 175-205 頁"
+      book_role: inventory accumulation context
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: inventories
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: personal_default_rate
+      phase: boom
+      book_page_reference: "約第 175-205 頁"
+      book_role: delinquency/default risk
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: personal_default_rate
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: corporate_default_rate
+      phase: boom
+      book_page_reference: "約第 175-205 頁"
+      book_role: delinquency/default risk
+      provenance_class: book_core
+      formal_or_experimental: missing
+      series_id: corporate_default_rate
+      transformation: missing
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: none
+      missing_reason: not implemented
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: missing
+    - indicator_id: yield_curve_spread
+      phase: recession
+      book_page_reference: modern extension
+      book_role: financial condition warning
+      provenance_class: modern_extension
+      formal_or_experimental: formal
+      series_id: yield_curve_spread
+      transformation: curve inversion / spread
+      publication_lag: unknown
+      vintage_support: missing
+      current_weight: existing
+      missing_reason: null
+      substitute_indicator: null
+      substitute_is_equivalent: false
+      book_alignment_status: modern_extension
+  summary:
+    book_alignment_claim_allowed: false
+

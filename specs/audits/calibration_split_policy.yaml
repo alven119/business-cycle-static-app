@@ -1,0 +1,30 @@
+calibration_split_policy:
+  version: 1
+  status: draft
+  objective_zh: >
+    QA0 calibration leakage policy。既有五個 scenarios 已多次用於 diagnostics / tuning，
+    不得稱為未使用過的樣本外 holdout 或 final holdout。
+  scenario_classification:
+    development_and_diagnostics:
+      - dotcom_bubble
+      - global_financial_crisis
+      - covid_recession
+      - euro_debt_slowdown
+      - late_cycle_2018
+    validation: []
+    final_untouched_holdout: []
+    future_holdout_candidates:
+      - 1990_1991_recession
+      - 1981_1982_recession
+      - 1973_1975_recession
+      - earlier_non_recession_stress_periods
+  policy_rules:
+    final_holdout_before_parameter_freeze: false
+    holdout_result_may_drive_retuning: false
+    production_logic_may_hardcode_specific_scenario_date: false
+  known_parameter_selection_risk:
+    selected_after_observing_existing_scenarios: true
+    scenario_set_previously_seen: true
+  summary:
+    calibration_holdout_ready: false
+    out_of_sample_claim_allowed: false

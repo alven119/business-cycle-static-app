@@ -1009,11 +1009,11 @@ Inspect the closure with:
 python scripts/show_real_backtest_execution_readiness_closure.py
 ```
 
-This phase is readiness-only. It confirms the 9A–9A7 contracts, policies, fixtures, and writer contract are in place for 9B entry, while still blocking execution, runtime implementation, metric computation, result generation, output directory creation, `data/backtests` writes, public output, allocation, and trade signals. Phase 9B should begin as a controlled in-memory prototype with no default output writing.
+This phase is readiness-only. It confirms the 9A–9A7 contracts, policies, fixtures, and writer contract are in place for 9B entry, while still blocking execution, runtime implementation, metric computation, result generation, output directory creation, `data/backtests` writes, public output, allocation, and trade signals. QA0 reclassifies Phase 9B as a controlled synthetic in-memory calculation harness with no default output writing.
 
-## Phase 9B controlled real backtest prototype
+## Phase 9B controlled synthetic in-memory harness
 
-Phase 9B adds the controlled in-memory real backtest prototype.
+Phase 9B is now classified as a controlled synthetic in-memory calculation harness.
 
 ```text
 specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml
@@ -1027,7 +1027,20 @@ Run the prototype summary with:
 python scripts/run_controlled_real_backtest_prototype.py
 ```
 
-This phase uses controlled fixtures only. It may compute controlled fixture metrics in memory, but it does not write result files, create output directories, write `data/backtests`, generate public output, connect dashboard rendering, produce allocation output, or produce trade signals.
+This phase uses controlled synthetic fixtures only. It may compute arithmetic fixture metrics in memory, but it does not validate book strategy fidelity, historical performance, the business-cycle model, or point-in-time tradability. It does not write result files, create output directories, write `data/backtests`, generate public output, connect dashboard rendering, produce allocation output, or produce trade signals.
+
+## QA0 methodology audit pause
+
+Phase 9B1 is paused until QA0 findings are reviewed.
+
+Current limits:
+
+- Phase 9B is only a synthetic arithmetic harness.
+- Revised historical data is not point-in-time data.
+- The current five historical scenarios have all been used for development or diagnostics and are not unused holdout samples.
+- The book benchmark has not been reproduced.
+- No investment decision should rely solely on current outputs.
+- Real backtest progression remains blocked until QA0 and follow-up gates explicitly allow it.
 
 ## Agent workflow / self-repair
 

@@ -749,15 +749,15 @@ python scripts/show_real_backtest_execution_readiness_closure.py
 
 Closure 要求 source artifact count 為 10、contract stack complete，並明確保留 no execution、no runtime implementation、no metric computation、no result generation、no output directory、no `data/backtests` / public write、no allocation、no trade signal。9B 可開始 controlled in-memory prototype，但預設不得寫 output、不接 dashboard、不產生 live allocation 或 trade signal。
 
-## Phase 9B Controlled Real Backtest Prototype
+## Phase 9B Controlled Synthetic In-Memory Harness
 
-Phase 9B 新增 `specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml` 與 controlled in-memory prototype runner。此階段只使用 deterministic fixtures，不讀外部 market data、不呼叫 FRED、不寫任何 result file。
+Phase 9B 新增 `specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml` 與 controlled synthetic in-memory runner。此階段只使用 deterministic fixtures，不讀外部 market data、不呼叫 FRED、不寫任何 result file。
 
 ```bash
 python scripts/run_controlled_real_backtest_prototype.py
 ```
 
-Prototype 可在 memory 中計算 controlled fixture metrics，包含 total return、annualized return、volatility、max drawdown 與 turnover。CLI 只輸出 counts 與 safety flags，且必須維持 no result file、no output directory、no `data/backtests` / public write、no dashboard integration、no allocation、no trade signal。Recommended next phase 是 9B1：market return data contract。
+Prototype 可在 memory 中計算 controlled fixture arithmetic metrics，包含 total return、annualized return、volatility、max drawdown 與 turnover。CLI 只輸出 counts 與 safety flags，且必須維持 no result file、no output directory、no `data/backtests` / public write、no dashboard integration、no allocation、no trade signal。QA0 完成前暫停 9B1；9B 不得宣稱書籍策略、歷史績效、景氣模型或 point-in-time 可交易性已完成驗證。
 
 ## 驗收方式
 

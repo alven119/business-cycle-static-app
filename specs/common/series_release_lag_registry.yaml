@@ -1,0 +1,61 @@
+series_release_lag_registry:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 QA0 temporal integrity audit 使用的 series release lag 與 vintage support 狀態。
+    若 series 缺 release/vintage metadata，不得宣稱 point-in-time backtest ready。
+  series:
+    - series_id: initial_jobless_claims
+      frequency: weekly
+      default_release_lag_days: 5
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: release_lag_spec_only
+    - series_id: real_retail_sales
+      frequency: monthly
+      default_release_lag_days: 15
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: release_lag_spec_only
+    - series_id: real_pce_durable_goods
+      frequency: monthly
+      default_release_lag_days: 30
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: release_lag_spec_only
+    - series_id: private_nonresidential_fixed_investment
+      frequency: quarterly
+      default_release_lag_days: 45
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: release_lag_spec_only
+    - series_id: durable_goods_new_orders
+      frequency: monthly
+      default_release_lag_days: 25
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: release_lag_spec_only
+    - series_id: imports_goods_services
+      frequency: monthly
+      default_release_lag_days: 35
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: delayed_release_spec_only
+    - series_id: exports_goods_services
+      frequency: monthly
+      default_release_lag_days: 35
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: delayed_release_spec_only
+    - series_id: core_cpi
+      frequency: monthly
+      default_release_lag_days: 15
+      availability_source: policy_default
+      vintage_support: false
+      temporal_integrity_status: release_lag_spec_only
+  summary:
+    revised_data_only: true
+    vintage_data_supported: false
+    point_in_time_backtest_ready: false
+    real_backtest_progression_allowed: false
+

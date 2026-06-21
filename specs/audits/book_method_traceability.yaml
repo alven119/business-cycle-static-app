@@ -1,0 +1,436 @@
+book_method_traceability:
+  version: 1
+  status: draft
+  objective_zh: >
+    建立《景氣循環投資》canonical requirements 到 repository 實作、spec、tests 與缺口的 traceability。
+    QA0 通過只代表 traceability 與 blocking gates 完整，不代表書籍策略已重現。
+  summary:
+    book_alignment_claim_allowed: false
+    reason_zh: book_core 仍有 missing / conflicting rows，僅可稱為 book-informed 或 partially book-aligned。
+  rows:
+    - requirement_id: phase_order_recession_recovery_growth_boom
+      book_section: 四階段與狀態順序
+      book_page_reference: "約第 37-38 頁"
+      requirement_zh: 四階段順序 recession -> recovery -> growth -> boom -> recession，正常循環按順序運行。
+      category: phase_rule
+      fidelity_class: book_core
+      implementation_status: formal
+      implementation_paths:
+        - src/business_cycle/phases/state_machine.py
+        - specs/common/phase_state_machine.yaml
+      test_paths:
+        - tests/test_state_machine.py
+      data_series_ids: []
+      known_limitations: exogenous shock overlay 尚未正式分層。
+      divergence_from_book: 現代系統另有 transition controls 與 evidence layers。
+      blocking_severity: none
+      remediation_required: false
+      remediation_owner_phase: none
+    - requirement_id: objective_data_not_manual_scenario
+      book_section: 四階段與狀態順序
+      book_page_reference: "約第 37-38 頁"
+      requirement_zh: 階段應由客觀資料決定，不可由人工基準情境直接決定。
+      category: phase_rule
+      fidelity_class: book_core
+      implementation_status: conflicting
+      implementation_paths:
+        - specs/common/current_cycle_context.yaml
+        - src/business_cycle/pipeline/runner.py
+      test_paths:
+        - tests/test_run_cycle_pipeline_script.py
+      data_series_ids: []
+      known_limitations: baseline context 會作為 previous phase context，需 ablation 量化。
+      divergence_from_book: 外部 baseline context 可能影響 final phase path。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: distinguish_book_system_extension_exception
+      book_section: 四階段與狀態順序
+      book_page_reference: "約第 37-38 頁"
+      requirement_zh: 必須分清 book rule、system implementation、modern extension、exogenous-shock exception。
+      category: phase_rule
+      fidelity_class: book_core
+      implementation_status: spec_only
+      implementation_paths:
+        - specs/audits/book_method_traceability.yaml
+        - specs/audits/exogenous_shock_overlay_gap.yaml
+      test_paths:
+        - tests/test_book_method_traceability.py
+      data_series_ids: []
+      known_limitations: 尚未接正式 runtime。
+      divergence_from_book: 無；此為 QA0 traceability 分類。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: productivity_driven_expansion_regime
+      book_section: 長週期 regime
+      book_page_reference: "約第 39-57 頁、第 134-137 頁"
+      requirement_zh: productivity-driven expansion regime 需可追溯，並影響股票、原物料、黃金、房地產與長債研究邏輯。
+      category: regime_rule
+      fidelity_class: book_core
+      implementation_status: missing
+      implementation_paths:
+        - specs/audits/productivity_inflation_regime_gap.yaml
+      test_paths:
+        - tests/test_productivity_inflation_regime_gap.py
+      data_series_ids:
+        - labor_productivity
+        - potential_gdp_growth
+      known_limitations: formal regime layer 尚未存在。
+      divergence_from_book: 四階段模型尚未納入長週期 regime。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: inflation_driven_expansion_regime
+      book_section: 長週期 regime
+      book_page_reference: "約第 39-57 頁、第 134-137 頁"
+      requirement_zh: inflation-driven expansion regime 需可追溯，原物料與黃金不能只依四階段固定處理。
+      category: regime_rule
+      fidelity_class: book_core
+      implementation_status: missing
+      implementation_paths:
+        - specs/audits/productivity_inflation_regime_gap.yaml
+      test_paths:
+        - tests/test_productivity_inflation_regime_gap.py
+      data_series_ids:
+        - core_cpi
+        - core_pce
+        - commodity_trend
+        - gold_trend
+      known_limitations: formal regime layer 尚未存在。
+      divergence_from_book: 黃金與原物料尚無 regime-aware policy。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_initial_claims
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: initial jobless claims 是復甦期核心就業指標，週頻發布時差需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: formal
+      implementation_paths:
+        - specs/backtests/recovery_candidate_indicators.yaml
+        - src/business_cycle/phases/state_machine.py
+      test_paths:
+        - tests/test_recovery_candidate_indicators.py
+      data_series_ids:
+        - initial_jobless_claims
+      known_limitations: release/vintage metadata 不完整。
+      divergence_from_book: 使用 revised data diagnostics。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_short_term_unemployment
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: unemployed less than 5 weeks / short-term unemployment 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: experimental
+      implementation_paths:
+        - specs/backtests/recovery_candidate_indicators.yaml
+      test_paths:
+        - tests/test_recovery_candidate_indicators.py
+      data_series_ids:
+        - short_term_unemployment
+      known_limitations: 尚非所有正式 phase scoring 核心權重。
+      divergence_from_book: experimental candidate。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_real_retail_sales
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: real retail sales 需映射且需月資料發布時差。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: formal
+      implementation_paths:
+        - specs/backtests/recovery_candidate_indicators.yaml
+      test_paths:
+        - tests/test_recovery_candidate_indicators.py
+      data_series_ids:
+        - real_retail_sales
+      known_limitations: point-in-time release metadata 未完成。
+      divergence_from_book: revised data only。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_durable_pce
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: real PCE durable goods 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: experimental
+      implementation_paths:
+        - specs/backtests/recovery_candidate_indicators.yaml
+      test_paths:
+        - tests/test_recovery_candidate_indicators.py
+      data_series_ids:
+        - real_pce_durable_goods
+      known_limitations: 尚未完成 formal coverage。
+      divergence_from_book: experimental candidate。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_private_fixed_investment
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: private nonresidential fixed investment 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: experimental
+      implementation_paths:
+        - specs/backtests/recovery_candidate_indicators.yaml
+      test_paths:
+        - tests/test_recovery_candidate_indicators.py
+      data_series_ids:
+        - real_private_fixed_investment
+      known_limitations: quarterly publication lag 未 formalized。
+      divergence_from_book: experimental candidate。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_durable_goods_orders
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: durable goods new orders 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: formal
+      implementation_paths:
+        - specs/backtests/recovery_candidate_indicators.yaml
+      test_paths:
+        - tests/test_recovery_candidate_indicators.py
+      data_series_ids:
+        - durable_goods_orders
+      known_limitations: release metadata 未完整。
+      divergence_from_book: revised data only。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: recovery_imports_exports
+      book_section: 復甦期核心
+      book_page_reference: "約第 106-117 頁"
+      requirement_zh: imports recovery 與 exports subsequent recovery 需映射，且不可當成當月即時值。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: experimental
+      implementation_paths:
+        - specs/common/series_release_lag_registry.yaml
+      test_paths:
+        - tests/test_temporal_integrity_audit.py
+      data_series_ids:
+        - imports_goods_services
+        - exports_goods_services
+      known_limitations: imports/exports lag 尚未接正式 scorer。
+      divergence_from_book: release lag only spec。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: growth_saving_rate_and_income_consumption
+      book_section: 成長期核心
+      book_page_reference: "約第 149-156 頁"
+      requirement_zh: saving rate / deferred consumption release，以及 real disposable income vs consumption 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: missing
+      implementation_paths:
+        - specs/audits/book_indicator_coverage.yaml
+      test_paths:
+        - tests/test_book_indicator_coverage.py
+      data_series_ids:
+        - personal_saving_rate
+        - real_disposable_income
+        - real_pce
+      known_limitations: growth 核心消費/收入釋放尚未完整 formal。
+      divergence_from_book: missing。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: growth_employment_investment_inflation
+      book_section: 成長期核心
+      book_page_reference: "約第 149-156 頁"
+      requirement_zh: nonfarm payrolls / ADP / claims、private fixed investment、residential investment、core CPI / core PCE sustainable inflation 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: experimental
+      implementation_paths:
+        - specs/audits/book_indicator_coverage.yaml
+      test_paths:
+        - tests/test_book_indicator_coverage.py
+      data_series_ids:
+        - nonfarm_payrolls
+        - adp_employment
+        - initial_jobless_claims
+        - private_fixed_investment
+        - residential_investment
+        - core_cpi
+        - core_pce
+      known_limitations: 部分 series 缺失或 publication/vintage metadata unknown。
+      divergence_from_book: partial experimental coverage。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: boom_claims_u_shape
+      book_section: 榮景期與結束訊號
+      book_page_reference: "約第 175-205 頁"
+      requirement_zh: initial jobless claims low turning upward / U-shape 是 boom ending book core。
+      category: transition_rule
+      fidelity_class: book_core
+      implementation_status: experimental
+      implementation_paths:
+        - specs/backtests/boom_ending_candidate_indicators.yaml
+        - specs/backtests/boom_ending_watch_rule.yaml
+      test_paths:
+        - tests/test_boom_ending_candidate_indicators.py
+        - tests/test_boom_ending_watch_rule.py
+      data_series_ids:
+        - initial_jobless_claims
+      known_limitations: still experimental watch。
+      divergence_from_book: watch overlay, not formal phase。
+      blocking_severity: P1
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: boom_consumption_confidence_investment_inventory_defaults
+      book_section: 榮景期與結束訊號
+      book_page_reference: "約第 175-205 頁"
+      requirement_zh: retail sales vs PCE slowdown、consumer confidence、private investment、durable goods second surge、state/local spending and revenue、inventories、personal/corporate defaults 需映射。
+      category: indicator
+      fidelity_class: book_core
+      implementation_status: missing
+      implementation_paths:
+        - specs/audits/book_indicator_coverage.yaml
+      test_paths:
+        - tests/test_book_indicator_coverage.py
+      data_series_ids:
+        - real_retail_sales
+        - real_pce
+        - consumer_confidence
+        - private_fixed_investment
+        - durable_goods_orders
+        - state_local_government_spending
+        - government_revenue
+        - inventories
+        - personal_default_rate
+        - corporate_default_rate
+      known_limitations: consumer confidence、state/local、inventory、defaults 尚缺 formal coverage。
+      divergence_from_book: book_core missing。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: modern_extensions_not_book_core
+      book_section: 榮景期與結束訊號
+      book_page_reference: "現代擴充，非書中原始核心"
+      requirement_zh: yield curve、financial conditions、credit spreads、policy rate、oil pressure 不得標成書中原始核心。
+      category: indicator
+      fidelity_class: modern_extension
+      implementation_status: formal
+      implementation_paths:
+        - specs/audits/book_indicator_coverage.yaml
+        - src/business_cycle/phases/state_machine.py
+      test_paths:
+        - tests/test_book_indicator_coverage.py
+      data_series_ids:
+        - yield_curve_spread
+        - credit_spread
+        - federal_funds_rate
+        - wti_oil_price
+      known_limitations: 可作現代擴充，不可取代 book_core。
+      divergence_from_book: modern extension。
+      blocking_severity: none
+      remediation_required: false
+      remediation_owner_phase: none
+    - requirement_id: portfolio_1994_2018_benchmark_window
+      book_section: 投資策略忠實度
+      book_page_reference: "約第 77-90 頁"
+      requirement_zh: golden benchmark 期間為 1994 年第一個交易日至 2018 年末。
+      category: backtest_method
+      fidelity_class: book_core
+      implementation_status: spec_only
+      implementation_paths:
+        - specs/portfolio/book_strategy_golden_benchmark.yaml
+      test_paths:
+        - tests/test_book_strategy_golden_benchmark.py
+      data_series_ids: []
+      known_limitations: 尚未執行市場資料回測。
+      divergence_from_book: spec only。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: portfolio_annual_contribution_rebalance
+      book_section: 投資策略忠實度
+      book_page_reference: "約第 77-90 頁"
+      requirement_zh: 初始 10,000 USD、每年最後交易日追加 10,000 USD、每年第一交易日再平衡。
+      category: portfolio_rule
+      fidelity_class: book_core
+      implementation_status: spec_only
+      implementation_paths:
+        - specs/portfolio/book_strategy_golden_benchmark.yaml
+      test_paths:
+        - tests/test_book_strategy_golden_benchmark.py
+        - tests/test_cashflow_backtest_methodology.py
+      data_series_ids: []
+      known_limitations: cash-flow-aware execution 尚未完成。
+      divergence_from_book: spec only。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: portfolio_stock_cash_and_long_treasury_variants
+      book_section: 投資策略忠實度
+      book_page_reference: "約第 77-90 頁"
+      requirement_zh: 必須定義 passive all-stock、stock/cash basic、stock/cash advanced、stock/long-Treasury basic、stock/long-Treasury advanced；長債為 7 年以上美國政府公債。
+      category: portfolio_rule
+      fidelity_class: book_core
+      implementation_status: spec_only
+      implementation_paths:
+        - specs/portfolio/book_strategy_golden_benchmark.yaml
+      test_paths:
+        - tests/test_book_strategy_golden_benchmark.py
+      data_series_ids:
+        - stock_total_return
+        - cash_return_proxy
+        - long_treasury_7y_plus_total_return
+      known_limitations: market total return data contract 尚未定義。
+      divergence_from_book: spec only。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: portfolio_boom_basic_and_advanced_weights
+      book_section: 投資策略忠實度
+      book_page_reference: "約第 77-90 頁"
+      requirement_zh: recession/recovery/growth 100% stocks；boom basic 50%；boom advanced year1 70%、year2 50%、year3 30%、year4+ 30%，兩年 boom 最低 50%。
+      category: portfolio_rule
+      fidelity_class: book_core
+      implementation_status: spec_only
+      implementation_paths:
+        - specs/portfolio/book_strategy_golden_benchmark.yaml
+      test_paths:
+        - tests/test_book_strategy_golden_benchmark.py
+      data_series_ids: []
+      known_limitations: point-in-time phase labels 尚未可用。
+      divergence_from_book: spec only。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1
+    - requirement_id: portfolio_book_vs_modern_policy_separation
+      book_section: 投資策略忠實度
+      book_page_reference: "約第 77-90 頁"
+      requirement_zh: book_reproduction 與 modern_extension policy 必須分開，不得混成同一 acceptance result。
+      category: portfolio_rule
+      fidelity_class: book_core
+      implementation_status: spec_only
+      implementation_paths:
+        - specs/portfolio/book_strategy_golden_benchmark.yaml
+        - specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml
+      test_paths:
+        - tests/test_book_strategy_golden_benchmark.py
+        - tests/test_controlled_real_backtest_prototype.py
+      data_series_ids: []
+      known_limitations: 9B synthetic harness 不可宣稱 book reproduction。
+      divergence_from_book: synthetic harness only。
+      blocking_severity: P0
+      remediation_required: true
+      remediation_owner_phase: QA1

@@ -1,4 +1,4 @@
-"""Run controlled real backtest prototype from fixture data in memory."""
+"""Run controlled synthetic backtest calculation harness from fixture data in memory."""
 
 from __future__ import annotations
 
@@ -25,12 +25,12 @@ DEFAULT_FIXTURES_PATH = Path(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run controlled real backtest prototype in memory."
+        description="Run controlled synthetic backtest calculation harness in memory."
     )
     parser.add_argument(
         "--fixtures",
         default=str(DEFAULT_FIXTURES_PATH),
-        help="Controlled real backtest prototype fixtures YAML path.",
+        help="Controlled synthetic backtest prototype fixtures YAML path.",
     )
     return parser
 
@@ -51,11 +51,18 @@ def main(argv: list[str] | None = None) -> int:
     print(f"prototype_run_count={summary['prototype_run_count']}")
     print(f"computed_metric_count={summary['computed_metric_count']}")
     print(f"required_metric_count={summary['required_metric_count']}")
+    print(f"synthetic_fixture_only={str(summary['synthetic_fixture_only']).lower()}")
     print(f"in_memory_only={str(summary['in_memory_only']).lower()}")
     print(
         "controlled_metric_computation_allowed="
         f"{str(summary['controlled_metric_computation_allowed']).lower()}"
     )
+    print(
+        "economic_validity_established="
+        f"{str(summary['economic_validity_established']).lower()}"
+    )
+    print(f"book_fidelity_validated={str(summary['book_fidelity_validated']).lower()}")
+    print(f"point_in_time_validated={str(summary['point_in_time_validated']).lower()}")
     print(f"result_file_written={str(summary['result_file_written']).lower()}")
     print(
         "data_backtests_output_written="
