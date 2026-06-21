@@ -865,6 +865,18 @@ Registry 定義 future backtest 會用到的 performance、risk、trading behavi
 
 本階段不執行回測、不計算任何實際績效值、不產生 result file、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A3：backtest output location policy。
 
+## Phase 9A3 Backtest Output Location Policy
+
+Phase 9A3 建立 backtest output location policy。
+
+```bash
+python scripts/show_backtest_output_location_policy.py
+```
+
+Output location policy 定義 future result 的受控 research path requirement、禁止自動寫入位置、寫入前置條件與 safety dependencies。`data/backtests/research` 只是一個 future policy path，本階段不得建立該資料夾或寫入任何 result file。
+
+本階段仍不執行回測、不計算績效、不產生 result、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A4：backtest result caveat policy。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

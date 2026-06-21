@@ -910,6 +910,23 @@ python scripts/show_backtest_metric_formula_registry.py
 
 This phase is formula-only. It defines performance, risk, trading behavior, false signal cost, and opportunity cost formulas for future backtests, but every metric has `compute_allowed_now=false`. It does not calculate metric values, produce result files, produce allocation, write `data/backtests`, or generate public output.
 
+## Phase 9A3 backtest output location policy
+
+Phase 9A3 defines the future backtest output location policy.
+
+```text
+specs/portfolio/backtest_output_location_policy.yaml
+docs/backtest_output_location_policy.md
+```
+
+Inspect the policy with:
+
+```bash
+python scripts/show_backtest_output_location_policy.py
+```
+
+This phase is policy-only. It defines future controlled research path requirements, prohibited auto-write locations, write preconditions, and safety dependencies. It does not create output directories, write result files, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

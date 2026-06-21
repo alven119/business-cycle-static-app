@@ -1,0 +1,168 @@
+backtest_output_location_policy:
+  version: 1
+  status: draft
+  objective_zh: >
+    定義 future real portfolio backtest result 的 output location policy，
+    明確規定允許的 future controlled research path、禁止自動寫入位置、
+    寫入前置條件與 safety validation dependency。
+    本 policy 只允許 location policy design，不允許寫入任何 result file。
+  caveats_zh:
+    - 此為 backtest output location policy，不是 output writer。
+    - 本階段不產生 backtest result。
+    - 本階段不寫入 data/backtests 或 public。
+    - 本階段不產生 portfolio allocation。
+    - 本階段不產生買賣訊號。
+    - 不構成投資建議。
+
+  source_contracts:
+    real_backtest_engine_contract:
+      path: specs/portfolio/real_backtest_engine_contract.yaml
+      required: true
+      required_phase_9a_closure_status: contract_design_only
+    backtest_result_output_contract:
+      path: specs/portfolio/backtest_result_output_contract.yaml
+      required: true
+      required_phase_9a1_closure_status: result_contract_design_only
+    backtest_metric_formula_registry:
+      path: specs/portfolio/backtest_metric_formula_registry.yaml
+      required: true
+      required_phase_9a2_closure_status: formula_registry_design_only
+
+  location_policy_scope:
+    allowed_now:
+      define_output_location_policy: true
+      define_allowed_future_research_paths: true
+      define_prohibited_auto_write_locations: true
+      define_write_preconditions: true
+      define_safety_dependencies: true
+      define_future_acceptance_gates: true
+    disallowed_now:
+      write_result_files: true
+      write_data_backtests_output: true
+      write_public_output: true
+      create_output_directories: true
+      execute_backtest: true
+      compute_metric_values: true
+      produce_backtest_results: true
+      produce_allocation: true
+      produce_trade_signal: true
+      dashboard_integration: true
+      github_pages_integration: true
+
+  future_controlled_research_paths:
+    allowed_only_after_future_writer_phase:
+      - path: data/backtests/research
+        purpose_zh: future controlled local research backtest output only
+        auto_publication_allowed: false
+        git_tracking_allowed: false
+        requires_result_safety_validation: true
+        requires_caveat_validation: true
+        requires_explicit_user_command: true
+        note_zh: >
+          以上路徑僅為 future policy definition。本階段不得建立資料夾或寫入任何檔案。
+
+  prohibited_auto_write_locations:
+    - public
+    - docs
+    - site
+    - dashboard
+    - github_pages
+    - data/backtests
+    - data/raw
+    - specs
+    - src
+    - tests
+
+  prohibited_auto_publication:
+    public_dashboard_output: true
+    github_pages_output: true
+    docs_output: true
+    site_output: true
+    dashboard_renderer_output: true
+
+  write_preconditions_before_any_result_file:
+    - target_id: result_output_contract_validated
+      required: true
+      description_zh: backtest result output contract 必須先通過 validator。
+    - target_id: metric_formula_registry_validated
+      required: true
+      description_zh: metric formula registry 必須先通過 validator。
+    - target_id: result_safety_validator_available
+      required: true
+      description_zh: result safety validator 必須已可執行。
+    - target_id: result_caveat_policy_validated
+      required: true
+      description_zh: result caveat policy 必須先通過 validator。
+    - target_id: output_location_policy_validated
+      required: true
+      description_zh: output location policy 必須先通過 validator。
+    - target_id: explicit_output_writer_phase
+      required: true
+      description_zh: 必須另有明確 output writer phase 才能開始寫檔。
+    - target_id: explicit_user_command_required
+      required: true
+      description_zh: 寫入 backtest result 必須由明確命令觸發，不得自動寫入。
+    - target_id: no_public_auto_output
+      required: true
+      description_zh: 回測結果不得自動輸出到 public/dashboard。
+    - target_id: no_live_allocation_or_trade_signal
+      required: true
+      description_zh: 回測結果不得包含 live allocation 或 trade signal。
+
+  output_file_policy:
+    allowed_extensions_future_only:
+      - .json
+      - .csv
+      - .md
+    default_write_allowed_now: false
+    overwrite_allowed_now: false
+    append_allowed_now: false
+    directory_creation_allowed_now: false
+    public_sync_allowed_now: false
+    git_track_result_files_allowed_now: false
+    required_file_caveats_zh:
+      - backtest-only，不是目前配置建議。
+      - 回測結果不代表未來績效。
+      - 不構成投資建議。
+
+  required_safety_dependencies:
+    backtest_result_safety_validator:
+      future_path: specs/portfolio/backtest_result_safety_validator_contract.yaml
+      required_before_writing_results: true
+    backtest_result_caveat_policy:
+      future_path: specs/portfolio/backtest_result_caveat_policy.yaml
+      required_before_writing_results: true
+    explicit_output_writer_contract:
+      future_path: specs/portfolio/backtest_result_writer_contract.yaml
+      required_before_writing_results: true
+
+  prohibited_result_fields_for_any_written_output:
+    - live_allocation
+    - current_allocation
+    - target_weight
+    - target_weights
+    - portfolio_action
+    - buy_signal
+    - sell_signal
+    - add_signal
+    - reduce_signal
+    - rebalance_now
+    - current_market_recommendation
+    - public_dashboard_output
+    - dashboard_portfolio_action
+    - live_recommendation
+    - current_phase_override
+    - decision_status_override
+
+  phase_9a3_closure:
+    status: output_location_policy_design_only
+    conclusion_zh: >
+      Phase 9A3 只完成 backtest output location policy design。
+      尚未執行 real backtest、未計算績效、未產生 result、未建立 output directory、
+      未寫入 data/backtests 或 public。
+  recommended_next_phase:
+    phase_id: 9A4
+    title: backtest result caveat policy
+    reason_zh: >
+      已完成 output location policy。下一步應定義 backtest result caveat policy，
+      確保未來所有 result 都標記 backtest-only、不代表未來績效、不構成投資建議。

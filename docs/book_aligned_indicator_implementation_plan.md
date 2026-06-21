@@ -679,6 +679,18 @@ Registry 定義 total return、annualized return、volatility、max drawdown、t
 
 本階段仍不執行回測、不產生 result、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A3：backtest output location policy。
 
+## Phase 9A3 Backtest Output Location Policy
+
+Phase 9A3 新增 `specs/portfolio/backtest_output_location_policy.yaml` 與 output location policy validator。此階段只定義 future result 的 output location policy，不建立 output directory，也不寫 result file。
+
+```bash
+python scripts/show_backtest_output_location_policy.py
+```
+
+Policy 定義 `data/backtests/research` 只能作為 future controlled research path，且必須等 explicit output writer phase、result safety validator、result caveat policy 與 explicit user command 完成後才可使用。Policy 同時禁止 public、docs、site、dashboard、github_pages、data/backtests、data/raw、specs、src、tests auto-write。
+
+本階段仍不執行 backtest、不計算績效、不產生 result、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A4：backtest result caveat policy。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

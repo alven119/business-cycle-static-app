@@ -301,3 +301,22 @@ phase_specific_gates:
       - recommended_next_phase == 9A3
     soft_warnings_allowed:
       - metric_count > 0 because formulas are schema-only and no values are computed now
+
+  backtest_output_location_policy:
+    hard_gates:
+      - write_result_files_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - create_output_directories_allowed == false
+      - execute_backtest_allowed == false
+      - compute_metric_values_allowed == false
+      - produce_backtest_results_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - default_write_allowed_now == false
+      - public_sync_allowed_now == false
+      - git_track_result_files_allowed_now == false
+      - phase_9a3_closure_status == output_location_policy_design_only
+      - recommended_next_phase == 9A4
+    soft_warnings_allowed:
+      - future_controlled_research_path_count > 0 because paths are policy-only and writing is not allowed now
