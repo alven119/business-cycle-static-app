@@ -1,0 +1,380 @@
+backtest_result_safety_validator_fixtures:
+  version: 1
+  status: draft
+  safety_validator_contract_path: specs/portfolio/backtest_result_safety_validator_contract.yaml
+  result_output_contract_path: specs/portfolio/backtest_result_output_contract.yaml
+  caveat_policy_path: specs/portfolio/backtest_result_caveat_policy.yaml
+  output_location_policy_path: specs/portfolio/backtest_output_location_policy.yaml
+  objective_zh: >
+    提供 future backtest result safety validator 的合法與非法 result fixtures，
+    驗證 fixture-only validator 能接受安全的 sample result，
+    並拒絕 live allocation、target weight、trade signal、current recommendation、
+    public auto-output、phase override、prohibited text 與 caveat 缺失。
+  caveats_zh:
+    - 此為 safety validator fixtures，不是真實回測結果。
+    - fixture values 僅供 schema 與 safety validation 測試。
+    - 本階段不計算任何實際績效值。
+    - 本階段不產生 result file。
+    - 本階段不寫入 data/backtests 或 public。
+    - 不構成投資建議。
+
+  valid_result_fixtures:
+    - fixture_id: valid_backtest_summary_with_required_caveats
+      result:
+        result_id: fixture_valid_backtest_summary_v1
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        validation_status: fixture_sample
+        metric_summary:
+          sample_only: true
+          metric_values_are_real: false
+          metric_values_computed_now: false
+          metrics_available_in_future_contract:
+            - total_return
+            - annualized_return
+            - volatility
+            - max_drawdown
+            - turnover
+        risk_summary:
+          sample_only: true
+          no_live_decision: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 本結果僅供研究與模型驗證。
+          - 不構成投資建議。
+        metadata:
+          caveats_zh:
+            - backtest-only，不是目前配置建議。
+            - 回測結果不代表未來績效。
+            - 不構成投資建議。
+          output_written: false
+          public_output_written: false
+          data_backtests_output_written: false
+          caveats_visible_before_metrics: true
+
+    - fixture_id: valid_covid_result_with_contextual_caveat
+      result:
+        result_id: fixture_valid_covid_summary_v1
+        scenario_id: covid_recession
+        policy_template_id: recession_defense_template
+        parameter_set_id: recession_confirmation_caveated_monthly
+        backtest_input_id: covid_recession_defense_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: caveat_report
+        validation_status: fixture_sample
+        metric_summary:
+          sample_only: true
+          metric_values_are_real: false
+          metric_values_computed_now: false
+        risk_summary:
+          sample_only: true
+          no_live_decision: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 本結果僅供研究與模型驗證。
+          - COVID 屬外生衝擊，結果不可直接推論一般景氣循環策略有效。
+          - 不構成投資建議。
+        metadata:
+          caveats_zh:
+            - backtest-only，不是目前配置建議。
+            - 回測結果不代表未來績效。
+            - 不構成投資建議。
+          output_written: false
+          public_output_written: false
+          data_backtests_output_written: false
+          caveats_visible_before_metrics: true
+
+    - fixture_id: valid_sensitivity_result_schema_only
+      result:
+        result_id: fixture_valid_sensitivity_schema_v1
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: sensitivity_result_table
+        validation_status: fixture_sample
+        sensitivity_summary:
+          sample_only: true
+          metric_values_are_real: false
+          metric_values_computed_now: false
+        metric_summary:
+          sample_only: true
+          metric_values_are_real: false
+          metric_values_computed_now: false
+        risk_summary:
+          sample_only: true
+          no_live_decision: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 本結果僅供研究與模型驗證。
+          - 不構成投資建議。
+        metadata:
+          caveats_zh:
+            - backtest-only，不是目前配置建議。
+            - 回測結果不代表未來績效。
+            - 不構成投資建議。
+          output_written: false
+          public_output_written: false
+          data_backtests_output_written: false
+          caveats_visible_before_metrics: true
+
+  invalid_result_fixtures:
+    - fixture_id: invalid_live_allocation_field
+      expected_error_contains: live_allocation
+      result:
+        result_id: invalid_live_allocation_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        live_allocation:
+          stocks: 0.7
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_target_weight_field
+      expected_error_contains: target_weight
+      result:
+        result_id: invalid_target_weight_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        target_weight: 0.5
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_buy_signal_field
+      expected_error_contains: buy_signal
+      result:
+        result_id: invalid_buy_signal_field
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        buy_signal: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_sell_signal_field
+      expected_error_contains: sell_signal
+      result:
+        result_id: invalid_sell_signal_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        sell_signal: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_current_market_recommendation_field
+      expected_error_contains: current_market_recommendation
+      result:
+        result_id: invalid_current_market_recommendation_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        current_market_recommendation: 增加股票配置
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_public_dashboard_output_field
+      expected_error_contains: public_dashboard_output
+      result:
+        result_id: invalid_public_dashboard_output_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        public_dashboard_output: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_current_phase_override_field
+      expected_error_contains: current_phase_override
+      result:
+        result_id: invalid_current_phase_override_field
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        current_phase_override: recession
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_buy_signal
+      expected_error_contains: 買進訊號
+      result:
+        result_id: invalid_prohibited_text_buy_signal
+        scenario_id: dotcom_bubble
+        policy_template_id: recovery_re_risking_template
+        parameter_set_id: recovery_watch_2q_quarterly
+        backtest_input_id: dotcom_recovery_re_risking_quarterly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        scenario_notes_zh: 這是買進訊號。
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_prohibited_text_current_recommendation
+      expected_error_contains: 目前建議
+      result:
+        result_id: invalid_prohibited_text_current_recommendation
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        scenario_notes_zh: 目前建議降低股票部位。
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_missing_not_investment_advice_caveat
+      expected_error_contains: 不構成投資建議
+      result:
+        result_id: invalid_missing_not_investment_advice_caveat
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+
+    - fixture_id: invalid_missing_backtest_only_caveat
+      expected_error_contains: backtest-only
+      result:
+        result_id: invalid_missing_backtest_only_caveat
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        caveats_zh:
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+
+    - fixture_id: invalid_caveats_not_visible_before_metrics
+      expected_error_contains: caveats_visible_before_metrics
+      result:
+        result_id: invalid_caveats_not_visible_before_metrics
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        metric_summary:
+          sample_only: true
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+        metadata:
+          caveats_visible_before_metrics: false
+          output_written: false
+          public_output_written: false
+          data_backtests_output_written: false
+
+    - fixture_id: invalid_public_output_written_true
+      expected_error_contains: public_output_written
+      result:
+        result_id: invalid_public_output_written_true
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+        metadata:
+          caveats_visible_before_metrics: true
+          output_written: false
+          public_output_written: true
+          data_backtests_output_written: false
+
+    - fixture_id: invalid_data_backtests_output_written_true
+      expected_error_contains: data_backtests_output_written
+      result:
+        result_id: invalid_data_backtests_output_written_true
+        scenario_id: global_financial_crisis
+        policy_template_id: boom_de_risking_template
+        parameter_set_id: boom_705030_persistence_3m_monthly
+        backtest_input_id: gfc_boom_de_risking_monthly_v1
+        data_mode: fixture_only
+        backtest_only: true
+        result_type: backtest_summary
+        caveats_zh:
+          - backtest-only，不是目前配置建議。
+          - 回測結果不代表未來績效。
+          - 不構成投資建議。
+        metadata:
+          caveats_visible_before_metrics: true
+          output_written: false
+          public_output_written: false
+          data_backtests_output_written: true

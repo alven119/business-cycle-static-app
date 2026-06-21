@@ -227,6 +227,18 @@ Safety validator contract 定義 future validator 必須執行的 prohibited fie
 
 本階段不實作 validator runtime、不驗證真實 result、不產生 result file、不計算績效、不建立 output directory、不寫入 `data/backtests` 或 `public`。下一步應建立 safety validator fixtures。
 
+## Phase 9A6 Backtest Result Safety Validator Fixtures
+
+Phase 9A6 新增 backtest result safety validator fixtures。
+
+```bash
+python scripts/validate_backtest_result_safety_validator_fixtures.py
+```
+
+Fixtures 用來驗證 future safety validator contract 的拒絕路徑。Valid fixtures 是 fixture-only / sample-only schema examples，不是真實回測結果；invalid fixtures 必須能被拒絕，涵蓋 live allocation、target weight、buy/sell signal、current recommendation、public dashboard output、phase override、decision override、prohibited text、caveat 缺失、caveat visibility 與 output location violation。
+
+本階段不驗證真實 result、不執行回測、不計算績效、不產生 result file、不建立 output directory、不寫入 `data/backtests` 或 `public`。所有內容不構成投資建議。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

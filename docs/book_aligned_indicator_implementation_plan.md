@@ -715,6 +715,18 @@ Contract 定義 prohibited field checks、prohibited text checks、required cave
 
 本階段仍不執行 backtest、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。Recommended next phase 是 9A6：backtest result safety validator fixtures。
 
+## Phase 9A6 Backtest Result Safety Validator Fixtures
+
+Phase 9A6 新增 `specs/portfolio/backtest_result_safety_validator_fixtures.yaml` 與 fixture-only validator。此階段只驗證合法與非法 result fixtures，不驗證真實 result，也不實作 runtime validator。
+
+```bash
+python scripts/validate_backtest_result_safety_validator_fixtures.py
+```
+
+Valid fixtures 是 schema/safety samples，必須標記 sample-only、fixture-only、不是真實績效，且包含 required caveats 與 output flags false。Invalid fixtures 故意覆蓋 live allocation、target weight、buy/sell signal、current recommendation、public dashboard output、phase override、prohibited text、caveat 缺失、caveat visibility 與 output location violation。
+
+本階段仍不執行 backtest、不計算績效、不產生 result、不建立 output directory、不寫入 `data/backtests` 或 `public`。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

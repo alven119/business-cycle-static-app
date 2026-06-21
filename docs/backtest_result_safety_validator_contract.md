@@ -62,6 +62,16 @@ Future validator 可以回傳 `passed` 或 `failed`，並包含 validation statu
 
 Runtime 前必須先通過 safety validator contract、result output contract、output location policy、result caveat policy，並定義 safety validator fixtures，驗證 prohibited text、live allocation / target weight 與 public auto-output fixture rejection。
 
+## Phase 9A6 Fixtures
+
+Phase 9A6 新增 `specs/portfolio/backtest_result_safety_validator_fixtures.yaml`，用 fixture-only 樣本驗證 contract 的 rejection paths。合法 fixtures 是 schema / safety samples，不是真實回測結果；若出現 metric 欄位，也只能是 `sample_only`、`metric_values_are_real=false`、`metric_values_computed_now=false`。
+
+Valid fixture examples 包含 backtest summary、COVID caveat report 與 sensitivity result schema-only sample。它們都必須包含 backtest-only、回測結果不代表未來績效、本結果僅供研究與模型驗證、不構成投資建議，並在 metadata 中標記 `output_written=false`、`public_output_written=false`、`data_backtests_output_written=false`、`caveats_visible_before_metrics=true`。
+
+Invalid fixture groups 覆蓋 live allocation、target weight、buy/sell signal、current market recommendation、public dashboard output、current phase override、prohibited text、缺少 required caveat、caveats 不可見、public output written 與 data/backtests output written。
+
+Fixture-only validator 只驗證這些 fixtures 是否符合 safety contract；它不是 runtime validator，不驗證真實 result，不計算 metric values，不產生 result file，不建立 output directory，也不寫入 `data/backtests` 或 `public`。
+
 ## 為什麼下一步做 Safety Validator Fixtures
 
 Contract 只定義應檢查什麼。Phase 9A6 應建立合法與非法 result fixtures，用 fixture 驗證 future safety validator 能阻擋 live allocation、trade signal、public auto-output、prohibited text 與 caveat 缺失。

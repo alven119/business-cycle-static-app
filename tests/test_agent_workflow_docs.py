@@ -73,6 +73,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     safety_validator_gates = phase_specific["backtest_result_safety_validator_contract"][
         "hard_gates"
     ]
+    safety_validator_fixture_gates = phase_specific[
+        "backtest_result_safety_validator_fixtures"
+    ]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -159,6 +162,13 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "validator_runtime_allowed_now == false" in safety_validator_gates
     assert "real_result_validation_allowed_now == false" in safety_validator_gates
     assert "recommended_next_phase == 9A6" in safety_validator_gates
+    assert "valid_pass_count == valid_result_fixture_count" in safety_validator_fixture_gates
+    assert (
+        "invalid_rejected_count == invalid_result_fixture_count"
+        in safety_validator_fixture_gates
+    )
+    assert "public_output_written == false" in safety_validator_fixture_gates
+    assert "result == passed" in safety_validator_fixture_gates
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

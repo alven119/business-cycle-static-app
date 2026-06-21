@@ -34,6 +34,43 @@ class BacktestResultSafetyValidatorContract:
     recommended_next_phase: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class BacktestResultSafetyValidatorFixtures:
+    """Backtest result safety validator fixture bundle."""
+
+    version: int
+    status: str
+    safety_validator_contract_path: str
+    result_output_contract_path: str
+    caveat_policy_path: str
+    output_location_policy_path: str
+    objective_zh: str
+    caveats_zh: list[str]
+    valid_result_fixtures: list[dict[str, Any]]
+    invalid_result_fixtures: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class BacktestResultSafetyValidatorFixtureValidationSummary:
+    """Validation counters for backtest result safety validator fixtures."""
+
+    contract_version: int
+    fixtures_version: int
+    valid_result_fixture_count: int
+    invalid_result_fixture_count: int
+    valid_pass_count: int
+    invalid_rejected_count: int
+    unexpected_valid_failures: int
+    unexpected_invalid_passes: int
+    expected_error_mismatches: int
+    public_output_written: bool
+    data_backtests_output_written: bool
+    output_written: bool
+    allocation_output_generated: bool
+    trade_signal_generated: bool
+    result: str
+
+
 def load_backtest_result_safety_validator_contract(
     path: str | Path,
 ) -> BacktestResultSafetyValidatorContract:
@@ -62,6 +99,34 @@ def load_backtest_result_safety_validator_contract(
     contract = _contract_from_mapping({str(key): value for key, value in raw.items()})
     validate_backtest_result_safety_validator_contract(contract)
     return contract
+
+
+def load_backtest_result_safety_validator_fixtures(
+    path: str | Path,
+) -> BacktestResultSafetyValidatorFixtures:
+    """Load backtest result safety validator fixtures YAML."""
+
+    yaml_path = Path(path)
+    if not yaml_path.exists():
+        raise BacktestResultSafetyValidatorContractError(
+            f"backtest_result_safety_validator_fixtures file does not exist: {yaml_path}"
+        )
+    try:
+        payload = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise BacktestResultSafetyValidatorContractError(
+            f"Invalid YAML in {yaml_path}: {exc}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise BacktestResultSafetyValidatorContractError(
+            "backtest_result_safety_validator_fixtures YAML must be a mapping"
+        )
+    raw = payload.get("backtest_result_safety_validator_fixtures")
+    if not isinstance(raw, dict):
+        raise BacktestResultSafetyValidatorContractError(
+            "backtest_result_safety_validator_fixtures YAML must contain a mapping"
+        )
+    return _fixtures_from_mapping({str(key): value for key, value in raw.items()})
 
 
 def validate_backtest_result_safety_validator_contract(
@@ -125,6 +190,85 @@ def validate_backtest_result_safety_validator_contract(
     _validate_output_location_enforcement(contract.output_location_enforcement)
     _validate_validator_result_contract(contract.validator_result_contract)
     _validate_caveats(contract.caveats_zh)
+
+
+def validate_backtest_result_fixture(
+    result: dict[str, Any],
+    contract: BacktestResultSafetyValidatorContract,
+) -> None:
+    """Validate one fixture-only result against the safety validator contract."""
+
+    validate_backtest_result_safety_validator_contract(contract)
+    if not isinstance(result, dict):
+        raise BacktestResultSafetyValidatorContractError(
+            "backtest result fixture must be a mapping"
+        )
+    _reject_prohibited_fields(result, contract.prohibited_result_fields)
+    _reject_prohibited_text(result, contract.prohibited_text_patterns)
+    _validate_result_caveats(result, contract)
+    _validate_result_metadata(result)
+    _validate_covid_contextual_caveat(result)
+
+
+def validate_backtest_result_safety_validator_fixtures(
+    fixtures: BacktestResultSafetyValidatorFixtures,
+    contract: BacktestResultSafetyValidatorContract,
+) -> BacktestResultSafetyValidatorFixtureValidationSummary:
+    """Validate valid and invalid fixture-only backtest result examples."""
+
+    validate_backtest_result_safety_validator_contract(contract)
+    valid_pass_count = 0
+    unexpected_valid_failures = 0
+    for fixture in fixtures.valid_result_fixtures:
+        try:
+            validate_backtest_result_fixture(_fixture_result(fixture), contract)
+        except BacktestResultSafetyValidatorContractError:
+            unexpected_valid_failures += 1
+        else:
+            valid_pass_count += 1
+
+    invalid_rejected_count = 0
+    unexpected_invalid_passes = 0
+    expected_error_mismatches = 0
+    for fixture in fixtures.invalid_result_fixtures:
+        expected = str(fixture.get("expected_error_contains") or "")
+        try:
+            validate_backtest_result_fixture(_fixture_result(fixture), contract)
+        except BacktestResultSafetyValidatorContractError as exc:
+            invalid_rejected_count += 1
+            if expected and expected not in str(exc):
+                expected_error_mismatches += 1
+        else:
+            unexpected_invalid_passes += 1
+
+    result = (
+        "passed"
+        if (
+            valid_pass_count == len(fixtures.valid_result_fixtures)
+            and invalid_rejected_count == len(fixtures.invalid_result_fixtures)
+            and unexpected_valid_failures == 0
+            and unexpected_invalid_passes == 0
+            and expected_error_mismatches == 0
+        )
+        else "failed"
+    )
+    return BacktestResultSafetyValidatorFixtureValidationSummary(
+        contract_version=contract.version,
+        fixtures_version=fixtures.version,
+        valid_result_fixture_count=len(fixtures.valid_result_fixtures),
+        invalid_result_fixture_count=len(fixtures.invalid_result_fixtures),
+        valid_pass_count=valid_pass_count,
+        invalid_rejected_count=invalid_rejected_count,
+        unexpected_valid_failures=unexpected_valid_failures,
+        unexpected_invalid_passes=unexpected_invalid_passes,
+        expected_error_mismatches=expected_error_mismatches,
+        public_output_written=False,
+        data_backtests_output_written=False,
+        output_written=False,
+        allocation_output_generated=False,
+        trade_signal_generated=False,
+        result=result,
+    )
 
 
 def summarize_backtest_result_safety_validator_contract(
@@ -247,6 +391,50 @@ def _contract_from_mapping(payload: dict[str, Any]) -> BacktestResultSafetyValid
         phase_9a5_closure=_mapping(payload["phase_9a5_closure"], "phase_9a5_closure"),
         recommended_next_phase=_mapping(payload["recommended_next_phase"], "recommended_next_phase"),
     )
+
+
+def _fixtures_from_mapping(payload: dict[str, Any]) -> BacktestResultSafetyValidatorFixtures:
+    required = (
+        "version",
+        "status",
+        "safety_validator_contract_path",
+        "result_output_contract_path",
+        "caveat_policy_path",
+        "output_location_policy_path",
+        "objective_zh",
+        "caveats_zh",
+        "valid_result_fixtures",
+        "invalid_result_fixtures",
+    )
+    missing = [field for field in required if field not in payload]
+    if missing:
+        raise BacktestResultSafetyValidatorContractError(
+            "backtest_result_safety_validator_fixtures missing required field(s): "
+            f"{', '.join(missing)}"
+        )
+    fixtures = BacktestResultSafetyValidatorFixtures(
+        version=int(payload["version"]),
+        status=str(payload["status"]),
+        safety_validator_contract_path=str(payload["safety_validator_contract_path"]),
+        result_output_contract_path=str(payload["result_output_contract_path"]),
+        caveat_policy_path=str(payload["caveat_policy_path"]),
+        output_location_policy_path=str(payload["output_location_policy_path"]),
+        objective_zh=str(payload["objective_zh"]),
+        caveats_zh=_str_list(payload["caveats_zh"], "caveats_zh"),
+        valid_result_fixtures=_list_of_mappings(
+            payload["valid_result_fixtures"],
+            "valid_result_fixtures",
+        ),
+        invalid_result_fixtures=_list_of_mappings(
+            payload["invalid_result_fixtures"],
+            "invalid_result_fixtures",
+        ),
+    )
+    if not any("不構成投資建議" in caveat for caveat in fixtures.caveats_zh):
+        raise BacktestResultSafetyValidatorContractError(
+            "fixtures.caveats_zh must include 不構成投資建議"
+        )
+    return fixtures
 
 
 def _validate_scope(scope: dict[str, dict[str, Any]]) -> None:
@@ -382,6 +570,105 @@ def _validate_caveats(caveats: list[str]) -> None:
         raise BacktestResultSafetyValidatorContractError(
             "caveats_zh must include 不構成投資建議"
         )
+
+
+def _fixture_result(fixture: dict[str, Any]) -> dict[str, Any]:
+    result = fixture.get("result")
+    if not isinstance(result, dict):
+        fixture_id = str(fixture.get("fixture_id") or "<unknown>")
+        raise BacktestResultSafetyValidatorContractError(
+            f"{fixture_id}.result must be a mapping"
+        )
+    return {str(key): value for key, value in result.items()}
+
+
+def _reject_prohibited_fields(value: Any, prohibited_fields: list[str]) -> None:
+    prohibited = set(prohibited_fields)
+    for path, nested in _walk_nested(value):
+        if path and path[-1] in prohibited:
+            raise BacktestResultSafetyValidatorContractError(
+                f"prohibited result field present: {path[-1]}"
+            )
+        if isinstance(nested, dict):
+            for key in nested:
+                if str(key) in prohibited:
+                    raise BacktestResultSafetyValidatorContractError(
+                        f"prohibited result field present: {key}"
+                    )
+
+
+def _reject_prohibited_text(
+    value: Any,
+    patterns_by_language: dict[str, list[str]],
+) -> None:
+    patterns = [pattern for values in patterns_by_language.values() for pattern in values]
+    for _path, nested in _walk_nested(value):
+        if isinstance(nested, str):
+            for pattern in patterns:
+                if pattern in nested:
+                    raise BacktestResultSafetyValidatorContractError(
+                        f"prohibited text pattern present: {pattern}"
+                    )
+
+
+def _validate_result_caveats(
+    result: dict[str, Any],
+    contract: BacktestResultSafetyValidatorContract,
+) -> None:
+    caveats = _str_list(result.get("caveats_zh"), "caveats_zh")
+    required = [
+        caveat
+        for caveat in contract.required_caveat_checks["required_global_caveats_zh"]
+        if caveat
+        in {
+            "backtest-only，不是目前配置建議。",
+            "回測結果不代表未來績效。",
+            "不構成投資建議。",
+        }
+    ]
+    for caveat in required:
+        if caveat not in caveats:
+            raise BacktestResultSafetyValidatorContractError(
+                f"caveats_zh missing required caveat: {caveat}"
+            )
+
+
+def _validate_result_metadata(result: dict[str, Any]) -> None:
+    metadata = _mapping(result.get("metadata"), "metadata")
+    for field in (
+        "output_written",
+        "public_output_written",
+        "data_backtests_output_written",
+    ):
+        if metadata.get(field) is True:
+            raise BacktestResultSafetyValidatorContractError(
+                f"metadata.{field} must not be true"
+            )
+    if metadata.get("caveats_visible_before_metrics") is not True:
+        raise BacktestResultSafetyValidatorContractError(
+            "metadata.caveats_visible_before_metrics must be true"
+        )
+
+
+def _validate_covid_contextual_caveat(result: dict[str, Any]) -> None:
+    if result.get("scenario_id") != "covid_recession":
+        return
+    caveats = _str_list(result.get("caveats_zh"), "caveats_zh")
+    if not any("COVID 屬外生衝擊" in caveat for caveat in caveats):
+        raise BacktestResultSafetyValidatorContractError(
+            "covid_recession result must include COVID contextual caveat"
+        )
+
+
+def _walk_nested(value: Any, path: tuple[str, ...] = ()) -> list[tuple[tuple[str, ...], Any]]:
+    items = [(path, value)]
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            items.extend(_walk_nested(nested, (*path, str(key))))
+    elif isinstance(value, list):
+        for index, nested in enumerate(value):
+            items.extend(_walk_nested(nested, (*path, str(index))))
+    return items
 
 
 def _mapping(value: Any, field: str) -> dict[str, Any]:

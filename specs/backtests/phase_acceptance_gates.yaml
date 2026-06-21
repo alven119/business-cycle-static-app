@@ -355,3 +355,19 @@ phase_specific_gates:
       - recommended_next_phase == 9A6
     soft_warnings_allowed:
       - safety_check_group_count > 0 because checks are contract-only and validator runtime is not implemented now
+
+  backtest_result_safety_validator_fixtures:
+    hard_gates:
+      - valid_pass_count == valid_result_fixture_count
+      - invalid_rejected_count == invalid_result_fixture_count
+      - unexpected_valid_failures == 0
+      - unexpected_invalid_passes == 0
+      - expected_error_mismatches == 0
+      - public_output_written == false
+      - data_backtests_output_written == false
+      - output_written == false
+      - allocation_output_generated == false
+      - trade_signal_generated == false
+      - result == passed
+    soft_warnings_allowed:
+      - invalid_result_fixture_count > 0 because invalid fixtures intentionally test rejection paths

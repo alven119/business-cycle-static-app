@@ -961,6 +961,22 @@ python scripts/show_backtest_result_safety_validator_contract.py
 
 This phase is contract-only. It defines required check groups, prohibited fields, prohibited text, caveat checks, output location enforcement, and future validator result fields. It does not implement validator runtime, validate real results, produce result files, create output directories, write `data/backtests`, or generate public output.
 
+## Phase 9A6 backtest result safety validator fixtures
+
+Phase 9A6 defines fixture-only safety validator examples.
+
+```text
+specs/portfolio/backtest_result_safety_validator_fixtures.yaml
+```
+
+Validate the fixtures with:
+
+```bash
+python scripts/validate_backtest_result_safety_validator_fixtures.py
+```
+
+This phase is fixture-only. It provides valid sample results and intentionally invalid examples for live allocation, target weight, buy/sell signal, current recommendation, public dashboard output, phase override, prohibited text, caveat visibility, and output-location violations. It does not implement validator runtime, validate real results, produce result files, create output directories, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
