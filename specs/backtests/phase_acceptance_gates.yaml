@@ -210,3 +210,16 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - none
+
+  portfolio_backtest_structural_dry_run_runner:
+    hard_gates:
+      - performance_metrics_computed == false
+      - output_written == false
+      - data_backtests_output_written == false
+      - public_output_written == false
+      - allocation_output_generated == false
+      - trade_signal_generated == false
+      - invalid_dry_run_count == 0
+      - result == passed
+    soft_warnings_allowed:
+      - none

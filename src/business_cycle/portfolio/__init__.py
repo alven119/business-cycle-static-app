@@ -27,6 +27,12 @@ from business_cycle.portfolio.dry_run_contract import (
     validate_portfolio_backtest_dry_run_fixtures,
     validate_portfolio_backtest_dry_run_output,
 )
+from business_cycle.portfolio.dry_run_runner import (
+    build_dry_run_output_for_input,
+    run_portfolio_backtest_structural_dry_run,
+    summarize_dry_run_outputs,
+    validate_dry_run_runner_summary,
+)
 from business_cycle.portfolio.policy_research import (
     PortfolioPolicyResearchPlan,
     PortfolioPolicyResearchPlanError,
@@ -62,6 +68,7 @@ __all__ = [
     "PortfolioPolicyTemplateFixtureValidationSummary",
     "PortfolioPolicyTemplateFixtures",
     "PortfolioPolicyTemplateSchema",
+    "build_dry_run_output_for_input",
     "load_portfolio_backtest_input_contract",
     "load_portfolio_backtest_dry_run_contract",
     "load_portfolio_backtest_dry_run_fixtures",
@@ -70,6 +77,8 @@ __all__ = [
     "load_portfolio_policy_research_plan",
     "load_portfolio_policy_template_fixtures",
     "load_portfolio_policy_template_schema",
+    "run_portfolio_backtest_structural_dry_run",
+    "summarize_dry_run_outputs",
     "summarize_portfolio_backtest_input_contract",
     "summarize_portfolio_backtest_dry_run_contract",
     "summarize_portfolio_policy_research_plan",
@@ -80,6 +89,7 @@ __all__ = [
     "validate_portfolio_backtest_dry_run_fixtures",
     "validate_portfolio_backtest_dry_run_output",
     "validate_portfolio_backtest_scenario_mapping",
+    "validate_dry_run_runner_summary",
     "validate_portfolio_policy_research_plan",
     "validate_portfolio_policy_template",
     "validate_portfolio_policy_template_fixtures",

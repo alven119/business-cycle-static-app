@@ -795,6 +795,16 @@ python scripts/validate_portfolio_backtest_dry_run_fixtures.py
 
 Valid fixtures 只包含 structural validation summary，不包含績效、allocation 或交易訊號。Invalid fixtures 測試 `total_return`、`max_drawdown`、allocation、target weight、buy signal、public dashboard output、output-written flags、缺少 caveat 與買進訊號文字都會被拒絕。本階段不跑正式 backtest、不產生 `data/backtests`、不產生 allocation，也不構成投資建議。
 
+## Phase 8G Portfolio Structural Dry-Run Runner
+
+Phase 8G 實作 structural dry-run runner。
+
+```bash
+python scripts/run_portfolio_backtest_structural_dry_run.py
+```
+
+Runner 只做 contract validation 與 in-memory structural summary。它不計算績效、不產生 portfolio weights、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。此階段確認 future dry-run engine wiring 的安全邊界，但仍不是正式 backtest，也不構成投資建議。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

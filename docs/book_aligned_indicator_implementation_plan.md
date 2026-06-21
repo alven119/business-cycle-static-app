@@ -607,6 +607,18 @@ python scripts/validate_portfolio_backtest_dry_run_fixtures.py
 
 本階段仍不跑正式 portfolio backtest、不計算績效、不產生 allocation、不產生 `data/backtests` 或 `public/` output，也不構成投資建議。
 
+## Phase 8G Portfolio Structural Dry-Run Runner
+
+Phase 8G 新增 portfolio structural dry-run runner。
+
+```bash
+python scripts/run_portfolio_backtest_structural_dry_run.py
+```
+
+Runner 只載入 contract / mapping / valid input fixtures，完成 validation 後產生 in-memory structural dry-run outputs，並將 aggregate summary 印到 stdout。它不得計算績效、不得輸出 allocation 或交易訊號、不得寫入 `data/backtests` 或 `public/` output。
+
+本階段仍不是正式 portfolio backtest，也不構成投資建議。
+
 ## 驗收方式
 
 後續實作不得只看單一 scenario。至少要用既有 backtest / calibration review 檢查：

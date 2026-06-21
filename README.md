@@ -815,6 +815,16 @@ python scripts/validate_portfolio_backtest_dry_run_fixtures.py
 
 The validator accepts structural dry-run summaries and rejects performance metrics, allocation fields, target weights, trade signals, public dashboard output, output-written flags, and prohibited recommendation text. It does not run a portfolio backtest or generate `data/backtests`.
 
+## Phase 8G portfolio structural dry-run runner
+
+Phase 8G adds a stdout-only structural dry-run runner.
+
+```bash
+python scripts/run_portfolio_backtest_structural_dry_run.py
+```
+
+The runner loads contracts, scenario mapping, and valid input fixtures; validates them; builds in-memory structural summaries; and prints aggregate safety flags. It does not compute performance, produce allocation, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
