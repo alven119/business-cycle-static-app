@@ -3,11 +3,19 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
+from business_cycle.data_sources.point_in_time import (
+    PointInTimeError,
+    select_initial_release_only,
+    select_release_lag_proxy,
+    select_vintage_as_of,
+    snapshot_to_frame,
+)
 from business_cycle.indicators.batch_scoring import (
     IndicatorBatchScoreSummary,
     score_indicator_batch,
@@ -15,6 +23,7 @@ from business_cycle.indicators.batch_scoring import (
 )
 from business_cycle.indicators.catalog import load_indicator_catalog, load_indicator_scoring_specs
 from business_cycle.indicators.scoring import IndicatorScoreResult
+from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
 DEFAULT_CATALOG_PATH = Path("specs/indicator_catalog.yaml")
 DEFAULT_INPUT_DIR = Path("data/raw/fred")
@@ -35,10 +44,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output-path",
+        "--output",
         default=str(DEFAULT_OUTPUT_PATH),
         help="JSON output path.",
     )
     parser.add_argument("--as-of", help="Optional scoring date in YYYY-MM-DD format.")
+    parser.add_argument(
+        "--data-mode",
+        choices=[
+            "revised",
+            "release_lag_adjusted_revised_proxy",
+            "initial_release_only",
+            "vintage_as_of",
+        ],
+        default="revised",
+    )
+    parser.add_argument(
+        "--point-in-time-cache-dir",
+        default="data/raw/fred_vintages",
+    )
     parser.add_argument(
         "--indicator-id",
         action="append",
@@ -56,10 +80,20 @@ def main(argv: list[str] | None = None) -> int:
     specs = filter_specs(specs, indicator_ids=args.indicator_id)
     catalog_entries = filter_entries(catalog_entries, indicator_ids=args.indicator_id)
 
-    observations_by_indicator, load_failures, selected_inputs = load_observations_by_indicator(
-        catalog_entries,
-        input_dir=Path(args.input_dir),
-    )
+    if args.data_mode == "revised":
+        observations_by_indicator, load_failures, selected_inputs = load_observations_by_indicator(
+            catalog_entries,
+            input_dir=Path(args.input_dir),
+        )
+    else:
+        observations_by_indicator, load_failures, selected_inputs = (
+            load_point_in_time_observations_by_indicator(
+                catalog_entries,
+                cache_dir=Path(args.point_in_time_cache_dir),
+                data_mode=args.data_mode,
+                as_of=args.as_of,
+            )
+        )
     load_failed_indicators = {failure["indicator_id"] for failure in load_failures}
     scorable_specs = {
         indicator_id: spec
@@ -78,6 +112,22 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     output_path = write_indicator_scores_json(summary, args.output_path)
+    _add_data_mode_metadata(
+        output_path,
+        requested_data_mode=args.data_mode,
+        actual_data_mode=args.data_mode if not load_failures else "blocked",
+        as_of=args.as_of,
+        missing_series=[
+            failure["series_id"]
+            for failure in load_failures
+            if failure.get("series_id") is not None
+        ],
+        proxy_series=[
+            item["selected_series_id"]
+            for item in selected_inputs.values()
+            if item.get("data_mode") == "release_lag_adjusted_revised_proxy"
+        ],
+    )
     print(
         "summary "
         f"total={summary.total_indicators} scored={summary.scored_indicators} "
@@ -177,6 +227,89 @@ def load_observations_by_indicator(
     return observations_by_indicator, failures, selected_inputs
 
 
+def load_point_in_time_observations_by_indicator(
+    entries: list[dict[str, Any]],
+    *,
+    cache_dir: Path,
+    data_mode: str,
+    as_of: str | None,
+) -> tuple[dict[str, pd.DataFrame], list[dict[str, str]], dict[str, dict[str, Any]]]:
+    if not as_of:
+        return (
+            {},
+            [
+                {
+                    "indicator_id": str(entry.get("indicator_id", "")),
+                    "series_id": "",
+                    "error_type": "MissingAsOf",
+                    "message": "point-in-time data modes require --as-of",
+                }
+                for entry in entries
+            ],
+            {},
+        )
+    cache = PointInTimeCache(cache_dir)
+    observations_by_indicator: dict[str, pd.DataFrame] = {}
+    failures: list[dict[str, str]] = []
+    selected_inputs: dict[str, dict[str, Any]] = {}
+    for entry in entries:
+        indicator_id = str(entry.get("indicator_id", ""))
+        candidate_series = fred_candidate_series_ids(entry)
+        selected_frame: pd.DataFrame | None = None
+        selected_series_id: str | None = None
+        errors: list[str] = []
+        for series_id in candidate_series:
+            try:
+                cached = cache.read_series(series_id)
+                if data_mode == "vintage_as_of":
+                    snapshot = select_vintage_as_of(
+                        cached.rows,
+                        series_id=series_id,
+                        as_of=as_of,
+                    )
+                    if not snapshot.observations:
+                        raise PointInTimeError("strict snapshot has no observations")
+                elif data_mode == "initial_release_only":
+                    snapshot = select_initial_release_only(
+                        cached.rows,
+                        series_id=series_id,
+                        as_of=as_of,
+                    )
+                else:
+                    snapshot = select_release_lag_proxy(
+                        cached.rows,
+                        series_id=series_id,
+                        as_of=as_of,
+                        release_lag_days=30,
+                    )
+                selected_frame = snapshot_to_frame(snapshot)
+                selected_series_id = series_id
+                break
+            except (PointInTimeCacheError, PointInTimeError, ValueError) as exc:
+                errors.append(f"{series_id}: {exc}")
+        if selected_frame is None or selected_series_id is None:
+            failures.append(
+                {
+                    "indicator_id": indicator_id,
+                    "series_id": ",".join(candidate_series),
+                    "error_type": "MissingPointInTimeCache",
+                    "message": (
+                        f"indicator_id={indicator_id} data_mode={data_mode} "
+                        f"candidate_series={candidate_series} root_cause={'; '.join(errors)}"
+                    ),
+                }
+            )
+            continue
+        observations_by_indicator[indicator_id] = selected_frame
+        selected_inputs[indicator_id] = {
+            "selected_series_id": selected_series_id,
+            "selected_csv_path": str(cache.csv_path(selected_series_id)),
+            "candidate_series": candidate_series,
+            "data_mode": data_mode,
+        }
+    return observations_by_indicator, failures, selected_inputs
+
+
 def add_selected_series_details(
     results: list[IndicatorScoreResult],
     selected_inputs: dict[str, dict[str, Any]],
@@ -260,6 +393,26 @@ def _raw_fred_candidate_series_ids(entry: dict[str, Any]) -> list[str]:
                     series_ids.append(series_id)
         return series_ids
     return []
+
+
+def _add_data_mode_metadata(
+    path: Path,
+    *,
+    requested_data_mode: str,
+    actual_data_mode: str,
+    as_of: str | None,
+    missing_series: list[str],
+    proxy_series: list[str],
+) -> None:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["summary"]["requested_data_mode"] = requested_data_mode
+    payload["summary"]["actual_data_mode"] = actual_data_mode
+    payload["summary"]["point_in_time"] = actual_data_mode == "vintage_as_of"
+    payload["summary"]["vintage_as_of"] = as_of if requested_data_mode == "vintage_as_of" else None
+    payload["summary"]["missing_series"] = missing_series
+    payload["summary"]["proxy_series"] = proxy_series
+    payload["summary"]["warnings"] = [] if not proxy_series else ["proxy_series_not_point_in_time"]
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _candidate_series_id_if_fred(candidate: dict[str, Any], *, default_provider: str) -> str | None:

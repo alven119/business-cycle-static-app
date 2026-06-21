@@ -75,28 +75,82 @@ def summarize_temporal_integrity(
     series = registry.get("series", [])
     if not isinstance(series, list):
         raise TemporalIntegrityError("series_release_lag_registry.series must be a list")
+    required_metadata = (
+        "series_id",
+        "availability_mode",
+        "availability_precision",
+        "release_lag_rule",
+        "temporal_status",
+        "point_in_time_eligible",
+    )
     series_with_lag = [
         item
         for item in series
-        if isinstance(item, dict) and item.get("default_release_lag_days") is not None
+        if isinstance(item, dict)
+        and (
+            item.get("default_release_lag_days") is not None
+            or item.get("release_lag_rule") is not None
+        )
     ]
     series_with_vintage = [
-        item for item in series if isinstance(item, dict) and item.get("vintage_support") is True
+        item
+        for item in series
+        if isinstance(item, dict)
+        and (
+            item.get("vintage_support") is True
+            or item.get("temporal_status") == "exact_vintage_ready"
+        )
     ]
     missing_availability = [
         item
         for item in series
         if not isinstance(item, dict)
-        or item.get("default_release_lag_days") is None
-        or item.get("vintage_support") is not True
+        or any(field not in item or item[field] in ("", None) for field in required_metadata)
+    ]
+    without_temporal_status = [
+        item
+        for item in series
+        if not isinstance(item, dict) or not item.get("temporal_status")
+    ]
+    proxy_misclassified = [
+        item
+        for item in series
+        if isinstance(item, dict)
+        and item.get("availability_mode") == "release_lag_proxy"
+        and bool(item.get("point_in_time_eligible"))
     ]
     summary = registry.get("summary", {})
     blocker_count = len(missing_availability)
     return {
         "audited_series_count": len(series),
+        "availability_metadata_complete_count": len(series) - len(missing_availability),
         "series_with_release_lag_count": len(series_with_lag),
         "series_with_vintage_support_count": len(series_with_vintage),
         "series_missing_availability_metadata_count": len(missing_availability),
+        "series_without_temporal_status_count": len(without_temporal_status),
+        "exact_vintage_supported_series_count": len(series_with_vintage),
+        "initial_release_only_series_count": len(
+            [
+                item
+                for item in series
+                if isinstance(item, dict) and item.get("temporal_status") == "initial_release_only"
+            ]
+        ),
+        "release_lag_proxy_series_count": len(
+            [
+                item
+                for item in series
+                if isinstance(item, dict) and item.get("temporal_status") == "proxy_only"
+            ]
+        ),
+        "unsupported_series_count": len(
+            [
+                item
+                for item in series
+                if isinstance(item, dict) and item.get("temporal_status") == "unsupported"
+            ]
+        ),
+        "release_lag_proxy_misclassified_as_point_in_time_count": len(proxy_misclassified),
         "revised_data_only": bool(summary.get("revised_data_only", True)),
         "vintage_data_supported": bool(summary.get("vintage_data_supported", False)),
         "point_in_time_backtest_ready": bool(

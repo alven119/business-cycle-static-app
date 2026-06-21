@@ -48,6 +48,8 @@ Phase 6F attribution smoke summary 顯示：
 - `incomplete_book_indicator_coverage`：目前仍是 MVP 指標集合，尚未完整覆蓋書籍方法論。
 - `revised_data_limitation`：目前使用修訂後歷史資料，不能等同當時投資人實際可見資料。
 
+QA1 已建立 strict `vintage_as_of` data-mode contract 與 cache/selector，但這不會自動解除 calibration holdout 或書籍 benchmark blockers。發布延遲 proxy 仍不屬於 strict vintage mode；initial-release-only 只用於 revision diagnostics。校準與 golden benchmark 必須等 formal strict cache coverage、book method labels、market total-return contract 與 parameter-freeze policy 都完成後才能往 real backtest progression 前進。
+
 ## Candidate Controls
 
 7A 只定義候選控制項，不啟用任何行為：

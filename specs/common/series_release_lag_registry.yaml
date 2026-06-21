@@ -1,239 +1,929 @@
 series_release_lag_registry:
-  version: 1
-  status: draft
-  objective_zh: QA0.1 repository-wide release lag and vintage support inventory. Missing
-    metadata is audited and blocking, not silently ignored.
+  version: 2
+  status: qa1_temporal_metadata_complete
+  objective_zh: QA1 authoritative availability registry. Metadata completeness is
+    separate from local vintage cache coverage.
   series:
   - series_id: AAA
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Moody AAA corporate yield via FRED
+    release_source: Moody AAA corporate yield via FRED
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: AMDMNO
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: ADP National Employment Report
+    release_source: ADP National Employment Report
+    availability_mode: unsupported
+    availability_precision: unknown
+    release_lag_rule: unsupported
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: unsupported
+    point_in_time_eligible: false
+    known_revision_behavior: unsupported
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Candidate ADP payroll series requires non-FRED/provider-specific vintage
+      contract before strict PIT use.
   - series_id: BAA
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Moody BAA corporate yield via FRED
+    release_source: Moody BAA corporate yield via FRED
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: CCNSA
+    source: FRED/ALFRED
     frequency: weekly
-    default_release_lag_days: 5
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    release_family: DOL unemployment insurance weekly claims
+    release_source: DOL unemployment insurance weekly claims
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: CCSA
+    source: FRED/ALFRED
     frequency: weekly
-    default_release_lag_days: 5
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    release_family: DOL unemployment insurance weekly claims
+    release_source: DOL unemployment insurance weekly claims
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: CPIAUCSL
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS CPI
+    release_source: BLS CPI
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: DCOILWTICO
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: EIA daily spot oil price via FRED
+    release_source: EIA daily spot oil price via FRED
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: DFF
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Federal Reserve H.15 daily effective federal funds rate
+    release_source: Federal Reserve H.15 daily effective federal funds rate
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: DGORDER
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: Census Manufacturers Shipments Inventories and Orders
+    release_source: Census Manufacturers Shipments Inventories and Orders
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: DGS10
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Treasury/H.15 daily yield
+    release_source: Treasury/H.15 daily yield
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: EXPGS
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
-  - series_id: FEDFUNDS
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
-  - series_id: FPIC1
+    source: FRED/ALFRED
     frequency: quarterly
-    default_release_lag_days: 45
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
+  - series_id: FEDFUNDS
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: Federal Reserve H.15 / monthly average
+    release_source: Federal Reserve H.15 / monthly average
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
+  - series_id: FPIC1
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: ICNSA
+    source: FRED/ALFRED
     frequency: weekly
-    default_release_lag_days: 5
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    release_family: DOL unemployment insurance weekly claims
+    release_source: DOL unemployment insurance weekly claims
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: ICSA
+    source: FRED/ALFRED
     frequency: weekly
-    default_release_lag_days: 5
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    release_family: DOL unemployment insurance weekly claims
+    release_source: DOL unemployment insurance weekly claims
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: IMPGS
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: INDPRO
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: Federal Reserve G.17 Industrial Production
+    release_source: Federal Reserve G.17 Industrial Production
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: IURNSA
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: DOL insured unemployment rate NSA
+    release_source: DOL insured unemployment rate NSA
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: IURSA
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: DOL insured unemployment rate
+    release_source: DOL insured unemployment rate
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: MORTGAGE30US
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: weekly
+    release_family: Freddie Mac PMMS weekly mortgage rate
+    release_source: Freddie Mac PMMS weekly mortgage rate
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: NFCI
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Chicago Fed NFCI
+    release_source: Chicago Fed NFCI
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: PCEC96
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BEA Personal Income and Outlays
+    release_source: BEA Personal Income and Outlays
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: PCEDGC96
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BEA Personal Income and Outlays
+    release_source: BEA Personal Income and Outlays
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: PPIACO
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS PPI
+    release_source: BLS PPI
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: RRSFS
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: Census Advance Monthly Retail Trade / FRED deflated series
+    release_source: Census Advance Monthly Retail Trade / FRED deflated series
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: RSAFS
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: Census Advance Monthly Retail Trade
+    release_source: Census Advance Monthly Retail Trade
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: STLFSI4
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: St. Louis Fed Financial Stress Index
+    release_source: St. Louis Fed Financial Stress Index
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: T10Y2Y
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Treasury/H.15 yield spread
+    release_source: Treasury/H.15 yield spread
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: T10Y3M
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: Treasury/H.15 yield spread
+    release_source: Treasury/H.15 yield spread
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: UEMP15OV
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS Employment Situation
+    release_source: BLS Employment Situation
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: UEMPLT5
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS Employment Situation
+    release_source: BLS Employment Situation
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: UNRATE
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS Employment Situation
+    release_source: BLS Employment Situation
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: WTI
-    frequency: monthly_or_daily
-    default_release_lag_days: 30
-    availability_source: inventory_required_missing_metadata
-    vintage_support: false
-    temporal_integrity_status: missing_release_or_vintage_metadata
+    source: FRED/ALFRED
+    frequency: daily
+    release_family: EIA oil price alias candidate
+    release_source: EIA oil price alias candidate
+    availability_mode: market_observation
+    availability_precision: day
+    release_lag_rule: market_close_or_official_daily_publication
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: false
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: daily market/rate observation; revisions uncommon but
+      cache still requires realtime metadata
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Metadata completeness does not imply local vintage cache coverage; release
+      calendars are not inferred from observation_date.
   - series_id: derived:credit_spread_baa_10y
+    derived_series_id: derived:credit_spread_baa_10y
+    source: derived
     frequency: derived
-    default_release_lag_days: 0
-    availability_source: derived_series
-    vintage_support: false
-    temporal_integrity_status: derived_series
+    input_series_ids:
+    - BAA
+    - DGS10
+    availability_rule: max_input_availability
+    vintage_rule: all_inputs_same_as_of_snapshot
+    availability_mode: derived
+    availability_precision: day
+    release_lag_rule: max input availability; no fixed proxy
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: derived_from_inputs
+    earliest_vintage_date: derived_from_inputs
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: inherits all input revision behavior
+    official_metadata_source: input series metadata
+    caveats: Derived strict PIT requires every input snapshot to be strict and selected
+      for the same as_of date.
   - series_id: derived:credit_spread_baa_aaa
+    derived_series_id: derived:credit_spread_baa_aaa
+    source: derived
     frequency: derived
-    default_release_lag_days: 0
-    availability_source: derived_series
-    vintage_support: false
-    temporal_integrity_status: derived_series
+    input_series_ids:
+    - BAA
+    - AAA
+    availability_rule: max_input_availability
+    vintage_rule: all_inputs_same_as_of_snapshot
+    availability_mode: derived
+    availability_precision: day
+    release_lag_rule: max input availability; no fixed proxy
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: derived_from_inputs
+    earliest_vintage_date: derived_from_inputs
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: inherits all input revision behavior
+    official_metadata_source: input series metadata
+    caveats: Derived strict PIT requires every input snapshot to be strict and selected
+      for the same as_of date.
   - series_id: derived:credit_spread_easing
+    derived_series_id: derived:credit_spread_easing
+    source: derived
     frequency: derived
-    default_release_lag_days: 0
-    availability_source: derived_series
-    vintage_support: false
-    temporal_integrity_status: derived_series
+    input_series_ids:
+    - BAA
+    - AAA
+    availability_rule: max_input_availability
+    vintage_rule: all_inputs_same_as_of_snapshot
+    availability_mode: derived
+    availability_precision: day
+    release_lag_rule: max input availability; no fixed proxy
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: derived_from_inputs
+    earliest_vintage_date: derived_from_inputs
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: inherits all input revision behavior
+    official_metadata_source: input series metadata
+    caveats: Derived strict PIT requires every input snapshot to be strict and selected
+      for the same as_of date.
   - series_id: derived:yield_curve_10y_2y
+    derived_series_id: derived:yield_curve_10y_2y
+    source: derived
     frequency: derived
-    default_release_lag_days: 0
-    availability_source: derived_series
-    vintage_support: false
-    temporal_integrity_status: derived_series
+    input_series_ids:
+    - DGS10
+    - T10Y2Y
+    availability_rule: max_input_availability
+    vintage_rule: all_inputs_same_as_of_snapshot
+    availability_mode: derived
+    availability_precision: day
+    release_lag_rule: max input availability; no fixed proxy
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: derived_from_inputs
+    earliest_vintage_date: derived_from_inputs
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: inherits all input revision behavior
+    official_metadata_source: input series metadata
+    caveats: Derived strict PIT requires every input snapshot to be strict and selected
+      for the same as_of date.
   - series_id: derived:yield_curve_10y_3m
+    derived_series_id: derived:yield_curve_10y_3m
+    source: derived
     frequency: derived
-    default_release_lag_days: 0
-    availability_source: derived_series
-    vintage_support: false
-    temporal_integrity_status: derived_series
+    input_series_ids:
+    - DGS10
+    - T10Y3M
+    availability_rule: max_input_availability
+    vintage_rule: all_inputs_same_as_of_snapshot
+    availability_mode: derived
+    availability_precision: day
+    release_lag_rule: max input availability; no fixed proxy
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: derived_from_inputs
+    earliest_vintage_date: derived_from_inputs
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: inherits all input revision behavior
+    official_metadata_source: input series metadata
+    caveats: Derived strict PIT requires every input snapshot to be strict and selected
+      for the same as_of date.
   summary:
-    revised_data_only: true
-    vintage_data_supported: false
+    authoritative_registry: series_release_lag_registry.yaml
+    discovered_unique_series_count: 38
+    series_missing_availability_metadata_count: 0
+    series_without_temporal_status_count: 0
+    revised_data_only: false
+    vintage_data_supported: true
     point_in_time_backtest_ready: false
     real_backtest_progression_allowed: false
+    release_lag_proxy_misclassified_as_point_in_time_count: 0

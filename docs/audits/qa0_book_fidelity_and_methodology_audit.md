@@ -33,7 +33,11 @@ available_at <= as_of
 vintage_date <= as_of
 ```
 
-目前 local cache 與 backtest outputs 缺完整 release / vintage metadata，因此 `point_in_time_backtest_ready=false`、`vintage_data_supported=false`、`revised_data_only=true`。
+QA1 後，38 個 discovered series 都有明確 availability status。這只代表 metadata inventory complete，不代表 strict point-in-time cache coverage complete。
+
+Temporal modes 已拆分為 `revised`、`release_lag_adjusted_revised_proxy`、`initial_release_only` 與 `vintage_as_of`。發布延遲 proxy 不屬於 strict vintage mode；initial-release-only 也不等同歷史 as-of 當日可見的最新 vintage。Strict `vintage_as_of` 必須使用 date-level `realtime_start` / `realtime_end` interval，並以 end-of-day as-of policy 解讀。缺 metadata 或 cache 時必須 fail closed。
+
+因此 `point_in_time_backtest_ready=false` 仍維持。即使 selector/provider/cache 已建立，real backtest progression 仍需等待後續書籍方法、market total-return 與 calibration gates。
 
 ## Cash-flow methodology
 
@@ -114,6 +118,8 @@ QA0.1 要求：
 - QA0 aggregate summary 必須由 specs / inventory 動態計算，不得使用固定 count。
 
 QA0.1 pass 只代表清冊完整與 drift detection 可運作，不代表 book alignment、point-in-time readiness、real backtest readiness 或 investment readiness。
+
+QA1 taxonomy 補充 `source_authority`、`book_fidelity_class` 與 `readiness_criticality`。Modern methodology 可以是 P0，但不得標為 `book_core`。`canonical_book_indicator_requirement_count` 表示 40 個 canonical indicator requirements；`phase_role_indicator_coverage_row_count` 表示 63 筆 phase-specific coverage rows。兩者不再共用含義不明的 count。
 
 ## Next phase
 

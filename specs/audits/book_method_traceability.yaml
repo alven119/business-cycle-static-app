@@ -24,6 +24,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: cycle_no_skip_normal_state
     book_section: 四階段與狀態順序
     book_page_reference: 約第 37-38 頁
@@ -41,6 +45,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: cycle_no_reverse_normal_state
     book_section: 四階段與狀態順序
     book_page_reference: 約第 37-38 頁
@@ -58,6 +66,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: cycle_duration_not_predefined
     book_section: 四階段與狀態順序
     book_page_reference: 約第 37-38 頁
@@ -75,6 +87,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: cycle_strength_not_predefined
     book_section: 四階段與狀態順序
     book_page_reference: 約第 37-38 頁
@@ -92,6 +108,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: objective_data_should_determine_phase
     book_section: 四階段與狀態順序
     book_page_reference: 約第 37-38 頁
@@ -111,6 +131,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: objective_data_should_determine_phase__p0__implementation_gap
+      requirement_id: objective_data_should_determine_phase
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: normal_cycle_vs_exogenous_shock_separation
     book_section: 四階段與狀態順序
     book_page_reference: 約第 37-38 頁
@@ -131,6 +160,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: normal_cycle_vs_exogenous_shock_separation__p1__implementation_gap
+      requirement_id: normal_cycle_vs_exogenous_shock_separation
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: productivity_driven_expansion
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -149,6 +187,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: productivity_driven_expansion__p0__implementation_gap
+      requirement_id: productivity_driven_expansion
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: inflation_driven_expansion
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -167,6 +214,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: inflation_driven_expansion__p0__implementation_gap
+      requirement_id: inflation_driven_expansion
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: mixed_or_uncertain_regime
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -185,6 +241,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: mixed_or_uncertain_regime__p0__implementation_gap
+      requirement_id: mixed_or_uncertain_regime
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: regime_equity_implication
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -203,6 +268,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: regime_equity_implication__p0__implementation_gap
+      requirement_id: regime_equity_implication
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: regime_commodity_implication
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -221,6 +295,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: regime_commodity_implication__p0__implementation_gap
+      requirement_id: regime_commodity_implication
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: regime_gold_implication
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -239,6 +322,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: regime_gold_implication__p0__implementation_gap
+      requirement_id: regime_gold_implication
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: regime_real_estate_implication
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -257,6 +349,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: regime_real_estate_implication__p0__implementation_gap
+      requirement_id: regime_real_estate_implication
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: regime_long_treasury_implication
     book_section: 長週期 regime
     book_page_reference: 約第 39-57 頁、第 134-137 頁
@@ -275,6 +376,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: regime_long_treasury_implication__p0__implementation_gap
+      requirement_id: regime_long_treasury_implication
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: recovery_initial_jobless_claims
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -292,6 +402,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: recovery_short_term_unemployment
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -312,6 +426,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_short_term_unemployment__p1__implementation_gap
+      requirement_id: recovery_short_term_unemployment
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_real_retail_sales
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -329,6 +452,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: recovery_real_pce_durable_goods
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -349,6 +476,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_real_pce_durable_goods__p1__implementation_gap
+      requirement_id: recovery_real_pce_durable_goods
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_private_nonresidential_fixed_investment
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -369,6 +505,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_private_nonresidential_fixed_investment__p1__implementation_gap
+      requirement_id: recovery_private_nonresidential_fixed_investment
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_durable_goods_new_orders
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -386,6 +531,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: recovery_imports
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -406,6 +555,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_imports__p1__implementation_gap
+      requirement_id: recovery_imports
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_exports
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -426,6 +584,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_exports__p1__implementation_gap
+      requirement_id: recovery_exports
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_publication_lag_awareness
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -446,6 +613,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_publication_lag_awareness__p1__implementation_gap
+      requirement_id: recovery_publication_lag_awareness
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_weekly_claim_noise_filter
     book_section: 復甦期核心
     book_page_reference: 約第 106-117 頁
@@ -466,6 +642,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_weekly_claim_noise_filter__p1__implementation_gap
+      requirement_id: recovery_weekly_claim_noise_filter
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: growth_personal_saving_rate
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -484,6 +669,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_personal_saving_rate__p0__implementation_gap
+      requirement_id: growth_personal_saving_rate
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_real_disposable_income_vs_consumption
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -502,6 +696,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_real_disposable_income_vs_consumption__p0__implementation_gap
+      requirement_id: growth_real_disposable_income_vs_consumption
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_nonfarm_payrolls
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -520,6 +723,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_nonfarm_payrolls__p0__implementation_gap
+      requirement_id: growth_nonfarm_payrolls
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_adp_employment
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -538,6 +750,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_adp_employment__p0__implementation_gap
+      requirement_id: growth_adp_employment
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_initial_claims_decline
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -555,6 +776,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: growth_private_nonresidential_fixed_investment
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -573,6 +798,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_private_nonresidential_fixed_investment__p0__implementation_gap
+      requirement_id: growth_private_nonresidential_fixed_investment
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_residential_investment
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -591,6 +825,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_residential_investment__p0__implementation_gap
+      requirement_id: growth_residential_investment
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_core_cpi
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -609,6 +852,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_core_cpi__p0__implementation_gap
+      requirement_id: growth_core_cpi
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_core_pce
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -627,6 +879,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_core_pce__p0__implementation_gap
+      requirement_id: growth_core_pce
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: growth_sustainable_inflation_interpretation
     book_section: 成長期核心
     book_page_reference: 約第 149-156 頁
@@ -645,6 +906,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_sustainable_inflation_interpretation__p0__implementation_gap
+      requirement_id: growth_sustainable_inflation_interpretation
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_claims_u_shape
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -662,6 +932,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: boom_retail_sales_vs_broad_pce
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -680,6 +954,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_retail_sales_vs_broad_pce__p0__implementation_gap
+      requirement_id: boom_retail_sales_vs_broad_pce
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_consumer_confidence
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -698,6 +981,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_consumer_confidence__p0__implementation_gap
+      requirement_id: boom_consumer_confidence
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_private_investment
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -716,6 +1008,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_private_investment__p0__implementation_gap
+      requirement_id: boom_private_investment
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_durable_goods_second_surge
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -734,6 +1035,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_durable_goods_second_surge__p0__implementation_gap
+      requirement_id: boom_durable_goods_second_surge
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_state_local_government_spending
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -752,6 +1062,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_state_local_government_spending__p0__implementation_gap
+      requirement_id: boom_state_local_government_spending
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_government_revenue
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -770,6 +1089,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_government_revenue__p0__implementation_gap
+      requirement_id: boom_government_revenue
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_inventory_level
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -788,6 +1116,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_inventory_level__p0__implementation_gap
+      requirement_id: boom_inventory_level
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_inventory_accumulation_context
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -806,6 +1143,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_inventory_accumulation_context__p0__implementation_gap
+      requirement_id: boom_inventory_accumulation_context
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_personal_delinquency_or_default
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -824,6 +1170,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_personal_delinquency_or_default__p0__implementation_gap
+      requirement_id: boom_personal_delinquency_or_default
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: boom_corporate_delinquency_or_default
     book_section: 榮景期與結束訊號
     book_page_reference: 約第 175-205 頁
@@ -842,6 +1197,15 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_corporate_delinquency_or_default__p0__implementation_gap
+      requirement_id: boom_corporate_delinquency_or_default
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: recession_confirmation_breadth
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -859,6 +1223,10 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings: []
   - requirement_id: recession_employment_confirmation
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -879,6 +1247,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recession_employment_confirmation__p1__implementation_gap
+      requirement_id: recession_employment_confirmation
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recession_consumption_confirmation
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -899,6 +1276,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recession_consumption_confirmation__p1__implementation_gap
+      requirement_id: recession_consumption_confirmation
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recession_investment_or_industrial_confirmation
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -919,6 +1305,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recession_investment_or_industrial_confirmation__p1__implementation_gap
+      requirement_id: recession_investment_or_industrial_confirmation
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recession_credit_financial_confirmation
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -939,6 +1334,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recession_credit_financial_confirmation__p1__implementation_gap
+      requirement_id: recession_credit_financial_confirmation
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: trough_claims_reversal
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -959,6 +1363,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: trough_claims_reversal__p1__implementation_gap
+      requirement_id: trough_claims_reversal
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: trough_labor_reversal
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -979,6 +1392,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: trough_labor_reversal__p1__implementation_gap
+      requirement_id: trough_labor_reversal
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: trough_real_activity_reversal
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -999,6 +1421,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: trough_real_activity_reversal__p1__implementation_gap
+      requirement_id: trough_real_activity_reversal
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: trough_policy_financial_not_sufficient_alone
     book_section: 衰退確認與落底
     book_page_reference: canonical QA0
@@ -1019,6 +1450,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: trough_policy_financial_not_sufficient_alone__p1__implementation_gap
+      requirement_id: trough_policy_financial_not_sufficient_alone
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: passive_all_stock_baseline
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1037,6 +1477,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: passive_all_stock_baseline__p1__implementation_gap
+      requirement_id: passive_all_stock_baseline
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: stock_cash_basic
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1055,6 +1504,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: stock_cash_basic__p1__implementation_gap
+      requirement_id: stock_cash_basic
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: stock_cash_advanced
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1073,6 +1531,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: stock_cash_advanced__p1__implementation_gap
+      requirement_id: stock_cash_advanced
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: stock_long_treasury_basic
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1091,6 +1558,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: stock_long_treasury_basic__p1__implementation_gap
+      requirement_id: stock_long_treasury_basic
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: stock_long_treasury_advanced
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1109,6 +1585,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: stock_long_treasury_advanced__p1__implementation_gap
+      requirement_id: stock_long_treasury_advanced
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recession_stock_weight_100
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1127,6 +1612,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recession_stock_weight_100__p1__implementation_gap
+      requirement_id: recession_stock_weight_100
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: recovery_stock_weight_100
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1145,6 +1639,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: recovery_stock_weight_100__p1__implementation_gap
+      requirement_id: recovery_stock_weight_100
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: growth_stock_weight_100
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1163,6 +1666,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: growth_stock_weight_100__p1__implementation_gap
+      requirement_id: growth_stock_weight_100
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: boom_basic_stock_weight_50
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1181,6 +1693,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_basic_stock_weight_50__p1__implementation_gap
+      requirement_id: boom_basic_stock_weight_50
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: boom_advanced_year_1_stock_weight_70
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1199,6 +1720,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_advanced_year_1_stock_weight_70__p1__implementation_gap
+      requirement_id: boom_advanced_year_1_stock_weight_70
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: boom_advanced_year_2_stock_weight_50
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1217,6 +1747,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_advanced_year_2_stock_weight_50__p1__implementation_gap
+      requirement_id: boom_advanced_year_2_stock_weight_50
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: boom_advanced_year_3_stock_weight_30
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1235,6 +1774,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_advanced_year_3_stock_weight_30__p1__implementation_gap
+      requirement_id: boom_advanced_year_3_stock_weight_30
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: boom_advanced_year_4_plus_stock_weight_30
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1253,6 +1801,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_advanced_year_4_plus_stock_weight_30__p1__implementation_gap
+      requirement_id: boom_advanced_year_4_plus_stock_weight_30
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: boom_two_year_minimum_stock_weight_50
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1271,6 +1828,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: boom_two_year_minimum_stock_weight_50__p1__implementation_gap
+      requirement_id: boom_two_year_minimum_stock_weight_50
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: long_treasury_maturity_7_years_or_more
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1289,12 +1855,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: long_treasury_maturity_7_years_or_more__p1__implementation_gap
+      requirement_id: long_treasury_maturity_7_years_or_more
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: cash_return_proxy_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: cash return proxy 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1307,12 +1882,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: cash_return_proxy_explicit__p1__implementation_gap
+      requirement_id: cash_return_proxy_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: equity_total_return_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: equity total-return handling 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1325,12 +1909,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: equity_total_return_explicit__p1__implementation_gap
+      requirement_id: equity_total_return_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: treasury_total_return_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: Treasury total-return handling 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1343,6 +1936,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: treasury_total_return_explicit__p1__implementation_gap
+      requirement_id: treasury_total_return_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_start_first_trading_day_1994
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1361,6 +1963,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_start_first_trading_day_1994__p1__implementation_gap
+      requirement_id: benchmark_start_first_trading_day_1994
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_end_2018
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1379,6 +1990,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_end_2018__p1__implementation_gap
+      requirement_id: benchmark_end_2018
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_initial_contribution_10000
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1397,6 +2017,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_initial_contribution_10000__p1__implementation_gap
+      requirement_id: benchmark_initial_contribution_10000
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_annual_contribution_10000
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1415,6 +2044,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_annual_contribution_10000__p1__implementation_gap
+      requirement_id: benchmark_annual_contribution_10000
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_contribution_last_trading_day
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1433,6 +2071,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_contribution_last_trading_day__p1__implementation_gap
+      requirement_id: benchmark_contribution_last_trading_day
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_rebalance_first_trading_day
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1451,6 +2098,15 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_rebalance_first_trading_day__p1__implementation_gap
+      requirement_id: benchmark_rebalance_first_trading_day
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: benchmark_annual_not_monthly_baseline
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
@@ -1469,12 +2125,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_core
+    readiness_criticality: P1
+    findings:
+    - finding_id: benchmark_annual_not_monthly_baseline__p1__implementation_gap
+      requirement_id: benchmark_annual_not_monthly_baseline
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: transaction_cost_assumption_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: transaction cost assumption 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1487,12 +2152,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: transaction_cost_assumption_explicit__p1__implementation_gap
+      requirement_id: transaction_cost_assumption_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: tax_assumption_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: tax assumption 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1505,12 +2179,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: tax_assumption_explicit__p1__implementation_gap
+      requirement_id: tax_assumption_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: dividend_treatment_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: dividend treatment 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1523,12 +2206,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: dividend_treatment_explicit__p1__implementation_gap
+      requirement_id: dividend_treatment_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: bond_coupon_treatment_explicit
     book_section: 投資策略忠實度
     book_page_reference: 約第 77-90 頁
     requirement_zh: bond coupon treatment 必須明確。
     category: portfolio_rule
-    fidelity_class: book_core
+    fidelity_class: book_supporting
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/book_strategy_golden_benchmark.yaml
@@ -1541,12 +2233,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: book
+    book_fidelity_class: book_supporting
+    readiness_criticality: P1
+    findings:
+    - finding_id: bond_coupon_treatment_explicit__p1__implementation_gap
+      requirement_id: bond_coupon_treatment_explicit
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: external_cashflow_detection
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: external cashflow detection 必須存在。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1558,12 +2259,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P0
+    findings: []
   - requirement_id: terminal_wealth
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: terminal wealth 必須定義且不得稱為 total return。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1575,12 +2280,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings: []
   - requirement_id: total_contributions
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: total contributions 必須定義。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1592,12 +2301,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings: []
   - requirement_id: net_investment_gain
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: net investment gain 必須定義。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1609,12 +2322,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings: []
   - requirement_id: time_weighted_return
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: time-weighted return 必須定義。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1626,12 +2343,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings: []
   - requirement_id: annualized_time_weighted_return
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: annualized TWR 必須定義。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: experimental
     implementation_paths:
     - specs/backtests/recession_confirmation_candidate_indicators.yaml
@@ -1646,12 +2367,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings:
+    - finding_id: annualized_time_weighted_return__p1__implementation_gap
+      requirement_id: annualized_time_weighted_return
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: money_weighted_return_or_xirr
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: money-weighted return / XIRR 必須定義或 blocked。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1664,12 +2394,21 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings:
+    - finding_id: money_weighted_return_or_xirr__p0__implementation_gap
+      requirement_id: money_weighted_return_or_xirr
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: unitized_nav
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: unitized NAV 必須定義。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1681,12 +2420,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings: []
   - requirement_id: max_drawdown_on_unitized_nav
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: max drawdown 必須基於 unitized NAV。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1698,12 +2441,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P1
+    findings: []
   - requirement_id: no_simple_cagr_with_external_cashflows
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: external cashflows present 時不得使用 simple CAGR。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: formal
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1715,12 +2462,16 @@ book_method_traceability:
     blocking_severity: none
     remediation_required: false
     remediation_owner_phase: none
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P0
+    findings: []
   - requirement_id: revised_vs_vintage_separation
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: revised data 與 vintage data 必須分離。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: experimental
     implementation_paths:
     - specs/backtests/recession_confirmation_candidate_indicators.yaml
@@ -1735,12 +2486,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: official_data_semantics
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P0
+    findings:
+    - finding_id: revised_vs_vintage_separation__p1__implementation_gap
+      requirement_id: revised_vs_vintage_separation
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: publication_lag_enforcement
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: publication lag 必須 enforcement。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: experimental
     implementation_paths:
     - specs/backtests/recession_confirmation_candidate_indicators.yaml
@@ -1755,12 +2515,21 @@ book_method_traceability:
     blocking_severity: P1
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: official_data_semantics
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P0
+    findings:
+    - finding_id: publication_lag_enforcement__p1__implementation_gap
+      requirement_id: publication_lag_enforcement
+      finding_type: implementation_gap
+      severity: P1
+      blocking_gate_id: p1_blocking_gate
   - requirement_id: untouched_holdout_required
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: final untouched holdout 必須保留。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1773,12 +2542,21 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P0
+    findings:
+    - finding_id: untouched_holdout_required__p0__implementation_gap
+      requirement_id: untouched_holdout_required
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate
   - requirement_id: parameter_freeze_before_holdout
     book_section: 回測方法論
     book_page_reference: QA0 canonical methodology
     requirement_zh: holdout 前必須 parameter freeze。
     category: backtest_method
-    fidelity_class: book_core
+    fidelity_class: not_book_requirement
     implementation_status: spec_only
     implementation_paths:
     - specs/portfolio/backtest_metric_formula_registry.yaml
@@ -1791,3 +2569,12 @@ book_method_traceability:
     blocking_severity: P0
     remediation_required: true
     remediation_owner_phase: QA1
+    source_authority: modern_quant_methodology
+    book_fidelity_class: not_book_requirement
+    readiness_criticality: P0
+    findings:
+    - finding_id: parameter_freeze_before_holdout__p0__implementation_gap
+      requirement_id: parameter_freeze_before_holdout
+      finding_type: implementation_gap
+      severity: P0
+      blocking_gate_id: p0_blocking_gate

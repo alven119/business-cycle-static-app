@@ -8,6 +8,7 @@ from business_cycle.audits.cashflow_methodology import (
 )
 from business_cycle.audits.context_ablation import run_context_ablation_audit
 from business_cycle.audits.inventory_reconciliation import run_qa0_inventory_reconciliation
+from business_cycle.audits.point_in_time_coverage import summarize_point_in_time_coverage
 from business_cycle.audits.qa0_integrity_audit import run_qa0_integrity_audit
 from business_cycle.audits.repository_inventory import collect_repository_inventory
 from business_cycle.audits.temporal_integrity import (
@@ -27,5 +28,6 @@ __all__ = [
     "run_qa0_integrity_audit",
     "run_qa0_inventory_reconciliation",
     "summarize_calibration_integrity",
+    "summarize_point_in_time_coverage",
     "summarize_temporal_integrity",
 ]

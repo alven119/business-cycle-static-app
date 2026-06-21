@@ -19,6 +19,12 @@ def test_qa0_integrity_audit_blocks_9b1_and_real_backtest_progression() -> None:
     assert summary["result"] == "passed"
     assert summary["canonical_requirement_count"] > 22
     assert summary["traceability_row_count"] == summary["canonical_requirement_count"]
+    assert summary["taxonomy_misclassification_count"] == 0
+    assert summary["modern_methodology_marked_book_core_count"] == 0
+    assert summary["book_core_requirement_count"] < summary["canonical_requirement_count"]
+    assert summary["canonical_book_indicator_requirement_count"] == 40
+    assert summary["phase_role_indicator_coverage_row_count"] == 63
+    assert summary["duplicate_finding_id_count"] == 0
     assert summary["unmapped_indicator_count"] == 0
     assert summary["unaudited_series_count"] == 0
     assert summary["hard_coded_summary_value_count"] == 0
@@ -30,7 +36,8 @@ def test_qa0_integrity_audit_reports_open_blocked_methodology_gaps() -> None:
 
     assert summary["p0_finding_count"] > 0
     assert summary["book_core_missing_count"] > 0
-    assert summary["temporal_leakage_blocker_count"] > 0
+    assert summary["series_missing_availability_metadata_count"] == 0
+    assert summary["availability_metadata_complete_count"] == 38
     assert summary["book_benchmark_execution_allowed"] is False
     assert summary["point_in_time_backtest_ready"] is False
     assert summary["out_of_sample_claim_allowed"] is False

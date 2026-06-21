@@ -83,9 +83,13 @@ def run_qa0_inventory_reconciliation(root: str | Path = ".") -> dict[str, Any]:
     series_without_temporal_status = {
         series_id
         for series_id in discovered_series_ids
-        if not registry_rows_by_id.get(series_id, {}).get("temporal_integrity_status")
+        if not (
+            registry_rows_by_id.get(series_id, {}).get("temporal_status")
+            or registry_rows_by_id.get(series_id, {}).get("temporal_integrity_status")
+        )
     }
     orphaned_paths = _orphaned_path_count(root_path, rows)
+    taxonomy = _taxonomy_summary(requirements, rows)
 
     summary = {
         "canonical_requirement_count": len(requirement_ids),
@@ -115,10 +119,13 @@ def run_qa0_inventory_reconciliation(root: str | Path = ".") -> dict[str, Any]:
         "orphaned_implementation_path_count": orphaned_paths,
         "duplicate_inventory_id_count": inventory["duplicate_inventory_id_count"],
         "duplicate_series_alias_count": inventory["duplicate_series_alias_count"],
+        "canonical_book_indicator_requirement_count": len(required_coverage_ids),
+        "phase_role_indicator_coverage_row_count": len(coverage_rows),
         "book_indicator_manifest_count": len(required_coverage_ids),
         "book_indicator_coverage_row_count": len(coverage_requirement_ids),
         "missing_book_indicator_coverage_row_count": len(missing_book_indicator_coverage),
         "hard_coded_summary_value_count": _hard_coded_summary_value_count(root_path),
+        **taxonomy,
     }
     summary["qa0_inventory_complete"] = all(
         summary[field] == 0
@@ -136,6 +143,10 @@ def run_qa0_inventory_reconciliation(root: str | Path = ".") -> dict[str, Any]:
             "duplicate_series_alias_count",
             "missing_book_indicator_coverage_row_count",
             "hard_coded_summary_value_count",
+            "taxonomy_misclassification_count",
+            "modern_methodology_marked_book_core_count",
+            "duplicate_finding_id_count",
+            "duplicate_requirement_finding_count",
         )
     )
     return summary
@@ -156,6 +167,102 @@ def _duplicates(values: list[str]) -> set[str]:
             duplicates.add(value)
         seen.add(value)
     return duplicates
+
+
+def _taxonomy_summary(
+    requirements: list[dict[str, Any]],
+    rows: list[dict[str, Any]],
+) -> dict[str, int]:
+    allowed_sources = {
+        "book",
+        "official_data_semantics",
+        "modern_quant_methodology",
+        "project_safety",
+    }
+    allowed_fidelity = {"book_core", "book_supporting", "not_book_requirement"}
+    allowed_criticality = {"P0", "P1", "P2", "informational"}
+    taxonomy_misclassification = 0
+    for item in [*requirements, *rows]:
+        source = item.get("source_authority")
+        fidelity = item.get("book_fidelity_class") or item.get("fidelity_class")
+        criticality = item.get("readiness_criticality")
+        if source not in allowed_sources:
+            taxonomy_misclassification += 1
+        if fidelity not in allowed_fidelity:
+            taxonomy_misclassification += 1
+        if criticality not in allowed_criticality:
+            taxonomy_misclassification += 1
+        if source != "book" and fidelity == "book_core":
+            taxonomy_misclassification += 1
+        if item.get("requirement_id") in {
+            "untouched_holdout_required",
+            "parameter_freeze_before_holdout",
+        } and fidelity == "book_core":
+            taxonomy_misclassification += 1
+
+    finding_ids: list[str] = []
+    requirement_finding_keys: list[str] = []
+    for row in rows:
+        for finding in row.get("findings", []):
+            finding_id = str(finding.get("finding_id", ""))
+            requirement_id = str(finding.get("requirement_id", ""))
+            finding_type = str(finding.get("finding_type", ""))
+            severity = str(finding.get("severity", ""))
+            blocking_gate_id = str(finding.get("blocking_gate_id", ""))
+            if not all((finding_id, requirement_id, finding_type, severity, blocking_gate_id)):
+                taxonomy_misclassification += 1
+            finding_ids.append(finding_id)
+            requirement_finding_keys.append(f"{requirement_id}::{finding_id}")
+
+    modern_book_core = [
+        item
+        for item in [*requirements, *rows]
+        if item.get("source_authority") == "modern_quant_methodology"
+        and (item.get("book_fidelity_class") or item.get("fidelity_class")) == "book_core"
+    ]
+    return {
+        "book_sourced_requirement_count": len(
+            [item for item in requirements if item.get("source_authority") == "book"]
+        ),
+        "official_data_semantics_requirement_count": len(
+            [
+                item
+                for item in requirements
+                if item.get("source_authority") == "official_data_semantics"
+            ]
+        ),
+        "modern_methodology_requirement_count": len(
+            [
+                item
+                for item in requirements
+                if item.get("source_authority") == "modern_quant_methodology"
+            ]
+        ),
+        "project_safety_requirement_count": len(
+            [item for item in requirements if item.get("source_authority") == "project_safety"]
+        ),
+        "book_core_requirement_count": len(
+            [item for item in requirements if item.get("book_fidelity_class") == "book_core"]
+        ),
+        "book_supporting_requirement_count": len(
+            [
+                item
+                for item in requirements
+                if item.get("book_fidelity_class") == "book_supporting"
+            ]
+        ),
+        "not_book_requirement_count": len(
+            [
+                item
+                for item in requirements
+                if item.get("book_fidelity_class") == "not_book_requirement"
+            ]
+        ),
+        "modern_methodology_marked_book_core_count": len(modern_book_core),
+        "taxonomy_misclassification_count": taxonomy_misclassification,
+        "duplicate_finding_id_count": len(_duplicates(finding_ids)),
+        "duplicate_requirement_finding_count": len(_duplicates(requirement_finding_keys)),
+    }
 
 
 def _orphaned_path_count(root: Path, rows: list[dict[str, Any]]) -> int:

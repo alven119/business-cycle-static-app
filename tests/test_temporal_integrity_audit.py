@@ -54,9 +54,10 @@ def test_temporal_integrity_summary_blocks_point_in_time_claim() -> None:
 
     assert summary["audited_series_count"] >= 8
     assert summary["series_with_release_lag_count"] >= 8
-    assert summary["series_missing_availability_metadata_count"] > 0
-    assert summary["revised_data_only"] is True
-    assert summary["vintage_data_supported"] is False
+    assert summary["availability_metadata_complete_count"] == summary["audited_series_count"]
+    assert summary["series_missing_availability_metadata_count"] == 0
+    assert summary["release_lag_proxy_misclassified_as_point_in_time_count"] == 0
+    assert summary["revised_data_only"] is False
+    assert summary["vintage_data_supported"] is True
     assert summary["point_in_time_backtest_ready"] is False
-    assert summary["temporal_leakage_blocker_count"] > 0
-
+    assert summary["temporal_leakage_blocker_count"] == 0

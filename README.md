@@ -216,6 +216,33 @@ python scripts/list_backtest_scenarios.py --scenario-id global_financial_crisis
 
 Initial scenarios use `data_mode: revised`, meaning current revised historical data. This is useful for framework validation, but it is not the same as realtime vintage data available at the historical date.
 
+## Phase QA1 temporal integrity
+
+QA1 adds a date-level point-in-time data model, ALFRED/FRED vintage provider,
+ignored local cache, coverage audit, and optional scoring data modes.
+
+The four supported data modes are:
+
+- `revised`: latest revised values; still the live production default.
+- `release_lag_adjusted_revised_proxy`: revised values delayed by a release-lag rule; diagnostics only.
+- `initial_release_only`: first release values; not the same as as-of latest vintage.
+- `vintage_as_of`: strict date-level ALFRED real-time interval selection using end-of-day as-of policy.
+
+Inventory complete does not mean strict point-in-time coverage is complete.
+Strict mode fails closed when cache rows or `realtime_start` / `realtime_end`
+metadata are missing, and it does not fall back to revised data.
+
+Useful QA1 commands:
+
+```bash
+python scripts/update_point_in_time_data.py --formal-only --scenario-horizons --reuse-existing
+python scripts/audit_point_in_time_coverage.py
+python scripts/compare_revised_vs_point_in_time.py --scenario-id global_financial_crisis --formal-only --max-periods 12
+```
+
+Phase 9B remains a synthetic harness. Phase 9B1, book benchmark execution, real
+backtest progression, and portfolio dashboard integration remain blocked.
+
 ## Phase 6B backtest runner skeleton
 
 Phase 6B adds a monthly historical backtest runner skeleton that writes timeline JSON under ignored `data/backtests/`.

@@ -1,0 +1,80 @@
+temporal_data_mode_contract:
+  version: 1
+  status: qa1_active
+  as_of_policy: end_of_day_date_precision
+  modes:
+    - mode_id: revised
+      revised_values_used: true
+      release_lag_enforced: false
+      vintage_interval_enforced: false
+      initial_release_only: false
+      point_in_time: false
+      point_in_time_first_release: false
+      as_of_latest_vintage: false
+      historical_tradeability_claim_allowed: false
+      allowed_uses:
+        - live_production_default
+        - current_dashboard_scoring
+        - revised_data_diagnostics
+      prohibited_claims:
+        - strict point-in-time backtest
+        - historical tradeability
+      caveats:
+        - Uses the latest revised value currently available.
+        - Not suitable for historical tradeability claims.
+    - mode_id: release_lag_adjusted_revised_proxy
+      revised_values_used: true
+      release_lag_enforced: true
+      vintage_interval_enforced: false
+      initial_release_only: false
+      point_in_time: false
+      point_in_time_first_release: false
+      as_of_latest_vintage: false
+      historical_tradeability_claim_allowed: false
+      allowed_uses:
+        - sensitivity diagnostics
+        - fallback diagnostics with explicit caveat
+      prohibited_claims:
+        - vintage backtest
+        - strict point-in-time
+        - historical tradeability
+      caveats:
+        - Delays revised values by a release-lag rule.
+        - It is not a vintage data substitute.
+    - mode_id: initial_release_only
+      revised_values_used: false
+      release_lag_enforced: true
+      vintage_interval_enforced: false
+      initial_release_only: true
+      point_in_time: false
+      point_in_time_first_release: true
+      as_of_latest_vintage: false
+      historical_tradeability_claim_allowed: false
+      allowed_uses:
+        - initial-release sensitivity
+        - revision-impact diagnostics
+      prohibited_claims:
+        - as-of latest visible vintage
+        - strict point-in-time
+      caveats:
+        - Selects only the first published value for each observation.
+        - Does not represent later revisions visible by a historical as-of date.
+    - mode_id: vintage_as_of
+      revised_values_used: false
+      release_lag_enforced: true
+      vintage_interval_enforced: true
+      initial_release_only: false
+      point_in_time: true
+      point_in_time_first_release: false
+      as_of_latest_vintage: true
+      historical_tradeability_claim_allowed: true
+      allowed_uses:
+        - strict point-in-time diagnostics
+        - formal phase point-in-time scoring input after cache coverage passes
+      prohibited_claims:
+        - intraday point-in-time
+      caveats:
+        - Availability precision is date-level and interpreted as end-of-day.
+        - Missing real-time metadata must fail closed.
+  hard_gates:
+    release_lag_proxy_misclassified_as_point_in_time_count: 0

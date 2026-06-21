@@ -37,5 +37,26 @@ def test_canonical_requirement_manifest_contains_unique_required_ids() -> None:
     assert len(requirement_ids) > 22
     assert len(requirement_ids) == len(set(requirement_ids))
     assert REQUIRED_IDS.issubset(set(requirement_ids))
-    assert all(row["book_core"] is True for row in requirements)
+    assert any(row["book_core"] is False for row in requirements)
+    assert all(
+        row["source_authority"]
+        in {
+            "book",
+            "official_data_semantics",
+            "modern_quant_methodology",
+            "project_safety",
+        }
+        for row in requirements
+    )
+    assert all(
+        row["book_fidelity_class"]
+        in {"book_core", "book_supporting", "not_book_requirement"}
+        for row in requirements
+    )
     assert all(row["mandatory_for_book_alignment_claim"] is True for row in requirements)
+    assert all(
+        row["book_fidelity_class"] != "book_core"
+        for row in requirements
+        if row["requirement_id"]
+        in {"publication_lag_enforcement", "parameter_freeze_before_holdout"}
+    )

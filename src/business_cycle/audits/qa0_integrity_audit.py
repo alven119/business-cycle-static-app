@@ -86,7 +86,11 @@ def run_qa0_integrity_audit() -> dict[str, Any]:
 def _summarize_traceability() -> dict[str, Any]:
     payload = _load_root("specs/audits/book_method_traceability.yaml", "book_method_traceability")
     rows = payload["rows"]
-    book_core = [row for row in rows if row["fidelity_class"] == "book_core"]
+    book_core = [
+        row
+        for row in rows
+        if (row.get("book_fidelity_class") or row["fidelity_class"]) == "book_core"
+    ]
     formal = [row for row in book_core if row["implementation_status"] == "formal"]
     experimental = [
         row for row in book_core if row["implementation_status"] == "experimental"
@@ -95,7 +99,7 @@ def _summarize_traceability() -> dict[str, Any]:
     conflicting = [
         row for row in book_core if row["implementation_status"] == "conflicting"
     ]
-    modern = [row for row in rows if row["fidelity_class"] == "modern_extension"]
+    modern = [row for row in rows if row.get("source_authority") == "modern_quant_methodology"]
     p0 = [row for row in rows if row["blocking_severity"] == "P0"]
     p1 = [row for row in rows if row["blocking_severity"] == "P1"]
     p2 = [row for row in rows if row["blocking_severity"] == "P2"]
@@ -175,7 +179,18 @@ def _summarize_book_indicator_coverage() -> dict[str, Any]:
     publication_unknown = [item for item in indicators if item["publication_lag"] == "unknown"]
     vintage_missing = [item for item in indicators if item["vintage_support"] == "missing"]
     return {
+        "canonical_book_indicator_requirement_count": len(
+            {
+                item["coverage_requirement_id"]
+                for item in indicators
+                if item.get("coverage_requirement_id")
+            }
+        ),
+        "phase_role_indicator_coverage_row_count": len(indicators),
         "book_indicator_count": len(indicators),
+        "book_indicator_count_definition": (
+            "deprecated_alias_for_phase_role_indicator_coverage_row_count"
+        ),
         "formal_book_core_count": len(formal),
         "experimental_book_core_count": len(experimental),
         "missing_book_core_count": len(missing),
@@ -323,7 +338,6 @@ def _unsupported_claim_count() -> int:
 def _validate_summary(summary: dict[str, Any]) -> None:
     required_false = (
         "book_alignment_claim_allowed",
-        "vintage_data_supported",
         "point_in_time_backtest_ready",
         "book_cashflow_methodology_ready",
         "calibration_holdout_ready",
@@ -363,6 +377,11 @@ def _validate_summary(summary: dict[str, Any]) -> None:
         "duplicate_inventory_id_count",
         "missing_book_indicator_coverage_row_count",
         "hard_coded_summary_value_count",
+        "taxonomy_misclassification_count",
+        "modern_methodology_marked_book_core_count",
+        "duplicate_finding_id_count",
+        "duplicate_requirement_finding_count",
+        "release_lag_proxy_misclassified_as_point_in_time_count",
     )
     for field in required_zero:
         if summary[field] != 0:

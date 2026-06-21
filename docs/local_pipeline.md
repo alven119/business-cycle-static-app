@@ -102,6 +102,34 @@ Failure 會包含：
 python scripts/update_catalog_data.py --force-refresh
 ```
 
+## Point-in-time data mode feature gate
+
+QA1 adds optional data-mode arguments to `score_indicators.py`:
+
+```bash
+python scripts/score_indicators.py \
+  --as-of 2008-09-30 \
+  --data-mode vintage_as_of \
+  --point-in-time-cache-dir data/raw/fred_vintages \
+  --output /tmp/qa1_indicator_scores.json
+```
+
+When `--data-mode` is omitted, behavior remains the existing `revised` path from
+`data/raw/fred`. Strict `vintage_as_of` reads only the point-in-time cache and
+fails closed when any required series is missing. It does not fall back to revised
+CSV data. `release_lag_adjusted_revised_proxy` and `initial_release_only` are
+diagnostic modes and are not historical tradeability evidence.
+
+The point-in-time cache lives under ignored `data/raw/fred_vintages/`:
+
+```bash
+python scripts/update_point_in_time_data.py --formal-only --scenario-horizons --reuse-existing
+python scripts/audit_point_in_time_coverage.py
+```
+
+Without `FRED_API_KEY`, the updater reports blocked series instead of pretending
+that revised data is strict vintage data.
+
 ## 常見錯誤
 
 - `FRED_API_KEY missing`：確認 `.env` 存在且包含 `FRED_API_KEY`，或環境變數已設定。
