@@ -15,6 +15,13 @@ from business_cycle.portfolio.backtest_contract import (
     validate_portfolio_backtest_input_fixtures,
     validate_portfolio_backtest_scenario_mapping,
 )
+from business_cycle.portfolio.result_output_contract import (
+    BacktestResultOutputContract,
+    BacktestResultOutputContractError,
+    load_backtest_result_output_contract,
+    summarize_backtest_result_output_contract,
+    validate_backtest_result_output_contract,
+)
 from business_cycle.portfolio.dry_run_contract import (
     PortfolioBacktestDryRunContract,
     PortfolioBacktestDryRunContractError,
@@ -75,6 +82,8 @@ from business_cycle.portfolio.safety_closure import (
 
 __all__ = [
     "PortfolioBacktestContractError",
+    "BacktestResultOutputContract",
+    "BacktestResultOutputContractError",
     "PortfolioBacktestDryRunContract",
     "PortfolioBacktestDryRunContractError",
     "PortfolioBacktestDryRunFixtureValidationSummary",
@@ -96,6 +105,7 @@ __all__ = [
     "RealBacktestPrototypeReadinessGate",
     "RealBacktestPrototypeReadinessGateError",
     "build_dry_run_output_for_input",
+    "load_backtest_result_output_contract",
     "load_portfolio_backtest_input_contract",
     "load_portfolio_backtest_dry_run_contract",
     "load_portfolio_backtest_dry_run_fixtures",
@@ -109,6 +119,7 @@ __all__ = [
     "load_real_backtest_prototype_readiness_gate",
     "run_portfolio_backtest_structural_dry_run",
     "summarize_dry_run_outputs",
+    "summarize_backtest_result_output_contract",
     "summarize_portfolio_backtest_input_contract",
     "summarize_portfolio_backtest_dry_run_contract",
     "summarize_portfolio_policy_research_plan",
@@ -123,6 +134,7 @@ __all__ = [
     "validate_portfolio_backtest_dry_run_output",
     "validate_portfolio_backtest_scenario_mapping",
     "validate_dry_run_runner_summary",
+    "validate_backtest_result_output_contract",
     "validate_portfolio_policy_research_plan",
     "validate_portfolio_policy_template",
     "validate_portfolio_policy_template_fixtures",

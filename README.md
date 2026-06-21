@@ -876,6 +876,23 @@ python scripts/show_real_backtest_engine_contract.py
 
 This phase is contract-only. It defines engine scope, stages, dependencies, prohibited outputs, prohibited write locations, and required safety guards. It does not implement a runtime, execute backtests, compute performance metrics, produce allocation, write `data/backtests`, or generate public output.
 
+## Phase 9A1 backtest result output contract
+
+Phase 9A1 defines the future backtest result output contract.
+
+```text
+specs/portfolio/backtest_result_output_contract.yaml
+docs/backtest_result_output_contract.md
+```
+
+Inspect the contract with:
+
+```bash
+python scripts/show_backtest_result_output_contract.py
+```
+
+This phase is contract-only. It defines result schema, future metric field names, prohibited result fields, required caveats, output-location dependency, result-safety dependency, and caveat-policy dependency. It does not compute metric values, write result files, produce allocation, write `data/backtests`, or generate public output.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

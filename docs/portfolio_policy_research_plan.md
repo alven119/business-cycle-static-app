@@ -167,6 +167,18 @@ Engine contract 定義 future engine 的允許與禁止範圍、required input c
 
 本階段仍是 contract design only，不實作 runtime、不執行回測、不計算績效、不產生 result、不產生 allocation、不寫入 `data/backtests` 或 `public`，也不構成投資建議。
 
+## Phase 9A1 Backtest Result Output Contract
+
+Phase 9A1 新增 backtest result output contract。
+
+```bash
+python scripts/show_backtest_result_output_contract.py
+```
+
+Result output contract 定義 future real backtest result 的 output schema、允許的 future metric 欄位、result type policy、禁止欄位、禁止文字、必要 caveats、output location dependency、result safety dependency 與 result caveat dependency。此階段可以規格化 metric 欄位名稱，但不允許 metric values，也不允許產生 result file。
+
+本階段仍不執行回測、不計算績效、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。下一步應定義 metric formula registry。
+
 ## Caveats
 
 - 此為 research-only planning，不是正式投資策略。

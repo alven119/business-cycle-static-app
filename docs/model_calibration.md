@@ -841,6 +841,18 @@ Engine contract 定義 future engine scope、required input contracts、future d
 
 下一步是 Phase 9A1：backtest result output contract。必須先定義 result schema、禁止欄位、caveats 與 output policy，才可接近任何實際績效計算。
 
+## Phase 9A1 Backtest Result Output Contract
+
+Phase 9A1 建立 backtest result output contract。
+
+```bash
+python scripts/show_backtest_result_output_contract.py
+```
+
+Result output contract 定義 future result object schema、future metric field names、result type policy、prohibited fields、prohibited text patterns、required result caveats、output location dependency、result safety dependency 與 result caveat dependency。本階段可以列出 future metric 欄位，但 `metric_values_allowed_now=false`，不得計算或產生任何績效值。
+
+本階段不執行回測、不產生 result file、不產生 allocation、不產生 trade signal、不寫入 `data/backtests` 或 `public`。下一步是 Phase 9A2：metric formula registry。
+
 ## Scenario Split
 
 計畫採用簡單的 in-sample / out-of-sample 分組，避免只針對單一歷史案例 overfit：

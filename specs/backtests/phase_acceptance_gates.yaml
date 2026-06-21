@@ -270,3 +270,19 @@ phase_specific_gates:
       - recommended_next_phase == 9A1
     soft_warnings_allowed:
       - future_dependency_contract_count > 0 because real backtest execution is intentionally blocked
+
+  backtest_result_output_contract:
+    hard_gates:
+      - produce_backtest_results_allowed == false
+      - compute_metric_values_allowed == false
+      - write_result_files_allowed == false
+      - write_data_backtests_output_allowed == false
+      - write_public_output_allowed == false
+      - produce_allocation_allowed == false
+      - produce_trade_signal_allowed == false
+      - metric_values_allowed_now == false
+      - auto_write_allowed_now == false
+      - phase_9a1_closure_status == result_contract_design_only
+      - recommended_next_phase == 9A2
+    soft_warnings_allowed:
+      - future_metric_field_count > 0 because metric fields are schema-only and values are not allowed now
