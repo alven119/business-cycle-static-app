@@ -41,6 +41,7 @@ def main(argv: list[str] | None = None) -> int:
             f"indicator_id={item['indicator_id']} "
             f"strict_output_ready={_format(item['strict_output_ready'])} "
             f"dependency_series_ids={','.join(item['dependency_series_ids'])} "
+            f"selected_dependency_path={item['selected_dependency_path']} "
             f"direct_or_derived={item['direct_or_derived']} "
             f"temporal_evidence_class={item['temporal_evidence_class']} "
             f"source_artifact_ids={','.join(item['source_artifact_ids'])} "

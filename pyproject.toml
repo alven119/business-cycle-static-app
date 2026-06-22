@@ -20,6 +20,10 @@ dev = [
     "mypy>=1.10.0",
     "types-PyYAML",
     "types-requests",
+    "xlrd>=2.0.1",
+    "pytesseract>=0.3.13",
+    "pdf2image>=1.17.0",
+    "Pillow>=10.0.0",
 ]
 
 [tool.ruff]

@@ -36,7 +36,7 @@ def test_marts_release_calendar_parses_structured_export_fixture() -> None:
 
 
 def test_marts_release_calendar_binary_xls_fails_closed_without_mtime_fallback() -> None:
-    with pytest.raises(CensusReleaseCalendarError, match="binary_xls_requires_external_parser"):
+    with pytest.raises(CensusReleaseCalendarError):
         parse_marts_release_calendar(
             b"\xd0\xcf\x11\xe0binary-biff",
             source_url="https://www.census.gov/retail/marts/www/MARTSreleasedates.xls",

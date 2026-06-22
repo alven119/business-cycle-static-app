@@ -26,6 +26,7 @@ class TemporalInputSelection:
     indicator_id: str
     as_of: str
     dependency_series_ids: tuple[str, ...]
+    selected_dependency_path: str
     selected_dependency_class: str
     direct_or_derived: str
     temporal_evidence_class: str | None
@@ -147,6 +148,7 @@ def _select_indicator_input(
         indicator_id=indicator_id,
         as_of=as_of,
         dependency_series_ids=dependency_series_ids,
+        selected_dependency_path="none",
         selected_dependency_class="missing_strict_dependency",
         direct_or_derived="none",
         temporal_evidence_class=None,
@@ -175,6 +177,7 @@ def _ready_selection(
         indicator_id=indicator_id,
         as_of=snapshot.as_of.isoformat(),
         dependency_series_ids=dependency_series_ids,
+        selected_dependency_path=f"direct_exact_vintage:{snapshot.series_id}",
         selected_dependency_class="fred_candidate_series",
         direct_or_derived="direct",
         temporal_evidence_class="exact_vintage_interval",
@@ -198,6 +201,7 @@ def _selection_to_dict(
         "indicator_id": selection.indicator_id,
         "as_of": selection.as_of,
         "dependency_series_ids": list(selection.dependency_series_ids),
+        "selected_dependency_path": selection.selected_dependency_path,
         "selected_dependency_class": selection.selected_dependency_class,
         "direct_or_derived": selection.direct_or_derived,
         "temporal_evidence_class": selection.temporal_evidence_class,

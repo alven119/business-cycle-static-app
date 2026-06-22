@@ -1,0 +1,25 @@
+controlled_official_pdf_ocr_contract:
+  version: 1
+  allowed_domains:
+    - census.gov
+    - www2.census.gov
+  allowed_language: eng
+  run_a:
+    render_dpi: 300
+    tesseract_psm: 4
+  run_b:
+    render_dpi: 400
+    tesseract_psm: 6
+  strict_requirements:
+    dual_numeric_agreement_required: true
+    release_calendar_match_required: true
+    reference_month_match_required: true
+    unit_required: true
+    seasonal_adjustment_required: true
+    headline_table_match_required_when_both_present: true
+    cross_release_validation_required: true
+    ambiguous_values_fail_closed: true
+  evidence_classes:
+    candidate: official_release_archive_ocr_candidate
+    verified: official_release_archive_ocr_verified
+    rejected: official_release_archive_ocr_rejected

@@ -20,12 +20,19 @@ from business_cycle.data_sources.eia_wti_observational_archive import (
     EiaWtiArchiveError,
     fetch_eia_wti_history,
 )
+from business_cycle.data_sources.census_release_calendar import (
+    parse_marts_release_calendar_workbook,
+)
 from business_cycle.data_sources.census_release_index import fetch_census_release_index
 from business_cycle.data_sources.census_pdf_text import extract_pdf_text_layer
 from business_cycle.data_sources.census_retail_sales_pdf_parser import (
     RetailReleaseEvent,
     parse_retail_sales_release_artifact,
 )
+from business_cycle.data_sources.controlled_official_pdf_ocr import (
+    verify_rsafs_pdf_ocr,
+)
+from business_cycle.data_sources.structured_sibling_discovery import probe_structured_siblings
 from business_cycle.storage.official_release_archive_cache import (
     OfficialReleaseArchiveCache,
     OfficialReleaseArchiveCacheError,
@@ -34,6 +41,7 @@ from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointIn
 
 GENERIC_PARSER_ID = "qa1d_official_archive_artifact_probe"
 GENERIC_PARSER_VERSION = "1"
+QA1E2_MINIMAL_ARTIFACT_LIMIT = 2
 
 
 @dataclass(frozen=True)
@@ -65,6 +73,26 @@ class ArtifactAttempt:
     census_direct_artifact_link_count: int = 0
     census_landing_page_only_count: int = 0
     census_release_without_date_count: int = 0
+    structured_sibling_probe_count: int = 0
+    structured_sibling_found_count: int = 0
+    xls_found_count: int = 0
+    xlsx_found_count: int = 0
+    csv_found_count: int = 0
+    txt_found_count: int = 0
+    html_data_table_found_count: int = 0
+    image_pdf_only_count: int = 0
+    ocr_candidate_artifact_count: int = 0
+    ocr_dual_run_completed_count: int = 0
+    ocr_dual_run_agreement_count: int = 0
+    ocr_dual_run_disagreement_count: int = 0
+    ocr_release_date_match_count: int = 0
+    ocr_reference_month_match_count: int = 0
+    ocr_headline_table_match_count: int = 0
+    ocr_arithmetic_validation_pass_count: int = 0
+    ocr_cross_release_validation_pass_count: int = 0
+    ocr_verified_artifact_count: int = 0
+    ocr_rejected_artifact_count: int = 0
+    ocr_ambiguous_value_count: int = 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -162,6 +190,12 @@ def main(argv: list[str] | None = None) -> int:
                     "census_release_index_count": attempt.census_release_index_count,
                     "census_direct_artifact_link_count": attempt.census_direct_artifact_link_count,
                     "census_release_without_date_count": attempt.census_release_without_date_count,
+                    "structured_sibling_probe_count": attempt.structured_sibling_probe_count,
+                    "structured_sibling_found_count": attempt.structured_sibling_found_count,
+                    "image_pdf_only_count": attempt.image_pdf_only_count,
+                    "ocr_candidate_artifact_count": attempt.ocr_candidate_artifact_count,
+                    "ocr_verified_artifact_count": attempt.ocr_verified_artifact_count,
+                    "ocr_rejected_artifact_count": attempt.ocr_rejected_artifact_count,
                 }.items()
             )
         )
@@ -264,10 +298,17 @@ def _attempt_rsafs_pdf_artifacts(
         for item in items
         if item.artifact_type == "pdf"
         and item.reference_period is not None
-        and "1998-01" <= item.reference_period <= "2001-05"
+        and _lagged_reference_month(item.reference_period) is not None
+        and "1998-01" <= str(_lagged_reference_month(item.reference_period)) <= "2001-05"
     ]
     if not direct_pdfs:
         return None
+    target_pdfs = sorted(
+        direct_pdfs,
+        key=lambda entry: str(_lagged_reference_month(entry.reference_period or "")),
+    )[:QA1E2_MINIMAL_ARTIFACT_LIMIT]
+    sibling_summary = probe_structured_siblings([item.artifact_url for item in target_pdfs])
+    calendar = _load_rsafs_release_calendar()
     cache = OfficialReleaseArchiveCache()
     parsed_events: list[RetailReleaseEvent] = []
     downloaded = 0
@@ -278,8 +319,24 @@ def _attempt_rsafs_pdf_artifacts(
     last_error_class: str | None = None
     last_error_message: str | None = None
     last_byte_count = 0
-    for item in sorted(direct_pdfs, key=lambda entry: entry.reference_period or "")[:8]:
-        artifact_source_id = f"{source_id}_{item.reference_period}"
+    ocr_candidate = 0
+    ocr_completed = 0
+    ocr_agreement = 0
+    ocr_disagreement = 0
+    ocr_release_date_match = 0
+    ocr_reference_month_match = 0
+    ocr_headline_table_match = 0
+    ocr_arithmetic_pass = 0
+    ocr_cross_release_pass = 0
+    ocr_verified = 0
+    ocr_rejected = 0
+    ocr_ambiguous = 0
+    for item in sorted(
+        target_pdfs,
+        key=lambda entry: str(_lagged_reference_month(entry.reference_period or "")),
+    ):
+        expected_reference_month = str(_lagged_reference_month(item.reference_period or ""))
+        artifact_source_id = f"{source_id}_{expected_reference_month}"
         try:
             status, content_type, content = _download_url(item.artifact_url)
             downloaded += 1
@@ -295,6 +352,33 @@ def _attempt_rsafs_pdf_artifacts(
         except Exception as exc:  # noqa: BLE001 - parser diagnostics must classify all PDF failures.
             last_error_class = type(exc).__name__
             last_error_message = _redact(str(exc))
+            if last_error_class == "CensusPdfTextError" and expected_reference_month in calendar:
+                artifact_path = Path("/tmp") / f"{artifact_source_id}.pdf"
+                artifact_path.write_bytes(content)
+                ocr_candidate += 1
+                ocr_result = verify_rsafs_pdf_ocr(
+                    artifact_path,
+                    artifact_id=artifact_source_id,
+                    expected_release_date=calendar[expected_reference_month],
+                    expected_reference_month=expected_reference_month,
+                )
+                ocr_completed += 1
+                ocr_release_date_match += int(ocr_result.release_date_match)
+                ocr_reference_month_match += int(ocr_result.reference_month_match)
+                ocr_headline_table_match += int(ocr_result.headline_table_match)
+                ocr_arithmetic_pass += int(ocr_result.arithmetic_validation_pass)
+                ocr_cross_release_pass += int(ocr_result.cross_release_validation_pass)
+                if ocr_result.dual_numeric_agreement:
+                    ocr_agreement += 1
+                else:
+                    ocr_disagreement += 1
+                    ocr_ambiguous += 1
+                if ocr_result.verified:
+                    ocr_verified += 1
+                else:
+                    ocr_rejected += 1
+                    last_error_class = "ControlledOcrRejected"
+                    last_error_message = str(ocr_result.rejected_reason)
             continue
         parse_succeeded += 1
         parsed_events.extend(result.events)
@@ -326,7 +410,11 @@ def _attempt_rsafs_pdf_artifacts(
         source_domain=str(source["source_domain"]),
         source_url=str(source["source_url"]),
         artifact_type=str(source["artifact_type"]),
-        implementation_status="implemented_partial_pdf_text_parser",
+        implementation_status=(
+            "implemented_partial_pdf_text_parser"
+            if parsed_events
+            else "blocked_pdf_text_or_ocr_validation_failed"
+        ),
         network_attempted=True,
         artifact_downloaded=downloaded > 0,
         structured_response=downloaded > 0,
@@ -346,6 +434,26 @@ def _attempt_rsafs_pdf_artifacts(
         census_direct_artifact_link_count=sum(item.artifact_type != "html_landing_page" for item in items),
         census_landing_page_only_count=sum(item.artifact_type == "html_landing_page" for item in items),
         census_release_without_date_count=sum(item.release_date is None for item in items),
+        structured_sibling_probe_count=sibling_summary.structured_sibling_probe_count,
+        structured_sibling_found_count=sibling_summary.structured_sibling_found_count,
+        xls_found_count=sibling_summary.xls_found_count,
+        xlsx_found_count=sibling_summary.xlsx_found_count,
+        csv_found_count=sibling_summary.csv_found_count,
+        txt_found_count=sibling_summary.txt_found_count,
+        html_data_table_found_count=sibling_summary.html_data_table_found_count,
+        image_pdf_only_count=sibling_summary.image_pdf_only_count,
+        ocr_candidate_artifact_count=ocr_candidate,
+        ocr_dual_run_completed_count=ocr_completed,
+        ocr_dual_run_agreement_count=ocr_agreement,
+        ocr_dual_run_disagreement_count=ocr_disagreement,
+        ocr_release_date_match_count=ocr_release_date_match,
+        ocr_reference_month_match_count=ocr_reference_month_match,
+        ocr_headline_table_match_count=ocr_headline_table_match,
+        ocr_arithmetic_validation_pass_count=ocr_arithmetic_pass,
+        ocr_cross_release_validation_pass_count=ocr_cross_release_pass,
+        ocr_verified_artifact_count=ocr_verified,
+        ocr_rejected_artifact_count=ocr_rejected,
+        ocr_ambiguous_value_count=ocr_ambiguous,
     )
 
 
@@ -364,6 +472,8 @@ def _attempt_dgorder_pdf_artifacts(
     ]
     if not direct_pdfs:
         return None
+    target_pdfs = direct_pdfs[:QA1E2_MINIMAL_ARTIFACT_LIMIT]
+    sibling_summary = probe_structured_siblings([item.artifact_url for item in target_pdfs])
     downloaded = 0
     parse_attempted = 0
     text_layer_count = 0
@@ -372,7 +482,7 @@ def _attempt_dgorder_pdf_artifacts(
     last_error_class: str | None = None
     last_error_message: str | None = None
     last_byte_count = 0
-    for item in sorted(direct_pdfs, key=lambda entry: entry.reference_period or "")[:8]:
+    for item in sorted(target_pdfs, key=lambda entry: entry.reference_period or ""):
         try:
             status, content_type, content = _download_url(item.artifact_url)
             downloaded += 1
@@ -421,6 +531,14 @@ def _attempt_dgorder_pdf_artifacts(
         census_direct_artifact_link_count=sum(item.artifact_type != "html_landing_page" for item in items),
         census_landing_page_only_count=sum(item.artifact_type == "html_landing_page" for item in items),
         census_release_without_date_count=sum(item.release_date is None for item in items),
+        structured_sibling_probe_count=sibling_summary.structured_sibling_probe_count,
+        structured_sibling_found_count=sibling_summary.structured_sibling_found_count,
+        xls_found_count=sibling_summary.xls_found_count,
+        xlsx_found_count=sibling_summary.xlsx_found_count,
+        csv_found_count=sibling_summary.csv_found_count,
+        txt_found_count=sibling_summary.txt_found_count,
+        html_data_table_found_count=sibling_summary.html_data_table_found_count,
+        image_pdf_only_count=sibling_summary.image_pdf_only_count,
     )
 
 
@@ -689,6 +807,18 @@ def _summary(
         "census_direct_artifact_link_count": sum(item.census_direct_artifact_link_count for item in attempts),
         "census_landing_page_only_count": sum(item.census_landing_page_only_count for item in attempts),
         "census_release_without_date_count": sum(item.census_release_without_date_count for item in attempts),
+        "required_release_count": sum(
+            item.census_direct_artifact_link_count for item in attempts if item.series_id in {"RSAFS", "DGORDER"}
+        ),
+        "structured_sibling_probe_count": sum(item.structured_sibling_probe_count for item in attempts),
+        "structured_sibling_found_count": sum(item.structured_sibling_found_count for item in attempts),
+        "xls_found_count": sum(item.xls_found_count for item in attempts),
+        "xlsx_found_count": sum(item.xlsx_found_count for item in attempts),
+        "csv_found_count": sum(item.csv_found_count for item in attempts),
+        "txt_found_count": sum(item.txt_found_count for item in attempts),
+        "html_data_table_found_count": sum(item.html_data_table_found_count for item in attempts),
+        "image_pdf_only_count": sum(item.image_pdf_only_count for item in attempts),
+        "unresolved_artifact_count": sum(item.image_pdf_only_count for item in attempts),
         "landing_page_counted_as_release_artifact_count": 0,
         "strict_artifact_without_direct_download_url_count": 0,
         "strict_artifact_without_release_date_count": 0,
@@ -726,13 +856,32 @@ def _summary(
         "strict_snapshot_without_availability_date_count": 0,
         "strict_snapshot_without_parser_version_count": 0,
         "image_only_required_artifact_count": len(image_only_required_artifacts),
-        "ocr_candidate_artifact_count": 0,
-        "dual_extraction_agreement_count": 0,
-        "dual_extraction_disagreement_count": 0,
-        "cross_release_validation_pass_count": 0,
-        "arithmetic_validation_pass_count": 0,
-        "ocr_verified_artifact_count": 0,
-        "ocr_value_rejected_count": len(image_only_required_artifacts),
+        "ocr_candidate_artifact_count": sum(item.ocr_candidate_artifact_count for item in attempts),
+        "ocr_dual_run_completed_count": sum(item.ocr_dual_run_completed_count for item in attempts),
+        "ocr_dual_run_agreement_count": sum(item.ocr_dual_run_agreement_count for item in attempts),
+        "ocr_dual_run_disagreement_count": sum(item.ocr_dual_run_disagreement_count for item in attempts),
+        "dual_extraction_agreement_count": sum(item.ocr_dual_run_agreement_count for item in attempts),
+        "dual_extraction_disagreement_count": sum(item.ocr_dual_run_disagreement_count for item in attempts),
+        "ocr_release_date_match_count": sum(item.ocr_release_date_match_count for item in attempts),
+        "ocr_reference_month_match_count": sum(item.ocr_reference_month_match_count for item in attempts),
+        "ocr_headline_table_match_count": sum(item.ocr_headline_table_match_count for item in attempts),
+        "ocr_arithmetic_validation_pass_count": sum(
+            item.ocr_arithmetic_validation_pass_count for item in attempts
+        ),
+        "ocr_cross_release_validation_pass_count": sum(
+            item.ocr_cross_release_validation_pass_count for item in attempts
+        ),
+        "cross_release_validation_pass_count": sum(
+            item.ocr_cross_release_validation_pass_count for item in attempts
+        ),
+        "arithmetic_validation_pass_count": sum(
+            item.ocr_arithmetic_validation_pass_count for item in attempts
+        ),
+        "ocr_verified_artifact_count": sum(item.ocr_verified_artifact_count for item in attempts),
+        "ocr_rejected_artifact_count": sum(item.ocr_rejected_artifact_count for item in attempts),
+        "ocr_ambiguous_value_count": sum(item.ocr_ambiguous_value_count for item in attempts),
+        "ocr_value_rejected_count": sum(item.ocr_rejected_artifact_count for item in attempts)
+        + len(image_only_required_artifacts),
         "controlled_ocr_available": _controlled_ocr_available(),
         "official_archive_cache_dir": str(cache_dir),
         "reuse_existing": reuse_existing,
@@ -755,6 +904,33 @@ def _requested_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
 
 def _redact(message: str) -> str:
     return message.replace("api_key", "redacted_key").replace("FRED_API_KEY", "redacted_key")
+
+
+def _load_rsafs_release_calendar() -> dict[str, str]:
+    path = Path("data/raw/official_release_archives/MARTSreleasedates.xls")
+    if not path.exists():
+        return {}
+    try:
+        result = parse_marts_release_calendar_workbook(path)
+    except Exception:  # noqa: BLE001 - calendar absence must fail closed by returning no dates.
+        return {}
+    return {row.reference_month: row.official_release_date for row in result.rows}
+
+
+def _lagged_reference_month(release_month: str) -> str | None:
+    try:
+        year_text, month_text = release_month.split("-", 1)
+        year = int(year_text)
+        month = int(month_text)
+    except ValueError:
+        return None
+    if not 1 <= month <= 12:
+        return None
+    month -= 1
+    if month == 0:
+        month = 12
+        year -= 1
+    return f"{year:04d}-{month:02d}"
 
 
 def _controlled_ocr_available() -> bool:
