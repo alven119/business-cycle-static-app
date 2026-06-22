@@ -42,5 +42,5 @@ def test_qa1e_review_recommended_after_archive_attempts_remain_blocked() -> None
             blocker_class="official_history_insufficient",
             official_archive_parse_attempted_count=1,
         )
-        == "QA1E_REVIEW"
+        == "QA1E.1_REVIEW"
     )

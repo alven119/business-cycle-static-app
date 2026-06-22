@@ -88,3 +88,9 @@ and the official formula/unit/base-period contract is validated. `DCOILWTICO`
 parsed EIA rows remain blocked without official availability and revision policy
 evidence. Census `DGORDER` and `RSAFS` remain blocked until deterministic
 release archive parsers produce nonzero, publication-dated rows.
+
+QA1E.1 adds end-to-end formal indicator output coverage. This audit counts
+`indicator_id × scenario_id × as_of` readiness only after strict dependency
+loading and the configured indicator transformation both succeed. Leaf coverage,
+candidate derived snapshots, and formal indicator output coverage are separate
+denominators and must not be mixed.

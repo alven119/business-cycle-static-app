@@ -87,6 +87,11 @@ validated. Parsed EIA or Census artifacts with incomplete availability,
 revision, or parser evidence remain blocked and do not count as strict archive
 coverage.
 
+QA1E.1 adds end-to-end formal indicator output coverage. It separates leaf
+series coverage from strict derived output readiness and final indicator output
+readiness. Candidate `RRSFS` derived snapshots are not strict coverage until the
+official derivation contract and input archive evidence are complete.
+
 Production live scoring still defaults to revised data unless a point-in-time
 mode is explicitly requested. Phase 9B1, real historical backtesting, book
 benchmark execution, and dashboard portfolio integration remain blocked.

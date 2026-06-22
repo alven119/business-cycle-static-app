@@ -58,3 +58,23 @@ probed but deterministic historical release parsers are still blocked.
 `DCOILWTICO`, `DGORDER`, `RSAFS`, and `RRSFS` must not contribute strict
 official archive coverage from metadata-only entries, zero-row parses, revised
 history plus lag, or direct revised fallback.
+
+## QA1E.1 Readiness Semantics
+
+QA1E.1 separates three readiness layers:
+
+- leaf temporal coverage for external direct dependencies
+- strict derived output readiness for formal derived series
+- end-to-end formal indicator output readiness after dependency checks and
+  transformations
+
+Candidate derived snapshots are reported as provisional. They do not count as
+strict derived coverage while the derivation contract is blocked. For `RRSFS`,
+same-as-of `RSAFS` and `CPIAUCSL` can produce candidate values, but strict
+readiness remains false until the `RSAFS` release archive and official formula,
+unit, base-period, seasonal-adjustment, and rounding checks are complete.
+
+Census release index pages are discovery artifacts, not release artifacts. A
+landing page or direct PDF link without a deterministic parser, exact release
+date, checksum, parser version, and nonzero extracted rows must not count toward
+official release archive strict coverage.

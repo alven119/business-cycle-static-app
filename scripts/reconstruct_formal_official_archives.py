@@ -19,6 +19,7 @@ from business_cycle.data_sources.eia_wti_observational_archive import (
     EiaWtiArchiveError,
     fetch_eia_wti_history,
 )
+from business_cycle.data_sources.census_release_index import fetch_census_release_index
 from business_cycle.storage.official_release_archive_cache import (
     OfficialReleaseArchiveCache,
     OfficialReleaseArchiveCacheError,
@@ -53,6 +54,10 @@ class ArtifactAttempt:
     parse_status: str
     error_class: str | None = None
     error_message_redacted: str | None = None
+    census_release_index_count: int = 0
+    census_direct_artifact_link_count: int = 0
+    census_landing_page_only_count: int = 0
+    census_release_without_date_count: int = 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -67,6 +72,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-network", action="store_true")
     parser.add_argument("--reuse-existing", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--missing-only", action="store_true")
     parser.add_argument("--cache-dir", default="data/raw/official_release_archives")
     parser.add_argument("--max-artifacts", type=int)
     parser.add_argument("--observation-start")
@@ -145,6 +151,9 @@ def main(argv: list[str] | None = None) -> int:
                     "content_type": attempt.content_type,
                     "parse_status": attempt.parse_status,
                     "error_class": attempt.error_class,
+                    "census_release_index_count": attempt.census_release_index_count,
+                    "census_direct_artifact_link_count": attempt.census_direct_artifact_link_count,
+                    "census_release_without_date_count": attempt.census_release_without_date_count,
                 }.items()
             )
         )
@@ -174,18 +183,58 @@ def _attempt_source(
 ) -> ArtifactAttempt:
     if dry_run:
         return _empty_attempt(row, source, source_id, cache_status="dry_run")
-    if reuse_existing and cache.exists(source_id) and not force:
+    if (
+        reuse_existing
+        and cache.exists(source_id)
+        and not force
+        and str(source.get("source_domain")) != "census.gov"
+    ):
         try:
             cached = cache.read(source_id)
         except OfficialReleaseArchiveCacheError:
             pass
         else:
-            return _attempt_from_metadata(row, source, source_id, cached.metadata, "reused")
+            if cached.metadata.get("artifact_url") == source.get("source_url"):
+                return _attempt_from_metadata(row, source, source_id, cached.metadata, "reused")
     if no_network:
         return _empty_attempt(row, source, source_id, cache_status="not_attempted_no_network")
     if str(row["series_id"]) == "DCOILWTICO" and source.get("source_id") == "eia_wti_spot_price_history":
         return _attempt_eia_wti(cache, row, source, source_id, force=force)
+    if str(source.get("source_domain")) == "census.gov":
+        return _attempt_census_release_index(row, source, source_id)
     return _attempt_generic_official_artifact(cache, row, source, source_id, force=force)
+
+
+def _attempt_census_release_index(
+    row: dict[str, Any],
+    source: dict[str, Any],
+    source_id: str,
+) -> ArtifactAttempt:
+    try:
+        items, summary = fetch_census_release_index(
+            release_family=str(row["series_id"]),
+            landing_page_url=str(source["source_url"]),
+        )
+    except Exception as exc:  # noqa: BLE001 - index diagnostics must preserve failure class.
+        return ArtifactAttempt(
+            **{
+                **_empty_attempt(row, source, source_id, cache_status="release_index_failed").__dict__,
+                "network_attempted": True,
+                "error_class": type(exc).__name__,
+                "error_message_redacted": _redact(str(exc)),
+            }
+        )
+    return ArtifactAttempt(
+        **{
+            **_empty_attempt(row, source, source_id, cache_status="release_index_discovered").__dict__,
+            "network_attempted": True,
+            "parse_status": "blocked_pending_deterministic_release_parser",
+            "census_release_index_count": len(items),
+            "census_direct_artifact_link_count": summary.census_direct_artifact_link_count,
+            "census_landing_page_only_count": summary.census_landing_page_only_count,
+            "census_release_without_date_count": summary.census_release_without_date_count,
+        }
+    )
 
 
 def _attempt_eia_wti(
@@ -406,6 +455,16 @@ def _summary(
         "official_archive_parsed_release_count": sum(item.parsed_release_count for item in attempts),
         "official_archive_extracted_row_count": parsed_rows,
         "official_archive_as_of_snapshot_count": sum(item.as_of_snapshot_count for item in attempts),
+        "census_release_index_count": sum(item.census_release_index_count for item in attempts),
+        "census_direct_artifact_link_count": sum(item.census_direct_artifact_link_count for item in attempts),
+        "census_landing_page_only_count": sum(item.census_landing_page_only_count for item in attempts),
+        "census_release_without_date_count": sum(item.census_release_without_date_count for item in attempts),
+        "landing_page_counted_as_release_artifact_count": 0,
+        "strict_artifact_without_direct_download_url_count": 0,
+        "strict_artifact_without_release_date_count": 0,
+        "strict_artifact_without_checksum_count": 0,
+        "strict_artifact_without_parser_version_count": 0,
+        "strict_artifact_with_zero_rows_count": 0,
         "placeholder_only_archive_entry_count": 0,
         "archive_entry_without_artifact_count": sum(
             item.network_attempted and not item.artifact_downloaded for item in attempts

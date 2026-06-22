@@ -27,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.scenario_horizons:
         as_of_dates = scenario_month_end_dates("specs/backtests/scenarios.yaml")
     cache = PointInTimeCache(args.cache_dir)
-    derived = 0
+    provisional = 0
     missing = 0
     last_error = "none"
     for as_of in as_of_dates:
@@ -37,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
             missing += 1
             last_error = str(exc)
             continue
-        derived += 1
+        provisional += 1
         if not args.scenario_horizons:
             print(f"series_id={value.series_id}")
             print(f"as_of={value.as_of}")
@@ -53,9 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     total = len(as_of_dates)
     print(f"requested_series_id={args.series_id}")
     print(f"requested_as_of_count={total}")
-    print(f"rrsfs_derived_snapshot_count={derived}")
+    print(f"rrsfs_provisional_snapshot_count={provisional}")
+    print(f"rrsfs_candidate_derived_snapshot_count={provisional}")
+    print("rrsfs_strict_derived_snapshot_count=0")
     print(f"rrsfs_missing_pair_count={missing}")
-    print(f"rrsfs_required_horizon_coverage_ratio={0.0 if total == 0 else round(derived / total, 6)}")
+    print(f"rrsfs_required_horizon_coverage_ratio={0.0 if total == 0 else round(provisional / total, 6)}")
     print("rrsfs_formula_validated=false")
     print("rrsfs_unit_validated=false")
     print("rrsfs_base_period_validated=false")

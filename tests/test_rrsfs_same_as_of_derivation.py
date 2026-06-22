@@ -42,7 +42,8 @@ def test_rrsfs_derivation_cli_uses_same_as_of_inputs(tmp_path: Path, capsys) -> 
     )
 
     output = capsys.readouterr().out
-    assert "rrsfs_derived_snapshot_count=1" in output
+    assert "rrsfs_provisional_snapshot_count=1" in output
+    assert "rrsfs_strict_derived_snapshot_count=0" in output
     assert "temporal_evidence_class=derived_point_in_time" in output
     assert "revised_fallback=false" in output
 
@@ -64,5 +65,6 @@ def test_rrsfs_derivation_fails_closed_when_cpi_missing(tmp_path: Path, capsys) 
     )
 
     output = capsys.readouterr().out
-    assert "rrsfs_derived_snapshot_count=0" in output
+    assert "rrsfs_provisional_snapshot_count=0" in output
+    assert "rrsfs_strict_derived_snapshot_count=0" in output
     assert "rrsfs_missing_pair_count=1" in output

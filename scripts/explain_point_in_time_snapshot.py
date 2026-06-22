@@ -7,6 +7,8 @@ import argparse
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from business_cycle.audits.point_in_time_coverage import scenario_month_end_dates
 from business_cycle.data_sources.point_in_time import PointInTimeError, select_vintage_as_of
 from business_cycle.indicators.point_in_time_derived import derive_rrsfs_snapshot
@@ -160,22 +162,32 @@ def _explain_rrsfs_derived(
             "blocker_class": "derived_input_not_strict_ready",
         }
     full_summary = _full_horizon_summary(rows=rsafs.rows, series_id="RSAFS", scenarios_path=scenarios_path)
+    strict_ready = _rrsfs_contract_strict_ready()
     return {
         **base,
         **full_summary,
-        "snapshot_as_of_ready": True,
+        "candidate_snapshot_ready": True,
+        "snapshot_as_of_ready": strict_ready,
         "selected_observation_date": value.selected_reference_month,
         "latest_legally_available_observation_date": value.selected_reference_month,
         "selected_realtime_start": value.availability_date,
         "selected_realtime_end": None,
-        "point_in_time": True,
+        "point_in_time": strict_ready,
         "cache_manifest_checksum_valid": True,
         "formula_id": value.formula_id,
         "formula_version": value.formula_version,
         "input_snapshot_ids": ",".join(value.input_snapshot_ids),
-        "missing_reason": "none",
-        "blocker_class": "none",
+        "missing_reason": "none" if strict_ready else "derived_formula_or_input_archive_not_strict_ready",
+        "blocker_class": "none" if strict_ready else "derived_contract_not_strict_ready",
     }
+
+
+def _rrsfs_contract_strict_ready() -> bool:
+    path = Path("specs/audits/rrsfs_point_in_time_derivation.yaml")
+    if not path.exists():
+        return False
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return bool(payload.get("rrsfs_point_in_time_derivation", {}).get("strict_ready"))
 
 
 def _full_horizon_summary(

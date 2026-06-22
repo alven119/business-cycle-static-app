@@ -148,6 +148,22 @@ def summarize_point_in_time_coverage(
         derived_series_ids=formal_derived_outputs,
         as_of_dates=as_of_dates,
     )
+    rrsfs_derivation_strict_ready = _rrsfs_derivation_strict_ready(
+        root_path / "specs/audits/rrsfs_point_in_time_derivation.yaml"
+    )
+    provisional_derived_snapshot_count = sum(
+        int(item.get("candidate_pair_count", 0)) for item in derived_pair_summary.values()
+    )
+    derived_strict_covered_pair_count = (
+        sum(int(item.get("strict_covered_pair_count", 0)) for item in derived_pair_summary.values())
+        if rrsfs_derivation_strict_ready
+        else 0
+    )
+    derived_missing_pair_count = (
+        sum(int(item.get("missing_pair_count", 0)) for item in derived_pair_summary.values())
+        if rrsfs_derivation_strict_ready
+        else len(formal_derived_outputs) * len(as_of_dates)
+    )
     formal_exact = [series_id for series_id, covered in formal_covered.items() if covered]
     formal_missing = [series_id for series_id, covered in formal_covered.items() if not covered]
     partial_ready_series = [
@@ -177,7 +193,7 @@ def summarize_point_in_time_coverage(
     derived_ready = [
         series_id
         for series_id in formal_derived_outputs
-        if derived_pair_summary.get(series_id, {}).get("full_required_horizon_ready")
+        if derived_pair_summary.get(series_id, {}).get("strict_full_required_horizon_ready")
     ]
     provider_full_range_failed = [
         series_id
@@ -237,6 +253,21 @@ def summarize_point_in_time_coverage(
         "formal_derived_dependency_count": len(formal_derived_outputs),
         "formal_leaf_direct_dependency_count": len(formal_direct),
         "formal_derived_output_count": len(formal_derived_outputs),
+        "formal_leaf_total_pair_count": total_pair_count,
+        "formal_leaf_covered_pair_count": covered_pair_count,
+        "formal_leaf_missing_pair_count": missing_pair_count,
+        "formal_leaf_coverage_ratio": round(coverage_ratio, 6),
+        "formal_derived_output_total_pair_count": len(formal_derived_outputs) * len(as_of_dates),
+        "formal_derived_candidate_pair_count": provisional_derived_snapshot_count,
+        "formal_derived_strict_covered_pair_count": derived_strict_covered_pair_count,
+        "formal_derived_strict_coverage_ratio": (
+            0.0
+            if len(formal_derived_outputs) * len(as_of_dates) == 0
+            else round(
+                derived_strict_covered_pair_count / (len(formal_derived_outputs) * len(as_of_dates)),
+                6,
+            )
+        ),
         "formal_leaf_total_coverage_pair_count": total_pair_count,
         "formal_derived_total_coverage_pair_count": len(formal_derived_outputs) * len(as_of_dates),
         "formal_exact_vintage_dependency_count": len(formal_exact),
@@ -249,14 +280,12 @@ def summarize_point_in_time_coverage(
         "formal_total_coverage_pair_count": total_pair_count,
         "formal_covered_pair_count": covered_pair_count,
         "formal_missing_pair_count": missing_pair_count,
-        "formal_leaf_covered_pair_count": covered_pair_count,
-        "formal_leaf_missing_pair_count": missing_pair_count,
-        "formal_derived_covered_pair_count": sum(
-            int(item.get("covered_pair_count", 0)) for item in derived_pair_summary.values()
-        ),
-        "formal_derived_missing_pair_count": sum(
-            int(item.get("missing_pair_count", 0)) for item in derived_pair_summary.values()
-        ),
+        "formal_derived_covered_pair_count": derived_strict_covered_pair_count,
+        "formal_derived_missing_pair_count": derived_missing_pair_count,
+        "candidate_derived_snapshot_count": provisional_derived_snapshot_count,
+        "provisional_derived_snapshot_count": provisional_derived_snapshot_count,
+        "provisional_snapshot_counted_as_strict_count": 0,
+        "formal_indicator_output_counting_ready": True,
         "formal_proxy_pair_count": 0,
         "formal_initial_release_only_pair_count": 0,
         "formal_revised_fallback_pair_count": 0,
@@ -368,6 +397,16 @@ def discover_formal_dependencies(catalog_path: str | Path) -> FormalDependencies
 
 def _uses_authoritative_pit_cache(root_path: Path, cache_root_dir: Path) -> bool:
     return cache_root_dir.resolve() == (root_path / "data/raw/fred_vintages").resolve()
+
+
+def _rrsfs_derivation_strict_ready(path: Path) -> bool:
+    if not path.exists():
+        return False
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return False
+    contract = payload.get("rrsfs_point_in_time_derivation", {})
+    return bool(contract.get("strict_ready"))
 
 
 def scenario_month_end_dates(scenarios_path: str | Path) -> list[str]:
@@ -487,7 +526,7 @@ def _recommended_next_phase(
         blocker_class in {"official_series_unsupported", "official_history_insufficient"}
         and official_archive_parse_attempted_count > 0
     ):
-        return "QA1E_REVIEW"
+        return "QA1E.1_REVIEW"
     if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
         return "QA1E"
     if blocker_class in {"strict_coverage_incomplete", "provider_or_parser_failed"}:
@@ -546,12 +585,15 @@ def _derived_output_pair_summary(
         summary: dict[str, Any] = {
             "required_pair_count": len(as_of_dates),
             "covered_pair_count": 0,
+            "candidate_pair_count": 0,
+            "strict_covered_pair_count": 0,
             "missing_pair_count": 0,
             "first_covered_as_of": None,
             "last_covered_as_of": None,
             "first_missing_as_of": None,
             "last_missing_as_of": None,
             "full_required_horizon_ready": False,
+            "strict_full_required_horizon_ready": False,
         }
         try:
             rsafs = cache.read_series("RSAFS")
@@ -576,13 +618,15 @@ def _derived_output_pair_summary(
                 _mark_missing(summary, as_of)
                 continue
             if rsafs_snapshot.observations and cpi_snapshot.observations:
+                summary["candidate_pair_count"] += 1
                 _mark_covered(summary, as_of)
             else:
                 _mark_missing(summary, as_of)
         summary["full_required_horizon_ready"] = (
             summary["required_pair_count"] > 0
-            and summary["covered_pair_count"] == summary["required_pair_count"]
+            and summary["candidate_pair_count"] == summary["required_pair_count"]
         )
+        summary["strict_full_required_horizon_ready"] = False
         summaries[derived_series_id] = summary
     return summaries
 
