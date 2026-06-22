@@ -11,6 +11,10 @@ import pandas as pd
 import yaml
 
 from business_cycle.audits.repository_inventory import collect_repository_inventory
+from business_cycle.audits.scenario_as_of_inventory import (
+    load_canonical_scenario_as_of_inventory,
+    summarize_scenario_as_of_inventory,
+)
 from business_cycle.audits.temporal_equivalence import (
     load_formal_temporal_gap_remediation,
 )
@@ -46,7 +50,15 @@ def summarize_point_in_time_coverage(
     archive_cache = OfficialReleaseArchiveCache(root_path / "data/raw/official_release_archives")
     inventory = collect_repository_inventory(root_path)
     formal_dependencies = discover_formal_dependencies(root_path / "specs/indicator_catalog.yaml")
-    as_of_dates = scenario_month_end_dates(root_path / "specs/backtests/scenarios.yaml")
+    scenario_inventory = load_canonical_scenario_as_of_inventory(
+        root_path / "specs/backtests/scenarios.yaml"
+    )
+    scenario_inventory_summary = summarize_scenario_as_of_inventory(
+        root_path / "specs/backtests/scenarios.yaml"
+    )
+    scenario_pairs = [(entry.scenario_id, entry.as_of) for entry in scenario_inventory]
+    as_of_dates = [entry.as_of for entry in scenario_inventory]
+    unique_as_of_dates = sorted({entry.as_of for entry in scenario_inventory})
     cached_series_ids = cache.cached_series_ids() if cache.root_dir.exists() else set()
     remediation = load_formal_temporal_gap_remediation(
         root_path / "specs/audits/formal_temporal_gap_remediation.yaml"
@@ -80,11 +92,11 @@ def summarize_point_in_time_coverage(
     live_verified_history_insufficient_series: set[str] = set()
     official_query_attempted_series: set[str] = set()
     official_query_succeeded_series: set[str] = set()
-    total_pair_count = len(formal_direct) * len(as_of_dates)
+    total_pair_count = len(formal_direct) * len(scenario_pairs)
     for series_id in formal_direct:
         row = row_by_id.get(series_id, {})
         per_series_pairs[series_id] = {
-            "required_pair_count": len(as_of_dates),
+            "required_pair_count": len(scenario_pairs),
             "covered_pair_count": 0,
             "missing_pair_count": 0,
             "first_covered_as_of": None,
@@ -95,7 +107,7 @@ def summarize_point_in_time_coverage(
         if not row.get("point_in_time_eligible"):
             formal_covered[series_id] = False
             formal_blockers[series_id] = str(row.get("caveats") or "not point-in-time eligible")
-            missing_pair_count += len(as_of_dates)
+            missing_pair_count += len(scenario_pairs)
             _mark_all_missing(per_series_pairs[series_id], as_of_dates)
             continue
         try:
@@ -105,7 +117,7 @@ def summarize_point_in_time_coverage(
             formal_blockers[series_id] = str(exc)
             if cache.exists(series_id):
                 cache_validation_failure_series.add(series_id)
-            missing_pair_count += len(as_of_dates)
+            missing_pair_count += len(scenario_pairs)
             _mark_all_missing(per_series_pairs[series_id], as_of_dates)
             continue
         if _manifest_is_live_verified_exact(cached.manifest):
@@ -114,11 +126,11 @@ def summarize_point_in_time_coverage(
             official_query_succeeded_series.add(series_id)
             if _registry_scenario_history_insufficient(
                 row,
-                as_of_dates,
+                unique_as_of_dates,
             ) or _cache_history_insufficient(cached.manifest, as_of_dates):
                 live_verified_history_insufficient_series.add(series_id)
         series_as_of_covered = 0
-        for as_of in as_of_dates:
+        for _scenario_id, as_of in scenario_pairs:
             try:
                 snapshot = select_vintage_as_of(
                     cached.rows,
@@ -139,7 +151,7 @@ def summarize_point_in_time_coverage(
             else:
                 missing_pair_count += 1
                 _mark_missing(per_series_pairs[series_id], as_of)
-        formal_covered[series_id] = series_as_of_covered == len(as_of_dates)
+        formal_covered[series_id] = series_as_of_covered == len(scenario_pairs)
         if not formal_covered[series_id] and series_id not in formal_blockers:
             formal_blockers[series_id] = "cache lacks one or more required as_of snapshots"
 
@@ -253,29 +265,46 @@ def summarize_point_in_time_coverage(
         "formal_derived_dependency_count": len(formal_derived_outputs),
         "formal_leaf_direct_dependency_count": len(formal_direct),
         "formal_derived_output_count": len(formal_derived_outputs),
+        "canonical_scenario_as_of_date_count": len(scenario_pairs),
+        "canonical_unique_as_of_date_count": len(unique_as_of_dates),
+        "leaf_scenario_as_of_date_count": scenario_inventory_summary[
+            "leaf_scenario_as_of_date_count"
+        ],
+        "formal_indicator_scenario_as_of_date_count": scenario_inventory_summary[
+            "formal_indicator_scenario_as_of_date_count"
+        ],
+        "unexplained_as_of_divergence_count": scenario_inventory_summary[
+            "unexplained_as_of_divergence_count"
+        ],
+        "scenario_as_of_universe_consistent": scenario_inventory_summary[
+            "scenario_as_of_universe_consistent"
+        ],
         "formal_leaf_total_pair_count": total_pair_count,
         "formal_leaf_covered_pair_count": covered_pair_count,
         "formal_leaf_missing_pair_count": missing_pair_count,
         "formal_leaf_coverage_ratio": round(coverage_ratio, 6),
-        "formal_derived_output_total_pair_count": len(formal_derived_outputs) * len(as_of_dates),
+        "formal_derived_output_total_pair_count": len(formal_derived_outputs)
+        * len(scenario_pairs),
         "formal_derived_candidate_pair_count": provisional_derived_snapshot_count,
         "formal_derived_strict_covered_pair_count": derived_strict_covered_pair_count,
         "formal_derived_strict_coverage_ratio": (
             0.0
-            if len(formal_derived_outputs) * len(as_of_dates) == 0
+            if len(formal_derived_outputs) * len(scenario_pairs) == 0
             else round(
-                derived_strict_covered_pair_count / (len(formal_derived_outputs) * len(as_of_dates)),
+                derived_strict_covered_pair_count
+                / (len(formal_derived_outputs) * len(scenario_pairs)),
                 6,
             )
         ),
         "formal_leaf_total_coverage_pair_count": total_pair_count,
-        "formal_derived_total_coverage_pair_count": len(formal_derived_outputs) * len(as_of_dates),
+        "formal_derived_total_coverage_pair_count": len(formal_derived_outputs)
+        * len(scenario_pairs),
         "formal_exact_vintage_dependency_count": len(formal_exact),
         "formal_missing_vintage_dependency_count": len(formal_missing),
         "formal_missing_vintage_dependency_series_ids": formal_missing,
         "formal_derived_missing_dependency_series_ids": derived_missing,
         "formal_missing_vintage_dependency_blockers": formal_blockers,
-        "formal_scenario_as_of_date_count": len(as_of_dates),
+        "formal_scenario_as_of_date_count": len(scenario_pairs),
         "formal_scenario_as_of_covered_count": covered_pair_count,
         "formal_total_coverage_pair_count": total_pair_count,
         "formal_covered_pair_count": covered_pair_count,
@@ -526,7 +555,7 @@ def _recommended_next_phase(
         blocker_class in {"official_series_unsupported", "official_history_insufficient"}
         and official_archive_parse_attempted_count > 0
     ):
-        return "QA1E.1_REVIEW"
+        return "QA1E.2_REVIEW"
     if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
         return "QA1E"
     if blocker_class in {"strict_coverage_incomplete", "provider_or_parser_failed"}:

@@ -20,10 +20,15 @@ from business_cycle.data_sources.eia_wti_observational_archive import (
     fetch_eia_wti_history,
 )
 from business_cycle.data_sources.census_release_index import fetch_census_release_index
+from business_cycle.data_sources.census_retail_sales_pdf_parser import (
+    RetailReleaseEvent,
+    parse_retail_sales_release_artifact,
+)
 from business_cycle.storage.official_release_archive_cache import (
     OfficialReleaseArchiveCache,
     OfficialReleaseArchiveCacheError,
 )
+from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
 GENERIC_PARSER_ID = "qa1d_official_archive_artifact_probe"
 GENERIC_PARSER_VERSION = "1"
@@ -224,6 +229,10 @@ def _attempt_census_release_index(
                 "error_message_redacted": _redact(str(exc)),
             }
         )
+    if str(row["series_id"]) == "RSAFS":
+        parsed_attempt = _attempt_rsafs_pdf_artifacts(row, source, source_id, items)
+        if parsed_attempt is not None:
+            return parsed_attempt
     return ArtifactAttempt(
         **{
             **_empty_attempt(row, source, source_id, cache_status="release_index_discovered").__dict__,
@@ -234,6 +243,136 @@ def _attempt_census_release_index(
             "census_landing_page_only_count": summary.census_landing_page_only_count,
             "census_release_without_date_count": summary.census_release_without_date_count,
         }
+    )
+
+
+def _attempt_rsafs_pdf_artifacts(
+    row: dict[str, Any],
+    source: dict[str, Any],
+    source_id: str,
+    items: list[Any],
+) -> ArtifactAttempt | None:
+    direct_pdfs = [
+        item
+        for item in items
+        if item.artifact_type == "pdf"
+        and item.reference_period is not None
+        and "1998-01" <= item.reference_period <= "2001-05"
+    ]
+    if not direct_pdfs:
+        return None
+    cache = OfficialReleaseArchiveCache()
+    parsed_events: list[RetailReleaseEvent] = []
+    downloaded = 0
+    parse_attempted = 0
+    parse_succeeded = 0
+    last_status: int | None = None
+    last_content_type: str | None = None
+    last_error_class: str | None = None
+    last_error_message: str | None = None
+    for item in sorted(direct_pdfs, key=lambda entry: entry.reference_period or "")[:8]:
+        artifact_source_id = f"{source_id}_{item.reference_period}"
+        try:
+            status, content_type, content = _download_url(item.artifact_url)
+            downloaded += 1
+            last_status = status
+            last_content_type = content_type
+            parse_attempted += 1
+            result = parse_retail_sales_release_artifact(
+                content,
+                artifact_id=artifact_source_id,
+                artifact_filename=item.artifact_filename,
+            )
+        except Exception as exc:  # noqa: BLE001 - parser diagnostics must classify all PDF failures.
+            last_error_class = type(exc).__name__
+            last_error_message = _redact(str(exc))
+            continue
+        parse_succeeded += 1
+        parsed_events.extend(result.events)
+        cache.write_attempt(
+            source_id=artifact_source_id,
+            source_domain="census.gov",
+            artifact_url=item.artifact_url,
+            artifact_type="pdf",
+            source_type="official_release_archive",
+            release_date=result.release_datetime[:10],
+            reference_period=result.reference_month,
+            parser_id="census_retail_sales_pdf_text",
+            parser_version="1",
+            parse_status="parsed",
+            extracted_row_count=len(result.events),
+            content=content,
+            content_type=content_type,
+            network_attempted=True,
+            http_status=status,
+            byte_count=len(content),
+            implementation_status="implemented_partial_pdf_text_parser",
+            force=True,
+        )
+    if parsed_events:
+        _merge_rsafs_events_into_pit_cache(parsed_events)
+    return ArtifactAttempt(
+        series_id=str(row["series_id"]),
+        source_id=source_id,
+        source_domain=str(source["source_domain"]),
+        source_url=str(source["source_url"]),
+        artifact_type=str(source["artifact_type"]),
+        implementation_status="implemented_partial_pdf_text_parser",
+        network_attempted=True,
+        artifact_downloaded=downloaded > 0,
+        structured_response=downloaded > 0,
+        parse_attempted=parse_attempted > 0,
+        parse_succeeded=parse_succeeded > 0,
+        parsed_release_count=parse_succeeded,
+        extracted_row_count=len(parsed_events),
+        as_of_snapshot_count=0,
+        cache_status="written" if parsed_events else "parser_failed",
+        http_status=last_status,
+        content_type=last_content_type,
+        byte_count=0,
+        parse_status="parsed" if parsed_events else "blocked_pdf_text_parser_failed",
+        error_class=last_error_class,
+        error_message_redacted=last_error_message,
+        census_release_index_count=len(items),
+        census_direct_artifact_link_count=sum(item.artifact_type != "html_landing_page" for item in items),
+        census_landing_page_only_count=sum(item.artifact_type == "html_landing_page" for item in items),
+        census_release_without_date_count=sum(item.release_date is None for item in items),
+    )
+
+
+def _merge_rsafs_events_into_pit_cache(events: list[RetailReleaseEvent]) -> None:
+    pit_cache = PointInTimeCache("data/raw/fred_vintages")
+    existing_rows: list[dict[str, Any]] = []
+    existing_manifest: dict[str, Any] = {}
+    try:
+        cached = pit_cache.read_series("RSAFS")
+    except PointInTimeCacheError:
+        pass
+    else:
+        existing_rows = list(cached.rows)
+        existing_manifest = dict(cached.manifest)
+    archive_rows = [
+        {
+            "series_id": "RSAFS",
+            "observation_date": f"{event.reference_month}-01",
+            "value": event.value,
+            "realtime_start": event.availability_date,
+            "realtime_end": "9999-12-31",
+        }
+        for event in events
+    ]
+    all_rows = [*existing_rows, *archive_rows]
+    pit_cache.write_series(
+        "RSAFS",
+        all_rows,
+        query_mode="mixed_vintage_and_official_release_archive",
+        observation_start=existing_manifest.get("observation_start"),
+        observation_end=existing_manifest.get("observation_end"),
+        as_of_start=existing_manifest.get("as_of_start"),
+        as_of_end=existing_manifest.get("as_of_end"),
+        api_source="mixed:fresh_alfred_and_census_official_release_archive",
+        quality_class="strict_vintage_and_official_release_archive_candidate",
+        force=True,
     )
 
 

@@ -30,8 +30,11 @@ one network request per monthly as-of date. The cache manifest records row count
 checksum, observation range, realtime range, duplicate-row count, query mode, and
 quality class without API keys.
 
-Formal readiness requires 15 formal direct dependencies and 3420 formal
-series-date coverage pairs to pass strict `vintage_as_of` selection. If
+QA1E.2 reconciles the denominator to a canonical `scenario_id × as_of`
+universe. The old 3420 count came from 15 leaf dependencies multiplied by 228
+unique month-end dates; it omitted overlapping scenario membership. Current
+temporal coverage uses canonical scenario/as-of pairs for leaf, derived, and
+formal indicator output audits. If
 `FRED_API_KEY` is absent, official API coverage cannot be attempted and formal
 coverage remains blocked as an environment configuration issue. That condition
 must recommend a retry after loading the key, not an official-data remediation

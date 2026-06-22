@@ -41,6 +41,16 @@ class CensusReleaseIndexItem:
     official_source: bool
     discovery_method: str
     checksum_if_downloaded: str | None = None
+    artifact_filename: str | None = None
+    reference_month_candidate: str | None = None
+    verified_reference_month: str | None = None
+    release_datetime: str | None = None
+    release_date_source: str | None = None
+    release_date_confidence: str = "unresolved"
+    http_last_modified: str | None = None
+    directory_last_modified: str | None = None
+    last_modified_used_as_release_date: bool = False
+    verification_warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -51,6 +61,12 @@ class CensusReleaseIndexSummary:
     census_landing_page_only_count: int
     census_duplicate_release_link_count: int
     census_release_without_date_count: int
+    pdf_text_release_date_count: int = 0
+    official_calendar_release_date_count: int = 0
+    unresolved_release_date_count: int = 0
+    directory_mtime_rejected_count: int = 0
+    filename_reference_month_match_count: int = 0
+    filename_reference_month_mismatch_count: int = 0
 
 
 def fetch_census_release_index(
@@ -98,20 +114,30 @@ def parse_census_release_index(
             continue
         seen_urls.add(url)
         period = _month_year(label)
+        filename_period = _filename_reference_month_candidate(url)
+        reference_period = period or filename_period
         items.append(
             CensusReleaseIndexItem(
                 release_family=release_family,
                 release_date=None,
-                reference_period=period,
+                reference_period=reference_period,
                 estimate_stage=_estimate_stage(release_family),
                 landing_page_url=landing_page_url,
                 artifact_url=url,
                 artifact_type=artifact_type,
                 content_type=content_type if not is_direct else None,
-                archive_year=int(period[:4]) if period else None,
+                archive_year=int(reference_period[:4]) if reference_period else None,
                 official_source=True,
                 discovery_method="census_release_index_link",
                 checksum_if_downloaded=checksum if url == landing_page_url else None,
+                artifact_filename=_artifact_filename(url),
+                reference_month_candidate=filename_period,
+                release_date_confidence="unresolved",
+                verification_warnings=(
+                    ("filename_reference_month_candidate_unverified",)
+                    if filename_period and filename_period != period
+                    else ()
+                ),
             )
         )
     summary = CensusReleaseIndexSummary(
@@ -121,6 +147,19 @@ def parse_census_release_index(
         census_landing_page_only_count=sum(item.artifact_type == "html_landing_page" for item in items),
         census_duplicate_release_link_count=duplicate_count,
         census_release_without_date_count=sum(item.release_date is None for item in items),
+        unresolved_release_date_count=sum(item.release_date is None for item in items),
+        directory_mtime_rejected_count=sum(item.artifact_type != "html_landing_page" for item in items),
+        filename_reference_month_match_count=sum(
+            item.reference_period is not None
+            and item.reference_month_candidate == item.reference_period
+            for item in items
+        ),
+        filename_reference_month_mismatch_count=sum(
+            item.reference_month_candidate is not None
+            and item.reference_period is not None
+            and item.reference_month_candidate != item.reference_period
+            for item in items
+        ),
     )
     return items, summary
 
@@ -153,6 +192,12 @@ def _artifact_type(url: str) -> str:
     return "html_landing_page"
 
 
+def _artifact_filename(url: str) -> str:
+    """Return the final URL path component without treating it as provenance."""
+
+    return urllib.parse.urlparse(url).path.rsplit("/", 1)[-1]
+
+
 def _month_year(label: str) -> str | None:
     match = re.search(
         r"\b("
@@ -163,6 +208,41 @@ def _month_year(label: str) -> str | None:
     if not match:
         return None
     return f"{match.group(2)}-{MONTHS[match.group(1)]}"
+
+
+def _filename_reference_month_candidate(url: str) -> str | None:
+    filename = _artifact_filename(url).lower()
+    match = re.search(r"(?:adv|marts|m3|dg)?(\d{2})(\d{2})", filename)
+    if match:
+        year = int(match.group(1))
+        month = int(match.group(2))
+        if not 1 <= month <= 12:
+            return None
+        full_year = 2000 + year if year < 70 else 1900 + year
+        return f"{full_year:04d}-{month:02d}"
+    month_names = {
+        "jan": 1,
+        "feb": 2,
+        "mar": 3,
+        "apr": 4,
+        "may": 5,
+        "jun": 6,
+        "jul": 7,
+        "aug": 8,
+        "sep": 9,
+        "oct": 10,
+        "nov": 11,
+        "dec": 12,
+    }
+    match = re.search(r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(\d{2})", filename)
+    if not match:
+        return None
+    year = int(match.group(2))
+    month = month_names[match.group(1)]
+    if not 1 <= month <= 12:
+        return None
+    full_year = 2000 + year if year < 70 else 1900 + year
+    return f"{full_year:04d}-{month:02d}"
 
 
 def _estimate_stage(release_family: str) -> str:

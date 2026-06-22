@@ -1,0 +1,27 @@
+rrsfs_formula_contract:
+  version: 1
+  formula_id: rrsfs_rsafs_deflated_by_cpiaucsl_1982_84_100
+  formula_expression: "RRSFS = RSAFS / CPIAUCSL * 100"
+  source_authority: official_data_semantics
+  required_input_series:
+    - RSAFS
+    - CPIAUCSL
+  output_series: RRSFS
+  expected_unit: "Millions of 1982-84 CPI Adjusted Dollars"
+  cpi_base_period: "1982-84=100"
+  seasonal_adjustment_required: true
+  revised_formula_validation:
+    tolerance_absolute: 5.0
+    tolerance_relative: 0.00005
+    tolerance_reason: "FRED reported series can differ by rounding to millions."
+  strict_snapshot_policy:
+    same_as_of_required: true
+    reference_month_alignment_rule: same_reference_month_when_cpi_available_else_fail_closed
+    lagged_cpi_handling: fail_closed
+    missing_same_month_cpi_policy: fail_closed
+    revised_fallback_allowed: false
+  validation_status:
+    formula_validated: false
+    unit_validated: false
+    base_period_validated: false
+    seasonal_adjustment_validated: false

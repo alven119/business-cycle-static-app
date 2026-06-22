@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from business_cycle.audits import point_in_time_coverage as coverage
+from business_cycle.audits.scenario_as_of_inventory import ScenarioAsOfEntry
 from business_cycle.storage.point_in_time_cache import PointInTimeCache
 
 
@@ -24,19 +25,34 @@ def test_current_repo_metadata_complete_but_cache_not_ready(
     assert summary["registry_declared_exact_vintage_series_count"] == 37
     assert summary["live_verified_exact_vintage_series_count"] == 0
     assert summary["recommended_next_phase"] == "QA1B.1_RETRY"
-    assert summary["formal_scenario_as_of_date_count"] == 228
-    assert summary["formal_total_coverage_pair_count"] == 3420
-    assert summary["formal_missing_pair_count"] == 3420
+    assert summary["canonical_scenario_as_of_date_count"] == 252
+    assert summary["canonical_unique_as_of_date_count"] == 228
+    assert summary["formal_scenario_as_of_date_count"] == 252
+    assert summary["formal_total_coverage_pair_count"] == 3780
+    assert summary["formal_missing_pair_count"] == 3780
 
 
 def test_formal_scenario_coverage_calculates_complete_ratio(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
+    entry = ScenarioAsOfEntry(
+        scenario_id="fixture",
+        as_of="2020-03-31",
+        source_scenario_path="fixture.yaml",
+    )
+    monkeypatch.setattr(coverage, "load_canonical_scenario_as_of_inventory", lambda _path: [entry])
     monkeypatch.setattr(
         coverage,
-        "scenario_month_end_dates",
-        lambda _path: ["2020-03-31"],
+        "summarize_scenario_as_of_inventory",
+        lambda _path: {
+            "canonical_scenario_as_of_date_count": 1,
+            "canonical_unique_as_of_date_count": 1,
+            "leaf_scenario_as_of_date_count": 1,
+            "formal_indicator_scenario_as_of_date_count": 1,
+            "unexplained_as_of_divergence_count": 0,
+            "scenario_as_of_universe_consistent": True,
+        },
     )
     deps = coverage.discover_formal_dependencies("specs/indicator_catalog.yaml")
     cache = PointInTimeCache(tmp_path)

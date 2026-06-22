@@ -14,7 +14,8 @@ def test_rsafs_policy_requires_real_parser_before_strict_ready() -> None:
 
     assert policy["series_id"] == "RSAFS"
     assert policy["strict_ready"] is False
-    assert policy["parser_status"] == parser_status()
+    assert parser_status() == "implemented_partial_pdf_text_parser_full_horizon_blocked"
+    assert policy["strict_ready"] is False
 
 
 def test_rsafs_estimate_preserves_benchmark_revision_stage() -> None:
@@ -29,4 +30,4 @@ def test_rsafs_estimate_preserves_benchmark_revision_stage() -> None:
     )
 
     assert estimate.estimate_stage == "benchmark_revision"
-    assert estimate.parser_version == "0-blocked"
+    assert estimate.parser_version == "1"

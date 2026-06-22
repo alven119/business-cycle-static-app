@@ -6,8 +6,11 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import yaml
 
+from business_cycle.audits.scenario_as_of_inventory import (
+    load_canonical_scenario_as_of_inventory,
+    summarize_scenario_as_of_inventory,
+)
 from business_cycle.data_sources.point_in_time import (
     PointInTimeError,
     select_vintage_as_of,
@@ -28,8 +31,9 @@ def summarize_formal_indicator_output_coverage(
 
     catalog_entries = load_indicator_catalog(catalog_path)
     specs = load_indicator_scoring_specs(catalog_path)
-    scenario_dates = _scenario_dates_by_id(scenarios_path)
-    total = len(catalog_entries) * sum(len(dates) for dates in scenario_dates.values())
+    scenario_entries = load_canonical_scenario_as_of_inventory(scenarios_path)
+    scenario_summary = summarize_scenario_as_of_inventory(scenarios_path)
+    total = len(catalog_entries) * len(scenario_entries)
     covered = 0
     validation_failures = 0
     full_by_indicator = {str(entry["indicator_id"]): True for entry in catalog_entries}
@@ -37,40 +41,53 @@ def summarize_formal_indicator_output_coverage(
     duplicate_pair_ids: set[str] = set()
     seen_pair_ids: set[str] = set()
 
-    for scenario_id, as_of_dates in scenario_dates.items():
-        for as_of in as_of_dates:
-            observations, load_failures = _load_point_in_time_observations_by_indicator(
-                catalog_entries,
-                cache_dir=Path(cache_dir),
-                as_of=as_of,
-            )
-            load_failed_ids = {str(item["indicator_id"]) for item in load_failures}
-            scorable_specs = {
-                indicator_id: spec
-                for indicator_id, spec in specs.items()
-                if indicator_id not in load_failed_ids
-            }
-            batch = score_indicator_batch(observations, scorable_specs, as_of=as_of)
-            scored_ids = {result.indicator_id for result in batch.results}
-            validation_failures += len(batch.failures)
-            for entry in catalog_entries:
-                indicator_id = str(entry["indicator_id"])
-                pair_id = f"{indicator_id}|{scenario_id}|{as_of}"
-                if pair_id in seen_pair_ids:
-                    duplicate_pair_ids.add(pair_id)
-                seen_pair_ids.add(pair_id)
-                if indicator_id in scored_ids:
-                    covered += 1
-                    partial_counts[indicator_id] += 1
-                else:
-                    full_by_indicator[indicator_id] = False
+    for scenario_entry in scenario_entries:
+        scenario_id = scenario_entry.scenario_id
+        as_of = scenario_entry.as_of
+        observations, load_failures = _load_point_in_time_observations_by_indicator(
+            catalog_entries,
+            cache_dir=Path(cache_dir),
+            as_of=as_of,
+        )
+        load_failed_ids = {str(item["indicator_id"]) for item in load_failures}
+        scorable_specs = {
+            indicator_id: spec
+            for indicator_id, spec in specs.items()
+            if indicator_id not in load_failed_ids
+        }
+        batch = score_indicator_batch(observations, scorable_specs, as_of=as_of)
+        scored_ids = {result.indicator_id for result in batch.results}
+        validation_failures += len(batch.failures)
+        for entry in catalog_entries:
+            indicator_id = str(entry["indicator_id"])
+            pair_id = f"{indicator_id}|{scenario_id}|{as_of}"
+            if pair_id in seen_pair_ids:
+                duplicate_pair_ids.add(pair_id)
+            seen_pair_ids.add(pair_id)
+            if indicator_id in scored_ids:
+                covered += 1
+                partial_counts[indicator_id] += 1
+            else:
+                full_by_indicator[indicator_id] = False
 
     missing = total - covered
     full_count = sum(full_by_indicator.values())
-    partial_count = sum(0 < count < sum(len(dates) for dates in scenario_dates.values()) for count in partial_counts.values())
+    partial_count = sum(0 < count < len(scenario_entries) for count in partial_counts.values())
     zero_count = sum(count == 0 for count in partial_counts.values())
     return {
         "formal_indicator_count": len(catalog_entries),
+        "canonical_scenario_as_of_date_count": len(scenario_entries),
+        "canonical_unique_as_of_date_count": scenario_summary["canonical_unique_as_of_date_count"],
+        "leaf_scenario_as_of_date_count": scenario_summary["leaf_scenario_as_of_date_count"],
+        "formal_indicator_scenario_as_of_date_count": scenario_summary[
+            "formal_indicator_scenario_as_of_date_count"
+        ],
+        "unexplained_as_of_divergence_count": scenario_summary[
+            "unexplained_as_of_divergence_count"
+        ],
+        "scenario_as_of_universe_consistent": scenario_summary[
+            "scenario_as_of_universe_consistent"
+        ],
         "formal_indicator_output_total_pair_count": total,
         "formal_indicator_output_covered_pair_count": covered,
         "formal_indicator_output_missing_pair_count": missing,
@@ -80,25 +97,12 @@ def summarize_formal_indicator_output_coverage(
         "formal_indicator_with_zero_strict_coverage_count": zero_count,
         "formal_indicator_output_validation_failure_count": validation_failures,
         "formal_indicator_output_duplicate_pair_id_count": len(duplicate_pair_ids),
-        "formal_indicator_output_counting_ready": len(duplicate_pair_ids) == 0,
+        "formal_indicator_output_counting_ready": len(duplicate_pair_ids) == 0
+        and bool(scenario_summary["scenario_as_of_universe_consistent"]),
         "formal_phase_point_in_time_ready": missing == 0 and validation_failures == 0,
         "no_silent_revised_fallback": True,
         "result": "passed" if missing == 0 and validation_failures == 0 else "blocked",
     }
-
-
-def _scenario_dates_by_id(scenarios_path: str | Path) -> dict[str, list[str]]:
-    payload = yaml.safe_load(Path(scenarios_path).read_text(encoding="utf-8"))
-    by_id: dict[str, list[str]] = {}
-    for scenario in payload.get("scenarios", []):
-        scenario_id = str(scenario["scenario_id"])
-        start = pd.Timestamp(str(scenario["window_start"]))
-        end = pd.Timestamp(str(scenario["window_end"]))
-        by_id[scenario_id] = [
-            timestamp.date().isoformat()
-            for timestamp in pd.date_range(start=start, end=end, freq="ME")
-        ]
-    return by_id
 
 
 def _load_point_in_time_observations_by_indicator(

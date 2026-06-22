@@ -13,4 +13,4 @@ def test_retail_sales_contract_tracks_benchmark_revision_stage() -> None:
     )
 
     assert estimate.estimate_stage in {"advance", "revised", "benchmark_revision"}
-    assert parser_status() == "blocked_pending_retail_release_archive_parser"
+    assert parser_status() == "implemented_partial_pdf_text_parser_full_horizon_blocked"

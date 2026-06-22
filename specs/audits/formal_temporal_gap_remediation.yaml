@@ -57,7 +57,7 @@ formal_temporal_gap_remediation:
       official_source_candidates:
         - source_id: census_durable_goods_advance_reports
           source_domain: census.gov
-          source_url: https://www.census.gov/manufacturing/m3/
+          source_url: https://www.census.gov/manufacturing/m3/historical_data/index.html
           artifact_type: official_release_archive_candidate
       preferred_reconstruction_method: official_release_archive
       fallback_methods: [archived Census M3 tables]
