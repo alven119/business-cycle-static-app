@@ -41,4 +41,5 @@ def test_partial_vintage_support_is_not_full_horizon_ready(
     assert summary["partial_vintage_history_series_count"] == 1
     assert summary["full_required_horizon_exact_vintage_series_count"] == 0
     assert summary["full_required_horizon_strict_ready_series_count"] == 0
-    assert summary["unresolved_formal_series_count"] == 15
+    assert summary["unresolved_formal_series_count"] == 16
+    assert summary["formal_derived_missing_dependency_series_ids"] == ["RRSFS"]

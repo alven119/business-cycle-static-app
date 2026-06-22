@@ -61,6 +61,7 @@ def build_parser() -> argparse.ArgumentParser:
     group.add_argument("--series-id", action="append")
     group.add_argument("--all-blocked-formal", action="store_true")
     group.add_argument("--all-unresolved-formal", action="store_true")
+    group.add_argument("--all-qa1e", action="store_true")
     parser.add_argument("--source-family")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--no-network", action="store_true")
@@ -447,6 +448,9 @@ def _requested_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     rows = payload["formal_temporal_gap_remediation"]["rows"]
     if args.series_id:
         wanted = {series_id.strip().upper() for series_id in args.series_id}
+        return [row for row in rows if str(row["series_id"]).upper() in wanted]
+    if args.all_qa1e:
+        wanted = {"DCOILWTICO", "DGORDER", "RSAFS", "RRSFS"}
         return [row for row in rows if str(row["series_id"]).upper() in wanted]
     return [row for row in rows if not row.get("final_strict_ready")]
 

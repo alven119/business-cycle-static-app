@@ -24,3 +24,20 @@ def parser_status() -> str:
     """Return current parser implementation status."""
 
     return "blocked_pending_retail_release_archive_parser"
+
+
+def select_retail_sales_estimate_as_of(
+    estimates: list[RetailSalesEstimate] | tuple[RetailSalesEstimate, ...],
+    *,
+    as_of: str,
+    reference_month: str | None = None,
+) -> RetailSalesEstimate | None:
+    """Select the latest published RSAFS estimate visible at ``as_of``."""
+
+    eligible = [
+        item
+        for item in estimates
+        if item.release_date <= as_of
+        and (reference_month is None or item.reference_month == reference_month)
+    ]
+    return max(eligible, key=lambda item: (item.reference_month, item.release_date)) if eligible else None

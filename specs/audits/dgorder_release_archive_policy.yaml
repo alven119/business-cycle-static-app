@@ -1,0 +1,20 @@
+dgorder_release_archive_policy:
+  version: 1
+  phase: QA1E
+  series_id: DGORDER
+  source_domain: census.gov
+  temporal_evidence_class_candidate: official_release_archive
+  required_estimate_stages:
+    - advance
+    - full
+    - revised
+  strict_ready: false
+  release_before_visibility_required: true
+  benchmark_revision_backfill_prohibited: true
+  parser_status: blocked_pending_census_m3_release_parser
+  prohibited_shortcuts:
+    - current revised DGORDER plus monthly lag
+    - full report revision before publication
+    - third-party archive data
+  blocker_class: official_parser_incomplete
+  blocker_reason: deterministic official Census M3 historical release parser is not complete

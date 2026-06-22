@@ -1,0 +1,20 @@
+rsafs_release_archive_policy:
+  version: 1
+  phase: QA1E
+  series_id: RSAFS
+  source_domain: census.gov
+  temporal_evidence_class_candidate: official_release_archive
+  required_estimate_stages:
+    - advance
+    - revised
+    - benchmark_revision
+  strict_ready: false
+  release_before_visibility_required: true
+  benchmark_revision_backfill_prohibited: true
+  parser_status: blocked_pending_retail_release_archive_parser
+  prohibited_shortcuts:
+    - current revised RSAFS plus monthly lag
+    - benchmark revisions visible before publication
+    - third-party archive data
+  blocker_class: official_parser_incomplete
+  blocker_reason: deterministic official Census retail historical release parser is not complete

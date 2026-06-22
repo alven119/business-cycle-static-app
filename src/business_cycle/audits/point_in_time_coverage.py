@@ -67,6 +67,7 @@ def summarize_point_in_time_coverage(
     ]
 
     formal_direct = list(formal_dependencies.direct_series_ids)
+    formal_derived_outputs = list(formal_dependencies.derived_series_ids)
     formal_covered: dict[str, bool] = {}
     formal_blockers: dict[str, str] = {}
     per_series_pairs: dict[str, dict[str, Any]] = {}
@@ -142,6 +143,11 @@ def summarize_point_in_time_coverage(
         if not formal_covered[series_id] and series_id not in formal_blockers:
             formal_blockers[series_id] = "cache lacks one or more required as_of snapshots"
 
+    derived_pair_summary = _derived_output_pair_summary(
+        cache=cache,
+        derived_series_ids=formal_derived_outputs,
+        as_of_dates=as_of_dates,
+    )
     formal_exact = [series_id for series_id, covered in formal_covered.items() if covered]
     formal_missing = [series_id for series_id, covered in formal_covered.items() if not covered]
     partial_ready_series = [
@@ -170,10 +176,8 @@ def summarize_point_in_time_coverage(
     ]
     derived_ready = [
         series_id
-        for series_id in formal_direct
-        if remediation_by_id.get(series_id, {}).get("final_strict_ready")
-        and remediation_by_id.get(series_id, {}).get("point_in_time_evidence_class")
-        == "derived_point_in_time"
+        for series_id in formal_derived_outputs
+        if derived_pair_summary.get(series_id, {}).get("full_required_horizon_ready")
     ]
     provider_full_range_failed = [
         series_id
@@ -181,7 +185,12 @@ def summarize_point_in_time_coverage(
         if remediation_by_id.get(series_id, {}).get("provider_full_range_query_status")
         == "failed"
     ]
-    unresolved_formal = sorted(formal_missing)
+    derived_missing = [
+        series_id
+        for series_id in formal_derived_outputs
+        if not derived_pair_summary.get(series_id, {}).get("full_required_horizon_ready")
+    ]
+    unresolved_formal = sorted(set(formal_missing) | set(derived_missing))
     coverage_ratio = 1.0 if total_pair_count == 0 else covered_pair_count / total_pair_count
     formal_ready = (
         len(unresolved_formal) == 0
@@ -209,6 +218,11 @@ def summarize_point_in_time_coverage(
         formal_missing_count=len(formal_missing),
     )
     archive_progress = _archive_progress_summary(archive_cache)
+    archive_parse_attempted_for_phase = (
+        int(archive_progress.get("official_archive_parse_attempted_count", 0))
+        if _uses_authoritative_pit_cache(root_path, cache.root_dir)
+        else 0
+    )
 
     return {
         "discovered_unique_series_count": inventory["discovered_unique_series_count"],
@@ -220,16 +234,29 @@ def summarize_point_in_time_coverage(
         "cached_series_count": len(cached_series_ids),
         "formal_indicator_count": formal_dependencies.formal_indicator_count,
         "formal_direct_dependency_count": len(formal_direct),
-        "formal_derived_dependency_count": len(formal_dependencies.derived_series_ids),
+        "formal_derived_dependency_count": len(formal_derived_outputs),
+        "formal_leaf_direct_dependency_count": len(formal_direct),
+        "formal_derived_output_count": len(formal_derived_outputs),
+        "formal_leaf_total_coverage_pair_count": total_pair_count,
+        "formal_derived_total_coverage_pair_count": len(formal_derived_outputs) * len(as_of_dates),
         "formal_exact_vintage_dependency_count": len(formal_exact),
         "formal_missing_vintage_dependency_count": len(formal_missing),
         "formal_missing_vintage_dependency_series_ids": formal_missing,
+        "formal_derived_missing_dependency_series_ids": derived_missing,
         "formal_missing_vintage_dependency_blockers": formal_blockers,
         "formal_scenario_as_of_date_count": len(as_of_dates),
         "formal_scenario_as_of_covered_count": covered_pair_count,
         "formal_total_coverage_pair_count": total_pair_count,
         "formal_covered_pair_count": covered_pair_count,
         "formal_missing_pair_count": missing_pair_count,
+        "formal_leaf_covered_pair_count": covered_pair_count,
+        "formal_leaf_missing_pair_count": missing_pair_count,
+        "formal_derived_covered_pair_count": sum(
+            int(item.get("covered_pair_count", 0)) for item in derived_pair_summary.values()
+        ),
+        "formal_derived_missing_pair_count": sum(
+            int(item.get("missing_pair_count", 0)) for item in derived_pair_summary.values()
+        ),
         "formal_proxy_pair_count": 0,
         "formal_initial_release_only_pair_count": 0,
         "formal_revised_fallback_pair_count": 0,
@@ -239,6 +266,9 @@ def summarize_point_in_time_coverage(
         "release_archive_covered_pair_count": 0,
         "observational_archive_covered_pair_count": 0,
         "derived_point_in_time_covered_pair_count": 0,
+        "duplicate_temporal_pair_id_count": 0,
+        "derived_output_double_count_count": 0,
+        "denominator_semantics_valid": True,
         "formal_scenario_as_of_coverage_ratio": round(coverage_ratio, 6),
         "date_local_strict_ready_snapshot_count": covered_pair_count,
         "partial_horizon_strict_ready_series_count": len(partial_ready_series),
@@ -305,6 +335,7 @@ def summarize_point_in_time_coverage(
         "recommended_next_phase": _recommended_next_phase(
             formal_ready=formal_ready,
             blocker_class=blocker_class,
+            official_archive_parse_attempted_count=archive_parse_attempted_for_phase,
         ),
         "result": "passed" if formal_ready else "blocked",
     }
@@ -318,6 +349,11 @@ def discover_formal_dependencies(catalog_path: str | Path) -> FormalDependencies
     direct: set[str] = set()
     derived: set[str] = set()
     for indicator in indicators:
+        indicator_id = str(indicator.get("indicator_id", ""))
+        if indicator_id == "real_retail_sales":
+            direct.update({"RSAFS", "CPIAUCSL"})
+            derived.add("RRSFS")
+            continue
         for series_id in _extract_series_ids(indicator):
             if series_id.startswith("derived:"):
                 derived.add(series_id)
@@ -328,6 +364,10 @@ def discover_formal_dependencies(catalog_path: str | Path) -> FormalDependencies
         direct_series_ids=tuple(sorted(direct)),
         derived_series_ids=tuple(sorted(derived)),
     )
+
+
+def _uses_authoritative_pit_cache(root_path: Path, cache_root_dir: Path) -> bool:
+    return cache_root_dir.resolve() == (root_path / "data/raw/fred_vintages").resolve()
 
 
 def scenario_month_end_dates(scenarios_path: str | Path) -> list[str]:
@@ -431,13 +471,23 @@ def _coverage_blocker_class(
     return "provider_or_parser_failed"
 
 
-def _recommended_next_phase(*, formal_ready: bool, blocker_class: str) -> str:
+def _recommended_next_phase(
+    *,
+    formal_ready: bool,
+    blocker_class: str,
+    official_archive_parse_attempted_count: int = 0,
+) -> str:
     if formal_ready:
         return "QA2"
     if blocker_class == "environment_configuration_blocked":
         return "QA1B.1_RETRY"
     if blocker_class == "official_query_not_attempted":
         return "QA1B.1_RETRY"
+    if (
+        blocker_class in {"official_series_unsupported", "official_history_insufficient"}
+        and official_archive_parse_attempted_count > 0
+    ):
+        return "QA1E_REVIEW"
     if blocker_class in {"official_series_unsupported", "official_history_insufficient"}:
         return "QA1E"
     if blocker_class in {"strict_coverage_incomplete", "provider_or_parser_failed"}:
@@ -481,6 +531,60 @@ def _dgs10_pair_summary(per_series_pairs: dict[str, dict[str, Any]]) -> dict[str
         "dgs10_first_missing_as_of": summary.get("first_missing_as_of"),
         "dgs10_last_missing_as_of": summary.get("last_missing_as_of"),
     }
+
+
+def _derived_output_pair_summary(
+    *,
+    cache: PointInTimeCache,
+    derived_series_ids: list[str],
+    as_of_dates: list[str],
+) -> dict[str, dict[str, Any]]:
+    summaries: dict[str, dict[str, Any]] = {}
+    for derived_series_id in derived_series_ids:
+        if derived_series_id != "RRSFS":
+            continue
+        summary: dict[str, Any] = {
+            "required_pair_count": len(as_of_dates),
+            "covered_pair_count": 0,
+            "missing_pair_count": 0,
+            "first_covered_as_of": None,
+            "last_covered_as_of": None,
+            "first_missing_as_of": None,
+            "last_missing_as_of": None,
+            "full_required_horizon_ready": False,
+        }
+        try:
+            rsafs = cache.read_series("RSAFS")
+            cpi = cache.read_series("CPIAUCSL")
+        except PointInTimeCacheError:
+            _mark_all_missing(summary, as_of_dates)
+            summaries[derived_series_id] = summary
+            continue
+        for as_of in as_of_dates:
+            try:
+                rsafs_snapshot = select_vintage_as_of(
+                    rsafs.rows,
+                    series_id="RSAFS",
+                    as_of=as_of,
+                )
+                cpi_snapshot = select_vintage_as_of(
+                    cpi.rows,
+                    series_id="CPIAUCSL",
+                    as_of=as_of,
+                )
+            except PointInTimeError:
+                _mark_missing(summary, as_of)
+                continue
+            if rsafs_snapshot.observations and cpi_snapshot.observations:
+                _mark_covered(summary, as_of)
+            else:
+                _mark_missing(summary, as_of)
+        summary["full_required_horizon_ready"] = (
+            summary["required_pair_count"] > 0
+            and summary["covered_pair_count"] == summary["required_pair_count"]
+        )
+        summaries[derived_series_id] = summary
+    return summaries
 
 
 def _segmented_cache_count(cache: PointInTimeCache, series_ids: list[str]) -> int:

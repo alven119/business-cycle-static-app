@@ -45,6 +45,29 @@ class EiaWtiFetchResult:
     parse_status: str
 
 
+@dataclass(frozen=True)
+class EiaWtiTemporalPolicy:
+    """Official policy evidence needed before WTI observations can be strict PIT."""
+
+    policy_id: str
+    availability_rule_verified: bool
+    revision_policy_verified: bool
+    availability_precision: str
+    end_of_day_policy: bool
+    blocker_reason: str | None = None
+
+    @property
+    def strict_ready(self) -> bool:
+        """Return whether policy evidence is sufficient for strict classification."""
+
+        return (
+            self.availability_rule_verified
+            and self.revision_policy_verified
+            and self.availability_precision == "day"
+            and self.end_of_day_policy
+        )
+
+
 def fetch_eia_wti_history(
     *,
     url: str = EIA_WTI_HISTORY_URL,
@@ -64,6 +87,41 @@ def fetch_eia_wti_history(
         release_date=release_date,
         parse_status="parsed" if observations else "parsed_zero_rows",
     )
+
+
+def default_eia_wti_temporal_policy() -> EiaWtiTemporalPolicy:
+    """Return current QA1E WTI policy status.
+
+    The parser can extract official EIA rows, but QA1E still requires official
+    correction/revision evidence before those rows may contribute strict coverage.
+    """
+
+    return EiaWtiTemporalPolicy(
+        policy_id="eia_wti_policy_qa1e_blocked",
+        availability_rule_verified=False,
+        revision_policy_verified=False,
+        availability_precision="day",
+        end_of_day_policy=True,
+        blocker_reason="official revision/correction history policy is not reconstructed",
+    )
+
+
+def select_eia_wti_observation_as_of(
+    observations: list[EiaWtiObservation] | tuple[EiaWtiObservation, ...],
+    *,
+    as_of: str,
+    policy: EiaWtiTemporalPolicy | None = None,
+) -> EiaWtiObservation | None:
+    """Select the latest legally available WTI row for ``as_of``.
+
+    This selector fails closed unless explicit policy evidence has been verified.
+    """
+
+    active_policy = policy or default_eia_wti_temporal_policy()
+    if not active_policy.strict_ready:
+        return None
+    eligible = [item for item in observations if item.availability_date <= as_of]
+    return max(eligible, key=lambda item: item.observation_date) if eligible else None
 
 
 def parse_eia_wti_history_html(content: bytes | str) -> tuple[list[EiaWtiObservation], str | None]:

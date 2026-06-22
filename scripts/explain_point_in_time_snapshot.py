@@ -9,6 +9,7 @@ from typing import Any
 
 from business_cycle.audits.point_in_time_coverage import scenario_month_end_dates
 from business_cycle.data_sources.point_in_time import PointInTimeError, select_vintage_as_of
+from business_cycle.indicators.point_in_time_derived import derive_rrsfs_snapshot
 from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
 
@@ -43,6 +44,8 @@ def explain_snapshot(
 ) -> dict[str, Any]:
     cache = PointInTimeCache(cache_dir)
     clean_series_id = series_id.strip().upper()
+    if clean_series_id == "RRSFS":
+        return _explain_rrsfs_derived(as_of=as_of, cache_dir=cache_dir, scenarios_path=scenarios_path)
     base: dict[str, Any] = {
         "series_id": clean_series_id,
         "as_of": as_of,
@@ -113,6 +116,65 @@ def explain_snapshot(
         "point_in_time": True,
         "cache_manifest_checksum_valid": True,
         "missing_reason": "none",
+    }
+
+
+def _explain_rrsfs_derived(
+    *,
+    as_of: str,
+    cache_dir: Path,
+    scenarios_path: Path,
+) -> dict[str, Any]:
+    cache = PointInTimeCache(cache_dir)
+    base = {
+        "series_id": "RRSFS",
+        "as_of": as_of,
+        "cache_path": str(cache.csv_path("RRSFS")),
+        "manifest_path": str(cache.manifest_path("RRSFS")),
+        "temporal_evidence_class": "derived_point_in_time",
+        "point_in_time": False,
+        "revised_fallback_used": False,
+        "proxy_used": False,
+        "full_required_horizon_ready": False,
+        "full_required_horizon_coverage_ratio": 0.0,
+    }
+    try:
+        rsafs = cache.read_series("RSAFS")
+        cpi = cache.read_series("CPIAUCSL")
+        rsafs_snapshot = select_vintage_as_of(rsafs.rows, series_id="RSAFS", as_of=as_of)
+        cpi_snapshot = select_vintage_as_of(cpi.rows, series_id="CPIAUCSL", as_of=as_of)
+        value = derive_rrsfs_snapshot(
+            as_of=as_of,
+            rsafs_snapshot=rsafs_snapshot,
+            cpi_snapshot=cpi_snapshot,
+        )
+    except (PointInTimeCacheError, PointInTimeError) as exc:
+        return {
+            **base,
+            "snapshot_as_of_ready": False,
+            "selected_observation_date": None,
+            "selected_realtime_start": None,
+            "selected_realtime_end": None,
+            "cache_manifest_checksum_valid": False,
+            "missing_reason": str(exc),
+            "blocker_class": "derived_input_not_strict_ready",
+        }
+    full_summary = _full_horizon_summary(rows=rsafs.rows, series_id="RSAFS", scenarios_path=scenarios_path)
+    return {
+        **base,
+        **full_summary,
+        "snapshot_as_of_ready": True,
+        "selected_observation_date": value.selected_reference_month,
+        "latest_legally_available_observation_date": value.selected_reference_month,
+        "selected_realtime_start": value.availability_date,
+        "selected_realtime_end": None,
+        "point_in_time": True,
+        "cache_manifest_checksum_valid": True,
+        "formula_id": value.formula_id,
+        "formula_version": value.formula_version,
+        "input_snapshot_ids": ",".join(value.input_snapshot_ids),
+        "missing_reason": "none",
+        "blocker_class": "none",
     }
 
 

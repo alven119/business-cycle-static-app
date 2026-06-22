@@ -55,6 +55,11 @@ formal coverage 由 ALFRED vintage、official release archive、official
 observational archive 或 derived point-in-time 補齊，也不代表 calibration
 holdout、context dependency、book benchmark 或投資策略驗證已完成。
 
+QA1E 的 Census/EIA 工作同樣只處理 temporal evidence。`RRSFS` derived
+path、`CPIAUCSL` cache、EIA parsed rows 或 Census artifact probes 都不會解除
+calibration holdout；只要 availability/revision policy、release parser、公式、
+unit 或 base-period validation 未完成，formal temporal coverage 仍 blocked。
+
 ## Candidate Controls
 
 7A 只定義候選控制項，不啟用任何行為：

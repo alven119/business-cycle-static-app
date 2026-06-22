@@ -75,3 +75,16 @@ Current revised history plus an arbitrary lag remains a proxy, not strict
 point-in-time. Initial release data remain first-release sensitivity data, not
 as-of latest visible vintage. QA1C does not change formal scoring weights,
 resolver logic, dashboard defaults, or production revised-mode behavior.
+
+## QA1E Census/EIA Status
+
+QA1E separates leaf dependency coverage from derived formal output readiness.
+`RRSFS` is a derived output candidate using same-as-of `RSAFS` and `CPIAUCSL`;
+the derived output is not counted as an additional external source artifact.
+
+`CPIAUCSL` can improve leaf point-in-time coverage when its ALFRED cache is
+present, but `RRSFS` remains blocked unless the `RSAFS` input is strict-ready
+and the official formula/unit/base-period contract is validated. `DCOILWTICO`
+parsed EIA rows remain blocked without official availability and revision policy
+evidence. Census `DGORDER` and `RSAFS` remain blocked until deterministic
+release archive parsers produce nonzero, publication-dated rows.

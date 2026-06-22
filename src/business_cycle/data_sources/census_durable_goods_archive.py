@@ -24,3 +24,20 @@ def parser_status() -> str:
     """Return current parser implementation status."""
 
     return "blocked_pending_census_m3_release_parser"
+
+
+def select_durable_goods_estimate_as_of(
+    estimates: list[DurableGoodsEstimate] | tuple[DurableGoodsEstimate, ...],
+    *,
+    as_of: str,
+    reference_month: str | None = None,
+) -> DurableGoodsEstimate | None:
+    """Select the latest published DGORDER estimate visible at ``as_of``."""
+
+    eligible = [
+        item
+        for item in estimates
+        if item.release_date <= as_of
+        and (reference_month is None or item.reference_month == reference_month)
+    ]
+    return max(eligible, key=lambda item: (item.reference_month, item.release_date)) if eligible else None

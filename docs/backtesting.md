@@ -37,6 +37,12 @@ point-in-time. Initial-release-only data remain a sensitivity mode, not as-of
 latest visible vintage. Any substitute series must pass temporal, economic, and
 signal equivalence review before it can be proposed behind a feature gate.
 
+QA1E adds dynamic coverage denominators: leaf source dependencies and derived
+formal outputs are reported separately, so `RSAFS`, `CPIAUCSL`, and derived
+`RRSFS` are not double-counted as interchangeable source coverage. EIA and
+Census artifacts do not count as strict coverage when they are metadata-only,
+parse zero rows, or lack official availability/revision evidence.
+
 ## Phase 6B Runner Skeleton
 
 Phase 6B 新增 historical backtest runner skeleton。它可以針對單一 scenario 依每月月底 as-of 日期跑出 timeline JSON，但尚未新增 dashboard 歷史頁、圖表或前端互動。

@@ -1,0 +1,22 @@
+rrsfs_point_in_time_derivation:
+  version: 1
+  phase: QA1E
+  series_id: RRSFS
+  temporal_evidence_class_candidate: derived_point_in_time
+  dependency_class_before: direct
+  dependency_class_after: derived
+  underlying_series:
+    - RSAFS
+    - CPIAUCSL
+  formula_id: rrsfs_rsafs_deflated_by_cpiau_1982_84_100
+  formula_version: 1
+  same_as_of_rule_required: true
+  input_availability_rule: max_input_availability
+  direct_revised_fallback_prohibited: true
+  rrsfs_formula_validated: false
+  rrsfs_unit_validated: false
+  rrsfs_base_period_validated: false
+  rrsfs_seasonal_adjustment_validated: false
+  strict_ready: false
+  blocker_class: official_formula_and_input_archive_incomplete
+  blocker_reason: RSAFS release archive and official formula/unit/base validation remain incomplete

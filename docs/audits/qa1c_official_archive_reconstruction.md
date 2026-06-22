@@ -39,3 +39,22 @@ dashboard behavior are unchanged.
 Phase 9B1, real historical backtest progression, book benchmark execution, and
 dashboard portfolio integration remain blocked until later gates explicitly
 authorize them.
+
+## QA1E Census/EIA Boundary
+
+QA1E adds explicit denominator semantics for leaf source dependencies versus
+derived formal outputs. `RRSFS` is treated as a derived output candidate from
+same-as-of `RSAFS` and `CPIAUCSL`, so source-series coverage uses leaf
+dependencies and derived-output readiness is reported separately.
+
+`CPIAUCSL` may be live-verified through ALFRED vintage intervals, but that does
+not make `RRSFS` full-horizon strict-ready unless `RSAFS` is strict-ready and
+the official `RRSFS` formula, unit, base period, and seasonal-adjustment
+compatibility are validated. EIA WTI parsed rows also remain non-strict until
+official availability and correction/revision policy evidence is complete.
+
+As of QA1E, Census `DGORDER` and `RSAFS` official artifacts are downloaded or
+probed but deterministic historical release parsers are still blocked.
+`DCOILWTICO`, `DGORDER`, `RSAFS`, and `RRSFS` must not contribute strict
+official archive coverage from metadata-only entries, zero-row parses, revised
+history plus lag, or direct revised fallback.

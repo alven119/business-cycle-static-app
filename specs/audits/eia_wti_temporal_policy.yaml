@@ -1,0 +1,18 @@
+eia_wti_temporal_policy:
+  version: 1
+  phase: QA1E
+  series_id: DCOILWTICO
+  source_domain: eia.gov
+  source_artifact_required: true
+  temporal_evidence_class_candidate: official_observational_archive
+  availability_precision: day
+  end_of_day_policy: true
+  availability_rule_verified: false
+  revision_policy_verified: false
+  strict_ready: false
+  prohibited_shortcuts:
+    - observation_date equals availability_date without official evidence
+    - current revised history plus arbitrary lag
+    - non-official commodity data
+  blocker_class: official_policy_evidence_incomplete
+  blocker_reason: official correction/revision history policy is not reconstructed

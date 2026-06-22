@@ -80,6 +80,13 @@ Partial official history is not full required-horizon strict coverage. Current
 historical values plus an arbitrary lag are not strict point-in-time data, and
 substitute series require temporal, economic, and signal equivalence review.
 
+QA1E separates source-series coverage from derived output readiness. `RRSFS`
+may be derived only from same-as-of `RSAFS` and `CPIAUCSL`; it is not strict
+unless both inputs and the official formula/unit/base-period contract are
+validated. Parsed EIA or Census artifacts with incomplete availability,
+revision, or parser evidence remain blocked and do not count as strict archive
+coverage.
+
 Production live scoring still defaults to revised data unless a point-in-time
 mode is explicitly requested. Phase 9B1, real historical backtesting, book
 benchmark execution, and dashboard portfolio integration remain blocked.
