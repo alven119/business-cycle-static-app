@@ -1,31 +1,128 @@
 evidence_evaluator_metamorphic_fixtures:
-  version: 1
-  phase: QA7
+  version: 2
+  phase: QA8
   fixtures:
-    - fixture_id: missing_data_abstains
-      role_id: recovery_initial_jobless_claims
-      input_values: []
+    - fixture_id: claims_ma_positive_matched
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: positive_matched
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      as_of: "2026-03-31"
+      expected_status: matched
+      structural_only: true
+    - fixture_id: claims_ma_negative_not_matched_not_applicable
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: negative_not_matched
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      as_of: "2026-03-31"
+      expected_status: matched
+      negative_case_note: smoothing rule has no not-matched directional state
+      structural_only: true
+    - fixture_id: claims_ma_insufficient_lookback_abstains
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: insufficient_lookback
+      observations:
+        - {date: "2026-03-04", value: 200000}
+      as_of: "2026-03-31"
       expected_status: abstained
       structural_only: true
-    - fixture_id: insufficient_lookback_abstains
-      role_id: recovery_initial_jobless_claims
-      input_values:
-        - 1
+    - fixture_id: claims_ma_missing_input_abstains
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: missing_input
+      observations: []
+      as_of: "2026-03-31"
       expected_status: abstained
       structural_only: true
-    - fixture_id: future_data_rejected
-      role_id: growth_nonfarm_payrolls
-      input_values:
-        - 1
-        - 2
-      has_future_observation: true
+    - fixture_id: claims_ma_future_data_rejected
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: future_data_rejection
+      observations:
+        - {date: "2026-03-04", value: 200000}
+        - {date: "2026-04-01", value: 199000}
+      as_of: "2026-03-31"
       expected_status: rejected
       structural_only: true
-    - fixture_id: deterministic_abstention
-      role_id: boom_consumer_confidence
-      input_values:
-        - 1
-        - 1
-        - 1
-      expected_status: abstained
+    - fixture_id: claims_ma_deterministic_repeat
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: deterministic_repeat
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      as_of: "2026-03-31"
+      expected_status: matched
+      repeat: true
+      structural_only: true
+    - fixture_id: claims_ma_weekly_irregular_calendar_window
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: frequency_aware
+      observations:
+        - {date: "2026-01-09", value: 220000}
+        - {date: "2026-01-30", value: 215000}
+        - {date: "2026-02-27", value: 210000}
+        - {date: "2026-03-27", value: 205000}
+      as_of: "2026-03-31"
+      expected_status: matched
+      structural_only: true
+    - fixture_id: claims_ma_missing_week_still_calendar_based
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: missing_week
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-18", value: 210000}
+        - {date: "2026-03-25", value: 200000}
+      as_of: "2026-03-31"
+      expected_status: matched
+      structural_only: true
+    - fixture_id: claims_ma_leap_year_month_boundary
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: month_boundary
+      observations:
+        - {date: "2024-01-31", value: 220000}
+        - {date: "2024-02-29", value: 210000}
+        - {date: "2024-03-31", value: 200000}
+      as_of: "2024-03-31"
+      expected_status: matched
+      structural_only: true
+    - fixture_id: claims_ma_calendar_not_row_count
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: calendar_window_not_row_count
+      observations:
+        - {date: "2025-12-01", value: 230000}
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      as_of: "2026-03-31"
+      expected_status: matched
+      excluded_old_value: 230000
+      structural_only: true
+    - fixture_id: claims_ma_unit_scale_invariant_for_average
+      role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      fixture_kind: unit_scale
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      scaled_observations:
+        - {date: "2026-01-07", value: 220}
+        - {date: "2026-02-04", value: 210}
+        - {date: "2026-03-04", value: 200}
+      as_of: "2026-03-31"
+      expected_status: matched
       structural_only: true

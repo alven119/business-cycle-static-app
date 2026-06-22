@@ -669,3 +669,87 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - preregistered_evaluable_role_count may be 0 because QA7 must not invent thresholds from historical outcomes
+
+  qa8_book_explicit_evaluator_closure:
+    hard_gates:
+      - blocker_accounting_reconciled == true
+      - explicit_rule_eligibility_ready == true
+      - contextual_numeric_guard_ready == true
+      - evaluator_primitive_library_ready == true
+      - book_explicit_evaluators_implemented == true
+      - evaluator_metamorphic_coverage_ready == true
+      - role_readiness_recalculated == true
+      - retrospective_evidence_diagnostics_ready == true
+      - prospective_protocol_registered == true
+      - prospective_clock_gate_ready == true
+      - evaluator_freeze_ready == true
+      - evaluator_leakage_guard_ready == true
+      - production_isolation_verified == true
+      - implemented_explicit_evaluator_count == operationally_complete_explicit_rule_count
+      - contextual_numeric_generalization_count == 0
+      - non_book_threshold_added_count == 0
+      - copied_historical_threshold_count == 0
+      - retrospective_candidate_selection_enabled == false
+      - retrospective_candidate_phase_emitted_count == 0
+      - prospective_protocol_started == false
+      - prospective_result_inspected == false
+      - holdout_registered == false
+      - formal_candidate_phase_computed_on_historical_data == false
+      - formal_current_phase_decision_enabled == false
+      - formal_decision_model_ready == false
+      - data_only_model_economically_validated == false
+      - independent_validation_ready == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - qa9_allowed == true
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_phase == QA9
+      - qa8_closure_status == closed_book_explicit_evaluators_frozen_forward_protocol_registered_not_started
+      - result == passed
+    soft_warnings_allowed:
+      - evidence_evaluable_role_count may remain low because QA8 implements only operationally complete explicit rules
+
+  qa9_prospective_shadow_registry_closure:
+    hard_gates:
+      - evaluator_runtime_audit_ready == true
+      - implemented_evaluator_runtime_wired == true
+      - evaluator_runtime_fixture_suite_ready == true
+      - registry_contract_ready == true
+      - append_only_store_ready == true
+      - input_snapshot_contract_ready == true
+      - forward_clock_gate_ready == true
+      - protocol_start_semantics_ready == true
+      - protocol_versioning_ready == true
+      - inspection_governance_ready == true
+      - registry_fixture_validation_ready == true
+      - monitoring_infrastructure_freeze_ready == true
+      - production_isolation_verified == true
+      - contract_evaluable_evaluator_count == 1
+      - runtime_executable_evaluator_count == 1
+      - directional_evidence_evaluable_count == 0
+      - candidate_selection_eligible_evaluator_count == 0
+      - protocol_registered == true
+      - registry_armed == true
+      - protocol_started == false
+      - first_record_written == false
+      - real_record_count == 0
+      - prospective_result_inspected == false
+      - candidate_capability_ready == false
+      - candidate_monitoring_allowed == false
+      - holdout_registered == false
+      - retrospective_backfill_allowed == false
+      - retrospective_candidate_selection_allowed == false
+      - real_data_candidate_selection_enabled == false
+      - formal_candidate_phase_computed == false
+      - formal_decision_model_ready == false
+      - economic_validation_status == not_started
+      - independent_validation_ready == false
+      - qa10_allowed == true
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_phase == QA10
+      - qa9_closure_status == closed_forward_registry_armed_not_started_candidate_capability_incomplete
+      - result == passed
+    soft_warnings_allowed:
+      - runtime_output_available_evaluator_count may be 0 for retrospective real diagnostics when same-mode history windows are unavailable

@@ -1,0 +1,35 @@
+book_faithful_shadow_evaluator_freeze:
+  version: 1
+  phase: QA8
+  freeze_id: book_faithful_shadow_v2_alpha4
+  parent_freeze_id: book_faithful_shadow_v2_alpha3
+  freeze_type: book_explicit_evaluator_implementation
+  created_at_utc: "2026-06-22T00:00:00Z"
+  blocker_semantics_contract_hash: 1bcd938b818cbdc265a6b503498caf75c777ad2a55802dbaf583540339fc23d4
+  evaluator_eligibility_hash: 53eb5acd166a3094818d2f2286abf706e638f2aca104c4340d438f79d57f46ad
+  operationalization_registry_hash: df4176795d159b278de756f8ba461e51c75ba5dd236a61fbcfa42b838b3178fa
+  rule_provenance_hash: 25e60f91b1d22790fbd984415e29724e7ed29ba44bee4395bfb00adf9ca7fd00
+  role_evaluation_contract_hash: 578eec08a511983c4e04023f095409c311ab1539ee4cca315f4621d51fec43b3
+  evaluator_registry_hash: 0b9f05fd4cbb3b84a7b8e8562ada0d482d618d26d8490123b32cb5eeb9f05a94
+  evaluator_source_hashes:
+    src/business_cycle/audits/evidence_evaluability.py: b946792523d5a25e1d8dbcb04d1d749d1d6997ded54e7a8e17b7f301e4054403
+    src/business_cycle/audits/book_explicit_evaluator_eligibility.py: d9426ad7b865014fc0b3b7d7ff1dddac2ab828ed9251d125e33d54ccf1363559
+    src/business_cycle/audits/contextual_numeric_generalization.py: 17fca964f92a31b9512a82401b406997ded6bac21334661982ef65d3d2d44e57
+    src/business_cycle/audits/shadow_evidence_diagnostics.py: e1b555101f6e0c1f564c285173c7816a0e4b328229df6e19551a2078e8131121
+    src/business_cycle/audits/prospective_shadow_protocol.py: 34ce571a7c0dcce2d46c7c0765e73c9b6eed8e1576fbdafc19503b4c548dfafe
+    src/business_cycle/shadow_model/evaluator_primitives.py: 5584deac12159300d1aba3d13b2a331b21e60df32daadf312cfafafc3f7c3607
+    src/business_cycle/shadow_model/evidence_evaluators.py: cdc7a2b662059816a39d8b3b3a7438005d02a5d76ea13d7a42ea90ee4286eaaa
+    src/business_cycle/shadow_model/prospective_gate.py: 3258c42ccf5884cb5aebb436220ff5d1919ae80a15c929c83f6e397d5bb1c21f
+  metamorphic_fixture_hash: a0eda92392325bf7734eeffa9806cf5826022cd05fb53ff0487f4eaced8a0972
+  prospective_protocol_hash: 5a41d0ded49ddc0b30912936b80a2c65955392e6be68207be3500320c9743332
+  prospective_gate_source_hash: 3258c42ccf5884cb5aebb436220ff5d1919ae80a15c929c83f6e397d5bb1c21f
+  numeric_weight_frozen: false
+  production_thresholds_changed: false
+  non_book_threshold_added: false
+  real_historical_candidate_selection_enabled: false
+  prospective_protocol_registered: true
+  prospective_protocol_started: false
+  holdout_registered: false
+  economic_validation_status: not_started
+  independent_validation_status: not_started
+  production_integration_allowed: false

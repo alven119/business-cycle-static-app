@@ -1,0 +1,16 @@
+book_explicit_evaluator_eligibility:
+  version: 1
+  phase: QA8
+  registry_id: book_explicit_evaluator_eligibility_v1
+  policy:
+    implement_only_operationally_complete_explicit_rules: true
+    contextual_examples_implemented: false
+    qualitative_rules_numericized: false
+    natural_boundary_requires_units_and_economics: true
+  complete_rule_ids:
+    - rule::recovery_weekly_claim_noise_filter
+  explicit_incomplete_rule_reasons:
+    rule::boom_claims_u_shape: reference_window_not_preregistered
+    rule::trough_claims_reversal: turning_point_window_not_preregistered
+    rule::trough_labor_reversal: turning_point_window_not_preregistered
+    rule::recovery_durable_goods_new_orders: persistence_and_lookback_not_preregistered

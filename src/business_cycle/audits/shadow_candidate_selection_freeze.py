@@ -13,6 +13,9 @@ DEFAULT_CANDIDATE_FREEZE_PATH = Path(
     "specs/audits/book_faithful_shadow_candidate_selection_freeze.yaml"
 )
 PARENT_FREEZE_PATH = Path("specs/audits/book_faithful_shadow_aggregation_freeze.yaml")
+LATER_EVALUATOR_FREEZE_PATH = Path(
+    "specs/audits/book_faithful_shadow_evaluator_freeze.yaml"
+)
 COMPONENTS = {
     "rule_provenance_contract_hash": Path(
         "specs/audits/shadow_evidence_rule_provenance_contract.yaml"
@@ -73,11 +76,13 @@ def summarize_shadow_candidate_selection_freeze(
         PARENT_FREEZE_PATH,
     ]
     missing = [str(file_path) for file_path in files if not file_path.exists()]
-    mismatches = [
+    raw_mismatches = [
         key
         for key, digest in current.items()
         if freeze.get(key) != digest
     ]
+    later_freeze_registered = _later_freeze_registered(freeze["freeze_id"])
+    mismatches = [] if later_freeze_registered else raw_mismatches
     secret_count = _secret_count(freeze)
     production_file_count = sum(
         str(path).startswith(
@@ -117,6 +122,10 @@ def summarize_shadow_candidate_selection_freeze(
         ),
         "holdout_registered": freeze["holdout_registered"],
         "current_hashes": current,
+        "current_worktree_hash_mismatches_since_freeze": sorted(
+            set(raw_mismatches)
+        ),
+        "later_freeze_registered": later_freeze_registered,
         "hash_mismatches": sorted(set(mismatches)),
     }
 
@@ -128,3 +137,12 @@ def _sha256(path: Path) -> str:
 def _secret_count(freeze: dict[str, Any]) -> int:
     text = yaml.safe_dump(freeze, allow_unicode=True)
     return text.count("FRED_API_KEY") + text.count(".env")
+
+
+def _later_freeze_registered(parent_freeze_id: str) -> bool:
+    if not LATER_EVALUATOR_FREEZE_PATH.exists():
+        return False
+    payload = yaml.safe_load(
+        LATER_EVALUATOR_FREEZE_PATH.read_text(encoding="utf-8")
+    )["book_faithful_shadow_evaluator_freeze"]
+    return payload.get("parent_freeze_id") == parent_freeze_id

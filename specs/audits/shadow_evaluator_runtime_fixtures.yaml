@@ -1,0 +1,82 @@
+shadow_evaluator_runtime_fixtures:
+  version: 1
+  phase: QA9
+  fixtures:
+    - fixture_id: complete_monthly_three_month_window
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-01-31", value: 220000}
+        - {date: "2026-02-28", value: 210000}
+        - {date: "2026-03-31", value: 200000}
+      expected_status: matched
+    - fixture_id: complete_weekly_three_calendar_month_window
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      expected_status: matched
+    - fixture_id: insufficient_window
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-03-04", value: 200000}
+      expected_status: abstained
+    - fixture_id: missing_middle_observation
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-03-04", value: 200000}
+      expected_status: abstained
+    - fixture_id: future_observation_present
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-03-04", value: 200000}
+        - {date: "2026-04-01", value: 199000}
+      expected_status: abstained
+    - fixture_id: mixed_data_mode_history
+      data_mode: mixed
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-01-07", value: 220000, data_mode: revised}
+        - {date: "2026-02-04", value: 210000, data_mode: vintage_as_of}
+        - {date: "2026-03-04", value: 200000, data_mode: revised}
+      expected_status: abstained
+    - fixture_id: irregular_weekly_dates
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2026-01-09", value: 220000}
+        - {date: "2026-02-27", value: 210000}
+        - {date: "2026-03-27", value: 200000}
+      expected_status: matched
+    - fixture_id: exact_month_boundary
+      data_mode: revised
+      as_of: "2026-03-31"
+      observations:
+        - {date: "2025-12-31", value: 230000}
+        - {date: "2026-01-31", value: 220000}
+        - {date: "2026-02-28", value: 210000}
+        - {date: "2026-03-31", value: 200000}
+      expected_status: matched
+    - fixture_id: leap_year_boundary
+      data_mode: revised
+      as_of: "2024-03-31"
+      observations:
+        - {date: "2024-01-31", value: 220000}
+        - {date: "2024-02-29", value: 210000}
+        - {date: "2024-03-31", value: 200000}
+      expected_status: matched
+    - fixture_id: provenance_missing
+      data_mode: revised
+      as_of: "2026-03-31"
+      provenance_complete: false
+      observations:
+        - {date: "2026-01-07", value: 220000}
+        - {date: "2026-02-04", value: 210000}
+        - {date: "2026-03-04", value: 200000}
+      expected_status: abstained

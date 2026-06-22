@@ -1,0 +1,16 @@
+prospective_observation_inspection_policy:
+  version: 1
+  phase: QA9
+  policy_id: prospective_observation_inspection_policy_v1
+  allowed_qa9_modes:
+    - metadata_only
+    - operational_health_only
+  prohibited_qa9_modes:
+    - real_evidence_result_inspection
+    - candidate_phase_inspection
+    - model_comparison
+    - threshold_modification
+    - performance_comparison
+  review_events: []
+  sealed_field_exposure_allowed: false
+  result_driven_parameter_change_allowed: false

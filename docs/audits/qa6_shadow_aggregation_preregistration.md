@@ -94,3 +94,12 @@ Contextual historical examples, including the 2019 250000 initial-claims
 discussion, are not universal thresholds. The three-month moving average is a
 book smoothing/noise-filter rule. Qualitative significant-jump language remains
 unresolved until a later phase preregisters a defensible evaluator.
+
+## QA8 Follow-Up
+
+QA8 keeps the QA6 aggregation architecture intact. It implements only the
+operationally complete initial-claims moving-average noise filter and leaves
+aggregation candidate selection disabled for retrospective real data.
+
+The forward-only protocol is registered for future shadow diagnostics, but it
+does not start a holdout and does not backfill candidate phase outputs.

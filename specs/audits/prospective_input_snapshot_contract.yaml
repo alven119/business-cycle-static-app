@@ -1,0 +1,26 @@
+prospective_input_snapshot_contract:
+  version: 1
+  phase: QA9
+  contract_id: prospective_input_snapshot_contract_v1
+  strict_proxy_allowed: false
+  strict_revised_fallback_allowed: false
+  missing_evidence_zero_fill_allowed: false
+  same_record_mixed_data_mode_allowed: false
+  revised_mode_label: revised_diagnostic
+  required_fields:
+    - snapshot_id
+    - as_of
+    - data_mode
+    - series_ids
+    - selected_observation_dates
+    - availability_dates
+    - temporal_evidence_classes
+    - source_artifact_ids
+    - source_cache_checksums
+    - parser_versions
+    - transformation_versions
+    - missing_series
+    - proxy_series
+    - revised_fallback_series
+    - snapshot_hash
+    - provenance_complete

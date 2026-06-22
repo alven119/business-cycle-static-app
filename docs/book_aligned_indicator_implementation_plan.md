@@ -829,3 +829,34 @@ Synthetic candidate fixtures validate no-weight selection mechanics and
 ambiguity preservation. Real-data candidate selection remains disabled and
 emits no candidate phase. QA8 will implement book-explicit evaluators and
 prospective shadow diagnostics.
+
+## QA8 Evaluator Update
+
+QA8 implements the first operationally complete book-explicit shadow evaluator:
+the calendar-time three-month initial-claims moving-average noise filter. The
+implementation is frequency-aware and uses calendar windows rather than a fixed
+row count.
+
+The evaluator does not promote a production indicator, does not define weights,
+does not add production thresholds, and does not confirm a phase. Claims
+reversal, durable-orders improvement, and claims-new-low continuation remain
+blocked where lookback, persistence, turning-point, or reference-window
+semantics are incomplete.
+
+The forward-only prospective shadow protocol is registered but not started and
+is separate from holdout governance. Production v1 remains unchanged.
+
+## QA9 Registry Update
+
+QA9 adds the append-only prospective shadow registry and forward-only gate for
+future observation provenance. It does not add new evidence thresholds, does
+not make the smoothing evaluator directional, and does not enable candidate
+selection.
+
+The registry is armed but not started. No real prospective record is written,
+real result inspection remains zero, and holdout remains unregistered. Any
+future model or rule version change requires successor lineage rather than
+backfilling old periods.
+
+QA10 will continue with unresolved book-rule operationalization and candidate
+capability expansion while production v1 remains isolated.

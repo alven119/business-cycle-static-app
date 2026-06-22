@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from business_cycle.audits.evidence_evaluability import summarize_evidence_evaluability
+from business_cycle.audits.evidence_evaluability import (
+    summarize_evidence_evaluability_status_contract,
+)
 
 
 def main() -> None:
     summary = summarize_evidence_evaluability()
+    status = summarize_evidence_evaluability_status_contract()
     for key in (
         "phase",
         "evaluability_root_cause_audit_ready",
@@ -21,6 +25,22 @@ def main() -> None:
         print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")
     for reason, count in summary["non_evaluable_reason_counts"].items():
         print(f"reason_count[{reason}]={count}")
+    for key in (
+        "primary_status_count_sum",
+        "role_without_primary_status_count",
+        "role_with_multiple_primary_status_count",
+        "secondary_blocker_role_count",
+        "threshold_secondary_blocker_count",
+        "threshold_primary_blocker_count",
+        "raw_transform_primary_count",
+        "blocked_data_primary_count",
+        "primary_secondary_semantics_valid",
+        "blocker_count_misinterpreted_as_mutually_exclusive_count",
+    ):
+        value = status[key]
+        print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")
+    for primary, count in status["primary_status_counts"].items():
+        print(f"primary_status_count[{primary}]={count}")
 
 
 if __name__ == "__main__":

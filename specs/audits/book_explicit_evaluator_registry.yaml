@@ -1,0 +1,19 @@
+book_explicit_evaluator_registry:
+  version: 1
+  phase: QA8
+  registry_id: book_explicit_evaluator_registry_v1
+  policy:
+    candidate_selection_enabled_for_real_data: false
+    smoothing_is_not_directional_support: true
+    directional_observation_is_not_confirmation: true
+    unresolved_rule_emits_no_directional_evidence: true
+  evaluators:
+    - evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      role_id: recovery_weekly_claim_noise_filter
+      rule_id: rule::recovery_weekly_claim_noise_filter
+      evaluator_type: calendar_time_moving_average
+      implemented: true
+      output_evidence_family: noise_filter_observation
+      candidate_selection_eligible: false
+      allowed_for_retrospective_diagnostic: true
+      allowed_for_prospective_shadow_diagnostic: true

@@ -1,0 +1,16 @@
+prospective_protocol_versioning_contract:
+  version: 1
+  phase: QA9
+  contract_id: prospective_protocol_versioning_v1
+  current_model_freeze_id: book_faithful_shadow_v2_alpha4
+  current_protocol_id: prospective_shadow_candidate_diagnostic_protocol_v1
+  evaluator_freeze_changed: false
+  successor_model_version_required: false
+  successor_model_version_created: false
+  successor_protocol_required: false
+  successor_protocol_created: false
+  protocol_version_lineage_valid: true
+  silent_freeze_update_count: 0
+  start_date_moved_earlier_count: 0
+  required_successor_missing_count: 0
+  monitoring_infrastructure_freeze_required: true

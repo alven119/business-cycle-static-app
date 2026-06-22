@@ -1,0 +1,44 @@
+prospective_shadow_registry_fixtures:
+  version: 1
+  phase: QA9
+  valid_fixtures:
+    - fixture_id: first_valid_metadata_record
+      observation_period: "2026-07"
+      as_of: "2026-08-31"
+      sequence_number: 1
+      inspection_status: metadata_only
+    - fixture_id: second_valid_chained_record
+      observation_period: "2026-08"
+      as_of: "2026-09-30"
+      sequence_number: 2
+      inspection_status: metadata_only
+    - fixture_id: valid_evaluator_health_record
+      observation_period: "2026-09"
+      as_of: "2026-10-31"
+      sequence_number: 3
+      inspection_status: metadata_only
+    - fixture_id: valid_abstained_candidate_record
+      observation_period: "2026-10"
+      as_of: "2026-11-30"
+      sequence_number: 4
+      inspection_status: metadata_only
+      candidate_selection_status: disabled
+  invalid_fixtures:
+    - {fixture_id: pre_start_record, expected_error: pre_start_period}
+    - {fixture_id: historical_backfill, expected_error: backfill_period}
+    - {fixture_id: duplicate_period, expected_error: duplicate_period}
+    - {fixture_id: duplicate_sequence, expected_error: duplicate_sequence}
+    - {fixture_id: wrong_previous_hash, expected_error: wrong_previous_hash}
+    - {fixture_id: modified_record_hash, expected_error: record_hash_mismatch}
+    - {fixture_id: out_of_order_period, expected_error: out_of_order_period}
+    - {fixture_id: wrong_model_version, expected_error: model_version_mismatch}
+    - {fixture_id: wrong_protocol_version, expected_error: protocol_version_mismatch}
+    - {fixture_id: mixed_data_mode, expected_error: mixed_data_mode}
+    - {fixture_id: future_availability, expected_error: future_availability}
+    - {fixture_id: strict_proxy_fallback, expected_error: strict_proxy_fallback}
+    - {fixture_id: candidate_emitted_without_capability, expected_error: candidate_capability_missing}
+    - {fixture_id: context_prior_used, expected_error: context_prior_used}
+    - {fixture_id: performance_metric_present, expected_error: performance_metric_present}
+    - {fixture_id: public_output_present, expected_error: public_output_present}
+    - {fixture_id: missing_provenance, expected_error: missing_provenance}
+    - {fixture_id: secret_field_present, expected_error: secret_field_present}

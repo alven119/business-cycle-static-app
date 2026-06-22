@@ -1,0 +1,29 @@
+evidence_evaluability_status_contract:
+  version: 1
+  phase: QA8
+  contract_id: evidence_evaluability_status_contract_v1
+  policy:
+    primary_statuses_are_mutually_exclusive: true
+    secondary_blockers_may_overlap: true
+    threshold_secondary_blocker_need_not_match_primary_threshold_status: true
+    role_specific_precedence_allowed: false
+  primary_status_precedence:
+    - invalid_contract
+    - blocked_access
+    - blocked_data
+    - blocked_equivalence
+    - blocked_rule_missing
+    - blocked_rule_incomplete
+    - blocked_threshold_missing
+    - raw_transform_only
+    - evaluable
+  status_semantics:
+    evaluable: all QA8 gates complete for a shadow evidence observation
+    raw_transform_only: transformation exists but evidence rule is not operationally complete
+    blocked_rule_missing: no usable rule has been preregistered
+    blocked_rule_incomplete: rule exists but required operational semantics are incomplete
+    blocked_threshold_missing: threshold is explicitly required and not preregistered
+    blocked_data: source identity or temporal data is unavailable
+    blocked_equivalence: economic equivalence is unresolved
+    blocked_access: source access is blocked
+    invalid_contract: contract fields are inconsistent

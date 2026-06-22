@@ -1,0 +1,43 @@
+qa9_prospective_shadow_registry_closure:
+  version: 1
+  phase: QA9
+  expected_status:
+    evaluator_runtime_audit_ready: true
+    implemented_evaluator_runtime_wired: true
+    evaluator_runtime_fixture_suite_ready: true
+    registry_contract_ready: true
+    append_only_store_ready: true
+    input_snapshot_contract_ready: true
+    forward_clock_gate_ready: true
+    protocol_start_semantics_ready: true
+    protocol_versioning_ready: true
+    inspection_governance_ready: true
+    registry_fixture_validation_ready: true
+    monitoring_infrastructure_freeze_ready: true
+    production_isolation_verified: true
+    contract_evaluable_evaluator_count: 1
+    runtime_executable_evaluator_count: 1
+    directional_evidence_evaluable_count: 0
+    candidate_selection_eligible_evaluator_count: 0
+    protocol_registered: true
+    registry_armed: true
+    protocol_started: false
+    first_record_written: false
+    real_record_count: 0
+    prospective_result_inspected: false
+    candidate_capability_ready: false
+    candidate_monitoring_allowed: false
+    holdout_registered: false
+    retrospective_backfill_allowed: false
+    retrospective_candidate_selection_allowed: false
+    real_data_candidate_selection_enabled: false
+    formal_candidate_phase_computed: false
+    formal_decision_model_ready: false
+    economic_validation_status: not_started
+    independent_validation_ready: false
+    qa10_allowed: true
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_phase: QA10
+    qa9_closure_status: closed_forward_registry_armed_not_started_candidate_capability_incomplete
+    recommended_next_phase_title: Unresolved Book Rule Operationalization and Candidate-Capability Expansion

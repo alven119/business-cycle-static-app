@@ -63,3 +63,22 @@ state-machine, dashboard, or production integration.
 QA8 is the next allowed phase for book-explicit evaluator implementation and
 prospective shadow candidate diagnostics. Real backtest progression and Phase
 9B1 remain blocked.
+
+## QA8 Follow-Up
+
+QA8 preserves the QA7 alpha3 freeze as a historical snapshot and creates alpha4
+for book-explicit evaluator implementation. Primary status counts become
+mutually exclusive while secondary blocker counts remain overlapping.
+
+Only the operationally complete three-month initial-claims moving-average
+noise filter is implemented. It is smoothing evidence only, not phase
+confirmation and not candidate-selection evidence. Retrospective candidate
+selection remains disabled, and the prospective shadow diagnostic protocol is
+registered but not started.
+
+## QA9 Follow-Up
+
+QA9 adds append-only registry and forward-only clock-gate infrastructure around
+the alpha4 shadow evaluator state. It does not start the protocol, write a real
+record, inspect real evidence, or enable candidate selection. Backfill and
+arbitrary real as-of overrides remain rejected.

@@ -1,0 +1,19 @@
+shadow_evaluator_runtime_contract:
+  version: 1
+  phase: QA9
+  contract_id: shadow_evaluator_runtime_contract_v1
+  implemented_evaluators:
+    - role_id: recovery_weekly_claim_noise_filter
+      evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      rule_id: rule::recovery_weekly_claim_noise_filter
+      required_series_ids:
+        - ICSA
+      required_history_window: 3_calendar_months
+      output_semantics: smoothing_only
+      candidate_selection_eligible: false
+  runtime_policy:
+    contract_evaluable_is_not_candidate_eligible: true
+    smoothing_output_is_not_directional: true
+    smoothing_output_is_not_confirmation: true
+    same_data_mode_history_required: true
+    no_production_wiring: true

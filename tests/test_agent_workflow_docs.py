@@ -91,6 +91,10 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     qa7_gates = phase_specific["qa7_evidence_rule_candidate_freeze_closure"][
         "hard_gates"
     ]
+    qa8_gates = phase_specific["qa8_book_explicit_evaluator_closure"]["hard_gates"]
+    qa9_gates = phase_specific["qa9_prospective_shadow_registry_closure"][
+        "hard_gates"
+    ]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -255,6 +259,26 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "formal_decision_model_ready == false" in qa7_gates
     assert "holdout_registered == false" in qa7_gates
     assert "recommended_next_phase == QA8" in qa7_gates
+    assert "book_explicit_evaluators_implemented == true" in qa8_gates
+    assert (
+        "implemented_explicit_evaluator_count == operationally_complete_explicit_rule_count"
+        in qa8_gates
+    )
+    assert "retrospective_candidate_selection_enabled == false" in qa8_gates
+    assert "prospective_protocol_started == false" in qa8_gates
+    assert "holdout_registered == false" in qa8_gates
+    assert "recommended_next_phase == QA9" in qa8_gates
+    assert "evaluator_runtime_audit_ready == true" in qa9_gates
+    assert "implemented_evaluator_runtime_wired == true" in qa9_gates
+    assert "registry_contract_ready == true" in qa9_gates
+    assert "append_only_store_ready == true" in qa9_gates
+    assert "forward_clock_gate_ready == true" in qa9_gates
+    assert "monitoring_infrastructure_freeze_ready == true" in qa9_gates
+    assert "protocol_started == false" in qa9_gates
+    assert "real_record_count == 0" in qa9_gates
+    assert "candidate_capability_ready == false" in qa9_gates
+    assert "holdout_registered == false" in qa9_gates
+    assert "recommended_next_phase == QA10" in qa9_gates
     assert "scenario_exposure_registry_ready == true" in qa3_gates
     assert "data_only_baseline_freeze_ready == true" in qa3_gates
     assert "parameter_tuning_executed == false" in qa3_gates
@@ -292,6 +316,27 @@ def test_agent_workflow_documents_qa6_aggregation_gates() -> None:
     assert "Phase QA6 shadow aggregation preregistration" in readme
     assert "candidate_selection_enabled=false" in readme
     assert "QA7" in readme
+
+
+def test_agent_workflow_documents_qa8_evaluator_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA8 Book-Explicit Evaluator Gates" in workflow
+    assert "Phase QA8 book-explicit evaluators and forward protocol" in readme
+    assert "prospective shadow diagnostic protocol is registered but not started" in readme
+    assert "QA9" in readme
+
+
+def test_agent_workflow_documents_qa9_registry_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA9 Prospective Registry Gates" in workflow
+    assert "Phase QA9 prospective shadow registry" in readme
+    assert "armed_not_started" in readme
+    assert "real_record_count=0" in readme
+    assert "QA10" in readme
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

@@ -1,0 +1,38 @@
+qa8_book_explicit_evaluator_closure:
+  version: 1
+  phase: QA8
+  expected_status:
+    blocker_accounting_reconciled: true
+    explicit_rule_eligibility_ready: true
+    contextual_numeric_guard_ready: true
+    evaluator_primitive_library_ready: true
+    book_explicit_evaluators_implemented: true
+    evaluator_metamorphic_coverage_ready: true
+    role_readiness_recalculated: true
+    retrospective_evidence_diagnostics_ready: true
+    prospective_protocol_registered: true
+    prospective_clock_gate_ready: true
+    evaluator_freeze_ready: true
+    evaluator_leakage_guard_ready: true
+    production_isolation_verified: true
+    contextual_numeric_generalization_count: 0
+    non_book_threshold_added_count: 0
+    copied_historical_threshold_count: 0
+    retrospective_candidate_selection_enabled: false
+    retrospective_candidate_phase_emitted_count: 0
+    prospective_protocol_started: false
+    prospective_result_inspected: false
+    holdout_registered: false
+    formal_candidate_phase_computed_on_historical_data: false
+    formal_current_phase_decision_enabled: false
+    formal_decision_model_ready: false
+    data_only_model_economically_validated: false
+    independent_validation_ready: false
+    production_book_fidelity_ready: false
+    book_alignment_claim_allowed: false
+    qa9_allowed: true
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_phase: QA9
+    qa8_closure_status: closed_book_explicit_evaluators_frozen_forward_protocol_registered_not_started
+    recommended_next_phase_title: Prospective Shadow Observation Registry and Forward-Only Evidence Monitoring

@@ -1,0 +1,30 @@
+prospective_shadow_monitoring_infrastructure_freeze:
+  version: 1
+  phase: QA9
+  freeze_id: prospective_shadow_monitoring_v1
+  parent_model_freeze_id: book_faithful_shadow_v2_alpha4
+  parent_protocol_id: prospective_shadow_candidate_diagnostic_protocol_v1
+  freeze_type: monitoring_infrastructure_only
+  created_at_utc: "2026-06-22T00:00:00Z"
+  registry_contract_hash: 6e41f9d1d526488ba87dcd9d231460902b42593aef47efc0ed78729b4aee7ddc
+  store_source_hashes:
+    src/business_cycle/shadow_model/prospective_registry.py: a12258a5620299a2527026a90c2497d8c4e10f9c031c21dcd2ac4feef0954d50
+    src/business_cycle/shadow_model/prospective_registry_store.py: 1f7c6ef5d50edfdececd0a363b00b54dab06145e24c6e042e92e5f9f6693ea09
+    src/business_cycle/shadow_model/input_snapshot_manifest.py: ef94982763dd3e7188b508a649f9322a608dce31d63d3f6e3e9fb54075141755
+    src/business_cycle/shadow_model/prospective_forward_gate.py: 5c27fa626c75b02a4c76d55adf909060fcc9e17dc240f8c71303900ef2c4cc22
+    src/business_cycle/audits/prospective_registry_fixtures.py: 0da7b77940b2e202239083e4bcd18ec0e35fa2e316439774bad399df097b29e0
+    src/business_cycle/audits/prospective_protocol_start_semantics.py: d86ba51a88847a5703b37b7ce8d4bb9ab4033c8615363e0a3f1269c6807820a6
+    src/business_cycle/audits/prospective_protocol_versioning.py: a7e62f6c668f51d3639d9dffb824c281241b1f2b6148cca2a1a4993852a62222
+    src/business_cycle/audits/prospective_observation_inspection.py: 7386c116199d83de9116e74b77207d12b0e1744ef784f1bebeca08a4265e1c4c
+  snapshot_contract_hash: 27b7d3a22d4391167bc80b104a5afec035c485fb7ff690ccf19b4ee418df7edb
+  clock_gate_hash: 5c27fa626c75b02a4c76d55adf909060fcc9e17dc240f8c71303900ef2c4cc22
+  versioning_contract_hash: 2fd65e6af59e1c6bd3d30c7788a8d5ce616c29e212581d759617dbf42a4333f9
+  inspection_policy_hash: e0287de17c4d4a07254fe50300acee44816b1a20111c1b012b827292d8399b02
+  fixture_hash: 50a5c9e272c7230cab38ea57de0480d9752efd6e402b6de032381fd067554261
+  model_decision_behavior_changed: false
+  evaluator_rule_changed: false
+  candidate_selection_behavior_changed: false
+  production_integration_allowed: false
+  automatic_scheduler_allowed: false
+  protocol_started: false
+  holdout_registered: false

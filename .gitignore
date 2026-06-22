@@ -27,6 +27,8 @@ data/derived/
 data/derived/**
 data/backtests/
 data/backtests/**
+data/prospective/
+data/prospective/**
 
 # Local output
 public/index.html

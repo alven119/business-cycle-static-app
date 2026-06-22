@@ -1242,6 +1242,52 @@ explicit `/tmp` diagnostics when requested. Production v1 remains unchanged,
 holdout is not registered, real backtest progression remains blocked, and Phase
 9B1 remains blocked. QA8 is the next allowed phase.
 
+## Phase QA8 book-explicit evaluators and forward protocol
+
+QA8 reconciles primary versus secondary blocker accounting and implements only
+operationally complete book-explicit shadow evaluators for
+`book_faithful_shadow_v2_alpha4`.
+
+The three-month initial-claims moving average is implemented as a calendar-time
+noise filter. It does not confirm a phase and does not become candidate
+selection evidence. Claims reversal, durable-orders improvement, and
+claims-new-low continuation rules remain blocked where lookback, persistence,
+turning-point, or reference-window semantics are incomplete.
+
+The 2019 250000 initial-claims value remains a contextual example, qualitative
+significant-jump language is not numericized, and contaminated legacy rules are
+not used for future validation claims. Retrospective diagnostics may report
+rule execution, provenance, and abstention only; candidate phase output remains
+disabled.
+
+The prospective shadow diagnostic protocol is registered but not started. It
+uses the QA3 first eligible observation period, rejects pre-start and backdated
+candidate emission, and is not a holdout. Production v1 remains unchanged;
+real backtest progression and Phase 9B1 remain blocked. QA9 is the next allowed
+phase.
+
+## Phase QA9 prospective shadow registry
+
+QA9 adds forward-only registry infrastructure for future shadow diagnostics.
+The registry is `armed_not_started`: `protocol_registered=true`,
+`protocol_started=false`, and `real_record_count=0`. Registry arming is not a
+holdout and does not create forward evidence.
+
+The implemented initial-claims evaluator is runtime-wired, but it remains a
+three-calendar-month smoothing/noise filter only. It is not directional phase
+evidence, not confirmation evidence, and not candidate-selection evidence.
+Candidate capability remains false, candidate monitoring remains disabled, and
+no candidate phase is emitted.
+
+Prospective records are append-only, hash-chained, and protected against
+overwrite, delete, rewrite, backfill, pre-start writes, arbitrary real
+`as_of` overrides, and model/protocol version mixing. QA9 does not create an
+automatic schedule, does not write a real record, and does not inspect real
+prospective results.
+
+Production v1 remains unchanged. Real backtest progression and Phase 9B1
+remain blocked. QA10 is the next allowed phase.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

@@ -1102,3 +1102,38 @@ unresolved until a later phase provides a defensible preregistered evaluator.
 Candidate-selection mechanics are validated with synthetic fixtures only. Real
 data candidate selection remains disabled in QA7, holdout remains unregistered,
 production v1 remains unchanged, and QA8 is the next allowed phase.
+
+## QA8 Book-Explicit Evaluators
+
+QA8 separates primary evaluability status from overlapping secondary blocker
+codes. A role can have one primary status while retaining multiple secondary
+blockers for governance reporting.
+
+Only operationally complete book-explicit rules are implemented. The
+three-month initial-claims moving average is implemented as a smoothing
+noise-filter primitive; it is not phase confirmation and is not candidate
+selection evidence. Explicit but incomplete reversal, durable-orders, and
+claims-new-low continuation rules remain blocked until their operational
+semantics are preregistered.
+
+Retrospective evidence diagnostics verify execution, provenance, and abstention
+only. Candidate selection on historical real data remains disabled. The
+prospective shadow diagnostic protocol is registered but not started, is not a
+holdout, and any future rule change creates a new version.
+
+## QA9 Forward Registry Infrastructure
+
+QA9 adds infrastructure for future forward-only shadow observation records. It
+does not calibrate thresholds, tune weights, compare portfolio outcomes, or
+inspect real prospective evidence.
+
+The registry status is `armed_not_started`; protocol registration does not
+mean started, and no holdout is registered. Real record count is zero. The
+append-only registry contract requires hash chaining, canonical JSON, model and
+protocol freeze provenance, input snapshot manifests, and fail-closed rejection
+for backfill or noncanonical real as-of attempts.
+
+The single implemented evaluator is runtime-wired, but it remains smoothing
+only. Directional evidence count and candidate-selection eligible evaluator
+count are both zero. QA10 must address unresolved book rules and candidate
+capability before candidate monitoring can be considered.

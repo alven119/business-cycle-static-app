@@ -566,3 +566,39 @@ example, not a universal threshold. Three-month moving average smoothing is a
 book noise-filter rule. Synthetic candidate fixtures validate mechanics only.
 QA8 is the next allowed phase; real backtest progression and Phase 9B1 remain
 blocked.
+
+## Phase QA8 Evaluator Boundary
+
+QA8 still does not execute historical performance backtests, book benchmarks,
+portfolio return calculations, or holdout evaluation. It implements only
+operationally complete book-explicit shadow evaluators and keeps candidate
+phase output disabled on retrospective data.
+
+Retrospective evidence diagnostics may write explicit `/tmp` JSON diagnostics
+when requested. They must keep
+`retrospective_candidate_selection_enabled=false`,
+`candidate_phase_emitted=false`, `known_label_used=false`,
+`performance_metric_computed=false`, `context_prior_used=false`, and
+`strict_fallback_count=0`.
+
+The forward-only prospective protocol is registered but not started. It is a
+shadow diagnostic protocol, not a holdout, and it cannot backfill prior
+candidate outputs. Real backtest progression and Phase 9B1 remain blocked.
+
+## Phase QA9 Registry Boundary
+
+QA9 adds the prospective shadow observation registry contract, append-only
+store, input snapshot manifest, forward-only clock gate, protocol start
+semantics, versioning rules, inspection policy, registry fixtures, and a
+monitoring-infrastructure freeze.
+
+The registry is armed but not started. QA9 writes no real prospective record,
+does not inspect real evidence results, and does not register a holdout. The
+first eligible observation period is `2026-07`, with first complete as-of
+`2026-08-31`, but candidate capability is still false.
+
+The only implemented evaluator is the initial-claims three-calendar-month
+smoothing filter. It is runtime-wired, but smoothing is not directional phase
+evidence and cannot emit a candidate phase. Backfill, arbitrary real `as_of`
+overrides, version mixing, public output, and performance metrics remain
+blocked.

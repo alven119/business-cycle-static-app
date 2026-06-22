@@ -166,3 +166,54 @@ The expected closure keeps `formal_decision_model_ready=false`,
 `production_book_fidelity_ready=false`, `book_alignment_claim_allowed=false`,
 `real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
 The next allowed phase is QA8.
+
+## QA8 Book-Explicit Evaluator Gates
+
+QA8 tasks may add blocker-accounting reconciliation, book-explicit evaluator
+eligibility audits, contextual numeric guards, shadow evaluator primitives,
+implemented explicit evaluators, expanded metamorphic fixtures, retrospective
+evidence diagnostics, a forward-only prospective diagnostic protocol, alpha4
+freeze artifacts, leakage guards, and production-isolation audits.
+
+QA8 must not choose lookbacks, persistence, or thresholds from historical
+scenario outcomes, NBER dates, portfolio returns, or contextual examples. It
+must not emit candidate phases on historical real data, inspect prospective
+results, register holdout, or change production resolver, state-machine,
+dashboard, weights, or thresholds.
+
+QA8 completion requires mutually exclusive primary statuses, overlapping
+secondary blockers documented, all operationally complete explicit rules
+implemented, no contextual 250000 executable threshold, primitive guard counts
+at zero, expanded metamorphic coverage, retrospective candidate selection
+disabled, forward protocol registered-not-started, reproducible alpha4 freeze
+hashes, leakage counts at zero, and production isolation counts at zero.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`data_only_model_economically_validated=false`, `holdout_registered=false`,
+`production_book_fidelity_ready=false`, `book_alignment_claim_allowed=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA9.
+
+## QA9 Prospective Registry Gates
+
+QA9 tasks may add evaluator runtime wiring audits, runtime fixtures,
+append-only prospective registry contracts, input snapshot manifests,
+forward-only clock gates, protocol start semantics, protocol versioning,
+inspection governance, registry fixtures, dry-run CLIs, monitoring
+infrastructure freezes, and production-isolation audits.
+
+QA9 must not write the first real prospective record, start the protocol,
+backfill historical records, accept arbitrary real `as_of` overrides, inspect
+real prospective evidence, emit candidate phases, create a scheduler, or change
+production resolver, state-machine, dashboard, weights, or thresholds.
+
+QA9 completion requires one implemented evaluator to be runtime-wired, zero
+directional/candidate-eligible evaluators, valid append-only fixtures,
+reproducible monitoring freeze hashes, registered/armed/not-started protocol
+semantics, real record count zero, result inspection count zero, candidate
+capability false, and production isolation counts at zero.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`economic_validation_status=not_started`, `holdout_registered=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA10.
