@@ -1,0 +1,96 @@
+temporal_eligibility_contract:
+  version: 1
+  evidence_tiers:
+    - tier_id: strict_complete
+      point_in_time: true
+      allowed_use_cases:
+        - diagnostics
+        - context_ablation
+        - strict_phase_scoring
+        - parameter_calibration
+        - validation
+        - untouched_holdout
+        - historical_performance_backtest
+      prohibited_use_cases:
+        - book_benchmark_reproduction
+      required_caveats:
+        - book benchmark remains separately blocked until book alignment is complete
+      fallback_allowed: false
+      performance_claim_allowed: true
+      calibration_allowed: true
+      holdout_allowed: true
+      book_benchmark_allowed: false
+    - tier_id: strict_partial
+      point_in_time: true
+      allowed_use_cases:
+        - diagnostics
+        - context_ablation
+        - strict_phase_scoring_diagnostics
+      prohibited_use_cases:
+        - parameter_calibration
+        - validation
+        - untouched_holdout
+        - historical_performance_backtest
+        - book_benchmark_reproduction
+      required_caveats:
+        - incomplete strict coverage; abstain on missing temporal evidence
+      fallback_allowed: false
+      performance_claim_allowed: false
+      calibration_allowed: false
+      holdout_allowed: false
+      book_benchmark_allowed: false
+    - tier_id: revised_diagnostic_only
+      point_in_time: false
+      allowed_use_cases:
+        - diagnostics
+        - visualization
+        - historical_narrative
+      prohibited_use_cases:
+        - point_in_time_claim
+        - parameter_calibration_acceptance
+        - untouched_holdout
+        - historical_performance_backtest
+        - book_benchmark_reproduction
+      required_caveats:
+        - revised data is not point-in-time
+      fallback_allowed: false
+      performance_claim_allowed: false
+      calibration_allowed: false
+      holdout_allowed: false
+      book_benchmark_allowed: false
+    - tier_id: proxy_diagnostic_only
+      point_in_time: false
+      allowed_use_cases:
+        - diagnostics
+      prohibited_use_cases:
+        - point_in_time_claim
+        - parameter_calibration_acceptance
+        - validation
+        - untouched_holdout
+        - historical_performance_backtest
+        - book_benchmark_reproduction
+      required_caveats:
+        - proxy data cannot support strict or calibration claims
+      fallback_allowed: false
+      performance_claim_allowed: false
+      calibration_allowed: false
+      holdout_allowed: false
+      book_benchmark_allowed: false
+    - tier_id: unsupported
+      point_in_time: false
+      allowed_use_cases: []
+      prohibited_use_cases:
+        - diagnostics_without_caveat
+        - point_in_time_claim
+        - parameter_calibration
+        - validation
+        - untouched_holdout
+        - historical_performance_backtest
+        - book_benchmark_reproduction
+      required_caveats:
+        - unsupported temporal evidence must abstain and cannot silently fallback
+      fallback_allowed: false
+      performance_claim_allowed: false
+      calibration_allowed: false
+      holdout_allowed: false
+      book_benchmark_allowed: false

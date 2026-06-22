@@ -453,3 +453,15 @@ QA0.1 通過不代表模型已驗證、書籍方法已完整對齊或 point-in-t
 - Phase 9B1 blocked
 
 下一步是 QA1 temporal integrity remediation。
+
+## Phase QA1F Temporal Eligibility
+
+QA1F 將 scenario readiness 與 use-case readiness 分開。某些日期可以 strict
+scoring，不代表整個 scenario 可以用於 calibration、validation 或 performance
+backtest。缺少 strict evidence 的 indicator 必須 abstain，不得補 0 分、不
+得 fallback 到 revised data，也不得縮短 scenario horizon 後假裝完整。
+
+QA1F 允許 QA2 繼續進行 context-ablation 類型的結構性工作；QA2 只能使用
+synthetic fixtures 或 strict-complete dates。QA2 不是 real historical
+backtest，不得產生 portfolio result、book benchmark result、allocation 或
+trade signal。Phase 9B1 仍 blocked。

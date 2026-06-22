@@ -97,3 +97,22 @@ QA1E.1 adds end-to-end formal indicator output coverage. This audit counts
 loading and the configured indicator transformation both succeed. Leaf coverage,
 candidate derived snapshots, and formal indicator output coverage are separate
 denominators and must not be mixed.
+
+## QA1F Closure Governance
+
+QA1F accepts that some official historical archives remain unresolved and adds
+governance so incomplete evidence cannot be misused. Scenario eligibility,
+strict scoring abstention, formal phase decision gates, and the unresolved
+archive register now define what is allowed for each use case.
+
+`strict_partial` evidence may support diagnostics and context-ablation work.
+It cannot support a full-scenario performance claim, calibration acceptance,
+validation, untouched holdout, book benchmark execution, or real backtest
+progression. Revised diagnostics remain available when clearly labeled, but
+they are not point-in-time evidence.
+
+QA2 may continue only for structural context-ablation work using synthetic
+fixtures or strict-complete dates. QA2 does not authorize OCR retries, archive
+reconstruction, performance backtests, book benchmarks, portfolio outputs,
+formal scoring-weight changes, resolver changes, dashboard integration, or
+Phase 9B1.

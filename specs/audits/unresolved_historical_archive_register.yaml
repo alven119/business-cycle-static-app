@@ -1,0 +1,106 @@
+unresolved_historical_archive_register:
+  version: 1
+  automatic_archive_retry_allowed: false
+  explicit_archive_research_command_required: true
+  unresolved_gap_silently_ignored_count: 0
+  rows:
+    - series_id: RSAFS
+      required_period: 1998-01 through 2001-05
+      official_sources_attempted:
+        - census.gov MARTS historical releases
+        - MARTSreleasedates.xls
+      structured_artifacts_attempted: true
+      OCR_attempted: true
+      blocker_reason: controlled OCR candidates rejected
+      safety_reason_for_rejection: dual extraction and release-date validation did not pass
+      current_eligibility_impact: early real retail sales strict output abstains
+      future_research_option: retry only with new official structured source or explicit archive research command
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest
+    - series_id: RRSFS
+      required_period: 1998-01 through 2001-05
+      official_sources_attempted:
+        - ALFRED exact vintage
+        - derived RSAFS and CPIAUCSL path
+      structured_artifacts_attempted: true
+      OCR_attempted: false
+      blocker_reason: derived path blocked by RSAFS strict input gap
+      safety_reason_for_rejection: provisional derived snapshots cannot count as strict
+      current_eligibility_impact: early real retail sales strict output abstains
+      future_research_option: complete RSAFS strict event reconstruction first
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest
+    - series_id: DGORDER
+      required_period: 1998-01 through 1999-07
+      official_sources_attempted:
+        - census.gov M3 historical releases
+      structured_artifacts_attempted: true
+      OCR_attempted: false
+      blocker_reason: sampled official PDFs image-only/no supported text-layer operators
+      safety_reason_for_rejection: advance/full/revised release chain not deterministically reconstructed
+      current_eligibility_impact: early durable goods strict output abstains where direct vintage unavailable
+      future_research_option: retry only with explicit release-chain parser research
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest
+    - series_id: DGS10
+      required_period: pre-2005
+      official_sources_attempted:
+        - ALFRED segmented exact vintage
+      structured_artifacts_attempted: false
+      OCR_attempted: false
+      blocker_reason: exact ALFRED history begins after required early scenario dates
+      safety_reason_for_rejection: no pre-2005 strict release archive implemented
+      current_eligibility_impact: early treasury yield strict output abstains
+      future_research_option: H.15 official release archive reconstruction
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest
+    - series_id: ICSA
+      required_period: early scenario history
+      official_sources_attempted:
+        - ALFRED exact vintage
+      structured_artifacts_attempted: false
+      OCR_attempted: false
+      blocker_reason: early strict claims release archive not reconstructed
+      safety_reason_for_rejection: current history plus lag is not strict
+      current_eligibility_impact: initial claims strict output abstains on missing dates
+      future_research_option: DOL/OUI release archive reconstruction
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest
+    - series_id: MORTGAGE30US
+      required_period: early scenario history
+      official_sources_attempted:
+        - ALFRED exact vintage
+      structured_artifacts_attempted: false
+      OCR_attempted: false
+      blocker_reason: PMMS historical strict release archive not reconstructed
+      safety_reason_for_rejection: current restated history cannot be treated as strict release history
+      current_eligibility_impact: mortgage rate strict output abstains on missing dates
+      future_research_option: Freddie Mac PMMS release archive reconstruction
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest
+    - series_id: DCOILWTICO
+      required_period: historical WTI observation availability
+      official_sources_attempted:
+        - EIA WTI historical data
+      structured_artifacts_attempted: true
+      OCR_attempted: false
+      blocker_reason: strict availability/revision policy not approved
+      safety_reason_for_rejection: observation date cannot be assumed availability date without official evidence
+      current_eligibility_impact: strict observational archive coverage not counted
+      future_research_option: EIA availability and correction policy research
+      resolution_required_before_use_case:
+        - calibration
+        - validation
+        - historical_performance_backtest

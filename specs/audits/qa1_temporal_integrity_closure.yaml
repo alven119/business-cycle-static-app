@@ -1,0 +1,24 @@
+qa1_temporal_integrity_closure:
+  version: 1
+  closure_status: closed_with_explicit_historical_gaps
+  completed:
+    - repository temporal inventory complete
+    - availability registry complete
+    - temporal modes explicit
+    - strict selector implemented
+    - ALFRED provider and cache implemented
+    - no silent fallback
+    - DGS10 partial-horizon integration complete
+    - scenario/date eligibility implemented
+    - strict abstention implemented
+    - incomplete scenarios blocked from calibration/backtest
+  not_completed:
+    - full formal historical coverage
+    - RSAFS early strict archive
+    - DGORDER early strict archive
+    - DGS10 pre-2005 archive
+    - ICSA early archive
+    - MORTGAGE30US early archive
+    - DCOILWTICO strict availability policy
+    - RRSFS early derived path
+    - full point-in-time book benchmark

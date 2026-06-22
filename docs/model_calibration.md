@@ -987,3 +987,16 @@ QA0.1 pass 只代表 inventory reconciliation 完整。`calibration_holdout_read
 - 使用修訂後歷史資料，不等同當時投資人可見資料。
 - 回測結果用於模型診斷，不構成投資建議。
 - 校準不得只針對單一歷史案例最佳化。
+
+## QA1F Temporal Calibration Gate
+
+QA1F requires calibration and validation inputs to come from strict-complete
+scenario evidence. A strict-partial scenario can be used for diagnostics or
+context-ablation inspection, but it cannot be used for parameter acceptance,
+validation, untouched holdout, or performance backtest claims.
+
+The current QA1 closure keeps `parameter_calibration_allowed=false` at the
+global methodology level. Scenario-level strict completeness is recorded for
+governance, but any future calibration phase must be explicitly authorized and
+must keep the real backtest, book benchmark, dashboard, and portfolio gates
+separate.

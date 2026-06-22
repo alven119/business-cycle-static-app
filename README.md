@@ -1105,6 +1105,19 @@ python scripts/run_qa0_integrity_audit.py
 
 QA0.1 verifies that canonical book requirements, repository indicators, series references, provenance mappings, release-lag registry rows, and book indicator coverage rows reconcile without drift. A QA0.1 pass does not mean model validation. Current hard limits remain: `book_alignment_claim_allowed=false`, `point_in_time_backtest_ready=false`, `real_backtest_progression_allowed=false`, and Phase 9B1 remains blocked. The next methodology phase is QA1 temporal integrity remediation.
 
+## Phase QA1F temporal coverage governance
+
+QA1F closes the temporal integrity work with explicit historical gaps. It
+records that QA1E.2 archive reconstruction remains blocked for early Census and
+other unresolved sources, and it prevents those gaps from being silently reused
+in calibration, validation, holdout, performance backtests, or book benchmark
+execution.
+
+The safe next step is QA2 context ablation only. QA2 may use synthetic fixtures
+or dates with strict-complete temporal evidence. It is not a historical
+performance backtest and it does not authorize portfolio output, book benchmark
+execution, Phase 9B1, scoring-weight calibration, or resolver changes.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

@@ -1,0 +1,15 @@
+scenario_temporal_eligibility_policy:
+  version: 1
+  rules:
+    calibration_requires: strict_complete
+    validation_requires: strict_complete
+    untouched_holdout_requires:
+      - strict_complete
+      - not_previously_seen
+    historical_performance_backtest_requires: strict_complete
+    book_benchmark_reproduction_allowed: false
+    context_ablation_allowed_tiers:
+      - strict_complete
+      - strict_partial
+    revised_diagnostics_allowed: true
+    silent_horizon_reduction_allowed: false

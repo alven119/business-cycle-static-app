@@ -15,6 +15,9 @@ from business_cycle.audits.cashflow_methodology import calculate_cashflow_aware_
 from business_cycle.audits.context_ablation import run_context_ablation_audit
 from business_cycle.audits.inventory_reconciliation import run_qa0_inventory_reconciliation
 from business_cycle.audits.point_in_time_coverage import summarize_point_in_time_coverage
+from business_cycle.audits.qa1_temporal_integrity_closure import (
+    summarize_qa1_temporal_integrity_closure,
+)
 from business_cycle.audits.temporal_integrity import summarize_temporal_integrity
 from business_cycle.portfolio import (
     load_controlled_real_backtest_prototype_fixtures,
@@ -35,6 +38,7 @@ def run_qa0_integrity_audit() -> dict[str, Any]:
     traceability = _summarize_traceability()
     temporal = summarize_temporal_integrity()
     point_in_time_coverage = _summarize_point_in_time_coverage()
+    qa1_closure = _summarize_qa1_closure()
     cashflow = _summarize_cashflow_methodology()
     calibration = summarize_calibration_integrity()
     context = run_context_ablation_audit()
@@ -59,6 +63,7 @@ def run_qa0_integrity_audit() -> dict[str, Any]:
         **traceability,
         **temporal,
         **point_in_time_coverage,
+        **qa1_closure,
         **cashflow,
         **calibration,
         **context,
@@ -243,6 +248,44 @@ def _summarize_point_in_time_coverage() -> dict[str, Any]:
         "formal_phase_point_in_time_ready",
         "golden_benchmark_point_in_time_ready",
         "no_silent_revised_fallback",
+    )
+    return {key: summary[key] for key in keys}
+
+
+def _summarize_qa1_closure() -> dict[str, Any]:
+    summary = summarize_qa1_temporal_integrity_closure()
+    keys = (
+        "strict_complete_scenario_count",
+        "strict_partial_scenario_count",
+        "revised_diagnostic_only_scenario_count",
+        "unsupported_scenario_count",
+        "strict_complete_as_of_pair_count",
+        "strict_partial_as_of_pair_count",
+        "missing_as_of_pair_count",
+        "calibration_eligible_scenario_count",
+        "validation_eligible_scenario_count",
+        "untouched_holdout_eligible_scenario_count",
+        "performance_backtest_eligible_scenario_count",
+        "book_benchmark_eligible_scenario_count",
+        "scenario_with_silent_horizon_reduction_count",
+        "incomplete_strict_phase_decision_count",
+        "incomplete_strict_resolver_input_count",
+        "partial_score_without_diagnostic_label_count",
+        "qa1_inventory_complete",
+        "qa1_temporal_modes_ready",
+        "qa1_strict_selector_ready",
+        "qa1_no_silent_fallback",
+        "qa1_scenario_eligibility_ready",
+        "qa1_strict_abstention_ready",
+        "qa1_formal_phase_decision_gate_ready",
+        "full_formal_history_ready",
+        "partial_strict_scenario_set_ready",
+        "book_benchmark_temporal_ready",
+        "real_backtest_temporal_ready",
+        "qa2_allowed",
+        "qa2_performance_backtest_allowed",
+        "qa2_parameter_calibration_allowed",
+        "qa1_closure_status",
     )
     return {key: summary[key] for key in keys}
 

@@ -23,6 +23,7 @@ from business_cycle.indicators.batch_scoring import (
 )
 from business_cycle.indicators.catalog import load_indicator_catalog, load_indicator_scoring_specs
 from business_cycle.indicators.scoring import IndicatorScoreResult
+from business_cycle.indicators.strict_scoring_policy import strict_scoring_summary
 from business_cycle.storage.point_in_time_cache import PointInTimeCache, PointInTimeCacheError
 
 DEFAULT_CATALOG_PATH = Path("specs/indicator_catalog.yaml")
@@ -420,6 +421,43 @@ def _add_data_mode_metadata(
     payload["summary"]["proxy_series"] = proxy_series
     payload["summary"]["revised_fallback_series"] = []
     payload["summary"]["warnings"] = [] if not proxy_series else ["proxy_series_not_point_in_time"]
+    total_count = int(payload["summary"].get("total_indicators", 0))
+    scored_count = int(payload["summary"].get("scored_indicators", 0))
+    fallback_count = len(proxy_series)
+    if requested_data_mode in {"vintage_as_of", "strict_point_in_time"}:
+        strict_summary = strict_scoring_summary(
+            total_count=total_count,
+            scored_count=scored_count,
+            missing_temporal_dependencies=missing_series,
+            invalid_data_failure_count=0,
+            fallback_count=fallback_count,
+        )
+        payload["summary"].update(strict_summary)
+        for failure in payload.get("failures", []):
+            failure["temporal_scoring_status"] = "abstained_missing_temporal_evidence"
+            failure["missing_temporal_dependencies"] = failure.get("series_id", "")
+            failure["invalid_data_dependencies"] = []
+            failure["evidence_classes"] = []
+            failure["abstention_reason"] = failure.get("message", "")
+            failure["fallback_used"] = False
+        for result in payload.get("results", []):
+            result.setdefault("details", {})["temporal_scoring_status"] = "scored"
+            result["details"]["fallback_used"] = False
+    else:
+        payload["summary"].update(
+            {
+                "scored_count": scored_count,
+                "temporal_abstention_count": 0,
+                "invalid_data_failure_count": 0,
+                "fallback_count": fallback_count,
+                "complete_phase_score_allowed": total_count == scored_count,
+                "diagnostic_partial_phase_score_allowed": False,
+                "temporal_abstention_zero_fill_count": 0,
+                "incomplete_score_marked_complete_count": 0,
+                "incomplete_score_sent_to_formal_resolver_count": 0,
+                "strict_fallback_count": 0,
+            }
+        )
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
