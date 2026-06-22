@@ -1,0 +1,47 @@
+qa12_major_group_manual_start_closure:
+  version: 1
+  phase: QA12
+  closure_id: qa12_major_group_manual_start_closure_v1
+  expected_status:
+    readiness_semantics_reconciled: true
+    capture_topology_valid: true
+    source_adapter_inventory_ready: true
+    no_write_source_preflight_ready: true
+    first_period_manifest_ready: true
+    period_completeness_engine_ready: true
+    manual_preview_bundle_ready: true
+    manual_start_gate_ready: true
+    manual_operations_runbook_ready: true
+    major_group_end_to_end_fixtures_ready: true
+    wait_state_governance_ready: true
+    prospective_capability_matrix_ready: true
+    manual_start_freeze_ready: true
+    leakage_guard_ready: true
+    production_isolation_verified: true
+    automatic_scheduling_disabled: true
+    observation_period: "2026-07"
+    canonical_as_of: "2026-08-31"
+    canonical_as_of_reached: false
+    manual_start_contract_ready: true
+    manual_start_allowed_now: false
+    real_append_allowed_now: false
+    real_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    prospective_protocol_started: false
+    prospective_result_inspected: false
+    holdout_registered: false
+    candidate_capability_ready: false
+    candidate_monitoring_allowed: false
+    formal_candidate_phase_computed: false
+    formal_decision_model_ready: false
+    data_only_model_economically_validated: false
+    independent_validation_ready: false
+    production_book_fidelity_ready: false
+    book_alignment_claim_allowed: false
+    qa13_allowed_now: false
+    qa13_earliest_as_of: "2026-08-31"
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_action: WAIT_FOR_FIRST_ELIGIBLE_AS_OF
+    qa12_closure_status: closed_manual_start_contract_ready_waiting_first_eligible_asof
+

@@ -1,0 +1,36 @@
+prospective_period_completeness_contract:
+  version: 1
+  phase: QA12
+  contract_id: prospective_period_completeness_contract_v1
+  role_statuses:
+    - not_started
+    - awaiting_release
+    - source_unavailable
+    - captured_unverified
+    - verified_observation_ready
+    - verified_phase_evidence_ready
+    - abstained_missing_release
+    - abstained_invalid_provenance
+    - blocked_contract
+  major_group_statuses:
+    - not_started
+    - awaiting_roles
+    - observation_complete
+    - observation_partial
+    - phase_evidence_complete
+    - candidate_input_complete
+    - blocked
+  global_statuses:
+    - pre_start
+    - period_open
+    - awaiting_releases
+    - observation_capture_complete
+    - phase_evidence_incomplete
+    - candidate_input_incomplete
+    - manual_append_preview_ready
+    - manual_append_allowed
+    - blocked
+  unavailable_is_neutral: false
+  supporting_role_substitutes_core: false
+  modern_extension_substitutes_core: false
+

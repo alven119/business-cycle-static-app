@@ -1,0 +1,43 @@
+prospective_manual_start_readiness_freeze:
+  version: 1
+  phase: QA12
+  freeze_id: prospective_shadow_manual_start_v1
+  parent_model_freeze_id: book_faithful_shadow_v2_alpha5
+  parent_monitoring_freeze_id: prospective_shadow_monitoring_v1
+  freeze_type: manual_start_contract_and_first_period_manifest
+  created_at_utc: "2026-06-23T00:00:00Z"
+  component_paths:
+    - specs/audits/major_group_prospective_readiness_semantics.yaml
+    - specs/audits/forward_capture_topology_contract.yaml
+    - specs/audits/prospective_source_adapter_inventory.yaml
+    - specs/audits/prospective_source_preflight_contract.yaml
+    - specs/audits/prospective_first_period_manifest_contract.yaml
+    - specs/audits/prospective_period_completeness_contract.yaml
+    - specs/audits/prospective_manual_preview_bundle_contract.yaml
+    - specs/audits/prospective_manual_start_gate.yaml
+    - specs/audits/prospective_manual_start_runbook.yaml
+    - specs/audits/prospective_major_group_capture_fixtures.yaml
+    - specs/audits/prospective_wait_state_governance.yaml
+    - docs/audits/prospective_manual_start_runbook.md
+  source_paths:
+    - src/business_cycle/audits/major_group_prospective_readiness.py
+    - src/business_cycle/audits/forward_capture_topology.py
+    - src/business_cycle/audits/prospective_source_adapter_inventory.py
+    - src/business_cycle/shadow_model/source_preflight.py
+    - src/business_cycle/shadow_model/prospective_period_manifest.py
+    - src/business_cycle/shadow_model/period_completeness.py
+    - src/business_cycle/shadow_model/manual_preview_bundle.py
+    - src/business_cycle/shadow_model/manual_start_gate.py
+    - src/business_cycle/audits/prospective_wait_state.py
+    - src/business_cycle/audits/prospective_capability_matrix.py
+    - src/business_cycle/audits/prospective_manual_start_freeze.py
+    - src/business_cycle/audits/qa12_prestart_leakage.py
+    - src/business_cycle/audits/qa12_production_isolation.py
+    - src/business_cycle/audits/qa12_major_group_manual_start_closure.py
+  protocol_started: false
+  real_registry_records_written: 0
+  numeric_weight_added: false
+  arbitrary_threshold_added: false
+  candidate_selection_enabled: false
+  holdout_registered: false
+  production_integration_allowed: false

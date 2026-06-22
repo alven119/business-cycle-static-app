@@ -28,6 +28,7 @@ PROHIBITED_FIELDS = {
     "trade_action",
     "expected_return",
     "historical_accuracy",
+    "historical_expected_label",
 }
 
 
@@ -76,6 +77,51 @@ def build_correction_observation_record(
     return record
 
 
+def build_role_observation_record(
+    *,
+    observation_result: dict[str, Any],
+    previous_record_hash: str = ZERO_HASH,
+    created_at_utc: str | None = None,
+) -> dict[str, Any]:
+    record_type = (
+        "observation_record"
+        if observation_result["observation_status"] == "matched"
+        else "abstention_record"
+    )
+    record = {
+        "record_id": (
+            f"role_observation::{observation_result['role_id']}::"
+            f"{observation_result['as_of']}::"
+            f"{observation_result['actual_data_mode']}"
+        ),
+        "record_type": record_type,
+        "protocol_id": PROTOCOL_ID,
+        "monitoring_freeze_id": MONITORING_FREEZE_ID,
+        "model_freeze_id": MODEL_FREEZE_ID,
+        "evaluator_freeze_id": EVALUATOR_FREEZE_ID,
+        "role_id": observation_result["role_id"],
+        "major_group_id": observation_result["major_group_id"],
+        "observation_state": observation_result["observation_state"],
+        "raw_value": observation_result["raw_value"],
+        "transformed_value": observation_result["transformed_value"],
+        "transformation_id": observation_result["transformation_id"],
+        "runtime_window_id": observation_result["runtime_window_id"],
+        "input_snapshot_hash": observation_result["input_snapshot_hash"],
+        "actual_data_mode": observation_result["actual_data_mode"],
+        "as_of": observation_result["as_of"],
+        "source_provenance": observation_result["source_provenance"],
+        "evaluator_version": observation_result["evaluator_version"],
+        "candidate_selection_eligible": False,
+        "phase_support_emitted": False,
+        "abstention_reason": observation_result["abstention_reason"],
+        "created_at_utc": created_at_utc or _now_utc(),
+        "previous_record_hash": previous_record_hash,
+        "canonical_record_hash": "",
+    }
+    record["canonical_record_hash"] = canonical_record_hash(record)
+    return record
+
+
 def validate_evidence_observation_record(record: dict[str, Any]) -> dict[str, Any]:
     prohibited = PROHIBITED_FIELDS & set(record)
     return {
@@ -99,6 +145,34 @@ def validate_evidence_observation_record(record: dict[str, Any]) -> dict[str, An
     }
 
 
+def validate_role_observation_record(record: dict[str, Any]) -> dict[str, Any]:
+    prohibited = PROHIBITED_FIELDS & set(record)
+    is_observation = record["record_type"] == "observation_record"
+    return {
+        "phase": "QA11",
+        "role_observation_record_contract_ready": True,
+        "observation_record_count": int(is_observation),
+        "phase_evidence_record_count": int(
+            record["record_type"] == "phase_evidence_record"
+        ),
+        "abstention_record_count": int(record["record_type"] == "abstention_record"),
+        "observation_record_marked_candidate_eligible_count": int(
+            is_observation and record.get("candidate_selection_eligible") is True
+        ),
+        "raw_observation_record_mislabeled_phase_evidence_count": int(
+            is_observation and record.get("phase_support_emitted") is True
+        ),
+        "record_without_role_or_group_count": int(
+            not record.get("role_id")
+            or (is_observation and not record.get("major_group_id"))
+        ),
+        "prohibited_decision_field_count": len(prohibited),
+        "record_hash_mismatch_count": int(
+            record["canonical_record_hash"] != canonical_record_hash(record)
+        ),
+    }
+
+
 def summarize_evidence_observation_record_contract() -> dict[str, Any]:
     from business_cycle.shadow_model.runtime_input_snapshot import (  # noqa: PLC0415
         build_runtime_input_snapshot,
@@ -115,6 +189,31 @@ def summarize_evidence_observation_record_contract() -> dict[str, Any]:
     summary = validate_evidence_observation_record(record)
     return {
         **summary,
+        "record": record,
+    }
+
+
+def summarize_role_observation_record_contract() -> dict[str, Any]:
+    from business_cycle.shadow_model.observation_evaluators import (  # noqa: PLC0415
+        evaluate_observation_snapshot,
+    )
+    from business_cycle.shadow_model.runtime_input_snapshot import (  # noqa: PLC0415
+        build_runtime_input_snapshot,
+    )
+
+    snapshot = build_runtime_input_snapshot(
+        as_of="2026-08-31",
+        data_mode="revised",
+        evaluator_id="observation::recovery_initial_jobless_claims",
+        role_id="recovery_initial_jobless_claims",
+        series_id="initial_jobless_claims",
+    )
+    record = build_role_observation_record(
+        observation_result=evaluate_observation_snapshot(snapshot)
+    )
+    validation = validate_role_observation_record(record)
+    return {
+        **validation,
         "record": record,
     }
 

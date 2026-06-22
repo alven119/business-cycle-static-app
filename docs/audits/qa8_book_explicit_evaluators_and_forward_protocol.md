@@ -69,3 +69,10 @@ QA10 keeps the alpha4 evaluator rule unchanged while fixing the shadow runtime
 history-window supply. The evaluator can produce a revised diagnostic smoothing
 output, but the output is not a phase signal and does not enable candidate
 selection.
+
+## QA11 Successor Boundary
+
+QA11 creates alpha5 for forward data contracts and observation-only runtime
+coverage. Alpha5 does not rewrite alpha4 evaluator semantics: the initial
+claims smoothing evaluator remains a noise filter, and additional observation
+evaluators do not become phase evidence or candidate inputs.

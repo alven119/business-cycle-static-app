@@ -1,0 +1,25 @@
+prospective_shadow_role_observation_record_contract:
+  version: 1
+  phase: QA11
+  contract_id: prospective_shadow_role_observation_record_contract_v1
+  record_types:
+    - observation_record
+    - phase_evidence_record
+    - abstention_record
+    - correction_record
+  observation_record_policy:
+    candidate_selection_eligible: false
+    may_emit_phase_support: false
+    raw_observation_may_be_phase_evidence: false
+  prohibited_fields:
+    - candidate_phase
+    - current_phase
+    - decision_status
+    - portfolio_weight
+    - target_weight
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - expected_return
+    - historical_expected_label
+

@@ -1,0 +1,30 @@
+prospective_manual_start_runbook:
+  version: 1
+  phase: QA12
+  runbook_id: prospective_manual_start_runbook_v1
+  explicit_user_command_required: true
+  delete_or_overwrite_records_allowed: false
+  append_when_period_incomplete_allowed: false
+  preview_as_registry_allowed: false
+  shorten_major_group_requirements_allowed: false
+  candidate_monitoring_start_allowed: false
+  steps:
+    - verify_freeze_lineage
+    - verify_current_utc_date
+    - verify_canonical_period_manifest
+    - preflight_official_sources
+    - capture_raw_artifacts_and_snapshots
+    - verify_checksums_and_release_dates
+    - build_input_snapshots
+    - execute_observation_evaluators
+    - build_preview_bundle
+    - review_missing_or_blocked_roles
+    - verify_period_completeness
+    - verify_candidate_capability_remains_disabled
+    - request_registry_append_explicitly
+    - validate_idempotency
+    - append_records
+    - validate_hash_chain
+    - produce_non_public_summary
+    - preserve_corrections_as_new_records
+

@@ -1,0 +1,15 @@
+qa11_blocker_remediation_registry:
+  version: 1
+  phase: QA11
+  registry_id: qa11_blocker_remediation_registry_v1
+  blocker_classes:
+    - source_identity
+    - access
+    - adapter
+    - release_semantics
+    - transformation
+  policy:
+    silent_ignore_allowed: false
+    substitution_without_equivalence_review_allowed: false
+    blocker_must_have_next_action: true
+

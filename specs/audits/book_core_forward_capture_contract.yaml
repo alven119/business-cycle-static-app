@@ -1,0 +1,21 @@
+book_core_forward_capture_contract:
+  version: 1
+  phase: QA11
+  contract_id: book_core_forward_capture_contract_v1
+  generation:
+    source_registry: specs/audits/book_core_forward_data_gap_registry.yaml
+    include_statuses:
+      - ready
+      - ready_with_manual_capture
+  defaults:
+    raw_artifact_required: true
+    checksum_required: true
+    release_datetime_required: true
+    previous_release_link_required: true
+    strict_provenance_required: true
+    no_data_action: abstain
+    retry_policy: manual_retry_without_api_side_effect
+    late_release_policy: abstain_until_release_available
+    missing_release_policy: abstain_and_record_gap
+    correction_policy: append_correction_without_overwrite
+

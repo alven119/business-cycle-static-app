@@ -36,11 +36,14 @@ def build_runtime_input_snapshot(
     as_of: str,
     data_mode: str,
     observations: list[dict[str, Any]] | None = None,
+    evaluator_id: str = "evaluator::recovery_weekly_claim_noise_filter",
+    role_id: str = "recovery_weekly_claim_noise_filter",
+    series_id: str = "ICSA",
 ) -> dict[str, Any]:
     request = build_history_window_request(
-        evaluator_id="evaluator::recovery_weekly_claim_noise_filter",
-        role_id="recovery_weekly_claim_noise_filter",
-        series_id="ICSA",
+        evaluator_id=evaluator_id,
+        role_id=role_id,
+        series_id=series_id,
         as_of=as_of,
         data_mode=data_mode,
     )
@@ -74,7 +77,7 @@ def build_runtime_input_snapshot(
         "provenance_complete": window["provenance_complete"],
         "ready_for_evaluator": window["window_status"] == "ready",
         "abstention_reason": window["abstention_reason"],
-        "evaluator_version": EVALUATOR_VERSION,
+        "evaluator_version": _evaluator_version(evaluator_id),
         "rule_contract_version": RULE_CONTRACT_VERSION,
         "history_window_contract_version": HISTORY_WINDOW_CONTRACT_VERSION,
     }
@@ -115,6 +118,12 @@ def validate_runtime_input_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
 def summarize_runtime_input_snapshot_contract() -> dict[str, Any]:
     snapshot = build_runtime_input_snapshot(as_of="2026-08-31", data_mode="revised")
     return validate_runtime_input_snapshot(snapshot)
+
+
+def _evaluator_version(evaluator_id: str) -> str:
+    if evaluator_id.startswith("observation::"):
+        return "qa11_observation_only_v1"
+    return EVALUATOR_VERSION
 
 
 def _payload_hash(snapshot: dict[str, Any]) -> str:

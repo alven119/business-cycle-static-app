@@ -19,6 +19,12 @@ from business_cycle.audits.shadow_evaluator_freeze import (
 from business_cycle.audits.prospective_monitoring_freeze import (
     summarize_prospective_monitoring_freeze,
 )
+from business_cycle.audits.prospective_manual_start_freeze import (
+    summarize_prospective_manual_start_freeze,
+)
+from business_cycle.audits.shadow_observation_freeze import (
+    summarize_shadow_observation_freeze,
+)
 from business_cycle.shadow_model.prospective_registry import MODEL_FREEZE_ID, PROTOCOL_ID
 
 
@@ -26,6 +32,8 @@ QA8_CLOSURE_PATH = Path("specs/audits/qa8_book_explicit_evaluator_closure.yaml")
 QA9_CLOSURE_PATH = Path("specs/audits/qa9_prospective_shadow_registry_closure.yaml")
 QA7_FREEZE_ID = "book_faithful_shadow_v2_alpha3"
 QA8_FREEZE_ID = "book_faithful_shadow_v2_alpha4"
+QA11_FREEZE_ID = "book_faithful_shadow_v2_alpha5"
+QA12_FREEZE_ID = "prospective_shadow_manual_start_v1"
 
 
 def summarize_qa_phase_lineage() -> dict[str, Any]:
@@ -35,10 +43,18 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
     qa9 = summarize_qa9_prospective_shadow_registry_closure()
     evaluator_freeze = summarize_shadow_evaluator_freeze()
     monitoring_freeze = summarize_prospective_monitoring_freeze()
+    observation_freeze = summarize_shadow_observation_freeze()
+    manual_start_freeze = summarize_prospective_manual_start_freeze()
     freeze_parent_mismatch = int(
         evaluator_freeze["freeze_id"] != QA8_FREEZE_ID
         or evaluator_freeze["parent_freeze_id"] != QA7_FREEZE_ID
         or monitoring_freeze["parent_model_freeze_id"] != QA8_FREEZE_ID
+        or observation_freeze["freeze_id"] != QA11_FREEZE_ID
+        or observation_freeze["parent_freeze_id"] != QA8_FREEZE_ID
+        or manual_start_freeze["freeze_id"] != QA12_FREEZE_ID
+        or manual_start_freeze["parent_model_freeze_id"] != QA11_FREEZE_ID
+        or manual_start_freeze["parent_monitoring_freeze_id"]
+        != "prospective_shadow_monitoring_v1"
     )
     registry_version_valid = MODEL_FREEZE_ID == QA8_FREEZE_ID and PROTOCOL_ID.endswith("_v1")
     missing = int(not qa8_artifacts) + int(not qa9_artifacts)
@@ -49,6 +65,8 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
         and missing == 0
         and evaluator_freeze["freeze_hash_valid"] is True
         and monitoring_freeze["monitoring_freeze_hash_valid"] is True
+        and observation_freeze["freeze_hash_valid"] is True
+        and manual_start_freeze["freeze_hash_valid"] is True
         and registry_version_valid
         and qa8["production_isolation_verified"] is True
         and qa9["production_isolation_verified"] is True
@@ -73,6 +91,21 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
         "qa9_monitoring_freeze_id": monitoring_freeze["freeze_id"],
         "qa9_monitoring_parent_model_freeze_id": monitoring_freeze[
             "parent_model_freeze_id"
+        ],
+        "qa11_observation_freeze_id": observation_freeze["freeze_id"],
+        "qa11_observation_parent_freeze_id": observation_freeze["parent_freeze_id"],
+        "qa11_observation_freeze_hash_valid": observation_freeze[
+            "freeze_hash_valid"
+        ],
+        "qa12_manual_start_freeze_id": manual_start_freeze["freeze_id"],
+        "qa12_manual_start_parent_model_freeze_id": manual_start_freeze[
+            "parent_model_freeze_id"
+        ],
+        "qa12_manual_start_parent_monitoring_freeze_id": manual_start_freeze[
+            "parent_monitoring_freeze_id"
+        ],
+        "qa12_manual_start_freeze_hash_valid": manual_start_freeze[
+            "freeze_hash_valid"
         ],
         "registry_model_freeze_id": MODEL_FREEZE_ID,
         "registry_protocol_id": PROTOCOL_ID,

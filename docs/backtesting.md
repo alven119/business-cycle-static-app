@@ -619,3 +619,35 @@ with lineage instead of overwriting originals.
 The first eligible period remains `2026-07`, and the first canonical eligible
 as-of remains `2026-08-31`. QA10 does not add automatic scheduling. Real
 backtest progression and Phase 9B1 remain blocked.
+
+## Phase QA11 Observation Boundary
+
+QA11 expands shadow observation runtime only. It does not execute historical
+performance backtests, book benchmarks, portfolio return calculations,
+candidate phase output, current phase decisions, or real prospective registry
+writes.
+
+Observation records may describe raw level, raw growth, raw direction, or
+smoothed level values. They are not phase evidence records unless a separate
+book-explicit evidence rule is complete and registered. Raw direction does not
+mean a turning point, and one-period movement does not confirm a phase.
+
+The prospective registry remains pre-start with zero real records. QA11 does
+not add scheduling. Real backtest progression and Phase 9B1 remain blocked.
+
+## Phase QA12 Manual Start Boundary
+
+QA12 adds manual-start readiness for the first eligible forward period only.
+It does not run historical performance backtests, book benchmarks, portfolio
+return calculations, candidate output, current phase decisions, or real
+prospective registry writes.
+
+Observation contract readiness is separate from no-write live source
+preflight. Live source readiness is separate from period completeness. Period
+completeness is separate from phase-evidence readiness, and phase-evidence
+readiness is separate from candidate capability.
+
+The first eligible period remains `2026-07`; the first canonical as-of remains
+`2026-08-31`. QA12 creates only manifests and preview bundles. The registry
+still has zero real records, the protocol is not started, candidate monitoring
+is disabled, and Phase 9B1 remains blocked.

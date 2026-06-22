@@ -1152,3 +1152,31 @@ monitoring remains disabled, and holdout remains unregistered.
 The registry path remains pre-start. Revised diagnostics are not real
 prospective observations; real prospective records require strict
 point-in-time evidence and may not be backfilled.
+
+## QA11 Forward Data-Gap Remediation
+
+QA11 classifies all 40 canonical roles by historical strict readiness and
+forward prospective capture readiness. These are separate axes: a role can be
+historically blocked while still having a future capture path, and a future
+capture path does not repair historical point-in-time gaps.
+
+Observation-only evaluators add runtime visibility for forward-ready roles
+without adding thresholds, weights, candidate-selection eligibility, or phase
+support. Qualitative unresolved rules remain unresolved. The three-month
+initial-claims moving average remains a smoothing/noise-filter observation.
+
+Candidate capability remains false, candidate monitoring remains disabled,
+holdout remains unregistered, and production v1 remains unchanged. QA12 will
+continue with major-group prospective coverage and manual start readiness.
+
+## QA12 Manual Start Readiness
+
+QA12 does not calibrate parameters, tune thresholds, tune weights, or validate
+economic accuracy. It separates observation contract readiness, source
+preflight readiness, period completeness, phase-evidence readiness, and
+candidate capability.
+
+The first eligible observation period is `2026-07`, with canonical as-of
+`2026-08-31`. QA12 keeps the real registry count at zero and does not start the
+protocol. Any future rule or model-version change must preserve freeze lineage
+and cannot silently reuse results from a different model version.

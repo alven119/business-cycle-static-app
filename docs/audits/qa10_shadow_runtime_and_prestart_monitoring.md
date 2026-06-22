@@ -46,3 +46,18 @@ evidence. QA10 does not add an automatic schedule.
 
 Production v1 remains unchanged. Holdout is not registered, real backtest
 progression remains blocked, and Phase 9B1 remains blocked.
+
+## QA11 Successor Boundary
+
+QA11 builds on this runtime by adding observation-only evaluators for additional
+forward-ready roles and by separating evidence-recording runtime from phase
+evidence and candidate capability. The QA10 record and registry semantics
+remain pre-start: no real registry record is written and the first eligible
+period remains unchanged.
+
+## QA12 Successor Boundary
+
+QA12 adds manual-start contracts, source preflight, and first-period manifest
+governance on top of the QA10/QA11 runtime stack. It must keep real append
+disabled before `2026-08-31`, keep candidate monitoring disabled, and avoid
+automatic scheduling or production integration.

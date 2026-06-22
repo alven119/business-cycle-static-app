@@ -98,6 +98,12 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     qa10_gates = phase_specific[
         "qa10_shadow_runtime_monitoring_readiness_closure"
     ]["hard_gates"]
+    qa11_gates = phase_specific[
+        "qa11_book_core_evaluator_data_gap_closure"
+    ]["hard_gates"]
+    qa12_gates = phase_specific[
+        "qa12_major_group_manual_start_closure"
+    ]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -291,6 +297,25 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "prospective_protocol_started == false" in qa10_gates
     assert "holdout_registered == false" in qa10_gates
     assert "recommended_next_phase == QA11" in qa10_gates
+    assert "forward_data_gap_registry_ready == true" in qa11_gates
+    assert "observation_evaluator_layer_ready == true" in qa11_gates
+    assert "runtime_observable_role_count > 1" in qa11_gates
+    assert "candidate_capability_ready == false" in qa11_gates
+    assert "real_registry_record_count == 0" in qa11_gates
+    assert "recommended_next_phase == QA12" in qa11_gates
+    assert "readiness_semantics_reconciled == true" in qa12_gates
+    assert "capture_topology_valid == true" in qa12_gates
+    assert "no_write_source_preflight_ready == true" in qa12_gates
+    assert "first_period_manifest_ready == true" in qa12_gates
+    assert "manual_start_gate_ready == true" in qa12_gates
+    assert "manual_start_allowed_now == false" in qa12_gates
+    assert "real_registry_record_count == 0" in qa12_gates
+    assert "candidate_capability_ready == false" in qa12_gates
+    assert "qa13_allowed_now == false" in qa12_gates
+    assert (
+        "recommended_next_action == WAIT_FOR_FIRST_ELIGIBLE_AS_OF"
+        in qa12_gates
+    )
     assert "scenario_exposure_registry_ready == true" in qa3_gates
     assert "data_only_baseline_freeze_ready == true" in qa3_gates
     assert "parameter_tuning_executed == false" in qa3_gates
@@ -360,6 +385,26 @@ def test_agent_workflow_documents_qa10_runtime_gates() -> None:
     assert "runtime path" in readme
     assert "candidate capability" in readme
     assert "QA11" in readme
+
+
+def test_agent_workflow_documents_qa11_forward_gap_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA11 Forward Observation Gates" in workflow
+    assert "Phase QA11 book-core evaluator and forward data gaps" in readme
+    assert "observation-only" in readme
+    assert "QA12" in readme
+
+
+def test_agent_workflow_documents_qa12_manual_start_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA12 Major-Group Manual Start Gates" in workflow
+    assert "Phase QA12 major-group manual start readiness" in readme
+    assert "WAIT_FOR_FIRST_ELIGIBLE_AS_OF" in readme
+    assert "manual-start" in readme
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

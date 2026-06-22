@@ -16,3 +16,19 @@ def test_qa8_qa9_phase_lineage_is_valid() -> None:
     assert summary["silent_freeze_rewrite_count"] == 0
     assert summary["monitoring_freeze_parent_valid"] is True
     assert summary["qa8_qa9_lineage_valid"] is True
+    assert summary["qa11_observation_freeze_id"] == "book_faithful_shadow_v2_alpha5"
+    assert (
+        summary["qa11_observation_parent_freeze_id"]
+        == "book_faithful_shadow_v2_alpha4"
+    )
+    assert summary["qa11_observation_freeze_hash_valid"] is True
+    assert summary["qa12_manual_start_freeze_id"] == "prospective_shadow_manual_start_v1"
+    assert (
+        summary["qa12_manual_start_parent_model_freeze_id"]
+        == "book_faithful_shadow_v2_alpha5"
+    )
+    assert (
+        summary["qa12_manual_start_parent_monitoring_freeze_id"]
+        == "prospective_shadow_monitoring_v1"
+    )
+    assert summary["qa12_manual_start_freeze_hash_valid"] is True

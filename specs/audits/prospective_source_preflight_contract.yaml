@@ -1,0 +1,16 @@
+prospective_source_preflight_contract:
+  version: 1
+  phase: QA12
+  contract_id: prospective_source_preflight_contract_v1
+  no_write_required: true
+  registry_write_allowed: false
+  candidate_evaluation_allowed: false
+  rule_modification_allowed: false
+  threshold_modification_allowed: false
+  allowed_checks:
+    - official_source_identity
+    - response_schema
+    - release_semantics
+    - observation_date_semantics
+    - cache_path_and_checksum_shape
+

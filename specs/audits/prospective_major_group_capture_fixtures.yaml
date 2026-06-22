@@ -1,0 +1,26 @@
+prospective_major_group_capture_fixtures:
+  version: 1
+  phase: QA12
+  fixture_ids:
+    - all_required_roles_available
+    - one_core_role_missing
+    - supporting_role_available_but_core_missing
+    - modern_extension_available_but_core_missing
+    - late_official_release
+    - source_schema_changed
+    - derived_input_incomplete
+    - derived_input_complete
+    - duplicate_source_request
+    - duplicate_preview_build
+    - correction_before_append
+    - correction_after_append
+    - mixed_data_mode
+    - future_observation
+    - provenance_missing
+    - canonical_as_of_not_reached
+    - canonical_as_of_reached_but_period_incomplete
+    - complete_period_with_candidate_capability_false
+  tmp_path_only: true
+  real_registry_write_allowed: false
+  candidate_selection_enabled: false
+

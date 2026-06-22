@@ -1,0 +1,12 @@
+prospective_manual_start_gate:
+  version: 1
+  phase: QA12
+  gate_id: prospective_manual_start_gate_v1
+  observation_period: "2026-07"
+  canonical_as_of: "2026-08-31"
+  explicit_user_command_required: true
+  force_clock_bypass_allowed: false
+  automatic_start_allowed: false
+  backfill_mode_allowed: false
+  candidate_monitoring_requires_separate_gate: true
+

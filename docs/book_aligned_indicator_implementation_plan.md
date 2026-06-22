@@ -872,3 +872,32 @@ The result is monitoring infrastructure readiness only. Candidate capability
 is still false because required book-core major-group evidence is incomplete.
 QA10 does not promote indicators, add thresholds, tune weights, or enable
 production behavior.
+
+## QA11 Forward Observation Update
+
+QA11 adds a forward data-gap registry for all 40 canonical roles and separates
+historical strict gaps from future capture readiness. Source identity, access,
+adapter, release-semantics, and transformation blockers stay visible with
+remediation work packages.
+
+Observation-only evaluators are added for forward-ready roles. They record raw
+or smoothed observations and provenance, but do not emit phase support,
+candidate phases, or current phase decisions. Modern extensions and supporting
+roles still cannot replace missing book-core roles.
+
+`book_faithful_shadow_v2_alpha5` freezes the forward data contracts and
+observation runtime scope. It does not freeze new weights or thresholds and
+does not start the prospective registry.
+
+## QA12 Manual Start Update
+
+QA12 adds the major-group capture preflight and manual-start readiness layer.
+It separates observation contract readiness, adapter readiness, no-write source
+preflight, first-period manifest coverage, period completeness, phase-evidence
+readiness, and candidate capability.
+
+The first eligible period remains `2026-07`; the first canonical as-of remains
+`2026-08-31`. QA12 creates manifest and preview artifacts only. Real registry
+records remain zero, candidate monitoring remains disabled, production v1
+remains isolated, and the correct next action is
+`WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.

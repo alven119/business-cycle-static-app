@@ -1,0 +1,18 @@
+forward_capture_topology_contract:
+  version: 1
+  phase: QA12
+  contract_id: forward_capture_topology_contract_v1
+  source_registry: specs/audits/book_core_forward_data_gap_registry.yaml
+  observation_period: "2026-07"
+  canonical_as_of: "2026-08-31"
+  node_types:
+    - direct_leaf
+    - derived_output
+    - hybrid_direct_or_derived
+  invariants:
+    direct_plus_derived_plus_hybrid_equals_forward_ready: true
+    derived_roles_trace_to_terminal_leaf_sources: true
+    derived_output_has_no_independent_raw_artifact_request: true
+    official_source_request_reuse_is_not_duplicate_download: true
+    hybrid_paths_require_priority_and_provenance: true
+

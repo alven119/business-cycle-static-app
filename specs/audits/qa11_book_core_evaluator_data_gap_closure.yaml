@@ -1,0 +1,39 @@
+qa11_book_core_evaluator_data_gap_closure:
+  version: 1
+  phase: QA11
+  expected_status:
+    monitoring_readiness_semantics_ready: true
+    forward_data_gap_registry_ready: true
+    forward_capture_contract_ready: true
+    observation_evaluator_layer_ready: true
+    book_explicit_evaluator_remediation_ready: true
+    generalized_history_window_runtime_ready: true
+    role_observation_record_contract_ready: true
+    major_group_observation_coverage_ready: true
+    retrospective_observation_diagnostics_ready: true
+    forward_capture_dry_run_ready: true
+    prospective_prestart_invariants_preserved: true
+    blocker_remediation_registry_ready: true
+    observation_freeze_ready: true
+    leakage_guard_ready: true
+    production_isolation_verified: true
+    evidence_recording_runtime_ready: true
+    candidate_capability_ready: false
+    candidate_monitoring_allowed: false
+    real_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    prospective_protocol_started: false
+    prospective_result_inspected: false
+    holdout_registered: false
+    formal_candidate_phase_computed: false
+    formal_decision_model_ready: false
+    data_only_model_economically_validated: false
+    independent_validation_ready: false
+    production_book_fidelity_ready: false
+    book_alignment_claim_allowed: false
+    qa12_allowed: true
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_phase: QA12
+    qa11_closure_status: closed_forward_observation_runtime_expanded_candidate_capability_incomplete
+    recommended_next_phase_title: Major-Group Prospective Evidence Coverage and Manual Start Readiness

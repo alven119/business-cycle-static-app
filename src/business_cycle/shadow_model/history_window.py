@@ -10,6 +10,10 @@ from typing import Any
 
 import yaml
 
+from business_cycle.audits.book_core_data_contracts import (
+    build_book_core_data_contracts,
+)
+
 
 DEFAULT_HISTORY_WINDOW_CONTRACT_PATH = Path(
     "specs/audits/shadow_runtime_history_window_contract.yaml"
@@ -50,7 +54,7 @@ def build_history_window_request(
     contract = load_history_window_contract()
     matching = [
         row
-        for row in contract["implemented_window_requests"]
+        for row in build_history_window_contract_rows(contract)
         if row["evaluator_id"] == evaluator_id
         and row["role_id"] == role_id
         and row["series_id"] == series_id
@@ -118,6 +122,10 @@ def materialize_history_window(
         "evaluator_id": request.evaluator_id,
         "role_id": request.role_id,
         "series_id": request.series_id,
+        "window_id": (
+            f"window::{request.evaluator_id}::{request.series_id}::"
+            f"{request.as_of}::{request.requested_data_mode}"
+        ),
         "as_of": request.as_of,
         "requested_data_mode": request.requested_data_mode,
         "actual_data_mode": request.requested_data_mode,
@@ -150,28 +158,75 @@ def materialize_history_window(
 
 
 def summarize_history_window_contract() -> dict[str, Any]:
-    request = build_history_window_request(
-        evaluator_id="evaluator::recovery_weekly_claim_noise_filter",
-        role_id="recovery_weekly_claim_noise_filter",
-        series_id="ICSA",
-        as_of="2026-08-31",
-        data_mode="revised",
-    )
-    result = materialize_history_window(request)
+    requests = [
+        build_history_window_request(
+            evaluator_id=row["evaluator_id"],
+            role_id=row["role_id"],
+            series_id=row["series_id"],
+            as_of="2026-08-31",
+            data_mode="revised",
+        )
+        for row in build_history_window_contract_rows()
+    ]
+    results = [materialize_history_window(request) for request in requests]
     return {
-        "phase": "QA10",
+        "phase": "QA11",
         "runtime_history_window_contract_ready": True,
-        "history_window_request_count": 1,
-        "history_window_ready_count": int(result["window_status"] == "ready"),
-        "insufficient_history_count": int(
-            result["window_status"] == "insufficient_history"
+        "history_window_request_count": len(requests),
+        "history_window_ready_count": sum(
+            result["window_status"] == "ready" for result in results
         ),
-        "mixed_data_mode_window_count": result["mixed_data_mode_count"],
-        "future_data_window_count": result["future_observation_count"],
-        "proxy_window_count": result["proxy_input_count"],
-        "revised_fallback_window_count": result["revised_fallback_count"],
+        "insufficient_history_count": sum(
+            result["window_status"] == "insufficient_history"
+            for result in results
+        ),
+        "mixed_data_mode_window_count": sum(
+            result["mixed_data_mode_count"] for result in results
+        ),
+        "future_data_window_count": sum(
+            result["future_observation_count"] for result in results
+        ),
+        "proxy_window_count": sum(result["proxy_input_count"] for result in results),
+        "revised_fallback_window_count": sum(
+            result["revised_fallback_count"] for result in results
+        ),
         "hard_coded_diagnostic_date_in_runtime_count": 0,
     }
+
+
+def build_history_window_contract_rows(
+    contract: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    loaded = contract or load_history_window_contract()
+    rows = list(loaded["implemented_window_requests"])
+    existing = {
+        (row["evaluator_id"], row["role_id"], row["series_id"]) for row in rows
+    }
+    for role in build_book_core_data_contracts():
+        if (
+            not role["series_identity_verified"]
+            or not role["current_series_ids"]
+            or role["transformation_status"] != "defined_for_shadow"
+        ):
+            continue
+        row = {
+            "evaluator_id": f"observation::{role['role_id']}",
+            "role_id": role["role_id"],
+            "series_id": role["current_series_ids"][0],
+            "lookback_type": "calendar_months",
+            "lookback_duration": 3,
+            "minimum_observation_count": 3
+            if role["role_id"] == "recovery_weekly_claim_noise_filter"
+            else 2,
+            "frequency": role["frequency"],
+            "release_lag_requirement": "same_as_of_available",
+            "temporal_evidence_requirement": "same_data_mode_causal_history",
+        }
+        key = (row["evaluator_id"], row["role_id"], row["series_id"])
+        if key not in existing:
+            rows.append(row)
+            existing.add(key)
+    return rows
 
 
 def _synthetic_revised_observations(

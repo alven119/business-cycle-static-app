@@ -1,0 +1,25 @@
+prospective_wait_state_governance:
+  version: 1
+  phase: QA12
+  contract_id: prospective_wait_state_governance_v1
+  observation_period: "2026-07"
+  canonical_as_of: "2026-08-31"
+  states:
+    - pre_period
+    - period_open
+    - awaiting_canonical_as_of
+    - awaiting_late_releases
+    - manual_review_pending
+    - manual_append_eligible
+    - blocked
+  allowed_development_while_waiting:
+    - source_adapter_maintenance
+    - data_contract_remediation
+    - fixture_improvements
+    - documentation
+  prohibited_actions_while_waiting:
+    - real_prospective_append
+    - candidate_monitoring
+    - result_inspection
+    - rule_tuning
+

@@ -242,3 +242,57 @@ The expected closure keeps `formal_decision_model_ready=false`,
 `data_only_model_economically_validated=false`, `holdout_registered=false`,
 `real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
 The next allowed phase is QA11.
+
+## QA11 Forward Observation Gates
+
+QA11 tasks may split monitoring-readiness semantics, add a 40-role forward
+data-gap registry, define forward capture contracts, add observation-only
+evaluators, generalize shadow history windows, validate role observation
+records, audit major-group observation coverage, run retrospective observation
+diagnostics, preview forward capture plans, and freeze alpha5 observation
+runtime lineage.
+
+QA11 must not write real prospective records, start the protocol, inspect
+prospective results, emit candidate phases, convert raw observations into
+phase support, tune thresholds or weights, add schedules, change production
+resolver/state-machine/dashboard behavior, or register holdout.
+
+QA11 completion requires all 40 roles to have forward status, runtime
+observable role count greater than one, no arbitrary thresholds or persistence,
+all implemented evaluators covered by runtime-window contracts, no candidate
+eligible observation records, no modern substitution for missing core roles,
+pre-start registry counts at zero, valid alpha5 freeze lineage, leakage counts
+at zero, and production isolation counts at zero.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`data_only_model_economically_validated=false`, `holdout_registered=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA12.
+
+## QA12 Major-Group Manual Start Gates
+
+QA12 tasks may reconcile major-group readiness semantics, audit leaf/derived
+capture topology, inventory official source adapters, run no-write source
+preflight, build the `2026-07` first-period manifest, add period-completeness
+logic, build a preview bundle, add a manual-start gate and runbook, validate
+tmp-path fixtures, freeze manual-start readiness, and verify production
+isolation.
+
+QA12 must not write a real prospective record, start the protocol, inspect
+prospective results, enable candidate output, add schedules, move the
+`2026-07` or `2026-08-31` protocol dates earlier, tune rules or thresholds, or
+change production resolver/state-machine/dashboard behavior.
+
+QA12 completion requires no readiness mislabels, no topology double counting,
+no registry writes during preflight, a valid first-period manifest hash,
+period-completeness error counts at zero, preview records without real IDs or
+decision fields, no force bypass, valid manual-start freeze lineage, leakage
+counts at zero, scheduling counts at zero, and production isolation counts at
+zero.
+
+The expected closure keeps `manual_start_allowed_now=false`,
+`real_append_allowed_now=false`, `real_registry_record_count=0`,
+`candidate_capability_ready=false`, `formal_decision_model_ready=false`,
+`holdout_registered=false`, `real_backtest_progression_allowed=false`, and
+`phase_9b1_allowed=false`. The recommended next action is
+`WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.

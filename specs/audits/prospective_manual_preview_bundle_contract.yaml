@@ -1,0 +1,16 @@
+prospective_manual_preview_bundle_contract:
+  version: 1
+  phase: QA12
+  contract_id: prospective_manual_preview_bundle_contract_v1
+  preview_only: true
+  enters_registry_hash_chain: false
+  registry_write_allowed: false
+  candidate_selection_enabled: false
+  prohibited_fields:
+    - real_registry_record_id
+    - current_phase
+    - candidate_phase
+    - target_weight
+    - trade_signal
+    - portfolio_action
+

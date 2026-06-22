@@ -798,3 +798,98 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - runtime_output_on_2019_strict_count may be 0 when strict temporal evidence is unavailable and abstention is classified
+
+  qa11_book_core_evaluator_data_gap_closure:
+    hard_gates:
+      - monitoring_readiness_semantics_ready == true
+      - forward_data_gap_registry_ready == true
+      - forward_capture_contract_ready == true
+      - observation_evaluator_layer_ready == true
+      - book_explicit_evaluator_remediation_ready == true
+      - generalized_history_window_runtime_ready == true
+      - role_observation_record_contract_ready == true
+      - major_group_observation_coverage_ready == true
+      - retrospective_observation_diagnostics_ready == true
+      - forward_capture_dry_run_ready == true
+      - prospective_prestart_invariants_preserved == true
+      - blocker_remediation_registry_ready == true
+      - observation_freeze_ready == true
+      - leakage_guard_ready == true
+      - production_isolation_verified == true
+      - role_count == 40
+      - runtime_observable_role_count > 1
+      - new_runtime_observable_role_count > 0
+      - candidate_selection_eligible_role_count == 0
+      - candidate_input_complete_major_group_count == 0
+      - evidence_recording_runtime_ready == true
+      - candidate_capability_ready == false
+      - candidate_monitoring_allowed == false
+      - real_registry_record_count == 0
+      - real_registry_write_attempt_count == 0
+      - prospective_protocol_started == false
+      - prospective_result_inspected == false
+      - holdout_registered == false
+      - formal_candidate_phase_computed == false
+      - formal_decision_model_ready == false
+      - data_only_model_economically_validated == false
+      - independent_validation_ready == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - qa12_allowed == true
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_phase == QA12
+      - qa11_closure_status == closed_forward_observation_runtime_expanded_candidate_capability_incomplete
+      - result == passed
+    soft_warnings_allowed:
+      - phase_evidence_evaluable_role_count may remain 0 because raw observations are not phase evidence
+
+  qa12_major_group_manual_start_closure:
+    hard_gates:
+      - readiness_semantics_reconciled == true
+      - capture_topology_valid == true
+      - source_adapter_inventory_ready == true
+      - no_write_source_preflight_ready == true
+      - first_period_manifest_ready == true
+      - period_completeness_engine_ready == true
+      - manual_preview_bundle_ready == true
+      - manual_start_gate_ready == true
+      - manual_operations_runbook_ready == true
+      - major_group_end_to_end_fixtures_ready == true
+      - wait_state_governance_ready == true
+      - prospective_capability_matrix_ready == true
+      - manual_start_freeze_ready == true
+      - leakage_guard_ready == true
+      - production_isolation_verified == true
+      - automatic_scheduling_disabled == true
+      - period_complete_group_count == 0
+      - phase_evidence_ready_group_count == 0
+      - candidate_input_complete_group_count == 0
+      - observation_period == 2026-07
+      - canonical_as_of == 2026-08-31
+      - canonical_as_of_reached == false
+      - manual_start_contract_ready == true
+      - manual_start_allowed_now == false
+      - real_append_allowed_now == false
+      - real_registry_record_count == 0
+      - real_registry_write_attempt_count == 0
+      - prospective_protocol_started == false
+      - prospective_result_inspected == false
+      - holdout_registered == false
+      - candidate_capability_ready == false
+      - candidate_monitoring_allowed == false
+      - formal_candidate_phase_computed == false
+      - formal_decision_model_ready == false
+      - data_only_model_economically_validated == false
+      - independent_validation_ready == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - qa13_allowed_now == false
+      - qa13_earliest_as_of == 2026-08-31
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_action == WAIT_FOR_FIRST_ELIGIBLE_AS_OF
+      - qa12_closure_status == closed_manual_start_contract_ready_waiting_first_eligible_asof
+      - result == passed
+    soft_warnings_allowed:
+      - live source preflight is no-write and does not imply period artifacts are available

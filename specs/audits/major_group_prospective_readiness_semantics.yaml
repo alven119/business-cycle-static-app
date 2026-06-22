@@ -1,0 +1,41 @@
+major_group_prospective_readiness_semantics:
+  version: 1
+  phase: QA12
+  contract_id: major_group_prospective_readiness_semantics_v1
+  observation_period: "2026-07"
+  canonical_as_of: "2026-08-31"
+  semantics:
+    at_least_one_major_group_observation_contract_ready:
+      meaning: at least one major group has complete observation-only contracts
+      not_equal_to: all major groups ready
+    all_major_groups_observation_contract_ready:
+      meaning: all 24 major groups have complete observation-only contracts
+      not_equal_to: live source preflight
+    major_group_adapter_ready:
+      meaning: required core roles have executable shadow adapters
+      not_equal_to: official source preflight passed
+    major_group_live_source_preflight_ready:
+      meaning: no-write official source and adapter checks pass
+      not_equal_to: period completeness
+    major_group_period_manifest_ready:
+      meaning: first-period roles and release requirements are listed
+      not_equal_to: released artifacts are available
+    major_group_period_complete:
+      meaning: required core role artifacts for a period are verified
+      not_equal_to: phase evidence evaluability
+    major_group_registry_preview_ready:
+      meaning: preview records can be built without entering the registry chain
+      not_equal_to: real append allowed
+    major_group_phase_evidence_ready:
+      meaning: book evidence rules are evaluable for the group
+      not_equal_to: candidate input completeness
+    major_group_candidate_input_complete:
+      meaning: candidate-selection contract inputs are complete
+      not_equal_to: production readiness
+  prohibited_mislabels:
+    partial_group_mislabeled_complete: true
+    contract_ready_mislabeled_live_ready: true
+    live_ready_mislabeled_period_complete: true
+    observation_ready_mislabeled_phase_evidence_ready: true
+    phase_evidence_ready_mislabeled_candidate_complete: true
+

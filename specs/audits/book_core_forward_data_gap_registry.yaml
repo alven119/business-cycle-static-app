@@ -1,0 +1,26 @@
+book_core_forward_data_gap_registry:
+  version: 1
+  phase: QA11
+  registry_id: book_core_forward_data_gap_registry_v1
+  generation:
+    source_contract: specs/audits/book_core_indicator_data_contracts.yaml
+    canonical_role_count: 40
+    one_row_per_canonical_role: true
+  policy:
+    historical_strict_status_separate_from_forward_capture: true
+    revised_history_does_not_fill_historical_strict_gap: true
+    forward_ready_does_not_imply_historical_point_in_time_ready: true
+    silent_modern_substitution_allowed: false
+    unverified_source_identity_ready_allowed: false
+  status_mapping:
+    ready_strict_complete: ready
+    ready_strict_partial: ready
+    ready_revised_diagnostic: ready
+    blocked_source_identity: blocked_source_identity
+    blocked_license_or_access: blocked_access
+    blocked_transformation: blocked_release_semantics
+    blocked_temporal_history: blocked_release_semantics
+    blocked_economic_equivalence: blocked_source_identity
+    spec_only: blocked_adapter
+    unsupported: unsupported
+

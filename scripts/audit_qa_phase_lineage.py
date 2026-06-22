@@ -21,6 +21,13 @@ def main() -> None:
         "qa8_freeze_parent_id",
         "qa9_monitoring_freeze_id",
         "qa9_monitoring_parent_model_freeze_id",
+        "qa11_observation_freeze_id",
+        "qa11_observation_parent_freeze_id",
+        "qa11_observation_freeze_hash_valid",
+        "qa12_manual_start_freeze_id",
+        "qa12_manual_start_parent_model_freeze_id",
+        "qa12_manual_start_parent_monitoring_freeze_id",
+        "qa12_manual_start_freeze_hash_valid",
     ):
         value = summary[key]
         print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")

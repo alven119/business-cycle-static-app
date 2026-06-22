@@ -1,0 +1,27 @@
+shadow_monitoring_readiness_semantics:
+  version: 1
+  phase: QA11
+  contract_id: shadow_monitoring_readiness_semantics_v1
+  semantics:
+    evidence_recording_runtime_ready:
+      meaning: snapshot, evaluator runtime, typed records, registry, and clock gate are available
+      not_equal_to: phase evidence monitoring
+    single_role_observation_monitoring_ready:
+      meaning: at least one role can emit an observation-only record
+      not_equal_to: candidate capability
+    multi_role_observation_monitoring_ready:
+      meaning: more than one role can emit observation-only records
+      not_equal_to: major-group completeness
+    major_group_observation_monitoring_ready:
+      meaning: at least one major group has all required core roles observable
+      not_equal_to: phase evidence readiness
+    phase_evidence_monitoring_ready:
+      meaning: required phase-presence evidence rules are evaluable
+      not_equal_to: candidate monitoring
+    candidate_monitoring_allowed:
+      meaning: candidate-selection inputs are complete and a separate protocol start authorizes monitoring
+  prohibited_mislabels:
+    runtime_ready_mislabeled_major_group_ready: true
+    observation_ready_mislabeled_phase_evidence_ready: true
+    phase_evidence_ready_mislabeled_candidate_ready: true
+

@@ -1311,6 +1311,47 @@ original. QA10 adds no automatic schedule. Production v1 is unchanged, holdout
 is not registered, real backtest progression remains blocked, and Phase 9B1
 remains blocked. QA11 is the next allowed phase.
 
+## Phase QA11 book-core evaluator and forward data gaps
+
+QA11 splits monitoring readiness into evidence-recording runtime,
+single-role observation monitoring, multi-role observation monitoring,
+major-group observation monitoring, phase-evidence monitoring, and candidate
+monitoring gates. Observation readiness is not phase evidence readiness.
+
+The 40 canonical roles now have separate historical strict and forward capture
+status. Historical strict gaps do not automatically block future capture, and
+forward capture readiness does not imply historical point-in-time readiness.
+ADP and other access/source gaps remain blocked rather than silently
+substituted.
+
+observation-only evaluators now cover multiple forward-ready roles. They may
+record raw direction, raw level, raw growth, or smoothed level metadata, but
+raw direction is not a turning point, one-period movement is not confirmation,
+and the three-month claims moving average remains only a noise filter.
+
+The prospective registry remains pre-start with `real_registry_record_count=0`
+and first eligible period `2026-07`. Candidate capability remains false,
+candidate monitoring remains disabled, holdout is not registered, production
+v1 is unchanged, real backtest progression remains blocked, and Phase 9B1
+remains blocked. QA12 is the next allowed phase.
+
+## Phase QA12 major-group manual start readiness
+
+QA12 reconciles major-group readiness semantics and adds the manual-start
+preflight stack for the first forward observation period. Observation contract
+readiness, live no-write source preflight, period completeness, phase-evidence
+readiness, and candidate capability are separate gates.
+
+The first eligible period remains `2026-07`, and the first canonical as-of
+remains `2026-08-31`. QA12 builds a first-period manifest and preview bundle
+only; the protocol is not started, no real registry record is written, and
+candidate monitoring remains disabled.
+
+After QA12 the recommended next action is
+`WAIT_FOR_FIRST_ELIGIBLE_AS_OF`. Production v1 is unchanged, holdout is not
+registered, real backtest progression remains blocked, and Phase 9B1 remains
+blocked.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.
