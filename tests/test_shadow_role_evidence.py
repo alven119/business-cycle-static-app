@@ -15,6 +15,11 @@ def test_shadow_role_evidence_abstains_without_zero_fill() -> None:
     assert all(row["raw_value"] is None for row in unavailable)
     assert all(row["transformed_value"] is None for row in unavailable)
     assert all(row["threshold_applied"] is False for row in rows)
+    assert not [
+        row
+        for row in rows
+        if row["evidence_status"] in {"supportive", "contradictory", "neutral"}
+    ]
 
 
 def test_context_prior_is_rejected() -> None:
@@ -24,4 +29,3 @@ def test_context_prior_is_rejected() -> None:
             data_mode="vintage_as_of",
             context_prior={"phase": "growth"},
         )
-

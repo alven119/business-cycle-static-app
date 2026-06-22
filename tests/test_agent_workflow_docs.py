@@ -87,6 +87,10 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     qa3_gates = phase_specific["qa3_calibration_integrity_closure"]["hard_gates"]
     qa4_gates = phase_specific["qa4_book_fidelity_scope_closure"]["hard_gates"]
     qa5_gates = phase_specific["qa5_book_core_shadow_model_closure"]["hard_gates"]
+    qa6_gates = phase_specific["qa6_shadow_aggregation_closure"]["hard_gates"]
+    qa7_gates = phase_specific["qa7_evidence_rule_candidate_freeze_closure"][
+        "hard_gates"
+    ]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -237,6 +241,20 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "holdout_registered == false" in qa5_gates
     assert "production_behavior_change_count == 0" in qa5_gates
     assert "recommended_next_phase == QA6" in qa5_gates
+    assert "freeze_lineage_ready == true" in qa6_gates
+    assert "typed_evidence_contract_ready == true" in qa6_gates
+    assert "aggregation_schema_preregistered == true" in qa6_gates
+    assert "candidate_selection_enabled == false" in qa6_gates
+    assert "holdout_registered == false" in qa6_gates
+    assert "recommended_next_phase == QA7" in qa6_gates
+    assert "evidence_rule_provenance_ready == true" in qa7_gates
+    assert "candidate_selection_contract_ready == true" in qa7_gates
+    assert "synthetic_candidate_selection_validated == true" in qa7_gates
+    assert "real_data_candidate_selection_enabled == false" in qa7_gates
+    assert "real_data_candidate_phase_emitted_count == 0" in qa7_gates
+    assert "formal_decision_model_ready == false" in qa7_gates
+    assert "holdout_registered == false" in qa7_gates
+    assert "recommended_next_phase == QA8" in qa7_gates
     assert "scenario_exposure_registry_ready == true" in qa3_gates
     assert "data_only_baseline_freeze_ready == true" in qa3_gates
     assert "parameter_tuning_executed == false" in qa3_gates
@@ -264,6 +282,16 @@ def test_agent_workflow_documents_qa5_shadow_gates() -> None:
     assert "Phase QA5 book-core data contracts" in readme
     assert "shadow evidence model" in readme
     assert "production v1 remains unchanged" in readme
+
+
+def test_agent_workflow_documents_qa6_aggregation_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA6 Shadow Aggregation Gates" in workflow
+    assert "Phase QA6 shadow aggregation preregistration" in readme
+    assert "candidate_selection_enabled=false" in readme
+    assert "QA7" in readme
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

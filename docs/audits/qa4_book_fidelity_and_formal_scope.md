@@ -7,7 +7,7 @@ context dependency; it is not represented as a fully faithful book model.
 ## Freeze And Holdout Semantics
 
 `data_only_baseline_v1` remains a research baseline for structural comparison.
-It is not economically validated, its book fidelity is incomplete, and its
+Its economic validation status remains false, its book fidelity is incomplete, and its
 prospective observations cannot be transferred automatically to a later
 book-faithful candidate model.
 
@@ -98,3 +98,7 @@ evidence profiles only.
 Missing book-core roles remain blockers. Revised diagnostics are not
 point-in-time validation evidence, and the shadow candidate has no registered
 holdout. Production v1 remains unchanged.
+
+QA6 preserves the QA4 original scope-freeze artifact and records the QA5
+promotion-gate update as explicit freeze lineage. Scope-only lineage updates do
+not change production behavior or decision behavior.

@@ -802,3 +802,30 @@ not register a candidate holdout.
 The next step is QA6: pre-register aggregation rules for the shadow evidence
 model and validate the structural candidate model before any decision-active
 model freeze.
+
+## QA6 Aggregation Update
+
+QA6 adds typed evidence routing and major-group aggregation invariants for the
+shadow evidence model. Book-core groups remain explicit: modern supporting
+evidence cannot satisfy missing core groups, boom-ending risk does not count as
+boom presence, and watch evidence does not become confirmation evidence.
+
+No weights or thresholds are introduced. The output is structural eligibility
+only, with candidate selection disabled. QA7 will handle threshold
+pre-registration and candidate-selection freeze.
+
+## QA7 Evidence Rule Update
+
+QA7 adds evidence-rule provenance and candidate-selection preregistration for
+the shadow model. It does not promote indicators, change production defaults,
+or define production thresholds.
+
+The book-core roles remain explicit. Raw transforms do not become supportive or
+contradictory evidence until a future phase implements allowed evaluators. The
+2019 250000 claims value is contextual only, the three-month moving average is
+a smoothing rule, and qualitative default-rate jump language remains unresolved.
+
+Synthetic candidate fixtures validate no-weight selection mechanics and
+ambiguity preservation. Real-data candidate selection remains disabled and
+emits no candidate phase. QA8 will implement book-explicit evaluators and
+prospective shadow diagnostics.

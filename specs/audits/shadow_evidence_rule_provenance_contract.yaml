@@ -1,0 +1,63 @@
+shadow_evidence_rule_provenance_contract:
+  version: 1
+  phase: QA7
+  rule_registry_version: shadow_evidence_rules_v1
+  allowed_rule_sources:
+    - explicit_book_numeric
+    - explicit_book_directional
+    - explicit_book_smoothing
+    - explicit_book_persistence
+    - natural_mathematical_boundary
+    - economic_domain_prior_preregistered
+    - statistical_rule_preregistered_without_labels
+    - inherited_contaminated_legacy
+    - unresolved
+  policy:
+    contextual_examples_may_not_be_generalized: true
+    hidden_default_parameters_allowed: false
+    contaminated_legacy_allowed_for_independent_validation: false
+    numeric_threshold_requires_units_and_scale: true
+    phase_labels_nber_dates_and_returns_prohibited: true
+  role_rule_defaults:
+    evaluator_type: qualitative_unresolved
+    rule_source: unresolved
+    allowed_for_structural_fixture: true
+    allowed_for_real_shadow_diagnostic: true
+    allowed_for_candidate_selection: false
+    allowed_for_independent_validation: false
+  role_rule_overrides:
+    recovery_weekly_claim_noise_filter:
+      evaluator_type: persistence
+      rule_source: explicit_book_smoothing
+      book_statement_ids:
+        - claims_3_month_moving_average_noise_filter
+    boom_claims_u_shape:
+      evaluator_type: persistence
+      rule_source: explicit_book_persistence
+      book_statement_ids:
+        - claims_new_lows_extend_boom
+    trough_claims_reversal:
+      evaluator_type: turning_point
+      rule_source: explicit_book_directional
+      book_statement_ids:
+        - claims_and_short_term_unemployment_reversal
+    trough_labor_reversal:
+      evaluator_type: turning_point
+      rule_source: explicit_book_directional
+      book_statement_ids:
+        - claims_and_short_term_unemployment_reversal
+    recovery_durable_goods_new_orders:
+      evaluator_type: direction
+      rule_source: explicit_book_directional
+      book_statement_ids:
+        - durable_goods_no_longer_worsening
+    boom_personal_delinquency_or_default:
+      evaluator_type: qualitative_unresolved
+      rule_source: unresolved
+      book_statement_ids:
+        - default_rate_significant_jump
+    boom_corporate_delinquency_or_default:
+      evaluator_type: qualitative_unresolved
+      rule_source: unresolved
+      book_statement_ids:
+        - default_rate_significant_jump

@@ -533,3 +533,36 @@ parameters, compute performance, or prove economic accuracy.
 The shadow candidate freeze has `holdout_registered=false`. A later
 decision-active candidate model must use a new model version and fresh
 prospective registration after aggregation rules are pre-registered.
+
+## Phase QA6 Aggregation Boundary
+
+QA6 still does not execute historical performance backtests, book benchmarks,
+portfolio return calculations, or holdout evaluation. It only pre-registers the
+shadow aggregation schema and structural eligibility rules.
+
+Real-date aggregation diagnostics may write explicit `/tmp` JSON diagnostics
+when requested. They must keep `candidate_selection_enabled=false`,
+`candidate_phase_computed=false`, `known_label_used=false`,
+`performance_metric_computed=false`, and `public_output_written=false`.
+
+Structural eligibility is not economic validation. If evidence is unavailable
+or raw-transform-only, the aggregation path abstains rather than filling a
+neutral value.
+
+## Phase QA7 Evidence-Rule Boundary
+
+QA7 does not execute historical performance backtests, book benchmarks,
+portfolio return calculations, or holdout evaluation. It only pre-registers
+book statement classifications, evidence-rule provenance, role evaluation
+contracts, and no-weight candidate-selection mechanics.
+
+Real-date candidate diagnostics may write explicit `/tmp` JSON diagnostics.
+They must keep `real_data_candidate_selection_enabled=false`,
+`candidate_phase=null`, `known_label_used=false`,
+`performance_metric_computed=false`, and `public_output_written=false`.
+
+The 250000 initial-claims value from the 2019 discussion remains a contextual
+example, not a universal threshold. Three-month moving average smoothing is a
+book noise-filter rule. Synthetic candidate fixtures validate mechanics only.
+QA8 is the next allowed phase; real backtest progression and Phase 9B1 remain
+blocked.

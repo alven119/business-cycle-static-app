@@ -1,0 +1,39 @@
+shadow_candidate_selection_contract:
+  version: 1
+  phase: QA7
+  candidate_selection_contract_id: shadow_candidate_selection_schema_v1
+  synthetic_candidate_selection_enabled: true
+  real_data_candidate_selection_enabled: false
+  accepted_inputs:
+    - typed_phase_presence_evidence
+    - major_group_states
+    - aggregation_eligibility
+    - provenance
+    - temporal_completeness
+  prohibited_inputs:
+    - transition_watch_evidence_as_phase_presence
+    - regime_evidence
+    - portfolio_evidence
+    - external_context_prior
+    - display_hint
+    - production_phase
+    - known_scenario_label
+    - historical_date
+    - nber_label
+    - portfolio_return
+  invariants:
+    numeric_weight_allowed: false
+    equal_weight_aggregation_allowed: false
+    role_count_vote_allowed: false
+    arbitrary_phase_priority_allowed: false
+    transition_evidence_selection_allowed: false
+    regime_evidence_selection_allowed: false
+    external_context_selection_allowed: false
+    known_label_selection_allowed: false
+  selection_rule_id: all_required_major_groups_evaluable_no_weights_v1
+  status_values:
+    - selected
+    - ambiguous_multiple_candidates
+    - abstained_no_eligible_phase
+    - abstained_incomplete_evidence
+    - abstained_rule_unresolved

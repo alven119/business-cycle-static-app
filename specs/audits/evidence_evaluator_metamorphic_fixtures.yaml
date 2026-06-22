@@ -1,0 +1,31 @@
+evidence_evaluator_metamorphic_fixtures:
+  version: 1
+  phase: QA7
+  fixtures:
+    - fixture_id: missing_data_abstains
+      role_id: recovery_initial_jobless_claims
+      input_values: []
+      expected_status: abstained
+      structural_only: true
+    - fixture_id: insufficient_lookback_abstains
+      role_id: recovery_initial_jobless_claims
+      input_values:
+        - 1
+      expected_status: abstained
+      structural_only: true
+    - fixture_id: future_data_rejected
+      role_id: growth_nonfarm_payrolls
+      input_values:
+        - 1
+        - 2
+      has_future_observation: true
+      expected_status: rejected
+      structural_only: true
+    - fixture_id: deterministic_abstention
+      role_id: boom_consumer_confidence
+      input_values:
+        - 1
+        - 1
+        - 1
+      expected_status: abstained
+      structural_only: true

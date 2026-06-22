@@ -1,0 +1,41 @@
+model_freeze_lineage:
+  version: 1
+  phase: QA6
+  freeze_versions:
+    - freeze_id: book_faithful_scope_freeze_v1_original_qa4
+      freeze_type: formal_scope_freeze
+      version: QA4
+      parent_freeze_id: null
+      created_at_utc: "2026-06-22T00:00:00Z"
+      source_commit: d003281
+      supersedes: []
+      change_reason: initial_formal_scope_freeze
+      changed_component_ids: []
+      old_component_hashes: {}
+      new_component_hashes:
+        promotion_gate_hash: b956a1d111f5e058cddbf8d57229ff678b3956967701ad9ab68734a5d0328259
+      decision_behavior_changed: false
+      production_behavior_changed: false
+      holdout_reset_required: false
+      previous_freeze_artifact_path: null
+      current_freeze_artifact_path: specs/audits/book_faithful_formal_scope_freeze_v1_original_qa4.yaml
+    - freeze_id: book_faithful_scope_freeze_v1_qa5_promotion_gate_lineage
+      freeze_type: formal_scope_freeze_lineage_update
+      version: QA5
+      parent_freeze_id: book_faithful_scope_freeze_v1_original_qa4
+      created_at_utc: "2026-06-22T10:26:46Z"
+      source_commit: 9dca400
+      supersedes:
+        - book_faithful_scope_freeze_v1_original_qa4
+      change_reason: qa5_shadow_evidence_promotion_gate_added_without_decision_behavior_change
+      changed_component_ids:
+        - promotion_gate_hash
+      old_component_hashes:
+        promotion_gate_hash: b956a1d111f5e058cddbf8d57229ff678b3956967701ad9ab68734a5d0328259
+      new_component_hashes:
+        promotion_gate_hash: 35fba08429d1ca36e87bacf374f28a9d21a8e3806d3060502cc2cfbbccb62108
+      decision_behavior_changed: false
+      production_behavior_changed: false
+      holdout_reset_required: false
+      previous_freeze_artifact_path: specs/audits/book_faithful_formal_scope_freeze_v1_original_qa4.yaml
+      current_freeze_artifact_path: specs/audits/book_faithful_formal_scope_freeze.yaml

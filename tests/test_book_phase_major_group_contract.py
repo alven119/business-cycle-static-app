@@ -16,6 +16,7 @@ def test_major_group_contract_covers_required_phase_groups() -> None:
     assert summary["subrole_without_major_group_count"] == 0
     assert summary["subrole_mapped_to_multiple_major_groups_count"] == 0
     assert summary["major_group_without_core_role_count"] == 0
+    assert summary["subrole_count"] == 40
 
 
 def test_each_subrole_has_one_major_group() -> None:
@@ -24,4 +25,3 @@ def test_each_subrole_has_one_major_group() -> None:
     assert len(rows) == 40
     assert all(row["major_group_id"] for row in rows)
     assert len({row["role_id"] for row in rows}) == len(rows)
-

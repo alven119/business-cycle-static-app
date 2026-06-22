@@ -1,0 +1,15 @@
+shadow_evidence_layer_routing:
+  version: 1
+  phase: QA6
+  allowed_layers:
+    - normal_cycle_phase_model
+    - transition_evidence_layer
+    - exogenous_shock_overlay
+    - secular_regime_layer
+    - portfolio_policy_research
+  prohibited_global_routes:
+    - portfolio_policy_to_phase_feedback
+    - regime_feedback_to_phase
+    - transition_watch_direct_phase_confirmation
+    - display_hint_to_shadow_aggregation
+    - external_context_prior_to_shadow_aggregation

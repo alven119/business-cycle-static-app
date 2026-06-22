@@ -14,7 +14,7 @@ governance.
 
 The current closure status is
 `closed_precalibration_governance_ready`. This means the governance framework is
-ready. It does not mean the data-only model is economically validated.
+ready. It does not mean the data-only model has passed economic validation.
 
 ## Current Scenario Exposure
 

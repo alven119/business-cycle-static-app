@@ -1,0 +1,31 @@
+book_faithful_shadow_candidate_selection_freeze:
+  version: 1
+  phase: QA7
+  freeze_id: book_faithful_shadow_v2_alpha3
+  parent_freeze_id: book_faithful_shadow_v2_alpha2
+  freeze_type: evidence_rule_and_candidate_selection_preregistration
+  created_at_utc: "2026-06-22T00:00:00Z"
+  rule_provenance_contract_hash: 25e60f91b1d22790fbd984415e29724e7ed29ba44bee4395bfb00adf9ca7fd00
+  statement_operationalization_registry_hash: df4176795d159b278de756f8ba461e51c75ba5dd236a61fbcfa42b838b3178fa
+  role_evaluation_rule_hash: 578eec08a511983c4e04023f095409c311ab1539ee4cca315f4621d51fec43b3
+  candidate_selection_contract_hash: f1d36169ca52a9a43c5517e09fcec4b932377096fcb70a05d3ef1d16db1bcb0a
+  synthetic_fixture_hash: 29b314c7d1f22c24582130fc9eda2ebdc91e51d6c3ccf82c74f2cbcc285511b6
+  evaluator_source_hashes:
+    src/business_cycle/audits/evidence_evaluability.py: ec1c64fbd8ff14ec71b5d9f5fc638c011426c543b6ac98f6229237e65481daf5
+    src/business_cycle/audits/evidence_rule_provenance.py: 1a908058fbe652ca26ef320047b5933d8b8e8897bf062449b07cad84ae300abe
+    src/business_cycle/shadow_model/evidence_evaluators.py: 56965ade2c3363a7f567fb8fb8e2415041affd6b4c4838808dfebdfa75a29a8f
+  candidate_selection_source_hashes:
+    src/business_cycle/shadow_model/candidate_selection.py: da15ce32f93f61cddaac67e1061bb12abc3f3177e18c2ff76b720c55220a2877
+    src/business_cycle/audits/shadow_candidate_selection_fixtures.py: 96b82013167f48764a7571a8cad117a3c506400c15084c8662bb192935c86a88
+    src/business_cycle/audits/shadow_candidate_diagnostics.py: 4973ed4eee1cdee2b1deeee1cf17c00563d77d566eed5b8ac3326e4b437e8163
+  numeric_weights_frozen: false
+  production_thresholds_changed: false
+  shadow_rule_contract_frozen: true
+  real_data_candidate_selection_enabled: false
+  formal_current_phase_decision_enabled: false
+  state_machine_integration_allowed: false
+  resolver_integration_allowed: false
+  production_integration_allowed: false
+  economic_validation_status: not_started
+  independent_validation_status: not_started
+  holdout_registered: false

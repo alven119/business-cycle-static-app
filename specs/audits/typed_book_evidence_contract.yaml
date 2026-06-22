@@ -1,0 +1,58 @@
+typed_book_evidence_contract:
+  version: 1
+  phase: QA6
+  evidence_families:
+    recovery_entry:
+      - recovery_entry_support
+      - recovery_entry_contradiction
+      - recovery_entry_neutral
+    growth_stability:
+      - growth_stability_support
+      - growth_stability_contradiction
+      - growth_stability_neutral
+    boom:
+      - boom_presence_support
+      - boom_continuation_support
+      - boom_ending_risk
+      - boom_ending_confirmation_support
+      - boom_evidence_neutral
+    recession:
+      - recession_watch_support
+      - recession_confirmation_support
+      - recession_confirmation_contradiction
+    trough_recovery_watch:
+      - trough_watch_support
+      - trough_confirmation_support
+      - recovery_watch_support
+    regime:
+      - productivity_regime_support
+      - inflation_regime_support
+      - mixed_regime_support
+    modern_supporting:
+      - modern_supporting_risk
+      - modern_supporting_recovery
+      - modern_supporting_financial
+  non_evaluable_states:
+    - unavailable
+    - invalid
+    - raw_transform_only
+    - temporal_abstention
+    - threshold_not_preregistered
+    - economic_equivalence_blocked
+  role_family_overrides:
+    recovery_publication_lag_awareness: modern_supporting
+    recovery_weekly_claim_noise_filter: recovery_entry
+    boom_claims_u_shape: boom_ending
+    boom_retail_sales_vs_broad_pce: boom_ending
+    boom_durable_goods_second_surge: boom_ending
+    boom_personal_delinquency_or_default: boom_ending
+    boom_corporate_delinquency_or_default: boom_ending
+    recession_confirmation_breadth: recession_confirmation
+    recession_employment_confirmation: recession_confirmation
+    recession_consumption_confirmation: recession_confirmation
+    recession_investment_or_industrial_confirmation: recession_confirmation
+    recession_credit_financial_confirmation: modern_supporting
+    trough_claims_reversal: trough_confirmation
+    trough_labor_reversal: trough_confirmation
+    trough_real_activity_reversal: trough_confirmation
+    trough_policy_financial_not_sufficient_alone: recovery_watch

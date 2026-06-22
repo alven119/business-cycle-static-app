@@ -1,0 +1,19 @@
+book_faithful_formal_scope_freeze:
+  version: 1
+  phase: QA4
+  scope_freeze_id: book_faithful_scope_freeze_v1_original_qa4
+  scope_version: book_faithful_scope_v1
+  frozen_at_utc: "2026-06-22T00:00:00Z"
+  source_requirement_manifest_hash: 6b554e51cf8a3725bf472f7480c5e76ba686dd1451edb45c5f25df97c1fda6e3
+  formal_scope_contract_hash: 6f08d0f82af652dcffec37b4799d89c2c0a8ea4e8d926208f5f528ebb437431e
+  indicator_scope_matrix_hash: b22ceba275fbbae9acac5e3fcb7343afd505d4f8ec4f6f9e3893ad8964ef637a
+  normal_cycle_contract_hash: 094248b691c8fafe258143749f7004745e9f07bdba6d1a3fad7a2adb51b6e433
+  shock_overlay_scope_hash: 707dac41c41463b7a3a093a82f60a1c55d1406d6de805cce954c201bf5f04575
+  regime_scope_hash: 072fb00e263044f641614e6fccd23d3622f8c6663a2343e5881d6ce2ebb4684c
+  portfolio_rule_scope_hash: 81c93ef0b3eee9b9cb6564bc3cde55723f1106b77e45b2b0c6b72ab32cd143d7
+  promotion_gate_hash: b956a1d111f5e058cddbf8d57229ff678b3956967701ad9ab68734a5d0328259
+  implementation_status: scope_defined_not_implemented
+  economic_validation_status: not_started
+  production_migration_status: not_allowed
+  holdout_status: not_registered_for_candidate_model
+  decision_parameter_frozen_by_scope_phase_count: 0

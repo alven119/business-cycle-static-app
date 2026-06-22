@@ -1071,3 +1071,34 @@ No new weights or thresholds are defined in QA5. The shadow freeze is an
 architecture freeze for contracts and source hashes only. QA6 must
 pre-register aggregation rules before any decision-active candidate model can
 be frozen.
+
+## QA6 Aggregation Pre-Registration
+
+QA6 pre-registers aggregation invariants without calibration. It introduces
+typed evidence states and structural eligibility checks, but it does not tune
+thresholds, choose a candidate phase, or inspect holdout outcomes.
+
+The current real-data shadow aggregation diagnostics report zero evaluable
+roles because the raw transforms do not yet have pre-registered directional
+thresholds. That result is an abstention condition, not a failure to be patched
+by tuning.
+
+QA7 must handle evidence-threshold pre-registration and candidate-selection
+freeze before any decision-active candidate model can be considered.
+
+## QA7 Evidence Rule Pre-Registration
+
+QA7 classifies book statements and evidence-rule provenance before any
+decision-active model can exist. Most book language is directional,
+turning-point, smoothing, persistence, or qualitative; it is not automatically
+a fixed numeric threshold.
+
+The 2019 initial-claims value of 250000 is registered as a contextual example
+and cannot become a cross-cycle threshold. The three-month initial-claims
+moving average is registered as a smoothing/noise-filter rule and is not phase
+confirmation by itself. Qualitative significant-jump language remains
+unresolved until a later phase provides a defensible preregistered evaluator.
+
+Candidate-selection mechanics are validated with synthetic fixtures only. Real
+data candidate selection remains disabled in QA7, holdout remains unregistered,
+production v1 remains unchanged, and QA8 is the next allowed phase.

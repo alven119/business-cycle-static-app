@@ -1,0 +1,149 @@
+shadow_candidate_selection_fixtures:
+  version: 1
+  phase: QA7
+  fixtures:
+    - fixture_id: canonical_recovery_selected
+      eligible_phases: [recovery]
+      expected_selection_status: selected
+      expected_candidate_phase: recovery
+      expected_eligible_phases: [recovery]
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: canonical_growth_selected
+      eligible_phases: [growth]
+      expected_selection_status: selected
+      expected_candidate_phase: growth
+      expected_eligible_phases: [growth]
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: canonical_boom_presence_selected
+      eligible_phases: [boom]
+      expected_selection_status: selected
+      expected_candidate_phase: boom
+      expected_eligible_phases: [boom]
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: canonical_recession_confirmed_selected
+      eligible_phases: [recession_trough]
+      expected_selection_status: selected
+      expected_candidate_phase: recession_trough
+      expected_eligible_phases: [recession_trough]
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: boom_ending_only_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: recession_watch_only_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: recovery_watch_only_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: policy_only_recovery_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: modern_extension_only_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: incomplete_required_group_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: unresolved_rule_abstains
+      eligible_phases: []
+      unresolved_rule: true
+      expected_selection_status: abstained_rule_unresolved
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: recovery_and_growth_both_eligible_ambiguous
+      eligible_phases: [recovery, growth]
+      expected_selection_status: ambiguous_multiple_candidates
+      expected_candidate_phase: null
+      expected_eligible_phases: [recovery, growth]
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: boom_and_recession_conflict_ambiguous
+      eligible_phases: [boom, recession_trough]
+      expected_selection_status: ambiguous_multiple_candidates
+      expected_candidate_phase: null
+      expected_eligible_phases: [boom, recession_trough]
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: regime_only_abstains
+      eligible_phases: []
+      expected_selection_status: abstained_no_eligible_phase
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: []
+      structural_only: true
+      economic_validation: false
+    - fixture_id: context_injection_rejected
+      eligible_phases: [recovery]
+      expected_selection_status: abstained_rule_unresolved
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: [external_context_prior]
+      structural_only: true
+      economic_validation: false
+    - fixture_id: display_hint_injection_rejected
+      eligible_phases: [growth]
+      expected_selection_status: abstained_rule_unresolved
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: [display_hint]
+      structural_only: true
+      economic_validation: false
+    - fixture_id: known_label_injection_rejected
+      eligible_phases: [boom]
+      expected_selection_status: abstained_rule_unresolved
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: [known_scenario_label]
+      structural_only: true
+      economic_validation: false
+    - fixture_id: portfolio_return_injection_rejected
+      eligible_phases: [recession_trough]
+      expected_selection_status: abstained_rule_unresolved
+      expected_candidate_phase: null
+      expected_eligible_phases: []
+      forbidden_inputs: [portfolio_return]
+      structural_only: true
+      economic_validation: false

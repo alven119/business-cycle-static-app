@@ -93,3 +93,25 @@ requires an explicit data contract before it can be used.
 QA6 should pre-register shadow aggregation rules and structural candidate model
 validation before any decision-active candidate model freeze. Real backtest
 progression and Phase 9B1 remain blocked.
+
+## QA6 Follow-Up
+
+QA6 adds the typed evidence vocabulary and aggregation schema on top of the QA5
+shadow evidence rows. It separates structurally routed evidence from evidence
+that is actually evaluable.
+
+Current real-data diagnostics can still have `complete_role_count=0` and
+`evidence_evaluable_role_count=0`. QA6 treats that as abstention. It does not
+turn raw transforms into support or contradiction, and it does not pick a
+candidate phase.
+
+## QA7 Follow-Up
+
+QA7 explains why the QA6 `evidence_evaluable_role_count=0` result is expected:
+raw transforms still lack pre-registered evidence thresholds, and blocked roles
+retain explicit source, access, temporal, or transformation blockers.
+
+QA7 pre-registers evidence-rule provenance and synthetic candidate-selection
+mechanics without enabling real-data candidate output. Synthetic candidate
+selection validates mechanics only; production v1 remains unchanged and holdout
+remains unregistered.

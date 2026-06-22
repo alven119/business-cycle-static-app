@@ -1,0 +1,105 @@
+book_statement_operationalization_registry:
+  version: 1
+  phase: QA7
+  registry_id: book_statement_operationalization_v1
+  policy:
+    contextual_examples_may_not_be_universal_thresholds: true
+    qualitative_unquantified_rules_remain_unresolved_without_preregistration: true
+    smoothing_rules_are_noise_filters_not_phase_confirmation: true
+  statements:
+    - statement_id: claims_3_month_moving_average_noise_filter
+      role_id: recovery_weekly_claim_noise_filter
+      book_page_reference: approx_pages_106_118
+      paraphrased_statement_zh: Initial claims should be smoothed with a three-month moving average to reduce noise.
+      classification: book_explicit_smoothing_rule
+      universal_across_cycles: true
+      historical_context: none
+      numeric_value_present: true
+      numeric_value: 3
+      units: months
+      smoothing_period: 3_months
+      persistence_period: null
+      can_be_used_as_shadow_rule: true
+      requires_additional_preregistration: false
+      prohibited_generalization_reason: not_phase_confirmation_by_itself
+      source_provenance_complete: true
+    - statement_id: claims_new_lows_extend_boom
+      role_id: boom_claims_u_shape
+      book_page_reference: approx_pages_181_203
+      paraphrased_statement_zh: Claims continuing to make new lows extends boom continuation evidence for at least three quarters.
+      classification: book_explicit_persistence_rule
+      universal_across_cycles: true
+      historical_context: boom_continuation_discussion
+      numeric_value_present: true
+      numeric_value: 3
+      units: quarters
+      smoothing_period: null
+      persistence_period: 3_quarters
+      can_be_used_as_shadow_rule: true
+      requires_additional_preregistration: false
+      prohibited_generalization_reason: routes_to_boom_continuation_not_boom_presence
+      source_provenance_complete: true
+    - statement_id: claims_2019_250k_contextual_example
+      role_id: boom_claims_u_shape
+      book_page_reference: approx_pages_181_203
+      paraphrased_statement_zh: Claims rising above 250000 is a contextual example from the 2019 discussion.
+      classification: book_contextual_historical_example
+      universal_across_cycles: false
+      historical_context: 2019_discussion
+      numeric_value_present: true
+      numeric_value: 250000
+      units: persons
+      smoothing_period: null
+      persistence_period: null
+      can_be_used_as_shadow_rule: false
+      requires_additional_preregistration: true
+      prohibited_generalization_reason: contextual_observation_not_cross_cycle_threshold
+      source_provenance_complete: true
+    - statement_id: claims_and_short_term_unemployment_reversal
+      role_id: trough_claims_reversal
+      book_page_reference: approx_pages_230_245
+      paraphrased_statement_zh: Claims peak reversal and short-term unemployment reversal are directional trough evidence.
+      classification: book_explicit_directional_rule
+      universal_across_cycles: true
+      historical_context: trough_reversal_discussion
+      numeric_value_present: false
+      numeric_value: null
+      units: null
+      smoothing_period: null
+      persistence_period: null
+      can_be_used_as_shadow_rule: true
+      requires_additional_preregistration: true
+      prohibited_generalization_reason: turning_point_window_not_preregistered
+      source_provenance_complete: true
+    - statement_id: durable_goods_no_longer_worsening
+      role_id: recovery_durable_goods_new_orders
+      book_page_reference: approx_pages_106_118
+      paraphrased_statement_zh: Durable goods no longer worsening or gradually rising is directional recovery evidence.
+      classification: book_explicit_directional_rule
+      universal_across_cycles: true
+      historical_context: recovery_investment_discussion
+      numeric_value_present: false
+      numeric_value: null
+      units: null
+      smoothing_period: null
+      persistence_period: null
+      can_be_used_as_shadow_rule: true
+      requires_additional_preregistration: true
+      prohibited_generalization_reason: persistence_and_lookback_not_explicit
+      source_provenance_complete: true
+    - statement_id: default_rate_significant_jump
+      role_id: boom_personal_delinquency_or_default
+      book_page_reference: approx_pages_181_203
+      paraphrased_statement_zh: Default rates showing a significant jump are qualitative boom-risk evidence.
+      classification: book_qualitative_unquantified_rule
+      universal_across_cycles: true
+      historical_context: boom_delinquency_default_discussion
+      numeric_value_present: false
+      numeric_value: null
+      units: null
+      smoothing_period: null
+      persistence_period: null
+      can_be_used_as_shadow_rule: false
+      requires_additional_preregistration: true
+      prohibited_generalization_reason: significant_jump_not_quantified
+      source_provenance_complete: true

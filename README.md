@@ -1206,6 +1206,42 @@ does not freeze decision parameters or validate economic accuracy. QA6 is the
 next allowed phase for shadow aggregation rule pre-registration and structural
 candidate validation. Real backtest progression and Phase 9B1 remain blocked.
 
+## Phase QA6 shadow aggregation preregistration
+
+QA6 pre-registers typed evidence vocabulary, layer routing, major-group
+aggregation invariants, structural eligibility, and the
+`book_faithful_shadow_v2_alpha2` aggregation architecture freeze.
+
+Structural readiness is separate from evidence evaluability. Current real-data
+diagnostics can have `evidence_evaluable_role_count=0`; raw transforms are not
+directional signals, and missing evidence is not zero-filled. QA6 defines no
+numeric weights, no new thresholds, and no candidate-selection rule.
+
+Candidate selection remains disabled:
+`candidate_selection_enabled=false`, `formal_candidate_phase_computed=false`,
+and `holdout_registered=false`. Production v1 is unchanged, and real backtest
+progression plus Phase 9B1 remain blocked. QA7 is the next allowed phase.
+
+## Phase QA7 evidence-rule preregistration
+
+QA7 pre-registers evidence-rule provenance and candidate-selection mechanics
+for `book_faithful_shadow_v2_alpha3`. It explains why all 40 canonical roles
+remain non-evaluable in real data: 24 are raw-transform-only without
+pre-registered evidence thresholds, and the remaining roles are blocked by
+data, source, access, or rule gaps.
+
+Book statements are classified before use. The three-month initial-claims
+moving average is a book smoothing/noise-filter rule. The 250000 initial-claims
+value from the 2019 discussion is contextual, not a universal threshold.
+Qualitative language such as significant jump remains unresolved until a later
+phase preregisters a defensible evaluator.
+
+Synthetic candidate selection is enabled only to validate mechanics. Real-data
+candidate selection remains disabled, emits no candidate phase, and writes only
+explicit `/tmp` diagnostics when requested. Production v1 remains unchanged,
+holdout is not registered, real backtest progression remains blocked, and Phase
+9B1 remains blocked. QA8 is the next allowed phase.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

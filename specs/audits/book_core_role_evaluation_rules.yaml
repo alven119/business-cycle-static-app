@@ -1,0 +1,30 @@
+book_core_role_evaluation_rules:
+  version: 1
+  phase: QA7
+  registry_id: book_core_role_evaluation_rules_v1
+  policy:
+    one_contract_per_canonical_role: true
+    real_data_candidate_selection_enabled: false
+    hidden_default_parameters_allowed: false
+    prohibited_inputs:
+      - scenario_id
+      - known_phase_label
+      - nber_dates
+      - portfolio_return
+      - external_context_prior
+      - display_hint
+      - production_current_phase
+    status_mapping:
+      ready_strict_partial: raw_transform_only
+      ready_revised_diagnostic: raw_transform_only
+      ready_strict_complete: raw_transform_only
+      blocked_source_identity: blocked_data
+      blocked_license_or_access: blocked_data
+      blocked_temporal_history: blocked_data
+      blocked_transformation: blocked_rule_missing
+      blocked_economic_equivalence: blocked_equivalence
+      spec_only: blocked_data
+      unsupported: blocked_data
+  minimum_observations_policy:
+    raw_transform_only: role_specific_future_preregistration_required
+    blocked: not_evaluable

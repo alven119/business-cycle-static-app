@@ -16,4 +16,7 @@ def test_shadow_phase_profiles_do_not_compute_candidate_phase() -> None:
         profile["shadow_profile_status"] == "partial_evidence_profile"
         for profile in result["phase_profiles"]
     )
-
+    assert all(
+        profile["formal_candidate_phase_computed"] is False
+        for profile in result["phase_profiles"]
+    )

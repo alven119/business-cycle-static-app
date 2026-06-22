@@ -123,3 +123,46 @@ The expected closure keeps `formal_decision_model_ready=false`,
 `proposed_v2_economically_validated=false`, `holdout_registered=false`,
 `real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
 The next allowed phase is QA6.
+
+## QA6 Shadow Aggregation Gates
+
+QA6 tasks may add freeze-lineage audits, typed evidence contracts, layer routing
+audits, aggregation schemas, structural eligibility checks, synthetic fixtures,
+diagnostic CLIs, and aggregation architecture freezes. Agents must keep
+candidate selection disabled and production isolated.
+
+QA6 completion requires preserved freeze lineage, zero untyped roles, zero
+numeric weights, zero new thresholds, zero historical-label rule selection,
+passing synthetic structural fixtures, real-data diagnostics with candidate
+phase disabled, reproducible aggregation freeze hashes, and production isolation
+counts at zero.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`data_only_model_economically_validated=false`, `holdout_registered=false`,
+`production_book_fidelity_ready=false`, `book_alignment_claim_allowed=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA7.
+
+## QA7 Evidence Rule Gates
+
+QA7 tasks may add evidence evaluability audits, book statement
+operationalization registries, rule provenance contracts, role evaluation
+contracts, evaluator metamorphic fixtures, synthetic candidate-selection
+fixtures, real-data abstention diagnostics, leakage guards, candidate-selection
+freeze artifacts, and production-isolation audits.
+
+QA7 must not choose thresholds from historical outcomes, generalize contextual
+book examples, emit real-data candidate phases, register holdout, or change
+production resolver, state-machine, dashboard, weights, or thresholds.
+
+QA7 completion requires all 40 roles to have classified evaluability reasons,
+zero contextual-example generalization, zero arbitrary qualitative thresholds,
+zero hidden defaults, passing synthetic candidate fixtures, real-data
+candidate selection disabled, zero real-data candidate phase outputs,
+reproducible alpha3 freeze hashes, and production isolation counts at zero.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`data_only_model_economically_validated=false`, `holdout_registered=false`,
+`production_book_fidelity_ready=false`, `book_alignment_claim_allowed=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA8.

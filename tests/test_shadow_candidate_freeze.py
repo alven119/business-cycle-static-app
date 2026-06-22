@@ -16,4 +16,4 @@ def test_shadow_candidate_freeze_is_reproducible_and_not_decision_freeze() -> No
     assert summary["decision_parameter_frozen_count"] == 0
     assert summary["holdout_registered"] is False
     assert summary["production_migration_allowed"] is False
-
+    assert summary["aggregation_rule_frozen"] is False

@@ -1,0 +1,128 @@
+shadow_aggregation_structural_fixtures:
+  version: 1
+  phase: QA6
+  fixtures:
+    - fixture_id: recovery_all_core_groups_evaluable
+      phase: recovery
+      group_states:
+        employment: recovery_entry_support
+        consumption: recovery_entry_support
+        investment: recovery_entry_support
+        trade: recovery_entry_support
+      expected_eligible_phases: [recovery]
+    - fixture_id: growth_all_core_groups_evaluable
+      phase: growth
+      group_states:
+        saving_and_consumption: growth_stability_support
+        employment: growth_stability_support
+        private_investment_and_housing: growth_stability_support
+        sustainable_core_inflation: growth_stability_neutral
+      expected_eligible_phases: [growth]
+    - fixture_id: boom_presence_without_ending_signal
+      phase: boom
+      group_states:
+        claims_u_shape: boom_presence_support
+        consumption_slowdown: boom_presence_support
+        consumer_confidence: boom_presence_support
+        private_investment_and_durables: boom_continuation_support
+        government_spending_revenue: boom_presence_support
+        inventory_cycle: boom_presence_support
+        delinquency_default: boom_evidence_neutral
+      expected_eligible_phases: [boom]
+    - fixture_id: boom_ending_risk_not_boom_support
+      phase: boom
+      group_states:
+        claims_u_shape: boom_ending_risk
+        consumption_slowdown: boom_ending_risk
+        consumer_confidence: boom_ending_risk
+        private_investment_and_durables: boom_ending_risk
+        government_spending_revenue: boom_ending_risk
+        inventory_cycle: boom_ending_risk
+        delinquency_default: boom_ending_confirmation_support
+      expected_eligible_phases: []
+    - fixture_id: recession_watch_only
+      phase: recession_trough
+      group_states:
+        recession_confirmation: recession_watch_support
+      expected_eligible_phases: []
+    - fixture_id: recession_confirmation_complete
+      phase: recession_trough
+      group_states:
+        recession_confirmation: recession_confirmation_support
+        recession_employment: recession_confirmation_support
+        recession_consumption: recession_confirmation_support
+        recession_investment_real_activity: recession_confirmation_support
+        recession_trade_or_breadth: recession_confirmation_support
+        trough_labor_reversal: trough_confirmation_support
+        trough_consumption_reversal: trough_confirmation_support
+        trough_investment_real_activity_reversal: trough_confirmation_support
+        policy_financial_supporting_only: trough_confirmation_support
+      expected_eligible_phases: [recession_trough]
+    - fixture_id: trough_watch_only
+      phase: recession_trough
+      group_states:
+        trough_labor_reversal: trough_watch_support
+      expected_eligible_phases: []
+    - fixture_id: recovery_watch_policy_only
+      phase: recession_trough
+      group_states:
+        policy_financial_supporting_only: recovery_watch_support
+      expected_eligible_phases: []
+    - fixture_id: incomplete_core_group
+      phase: recovery
+      group_states:
+        employment: recovery_entry_support
+        consumption: recovery_entry_support
+        investment: recovery_entry_support
+        trade: unavailable
+      expected_eligible_phases: []
+    - fixture_id: modern_extension_only
+      phase: boom
+      group_states:
+        claims_u_shape: modern_supporting_risk
+        consumption_slowdown: modern_supporting_risk
+        consumer_confidence: modern_supporting_risk
+        private_investment_and_durables: modern_supporting_risk
+        government_spending_revenue: modern_supporting_risk
+        inventory_cycle: modern_supporting_risk
+        delinquency_default: modern_supporting_risk
+      expected_eligible_phases: []
+    - fixture_id: mixed_contradictory_group
+      phase: growth
+      group_states:
+        saving_and_consumption: growth_stability_support
+        employment: growth_stability_contradiction
+        private_investment_and_housing: growth_stability_support
+        sustainable_core_inflation: growth_stability_neutral
+      expected_eligible_phases: []
+    - fixture_id: multiple_phase_profiles_structurally_eligible
+      phase: multi
+      group_states:
+        recovery.employment: recovery_entry_support
+        recovery.consumption: recovery_entry_support
+        recovery.investment: recovery_entry_support
+        recovery.trade: recovery_entry_support
+        growth.saving_and_consumption: growth_stability_support
+        growth.employment: growth_stability_support
+        growth.private_investment_and_housing: growth_stability_support
+        growth.sustainable_core_inflation: growth_stability_neutral
+      expected_eligible_phases: [recovery, growth]
+    - fixture_id: regime_only_fixture
+      phase: regime
+      group_states:
+        regime.productivity: productivity_regime_support
+      expected_eligible_phases: []
+    - fixture_id: context_injection_fixture
+      phase: recovery
+      context_prior: prior_phase_recovery
+      group_states:
+        employment: recovery_entry_support
+      expected_eligible_phases: []
+      expected_rejected: true
+    - fixture_id: display_hint_injection_fixture
+      phase: recovery
+      display_hint: recovery
+      group_states:
+        employment: recovery_entry_support
+      expected_eligible_phases: []
+      expected_rejected: true

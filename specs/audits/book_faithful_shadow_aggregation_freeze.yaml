@@ -1,0 +1,24 @@
+book_faithful_shadow_aggregation_freeze:
+  version: 1
+  phase: QA6
+  freeze_id: book_faithful_shadow_v2_alpha2
+  parent_candidate_id: book_faithful_shadow_v2_alpha1
+  freeze_type: aggregation_architecture_preregistration
+  typed_evidence_contract_hash: 16f1dfd4a3d5cfe7889b5592e9b7180b809073af6e403e13439b3d130570e212
+  layer_routing_contract_hash: ef3ec1de37a4e914ff0130e37c801d468f7c2c1cfb0a37ba1585d91885cc230a
+  major_group_contract_hash: 31d647dc2153f9aae3a34e75b8f7d2a2717fe4cdd206ab01608a360e3cac0a16
+  aggregation_contract_hash: de2e0745ea129f5a8e03a352294aa9173c94cc9918306a5b3415ffe211bdb767
+  structural_eligibility_source_hashes:
+    src/business_cycle/shadow_model/typed_evidence.py: 9a17a3970d142aa299ee25a9325b8e1289a58ca878e43b129652c101579aeb23
+    src/business_cycle/shadow_model/aggregation_contract.py: 089ca0b2f8a3f3d8efa68b054aaebb2c2f4349db6501ed9b37a439795811fb6b
+    src/business_cycle/shadow_model/structural_eligibility.py: 6fb90e22cdc9d3e3cd7878eb83c2154d1709030c4260eb4e651c13b360a9c8f8
+    src/business_cycle/audits/shadow_aggregation_fixtures.py: 60af8aaba704cc3bb1578e2e7d5b629bea215ce939871a09846ac7d2e123cb7b
+  fixture_spec_hash: 437376b9c3f8cccfaeadba458e2521b29d45e335ca80de11253263bd1626d87b
+  candidate_selection_enabled: false
+  numeric_weights_frozen: false
+  evidence_thresholds_frozen: false
+  decision_thresholds_frozen: false
+  production_integration_allowed: false
+  holdout_registered: false
+  economic_validation_status: not_started
+  independent_validation_status: not_started

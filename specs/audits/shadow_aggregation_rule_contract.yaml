@@ -1,0 +1,50 @@
+shadow_aggregation_rule_contract:
+  version: 1
+  phase: QA6
+  aggregation_contract_id: book_faithful_shadow_aggregation_schema_v1
+  candidate_selection_enabled: false
+  allowed_inputs:
+    - typed_role_evidence
+    - major_group_mapping
+    - role_type
+    - temporal_status
+    - provenance
+    - contamination_disclosure
+  prohibited_inputs:
+    - scenario_id
+    - expected_historical_phase
+    - acceptance_window
+    - nber_labels
+    - portfolio_returns
+    - external_context_prior
+    - display_hint
+    - production_current_phase
+    - historical_outcome_labels
+  major_group_states:
+    - supportive
+    - contradictory
+    - mixed
+    - neutral
+    - unavailable
+    - raw_transform_only
+    - not_evaluable
+    - temporal_abstention
+  phase_profile_states:
+    - structurally_routable
+    - evidence_incomplete
+    - evidence_complete
+    - aggregation_ineligible
+    - structurally_eligible
+    - ambiguous_multiple_profiles
+    - abstained
+  invariants:
+    numeric_weight_allowed: false
+    new_threshold_allowed: false
+    equal_weight_aggregation_allowed: false
+    missing_evidence_zero_fill_allowed: false
+    unavailable_treated_as_neutral_allowed: false
+    raw_transform_used_as_supportive_allowed: false
+    modern_extension_satisfies_core_allowed: false
+    supporting_role_replaces_core_allowed: false
+    historical_label_rule_selection_allowed: false
+    scenario_specific_rule_allowed: false

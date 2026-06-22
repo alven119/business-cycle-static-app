@@ -1,0 +1,31 @@
+qa7_evidence_rule_candidate_freeze_closure:
+  version: 1
+  phase: QA7
+  expected_status:
+    evaluability_root_cause_audit_ready: true
+    book_statement_operationalization_ready: true
+    evidence_rule_provenance_ready: true
+    role_evaluation_contract_registry_ready: true
+    evaluator_metamorphic_tests_ready: true
+    candidate_selection_contract_ready: true
+    synthetic_candidate_selection_validated: true
+    real_data_candidate_diagnostics_ready: true
+    evidence_rule_leakage_guard_ready: true
+    candidate_selection_freeze_ready: true
+    production_isolation_verified: true
+    real_data_candidate_selection_enabled: false
+    real_data_candidate_phase_emitted_count: 0
+    formal_candidate_phase_computed_on_real_data: false
+    formal_current_phase_decision_enabled: false
+    formal_decision_model_ready: false
+    data_only_model_economically_validated: false
+    independent_validation_ready: false
+    holdout_registered: false
+    production_book_fidelity_ready: false
+    book_alignment_claim_allowed: false
+    qa8_allowed: true
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_phase: QA8
+    qa7_closure_status: closed_evidence_rules_preregistered_real_candidate_selection_disabled
+    recommended_next_phase_title: Book-Explicit Evidence Evaluator Implementation and Prospective Shadow Candidate Diagnostics
