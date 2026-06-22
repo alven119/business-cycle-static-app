@@ -1,0 +1,31 @@
+model_freeze_and_holdout_semantics:
+  version: 1
+  phase: QA4
+  research_baseline:
+    baseline_id: data_only_baseline_v1
+    freeze_manifest_path: specs/audits/data_only_model_baseline_freeze.yaml
+    purpose: structural_comparison
+    economic_validation_status: not_validated
+    book_fidelity_status: incomplete
+    prospective_observations_may_accumulate: true
+    prospective_observation_start: "2026-07"
+    transferable_to_future_candidate_model: false
+    final_model_validation_claim_allowed: false
+  proposed_book_faithful_scope:
+    scope_id: book_faithful_scope_v1
+    scope_only: true
+    implementation_status: scope_defined_not_implemented
+    parameter_freeze_status: not_frozen
+    active_holdout_status: not_registered
+  future_candidate_model_freeze:
+    required_before_creation:
+      - book-core scope complete
+      - decision-active implementation complete
+      - new model version assigned
+      - fresh holdout start registered
+    may_reuse_research_baseline_holdout_results: false
+  expected_status:
+    final_model_holdout_active: false
+    holdout_model_version_ambiguity_count: 0
+    premature_final_holdout_claim_count: 0
+

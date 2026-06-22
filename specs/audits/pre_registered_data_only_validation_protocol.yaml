@@ -1,0 +1,68 @@
+pre_registered_data_only_validation_protocol:
+  version: 1
+  phase: QA3
+  frozen_model_version: data_only_baseline_v1
+  development_and_diagnostics:
+    scenario_ids:
+      - dotcom_bubble
+      - global_financial_crisis
+      - covid_recession
+      - euro_debt_slowdown
+      - late_cycle_2018
+    allowed_uses:
+      - debugging
+      - attribution
+      - structural_robustness
+      - failure_analysis
+      - documentation
+    prohibited_uses:
+      - independent_validation_claim
+      - untouched_holdout_claim
+      - final_performance_claim
+  internal_robustness_evaluation:
+    allowed_inputs:
+      - deterministic_synthetic_cases
+      - existing_development_scenarios
+      - perturbation_tests
+      - parameter_sensitivity_diagnostics
+    out_of_sample_label_allowed: false
+    final_model_proof_allowed: false
+  historical_external_validation:
+    status: not_available
+    eligible_scenario_count: 0
+  prospective_prequential_holdout:
+    prospective_holdout_registered: true
+    registration_timestamp: "2026-06-22T00:00:00Z"
+    frozen_model_version: data_only_baseline_v1
+    first_eligible_observation_period: "2026-07"
+    minimum_evaluation_months: 12
+    minimum_complete_strict_dates: 12
+    requires_at_least_one_unseen_transition_event: true
+    requires_at_least_one_unseen_non_recession_stress_event: true
+    no_parameter_change_after_registration: true
+    parameter_change_resets_holdout: true
+    no_result_peeking_for_model_change: true
+    evaluation_frequency: monthly_after_complete_data_release
+    reporting_frequency: quarterly_governance_summary
+    stopping_rules:
+      - model_parameter_change
+      - decision_source_change
+      - data_only_scope_change
+      - evidence_of_result_peeking_for_model_change
+    allowed_metrics:
+      - phase_decision_stability
+      - transition_watch_frequency
+      - strict_completeness_rate
+      - data_only_vs_production_disagreement_count
+      - explanation_completeness
+    prohibited_uses:
+      - parameter_selection
+      - threshold_tuning
+      - scoring_weight_tuning
+      - portfolio_return_computation
+      - trade_signal_generation
+      - performance_claim
+  final_untouched_holdout:
+    status: not_started
+    result_inspected: false
+    eligible: false

@@ -1,0 +1,33 @@
+qa3_calibration_integrity_closure:
+  version: 1
+  phase: QA3
+  expected_status:
+    parameter_inventory_ready: true
+    parameter_drift_detection_ready: true
+    scenario_exposure_registry_ready: true
+    all_current_scenarios_development_only: true
+    production_hardcoding_audit_ready: true
+    data_only_baseline_freeze_ready: true
+    pre_registered_validation_protocol_ready: true
+    prospective_holdout_registered: true
+    prospective_holdout_result_inspected: false
+    calibration_leakage_audit_ready: true
+    data_only_shadow_evaluation_ready: true
+    context_dependency_governance_ready: true
+    parameter_tuning_executed: false
+    scoring_weight_change_count: 0
+    transition_threshold_change_count: 0
+    acceptance_window_change_count: 0
+    performance_backtest_executed: false
+    holdout_result_inspected: false
+    production_default_behavior_changed_count: 0
+    data_only_model_structurally_validated: true
+    data_only_model_economically_validated: false
+    independent_validation_ready: false
+    final_holdout_ready: false
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    qa4_allowed: true
+    recommended_next_phase: QA4
+    recommended_next_phase_title: Book Fidelity Remediation and Formal Model Scope Freeze
+    qa3_closure_status: closed_precalibration_governance_ready

@@ -3,6 +3,7 @@ from __future__ import annotations
 from business_cycle.audits.scenario_temporal_eligibility import (
     summarize_scenario_temporal_eligibility,
 )
+from business_cycle.audits.scenario_exposure import summarize_scenario_exposure_registry
 
 
 def test_scenario_temporal_eligibility_blocks_incomplete_uses() -> None:
@@ -27,3 +28,13 @@ def test_scenario_temporal_eligibility_blocks_incomplete_uses() -> None:
     assert rows["covid_recession"]["temporal_tier"] == "strict_complete"
     assert rows["covid_recession"]["temporally_eligible_for_parameter_calibration"] is True
     assert rows["covid_recession"]["final_validation_eligible"] is False
+
+
+def test_strict_complete_scenarios_are_still_not_holdout_after_qa3() -> None:
+    exposure = summarize_scenario_exposure_registry()
+    rows = {row["scenario_id"]: row for row in exposure["scenarios"]}
+
+    assert rows["covid_recession"]["temporal_tier"] == "strict_complete"
+    assert rows["late_cycle_2018"]["temporal_tier"] == "strict_complete"
+    assert rows["covid_recession"]["eligible_for_independent_validation"] is False
+    assert rows["late_cycle_2018"]["eligible_for_untouched_holdout"] is False

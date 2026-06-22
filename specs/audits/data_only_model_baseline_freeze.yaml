@@ -1,0 +1,61 @@
+data_only_model_baseline_freeze:
+  freeze_version: data_only_baseline_v1
+  freeze_status: research_baseline_frozen
+  frozen_at_utc: "2026-06-22T00:00:00Z"
+  repository_commit: 2509f0e
+  data_only_resolver_path: src/business_cycle/phases/data_only_resolver.py
+  parameter_registry_path: specs/audits/model_parameter_registry.yaml
+  parameter_manifest_hash: 6aa07de63e115d7fcb9d0bf9ace20e4edab51ea946aa061be422e8bffe2249f3
+  relevant_source_file_count: 13
+  relevant_source_file_hashes:
+    src/business_cycle/indicators/catalog.py: e68289d29125e9353c8d93c8d81d379cbf620367d83b7a5067ceffa57c6c6f04
+    src/business_cycle/indicators/dispatcher.py: b2bc0252669a99facbe943988309cc9cbb3fd7b40e2130f3dd4b3ed5370f9f8a
+    src/business_cycle/indicators/scoring.py: a639ea7131a1402c76db4823aa503f687a63f4fa5e43a4db4419c0482007bb4b
+    src/business_cycle/indicators/specs.py: a89127eb57c43af41e99ad95b2ccdf5affcd697d9177c226bb21176fa282ae9a
+    src/business_cycle/indicators/transformations.py: 73d06798aa60bf082ffe1cbecff93d6a9dd7b459ed12fa877f90ae4e281eb5d9
+    src/business_cycle/phases/batch_scoring.py: fb4ec49ff4d584be6bfde4f89a7a2a952f55ee5b8d339dbf4cc86d30e80c0fde
+    src/business_cycle/phases/catalog.py: 638cc50b7874ef47407be8b32d4cfcd8fa5134a327180925435ef1e41e3c5206
+    src/business_cycle/phases/data_only_resolver.py: 76f0ae386b8f70635da50d2ee91d9ff5016ab05c4ab78d123d4f217d3cac8f0f
+    src/business_cycle/phases/scoring.py: d6120b67a0549d752a885153e822cd5dac4d6f1c3e238ced0e8ca76ec310e870
+    src/business_cycle/phases/specs.py: ec55c2434702475987e279c1418f5739edca174168b769951f8110b12b8b7c20
+    src/business_cycle/phases/state_machine.py: 236967e35ab8ed47eaaffff51b97e427608b1c367024c45d864019acaddb6349
+    src/business_cycle/phases/state_machine_catalog.py: abb8b26231f8a236dd2ae601e7e137b303b552e9ad18b156c74120c1e17d4fc5
+    src/business_cycle/phases/transition_controls.py: 0d2a0afb3b6b89a725fb9bba3fe6796dcabfa72628841c01bb71de5cdab05658
+  relevant_spec_file_count: 6
+  relevant_spec_file_hashes:
+    specs/indicator_catalog.yaml: 8ac2ef0041e176ee18182705b4c6d584fd5535b67ecd01f2d6eea33caedb55e5
+    specs/common/phase_state_machine.yaml: 1b752f18319e5ff523d8474941b98b173cfc3771ef9558b146ee229f2ecc903f
+    specs/phases/boom.yaml: 314692d7f5f412f62ba889206ea32ec73727a23c517276ff97942b3fc58483e3
+    specs/phases/growth.yaml: 7c5ab56be8c96784c664f60faae0504cd31575a14f5fe2f56168be5d77e1a710
+    specs/phases/recession.yaml: 6b43ee7ed717ec3f35d787a79f052c29db49d90d92587c04de680740d33f7ecd
+    specs/phases/recovery.yaml: 1515ffbf776719472c410279730d27aaab4f2bee722c1bdd8635e86ff3d26c83
+  formal_indicator_catalog_hash: 8ac2ef0041e176ee18182705b4c6d584fd5535b67ecd01f2d6eea33caedb55e5
+  phase_spec_hashes:
+    specs/phases/boom.yaml: 314692d7f5f412f62ba889206ea32ec73727a23c517276ff97942b3fc58483e3
+    specs/phases/growth.yaml: 7c5ab56be8c96784c664f60faae0504cd31575a14f5fe2f56168be5d77e1a710
+    specs/phases/recession.yaml: 6b43ee7ed717ec3f35d787a79f052c29db49d90d92587c04de680740d33f7ecd
+    specs/phases/recovery.yaml: 1515ffbf776719472c410279730d27aaab4f2bee722c1bdd8635e86ff3d26c83
+  state_machine_config_hash: 1b752f18319e5ff523d8474941b98b173cfc3771ef9558b146ee229f2ecc903f
+  transition_control_hashes:
+    specs/backtests/transition_controls_enabled_experiment.yaml: 9e782488b4af47f12fe2503b4f23bc23c569e01c0d1595bcd6c5f727cf9920d7
+    specs/backtests/transition_controls_experiment.yaml: 488ad96e1f40bf6170f9b369846c9da675e2f3ed24218082aed9c585e9357872
+    specs/backtests/transition_controls_recession_breadth_experiment.yaml: 49968eaf7f989b9c0a152ecca21bd4463200638e2abcf97047e5d10de135b6e0
+  decision_mode: data_only
+  external_context_allowed: false
+  display_hint_allowed: false
+  model_state_history_allowed: true
+  transition_controls_allowed:
+    baseline_default: false
+    explicit_diagnostics_only: true
+  data_mode_requirements:
+    strict_complete_real_dates_only_for_formal_comparison: true
+    no_revised_fallback_in_strict_mode: true
+    synthetic_cases_allowed_for_structural_diagnostics: true
+  scenario_exposure_cutoff: "2026-06-22T00:00:00Z"
+  economic_validation_status: not_validated
+  independent_validation_status: not_started
+  holdout_status: not_started
+  freeze_rules:
+    parameter_change_requires_new_model_version: true
+    holdout_results_must_not_carry_across_model_version_change: true
+    silent_freeze_hash_update_allowed: false

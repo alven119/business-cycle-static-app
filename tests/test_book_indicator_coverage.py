@@ -51,3 +51,20 @@ def test_every_canonical_indicator_requirement_has_coverage_row() -> None:
     }
 
     assert covered == required
+
+
+def test_qa4_indicator_matrix_keeps_modern_extension_separate() -> None:
+    from business_cycle.audits.formal_indicator_scope_matrix import (
+        build_formal_indicator_scope_matrix,
+    )
+
+    rows = build_formal_indicator_scope_matrix()
+    modern_rows = [
+        row for row in rows if row["book_provenance_class"] == "modern_extension"
+    ]
+
+    assert modern_rows
+    assert all(
+        row["scope_classification"] == "retain_as_modern_extension"
+        for row in modern_rows
+    )

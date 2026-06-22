@@ -477,3 +477,42 @@ QA2 可使用 synthetic deterministic cases 與 strict-complete dates 做結構�
 diagnostics。Partial dates 不得進 formal decision comparison；任何 context
 ablation output 都不能被解讀為績效、calibration acceptance、validation 或
 untouched holdout 結果。
+
+## Phase QA3 Calibration Integrity Gate
+
+QA3 freezes the current data-only baseline for future comparison and registers a
+prospective validation protocol. It does not run a real historical performance
+backtest, compute portfolio returns, tune thresholds, tune scoring weights, or
+inspect future holdout results.
+
+All five existing scenarios remain development and diagnostics material:
+`dotcom_bubble`, `global_financial_crisis`, `covid_recession`,
+`euro_debt_slowdown`, and `late_cycle_2018`. They cannot be used as final
+holdout or performance-claim evidence. Strict-complete dates can support
+structural QA, but temporal completeness does not by itself create validation
+eligibility.
+
+Production context dependency is known and classified as `phase_selection`.
+Production defaults remain unchanged. Data-only shadow diagnostics disclose
+data-only versus production differences without selecting parameters or
+calculating performance.
+
+Phase 9B1 and real backtest progression remain blocked. QA4 is the next
+methodology phase and will address book fidelity remediation and formal model
+scope freeze.
+
+## Phase QA4 Book-Faithful Scope Boundary
+
+QA4 does not execute any historical performance backtest or book benchmark. It
+only defines the formal scope for a future book-faithful candidate model.
+
+The current production v1 is book-informed and remains unchanged. Proposed v2
+scope is defined but not implemented, has no frozen decision parameters, and has
+no candidate holdout registration. The QA3 research baseline may collect future
+observations for structural comparison, but those observations cannot be moved
+into a later candidate model's evaluation record.
+
+Portfolio rules are scoped as benchmark/research rules only. The book 70/50/30
+boom schedule is not a phase transition rule, monthly rebalancing is not the
+book annual benchmark, and generic bond exposure is not a substitute for 7+ year
+U.S. Treasury exposure.

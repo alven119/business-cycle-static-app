@@ -1,0 +1,33 @@
+book_portfolio_rule_scope:
+  version: 1
+  phase: QA4
+  benchmark_spec_path: specs/portfolio/book_strategy_golden_benchmark.yaml
+  strategy_ids:
+    - passive_all_stock
+    - stock_cash_basic
+    - stock_cash_advanced
+    - stock_long_treasury_basic
+    - stock_long_treasury_advanced
+  required_book_rules:
+    - start first trading day of 1994
+    - end 2018
+    - initial contribution 10000 USD
+    - annual contribution 10000 USD
+    - contribution on last trading day
+    - rebalance on first trading day
+    - recession/recovery/growth stock 100 percent
+    - boom basic stock 50 percent
+    - boom advanced 70/50/30/30+ schedule
+    - two-year boom minimum 50 percent stock
+    - long Treasury maturity 7 years or longer
+    - explicit cash proxy
+    - total-return treatment
+    - external cashflow-aware metrics
+  rule_spec_ready: true
+  rule_data_contract_ready: false
+  rule_execution_ready: false
+  prohibited_misclassifications:
+    generic_bond_as_long_treasury: false
+    monthly_rebalance_as_book_baseline: false
+    boom_elapsed_schedule_as_phase_transition: false
+

@@ -1138,6 +1138,54 @@ dashboard behavior changes, portfolio output, or trade signals. The next
 allowed phase is QA3, while Phase 9B1 and real backtest progression remain
 blocked.
 
+## Phase QA3 calibration integrity governance
+
+QA3 establishes calibration-integrity governance without tuning parameters or
+running a performance backtest. It adds a complete model parameter inventory,
+scenario exposure registry, production hard-coding audit, frozen data-only
+baseline, pre-registered future validation protocol, calibration leakage audit,
+data-only shadow diagnostics, and context dependency governance.
+
+Production context dependency has been confirmed and is classified as
+`phase_selection`. The production default still preserves context; QA3 does not
+remove production context, change resolver defaults, or change dashboard
+production behavior. Context-derived output must not be labeled data-only.
+
+The data-only path is structurally validated only. It is not economically
+validated. The current five scenarios remain development and diagnostics
+scenarios, even when a date is strict complete. Temporal completeness is not the
+same as methodological validation, and the current scenarios are not final
+holdout evidence.
+
+QA3 records parameter contamination explicitly. Prospective holdout must begin
+after the frozen baseline, starting with the next complete data period, and any
+parameter or decision-source change resets holdout. QA3 does not execute
+calibration, portfolio return computation, book benchmark execution, or Phase
+9B1. The next allowed phase is QA4: Book Fidelity Remediation and Formal Model
+Scope Freeze.
+
+## Phase QA4 book fidelity scope
+
+QA4 defines `book_faithful_scope_v1` as a formal scope contract. Current
+production v1 remains book-informed rather than book-faithful: it still has a
+known `phase_selection` context dependency, and production defaults are
+preserved.
+
+The proposed v2 scope is defined but not implemented. QA4 separates normal
+cycle phase logic, transition evidence, exogenous shock overlay, secular regime
+research, and portfolio policy research. Modern extensions remain separate from
+book-core roles and cannot substitute for missing book evidence.
+
+`data_only_baseline_v1` remains a research baseline for structural comparison.
+Its prospective observations do not become validation evidence for a later
+book-faithful candidate model. Any decision-active implementation change must
+create a new model version and a fresh prospective registration.
+
+QA4 does not define new weights or thresholds, does not promote indicators to
+production, does not run a performance backtest, and does not change dashboard
+or resolver behavior. QA5 is the next allowed phase; real backtest progression
+and Phase 9B1 remain blocked.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

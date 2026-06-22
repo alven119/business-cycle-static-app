@@ -3,6 +3,7 @@ from __future__ import annotations
 from business_cycle.audits.scenario_temporal_eligibility import (
     summarize_scenario_temporal_eligibility,
 )
+from business_cycle.audits.scenario_exposure import summarize_scenario_exposure_registry
 
 
 def test_temporal_methodological_and_final_eligibility_are_separate() -> None:
@@ -15,3 +16,12 @@ def test_temporal_methodological_and_final_eligibility_are_separate() -> None:
     assert summary["final_performance_backtest_eligible_scenario_count"] == 0
     assert summary["ambiguous_eligibility_field_count"] == 0
     assert summary["unscoped_performance_flag_count"] == 0
+
+
+def test_qa3_exposure_keeps_temporal_completeness_separate_from_validation() -> None:
+    exposure = summarize_scenario_exposure_registry()
+
+    assert exposure["previously_seen_scenario_count"] == 5
+    assert exposure["development_scenario_count"] == 5
+    assert exposure["independent_validation_scenario_count"] == 0
+    assert exposure["untouched_holdout_scenario_count"] == 0

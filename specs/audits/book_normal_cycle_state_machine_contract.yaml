@@ -1,0 +1,30 @@
+book_normal_cycle_state_machine_contract:
+  version: 1
+  phase: QA4
+  scope: proposed_data_only_normal_cycle_model
+  normal_sequence:
+    - recession -> recovery
+    - recovery -> growth
+    - growth -> boom
+    - boom -> recession
+  book_normal_rules:
+    no_skip: true
+    no_reverse: true
+    no_omitted_phase: true
+    duration_not_predefined: true
+    strength_not_predefined: true
+    objective_data_determines_transition: true
+  separated_from:
+    - model hysteresis
+    - transition confirmation
+    - model-generated previous phase
+    - external prior
+    - shock overlay
+    - portfolio boom-year allocation schedule
+  hard_gate_counts:
+    phase_duration_hardcoded_count: 0
+    boom_year_schedule_used_as_phase_transition_count: 0
+    external_context_in_normal_state_machine_count: 0
+    display_hint_in_normal_state_machine_count: 0
+    normal_sequence_violation_count: 0
+

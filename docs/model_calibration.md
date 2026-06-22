@@ -1014,3 +1014,44 @@ The QA2 data-only resolver path is structurally validated against context and
 display-hint mutation. That does not validate economic accuracy and does not
 authorize calibration, production resolver changes, dashboard behavior changes,
 book benchmark execution, or real backtest progression.
+
+## QA3 Calibration Integrity and Freeze
+
+QA3 is governance, not calibration. It inventories current parameters and
+records whether their selection basis is book-derived, domain-prior,
+engineering-default, or selected after scenario results were observed.
+Parameters selected after result observation are explicitly marked contaminated
+for future independent validation.
+
+The current data-only baseline is frozen as `data_only_baseline_v1`. This freeze
+records source/spec hashes and parameter manifest hash so future diagnostics can
+detect silent model drift. The freeze does not assert economic validity.
+
+The five known scenarios remain development and diagnostics only. They have been
+used in diagnostics, acceptance reviews, sensitivity work, documents, or tests,
+so they cannot be promoted into final holdout evidence. Prospective holdout must
+begin after the freeze, and any parameter or decision-source change resets that
+holdout.
+
+Production context dependency has been measured and classified as
+`phase_selection`; QA3 preserves production defaults and does not remove context.
+Data-only shadow diagnostics compare frozen data-only output with production,
+but they do not tune parameters or compute performance. QA4 will address book
+fidelity remediation and formal model scope freeze. Phase 9B1 remains blocked.
+
+## QA4 Formal Scope Freeze
+
+QA4 separates the QA3 research baseline from a future book-faithful candidate
+model. `data_only_baseline_v1` is a structural comparison baseline only:
+economic validation is still false, book fidelity is incomplete, and future
+observations from that baseline do not transfer into a later candidate model.
+
+`book_faithful_scope_v1` freezes scope, not decision parameters. It defines the
+required book-core roles, normal-cycle rule, shock/regime separation, portfolio
+rule boundary, indicator promotion gate, and unresolved gaps. It does not set
+new weights, tune thresholds, inspect candidate holdout results, or change
+production behavior.
+
+Modern extensions remain labeled as modern extensions. They may support
+research and early warning, but they cannot be used to claim that missing
+book-core roles are ready.

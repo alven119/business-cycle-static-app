@@ -1,0 +1,21 @@
+formal_indicator_scope_matrix:
+  version: 1
+  phase: QA4
+  source_inventory: src/business_cycle/audits/repository_inventory.py
+  book_indicator_coverage_path: specs/audits/book_indicator_coverage.yaml
+  required_existing_indicator_count: 38
+  classification_policy:
+    include_all_existing_indicators: true
+    include_missing_book_core_roles: true
+    new_weights_defined_in_qa4: false
+    threshold_changes_defined_in_qa4: false
+    silent_substitution_allowed: false
+  allowed_scope_classifications:
+    - current_formal_v1
+    - retain_in_proposed_v2
+    - demote_to_supporting
+    - retain_as_modern_extension
+    - experimental_candidate_for_v2
+    - missing_book_core_role
+    - excluded_from_formal_scope
+

@@ -1,0 +1,134 @@
+formal_model_layer_architecture:
+  version: 1
+  phase: QA4
+  layers:
+    - layer_id: normal_cycle_phase_model
+      objective: classify recession/recovery/growth/boom from book-core phase evidence
+      allowed_inputs:
+        - book-core phase evidence
+        - model-generated state history
+        - normal-cycle sequence contract
+      prohibited_inputs:
+        - external context prior
+        - display hint
+        - portfolio policy output
+      allowed_outputs:
+        - phase scores
+        - candidate phase
+        - current phase
+        - decision status
+        - confidence
+      prohibited_outputs:
+        - portfolio action
+        - live allocation
+        - trade signal
+      current_status: production_v1_book_informed_with_known_context_dependency
+      production_status: production_v1_preserved
+      book_fidelity_role: core_phase_model
+      modern_extension_role: none
+      dependency_layers: []
+      may_change_formal_phase: true
+      may_change_portfolio_policy: false
+      live_decision_allowed: false
+    - layer_id: transition_evidence_layer
+      objective: track boom-ending, recession confirmation, and recovery watch evidence
+      allowed_inputs:
+        - formal phase scores
+        - candidate transition evidence
+        - model-generated state history
+      prohibited_inputs:
+        - portfolio policy output
+        - live allocation target
+      allowed_outputs:
+        - transition watch
+        - transition confirmation evidence
+        - attribution
+      prohibited_outputs:
+        - formal phase override
+        - trade signal
+      current_status: experimental
+      production_status: not_decision_active_for_production_default
+      book_fidelity_role: supporting_transition_evidence
+      modern_extension_role: candidate_refinements
+      dependency_layers:
+        - normal_cycle_phase_model
+      may_change_formal_phase: false
+      may_change_portfolio_policy: false
+      live_decision_allowed: false
+    - layer_id: exogenous_shock_overlay
+      objective: identify COVID-like non-normal shocks without rewriting normal-cycle rules
+      allowed_inputs:
+        - shock evidence
+        - normalization review evidence
+        - caveat metadata
+      prohibited_inputs:
+        - scenario-name branching
+        - portfolio policy output
+      allowed_outputs:
+        - temporary shock state
+        - emergency transition watch
+        - normalization review flag
+      prohibited_outputs:
+        - direct formal phase override
+        - direct portfolio action
+      current_status: scope_defined_not_runtime_ready
+      production_status: not_production_active
+      book_fidelity_role: separate_from_book_normal_cycle
+      modern_extension_role: shock_exception_overlay
+      dependency_layers:
+        - normal_cycle_phase_model
+      may_change_formal_phase: false
+      may_change_portfolio_policy: false
+      live_decision_allowed: false
+    - layer_id: secular_regime_layer
+      objective: distinguish productivity-driven, inflation-driven, and mixed regimes
+      allowed_inputs:
+        - productivity evidence
+        - potential GDP evidence
+        - inflation evidence
+        - commodity trends
+        - business investment evidence
+      prohibited_inputs:
+        - single-indicator regime classification
+        - phase score feedback
+      allowed_outputs:
+        - regime evidence
+        - future asset-policy research input
+      prohibited_outputs:
+        - phase score component
+        - live allocation
+      current_status: scope_defined_not_runtime_ready
+      production_status: not_production_active
+      book_fidelity_role: long_cycle_regime_scope
+      modern_extension_role: future_research_evidence
+      dependency_layers: []
+      may_change_formal_phase: false
+      may_change_portfolio_policy: true
+      live_decision_allowed: false
+    - layer_id: portfolio_policy_layer
+      objective: research book portfolio rules from formal phase and regime inputs
+      allowed_inputs:
+        - formal phase output
+        - regime research output
+        - benchmark portfolio rule scope
+      prohibited_inputs:
+        - live holdings
+        - production resolver internals
+      allowed_outputs:
+        - backtest-only policy template
+        - benchmark reproduction contract
+      prohibited_outputs:
+        - phase decision feedback
+        - live allocation
+        - trade signal
+      current_status: research_contract_only
+      production_status: not_production_active
+      book_fidelity_role: book_portfolio_rule_scope
+      modern_extension_role: cashflow_aware_methodology
+      dependency_layers:
+        - normal_cycle_phase_model
+        - secular_regime_layer
+      may_change_formal_phase: false
+      may_change_portfolio_policy: true
+      live_decision_allowed: false
+

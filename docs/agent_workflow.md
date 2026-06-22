@@ -92,3 +92,16 @@ grep -R "FRED_API_KEY" . --exclude-dir=.git --exclude-dir=.venv --exclude-dir=__
 ## Caveat
 
 本專案所有 backtest、diagnostics、overlay、guardrails 與 strategy-research output 都是模型診斷與研究材料，不構成投資建議。
+
+## QA4 Scope-Governance Gates
+
+QA4 tasks must preserve production defaults while defining formal scope. Agents
+may add audit specs, scope contracts, documentation, and tests, but must not
+change formal phase weights, thresholds, resolver behavior, dashboard behavior,
+or production context handling.
+
+QA4 completion requires the formal layer architecture, book-faithful scope
+contract, indicator matrix, promotion gate, v1/v2 scope diff, and scope freeze
+to pass. The expected closure keeps `book_faithful_scope_complete=false`,
+`proposed_v2_implemented=false`, `proposed_v2_holdout_registered=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.

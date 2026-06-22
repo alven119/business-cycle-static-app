@@ -1,0 +1,18 @@
+exogenous_shock_overlay_scope:
+  version: 1
+  phase: QA4
+  status_states:
+    - normal_cycle
+    - exogenous_shock_detected
+    - emergency_transition_watch
+    - temporary_shock_state
+    - normalization_review
+  overlay_classification: modern_extension
+  formal_runtime_ready: false
+  rules:
+    does_not_rewrite_book_normal_sequence: true
+    direct_phase_override_allowed: false
+    direct_portfolio_action_allowed: false
+    covid_specific_general_rule_allowed: false
+    requires_evidence_caveat_and_review: true
+

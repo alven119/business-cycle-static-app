@@ -24,3 +24,15 @@ production resolver/dashboard defaults.
 External context dependency in production may be detected and reported. The
 data-only model remains economically unvalidated, and real backtest progression
 and Phase 9B1 remain blocked.
+
+## QA3 Follow-Up Boundary
+
+QA3 records the detected production context dependency as a known material
+`phase_selection` dependency. It preserves production default behavior and does
+not remove the context prior.
+
+The data-only path remains structurally validated only. The five existing
+scenarios are all development and diagnostics scenarios, not final validation or
+holdout evidence. QA3 freezes the current data-only baseline and registers a
+prospective holdout protocol that starts only after the freeze. Any future
+parameter or decision-source change resets that holdout.

@@ -1,0 +1,41 @@
+qa4_book_fidelity_scope_closure:
+  version: 1
+  phase: QA4
+  expected_status:
+    freeze_holdout_semantics_ready: true
+    formal_model_layer_architecture_ready: true
+    book_faithful_scope_contract_ready: true
+    indicator_scope_matrix_ready: true
+    recovery_scope_ready: true
+    growth_scope_ready: true
+    boom_scope_ready: true
+    recession_trough_scope_ready: true
+    normal_cycle_contract_ready: true
+    shock_overlay_scope_ready: true
+    secular_regime_scope_ready: true
+    book_portfolio_rule_scope_ready: true
+    indicator_promotion_gate_ready: true
+    formal_scope_diff_ready: true
+    formal_scope_freeze_ready: true
+    documentation_claims_remediated: true
+    book_faithful_scope_complete: false
+    minimum_book_fidelity_ready: false
+    complete_book_fidelity_ready: false
+    production_v1_book_alignment_claim_allowed: false
+    proposed_v2_implemented: false
+    proposed_v2_economically_validated: false
+    proposed_v2_holdout_registered: false
+    production_behavior_change_count: 0
+    parameter_tuning_executed: false
+    scoring_weight_change_count: 0
+    threshold_change_count: 0
+    production_resolver_changed: false
+    production_dashboard_changed: false
+    performance_backtest_executed: false
+    qa5_allowed: true
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_phase: QA5
+    qa4_closure_status: closed_formal_scope_defined_not_implemented
+    recommended_next_phase_title: Book-Core Indicator Data Contracts and Shadow Formal Model Implementation
+

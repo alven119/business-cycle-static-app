@@ -1,0 +1,131 @@
+scenario_exposure_registry:
+  version: 1
+  phase: QA3
+  scenarios:
+    - scenario_id: dotcom_bubble
+      source_path: specs/backtests/scenarios.yaml
+      first_seen_phase: Phase 6A
+      first_seen_commit_if_available: 4aca665
+      first_result_observed_phase: Phase 6B-6F
+      used_in_diagnostics: true
+      used_in_threshold_selection: true
+      used_in_weight_selection: false
+      used_in_acceptance_gate_design: true
+      used_in_false_positive_analysis: true
+      used_in_docs: true
+      used_in_tests: true
+      result_seen_before_current_model_freeze: true
+      previously_seen: true
+      methodological_role: development_and_diagnostics
+      temporal_tier: strict_partial
+      eligible_for_development: true
+      eligible_for_internal_robustness: true
+      eligible_for_independent_validation: false
+      eligible_for_untouched_holdout: false
+      eligible_for_performance_claim: false
+      contamination_reasons:
+        - used_in_diagnostics
+        - used_in_acceptance_gate_design
+        - used_in_rule_refinement
+    - scenario_id: global_financial_crisis
+      source_path: specs/backtests/scenarios.yaml
+      first_seen_phase: Phase 6A
+      first_seen_commit_if_available: 4aca665
+      first_result_observed_phase: Phase 6B-6F
+      used_in_diagnostics: true
+      used_in_threshold_selection: true
+      used_in_weight_selection: false
+      used_in_acceptance_gate_design: true
+      used_in_false_positive_analysis: true
+      used_in_docs: true
+      used_in_tests: true
+      result_seen_before_current_model_freeze: true
+      previously_seen: true
+      methodological_role: development_and_diagnostics
+      temporal_tier: strict_partial
+      eligible_for_development: true
+      eligible_for_internal_robustness: true
+      eligible_for_independent_validation: false
+      eligible_for_untouched_holdout: false
+      eligible_for_performance_claim: false
+      contamination_reasons:
+        - used_in_diagnostics
+        - used_in_acceptance_gate_design
+        - used_in_rule_refinement
+    - scenario_id: covid_recession
+      source_path: specs/backtests/scenarios.yaml
+      first_seen_phase: Phase 6A
+      first_seen_commit_if_available: 4aca665
+      first_result_observed_phase: Phase 6B-6F
+      used_in_diagnostics: true
+      used_in_threshold_selection: true
+      used_in_weight_selection: false
+      used_in_acceptance_gate_design: true
+      used_in_false_positive_analysis: true
+      used_in_docs: true
+      used_in_tests: true
+      result_seen_before_current_model_freeze: true
+      previously_seen: true
+      methodological_role: development_and_diagnostics
+      temporal_tier: strict_complete
+      eligible_for_development: true
+      eligible_for_internal_robustness: true
+      eligible_for_independent_validation: false
+      eligible_for_untouched_holdout: false
+      eligible_for_performance_claim: false
+      contamination_reasons:
+        - used_in_diagnostics
+        - used_in_acceptance_gate_design
+        - used_in_false_positive_analysis
+        - used_in_rule_refinement
+    - scenario_id: euro_debt_slowdown
+      source_path: specs/backtests/scenarios.yaml
+      first_seen_phase: Phase 6A
+      first_seen_commit_if_available: 4aca665
+      first_result_observed_phase: Phase 6B-6F
+      used_in_diagnostics: true
+      used_in_threshold_selection: true
+      used_in_weight_selection: false
+      used_in_acceptance_gate_design: true
+      used_in_false_positive_analysis: true
+      used_in_docs: true
+      used_in_tests: true
+      result_seen_before_current_model_freeze: true
+      previously_seen: true
+      methodological_role: development_and_diagnostics
+      temporal_tier: strict_partial
+      eligible_for_development: true
+      eligible_for_internal_robustness: true
+      eligible_for_independent_validation: false
+      eligible_for_untouched_holdout: false
+      eligible_for_performance_claim: false
+      contamination_reasons:
+        - used_in_diagnostics
+        - used_in_acceptance_gate_design
+        - used_in_false_positive_analysis
+    - scenario_id: late_cycle_2018
+      source_path: specs/backtests/scenarios.yaml
+      first_seen_phase: Phase 6A
+      first_seen_commit_if_available: 4aca665
+      first_result_observed_phase: Phase 6B-6F
+      used_in_diagnostics: true
+      used_in_threshold_selection: true
+      used_in_weight_selection: false
+      used_in_acceptance_gate_design: true
+      used_in_false_positive_analysis: true
+      used_in_docs: true
+      used_in_tests: true
+      result_seen_before_current_model_freeze: true
+      previously_seen: true
+      methodological_role: development_and_diagnostics
+      temporal_tier: strict_complete
+      eligible_for_development: true
+      eligible_for_internal_robustness: true
+      eligible_for_independent_validation: false
+      eligible_for_untouched_holdout: false
+      eligible_for_performance_claim: false
+      contamination_reasons:
+        - used_in_diagnostics
+        - used_in_acceptance_gate_design
+        - used_in_false_positive_analysis
+        - used_in_rule_refinement

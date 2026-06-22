@@ -1,0 +1,39 @@
+indicator_promotion_gate:
+  version: 1
+  phase: QA4
+  required_checks:
+    - economic concept matches formal role
+    - book provenance classified
+    - series identity verified
+    - units verified
+    - seasonal-adjustment verified
+    - transformation defined
+    - directionality defined
+    - publication lag defined
+    - temporal data mode defined
+    - strict/revised behavior defined
+    - missing-data behavior defined
+    - attribution metadata defined
+    - no duplicate economic concept
+    - no silent substitution
+    - parameter provenance complete
+    - parameter contamination disclosed
+    - no scenario-specific hardcoding
+    - shadow evaluation available
+    - independent validation status disclosed
+    - production migration separately approved
+  allowed_statuses:
+    - not_candidate
+    - candidate_spec_only
+    - experimental_ready
+    - blocked_temporal_data
+    - blocked_economic_equivalence
+    - blocked_parameter_contamination
+    - blocked_independent_validation
+    - ready_for_shadow_formal_model
+    - ready_for_production_review
+  qa4_policy:
+    new_production_promotion_allowed: false
+    contaminated_promotion_requires_disclosure: true
+    silent_substitution_allowed: false
+

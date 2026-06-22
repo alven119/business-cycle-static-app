@@ -1,0 +1,28 @@
+book_faithful_formal_model_scope:
+  version: 1
+  phase: QA4
+  scope_id: book_faithful_scope_v1
+  source_requirement_manifest_path: specs/audits/canonical_book_requirement_manifest.yaml
+  traceability_path: specs/audits/book_method_traceability.yaml
+  indicator_coverage_path: specs/audits/book_indicator_coverage.yaml
+  generation_policy:
+    one_scope_item_per_canonical_requirement: true
+    every_book_core_requirement_required: true
+    missing_book_core_roles_remain_missing: true
+    modern_extensions_may_not_replace_book_core: true
+    candidate_specs_do_not_count_as_formal_ready: true
+  minimum_book_fidelity_policy:
+    ready_statuses:
+      - formal_v1
+    blocked_statuses:
+      - experimental
+      - spec_only
+      - missing
+      - conflicting
+      - modern_substitute
+  proposed_v2_status:
+    implementation_status: scope_defined_not_implemented
+    parameter_freeze_status: not_frozen
+    economic_validation_status: not_started
+    holdout_status: not_registered_for_candidate_model
+

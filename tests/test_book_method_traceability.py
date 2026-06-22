@@ -53,3 +53,16 @@ def test_traceability_has_no_unknown_canonical_requirement_ids() -> None:
     trace_ids = {row["requirement_id"] for row in rows}
 
     assert trace_ids == manifest_ids
+
+
+def test_qa4_scope_preserves_traceability_gap_statuses() -> None:
+    from business_cycle.audits.book_faithful_scope import (
+        summarize_book_faithful_formal_model_scope,
+    )
+
+    summary = summarize_book_faithful_formal_model_scope()
+
+    assert summary["book_core_scope_item_count"] == 77
+    assert summary["missing_scope_item_count"] > 0
+    assert summary["conflicting_scope_item_count"] > 0
+    assert summary["book_faithful_scope_complete"] is False

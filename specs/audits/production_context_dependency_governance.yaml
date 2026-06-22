@@ -1,0 +1,19 @@
+production_context_dependency_governance:
+  version: 1
+  phase: QA3
+  dependency_status: known_material
+  dependency_classification: phase_selection
+  production_context_dependency_case_count: 556
+  maximum_confidence_delta: 0.05
+  data_only_shadow_available: true
+  production_default_preserved: true
+  production_context_decoupling_allowed_now: false
+  required_before_decoupling:
+    - formal model scope frozen
+    - data-only economic validation
+    - independent validation
+    - holdout protocol active
+    - display provenance ready
+    - production migration plan
+  context_prior_influence_must_be_disclosed: true
+  context_derived_output_must_not_be_labeled_data_only: true

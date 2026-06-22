@@ -1,0 +1,25 @@
+secular_regime_formal_scope:
+  version: 1
+  phase: QA4
+  regimes:
+    - productivity_driven
+    - inflation_driven
+    - mixed_or_uncertain
+  candidate_evidence:
+    - labor_productivity
+    - potential_gdp
+    - core_and_headline_inflation
+    - commodity_trends
+    - business_technology_investment
+    - real_asset_trends
+  asset_policy_implications:
+    - equities
+    - commodities
+    - gold
+    - real_estate
+    - long_duration_treasuries
+  formal_runtime_ready: false
+  phase_score_integration_allowed: false
+  portfolio_research_input_allowed: true
+  live_allocation_allowed: false
+

@@ -769,3 +769,20 @@ Prototype 可在 memory 中計算 controlled fixture arithmetic metrics，包含
 - 新指標必須保留中文 reason、資料 freshness、confidence 與 phase impact。
 
 本計畫使用 revised data 作為第一版診斷基礎，不等同當時投資人可見資料。所有內容僅供模型校準與總經研究，不構成投資建議。
+
+## QA4 Scope Update
+
+QA4 turns the book-aligned implementation plan into an explicit scope contract.
+The future book-faithful candidate model must preserve independent roles for
+recovery, growth, boom, recession confirmation, trough, regime, and portfolio
+rules. Candidate specs and experimental diagnostics do not count as formal
+completion.
+
+Missing book-core roles remain blockers. Modern extensions such as yield curve,
+credit spread, financial conditions, policy rate, mortgage-rate pressure, and
+oil pressure remain separate support evidence and cannot replace book-core
+requirements.
+
+QA4 does not tune parameters or activate the proposed v2 model. QA5 must handle
+book-core data contracts and shadow formal implementation before any candidate
+model version can be frozen.

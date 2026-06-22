@@ -1,0 +1,151 @@
+model_parameter_registry:
+  version: 1
+  phase: QA3
+  freeze_scope: data_only_baseline_v1
+  objective: >
+    Registry rules for the QA3 model-parameter inventory. The inventory is
+    discovered from tracked model specs and decision source code, then
+    classified by source path and key path.
+  current_scenarios:
+    - dotcom_bubble
+    - global_financial_crisis
+    - covid_recession
+    - euro_debt_slowdown
+    - late_cycle_2018
+  registered_source_paths:
+    - specs/indicator_catalog.yaml
+    - specs/phases/boom.yaml
+    - specs/phases/growth.yaml
+    - specs/phases/recession.yaml
+    - specs/phases/recovery.yaml
+    - specs/common/current_cycle_context.yaml
+    - specs/common/phase_state_machine.yaml
+    - specs/backtests/breadth_sensitivity_matrix.yaml
+    - specs/backtests/calibration_acceptance_windows.yaml
+    - specs/backtests/candidate_recession_confirmation_rule.yaml
+    - specs/backtests/candidate_recession_overlay_experiment.yaml
+    - specs/backtests/boom_ending_scoring_refinement_experiment.yaml
+    - specs/backtests/boom_ending_watch_rule.yaml
+    - specs/backtests/boom_ending_watch_overlay_experiment.yaml
+    - specs/backtests/recovery_scoring_refinement_experiment.yaml
+    - specs/backtests/recovery_watch_rule.yaml
+    - specs/backtests/recovery_watch_overlay_experiment.yaml
+    - specs/backtests/transition_controls_enabled_experiment.yaml
+    - specs/backtests/transition_controls_experiment.yaml
+    - specs/backtests/transition_controls_recession_breadth_experiment.yaml
+    - specs/portfolio/portfolio_policy_research_plan.yaml
+    - specs/portfolio/portfolio_policy_template_schema.yaml
+    - src/business_cycle/backtests/boom_ending_watch_rule.py
+    - src/business_cycle/backtests/candidate_recession_rule.py
+    - src/business_cycle/backtests/recovery_watch_rule.py
+    - src/business_cycle/indicators/experimental.py
+    - src/business_cycle/indicators/scoring.py
+    - src/business_cycle/indicators/transformations.py
+    - src/business_cycle/phases/data_only_resolver.py
+    - src/business_cycle/phases/scoring.py
+    - src/business_cycle/phases/state_machine.py
+    - src/business_cycle/phases/transition_controls.py
+  excluded_parameter_paths:
+    - docs/
+    - tests/
+    - public/
+    - data/
+    - specs/backtests/scenarios.yaml
+    - specs/portfolio/portfolio_policy_template_fixtures.yaml
+  required_parameter_ids: []
+  source_classification:
+    formal_indicator:
+      path_prefixes:
+        - specs/indicator_catalog.yaml
+        - src/business_cycle/indicators/scoring.py
+        - src/business_cycle/indicators/transformations.py
+      formal_or_experimental: formal
+      production_or_research: production
+      book_provenance_class: book_supporting
+      selection_basis: economic_domain_prior
+      first_introduced_phase: Phase 2B-2D
+      first_introduced_commit_if_available: 8178fd4
+    phase_scoring:
+      path_prefixes:
+        - specs/phases/
+        - src/business_cycle/phases/scoring.py
+      formal_or_experimental: formal
+      production_or_research: production
+      book_provenance_class: modern_extension
+      selection_basis: economic_domain_prior
+      first_introduced_phase: Phase 3A-3E
+      first_introduced_commit_if_available: 8105814
+    state_machine:
+      path_prefixes:
+        - specs/common/phase_state_machine.yaml
+        - src/business_cycle/phases/state_machine.py
+        - src/business_cycle/phases/data_only_resolver.py
+      formal_or_experimental: formal
+      production_or_research: production
+      book_provenance_class: project_safety
+      selection_basis: engineering_default
+      first_introduced_phase: Phase 4A / QA2
+      first_introduced_commit_if_available: 0d1aafd
+    production_context:
+      path_prefixes:
+        - specs/common/current_cycle_context.yaml
+      formal_or_experimental: formal
+      production_or_research: production
+      book_provenance_class: project_safety
+      selection_basis: engineering_default
+      first_introduced_phase: Phase 4C
+      first_introduced_commit_if_available: 51823d7
+    transition_control:
+      path_prefixes:
+        - specs/backtests/transition_controls_
+        - src/business_cycle/phases/transition_controls.py
+      formal_or_experimental: experimental
+      production_or_research: research
+      book_provenance_class: project_safety
+      selection_basis: calibrated_after_result_observation
+      first_introduced_phase: Phase 7B-7E
+      first_introduced_commit_if_available: e19c036
+    experimental_rule:
+      path_prefixes:
+        - specs/backtests/candidate_recession
+        - specs/backtests/boom_ending
+        - specs/backtests/recovery_
+        - specs/backtests/breadth_sensitivity_matrix.yaml
+        - src/business_cycle/backtests/
+        - src/business_cycle/indicators/experimental.py
+      formal_or_experimental: experimental
+      production_or_research: research
+      book_provenance_class: modern_extension
+      selection_basis: calibrated_after_result_observation
+      first_introduced_phase: Phase 7F-7G
+      first_introduced_commit_if_available: d19287e
+    calibration_acceptance:
+      path_prefixes:
+        - specs/backtests/calibration_acceptance_windows.yaml
+      formal_or_experimental: experimental
+      production_or_research: research
+      book_provenance_class: project_safety
+      selection_basis: calibrated_after_result_observation
+      first_introduced_phase: Phase 7C.1
+      first_introduced_commit_if_available: abfc15c
+    portfolio_research:
+      path_prefixes:
+        - specs/portfolio/
+      formal_or_experimental: experimental
+      production_or_research: research
+      book_provenance_class: book_core
+      selection_basis: explicit_book_rule
+      first_introduced_phase: Phase 8A-8B
+      first_introduced_commit_if_available: 3a1e5fc
+  contaminated_selection_basis:
+    - calibrated_after_result_observation
+  contaminated_scenarios:
+    - dotcom_bubble
+    - global_financial_crisis
+    - covid_recession
+    - euro_debt_slowdown
+    - late_cycle_2018
+  hard_gates:
+    unclassified_parameter_count: 0
+    duplicate_parameter_id_count: 0
+    orphaned_parameter_path_count: 0
