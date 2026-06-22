@@ -1,0 +1,14 @@
+qa2_context_ablation_closure:
+  version: 1
+  prohibited_actions:
+    performance_backtest_executed: false
+    parameter_calibration_executed: false
+    scoring_weights_changed: false
+    resolver_default_changed: false
+    dashboard_default_changed: false
+  expected_status:
+    data_only_model_economically_validated: false
+    real_backtest_progression_allowed: false
+    phase_9b1_allowed: false
+    recommended_next_phase: QA3
+    qa2_closure_status: closed_context_dependency_measured

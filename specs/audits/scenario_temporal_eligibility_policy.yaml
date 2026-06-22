@@ -1,15 +1,30 @@
 scenario_temporal_eligibility_policy:
   version: 1
   rules:
-    calibration_requires: strict_complete
-    validation_requires: strict_complete
+    temporal_parameter_calibration_requires: strict_complete
+    temporal_validation_requires: strict_complete
+    temporal_performance_backtest_requires: strict_complete
+    final_parameter_calibration_requires:
+      - temporal_parameter_calibration
+      - methodologically_eligible
+      - project_calibration_gate_open
+    final_validation_requires:
+      - temporal_validation
+      - methodologically_eligible
+      - not_previously_seen_as_validation
     untouched_holdout_requires:
       - strict_complete
       - not_previously_seen
-    historical_performance_backtest_requires: strict_complete
+      - parameter_freeze
+    historical_performance_backtest_requires:
+      - temporal_performance_backtest
+      - methodologically_eligible
+      - market_return_contract
     book_benchmark_reproduction_allowed: false
     context_ablation_allowed_tiers:
       - strict_complete
       - strict_partial
     revised_diagnostics_allowed: true
     silent_horizon_reduction_allowed: false
+    all_current_scenarios_previously_seen: true
+    ambiguous_unscoped_eligibility_fields_allowed: false

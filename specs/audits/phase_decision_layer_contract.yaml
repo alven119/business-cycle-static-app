@@ -1,0 +1,34 @@
+phase_decision_layer_contract:
+  version: 1
+  layers:
+    - layer_id: raw_phase_scores
+      description: Four phase scores before sequence constraints.
+      allows_external_context: false
+      allows_display_hint: false
+      provenance_complete: true
+    - layer_id: score_only_candidate
+      description: Highest-score candidate without sequence constraints.
+      allows_external_context: false
+      allows_display_hint: false
+      provenance_complete: true
+    - layer_id: sequence_constrained_data_only_decision
+      description: Score plus model state history and state-machine rules.
+      allows_external_context: false
+      allows_display_hint: false
+      provenance_complete: true
+    - layer_id: context_prior_counterfactual_decision
+      description: Diagnostic counterfactual that explicitly receives external context.
+      allows_external_context: true
+      allows_display_hint: false
+      provenance_complete: true
+    - layer_id: production_final_decision
+      description: Existing production wrapper; behavior preserved in QA2.
+      allows_external_context: true
+      allows_display_hint: false
+      provenance_complete: true
+    - layer_id: display_stage_hint
+      description: Display-only stage text with no decision impact.
+      allows_external_context: true
+      allows_display_hint: true
+      decision_impact_allowed: false
+      provenance_complete: true

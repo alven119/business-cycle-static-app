@@ -1118,6 +1118,26 @@ or dates with strict-complete temporal evidence. It is not a historical
 performance backtest and it does not authorize portfolio output, book benchmark
 execution, Phase 9B1, scoring-weight calibration, or resolver changes.
 
+## Phase QA2 context ablation
+
+QA2 adds external-context inventory, a decision-layer contract, and a pure
+data-only resolver path for diagnostics. It separates score-only candidates,
+sequence-constrained data-only decisions, context-prior counterfactuals,
+production decisions, and display-stage hints.
+
+QA2 measures whether external cycle context can change the current production
+wrapper, but it does not remove that context from production and does not claim
+economic validation for the data-only path. The data-only path is structurally
+validated: changing external context or display text must not change data-only
+decision fields.
+
+QA2 keeps all methodology blockers in place. It does not run historical
+performance backtests, parameter calibration, untouched holdout validation, book
+benchmark execution, scoring-weight changes, resolver default changes,
+dashboard behavior changes, portfolio output, or trade signals. The next
+allowed phase is QA3, while Phase 9B1 and real backtest progression remain
+blocked.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

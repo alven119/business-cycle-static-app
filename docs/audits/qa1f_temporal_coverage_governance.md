@@ -52,6 +52,16 @@ fixtures or strict-complete dates. QA2 must not run performance backtests, tune
 parameters, execute book benchmarks, generate portfolio results, or alter
 formal scoring weights, resolver behavior, or dashboard defaults.
 
+QA2 must also distinguish temporal eligibility from methodological and final
+eligibility. A strict-complete scenario may be temporally eligible for a future
+calibration study, but the current scenarios have all been repeatedly observed;
+therefore they are not final validation, untouched holdout, or performance
+backtest candidates.
+
+QA2's data-only path is structural. It may prove that external context and
+display-stage text do not alter data-only decisions, but it does not prove that
+the data-only model is economically accurate.
+
 The following remain blocked after QA1F:
 
 - full formal historical coverage

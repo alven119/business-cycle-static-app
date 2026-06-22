@@ -1,0 +1,21 @@
+context_ablation_matrix:
+  version: 1
+  synthetic_cases:
+    - strong_recession_scores
+    - strong_recovery_scores
+    - strong_growth_scores
+    - strong_boom_scores
+    - ambiguous_boom_vs_recession
+    - ambiguous_recession_vs_recovery
+    - low_confidence_all_phases
+    - transition_watch_case
+    - sequence_blocked_case
+  strict_complete_real_date_diagnostics:
+    - scenario_id: covid_recession
+      as_of: 2019-12-31
+    - scenario_id: late_cycle_2018
+      as_of: 2018-12-31
+  prohibited:
+    performance_backtest: true
+    parameter_calibration: true
+    holdout_validation: true

@@ -1000,3 +1000,17 @@ global methodology level. Scenario-level strict completeness is recorded for
 governance, but any future calibration phase must be explicitly authorized and
 must keep the real backtest, book benchmark, dashboard, and portfolio gates
 separate.
+
+## QA2 Context-Ablation Gate
+
+QA2 does not calibrate parameters. It only separates temporal eligibility,
+methodological eligibility, and final eligibility, then measures whether
+external context priors influence phase decisions. Current strict-complete
+scenarios can support structural diagnostics, but all five scenarios have been
+previously inspected, so final validation, untouched holdout, and performance
+backtest eligibility remain zero.
+
+The QA2 data-only resolver path is structurally validated against context and
+display-hint mutation. That does not validate economic accuracy and does not
+authorize calibration, production resolver changes, dashboard behavior changes,
+book benchmark execution, or real backtest progression.

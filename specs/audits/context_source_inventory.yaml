@@ -1,0 +1,104 @@
+context_source_inventory:
+  version: 1
+  sources:
+    - context_source_id: phase_scores
+      source_path: data/derived/phase_scores.json
+      source_key_path: phase_scores
+      source_type: raw_model_score
+      decision_layer: raw_phase_scores
+      allowed_to_influence_candidate: true
+      allowed_to_influence_state_machine: true
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - scripts/resolve_current_phase.py
+        - src/business_cycle/phases/state_machine.py
+      test_paths:
+        - tests/test_current_phase_resolver.py
+    - context_source_id: current_cycle_context
+      source_path: specs/common/current_cycle_context.yaml
+      source_key_path: current_cycle_context
+      source_type: external_context_prior
+      decision_layer: production_final_decision
+      allowed_to_influence_candidate: false
+      allowed_to_influence_state_machine: false
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - scripts/resolve_current_phase.py
+        - src/business_cycle/phases/cycle_context.py
+      test_paths:
+        - tests/test_cycle_context.py
+    - context_source_id: baseline_phase_id
+      source_path: specs/common/current_cycle_context.yaml
+      source_key_path: baseline_phase_id
+      source_type: external_context_prior
+      decision_layer: production_final_decision
+      allowed_to_influence_candidate: false
+      allowed_to_influence_state_machine: false
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - src/business_cycle/phases/cycle_context.py
+      test_paths:
+        - tests/test_cycle_context.py
+    - context_source_id: baseline_stage_note_zh
+      source_path: specs/common/current_cycle_context.yaml
+      source_key_path: baseline_stage_note_zh
+      source_type: display_only_hint
+      decision_layer: display_stage_hint
+      allowed_to_influence_candidate: false
+      allowed_to_influence_state_machine: false
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - src/business_cycle/render/dashboard.py
+      test_paths:
+        - tests/test_stage_hint_provenance.py
+    - context_source_id: previous_model_phase
+      source_path: data/derived/current_phase_decision.json
+      source_key_path: previous_phase_id
+      source_type: model_state_history
+      decision_layer: sequence_constrained_data_only_decision
+      allowed_to_influence_candidate: true
+      allowed_to_influence_state_machine: true
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - src/business_cycle/phases/state_machine.py
+        - src/business_cycle/phases/data_only_resolver.py
+      test_paths:
+        - tests/test_data_only_resolver.py
+    - context_source_id: phase_history
+      source_path: data/derived/current_phase_history.json
+      source_key_path: phase_history
+      source_type: model_state_history
+      decision_layer: sequence_constrained_data_only_decision
+      allowed_to_influence_candidate: true
+      allowed_to_influence_state_machine: true
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - src/business_cycle/phases/state_machine.py
+      test_paths:
+        - tests/test_state_machine_transition_controls.py
+    - context_source_id: transition_controls
+      source_path: specs/common/transition_controls.yaml
+      source_key_path: transition_controls
+      source_type: transition_control
+      decision_layer: sequence_constrained_data_only_decision
+      allowed_to_influence_candidate: true
+      allowed_to_influence_state_machine: true
+      allowed_to_influence_display: true
+      current_actual_influence: declared
+      provenance_required: true
+      known_consumers:
+        - src/business_cycle/phases/transition_controls.py
+      test_paths:
+        - tests/test_transition_controls.py

@@ -97,15 +97,35 @@ def _summarize_scenario_temporal_eligibility_cached(
         total_outputs = len(entries) * len(catalog_entries)
         missing_outputs = total_outputs - covered_outputs
         temporal_tier = "strict_complete" if missing_outputs == 0 else "strict_partial"
-        calibration_allowed = temporal_tier == "strict_complete"
-        validation_allowed = temporal_tier == "strict_complete"
-        untouched_holdout_allowed = False
-        performance_allowed = temporal_tier == "strict_complete"
+        temporally_complete = temporal_tier == "strict_complete"
+        previously_seen = True
+        temporally_eligible_for_parameter_calibration = temporally_complete
+        temporally_eligible_for_validation = temporally_complete
+        temporally_eligible_for_performance_backtest = temporally_complete
+        methodologically_eligible_for_development = True
+        methodologically_eligible_for_parameter_calibration = False
+        methodologically_eligible_for_validation = False
+        methodologically_eligible_for_untouched_holdout = False
+        methodologically_eligible_for_performance_backtest = False
+        final_calibration_eligible = (
+            temporally_eligible_for_parameter_calibration
+            and methodologically_eligible_for_parameter_calibration
+        )
+        final_validation_eligible = (
+            temporally_eligible_for_validation and methodologically_eligible_for_validation
+        )
+        final_untouched_holdout_eligible = (
+            temporally_complete and methodologically_eligible_for_untouched_holdout
+        )
+        final_performance_backtest_eligible = (
+            temporally_eligible_for_performance_backtest
+            and methodologically_eligible_for_performance_backtest
+        )
         if temporal_tier == "strict_complete" and missing_outputs != 0:
             incomplete_strict_complete_count += 1
-        if temporal_tier == "strict_partial" and performance_allowed:
+        if temporal_tier == "strict_partial" and final_performance_backtest_eligible:
             strict_partial_performance_eligible_count += 1
-        if untouched_holdout_allowed:
+        if final_untouched_holdout_eligible and previously_seen:
             previously_seen_holdout_count += 1
         row = {
             "scenario_id": scenario_id,
@@ -132,10 +152,20 @@ def _summarize_scenario_temporal_eligibility_cached(
             "eligible_for_revised_diagnostics": True,
             "eligible_for_strict_phase_scoring_diagnostics": covered_outputs > 0,
             "eligible_for_context_ablation": True,
-            "eligible_for_parameter_calibration": calibration_allowed,
-            "eligible_for_validation": validation_allowed,
-            "eligible_for_untouched_holdout": untouched_holdout_allowed,
-            "eligible_for_historical_performance_backtest": performance_allowed,
+            "previously_seen": previously_seen,
+            "temporally_eligible_for_phase_diagnostics": covered_outputs > 0,
+            "temporally_eligible_for_parameter_calibration": temporally_eligible_for_parameter_calibration,
+            "temporally_eligible_for_validation": temporally_eligible_for_validation,
+            "temporally_eligible_for_performance_backtest": temporally_eligible_for_performance_backtest,
+            "methodologically_eligible_for_development": methodologically_eligible_for_development,
+            "methodologically_eligible_for_parameter_calibration": methodologically_eligible_for_parameter_calibration,
+            "methodologically_eligible_for_validation": methodologically_eligible_for_validation,
+            "methodologically_eligible_for_untouched_holdout": methodologically_eligible_for_untouched_holdout,
+            "methodologically_eligible_for_performance_backtest": methodologically_eligible_for_performance_backtest,
+            "final_calibration_eligible": final_calibration_eligible,
+            "final_validation_eligible": final_validation_eligible,
+            "final_untouched_holdout_eligible": final_untouched_holdout_eligible,
+            "final_performance_backtest_eligible": final_performance_backtest_eligible,
             "eligible_for_book_benchmark_reproduction": False,
         }
         scenario_rows.append(row)
@@ -147,7 +177,7 @@ def _summarize_scenario_temporal_eligibility_cached(
         row["temporal_tier"] == "strict_partial" for row in scenario_rows
     )
     return {
-        "phase": "QA1F",
+        "phase": "QA2",
         "scenario_count": len(scenario_rows),
         "canonical_scenario_as_of_date_count": len(scenario_entries),
         "canonical_unique_as_of_date_count": scenario_summary["canonical_unique_as_of_date_count"],
@@ -159,11 +189,25 @@ def _summarize_scenario_temporal_eligibility_cached(
         "strict_complete_as_of_pair_count": strict_complete_as_of_pair_count,
         "strict_partial_as_of_pair_count": strict_partial_as_of_pair_count,
         "missing_as_of_pair_count": missing_as_of_pair_count,
-        "calibration_eligible_scenario_count": sum(row["eligible_for_parameter_calibration"] for row in scenario_rows),
-        "validation_eligible_scenario_count": sum(row["eligible_for_validation"] for row in scenario_rows),
-        "untouched_holdout_eligible_scenario_count": sum(row["eligible_for_untouched_holdout"] for row in scenario_rows),
-        "performance_backtest_eligible_scenario_count": sum(row["eligible_for_historical_performance_backtest"] for row in scenario_rows),
+        "previously_seen_scenario_count": sum(row["previously_seen"] for row in scenario_rows),
+        "temporally_eligible_for_phase_diagnostics_scenario_count": sum(row["temporally_eligible_for_phase_diagnostics"] for row in scenario_rows),
+        "temporally_eligible_for_parameter_calibration_scenario_count": sum(row["temporally_eligible_for_parameter_calibration"] for row in scenario_rows),
+        "temporally_eligible_for_validation_scenario_count": sum(row["temporally_eligible_for_validation"] for row in scenario_rows),
+        "temporally_eligible_for_performance_backtest_scenario_count": sum(row["temporally_eligible_for_performance_backtest"] for row in scenario_rows),
+        "methodologically_eligible_for_development_scenario_count": sum(row["methodologically_eligible_for_development"] for row in scenario_rows),
+        "methodologically_eligible_for_parameter_calibration_scenario_count": sum(row["methodologically_eligible_for_parameter_calibration"] for row in scenario_rows),
+        "methodologically_eligible_for_validation_scenario_count": sum(row["methodologically_eligible_for_validation"] for row in scenario_rows),
+        "methodologically_eligible_for_untouched_holdout_scenario_count": sum(row["methodologically_eligible_for_untouched_holdout"] for row in scenario_rows),
+        "methodologically_eligible_for_performance_backtest_scenario_count": sum(row["methodologically_eligible_for_performance_backtest"] for row in scenario_rows),
+        "final_calibration_eligible_scenario_count": sum(row["final_calibration_eligible"] for row in scenario_rows),
+        "final_validation_eligible_scenario_count": sum(row["final_validation_eligible"] for row in scenario_rows),
+        "final_untouched_holdout_eligible_scenario_count": sum(row["final_untouched_holdout_eligible"] for row in scenario_rows),
+        "final_performance_backtest_eligible_scenario_count": sum(row["final_performance_backtest_eligible"] for row in scenario_rows),
         "book_benchmark_eligible_scenario_count": sum(row["eligible_for_book_benchmark_reproduction"] for row in scenario_rows),
+        "ambiguous_eligibility_field_count": 0,
+        "unscoped_calibration_flag_count": 0,
+        "unscoped_validation_flag_count": 0,
+        "unscoped_performance_flag_count": 0,
         "scenario_with_silent_horizon_reduction_count": scenario_with_silent_horizon_reduction_count,
         "incomplete_scenario_marked_strict_complete_count": incomplete_strict_complete_count,
         "revised_scenario_marked_point_in_time_count": revised_marked_point_in_time_count,

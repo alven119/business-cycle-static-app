@@ -17,7 +17,8 @@ temporal_eligibility_contract:
         - book benchmark remains separately blocked until book alignment is complete
       fallback_allowed: false
       performance_claim_allowed: true
-      calibration_allowed: true
+      temporal_calibration_allowed: true
+      final_calibration_allowed: false
       holdout_allowed: true
       book_benchmark_allowed: false
     - tier_id: strict_partial
@@ -36,7 +37,8 @@ temporal_eligibility_contract:
         - incomplete strict coverage; abstain on missing temporal evidence
       fallback_allowed: false
       performance_claim_allowed: false
-      calibration_allowed: false
+      temporal_calibration_allowed: false
+      final_calibration_allowed: false
       holdout_allowed: false
       book_benchmark_allowed: false
     - tier_id: revised_diagnostic_only
@@ -55,7 +57,8 @@ temporal_eligibility_contract:
         - revised data is not point-in-time
       fallback_allowed: false
       performance_claim_allowed: false
-      calibration_allowed: false
+      temporal_calibration_allowed: false
+      final_calibration_allowed: false
       holdout_allowed: false
       book_benchmark_allowed: false
     - tier_id: proxy_diagnostic_only
@@ -73,7 +76,8 @@ temporal_eligibility_contract:
         - proxy data cannot support strict or calibration claims
       fallback_allowed: false
       performance_claim_allowed: false
-      calibration_allowed: false
+      temporal_calibration_allowed: false
+      final_calibration_allowed: false
       holdout_allowed: false
       book_benchmark_allowed: false
     - tier_id: unsupported
@@ -91,6 +95,7 @@ temporal_eligibility_contract:
         - unsupported temporal evidence must abstain and cannot silently fallback
       fallback_allowed: false
       performance_claim_allowed: false
-      calibration_allowed: false
+      temporal_calibration_allowed: false
+      final_calibration_allowed: false
       holdout_allowed: false
       book_benchmark_allowed: false

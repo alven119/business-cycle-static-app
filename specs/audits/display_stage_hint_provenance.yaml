@@ -1,0 +1,17 @@
+display_stage_hint_provenance:
+  version: 1
+  hints:
+    - stage_hint: baseline_stage_note_zh
+      source_type: context_derived
+      source_path: specs/common/current_cycle_context.yaml
+      data_evidence_ids: []
+      context_source_ids:
+        - baseline_stage_note_zh
+      decision_impact_allowed: false
+    - stage_hint: phase_score_stage_hint
+      source_type: data_derived
+      source_path: data/derived/phase_scores.json
+      data_evidence_ids:
+        - phase_scores
+      context_source_ids: []
+      decision_impact_allowed: false

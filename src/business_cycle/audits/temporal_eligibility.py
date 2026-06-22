@@ -37,7 +37,7 @@ def _validate_temporal_eligibility_contract(contract: dict[str, Any]) -> None:
         raise TemporalEligibilityContractError("strict_partial cannot allow performance claims")
     if tiers["revised_diagnostic_only"]["point_in_time"]:
         raise TemporalEligibilityContractError("revised diagnostics cannot be point-in-time")
-    if tiers["proxy_diagnostic_only"]["calibration_allowed"]:
+    if tiers["proxy_diagnostic_only"]["final_calibration_allowed"]:
         raise TemporalEligibilityContractError("proxy diagnostics cannot allow calibration")
     if tiers["unsupported"]["fallback_allowed"]:
         raise TemporalEligibilityContractError("unsupported evidence cannot fallback")
@@ -60,7 +60,13 @@ def summarize_temporal_eligibility_contract(
             "point_in_time"
         ],
         "proxy_diagnostic_calibration_allowed": tiers["proxy_diagnostic_only"][
-            "calibration_allowed"
+            "final_calibration_allowed"
+        ],
+        "strict_complete_temporal_calibration_allowed": tiers["strict_complete"][
+            "temporal_calibration_allowed"
+        ],
+        "strict_complete_final_calibration_allowed": tiers["strict_complete"][
+            "final_calibration_allowed"
         ],
         "unsupported_fallback_allowed": tiers["unsupported"]["fallback_allowed"],
         "only_strict_complete_performance_backtest_allowed": tiers["strict_complete"][

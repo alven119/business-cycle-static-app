@@ -43,7 +43,9 @@ def summarize_qa1_temporal_integrity_closure() -> dict[str, Any]:
     contract = summarize_temporal_eligibility_contract()
     unresolved = summarize_unresolved_historical_archive_register()
     partial_strict_ready = scenario["strict_complete_as_of_pair_count"] > 0
-    calibration_ready = scenario["calibration_eligible_scenario_count"] > 0
+    calibration_ready = (
+        scenario["temporally_eligible_for_parameter_calibration_scenario_count"] > 0
+    )
     qa2_allowed = (
         scenario["scenario_with_silent_horizon_reduction_count"] == 0
         and decision["incomplete_strict_phase_decision_count"] == 0

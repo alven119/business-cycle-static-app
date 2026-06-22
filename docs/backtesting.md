@@ -465,3 +465,15 @@ QA1F 允許 QA2 繼續進行 context-ablation 類型的結構性工作；QA2 只
 synthetic fixtures 或 strict-complete dates。QA2 不是 real historical
 backtest，不得產生 portfolio result、book benchmark result、allocation 或
 trade signal。Phase 9B1 仍 blocked。
+
+## Phase QA2 Context Ablation Boundary
+
+QA2 建立 data-only decision path 與 context-prior counterfactual 的分層，但
+不執行 historical performance backtest。External context 若影響現行 production
+wrapper，QA2 只量化並揭露此依賴；本階段不得為了消除依賴而改 production
+default、transition threshold、scoring weight 或 dashboard behavior。
+
+QA2 可使用 synthetic deterministic cases 與 strict-complete dates 做結構性
+diagnostics。Partial dates 不得進 formal decision comparison；任何 context
+ablation output 都不能被解讀為績效、calibration acceptance、validation 或
+untouched holdout 結果。
