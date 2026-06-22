@@ -1137,3 +1137,18 @@ The single implemented evaluator is runtime-wired, but it remains smoothing
 only. Directional evidence count and candidate-selection eligible evaluator
 count are both zero. QA10 must address unresolved book rules and candidate
 capability before candidate monitoring can be considered.
+
+## QA10 Runtime Readiness
+
+QA10 fixes the shadow runtime input assembly for the implemented smoothing
+evaluator without changing the evaluator rule, thresholds, weights, resolver,
+or dashboard behavior. The runtime now supplies a same-data-mode causal
+history window for the 2019 revised diagnostic, producing one smoothing output.
+
+This does not validate economic accuracy and does not make candidate
+capability complete. Major-group evidence remains incomplete, candidate
+monitoring remains disabled, and holdout remains unregistered.
+
+The registry path remains pre-start. Revised diagnostics are not real
+prospective observations; real prospective records require strict
+point-in-time evidence and may not be backfilled.

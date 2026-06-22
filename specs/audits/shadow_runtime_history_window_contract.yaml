@@ -1,0 +1,21 @@
+shadow_runtime_history_window_contract:
+  version: 1
+  phase: QA10
+  contract_id: shadow_runtime_history_window_contract_v1
+  policy:
+    same_data_mode_required: true
+    causal_as_of_only: true
+    proxy_allowed: false
+    revised_fallback_allowed: false
+    calendar_window_not_fixed_row_count: true
+    production_date_branching_allowed: false
+  implemented_window_requests:
+    - evaluator_id: evaluator::recovery_weekly_claim_noise_filter
+      role_id: recovery_weekly_claim_noise_filter
+      series_id: ICSA
+      lookback_type: calendar_months
+      lookback_duration: 3
+      minimum_observation_count: 3
+      frequency: weekly_or_monthly
+      release_lag_requirement: same_as_of_available
+      temporal_evidence_requirement: same_data_mode_causal_history

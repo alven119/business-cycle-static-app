@@ -1,0 +1,24 @@
+prospective_shadow_evidence_record_contract:
+  version: 1
+  phase: QA10
+  contract_id: prospective_shadow_evidence_record_contract_v1
+  record_types:
+    - evidence_observation
+    - abstention_observation
+    - correction_observation
+  prohibited_fields:
+    - candidate_phase
+    - current_phase
+    - decision_status
+    - portfolio_weight
+    - target_weight
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - expected_return
+    - historical_accuracy
+  correction_policy:
+    original_record_preserved: true
+    overwrite_allowed: false
+    delete_allowed: false
+    compact_allowed: false

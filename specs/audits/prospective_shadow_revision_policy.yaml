@@ -1,0 +1,17 @@
+prospective_shadow_revision_policy:
+  version: 1
+  phase: QA10
+  policy_id: prospective_shadow_revision_policy_v1
+  real_registry_allowed_data_modes:
+    - vintage_as_of
+    - strict_point_in_time_equivalent
+  real_registry_prohibited_data_modes:
+    - revised
+    - release_lag_adjusted_revised_proxy
+    - initial_release_only
+    - mixed
+  correction_policy:
+    original_record_preserved: true
+    correction_record_required: true
+    overwrite_allowed: false
+    candidate_or_decision_change_allowed: false

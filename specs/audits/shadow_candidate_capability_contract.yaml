@@ -1,0 +1,11 @@
+shadow_candidate_capability_contract:
+  version: 1
+  phase: QA10
+  expected_status:
+    evaluator_runtime_ready: true
+    evidence_monitoring_ready: true
+    major_group_evidence_ready: false
+    candidate_selection_contract_ready: true
+    candidate_selection_input_complete: false
+    candidate_capability_ready: false
+    candidate_monitoring_allowed: false

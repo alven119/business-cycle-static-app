@@ -217,3 +217,28 @@ The expected closure keeps `formal_decision_model_ready=false`,
 `economic_validation_status=not_started`, `holdout_registered=false`,
 `real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
 The next allowed phase is QA10.
+
+## QA10 Runtime Readiness Gates
+
+QA10 tasks may verify QA8/QA9 lineage, add dynamic history-window
+materialization, runtime input snapshots, typed evidence records, idempotent
+temporary append fixtures, pre-start preview and append CLIs, revision policy,
+candidate-capability audits, scheduling audits, and production-isolation
+checks.
+
+QA10 must not write a real prospective record, start the protocol, inspect
+prospective results, enable candidate phases, enable current phase decisions,
+use revised fallback, add schedules, modify production resolver/state-machine
+or dashboard behavior, tune thresholds or weights, or register holdout.
+
+QA10 completion requires QA8 and QA9 closure lineage, one runtime output for
+the 2019 revised diagnostic, legitimate strict temporal abstentions where
+strict history is unavailable, no unexplained runtime abstention, deterministic
+snapshot hashes, decision-field-free evidence records, idempotent append
+behavior, correction lineage, pre-start write rejection, candidate capability
+false, scheduling counts at zero, and production isolation counts at zero.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`data_only_model_economically_validated=false`, `holdout_registered=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA11.

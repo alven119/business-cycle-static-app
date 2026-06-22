@@ -602,3 +602,20 @@ smoothing filter. It is runtime-wired, but smoothing is not directional phase
 evidence and cannot emit a candidate phase. Backfill, arbitrary real `as_of`
 overrides, version mixing, public output, and performance metrics remain
 blocked.
+
+## Phase QA10 Runtime Boundary
+
+QA10 validates the end-to-end shadow runtime path before the first eligible
+prospective period. It materializes causal same-data-mode history windows,
+builds runtime input snapshots, evaluates the implemented smoothing evaluator,
+and creates typed evidence or abstention records in temporary fixtures.
+
+No historical performance backtest, book benchmark, portfolio return
+calculation, candidate phase output, current phase decision, or real
+prospective registry write is allowed. Revised mode remains diagnostic-only
+and cannot enter the real prospective registry. Corrections append new records
+with lineage instead of overwriting originals.
+
+The first eligible period remains `2026-07`, and the first canonical eligible
+as-of remains `2026-08-31`. QA10 does not add automatic scheduling. Real
+backtest progression and Phase 9B1 remain blocked.

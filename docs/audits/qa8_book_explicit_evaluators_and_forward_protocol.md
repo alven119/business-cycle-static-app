@@ -62,3 +62,10 @@ is added. The prospective registry is armed but not started, writes no real
 record, and keeps result inspection at zero. The initial-claims smoothing
 evaluator is runtime-wired but remains non-directional and ineligible for
 candidate selection.
+
+## QA10 Successor Boundary
+
+QA10 keeps the alpha4 evaluator rule unchanged while fixing the shadow runtime
+history-window supply. The evaluator can produce a revised diagnostic smoothing
+output, but the output is not a phase signal and does not enable candidate
+selection.

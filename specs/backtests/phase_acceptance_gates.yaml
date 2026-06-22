@@ -753,3 +753,48 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - runtime_output_available_evaluator_count may be 0 for retrospective real diagnostics when same-mode history windows are unavailable
+
+  qa10_shadow_runtime_monitoring_readiness_closure:
+    hard_gates:
+      - qa8_qa9_lineage_verified == true
+      - runtime_history_window_contract_ready == true
+      - runtime_input_snapshot_contract_ready == true
+      - implemented_evaluator_runtime_path_ready == true
+      - typed_evidence_record_builder_ready == true
+      - append_only_registry_runtime_ready == true
+      - idempotency_contract_ready == true
+      - end_to_end_tmp_fixtures_ready == true
+      - prospective_clock_gate_ready == true
+      - revision_policy_ready == true
+      - candidate_capability_gate_ready == true
+      - production_isolation_verified == true
+      - automatic_scheduling_disabled == true
+      - runtime_output_on_2019_revised_count == 1
+      - unexplained_runtime_abstention_count == 0
+      - real_registry_record_count == 0
+      - real_registry_write_attempt_count == 0
+      - pre_start_record_written_count == 0
+      - backdated_record_written_count == 0
+      - evaluator_runtime_ready == true
+      - evidence_monitoring_ready == true
+      - candidate_capability_ready == false
+      - candidate_monitoring_allowed == false
+      - real_data_candidate_selection_enabled == false
+      - formal_candidate_phase_computed == false
+      - prospective_protocol_registered == true
+      - prospective_protocol_started == false
+      - prospective_result_inspected == false
+      - holdout_registered == false
+      - formal_decision_model_ready == false
+      - data_only_model_economically_validated == false
+      - independent_validation_ready == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - qa11_allowed == true
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_phase == QA11
+      - qa10_closure_status == closed_runtime_path_ready_prestart_no_real_records_candidate_capability_incomplete
+      - result == passed
+    soft_warnings_allowed:
+      - runtime_output_on_2019_strict_count may be 0 when strict temporal evidence is unavailable and abstention is classified

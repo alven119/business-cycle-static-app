@@ -1,0 +1,24 @@
+shadow_runtime_end_to_end_fixtures:
+  version: 1
+  phase: QA10
+  fixtures:
+    - fixture_id: complete_revised_history
+      expected_status: passed
+    - fixture_id: complete_strict_history
+      expected_status: passed
+    - fixture_id: insufficient_history
+      expected_status: passed
+    - fixture_id: mixed_data_mode
+      expected_status: passed
+    - fixture_id: future_observation
+      expected_status: passed
+    - fixture_id: duplicate_append
+      expected_status: passed
+    - fixture_id: correction_record
+      expected_status: passed
+    - fixture_id: rule_version_mismatch
+      expected_status: passed
+    - fixture_id: provenance_missing
+      expected_status: passed
+    - fixture_id: prohibited_decision_field
+      expected_status: passed

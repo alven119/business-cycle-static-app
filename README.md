@@ -1288,6 +1288,29 @@ prospective results.
 Production v1 remains unchanged. Real backtest progression and Phase 9B1
 remain blocked. QA10 is the next allowed phase.
 
+## Phase QA10 shadow runtime and pre-start monitoring
+
+QA10 verifies QA8 alpha4 and QA9 monitoring freeze lineage, then connects the
+shadow runtime path from same-data-mode history windows to typed evidence or
+abstention records. The 2019 revised diagnostic now supplies the required
+ICSA history window and produces one smoothing output.
+
+Runtime readiness remains separate from candidate capability. The initial
+claims evaluator is still a smoothing/noise-filter evaluator only; it is not
+directional phase evidence, does not emit a candidate phase, and does not
+produce a current phase decision.
+
+The prospective registry remains pre-start. First eligible period is
+`2026-07`; first canonical eligible as-of is `2026-08-31`. Before then no real
+record may be written. Revised mode is limited to diagnostics and temporary
+fixtures, not real prospective registry records.
+
+Registry records are append-only, hash-chained, and contain typed evidence or
+abstention metadata only. Corrections append a new record and preserve the
+original. QA10 adds no automatic schedule. Production v1 is unchanged, holdout
+is not registered, real backtest progression remains blocked, and Phase 9B1
+remains blocked. QA11 is the next allowed phase.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

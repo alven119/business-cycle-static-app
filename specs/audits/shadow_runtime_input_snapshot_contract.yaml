@@ -1,0 +1,17 @@
+shadow_runtime_input_snapshot_contract:
+  version: 1
+  phase: QA10
+  contract_id: shadow_runtime_input_snapshot_contract_v1
+  hash_policy:
+    includes_ordered_observations: true
+    includes_data_mode: true
+    includes_as_of: true
+    includes_evaluator_version: true
+    includes_rule_contract_version: true
+    includes_history_window_contract_version: true
+    includes_source_provenance: true
+  prohibited_inputs:
+    - proxy
+    - revised_fallback
+    - mixed_data_mode
+    - future_observation

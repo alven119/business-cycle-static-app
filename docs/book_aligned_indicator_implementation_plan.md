@@ -860,3 +860,15 @@ backfilling old periods.
 
 QA10 will continue with unresolved book-rule operationalization and candidate
 capability expansion while production v1 remains isolated.
+
+## QA10 Runtime Update
+
+QA10 connects the implemented smoothing evaluator to runtime input snapshots
+and typed evidence records. It fixes the missing same-data-mode history window
+for revised diagnostics while preserving strict abstention when point-in-time
+history is unavailable.
+
+The result is monitoring infrastructure readiness only. Candidate capability
+is still false because required book-core major-group evidence is incomplete.
+QA10 does not promote indicators, add thresholds, tune weights, or enable
+production behavior.

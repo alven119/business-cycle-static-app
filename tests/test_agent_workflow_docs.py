@@ -95,6 +95,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     qa9_gates = phase_specific["qa9_prospective_shadow_registry_closure"][
         "hard_gates"
     ]
+    qa10_gates = phase_specific[
+        "qa10_shadow_runtime_monitoring_readiness_closure"
+    ]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -279,6 +282,15 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "candidate_capability_ready == false" in qa9_gates
     assert "holdout_registered == false" in qa9_gates
     assert "recommended_next_phase == QA10" in qa9_gates
+    assert "qa8_qa9_lineage_verified == true" in qa10_gates
+    assert "runtime_history_window_contract_ready == true" in qa10_gates
+    assert "implemented_evaluator_runtime_path_ready == true" in qa10_gates
+    assert "runtime_output_on_2019_revised_count == 1" in qa10_gates
+    assert "real_registry_record_count == 0" in qa10_gates
+    assert "candidate_capability_ready == false" in qa10_gates
+    assert "prospective_protocol_started == false" in qa10_gates
+    assert "holdout_registered == false" in qa10_gates
+    assert "recommended_next_phase == QA11" in qa10_gates
     assert "scenario_exposure_registry_ready == true" in qa3_gates
     assert "data_only_baseline_freeze_ready == true" in qa3_gates
     assert "parameter_tuning_executed == false" in qa3_gates
@@ -337,6 +349,17 @@ def test_agent_workflow_documents_qa9_registry_gates() -> None:
     assert "armed_not_started" in readme
     assert "real_record_count=0" in readme
     assert "QA10" in readme
+
+
+def test_agent_workflow_documents_qa10_runtime_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA10 Runtime Readiness Gates" in workflow
+    assert "Phase QA10 shadow runtime and pre-start monitoring" in readme
+    assert "runtime path" in readme
+    assert "candidate capability" in readme
+    assert "QA11" in readme
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

@@ -57,3 +57,10 @@ or any scheduler.
 QA10 will address unresolved book-rule operationalization and candidate
 capability expansion. Production v1 remains unchanged; real backtest
 progression and Phase 9B1 remain blocked.
+
+## QA10 Follow-Up
+
+QA10 verifies the QA8 alpha4 and QA9 monitoring freeze parent chain, then
+connects the runtime history-window path to input snapshots, evaluator output,
+and typed evidence records. The registry remains pre-start with zero real
+records, and candidate capability remains false.
