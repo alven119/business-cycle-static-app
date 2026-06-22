@@ -1,0 +1,82 @@
+book_phase_major_group_contract:
+  version: 1
+  phase: QA5
+  major_groups:
+    recovery:
+      - employment
+      - consumption
+      - investment
+      - trade
+    growth:
+      - saving_and_consumption
+      - employment
+      - private_investment_and_housing
+      - sustainable_core_inflation
+    boom:
+      - claims_u_shape
+      - consumption_slowdown
+      - consumer_confidence
+      - private_investment_and_durables
+      - government_spending_revenue
+      - inventory_cycle
+      - delinquency_default
+    recession_trough:
+      - recession_confirmation
+      - recession_employment
+      - recession_consumption
+      - recession_investment_real_activity
+      - recession_trade_or_breadth
+      - trough_labor_reversal
+      - trough_consumption_reversal
+      - trough_investment_real_activity_reversal
+      - policy_financial_supporting_only
+  role_mappings:
+    recovery_initial_jobless_claims: employment
+    recovery_short_term_unemployment: employment
+    recovery_real_retail_sales: consumption
+    recovery_real_pce_durable_goods: consumption
+    recovery_private_nonresidential_fixed_investment: investment
+    recovery_durable_goods_new_orders: investment
+    recovery_imports: trade
+    recovery_exports: trade
+    recovery_publication_lag_awareness: trade
+    recovery_weekly_claim_noise_filter: employment
+    growth_personal_saving_rate: saving_and_consumption
+    growth_real_disposable_income_vs_consumption: saving_and_consumption
+    growth_nonfarm_payrolls: employment
+    growth_adp_employment: employment
+    growth_initial_claims_decline: employment
+    growth_private_nonresidential_fixed_investment: private_investment_and_housing
+    growth_residential_investment: private_investment_and_housing
+    growth_core_cpi: sustainable_core_inflation
+    growth_core_pce: sustainable_core_inflation
+    growth_sustainable_inflation_interpretation: sustainable_core_inflation
+    boom_claims_u_shape: claims_u_shape
+    boom_retail_sales_vs_broad_pce: consumption_slowdown
+    boom_consumer_confidence: consumer_confidence
+    boom_private_investment: private_investment_and_durables
+    boom_durable_goods_second_surge: private_investment_and_durables
+    boom_state_local_government_spending: government_spending_revenue
+    boom_government_revenue: government_spending_revenue
+    boom_inventory_level: inventory_cycle
+    boom_inventory_accumulation_context: inventory_cycle
+    boom_personal_delinquency_or_default: delinquency_default
+    boom_corporate_delinquency_or_default: delinquency_default
+    recession_confirmation_breadth: recession_confirmation
+    recession_employment_confirmation: recession_employment
+    recession_consumption_confirmation: recession_consumption
+    recession_investment_or_industrial_confirmation: recession_investment_real_activity
+    recession_credit_financial_confirmation: recession_trade_or_breadth
+    trough_claims_reversal: trough_labor_reversal
+    trough_labor_reversal: trough_consumption_reversal
+    trough_real_activity_reversal: trough_investment_real_activity_reversal
+    trough_policy_financial_not_sufficient_alone: policy_financial_supporting_only
+  role_types:
+    recession_credit_financial_confirmation: supporting
+    trough_policy_financial_not_sufficient_alone: supporting
+  defaults:
+    role_type: required_core
+    minimum_group_requirement: true
+    complete_group_requirement: true
+    substitution_allowed: false
+    substitution_equivalence_required: true

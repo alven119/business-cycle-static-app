@@ -9,7 +9,9 @@ def test_formal_scope_diff_has_no_current_behavior_change() -> None:
     assert summary["formal_scope_diff_ready"] is True
     assert summary["current_formal_v1_indicator_count"] == 13
     assert summary["proposed_v2_core_role_count"] == 77
+    assert summary["retained_v1_indicator_count"] == 8
+    assert summary["v1_to_supporting_count"] == 1
+    assert summary["v1_modern_extension_count"] == 4
     assert summary["proposed_v2_missing_role_count"] == 16
     assert summary["production_behavior_change_count"] == 0
     assert all(row["decision_behavior_changed_now"] is False for row in summary["rows"])
-

@@ -66,3 +66,15 @@ def test_qa4_scope_preserves_traceability_gap_statuses() -> None:
     assert summary["missing_scope_item_count"] > 0
     assert summary["conflicting_scope_item_count"] > 0
     assert summary["book_faithful_scope_complete"] is False
+
+
+def test_qa5_data_contracts_keep_book_core_gaps_explicit() -> None:
+    from business_cycle.audits.book_core_data_contracts import (
+        summarize_book_core_indicator_data_contracts,
+    )
+
+    summary = summarize_book_core_indicator_data_contracts()
+
+    assert summary["canonical_indicator_role_count"] == 40
+    assert summary["blocked_role_count"] > 0
+    assert summary["silent_substitution_count"] == 0

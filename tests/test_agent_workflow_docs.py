@@ -86,6 +86,7 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     qa0_gates = phase_specific["qa0_integrity_audit"]["hard_gates"]
     qa3_gates = phase_specific["qa3_calibration_integrity_closure"]["hard_gates"]
     qa4_gates = phase_specific["qa4_book_fidelity_scope_closure"]["hard_gates"]
+    qa5_gates = phase_specific["qa5_book_core_shadow_model_closure"]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -228,6 +229,14 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     assert "proposed_v2_holdout_registered == false" in qa4_gates
     assert "production_behavior_change_count == 0" in qa4_gates
     assert "recommended_next_phase == QA5" in qa4_gates
+    assert "scope_count_semantics_ready == true" in qa5_gates
+    assert "book_core_data_contract_registry_ready == true" in qa5_gates
+    assert "shadow_evidence_model_implemented == true" in qa5_gates
+    assert "formal_candidate_phase_computed == false" in qa5_gates
+    assert "proposed_v2_economically_validated == false" in qa5_gates
+    assert "holdout_registered == false" in qa5_gates
+    assert "production_behavior_change_count == 0" in qa5_gates
+    assert "recommended_next_phase == QA6" in qa5_gates
     assert "scenario_exposure_registry_ready == true" in qa3_gates
     assert "data_only_baseline_freeze_ready == true" in qa3_gates
     assert "parameter_tuning_executed == false" in qa3_gates
@@ -245,6 +254,16 @@ def test_agent_workflow_documents_qa4_scope_gates() -> None:
     assert "Phase QA4 book fidelity scope" in readme
     assert "production defaults" in readme
     assert "preserved" in readme
+
+
+def test_agent_workflow_documents_qa5_shadow_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "QA5 Shadow Evidence Gates" in workflow
+    assert "Phase QA5 book-core data contracts" in readme
+    assert "shadow evidence model" in readme
+    assert "production v1 remains unchanged" in readme
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

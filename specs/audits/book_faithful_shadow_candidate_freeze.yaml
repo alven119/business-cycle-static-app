@@ -1,0 +1,56 @@
+book_faithful_shadow_candidate_freeze:
+  version: 1
+  phase: QA5
+  candidate_model_id: book_faithful_shadow_v2_alpha1
+  freeze_type: shadow_evidence_architecture
+  formal_decision_model_frozen: false
+  decision_parameters_frozen: false
+  aggregation_rule_frozen: false
+  data_contract_registry_hash: bd0bea6cbc51e4c371dbbc079c02e0c61d4f75e53f651c503ebed6bf9dbc4acf
+  transformation_registry_hash: aa515870725ce3799866f6639f91f6efbdf4d8de27f76c69ad5241c3a4e14800
+  major_group_contract_hash: 31d647dc2153f9aae3a34e75b8f7d2a2717fe4cdd206ab01608a360e3cac0a16
+  shadow_model_spec_hash: 50173d92cc2385e1cd23eb2dacd5a27518b7530d12a853231a0f53d4c7ec9acb
+  shadow_source_file_hashes:
+    src/business_cycle/shadow_model/contracts.py: b779604f03e05613c03bdbc2a1267624df38aab0462914d0f44a54c7be37de49
+    src/business_cycle/shadow_model/role_evidence.py: 31847a22f8cefd6e8d3c26012ad121ebd58a4f6ab440d3380697a4c9cd9ff0c3
+    src/business_cycle/shadow_model/phase_profiles.py: 4e23aba043aa04661a18fb2d1716c0e9b943f535b5c2a61487faf948a56ad3a8
+    src/business_cycle/shadow_model/runner.py: 99f7dd15e70308460118cf2341b9cf4f03f8e00fb7374198522e18468aecbfea
+  unresolved_role_ids:
+    - recovery_publication_lag_awareness
+    - growth_personal_saving_rate
+    - growth_real_disposable_income_vs_consumption
+    - growth_nonfarm_payrolls
+    - growth_adp_employment
+    - growth_residential_investment
+    - growth_core_cpi
+    - growth_core_pce
+    - growth_sustainable_inflation_interpretation
+    - boom_consumer_confidence
+    - boom_state_local_government_spending
+    - boom_government_revenue
+    - boom_inventory_level
+    - boom_inventory_accumulation_context
+    - boom_personal_delinquency_or_default
+    - boom_corporate_delinquency_or_default
+  blocked_role_ids:
+    - recovery_publication_lag_awareness
+    - growth_personal_saving_rate
+    - growth_real_disposable_income_vs_consumption
+    - growth_nonfarm_payrolls
+    - growth_adp_employment
+    - growth_residential_investment
+    - growth_core_cpi
+    - growth_core_pce
+    - growth_sustainable_inflation_interpretation
+    - boom_consumer_confidence
+    - boom_state_local_government_spending
+    - boom_government_revenue
+    - boom_inventory_level
+    - boom_inventory_accumulation_context
+    - boom_personal_delinquency_or_default
+    - boom_corporate_delinquency_or_default
+  economic_validation_status: not_started
+  independent_validation_status: not_started
+  holdout_registered: false
+  production_migration_allowed: false
+

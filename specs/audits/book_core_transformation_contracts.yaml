@@ -1,0 +1,16 @@
+book_core_transformation_contracts:
+  version: 1
+  phase: QA5
+  source_data_contract_path: specs/audits/book_core_indicator_data_contracts.yaml
+  policy:
+    new_threshold_defined_in_qa5: false
+    new_weight_defined_in_qa5: false
+    existing_threshold_reuse_allowed_in_shadow: true
+    new_threshold_requires_preregistration: true
+    strict_transform_may_not_use_revised_lookback: true
+  defaults:
+    smoothing_rule: role_specific_existing_or_raw
+    outlier_rule: abstain_on_invalid_input
+    threshold_status: not_defined_in_qa5
+    shadow_execution_allowed: true
+

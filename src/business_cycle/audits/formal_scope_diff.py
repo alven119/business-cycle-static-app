@@ -26,10 +26,14 @@ def summarize_formal_model_scope_diff() -> dict[str, Any]:
         ),
         "proposed_v2_core_role_count": scope["book_core_scope_item_count"],
         "retained_v1_indicator_count": sum(
-            row["scope_classification"] == "retain_in_proposed_v2" for row in matrix
+            row["scope_classification"] == "retain_in_proposed_v2"
+            and row["current_formal_v1"]
+            for row in matrix
         ),
         "v1_to_supporting_count": sum(
-            row["scope_classification"] == "demote_to_supporting" for row in matrix
+            row["scope_classification"] == "demote_to_supporting"
+            and row["current_formal_v1"]
+            for row in matrix
         ),
         "v1_modern_extension_count": sum(
             row["scope_classification"] == "retain_as_modern_extension"
@@ -95,4 +99,3 @@ def _diff_row(row: dict[str, Any]) -> dict[str, Any]:
         "implementation_required": implementation_required,
         "decision_behavior_changed_now": False,
     }
-

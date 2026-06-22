@@ -105,3 +105,21 @@ contract, indicator matrix, promotion gate, v1/v2 scope diff, and scope freeze
 to pass. The expected closure keeps `book_faithful_scope_complete=false`,
 `proposed_v2_implemented=false`, `proposed_v2_holdout_registered=false`,
 `real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+
+## QA5 Shadow Evidence Gates
+
+QA5 tasks may add book-core data contracts, transformation contracts, shadow
+evidence modules, audit specs, diagnostics scripts, and tests. Agents must not
+change production resolver defaults, dashboard production behavior, scoring
+weights, thresholds, or production context handling.
+
+QA5 completion requires mutually exclusive scope count semantics, one data
+contract per canonical indicator role, no silent substitution, no new weights
+or thresholds, no formal candidate phase computation, no performance metrics,
+no public or `data/backtests` output, and a valid shadow candidate freeze.
+
+The expected closure keeps `formal_decision_model_ready=false`,
+`production_book_fidelity_ready=false`,
+`proposed_v2_economically_validated=false`, `holdout_registered=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The next allowed phase is QA6.

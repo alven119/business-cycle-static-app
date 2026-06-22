@@ -10,9 +10,9 @@ def test_indicator_promotion_gate_blocks_unready_candidates() -> None:
 
     assert summary["indicator_promotion_gate_ready"] is True
     assert summary["promotion_candidate_count"] > 0
+    assert summary["ready_for_shadow_evidence_model_count"] > 0
     assert summary["production_review_ready_count"] == 0
     assert summary["promotion_without_complete_gate_count"] == 0
     assert summary["contaminated_indicator_promoted_without_disclosure_count"] == 0
     assert summary["silent_substitution_promotion_count"] == 0
     assert summary["new_production_promotion_count"] == 0
-

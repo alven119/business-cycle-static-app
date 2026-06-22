@@ -1186,6 +1186,26 @@ production, does not run a performance backtest, and does not change dashboard
 or resolver behavior. QA5 is the next allowed phase; real backtest progression
 and Phase 9B1 remain blocked.
 
+## Phase QA5 book-core data contracts
+
+QA5 adds book-core indicator data contracts and a shadow evidence model for
+`book_faithful_shadow_v2_alpha1`. The shadow evidence model is diagnostic-only:
+it emits role evidence and phase evidence profiles, but it does not compute a
+candidate phase, current phase, decision status, portfolio action, allocation,
+or trade signal.
+
+production v1 remains unchanged. QA5 does not remove production context, change
+resolver defaults, change dashboard behavior, tune weights, define thresholds,
+or register a candidate holdout. Missing strict evidence abstains instead of
+falling back to revised data or zero-filling.
+
+QA5 reconciles scope counts across 98 canonical scope requirements, 40
+canonical indicator roles, 38 existing indicators, and 54 indicator matrix
+rows. The shadow candidate freeze records contract and source hashes only; it
+does not freeze decision parameters or validate economic accuracy. QA6 is the
+next allowed phase for shadow aggregation rule pre-registration and structural
+candidate validation. Real backtest progression and Phase 9B1 remain blocked.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

@@ -27,13 +27,24 @@ indicator_promotion_gate:
     - candidate_spec_only
     - experimental_ready
     - blocked_temporal_data
+    - blocked_data_contract
     - blocked_economic_equivalence
+    - blocked_transformation
     - blocked_parameter_contamination
     - blocked_independent_validation
     - ready_for_shadow_formal_model
+    - ready_for_shadow_evidence_model
     - ready_for_production_review
   qa4_policy:
     new_production_promotion_allowed: false
     contaminated_promotion_requires_disclosure: true
     silent_substitution_allowed: false
-
+  qa5_shadow_evidence_requirements:
+    - data_contract_complete
+    - transformation_contract_complete
+    - temporal_status_disclosed
+    - provenance_complete
+    - shadow_role_routing_tested
+    - no silent substitution
+    - contamination disclosed
+    - independent validation still not ready

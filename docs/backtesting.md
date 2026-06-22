@@ -516,3 +516,20 @@ Portfolio rules are scoped as benchmark/research rules only. The book 70/50/30
 boom schedule is not a phase transition rule, monthly rebalancing is not the
 book annual benchmark, and generic bond exposure is not a substitute for 7+ year
 U.S. Treasury exposure.
+
+## Phase QA5 Shadow Evidence Boundary
+
+QA5 does not run historical performance backtests, book benchmarks, portfolio
+return calculations, or candidate holdout evaluation. The new
+`book_faithful_shadow_v2_alpha1` runner is a shadow evidence diagnostic only.
+It may write explicitly requested diagnostics to `/tmp`, but it must not write
+`data/backtests` or `public`.
+
+Strict missing book-core evidence must abstain. Revised diagnostics remain
+diagnostics only and cannot be reused as point-in-time validation evidence.
+Synthetic fixtures validate structure only; real-date shadow runs do not select
+parameters, compute performance, or prove economic accuracy.
+
+The shadow candidate freeze has `holdout_registered=false`. A later
+decision-active candidate model must use a new model version and fresh
+prospective registration after aggregation rules are pre-registered.

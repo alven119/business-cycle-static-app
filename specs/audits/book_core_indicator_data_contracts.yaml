@@ -1,0 +1,21 @@
+book_core_indicator_data_contracts:
+  version: 1
+  phase: QA5
+  source_indicator_coverage_path: specs/audits/book_indicator_coverage.yaml
+  major_group_contract_path: specs/audits/book_phase_major_group_contract.yaml
+  policy:
+    one_contract_per_canonical_indicator_role: true
+    series_existence_is_not_readiness: true
+    fred_existence_is_not_economic_equivalence: true
+    revised_only_may_not_be_marked_strict: true
+    derived_series_must_list_inputs: true
+    modern_extension_silent_substitution_allowed: false
+  status_policy:
+    formal_current_book_core: ready_strict_partial
+    experimental_current_book_core: ready_revised_diagnostic
+    missing_role_default: blocked_source_identity
+    adp_role: blocked_license_or_access
+    core_inflation_roles: blocked_source_identity
+    confidence_government_inventory_default_roles: blocked_source_identity
+    default_temporal_evidence_class: date_local_or_revised_diagnostic
+

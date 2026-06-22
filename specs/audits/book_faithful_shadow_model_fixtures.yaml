@@ -1,0 +1,75 @@
+book_faithful_shadow_model_fixtures:
+  version: 1
+  phase: QA5
+  fixtures:
+    - fixture_id: canonical_recession_fixture
+      phase: recession
+      canonical: true
+      complete_major_groups: true
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: canonical_recovery_fixture
+      phase: recovery
+      canonical: true
+      complete_major_groups: true
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: canonical_growth_fixture
+      phase: growth
+      canonical: true
+      complete_major_groups: true
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: canonical_boom_fixture
+      phase: boom
+      canonical: true
+      complete_major_groups: true
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: incomplete_recovery_fixture
+      phase: recovery
+      canonical: false
+      complete_major_groups: false
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: incomplete_growth_fixture
+      phase: growth
+      canonical: false
+      complete_major_groups: false
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: conflicting_boom_fixture
+      phase: boom
+      canonical: false
+      complete_major_groups: false
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: missing_temporal_evidence_fixture
+      phase: recession
+      canonical: false
+      complete_major_groups: false
+      modern_extension_only: false
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: modern_extension_only_fixture
+      phase: boom
+      canonical: false
+      complete_major_groups: false
+      modern_extension_only: true
+      context_prior_injected: false
+      missing_evidence_zero_fill: false
+    - fixture_id: context_injection_rejection_fixture
+      phase: recovery
+      canonical: false
+      complete_major_groups: false
+      modern_extension_only: false
+      context_prior_injected: true
+      missing_evidence_zero_fill: false
+

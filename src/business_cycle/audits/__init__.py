@@ -23,6 +23,21 @@ from business_cycle.audits.book_faithful_scope import (
     summarize_recession_trough_formal_scope,
     summarize_recovery_formal_scope,
 )
+from business_cycle.audits.book_core_data_contracts import (
+    summarize_book_core_indicator_data_contracts,
+)
+from business_cycle.audits.book_core_series_verification import (
+    verify_book_core_series_contracts,
+)
+from business_cycle.audits.book_core_transformations import (
+    summarize_book_core_transformation_contracts,
+)
+from business_cycle.audits.book_faithful_shadow_fixtures import (
+    summarize_book_faithful_shadow_model_fixtures,
+)
+from business_cycle.audits.book_phase_major_groups import (
+    summarize_book_phase_major_group_readiness,
+)
 from business_cycle.audits.formal_indicator_scope_matrix import (
     summarize_formal_indicator_scope_matrix,
 )
@@ -62,8 +77,17 @@ from business_cycle.audits.qa4_scope_contracts import (
     summarize_exogenous_shock_overlay_scope,
     summarize_secular_regime_scope,
 )
+from business_cycle.audits.qa5_scope_count_semantics import (
+    summarize_qa5_scope_count_semantics,
+)
 from business_cycle.audits.repository_inventory import collect_repository_inventory
 from business_cycle.audits.scenario_exposure import summarize_scenario_exposure_registry
+from business_cycle.audits.shadow_candidate_freeze import (
+    summarize_book_faithful_shadow_candidate_freeze,
+)
+from business_cycle.audits.shadow_production_isolation import (
+    summarize_shadow_production_isolation,
+)
 from business_cycle.audits.temporal_integrity import (
     TemporalIntegrityError,
     filter_point_in_time_records,
@@ -81,9 +105,14 @@ __all__ = [
     "run_data_only_shadow_evaluation",
     "run_qa0_integrity_audit",
     "run_qa0_inventory_reconciliation",
+    "summarize_book_core_indicator_data_contracts",
+    "summarize_book_core_transformation_contracts",
     "summarize_book_faithful_formal_model_scope",
     "summarize_book_normal_cycle_state_machine_contract",
     "summarize_book_portfolio_rule_scope",
+    "summarize_book_faithful_shadow_candidate_freeze",
+    "summarize_book_faithful_shadow_model_fixtures",
+    "summarize_book_phase_major_group_readiness",
     "summarize_boom_formal_scope",
     "summarize_calibration_integrity",
     "summarize_context_dependency_governance",
@@ -103,9 +132,12 @@ __all__ = [
     "summarize_production_hardcoding",
     "summarize_qa3_calibration_integrity_closure",
     "summarize_qa4_book_fidelity_scope_closure",
+    "summarize_qa5_scope_count_semantics",
     "summarize_recession_trough_formal_scope",
     "summarize_recovery_formal_scope",
     "summarize_scenario_exposure_registry",
     "summarize_secular_regime_scope",
+    "summarize_shadow_production_isolation",
     "summarize_temporal_integrity",
+    "verify_book_core_series_contracts",
 ]

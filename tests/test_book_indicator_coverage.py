@@ -68,3 +68,16 @@ def test_qa4_indicator_matrix_keeps_modern_extension_separate() -> None:
         row["scope_classification"] == "retain_as_modern_extension"
         for row in modern_rows
     )
+
+
+def test_qa5_data_contracts_cover_all_canonical_indicator_roles() -> None:
+    from business_cycle.audits.book_core_data_contracts import (
+        summarize_book_core_indicator_data_contracts,
+    )
+
+    summary = summarize_book_core_indicator_data_contracts()
+
+    assert summary["canonical_indicator_role_count"] == 40
+    assert summary["data_contract_row_count"] == 40
+    assert summary["role_without_data_contract_count"] == 0
+    assert summary["data_contract_without_role_count"] == 0

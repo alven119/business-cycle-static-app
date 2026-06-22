@@ -88,3 +88,13 @@ QA4 closes only the formal scope governance step:
 The next allowed phase is QA5: Book-Core Indicator Data Contracts and Shadow
 Formal Model Implementation.
 
+## QA5 Follow-Up Boundary
+
+QA5 keeps the QA4 scope freeze intact while adding data contracts and a shadow
+evidence implementation. It does not turn proposed v2 into a decision model.
+The shadow model remains feature-gated, excludes production context, and emits
+evidence profiles only.
+
+Missing book-core roles remain blockers. Revised diagnostics are not
+point-in-time validation evidence, and the shadow candidate has no registered
+holdout. Production v1 remains unchanged.

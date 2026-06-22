@@ -786,3 +786,19 @@ requirements.
 QA4 does not tune parameters or activate the proposed v2 model. QA5 must handle
 book-core data contracts and shadow formal implementation before any candidate
 model version can be frozen.
+
+## QA5 Data Contract Update
+
+QA5 converts the book-core indicator roles into explicit data contracts. Every
+canonical indicator role has one contract row, including roles that are still
+blocked by source identity, access, transformation, or missing implementation.
+Blocked roles remain visible and are not replaced by modern extensions.
+
+The QA5 shadow evidence model is feature-gated and non-production. It provides
+role evidence and phase evidence profiles for structural diagnostics only. It
+does not activate proposed v2, does not define weights or thresholds, and does
+not register a candidate holdout.
+
+The next step is QA6: pre-register aggregation rules for the shadow evidence
+model and validate the structural candidate model before any decision-active
+model freeze.

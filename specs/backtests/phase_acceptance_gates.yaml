@@ -563,3 +563,38 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - missing_scope_item_count > 0 because QA4 preserves book-core gaps instead of relabeling them
+
+  qa5_book_core_shadow_model_closure:
+    hard_gates:
+      - scope_count_semantics_ready == true
+      - formal_v1_primary_partition_valid == true
+      - major_group_contract_ready == true
+      - book_core_data_contract_registry_ready == true
+      - official_series_verification_ready == true
+      - transformation_contract_registry_ready == true
+      - shadow_evidence_model_implemented == true
+      - synthetic_structural_validation_ready == true
+      - real_data_shadow_diagnostics_ready == true
+      - promotion_gate_updated == true
+      - shadow_candidate_freeze_ready == true
+      - book_fidelity_rollups_ready == true
+      - production_isolation_verified == true
+      - formal_candidate_phase_computed == false
+      - formal_decision_model_ready == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - proposed_v2_economically_validated == false
+      - new_weight_defined_count == 0
+      - new_threshold_defined_count == 0
+      - parameter_tuning_executed == false
+      - performance_backtest_executed == false
+      - holdout_registered == false
+      - production_behavior_change_count == 0
+      - qa6_allowed == true
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - recommended_next_phase == QA6
+      - qa5_closure_status == closed_shadow_evidence_model_ready_with_explicit_data_gaps
+      - result == passed
+    soft_warnings_allowed:
+      - blocked_role_count > 0 because QA5 preserves explicit data gaps and makes missing evidence abstain

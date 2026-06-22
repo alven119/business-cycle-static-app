@@ -1055,3 +1055,19 @@ production behavior.
 Modern extensions remain labeled as modern extensions. They may support
 research and early warning, but they cannot be used to claim that missing
 book-core roles are ready.
+
+## QA5 Data Contracts and Shadow Evidence
+
+QA5 is still pre-calibration governance. It creates book-core data contracts,
+series verification summaries, transformation contracts, and a shadow evidence
+model, but it does not tune parameters or evaluate economic performance.
+
+The shadow evidence model keeps missing evidence unavailable. It does not
+zero-fill missing roles, does not fall back from strict data to revised data,
+and does not use context priors. Revised diagnostic rows remain separate from
+strict evidence and cannot support validation or holdout claims.
+
+No new weights or thresholds are defined in QA5. The shadow freeze is an
+architecture freeze for contracts and source hashes only. QA6 must
+pre-register aggregation rules before any decision-active candidate model can
+be frozen.

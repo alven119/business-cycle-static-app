@@ -1,0 +1,21 @@
+book_faithful_shadow_model_v2:
+  version: 1
+  phase: QA5
+  model_id: book_faithful_shadow_v2_alpha1
+  status: experimental_shadow_only
+  enabled_by_default: false
+  production_integration_allowed: false
+  resolver_integration_allowed: false
+  dashboard_integration_allowed: false
+  portfolio_integration_allowed: false
+  context_prior_allowed: false
+  display_hint_allowed: false
+  model_state_history_allowed: false
+  economic_validation_status: not_started
+  independent_validation_status: not_started
+  holdout_status: not_registered
+  computes_formal_candidate_phase: false
+  computes_current_phase: false
+  computes_decision_status: false
+  zero_fill_missing_evidence: false
+

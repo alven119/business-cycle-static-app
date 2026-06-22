@@ -11,6 +11,12 @@ def main() -> None:
         "phase",
         "indicator_promotion_gate_ready",
         "promotion_candidate_count",
+        "ready_for_shadow_evidence_model_count",
+        "blocked_data_contract_count",
+        "blocked_temporal_count",
+        "blocked_transformation_count",
+        "blocked_equivalence_count",
+        "blocked_independent_validation_count",
         "shadow_model_ready_count",
         "production_review_ready_count",
         "promotion_without_complete_gate_count",
@@ -23,4 +29,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

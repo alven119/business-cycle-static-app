@@ -11,7 +11,7 @@ book_faithful_formal_scope_freeze:
   shock_overlay_scope_hash: 707dac41c41463b7a3a093a82f60a1c55d1406d6de805cce954c201bf5f04575
   regime_scope_hash: 072fb00e263044f641614e6fccd23d3622f8c6663a2343e5881d6ce2ebb4684c
   portfolio_rule_scope_hash: 81c93ef0b3eee9b9cb6564bc3cde55723f1106b77e45b2b0c6b72ab32cd143d7
-  promotion_gate_hash: b956a1d111f5e058cddbf8d57229ff678b3956967701ad9ab68734a5d0328259
+  promotion_gate_hash: 35fba08429d1ca36e87bacf374f28a9d21a8e3806d3060502cc2cfbbccb62108
   missing_scope_item_ids:
     - scope::productivity_driven_expansion
     - scope::inflation_driven_expansion
@@ -48,4 +48,3 @@ book_faithful_formal_scope_freeze:
   production_migration_status: not_allowed
   holdout_status: not_registered_for_candidate_model
   decision_parameter_frozen_by_scope_phase_count: 0
-
