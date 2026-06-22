@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import Any
 
 import requests
@@ -71,7 +72,7 @@ class FredProvider:
             payload = response.json()
         except requests.RequestException as exc:
             raise FredProviderError(
-                f"Failed to download FRED series {clean_series_id}: {exc}"
+                f"Failed to download FRED series {clean_series_id}: {_redact_secret(str(exc))}"
             ) from exc
         except ValueError as exc:
             raise FredProviderError(
@@ -118,3 +119,9 @@ class FredProvider:
 
 def _optional_str(value: Any) -> str | None:
     return value if isinstance(value, str) else None
+
+
+def _redact_secret(message: str) -> str:
+    """Remove API key query strings from provider error messages."""
+
+    return re.sub(r"(?i)(api_key=)[^&\s)\"']+", r"\1[REDACTED]", message)

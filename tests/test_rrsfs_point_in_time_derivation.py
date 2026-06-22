@@ -12,6 +12,6 @@ def test_rrsfs_point_in_time_derivation_requires_same_as_of_inputs() -> None:
 
     assert row["preferred_reconstruction_method"] == "derived_point_in_time"
     assert row["rrsfs_underlying_series"] == ["RSAFS", "CPIAUCSL"]
-    assert row["rrsfs_formula_validated"] is False
+    assert row["rrsfs_formula_validated"] is True
     assert row["dependency_graph_changed"] is False
     assert row["final_strict_ready"] is False

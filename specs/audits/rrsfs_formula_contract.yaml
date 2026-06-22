@@ -21,7 +21,7 @@ rrsfs_formula_contract:
     missing_same_month_cpi_policy: fail_closed
     revised_fallback_allowed: false
   validation_status:
-    formula_validated: false
-    unit_validated: false
-    base_period_validated: false
-    seasonal_adjustment_validated: false
+    formula_validated: true
+    unit_validated: true
+    base_period_validated: true
+    seasonal_adjustment_validated: true

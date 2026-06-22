@@ -244,9 +244,10 @@ formal_temporal_gap_remediation:
       rrsfs_current_dependency_class: direct
       rrsfs_proposed_dependency_class: derived
       rrsfs_underlying_series: [RSAFS, CPIAUCSL]
-      rrsfs_formula_validated: false
-      rrsfs_unit_validated: false
-      rrsfs_base_period_validated: false
+      rrsfs_formula_validated: true
+      rrsfs_unit_validated: true
+      rrsfs_base_period_validated: true
+      rrsfs_seasonal_adjustment_validated: true
       rrsfs_point_in_time_reconstruction_ready: false
       dependency_graph_changed: false
       revised_default_unchanged: true

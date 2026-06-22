@@ -231,3 +231,23 @@ indicators:
     )
     assert calls == ["UNRATE"]
     assert store.read_observations("fred", "UNRATE")[0].value == "2.0"
+
+
+def test_fred_provider_redacts_api_key_from_request_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FailingSession:
+        def get(self, url: str, *, params: dict[str, str], timeout: float) -> FakeResponse:
+            raise requests.RequestException(
+                f"failed url={url}?series_id={params['series_id']}&api_key={params['api_key']}"
+            )
+
+    monkeypatch.setenv("FRED_API_KEY", "secret-test-key")
+    provider = FredProvider(session=FailingSession())
+
+    with pytest.raises(FredProviderError) as exc_info:
+        provider.fetch_series_observations("CPIAUCSL")
+
+    message = str(exc_info.value)
+    assert "secret-test-key" not in message
+    assert "api_key=[REDACTED]" in message

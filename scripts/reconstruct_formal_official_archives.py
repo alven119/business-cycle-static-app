@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -20,6 +21,7 @@ from business_cycle.data_sources.eia_wti_observational_archive import (
     fetch_eia_wti_history,
 )
 from business_cycle.data_sources.census_release_index import fetch_census_release_index
+from business_cycle.data_sources.census_pdf_text import extract_pdf_text_layer
 from business_cycle.data_sources.census_retail_sales_pdf_parser import (
     RetailReleaseEvent,
     parse_retail_sales_release_artifact,
@@ -156,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
                     "content_type": attempt.content_type,
                     "parse_status": attempt.parse_status,
                     "error_class": attempt.error_class,
+                    "error_message_redacted": attempt.error_message_redacted,
                     "census_release_index_count": attempt.census_release_index_count,
                     "census_direct_artifact_link_count": attempt.census_direct_artifact_link_count,
                     "census_release_without_date_count": attempt.census_release_without_date_count,
@@ -233,6 +236,10 @@ def _attempt_census_release_index(
         parsed_attempt = _attempt_rsafs_pdf_artifacts(row, source, source_id, items)
         if parsed_attempt is not None:
             return parsed_attempt
+    if str(row["series_id"]) == "DGORDER":
+        parsed_attempt = _attempt_dgorder_pdf_artifacts(row, source, source_id, items)
+        if parsed_attempt is not None:
+            return parsed_attempt
     return ArtifactAttempt(
         **{
             **_empty_attempt(row, source, source_id, cache_status="release_index_discovered").__dict__,
@@ -270,6 +277,7 @@ def _attempt_rsafs_pdf_artifacts(
     last_content_type: str | None = None
     last_error_class: str | None = None
     last_error_message: str | None = None
+    last_byte_count = 0
     for item in sorted(direct_pdfs, key=lambda entry: entry.reference_period or "")[:8]:
         artifact_source_id = f"{source_id}_{item.reference_period}"
         try:
@@ -277,6 +285,7 @@ def _attempt_rsafs_pdf_artifacts(
             downloaded += 1
             last_status = status
             last_content_type = content_type
+            last_byte_count = len(content)
             parse_attempted += 1
             result = parse_retail_sales_release_artifact(
                 content,
@@ -329,8 +338,83 @@ def _attempt_rsafs_pdf_artifacts(
         cache_status="written" if parsed_events else "parser_failed",
         http_status=last_status,
         content_type=last_content_type,
-        byte_count=0,
+        byte_count=last_byte_count,
         parse_status="parsed" if parsed_events else "blocked_pdf_text_parser_failed",
+        error_class=last_error_class,
+        error_message_redacted=last_error_message,
+        census_release_index_count=len(items),
+        census_direct_artifact_link_count=sum(item.artifact_type != "html_landing_page" for item in items),
+        census_landing_page_only_count=sum(item.artifact_type == "html_landing_page" for item in items),
+        census_release_without_date_count=sum(item.release_date is None for item in items),
+    )
+
+
+def _attempt_dgorder_pdf_artifacts(
+    row: dict[str, Any],
+    source: dict[str, Any],
+    source_id: str,
+    items: list[Any],
+) -> ArtifactAttempt | None:
+    direct_pdfs = [
+        item
+        for item in items
+        if item.artifact_type == "pdf"
+        and item.reference_period is not None
+        and "1998-01" <= item.reference_period <= "1999-08"
+    ]
+    if not direct_pdfs:
+        return None
+    downloaded = 0
+    parse_attempted = 0
+    text_layer_count = 0
+    last_status: int | None = None
+    last_content_type: str | None = None
+    last_error_class: str | None = None
+    last_error_message: str | None = None
+    last_byte_count = 0
+    for item in sorted(direct_pdfs, key=lambda entry: entry.reference_period or "")[:8]:
+        try:
+            status, content_type, content = _download_url(item.artifact_url)
+            downloaded += 1
+            last_status = status
+            last_content_type = content_type
+            last_byte_count = len(content)
+            parse_attempted += 1
+            text = extract_pdf_text_layer(content)
+            text_layer_count += int(bool(text.strip()))
+        except Exception as exc:  # noqa: BLE001 - diagnostics must classify PDF failures.
+            last_error_class = type(exc).__name__
+            last_error_message = _redact(str(exc))
+            continue
+        # A text layer alone is not enough: DGORDER strict reconstruction needs
+        # advance/full/revised event semantics. Keep fail-closed until a
+        # deterministic event parser exists.
+        last_error_class = "DgorderReleaseParserBlocked"
+        last_error_message = "text_layer_detected_but_advance_full_revision_parser_not_implemented"
+    return ArtifactAttempt(
+        series_id=str(row["series_id"]),
+        source_id=source_id,
+        source_domain=str(source["source_domain"]),
+        source_url=str(source["source_url"]),
+        artifact_type=str(source["artifact_type"]),
+        implementation_status="blocked_pending_dgorder_pdf_event_parser",
+        network_attempted=True,
+        artifact_downloaded=downloaded > 0,
+        structured_response=downloaded > 0,
+        parse_attempted=parse_attempted > 0,
+        parse_succeeded=False,
+        parsed_release_count=0,
+        extracted_row_count=0,
+        as_of_snapshot_count=0,
+        cache_status="parser_failed",
+        http_status=last_status,
+        content_type=last_content_type,
+        byte_count=last_byte_count,
+        parse_status=(
+            "blocked_pdf_text_parser_failed"
+            if text_layer_count == 0
+            else "blocked_pending_advance_full_revision_parser"
+        ),
         error_class=last_error_class,
         error_message_redacted=last_error_message,
         census_release_index_count=len(items),
@@ -578,6 +662,13 @@ def _summary(
         item for item in attempts if item.implementation_status.startswith("implemented")
     ]
     network_attempted_series = {item.series_id for item in attempts if item.network_attempted}
+    image_only_required_artifacts = [
+        item
+        for item in attempts
+        if item.parse_attempted
+        and item.extracted_row_count == 0
+        and item.error_class in {"CensusPdfTextError"}
+    ]
     result = "passed" if strict_ready == len(rows) and not blocked_series else "blocked"
     return {
         "requested_series_count": len(rows),
@@ -634,6 +725,15 @@ def _summary(
         "strict_snapshot_without_artifact_provenance_count": 0,
         "strict_snapshot_without_availability_date_count": 0,
         "strict_snapshot_without_parser_version_count": 0,
+        "image_only_required_artifact_count": len(image_only_required_artifacts),
+        "ocr_candidate_artifact_count": 0,
+        "dual_extraction_agreement_count": 0,
+        "dual_extraction_disagreement_count": 0,
+        "cross_release_validation_pass_count": 0,
+        "arithmetic_validation_pass_count": 0,
+        "ocr_verified_artifact_count": 0,
+        "ocr_value_rejected_count": len(image_only_required_artifacts),
+        "controlled_ocr_available": _controlled_ocr_available(),
         "official_archive_cache_dir": str(cache_dir),
         "reuse_existing": reuse_existing,
         "secret_logged": False,
@@ -655,6 +755,14 @@ def _requested_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
 
 def _redact(message: str) -> str:
     return message.replace("api_key", "redacted_key").replace("FRED_API_KEY", "redacted_key")
+
+
+def _controlled_ocr_available() -> bool:
+    renderers = {"pdftoppm", "convert", "gs"}
+    ocr_engines = {"tesseract"}
+    return any(shutil.which(item) for item in renderers) and any(
+        shutil.which(item) for item in ocr_engines
+    )
 
 
 def _format(value: object) -> str:
