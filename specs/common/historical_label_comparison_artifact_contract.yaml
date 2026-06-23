@@ -1,0 +1,93 @@
+historical_label_comparison_artifact_contract:
+  contract_id: book_faithful_shadow_historical_label_comparison_artifact_v1
+  contract_version: phase22_v1
+  contract_status: artifact_generation_allowed_no_metrics
+  parent_label_comparison_contract_id: book_faithful_shadow_historical_label_comparison_v1
+  parent_metric_preregistration_freeze_id: book_faithful_shadow_v2_alpha17
+  source_dry_run_result_registry_id: book_faithful_shadow_historical_validation_dry_run_results_v1
+  source_label_manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  source_label_policy_id: book_faithful_shadow_historical_validation_label_policy_v1
+  artifact_schema_version: phase22_label_comparison_artifact_v1
+  scenario_count_required: 5
+  allowed_artifact_fields:
+    - artifact_id
+    - scenario_id
+    - as_of
+    - data_mode
+    - dry_run_result_id
+    - label_source_id
+    - label_provenance_verified
+    - label_join_status
+    - label_available_for_offline_comparison
+    - label_used_by_runtime
+    - runtime_result_summary
+    - abstention_status
+    - blocked_reason_codes
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+    - metric_computation_enabled
+  forbidden_artifact_fields:
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - predicted_label
+    - score
+    - probability
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  join_policy:
+    require_one_to_one_scenario_join: true
+    require_label_provenance_verified: true
+    require_label_runtime_usage_false: true
+    require_metric_computation_disabled: true
+    label_values_materialized: false
+    label_available_for_offline_comparison: true
+  output_policy:
+    output_dir_must_be_under_tmp: true
+    committed_artifacts_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  output_restrictions:
+    label_comparison_executed: true
+    metric_computation_enabled: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    label_comparison_artifact_contract_ready: true
+    label_comparison_artifact_generator_ready: true
+    label_joiner_ready: true
+    dry_run_result_registry_ready_required: true
+    label_manifest_ready_required: true
+    label_policy_ready_required: true
+    metric_computation_disabled_required: true
+    prohibited_artifact_field_count_required: 0
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    runtime_rule_mutation: false
+    evaluator_mutation: false

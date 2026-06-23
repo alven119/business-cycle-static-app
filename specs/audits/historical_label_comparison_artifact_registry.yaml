@@ -1,0 +1,38 @@
+historical_label_comparison_artifact_registry:
+  registry_id: book_faithful_shadow_historical_label_comparison_artifacts_v1
+  registry_version: phase22_v1
+  registry_status: tmp_or_in_memory_join_artifacts_only_no_metrics
+  parent_contract_id: book_faithful_shadow_historical_label_comparison_artifact_v1
+  source_dry_run_result_registry_id: book_faithful_shadow_historical_validation_dry_run_results_v1
+  source_label_manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  artifact_schema_version: phase22_label_comparison_artifact_v1
+  artifact_storage_policy:
+    committed_artifacts_allowed: false
+    tmp_artifacts_allowed: true
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  expected_counters:
+    scenario_count: 5
+    label_comparison_artifact_count: 5
+    label_provenance_verified_count: 5
+    label_used_by_runtime_count: 0
+    label_comparison_executed: true
+    metric_computation_enabled: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    prohibited_artifact_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+  allowed_uses:
+    - offline_label_comparison_input_review
+    - label_join_provenance_review
+    - metric_prerequisite_artifact_review
+  prohibited_uses:
+    - metric_computation
+    - historical_accuracy_claim
+    - economic_validation_claim
+    - model_selection
+    - parameter_tuning
+    - runtime_decision_logic
+    - production_dashboard_output

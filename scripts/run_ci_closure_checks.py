@@ -9,6 +9,7 @@ import sys
 
 
 FULL_CLOSURE_SCRIPTS = (
+    "scripts/show_phase22_label_comparison_artifact_closure.py",
     "scripts/show_phase21_metric_preregistration_closure.py",
     "scripts/show_phase20_historical_validation_dry_run_closure.py",
     "scripts/show_phase19_validation_execution_readiness_closure.py",
@@ -19,6 +20,7 @@ FULL_CLOSURE_SCRIPTS = (
 )
 
 NIGHTLY_CLOSURE_SCRIPTS = (
+    "scripts/show_phase22_label_comparison_artifact_closure.py",
     "scripts/show_phase21_metric_preregistration_closure.py",
     "scripts/show_phase20_historical_validation_dry_run_closure.py",
     "scripts/show_phase19_validation_execution_readiness_closure.py",
