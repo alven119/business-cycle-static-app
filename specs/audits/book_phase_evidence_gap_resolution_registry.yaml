@@ -1,0 +1,261 @@
+book_phase_evidence_gap_resolution_registry:
+  version: phase12_v1
+  phase: "12"
+  registry_id: book_phase_evidence_gap_resolution_registry_v1
+  parent_freeze_id: book_faithful_shadow_v2_alpha7
+  reviewed_gap_ids:
+    - boom_consumer_confidence
+    - growth_adp_employment
+    - growth_real_disposable_income_vs_consumption
+    - growth_sustainable_inflation_interpretation
+    - recovery_weekly_claim_noise_filter
+    - growth_personal_saving_rate
+    - growth_core_cpi
+    - growth_core_pce
+    - trough_policy_financial_not_sufficient_alone
+  resolution_policy:
+    require_book_semantics_complete: true
+    require_source_complete: true
+    require_transformation_complete: true
+    require_temporal_rule_complete: true
+    require_abstention_rule_complete: true
+    allow_arbitrary_threshold: false
+    allow_numeric_weight: false
+    allow_historical_tuning: false
+    allow_candidate_phase_output: false
+    allow_current_phase_output: false
+    allow_production_integration: false
+  gaps:
+    - role_id: boom_consumer_confidence
+      phase_or_layer: boom_ending_indicators
+      major_group_id: consumer_confidence
+      phase11_status: blocked_data
+      book_semantics_status: phase_role_identified
+      source_status: no_public_official_equivalent
+      transformation_status: not_applicable_until_source_verified
+      temporal_rule_status: blocked_by_source_identity
+      abstention_rule_status: complete_abstain_on_missing_official_source
+      resolution_status: retained_blocked
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: no_public_official_equivalent
+      precise_blocker: generic sentiment cannot replace the book-core confidence role
+      prohibited_substitutions:
+        - generic_consumer_sentiment
+        - modern_financial_conditions
+      next_safe_action: identify a public official confidence measure or keep blocked
+    - role_id: growth_adp_employment
+      phase_or_layer: growth_indicators
+      major_group_id: employment
+      phase11_status: blocked_data
+      book_semantics_status: phase_role_identified
+      source_status: proprietary_access_required
+      transformation_status: not_applicable_until_licensed_source_available
+      temporal_rule_status: blocked_by_access
+      abstention_rule_status: complete_abstain_on_missing_licensed_artifact
+      resolution_status: retained_blocked
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: proprietary_access_required
+      precise_blocker: ADP-specific source is not legally reproducible from public official data
+      prohibited_substitutions:
+        - PAYEMS
+        - nonfarm_payrolls_as_adp
+      next_safe_action: obtain licensed reproducible ADP source or keep blocked
+    - role_id: growth_real_disposable_income_vs_consumption
+      phase_or_layer: growth_indicators
+      major_group_id: saving_and_consumption
+      phase11_status: blocked_rule_semantics
+      book_semantics_status: composite_relation_identified_but_phase_support_incomplete
+      source_status: official_series_available
+      transformation_status: same_as_of_real_relation_defined_for_observation_only
+      temporal_rule_status: release_alignment_incomplete_for_phase_support
+      abstention_rule_status: complete_abstain_on_missing_alignment_or_rule
+      resolution_status: retained_observation_only
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: composite_rule_semantics_incomplete
+      precise_blocker: same-as-of relation is observable, but supportive and contradictory phase semantics are not preregistered
+      prohibited_substitutions:
+        - single_series_income_proxy
+        - nominal_consumption_relation
+      next_safe_action: preregister phase-support semantics without historical labels
+    - role_id: growth_sustainable_inflation_interpretation
+      phase_or_layer: growth_indicators
+      major_group_id: sustainable_core_inflation
+      phase11_status: blocked_rule_semantics
+      book_semantics_status: qualitative_interpretation_unquantified
+      source_status: component_sources_available_but_interpretation_missing
+      transformation_status: sustainable_interpretation_not_operationalized
+      temporal_rule_status: blocked_by_unquantified_persistence_semantics
+      abstention_rule_status: complete_abstain_on_unresolved_sustainability_rule
+      resolution_status: retained_blocked
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: qualitative_rule_semantics_incomplete
+      precise_blocker: core CPI and core PCE observations do not by themselves define sustainable inflation
+      prohibited_substitutions:
+        - headline_inflation
+        - arbitrary_two_percent_target
+        - arbitrary_three_percent_target
+      next_safe_action: preregister non-arbitrary sustainability semantics
+    - role_id: recovery_weekly_claim_noise_filter
+      phase_or_layer: recovery_indicators
+      major_group_id: employment
+      phase11_status: raw_observation_only
+      book_semantics_status: explicit_smoothing_noise_filter_only
+      source_status: official_series_available
+      transformation_status: three_calendar_month_smoothing_available
+      temporal_rule_status: complete_for_noise_filter_not_phase_support
+      abstention_rule_status: complete_abstain_on_insufficient_history
+      resolution_status: retained_noise_filter_only
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: smoothing_not_phase_evidence
+      precise_blocker: smoothing filters noisy claims observations but does not confirm a recovery phase
+      prohibited_substitutions:
+        - smoothing_as_supportive_phase_evidence
+      next_safe_action: keep as evaluator input or display transform only
+    - role_id: growth_personal_saving_rate
+      phase_or_layer: growth_indicators
+      major_group_id: saving_and_consumption
+      phase11_status: raw_observation_only
+      book_semantics_status: directional_or_level_semantics_incomplete
+      source_status: official_series_available
+      transformation_status: raw_observation_available
+      temporal_rule_status: incomplete_for_phase_support
+      abstention_rule_status: complete_abstain_on_unresolved_rule
+      resolution_status: retained_observation_only
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: phase_support_rule_incomplete
+      precise_blocker: saving-rate phase-support direction and reference window remain unresolved
+      prohibited_substitutions:
+        - arbitrary_saving_rate_level_threshold
+      next_safe_action: preregister non-arbitrary saving-rate evidence semantics
+    - role_id: growth_core_cpi
+      phase_or_layer: growth_indicators
+      major_group_id: sustainable_core_inflation
+      phase11_status: raw_observation_only
+      book_semantics_status: component_observation_not_sustainability_rule
+      source_status: official_series_available
+      transformation_status: raw_core_inflation_observation_available
+      temporal_rule_status: incomplete_for_sustainable_interpretation
+      abstention_rule_status: complete_abstain_on_unresolved_sustainability_rule
+      resolution_status: retained_observation_only
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: component_not_composite_phase_evidence
+      precise_blocker: core CPI is an input observation and cannot alone resolve sustainable inflation
+      prohibited_substitutions:
+        - headline_cpi
+        - core_cpi_as_sustainable_inflation_confirmation
+      next_safe_action: keep as component input pending sustainable inflation rule
+    - role_id: growth_core_pce
+      phase_or_layer: growth_indicators
+      major_group_id: sustainable_core_inflation
+      phase11_status: raw_observation_only
+      book_semantics_status: component_observation_not_sustainability_rule
+      source_status: official_series_available
+      transformation_status: raw_core_inflation_observation_available
+      temporal_rule_status: incomplete_for_sustainable_interpretation
+      abstention_rule_status: complete_abstain_on_unresolved_sustainability_rule
+      resolution_status: retained_observation_only
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: component_not_composite_phase_evidence
+      precise_blocker: core PCE is an input observation and cannot alone resolve sustainable inflation
+      prohibited_substitutions:
+        - headline_pce
+        - core_pce_as_sustainable_inflation_confirmation
+      next_safe_action: keep as component input pending sustainable inflation rule
+    - role_id: trough_policy_financial_not_sufficient_alone
+      phase_or_layer: recession_trough_requirements
+      major_group_id: policy_financial_supporting_only
+      phase11_status: blocked_rule_semantics
+      book_semantics_status: supporting_only_guardrail
+      source_status: supporting_signal_available
+      transformation_status: supporting_context_not_core_phase_evidence
+      temporal_rule_status: not_applicable_for_confirmation
+      abstention_rule_status: complete_abstain_on_policy_financial_only
+      resolution_status: retained_supporting_only
+      safe_to_operationalize: false
+      operational_evaluator_added: false
+      phase_support_added: false
+      candidate_selection_eligible: false
+      current_phase_output_allowed: false
+      numeric_threshold_added: false
+      numeric_weight_added: false
+      historical_tuning_used: false
+      false_resolution_risk: false
+      prohibited_substitution_used: false
+      blocker_class: supporting_only_not_confirmation
+      precise_blocker: policy or financial easing alone cannot confirm trough or recovery
+      prohibited_substitutions:
+        - policy_only_recovery_confirmation
+        - financial_stress_only_trough_confirmation
+      next_safe_action: keep in transition/supporting lane only
