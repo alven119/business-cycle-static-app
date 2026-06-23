@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 
 
 def test_show_phase12_book_core_gap_resolution_closure_script() -> None:
     completed = subprocess.run(
         [
-            ".venv/bin/python",
+            sys.executable,
             "scripts/show_phase12_book_core_gap_resolution_closure.py",
         ],
         check=True,

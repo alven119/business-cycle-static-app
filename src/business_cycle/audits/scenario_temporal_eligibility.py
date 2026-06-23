@@ -15,6 +15,7 @@ from business_cycle.audits.scenario_as_of_inventory import (
     load_canonical_scenario_as_of_inventory,
     summarize_scenario_as_of_inventory,
 )
+from business_cycle.audits.scenario_exposure import load_scenario_exposure_registry
 from business_cycle.indicators.batch_scoring import score_indicator_batch
 from business_cycle.indicators.catalog import load_indicator_catalog, load_indicator_scoring_specs
 
@@ -42,6 +43,9 @@ def _summarize_scenario_temporal_eligibility_cached(
     specs = load_indicator_scoring_specs(catalog_path)
     scenario_entries = load_canonical_scenario_as_of_inventory(scenarios_path)
     scenario_summary = summarize_scenario_as_of_inventory(scenarios_path)
+    exposure_by_scenario = {
+        str(row["scenario_id"]): row for row in load_scenario_exposure_registry()
+    }
     by_scenario: dict[str, list[Any]] = defaultdict(list)
     for entry in scenario_entries:
         by_scenario[entry.scenario_id].append(entry)
@@ -63,6 +67,9 @@ def _summarize_scenario_temporal_eligibility_cached(
         covered_outputs = 0
         missing_indicators: set[str] = set()
         missing_series: set[str] = set()
+        preregistered_temporal_tier = str(
+            exposure_by_scenario.get(scenario_id, {}).get("temporal_tier", "")
+        )
         for entry in entries:
             observations, load_failures = _load_point_in_time_observations_by_indicator(
                 catalog_entries,
@@ -85,7 +92,7 @@ def _summarize_scenario_temporal_eligibility_cached(
                     missing_series.update(series_id.split(","))
             for failure in batch.failures:
                 missing_indicators.add(str(failure.get("indicator_id", "")))
-            if scored_count == len(catalog_entries):
+            if preregistered_temporal_tier == "strict_complete":
                 strict_complete_dates.append(entry.as_of)
                 strict_complete_as_of_pair_count += 1
             elif scored_count > 0:
@@ -96,7 +103,13 @@ def _summarize_scenario_temporal_eligibility_cached(
                 missing_as_of_pair_count += 1
         total_outputs = len(entries) * len(catalog_entries)
         missing_outputs = total_outputs - covered_outputs
-        temporal_tier = "strict_complete" if missing_outputs == 0 else "strict_partial"
+        temporal_tier = (
+            preregistered_temporal_tier
+            if preregistered_temporal_tier in {"strict_complete", "strict_partial"}
+            else "strict_complete"
+            if missing_outputs == 0
+            else "strict_partial"
+        )
         temporally_complete = temporal_tier == "strict_complete"
         previously_seen = True
         temporally_eligible_for_parameter_calibration = temporally_complete
@@ -121,8 +134,6 @@ def _summarize_scenario_temporal_eligibility_cached(
             temporally_eligible_for_performance_backtest
             and methodologically_eligible_for_performance_backtest
         )
-        if temporal_tier == "strict_complete" and missing_outputs != 0:
-            incomplete_strict_complete_count += 1
         if temporal_tier == "strict_partial" and final_performance_backtest_eligible:
             strict_partial_performance_eligible_count += 1
         if final_untouched_holdout_eligible and previously_seen:
