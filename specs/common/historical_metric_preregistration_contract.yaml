@@ -1,0 +1,59 @@
+historical_metric_preregistration_contract:
+  contract_id: book_faithful_shadow_historical_metric_preregistration_v1
+  contract_version: phase21_v1
+  contract_status: metrics_preregistered_no_computation
+  parent_label_comparison_contract_id: book_faithful_shadow_historical_label_comparison_v1
+  parent_dry_run_result_registry_id: book_faithful_shadow_historical_validation_dry_run_results_v1
+  metric_registry_id: book_faithful_shadow_historical_metric_registry_v1
+  required_prior_freezes:
+    - book_faithful_shadow_v2_alpha16
+    - book_faithful_shadow_v2_alpha15
+  metric_preregistration_policy:
+    computation_enabled: false
+    metric_values_materialized_this_phase: false
+    confusion_matrix_generation_enabled: false
+    historical_accuracy_computation_enabled: false
+    economic_performance_computation_enabled: false
+    backtest_execution_enabled: false
+    labels_allowed_for_future_comparison_only: true
+  denominator_policy:
+    denominator_must_be_preregistered_per_metric: true
+    abstention_treatment_must_be_explicit: true
+    blocked_treatment_must_be_explicit: true
+    missing_treatment_must_be_explicit: true
+    denominator_changes_require_new_metric_registry_version: true
+  prohibited_metric_outputs:
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - candidate_phase
+    - current_phase
+    - phase_score
+    - phase_probability
+  readiness_gates:
+    historical_metric_preregistration_ready: true
+    preregistered_metric_count_minimum: 1
+    all_metrics_computation_disabled: true
+    all_metrics_have_denominator: true
+    all_metrics_have_abstention_policy: true
+    all_metrics_have_blocked_policy: true
+    all_metrics_have_missing_policy: true
+  disabled_runtime_guards:
+    label_comparison_executed: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false

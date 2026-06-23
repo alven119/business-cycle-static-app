@@ -1,0 +1,107 @@
+historical_label_comparison_contract:
+  contract_id: book_faithful_shadow_historical_label_comparison_v1
+  contract_version: phase21_v1
+  contract_status: preregistered_no_label_comparison_execution
+  required_prior_freezes:
+    - book_faithful_shadow_v2_alpha16
+    - book_faithful_shadow_v2_alpha15
+    - book_faithful_shadow_v2_alpha10
+  required_dry_run_result_artifacts:
+    parent_registry_id: book_faithful_shadow_historical_validation_dry_run_results_v1
+    required_scenario_result_count: 5
+    label_blind_execution_required: true
+    prohibited_result_field_count_required: 0
+  label_source_policy:
+    allowed_label_sources:
+      - historical_validation_label_policy
+      - explicitly_declared_nber_recession_intervals_for_future_validation_only
+      - preregistered_book_case_traceability_for_context_only
+    prohibited_label_sources:
+      - runtime_decision_logic
+      - rule_or_threshold_tuning
+      - scenario_specific_threshold_selection
+      - portfolio_returns
+      - production_current_phase
+    label_runtime_usage_prohibited: true
+  label_join_policy:
+    join_keys:
+      - scenario_id
+      - as_of
+      - data_mode
+      - execution_plan_id
+    require_one_to_one_join: true
+    missing_label_behavior: exclude_from_comparison_denominator_and_report_missing
+    missing_result_behavior: exclude_from_metric_denominator_and_report_missing
+    duplicate_label_behavior: fail_closed
+    duplicate_result_behavior: fail_closed
+  expected_label_output_policy:
+    expected_label_materialization_allowed_this_phase: false
+    expected_label_allowed_in_future_comparison_artifact: true
+    expected_label_allowed_in_runtime_input: false
+  predicted_label_output_policy:
+    predicted_label_materialization_allowed_this_phase: false
+    predicted_label_allowed_in_future_comparison_artifact: true
+    predicted_label_allowed_in_runtime_output: false
+    candidate_phase_must_not_be_used_as_prediction: true
+    current_phase_must_not_be_used_as_prediction: true
+  metric_families:
+    - structural_coverage
+    - label_join_quality
+    - abstention_and_blocking
+    - label_comparison
+  denominator_policy:
+    default_denominator: joined_label_and_result_artifacts_with_non_missing_required_fields
+    include_abstentions_in_comparison_denominator: true
+    exclude_missing_results_from_comparison_denominator: true
+    report_missing_results_separately: true
+    no_denominator_shrinkage_without_explicit_reason: true
+  abstention_handling_policy:
+    abstentions_are_not_incorrect_predictions: true
+    abstentions_counted_in_abstention_metrics_only: true
+    abstentions_excluded_from_label_match_numerator: true
+  blocked_result_handling_policy:
+    blocked_results_are_not_neutral: true
+    blocked_results_reported_separately: true
+    blocked_results_excluded_from_label_match_numerator: true
+  missing_result_handling_policy:
+    missing_results_are_fail_closed: true
+    missing_results_reported_separately: true
+    missing_results_not_zero_filled: true
+  mixed_evidence_handling_policy:
+    mixed_evidence_not_forced_to_prediction: true
+    mixed_evidence_reported_separately: true
+  no_tuning_after_comparison_policy:
+    rule_or_threshold_change_requires_new_freeze: true
+    metric_results_must_not_modify_evaluators: true
+    metric_results_must_not_modify_candidate_contract: true
+  output_restrictions:
+    label_comparison_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    historical_label_comparison_contract_ready: true
+    label_runtime_usage_prohibited: true
+    label_join_policy_ready: true
+    denominator_policy_ready: true
+    abstention_handling_policy_ready: true
+    blocked_result_handling_policy_ready: true
+    missing_result_handling_policy_ready: true
+    no_tuning_after_comparison_policy_ready: true
+  disabled_runtime_guards:
+    label_comparison_executed: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false

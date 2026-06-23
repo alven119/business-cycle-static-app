@@ -1,0 +1,89 @@
+historical_metric_registry:
+  registry_id: book_faithful_shadow_historical_metric_registry_v1
+  registry_version: phase21_v1
+  registry_status: preregistered_no_metric_computation
+  parent_metric_preregistration_contract_id: book_faithful_shadow_historical_metric_preregistration_v1
+  parent_label_comparison_contract_id: book_faithful_shadow_historical_label_comparison_v1
+  metrics:
+    - metric_id: label_join_coverage_rate
+      purpose: Future diagnostic of dry-run result artifacts that can be joined to declared labels.
+      required_inputs:
+        - phase20_dry_run_result_artifacts
+        - validation_label_policy_rows
+      denominator_definition: preregistered_scenario_count
+      numerator_definition: joined_label_and_result_artifact_count
+      abstention_treatment: included_if_result_artifact_exists
+      blocked_treatment: included_if_result_artifact_exists
+      missing_treatment: counted_as_missing_result_not_joined
+      prohibited_uses:
+        - runtime_decision_logic
+        - evaluator_tuning
+        - economic_validation_claim
+      computation_enabled: false
+    - metric_id: label_match_rate
+      purpose: Future label-comparison diagnostic for non-missing, non-blocked comparable outputs only.
+      required_inputs:
+        - joined_label_and_result_artifacts
+        - future_declared_predicted_label_field
+      denominator_definition: joined_artifacts_with_declared_comparable_prediction
+      numerator_definition: comparable_prediction_equals_declared_label
+      abstention_treatment: excluded_from_numerator_and_reported_in_abstention_metric
+      blocked_treatment: excluded_from_numerator_and_reported_in_blocked_metric
+      missing_treatment: excluded_from_denominator_and_reported_in_missing_metric
+      prohibited_uses:
+        - threshold_tuning
+        - model_selection_without_new_freeze
+        - production_migration_claim
+      computation_enabled: false
+    - metric_id: abstention_share
+      purpose: Future diagnostic of how often non-emitting runtime abstained.
+      required_inputs:
+        - joined_label_and_result_artifacts
+        - abstention_reasons
+      denominator_definition: joined_label_and_result_artifact_count
+      numerator_definition: artifact_has_abstention_reasons
+      abstention_treatment: counted_in_numerator
+      blocked_treatment: reported_separately_not_zero_filled
+      missing_treatment: excluded_from_denominator_and_reported_in_missing_metric
+      prohibited_uses:
+        - treating_abstention_as_wrong_prediction
+        - treating_abstention_as_zero_score
+      computation_enabled: false
+    - metric_id: blocked_result_share
+      purpose: Future diagnostic of fail-closed blocked result artifacts.
+      required_inputs:
+        - joined_label_and_result_artifacts
+        - blocked_reason_codes
+      denominator_definition: joined_label_and_result_artifact_count
+      numerator_definition: artifact_has_blocked_reason_codes
+      abstention_treatment: reported_separately
+      blocked_treatment: counted_in_numerator
+      missing_treatment: excluded_from_denominator_and_reported_in_missing_metric
+      prohibited_uses:
+        - treating_blocked_result_as_neutral
+        - denominator_shrinkage_without_reporting
+      computation_enabled: false
+    - metric_id: missing_result_share
+      purpose: Future diagnostic of planned scenarios without corresponding dry-run result artifacts.
+      required_inputs:
+        - locked_execution_plan_rows
+        - phase20_dry_run_result_artifacts
+      denominator_definition: locked_execution_plan_scenario_count
+      numerator_definition: scenario_without_result_artifact
+      abstention_treatment: not_applicable
+      blocked_treatment: not_applicable
+      missing_treatment: counted_in_numerator
+      prohibited_uses:
+        - filling_missing_result_with_neutral
+        - filling_missing_result_with_zero
+      computation_enabled: false
+  counters:
+    preregistered_metric_count: 5
+    computation_enabled_metric_count: 0
+    metric_without_denominator_count: 0
+    metric_without_abstention_policy_count: 0
+    metric_without_blocked_policy_count: 0
+    metric_without_missing_policy_count: 0
+    label_comparison_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
