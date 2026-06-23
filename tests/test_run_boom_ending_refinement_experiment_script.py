@@ -52,6 +52,7 @@ def test_run_boom_ending_refinement_experiment_custom_path_can_be_used(tmp_path:
     cache_dir = tmp_path / "raw" / "fred"
     cache_dir.mkdir(parents=True)
     write_series(cache_dir / "T10Y3M.csv", [1.0] * 60 + [-0.5] * 12 + [0.2] * 6)
+    output = tmp_path / "custom_refinement.json"
 
     completed = run_script(
         "--experiment",
@@ -64,10 +65,17 @@ def test_run_boom_ending_refinement_experiment_custom_path_can_be_used(tmp_path:
         str(groups),
         "--cache-dir",
         str(cache_dir),
+        "--output",
+        str(output),
     )
 
     assert completed.returncode == 0, completed.stderr
     assert "gfc_2006_improved_to_watch=" in completed.stdout
+    assert output.exists()
+    assert not Path(
+        "data/backtests/candidate_indicators/boom_ending_refinement/"
+        "boom_ending_refinement_experiment.json"
+    ).exists()
 
 
 def test_run_boom_ending_refinement_experiment_missing_experiment_fails(tmp_path: Path) -> None:

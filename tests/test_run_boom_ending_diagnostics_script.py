@@ -46,6 +46,7 @@ def test_run_boom_ending_diagnostics_custom_windows_can_be_used(tmp_path: Path) 
     cache_dir = tmp_path / "raw" / "fred"
     cache_dir.mkdir(parents=True)
     write_series(cache_dir / "T10Y3M.csv", [1.0] * 70 + [-0.5] * 20)
+    output = tmp_path / "custom_diagnostics.json"
 
     completed = run_script(
         "--windows",
@@ -56,10 +57,17 @@ def test_run_boom_ending_diagnostics_custom_windows_can_be_used(tmp_path: Path) 
         str(groups),
         "--cache-dir",
         str(cache_dir),
+        "--output",
+        str(output),
     )
 
     assert completed.returncode == 0, completed.stderr
     assert "gfc_2006_status=" in completed.stdout
+    assert output.exists()
+    assert not Path(
+        "data/backtests/candidate_indicators/boom_ending_diagnostics/"
+        "boom_ending_diagnostics.json"
+    ).exists()
 
 
 def test_run_boom_ending_diagnostics_missing_windows_fails(tmp_path: Path) -> None:

@@ -34,15 +34,20 @@ def test_run_full_horizon_calibration_script_runs(monkeypatch, tmp_path: Path, c
 
     monkeypatch.setattr(script, "run_full_horizon_calibration", fake_run_full_horizon_calibration)
 
-    exit_code = script.main(["--experiment-id", "test"])
+    exit_code = script.main(
+        ["--experiment-id", "test", "--output-dir", str(tmp_path / "calibration")]
+    )
 
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "experiment_id=test" in captured.out
     assert "pass_count=1" in captured.out
+    assert not Path("data/backtests/calibration/test/review.json").exists()
 
 
-def test_run_full_horizon_calibration_script_scenario_id(monkeypatch, capsys) -> None:  # noqa: ANN001
+def test_run_full_horizon_calibration_script_scenario_id(
+    monkeypatch, tmp_path: Path, capsys
+) -> None:  # noqa: ANN001
     calls: list[dict] = []
 
     def fake_run_full_horizon_calibration(**kwargs) -> dict:  # noqa: ANN003
@@ -72,14 +77,26 @@ def test_run_full_horizon_calibration_script_scenario_id(monkeypatch, capsys) ->
 
     monkeypatch.setattr(script, "run_full_horizon_calibration", fake_run_full_horizon_calibration)
 
-    exit_code = script.main(["--experiment-id", "test", "--scenario-id", "covid_recession"])
+    exit_code = script.main(
+        [
+            "--experiment-id",
+            "test",
+            "--scenario-id",
+            "covid_recession",
+            "--output-dir",
+            str(tmp_path / "calibration"),
+        ]
+    )
 
     assert exit_code == 0
     assert calls[0]["scenario_id"] == "covid_recession"
     assert "scenario_count=1" in capsys.readouterr().out
+    assert not Path("data/backtests/calibration/test/review.json").exists()
 
 
-def test_run_full_horizon_calibration_script_accepts_breadth_controls(monkeypatch, capsys) -> None:  # noqa: ANN001
+def test_run_full_horizon_calibration_script_accepts_breadth_controls(
+    monkeypatch, tmp_path: Path, capsys
+) -> None:  # noqa: ANN001
     calls: list[dict] = []
 
     def fake_run_full_horizon_calibration(**kwargs) -> dict:  # noqa: ANN003
@@ -115,15 +132,20 @@ def test_run_full_horizon_calibration_script_accepts_breadth_controls(monkeypatc
             "test",
             "--controls",
             "specs/backtests/transition_controls_recession_breadth_experiment.yaml",
+            "--output-dir",
+            str(tmp_path / "calibration"),
         ]
     )
 
     assert exit_code == 0
     assert calls[0]["controls_config_path"] == "specs/backtests/transition_controls_recession_breadth_experiment.yaml"
     assert "pass_count=1" in capsys.readouterr().out
+    assert not Path("data/backtests/calibration/test/review.json").exists()
 
 
-def test_run_full_horizon_calibration_reuse_and_force_flags(monkeypatch, capsys) -> None:  # noqa: ANN001
+def test_run_full_horizon_calibration_reuse_and_force_flags(
+    monkeypatch, tmp_path: Path, capsys
+) -> None:  # noqa: ANN001
     calls: list[dict] = []
 
     def fake_run_full_horizon_calibration(**kwargs) -> dict:  # noqa: ANN003
@@ -154,12 +176,22 @@ def test_run_full_horizon_calibration_reuse_and_force_flags(monkeypatch, capsys)
 
     monkeypatch.setattr(script, "run_full_horizon_calibration", fake_run_full_horizon_calibration)
 
-    exit_code = script.main(["--experiment-id", "test", "--reuse-existing", "--force"])
+    exit_code = script.main(
+        [
+            "--experiment-id",
+            "test",
+            "--reuse-existing",
+            "--force",
+            "--output-dir",
+            str(tmp_path / "calibration"),
+        ]
+    )
 
     assert exit_code == 0
     assert calls[0]["reuse_existing"] is True
     assert calls[0]["force"] is True
     assert "reused_output_count=10" in capsys.readouterr().out
+    assert not Path("data/backtests/calibration/test/review.json").exists()
 
 
 def test_run_full_horizon_calibration_missing_controls_fails(tmp_path: Path) -> None:

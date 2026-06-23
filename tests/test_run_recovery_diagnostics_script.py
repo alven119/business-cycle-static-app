@@ -46,6 +46,7 @@ def test_run_recovery_diagnostics_accepts_custom_paths(tmp_path: Path) -> None:
     cache_dir = tmp_path / "raw" / "fred"
     cache_dir.mkdir(parents=True)
     write_series(cache_dir / "ICSA.csv", [220.0] * 40 + [520.0] * 8 + [500.0, 460.0, 420.0, 380.0])
+    output = tmp_path / "custom_diagnostics.json"
 
     completed = run_script(
         "--windows",
@@ -56,10 +57,16 @@ def test_run_recovery_diagnostics_accepts_custom_paths(tmp_path: Path) -> None:
         str(groups),
         "--cache-dir",
         str(cache_dir),
+        "--output",
+        str(output),
     )
 
     assert completed.returncode == 0, completed.stderr
     assert "match_count=" in completed.stdout
+    assert output.exists()
+    assert not Path(
+        "data/backtests/candidate_indicators/recovery_diagnostics/recovery_diagnostics.json"
+    ).exists()
 
 
 def test_run_recovery_diagnostics_missing_windows_fails(tmp_path: Path) -> None:

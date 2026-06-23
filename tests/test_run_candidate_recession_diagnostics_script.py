@@ -46,6 +46,7 @@ def test_run_candidate_recession_diagnostics_custom_windows_can_be_used(tmp_path
     cache_dir = tmp_path / "raw" / "fred"
     cache_dir.mkdir(parents=True)
     write_series(cache_dir / "CCSA.csv", [100 + i * 5 for i in range(80)])
+    output = tmp_path / "custom_diagnostics.json"
 
     completed = run_script(
         "--windows",
@@ -56,10 +57,17 @@ def test_run_candidate_recession_diagnostics_custom_windows_can_be_used(tmp_path
         str(groups),
         "--cache-dir",
         str(cache_dir),
+        "--output",
+        str(output),
     )
 
     assert completed.returncode == 0, completed.stderr
     assert "covid_2019_status=" in completed.stdout
+    assert output.exists()
+    assert not Path(
+        "data/backtests/candidate_indicators/recession_confirmation_diagnostics/"
+        "candidate_recession_diagnostics.json"
+    ).exists()
 
 
 def test_run_candidate_recession_diagnostics_missing_windows_fails(tmp_path: Path) -> None:

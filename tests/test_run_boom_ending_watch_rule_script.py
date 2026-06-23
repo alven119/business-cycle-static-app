@@ -25,11 +25,24 @@ def test_run_boom_ending_watch_rule_script_succeeds(tmp_path: Path) -> None:
 def test_run_boom_ending_watch_rule_custom_rule_can_be_used(tmp_path: Path) -> None:
     refinement = write_refinement(tmp_path)
     rule = write_rule(tmp_path)
+    output = tmp_path / "custom_watch_rule.json"
 
-    completed = run_script("--refinement", str(refinement), "--rule", str(rule))
+    completed = run_script(
+        "--refinement",
+        str(refinement),
+        "--rule",
+        str(rule),
+        "--output",
+        str(output),
+    )
 
     assert completed.returncode == 0, completed.stderr
     assert "watch_count=1" in completed.stdout
+    assert output.exists()
+    assert not Path(
+        "data/backtests/candidate_indicators/boom_ending_watch_rule/"
+        "boom_ending_watch_rule_report.json"
+    ).exists()
 
 
 def test_run_boom_ending_watch_rule_missing_refinement_fails(tmp_path: Path) -> None:
