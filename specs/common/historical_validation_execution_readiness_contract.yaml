@@ -1,0 +1,140 @@
+historical_validation_execution_readiness_contract:
+  contract_id: book_faithful_shadow_historical_validation_execution_readiness_v1
+  contract_version: phase19_v1
+  contract_status: gated_no_validation_execution
+  parent_freeze_id: book_faithful_shadow_v2_alpha14
+  required_prior_freezes:
+    - book_faithful_shadow_v2_alpha10
+    - book_faithful_shadow_v2_alpha11
+    - book_faithful_shadow_v2_alpha12
+    - book_faithful_shadow_v2_alpha13
+    - book_faithful_shadow_v2_alpha14
+  required_manifest_artifacts:
+    - historical_validation_manifest_contract
+    - historical_validation_scenario_manifest
+  required_label_policy_artifacts:
+    - historical_validation_label_policy
+  required_input_readiness_artifacts:
+    - historical_validation_input_readiness_contract
+    - historical_validation_scenario_input_requirements
+    - historical_validation_input_readiness_registry
+  required_validation_protocol_artifacts:
+    - economic_validation_protocol_contract
+    - validation_readiness_registry
+  required_harness_artifacts:
+    - validation_harness_contract
+    - validation_artifact_contracts
+  required_decision_runtime_artifacts:
+    - non_emitting_decision_runtime_contract
+    - book_faithful_shadow_v2_alpha10
+  scenario_execution_plan:
+    plan_id: book_faithful_shadow_historical_validation_execution_plan_v1
+    scenario_count: 5
+    execution_allowed_in_this_phase: false
+    locked_before_execution: true
+    plan_is_result_free: true
+  allowed_data_modes:
+    - vintage_as_of
+  prohibited_data_modes:
+    - revised_primary_validation
+    - live
+    - prospective_registry
+    - synthetic_fixture_as_real_history
+  result_artifact_schema:
+    schema_id: book_faithful_shadow_historical_validation_result_artifact_contract_v1
+    schema_preregistered: true
+    result_artifact_creation_allowed_this_phase: false
+    historical_validation_result_count: 0
+  output_directory_policy:
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+    future_validation_output_requires_explicit_phase: true
+  no_execution_policy_for_this_phase:
+    execution_allowed_in_this_phase: false
+    formal_decision_runtime_execution_allowed: false
+    validation_harness_execution_allowed: false
+    historical_validation_result_artifact_write_allowed: false
+  metric_computation_policy:
+    metric_computation_enabled: false
+    historical_accuracy_metric_allowed: false
+    economic_performance_metric_allowed: false
+    confusion_matrix_allowed: false
+  backtest_execution_policy:
+    backtest_execution_enabled: false
+    portfolio_return_computation_allowed: false
+  holdout_policy:
+    holdout_registered: false
+    holdout_record_creation_allowed: false
+  prospective_policy:
+    prospective_result_inspection_allowed: false
+    prospective_registry_record_count: 0
+    prospective_registry_write_attempt_count: 0
+  production_isolation_policy:
+    production_behavior_change_count: 0
+    production_import_allowed: false
+    workflow_integration_allowed: false
+    public_output_allowed: false
+  forbidden_outputs:
+    - historical_validation_result
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - phase_score
+    - phase_probability
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  output_restrictions:
+    execution_allowed_in_this_phase: false
+    model_execution_count: 0
+    real_historical_validation_executed: false
+    historical_validation_result_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    public_output_written: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+  readiness_gates:
+    historical_validation_execution_readiness_contract_ready: true
+    historical_validation_execution_plan_ready: true
+    result_artifact_contract_ready: true
+    execution_allowed_in_this_phase: false
+    validation_execution_allowed: false
+    metric_computation_allowed: false
+    backtest_execution_allowed: false
+  disabled_runtime_guards:
+    formal_decision_runtime_executed: false
+    real_historical_validation_executed: false
+    historical_validation_result_written: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    production_integration_allowed: false
+    prospective_registry_record_written: false
+    prospective_registry_write_attempted: false
+    public_output_allowed: false

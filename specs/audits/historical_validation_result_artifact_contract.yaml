@@ -1,0 +1,50 @@
+historical_validation_result_artifact_contract:
+  contract_id: book_faithful_shadow_historical_validation_result_artifact_contract_v1
+  contract_version: phase19_v1
+  contract_status: schema_preregistered_no_artifact_created
+  parent_execution_plan_id: book_faithful_shadow_historical_validation_execution_plan_v1
+  schema_fields:
+    required_metadata_fields:
+      - artifact_id
+      - artifact_schema_version
+      - scenario_id
+      - model_freeze_id
+      - input_manifest_hash
+      - label_policy_id
+      - recorded_at_utc
+      - provenance_complete
+    deferred_result_fields_require_future_execution_phase: true
+    metric_fields_require_future_metric_contract: true
+  output_artifact_policy:
+    artifact_creation_allowed_this_phase: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+    result_inspection_allowed: false
+  forbidden_outputs:
+    - historical_validation_result
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - phase_score
+    - phase_probability
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  counters:
+    historical_validation_result_count: 0
+    forbidden_output_field_count: 0
+    artifact_written_count: 0
+    metric_field_enabled_count: 0
+    candidate_or_current_phase_field_count: 0

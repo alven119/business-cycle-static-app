@@ -1,0 +1,45 @@
+book_faithful_shadow_v2_alpha15_validation_execution_readiness_freeze:
+  freeze_id: book_faithful_shadow_v2_alpha15
+  parent_freeze_id: book_faithful_shadow_v2_alpha14
+  freeze_type: historical_validation_execution_readiness_gate_no_execution
+  created_at_utc: "2026-06-23T00:00:00Z"
+  component_paths:
+    - specs/common/historical_validation_execution_readiness_contract.yaml
+    - specs/audits/historical_validation_execution_plan.yaml
+    - specs/audits/historical_validation_result_artifact_contract.yaml
+    - specs/audits/book_faithful_shadow_v2_alpha15_validation_execution_readiness_freeze.yaml
+    - specs/audits/phase19_validation_execution_readiness_closure.yaml
+    - specs/audits/book_faithful_shadow_v2_alpha14_historical_input_readiness_freeze.yaml
+  source_paths:
+    - src/business_cycle/validation/historical_validation_execution_readiness.py
+    - src/business_cycle/validation/historical_validation_execution_plan.py
+    - src/business_cycle/validation/historical_validation_result_artifacts.py
+    - src/business_cycle/audits/shadow_validation_execution_readiness_freeze.py
+    - src/business_cycle/audits/phase19_validation_execution_readiness_closure.py
+    - src/business_cycle/audits/shadow_historical_input_readiness_freeze.py
+    - src/business_cycle/audits/phase18_historical_input_readiness_closure.py
+  execution_readiness_gated: true
+  execution_allowed_in_this_phase: false
+  model_execution_count: 0
+  real_historical_validation_executed: false
+  historical_validation_result_count: 0
+  metric_computation_enabled: false
+  backtest_execution_enabled: false
+  holdout_registered: false
+  candidate_selection_enabled: false
+  candidate_phase_emitted: false
+  current_phase_emitted: false
+  formal_decision_model_ready: false
+  candidate_capability_ready: false
+  economic_validation_status: not_started
+  prospective_protocol_started: false
+  prospective_registry_record_count: 0
+  prospective_registry_write_attempt_count: 0
+  numeric_weight_added: false
+  arbitrary_threshold_added: false
+  role_count_voting_added: false
+  historical_tuning_used: false
+  production_integration_allowed: false
+  book_alignment_claim_allowed: false
+  real_backtest_progression_allowed: false
+  phase_9b1_allowed: false

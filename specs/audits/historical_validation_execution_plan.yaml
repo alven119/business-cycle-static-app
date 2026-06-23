@@ -1,0 +1,101 @@
+historical_validation_execution_plan:
+  plan_id: book_faithful_shadow_historical_validation_execution_plan_v1
+  plan_version: phase19_v1
+  plan_status: locked_no_execution
+  parent_contract_id: book_faithful_shadow_historical_validation_execution_readiness_v1
+  execution_allowed_in_this_phase: false
+  scenario_plan_rows:
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      data_mode: vintage_as_of
+      required_input_artifacts:
+        - historical_validation_input_readiness_registry
+        - point_in_time_series_inventory
+      required_label_artifacts:
+        - nber_us_business_cycle_dates_declared_validation_label
+      required_freeze_ids:
+        - book_faithful_shadow_v2_alpha10
+        - book_faithful_shadow_v2_alpha14
+      planned_command: future_explicit_historical_validation_runner
+      planned_output_artifacts:
+        - future_sealed_validation_artifact
+      blocked_reason_codes:
+        - phase19_execution_disabled
+      execution_allowed_in_this_phase: false
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      data_mode: vintage_as_of
+      required_input_artifacts:
+        - historical_validation_input_readiness_registry
+        - point_in_time_series_inventory
+      required_label_artifacts:
+        - nber_us_business_cycle_dates_declared_validation_label
+      required_freeze_ids:
+        - book_faithful_shadow_v2_alpha10
+        - book_faithful_shadow_v2_alpha14
+      planned_command: future_explicit_historical_validation_runner
+      planned_output_artifacts:
+        - future_sealed_validation_artifact
+      blocked_reason_codes:
+        - phase19_execution_disabled
+      execution_allowed_in_this_phase: false
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      data_mode: vintage_as_of
+      required_input_artifacts:
+        - historical_validation_input_readiness_registry
+        - point_in_time_series_inventory
+      required_label_artifacts:
+        - nber_us_business_cycle_dates_declared_validation_label
+      required_freeze_ids:
+        - book_faithful_shadow_v2_alpha10
+        - book_faithful_shadow_v2_alpha14
+      planned_command: future_explicit_historical_validation_runner
+      planned_output_artifacts:
+        - future_sealed_validation_artifact
+      blocked_reason_codes:
+        - phase19_execution_disabled
+      execution_allowed_in_this_phase: false
+    - scenario_id: euro_debt_slowdown_2011_2012
+      as_of: "2012-12-31"
+      data_mode: vintage_as_of
+      required_input_artifacts:
+        - historical_validation_input_readiness_registry
+        - point_in_time_series_inventory
+      required_label_artifacts:
+        - preregistered_period_metadata_no_runtime_label
+      required_freeze_ids:
+        - book_faithful_shadow_v2_alpha10
+        - book_faithful_shadow_v2_alpha14
+      planned_command: future_explicit_historical_validation_runner
+      planned_output_artifacts:
+        - future_sealed_validation_artifact
+      blocked_reason_codes:
+        - phase19_execution_disabled
+      execution_allowed_in_this_phase: false
+    - scenario_id: late_cycle_2018_2019
+      as_of: "2019-12-31"
+      data_mode: vintage_as_of
+      required_input_artifacts:
+        - historical_validation_input_readiness_registry
+        - point_in_time_series_inventory
+      required_label_artifacts:
+        - preregistered_period_metadata_no_runtime_label
+      required_freeze_ids:
+        - book_faithful_shadow_v2_alpha10
+        - book_faithful_shadow_v2_alpha14
+      planned_command: future_explicit_historical_validation_runner
+      planned_output_artifacts:
+        - future_sealed_validation_artifact
+      blocked_reason_codes:
+        - phase19_execution_disabled
+      execution_allowed_in_this_phase: false
+  counters:
+    scenario_with_execution_plan_count: 5
+    plan_without_required_input_artifacts_count: 0
+    plan_without_required_label_artifacts_count: 0
+    plan_without_required_freeze_ids_count: 0
+    execution_allowed_plan_count: 0
+    model_execution_count: 0
+    real_historical_validation_executed: false
+    historical_validation_result_count: 0
