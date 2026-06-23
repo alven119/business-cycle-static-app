@@ -1,0 +1,138 @@
+economic_validation_protocol_contract:
+  protocol_id: book_faithful_shadow_economic_validation_protocol_v1
+  protocol_version: phase15_v1
+  protocol_status: preregistered_no_validation_execution
+  parent_model_freeze_id: book_faithful_shadow_v2_alpha10
+  validation_layers:
+    - layer_id: structural_validation
+      purpose: verify contracts, lineage, non-emitting runtime, and abstention behavior
+      status: completed_for_prior_structural_gates
+      validation_claim_allowed: structural_only
+    - layer_id: retrospective_diagnostic
+      purpose: run revised or point-in-time diagnostics for coverage and abstention review
+      status: diagnostics_only_not_validation
+      validation_claim_allowed: false
+    - layer_id: historical_accuracy_validation
+      purpose: compare frozen outputs against preregistered historical labels and metrics
+      status: not_started
+      validation_claim_allowed: false
+    - layer_id: economic_validation
+      purpose: assess whether phase evidence and decisions are economically defensible
+      status: not_started
+      validation_claim_allowed: false
+    - layer_id: prospective_validation
+      purpose: evaluate future sealed observations after explicit protocol start
+      status: not_started
+      validation_claim_allowed: false
+    - layer_id: production_readiness_review
+      purpose: review migration readiness after validation gates pass
+      status: not_started
+      validation_claim_allowed: false
+  allowed_inputs:
+    - frozen_shadow_evidence_contracts
+    - frozen_non_emitting_decision_runtime_diagnostics
+    - frozen_major_group_evidence_profiles
+    - frozen_candidate_precondition_profiles
+    - point_in_time_data_manifests
+    - prospective_registry_metadata_after_explicit_start
+  prohibited_inputs:
+    - scenario_answer_injection
+    - expected_phase_label_for_rule_tuning
+    - nber_date_for_rule_tuning
+    - portfolio_return_for_rule_tuning
+    - prospective_result_peeking
+    - production_current_phase
+    - display_hint
+    - external_context_prior
+  required_frozen_artifacts:
+    - book_faithful_shadow_v2_alpha10
+    - non_emitting_decision_runtime_contract
+    - formal_decision_model_contract
+    - book_phase_evidence_rule_registry
+    - book_faithful_shadow_phase_evidence_freeze
+  required_data_modes:
+    - vintage_as_of
+    - revised_diagnostic_only
+  point_in_time_requirements:
+    same_as_of_required: true
+    availability_date_required: true
+    vintage_or_release_artifact_required: true
+    no_revised_fallback_in_strict_mode: true
+  revised_data_limitations:
+    revised_data_allowed_for_diagnostics: true
+    revised_data_allowed_for_validation_claim: false
+    revised_data_allowed_for_threshold_tuning: false
+  retrospective_diagnostic_policy:
+    distinguished_from_validation: true
+    accuracy_metric_allowed: false
+    performance_metric_allowed: false
+    candidate_phase_output_allowed: false
+    current_phase_output_allowed: false
+  historical_accuracy_validation_policy:
+    status: not_started
+    requires_metric_preregistration: true
+    requires_no_tuning_after_results: true
+    metric_computation_enabled: false
+  economic_validation_policy:
+    status: not_started
+    requires_historical_accuracy_protocol: true
+    requires_prospective_protocol_or_explicit_exception: true
+    claim_allowed: false
+  prospective_validation_policy:
+    status: not_started
+    requires_explicit_start: true
+    requires_append_only_registry: true
+    result_inspection_allowed: false
+    prospective_registry_record_count: 0
+    prospective_registry_write_attempt_count: 0
+  holdout_registration_policy:
+    holdout_registered: false
+    holdout_record_creation_allowed: false
+    result_inspection_allowed: false
+  leakage_prevention_rules:
+    - no_historical_label_tuning
+    - no_nber_date_tuning
+    - no_portfolio_return_tuning
+    - no_prospective_result_peeking
+    - no_post_result_parameter_change_without_new_protocol
+  metric_preregistration_rules:
+    metric_computation_enabled: false
+    metrics_must_be_registered_before_execution: true
+    no_ad_hoc_metric_selection: true
+  no_tuning_after_results_rule:
+    enabled: true
+    model_change_requires_new_freeze: true
+    protocol_successor_required_after_rule_change: true
+  output_restrictions:
+    backtest_execution_enabled: false
+    performance_metric_computed: false
+    accuracy_metric_computed: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    public_output_written: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+  readiness_gates:
+    structural_validation_complete: true
+    non_emitting_decision_runtime_ready: true
+    historical_accuracy_validation_ready: false
+    economic_validation_ready: false
+    prospective_validation_ready: false
+    production_migration_ready: false
+  disabled_runtime_guards:
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    formal_decision_model_ready: false
+    holdout_registered: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    production_integration_allowed: false
+    public_output_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false

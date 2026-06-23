@@ -1,0 +1,47 @@
+validation_readiness_registry:
+  version: phase15_v1
+  registry_id: book_faithful_shadow_validation_readiness_registry_v1
+  parent_protocol_id: book_faithful_shadow_economic_validation_protocol_v1
+  readiness_rows:
+    - layer_id: structural_validation
+      readiness_status: structurally_ready
+      execution_status: prior_structural_gates_only
+      claim_allowed: structural_only
+    - layer_id: retrospective_diagnostic
+      readiness_status: diagnostic_available
+      execution_status: not_validation
+      claim_allowed: false
+    - layer_id: historical_accuracy_validation
+      readiness_status: not_ready
+      execution_status: not_started
+      claim_allowed: false
+    - layer_id: economic_validation
+      readiness_status: not_ready
+      execution_status: not_started
+      claim_allowed: false
+    - layer_id: prospective_validation
+      readiness_status: not_ready
+      execution_status: not_started
+      claim_allowed: false
+    - layer_id: production_readiness_review
+      readiness_status: not_ready
+      execution_status: not_started
+      claim_allowed: false
+  execution_counters:
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    historical_accuracy_validation_started: false
+    economic_validation_started: false
+    prospective_validation_started: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  safety_counters:
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    role_count_voting_added_count: 0
+    historical_tuning_leakage_count: 0
+    production_behavior_change_count: 0
