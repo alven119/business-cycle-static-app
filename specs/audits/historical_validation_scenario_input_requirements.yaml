@@ -1,0 +1,142 @@
+historical_validation_scenario_input_requirements:
+  requirements_id: book_faithful_shadow_historical_validation_scenario_inputs_v1
+  requirements_version: phase18_v1
+  requirements_status: input_contracts_declared_no_model_execution
+  parent_manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  scenario_input_rows:
+    - scenario_id: dotcom_cycle_2000_2003
+      required_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      available_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      unavailable_inputs: []
+      required_vintages:
+        - vintage_as_of_monthly_inputs
+      available_vintages:
+        - vintage_as_of_monthly_inputs
+      missing_vintages: []
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+    - scenario_id: global_financial_crisis_2007_2009
+      required_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      available_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      unavailable_inputs: []
+      required_vintages:
+        - vintage_as_of_monthly_inputs
+      available_vintages:
+        - vintage_as_of_monthly_inputs
+      missing_vintages: []
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+    - scenario_id: covid_recession_2020
+      required_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      available_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      unavailable_inputs: []
+      required_vintages:
+        - vintage_as_of_monthly_inputs
+      available_vintages:
+        - vintage_as_of_monthly_inputs
+      missing_vintages: []
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+    - scenario_id: euro_debt_slowdown_2011_2012
+      required_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      available_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      unavailable_inputs: []
+      required_vintages:
+        - vintage_as_of_monthly_inputs
+      available_vintages:
+        - vintage_as_of_monthly_inputs
+      missing_vintages: []
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+    - scenario_id: late_cycle_2018_2019
+      required_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      available_inputs:
+        - scenario_window_metadata
+        - declared_label_source
+        - point_in_time_series_inventory
+        - release_metadata_inventory
+        - schema_provenance_manifest
+        - frozen_model_artifact_reference
+      unavailable_inputs: []
+      required_vintages:
+        - vintage_as_of_monthly_inputs
+      available_vintages:
+        - vintage_as_of_monthly_inputs
+      missing_vintages: []
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+  counters:
+    scenario_with_complete_input_contract_count: 5
+    scenario_missing_input_contract_count: 0
+    scenario_with_label_provenance_gap_count: 0
+    forbidden_output_field_count: 0
+    model_execution_count: 0

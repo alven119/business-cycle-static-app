@@ -1,0 +1,107 @@
+historical_validation_input_readiness_registry:
+  registry_id: book_faithful_shadow_historical_validation_input_readiness_v1
+  registry_version: phase18_v1
+  registry_status: input_readiness_audited_no_model_execution
+  parent_contract_id: book_faithful_shadow_historical_validation_input_readiness_v1
+  readiness_rows:
+    - scenario_id: dotcom_cycle_2000_2003
+      required_input_count: 6
+      available_input_count: 6
+      missing_input_count: 0
+      unavailable_input_count: 0
+      required_vintage_count: 1
+      available_vintage_count: 1
+      missing_vintage_count: 0
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+    - scenario_id: global_financial_crisis_2007_2009
+      required_input_count: 6
+      available_input_count: 6
+      missing_input_count: 0
+      unavailable_input_count: 0
+      required_vintage_count: 1
+      available_vintage_count: 1
+      missing_vintage_count: 0
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+    - scenario_id: covid_recession_2020
+      required_input_count: 6
+      available_input_count: 6
+      missing_input_count: 0
+      unavailable_input_count: 0
+      required_vintage_count: 1
+      available_vintage_count: 1
+      missing_vintage_count: 0
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+    - scenario_id: euro_debt_slowdown_2011_2012
+      required_input_count: 6
+      available_input_count: 6
+      missing_input_count: 0
+      unavailable_input_count: 0
+      required_vintage_count: 1
+      available_vintage_count: 1
+      missing_vintage_count: 0
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+    - scenario_id: late_cycle_2018_2019
+      required_input_count: 6
+      available_input_count: 6
+      missing_input_count: 0
+      unavailable_input_count: 0
+      required_vintage_count: 1
+      available_vintage_count: 1
+      missing_vintage_count: 0
+      label_provenance_status: complete
+      point_in_time_readiness_status: metadata_ready_execution_disabled
+      readiness_label: input_metadata_ready_validation_disabled
+      blocked_reason_codes:
+        - validation_execution_disabled
+  allowed_uses:
+    - future_validation_input_audit
+    - point_in_time_availability_metadata_review
+    - provenance_gap_review
+  prohibited_uses:
+    - historical_validation_execution
+    - metric_computation
+    - backtest_execution
+    - candidate_or_current_phase_output
+    - runtime_decision_input
+  trust_metadata:
+    parent_freeze_id: book_faithful_shadow_v2_alpha13
+    scenario_manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+    label_policy_id: book_faithful_shadow_historical_validation_label_policy_v1
+    provenance_complete: true
+    model_executed: false
+    metrics_computed: false
+  execution_counters:
+    model_execution_count: 0
+    real_historical_validation_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  safety_counters:
+    production_behavior_change_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    role_count_voting_added_count: 0
+    historical_tuning_leakage_count: 0

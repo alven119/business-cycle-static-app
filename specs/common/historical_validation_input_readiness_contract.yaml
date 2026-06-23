@@ -1,0 +1,144 @@
+historical_validation_input_readiness_contract:
+  contract_id: book_faithful_shadow_historical_validation_input_readiness_v1
+  contract_version: phase18_v1
+  contract_status: preregistered_input_audit_only_no_model_execution
+  scenario_manifest_dependency: book_faithful_shadow_historical_validation_manifest_v1
+  label_policy_dependency: book_faithful_shadow_historical_validation_label_policy_v1
+  parent_freeze_id: book_faithful_shadow_v2_alpha13
+  required_frozen_artifacts:
+    - book_faithful_shadow_v2_alpha13
+    - book_faithful_shadow_v2_alpha12
+    - historical_validation_manifest_contract
+    - historical_validation_label_policy
+  scenario_input_requirements:
+    scenario_contract_required: true
+    required_inputs_per_scenario:
+      - scenario_window_metadata
+      - declared_label_source
+      - point_in_time_series_inventory
+      - release_metadata_inventory
+      - schema_provenance_manifest
+      - frozen_model_artifact_reference
+    complete_contract_required_for_all_scenarios: true
+  required_series_policy:
+    required_series_must_be_declared: true
+    source_agency_required: true
+    source_series_or_release_id_required: true
+    missing_series_must_be_explicit: true
+    proxy_fallback_allowed: false
+  required_vintage_policy:
+    vintage_or_release_artifact_required: true
+    same_as_of_required: true
+    vintage_coverage_status_required: true
+    missing_vintage_must_abstain: true
+  required_release_metadata_policy:
+    release_date_required: true
+    availability_date_required: true
+    revision_policy_required: true
+    observation_date_as_availability_date_allowed: false
+  point_in_time_availability_policy:
+    point_in_time_mode_required: true
+    strict_mode_revised_fallback_allowed: false
+    availability_audit_only: true
+    model_runtime_execution_allowed: false
+  revised_data_comparison_policy:
+    revised_data_allowed_only_for_declared_comparison: true
+    revised_data_allowed_for_primary_validation: false
+  missing_input_policy:
+    missing_input_behavior: abstain_future_validation
+    missing_input_zero_fill_allowed: false
+    denominator_shrink_allowed: false
+  unavailable_input_policy:
+    unavailable_input_behavior: block_scenario_until_resolved
+    unavailable_as_neutral_allowed: false
+  abstention_expected_when_missing_policy:
+    abstention_required_when_missing: true
+    abstention_reason_required: true
+  no_network_policy_for_tests:
+    network_allowed_in_tests: false
+    fred_api_allowed_in_tests: false
+    offline_fixture_required: true
+  no_model_execution_policy:
+    formal_decision_runtime_execution_allowed: false
+    validation_harness_execution_allowed: false
+    candidate_phase_output_allowed: false
+    current_phase_output_allowed: false
+  no_metric_computation_policy:
+    metric_computation_enabled: false
+    historical_accuracy_metric_allowed: false
+    economic_performance_metric_allowed: false
+    confusion_matrix_allowed: false
+  allowed_outputs:
+    - scenario_id
+    - required_input_count
+    - available_input_count
+    - missing_input_count
+    - unavailable_input_count
+    - required_vintage_count
+    - available_vintage_count
+    - missing_vintage_count
+    - label_provenance_status
+    - point_in_time_readiness_status
+    - blocked_reason_codes
+    - readiness_label
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+  forbidden_outputs:
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - phase_score
+    - phase_probability
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  output_restrictions:
+    model_execution_count: 0
+    real_historical_validation_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    public_output_written: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+  readiness_gates:
+    historical_validation_input_readiness_contract_ready: true
+    scenario_input_requirements_ready: true
+    input_readiness_registry_ready: true
+    point_in_time_input_availability_ready: true
+    historical_validation_execution_allowed: false
+    metric_computation_allowed: false
+    backtest_execution_allowed: false
+  disabled_runtime_guards:
+    formal_decision_runtime_executed: false
+    real_historical_validation_executed: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    production_integration_allowed: false
+    prospective_registry_record_written: false
+    prospective_registry_write_attempted: false
+    public_output_allowed: false
