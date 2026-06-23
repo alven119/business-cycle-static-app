@@ -1,0 +1,41 @@
+book_faithful_shadow_v2_alpha12_validation_harness_freeze:
+  freeze_id: book_faithful_shadow_v2_alpha12
+  parent_freeze_id: book_faithful_shadow_v2_alpha11
+  freeze_type: validation_harness_scaffolding_synthetic_dry_run_only
+  created_at_utc: "2026-06-23T00:00:00Z"
+  component_paths:
+    - specs/common/validation_harness_contract.yaml
+    - specs/audits/validation_harness_synthetic_fixtures.yaml
+    - specs/audits/book_faithful_shadow_v2_alpha12_validation_harness_freeze.yaml
+    - specs/audits/phase16_validation_harness_closure.yaml
+    - specs/audits/book_faithful_shadow_v2_alpha11_validation_protocol_freeze.yaml
+  source_paths:
+    - src/business_cycle/validation/validation_harness.py
+    - src/business_cycle/validation/validation_artifact_contracts.py
+    - src/business_cycle/audits/shadow_validation_harness_freeze.py
+    - src/business_cycle/audits/phase16_validation_harness_closure.py
+    - src/business_cycle/audits/shadow_validation_protocol_freeze.py
+    - src/business_cycle/audits/phase15_validation_protocol_closure.py
+  synthetic_dry_run_enabled: true
+  real_historical_validation_executed: false
+  validation_execution_enabled: false
+  metric_computation_enabled: false
+  backtest_execution_enabled: false
+  holdout_registered: false
+  candidate_selection_enabled: false
+  candidate_phase_emitted: false
+  current_phase_emitted: false
+  formal_decision_model_ready: false
+  candidate_capability_ready: false
+  economic_validation_status: not_started
+  prospective_protocol_started: false
+  prospective_registry_record_count: 0
+  prospective_registry_write_attempt_count: 0
+  numeric_weight_added: false
+  arbitrary_threshold_added: false
+  role_count_voting_added: false
+  historical_tuning_used: false
+  production_integration_allowed: false
+  book_alignment_claim_allowed: false
+  real_backtest_progression_allowed: false
+  phase_9b1_allowed: false

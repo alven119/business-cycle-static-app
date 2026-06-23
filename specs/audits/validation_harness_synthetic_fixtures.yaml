@@ -1,0 +1,44 @@
+validation_harness_synthetic_fixtures:
+  version: phase16_v1
+  fixture_mode: synthetic
+  fixtures:
+    - fixture_id: synthetic_protocol_contract_present
+      fixture_type: structural_contract
+      synthetic_only: true
+      input_artifact:
+        artifact_type: protocol_contract
+        schema_version: phase15_v1
+        provenance_complete: true
+        metric_fields_present: false
+        phase_output_fields_present: false
+      expected_status: accepted
+    - fixture_id: synthetic_freeze_manifest_present
+      fixture_type: freeze_manifest
+      synthetic_only: true
+      input_artifact:
+        artifact_type: freeze_manifest
+        parent_freeze_id: book_faithful_shadow_v2_alpha11
+        provenance_complete: true
+        metric_fields_present: false
+        phase_output_fields_present: false
+      expected_status: accepted
+    - fixture_id: synthetic_rejects_metric_artifact
+      fixture_type: forbidden_metric_guard
+      synthetic_only: true
+      input_artifact:
+        artifact_type: synthetic_invalid_metric_artifact
+        provenance_complete: true
+        metric_fields_present: true
+        phase_output_fields_present: false
+      expected_status: rejected
+      expected_blocker: metric_fields_forbidden
+    - fixture_id: synthetic_rejects_phase_output_artifact
+      fixture_type: forbidden_phase_output_guard
+      synthetic_only: true
+      input_artifact:
+        artifact_type: synthetic_invalid_phase_output_artifact
+        provenance_complete: true
+        metric_fields_present: false
+        phase_output_fields_present: true
+      expected_status: rejected
+      expected_blocker: phase_output_fields_forbidden
