@@ -14,5 +14,6 @@ def test_book_core_forward_data_gap_registry_covers_40_roles() -> None:
     assert summary["forward_ready_misclassified_historical_ready_count"] == 0
     assert summary["silent_forward_substitution_count"] == 0
     assert summary["historical_strict_partial_role_count"] > 0
-    assert summary["forward_capture_ready_role_count"] > 0
-
+    assert summary["forward_capture_ready_role_count"] == 35
+    assert summary["forward_blocked_role_count"] == 5
+    assert summary["forward_source_identity_blocked_role_count"] == 0

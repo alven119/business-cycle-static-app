@@ -893,3 +893,48 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - live source preflight is no-write and does not imply period artifacts are available
+
+  phase10_book_core_source_adapter_closure:
+    hard_gates:
+      - blocked_role_inventory_reconciled == true
+      - source_identity_contract_ready == true
+      - source_equivalence_reviews_ready == true
+      - adapter_interface_ready == true
+      - release_semantics_registry_ready == true
+      - all_safely_implementable_adapters_completed == true
+      - no_write_preflight_ready == true
+      - genuine_blocker_register_ready == true
+      - forward_capture_integration_ready == true
+      - observation_runtime_integration_ready == true
+      - major_group_readiness_recalculated == true
+      - source_adapter_freeze_ready == true
+      - leakage_guard_ready == true
+      - production_isolation_verified == true
+      - prospective_track_untouched == true
+      - blocked_role_count_before == 16
+      - source_identity_unknown_count_after == 0
+      - new_adapter_implemented_count > 0
+      - new_forward_capture_ready_role_count > 0
+      - numeric_weight_added_count == 0
+      - arbitrary_threshold_added_count == 0
+      - candidate_selection_enabled == false
+      - formal_candidate_phase_computed == false
+      - production_behavior_change_count == 0
+      - candidate_capability_ready == false
+      - candidate_monitoring_allowed == false
+      - formal_decision_model_ready == false
+      - data_only_model_economically_validated == false
+      - independent_validation_ready == false
+      - holdout_registered == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - prospective_protocol_started == false
+      - real_registry_record_count == 0
+      - real_backtest_progression_allowed == false
+      - phase_9b1_allowed == false
+      - development_next_phase == 11
+      - prospective_track_next_action == WAIT_FOR_FIRST_ELIGIBLE_AS_OF
+      - phase10_closure_status == closed_source_identity_resolved_adapters_expanded_with_explicit_blockers
+      - result == passed
+    soft_warnings_allowed:
+      - genuine blocker count may remain positive when official public data, authorized access, or release semantics are genuinely unavailable

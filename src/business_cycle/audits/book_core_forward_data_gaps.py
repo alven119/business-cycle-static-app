@@ -28,13 +28,17 @@ def load_forward_data_gap_registry_contract(
 
 def build_book_core_forward_data_gap_rows(
     path: str | Path = DEFAULT_FORWARD_GAP_PATH,
+    *,
+    include_phase10_sources: bool = True,
 ) -> list[dict[str, Any]]:
     """Return one QA11 forward-readiness row per canonical role."""
 
     spec = load_forward_data_gap_registry_contract(path)
     status_mapping = spec["status_mapping"]
     rows: list[dict[str, Any]] = []
-    for contract in build_book_core_data_contracts():
+    for contract in build_book_core_data_contracts(
+        include_phase10_sources=include_phase10_sources
+    ):
         forward_status = status_mapping[contract["shadow_data_contract_status"]]
         source_verified = contract["series_identity_verified"]
         current_series = contract["current_series_ids"]

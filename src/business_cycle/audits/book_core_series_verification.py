@@ -44,7 +44,7 @@ def verify_book_core_series_contracts(
     source_mismatch = [
         contract
         for contract in verified_roles
-        if contract["source_authority"] != "repository_existing_official_series_mapping"
+        if not contract["source_authority"] or not contract["series_identity_verified"]
     ]
     return {
         "phase": "QA5",
@@ -63,4 +63,3 @@ def verify_book_core_series_contracts(
         "unresolved_role_count": len(contracts) - len(verified_roles),
         "contracts": contracts,
     }
-

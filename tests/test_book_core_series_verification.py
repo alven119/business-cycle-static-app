@@ -10,8 +10,7 @@ def test_series_verification_no_api_has_no_silent_mismatch() -> None:
 
     assert summary["official_series_verification_ready"] is True
     assert summary["requested_role_count"] == 40
-    assert summary["verified_role_count"] == 24
+    assert summary["verified_role_count"] == 35
     assert summary["metadata_mismatch_count"] == 0
     assert summary["source_authority_mismatch_count"] == 0
     assert summary["strict_support_misclassification_count"] == 0
-

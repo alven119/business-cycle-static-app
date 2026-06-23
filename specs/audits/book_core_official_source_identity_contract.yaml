@@ -1,0 +1,11 @@
+book_core_official_source_identity_contract:
+  version: 1
+  phase: 10
+  contract_id: book_core_official_source_identity_contract_v1
+  source_policy:
+    official_or_authorized_sources_only: true
+    silent_substitution_allowed: false
+    headline_core_substitution_allowed: false
+    nominal_real_substitution_allowed: false
+    generic_sentiment_substitution_allowed: false
+    modern_extension_as_book_core_allowed: false

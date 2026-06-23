@@ -104,6 +104,9 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
     qa12_gates = phase_specific[
         "qa12_major_group_manual_start_closure"
     ]["hard_gates"]
+    phase10_gates = phase_specific[
+        "phase10_book_core_source_adapter_closure"
+    ]["hard_gates"]
 
     assert "expected_fail_count == 0" in recovery_gates
     assert "fail_count == 0" in boom_overlay_gates
@@ -316,6 +319,14 @@ def test_phase_acceptance_gates_include_required_phase_gates() -> None:
         "recommended_next_action == WAIT_FOR_FIRST_ELIGIBLE_AS_OF"
         in qa12_gates
     )
+    assert "source_identity_contract_ready == true" in phase10_gates
+    assert "all_safely_implementable_adapters_completed == true" in phase10_gates
+    assert "new_adapter_implemented_count > 0" in phase10_gates
+    assert "new_forward_capture_ready_role_count > 0" in phase10_gates
+    assert "candidate_capability_ready == false" in phase10_gates
+    assert "prospective_track_next_action == WAIT_FOR_FIRST_ELIGIBLE_AS_OF" in (
+        phase10_gates
+    )
     assert "scenario_exposure_registry_ready == true" in qa3_gates
     assert "data_only_baseline_freeze_ready == true" in qa3_gates
     assert "parameter_tuning_executed == false" in qa3_gates
@@ -405,6 +416,16 @@ def test_agent_workflow_documents_qa12_manual_start_gates() -> None:
     assert "Phase QA12 major-group manual start readiness" in readme
     assert "WAIT_FOR_FIRST_ELIGIBLE_AS_OF" in readme
     assert "manual-start" in readme
+
+
+def test_agent_workflow_documents_phase10_source_adapter_gates() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "Phase 10 Source Adapter Remediation Gates" in workflow
+    assert "Phase 10 book-core official source adapter remediation" in readme
+    assert "development remediation track" in readme
+    assert "WAIT_FOR_FIRST_ELIGIBLE_AS_OF" in readme
 
 
 def test_prompt_templates_include_autonomous_policy() -> None:

@@ -10,7 +10,7 @@ Observation contract readiness, adapter readiness, live no-write preflight,
 period manifest readiness, period completeness, phase-evidence readiness, and
 candidate-input completeness are separate gates.
 
-Current major-group state:
+QA12 closure major-group state:
 
 - 24 major groups are in scope.
 - 15 groups have complete observation-only contracts.
@@ -22,6 +22,11 @@ Current major-group state:
 The 15 observation-ready groups do not imply all 24 groups are ready, and
 strict historical outputs remain zero. That historical gap does not invalidate
 the forward contract, but it also does not create historical validation.
+
+Phase 10 later updates the development remediation rollup to 19
+observation-ready groups by adding shadow-only source adapters. That does not
+change this QA12 first-period freeze, does not make any group period-complete,
+and does not enable phase evidence or candidate input.
 
 ## First Period
 
@@ -42,4 +47,3 @@ remain blocked.
 
 After QA12, the correct next action is
 `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`, not a new QA phase to bypass the clock.
-

@@ -651,3 +651,17 @@ The first eligible period remains `2026-07`; the first canonical as-of remains
 `2026-08-31`. QA12 creates only manifests and preview bundles. The registry
 still has zero real records, the protocol is not started, candidate monitoring
 is disabled, and Phase 9B1 remains blocked.
+
+## Phase 10 Source Adapter Boundary
+
+Phase 10 is development remediation while the prospective track keeps waiting
+for the first canonical as-of. It verifies official source identity, adds
+shadow-only no-write adapters where official public series are safe to use,
+and records genuine blockers where authorized access, public equivalence, or
+release/transformation semantics are unresolved.
+
+Source identity verification and adapter implementation do not repair
+historical strict gaps, do not create phase evidence, do not enable candidate
+monitoring, and do not execute historical performance backtests or book
+benchmarks. The QA12 first-period manifest and prospective registry remain
+untouched with zero real records and zero write attempts.

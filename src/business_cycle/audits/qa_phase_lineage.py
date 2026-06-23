@@ -22,6 +22,9 @@ from business_cycle.audits.prospective_monitoring_freeze import (
 from business_cycle.audits.prospective_manual_start_freeze import (
     summarize_prospective_manual_start_freeze,
 )
+from business_cycle.audits.book_core_source_adapter_freeze import (
+    summarize_book_core_source_adapter_freeze,
+)
 from business_cycle.audits.shadow_observation_freeze import (
     summarize_shadow_observation_freeze,
 )
@@ -34,6 +37,7 @@ QA7_FREEZE_ID = "book_faithful_shadow_v2_alpha3"
 QA8_FREEZE_ID = "book_faithful_shadow_v2_alpha4"
 QA11_FREEZE_ID = "book_faithful_shadow_v2_alpha5"
 QA12_FREEZE_ID = "prospective_shadow_manual_start_v1"
+PHASE10_FREEZE_ID = "book_faithful_shadow_v2_alpha6"
 
 
 def summarize_qa_phase_lineage() -> dict[str, Any]:
@@ -45,6 +49,7 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
     monitoring_freeze = summarize_prospective_monitoring_freeze()
     observation_freeze = summarize_shadow_observation_freeze()
     manual_start_freeze = summarize_prospective_manual_start_freeze()
+    source_adapter_freeze = summarize_book_core_source_adapter_freeze()
     freeze_parent_mismatch = int(
         evaluator_freeze["freeze_id"] != QA8_FREEZE_ID
         or evaluator_freeze["parent_freeze_id"] != QA7_FREEZE_ID
@@ -55,6 +60,9 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
         or manual_start_freeze["parent_model_freeze_id"] != QA11_FREEZE_ID
         or manual_start_freeze["parent_monitoring_freeze_id"]
         != "prospective_shadow_monitoring_v1"
+        or source_adapter_freeze["freeze_id"] != PHASE10_FREEZE_ID
+        or source_adapter_freeze["parent_freeze_id"] != QA11_FREEZE_ID
+        or source_adapter_freeze["qa12_freeze_unchanged"] is not True
     )
     registry_version_valid = MODEL_FREEZE_ID == QA8_FREEZE_ID and PROTOCOL_ID.endswith("_v1")
     missing = int(not qa8_artifacts) + int(not qa9_artifacts)
@@ -67,6 +75,7 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
         and monitoring_freeze["monitoring_freeze_hash_valid"] is True
         and observation_freeze["freeze_hash_valid"] is True
         and manual_start_freeze["freeze_hash_valid"] is True
+        and source_adapter_freeze["freeze_hash_valid"] is True
         and registry_version_valid
         and qa8["production_isolation_verified"] is True
         and qa9["production_isolation_verified"] is True
@@ -106,6 +115,16 @@ def summarize_qa_phase_lineage() -> dict[str, Any]:
         ],
         "qa12_manual_start_freeze_hash_valid": manual_start_freeze[
             "freeze_hash_valid"
+        ],
+        "phase10_source_adapter_freeze_id": source_adapter_freeze["freeze_id"],
+        "phase10_source_adapter_parent_freeze_id": source_adapter_freeze[
+            "parent_freeze_id"
+        ],
+        "phase10_source_adapter_freeze_hash_valid": source_adapter_freeze[
+            "freeze_hash_valid"
+        ],
+        "phase10_qa12_freeze_unchanged": source_adapter_freeze[
+            "qa12_freeze_unchanged"
         ],
         "registry_model_freeze_id": MODEL_FREEZE_ID,
         "registry_protocol_id": PROTOCOL_ID,

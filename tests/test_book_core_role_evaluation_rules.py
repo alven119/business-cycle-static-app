@@ -21,7 +21,7 @@ def test_book_core_role_evaluation_rules_keep_real_candidates_blocked() -> None:
     summary = summarize_book_core_role_evaluation_rules()
 
     assert summary["preregistered_evaluable_role_count"] == 0
-    assert summary["raw_transform_only_role_count"] == 24
+    assert summary["raw_transform_only_role_count"] == 35
     assert summary["blocked_data_count"] > 0
     assert all(
         row["allowed_in_candidate_selection"] is False

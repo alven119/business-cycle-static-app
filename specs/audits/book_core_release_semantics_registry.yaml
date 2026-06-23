@@ -1,0 +1,25 @@
+book_core_release_semantics_registry:
+  version: 1
+  phase: 10
+  registry_id: book_core_release_semantics_registry_v1
+  direct_role_requirements:
+    - source_release_family
+    - reference_period
+    - publication_frequency
+    - publication_date_rule
+    - publication_time_zone
+    - initial_release
+    - revision_release
+    - benchmark_revision
+    - correction_policy
+    - availability_precision
+    - as_of_selection_rule
+    - missing_release_behavior
+    - delayed_release_behavior
+  derived_role_requirements:
+    - input_roles
+    - same_as_of_requirement
+    - reference_period_alignment
+    - availability_max_inputs
+    - correction_propagation
+    - lineage

@@ -33,3 +33,15 @@ are complete, and no phase-evidence or candidate-input gate is opened by QA11.
 The next layer must keep the first eligible period at `2026-07` and the first
 canonical as-of at `2026-08-31`, while leaving real registry records at zero
 until an explicit future manual append is allowed.
+
+## Phase 10 Development Remediation Addendum
+
+Phase 10 runs after QA12 as a development remediation track. It keeps the
+prospective dates and registry untouched while resolving source identity for
+the QA11/QA12 forward-blocked roles. After Phase 10, 11 additional roles have
+shadow-only official adapters and forward capture readiness, while five roles
+remain explicit genuine blockers.
+
+This addendum does not rewrite QA11 closure. It clarifies that source adapter
+remediation is not historical strict reconstruction, not phase evidence, and
+not candidate capability.

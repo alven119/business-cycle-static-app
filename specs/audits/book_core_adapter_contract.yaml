@@ -1,0 +1,28 @@
+book_core_adapter_contract:
+  version: 1
+  phase: 10
+  contract_id: book_core_adapter_contract_v1
+  required_interface:
+    - adapter_id
+    - source_family
+    - supported_roles
+    - capture_mode
+    - fetch_metadata
+    - fetch_observations_or_artifacts
+    - normalize
+    - verify_schema
+    - verify_series_identity
+    - verify_release_semantics
+    - build_provenance
+    - reuse_cache
+    - no_write_preflight
+    - dry_run
+    - network_required
+    - authentication_required
+  cache_rules:
+    atomic_writes: true
+    deterministic_ordering: true
+    corruption_detection: true
+    checksum_validation: true
+    no_secret: true
+    ignored_by_git: true

@@ -1180,3 +1180,17 @@ The first eligible observation period is `2026-07`, with canonical as-of
 `2026-08-31`. QA12 keeps the real registry count at zero and does not start the
 protocol. Any future rule or model-version change must preserve freeze lineage
 and cannot silently reuse results from a different model version.
+
+## Phase 10 Source Adapter Remediation
+
+Phase 10 resolves source identity for the forward-blocked book-core roles
+without calibrating parameters, tuning thresholds, tuning weights, or changing
+production behavior. It adds shadow-only official adapters for safely
+implementable roles and leaves ADP employment, consumer confidence,
+publication-lag awareness, income-consumption relation semantics, and
+sustainable inflation interpretation as explicit genuine blockers.
+
+The new adapters increase observation-only forward coverage. They do not
+complete phase-evidence rules, do not enable candidate selection, and do not
+start or inspect prospective monitoring. The prospective next action remains
+`WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.

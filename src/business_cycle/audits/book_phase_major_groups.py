@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -106,12 +107,14 @@ def major_group_for_role(role_id: str) -> str:
     return str(spec["role_mappings"][role_id])
 
 
+@lru_cache(maxsize=None)
 def _load_spec(path: str | Path) -> dict[str, Any]:
     return yaml.safe_load(Path(path).read_text(encoding="utf-8"))[
         "book_phase_major_group_contract"
     ]
 
 
+@lru_cache(maxsize=1)
 def _coverage_rows() -> list[dict[str, Any]]:
     rows = yaml.safe_load(COVERAGE_PATH.read_text(encoding="utf-8"))[
         "book_indicator_coverage"

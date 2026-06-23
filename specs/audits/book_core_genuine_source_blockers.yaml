@@ -1,0 +1,9 @@
+book_core_genuine_source_blockers:
+  version: 1
+  phase: 10
+  register_id: book_core_genuine_source_blockers_v1
+  blocker_policy:
+    implementation_bug_can_be_blocker: false
+    unsafe_substitution_allowed: false
+    evidence_required: true
+    resolution_trigger_required: true

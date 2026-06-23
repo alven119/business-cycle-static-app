@@ -72,9 +72,111 @@ ROLE_SERIES_METADATA = {
     "industrial_production_bottoming": ("monthly", "index", "seasonally_adjusted"),
 }
 
+PHASE10_ROLE_SOURCE_SPECS: dict[str, dict[str, Any]] = {
+    "growth_personal_saving_rate": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "personal_saving_rate",
+        "series_ids": ["PSAVERT"],
+        "source_authority": "BEA personal saving rate via FRED official series",
+        "metadata": ("monthly", "percent", "seasonally_adjusted_annual_rate"),
+    },
+    "growth_real_disposable_income_vs_consumption": {
+        "status": "blocked_transformation",
+        "indicator_id": "real_disposable_income_vs_consumption",
+        "series_ids": ["DSPIC96", "PCECC96"],
+        "source_authority": "BEA real disposable income and real PCE via FRED",
+        "metadata": ("monthly", "billions_of_chained_2017_dollars", "seasonally_adjusted_annual_rate"),
+        "derived_input_series_ids": ["DSPIC96", "PCECC96"],
+    },
+    "growth_nonfarm_payrolls": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "nonfarm_payrolls",
+        "series_ids": ["PAYEMS"],
+        "source_authority": "BLS establishment survey via FRED official series",
+        "metadata": ("monthly", "thousands_of_persons", "seasonally_adjusted"),
+    },
+    "growth_residential_investment": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "residential_investment",
+        "series_ids": ["PRFIC1"],
+        "source_authority": "BEA real private residential fixed investment via FRED",
+        "metadata": ("quarterly", "billions_of_chained_2017_dollars", "seasonally_adjusted_annual_rate"),
+    },
+    "growth_core_cpi": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "core_cpi",
+        "series_ids": ["CPILFESL"],
+        "source_authority": "BLS core CPI via FRED official series",
+        "metadata": ("monthly", "index", "seasonally_adjusted"),
+    },
+    "growth_core_pce": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "core_pce",
+        "series_ids": ["PCEPILFE"],
+        "source_authority": "BEA core PCE price index via FRED official series",
+        "metadata": ("monthly", "index", "seasonally_adjusted"),
+    },
+    "boom_consumer_confidence": {
+        "status": "blocked_license_or_access",
+        "indicator_id": "consumer_confidence",
+        "series_ids": [],
+        "source_authority": "Conference Board confidence concept requires authorized access or explicit equivalent review",
+        "metadata": ("not_verified", "not_verified", "not_verified"),
+    },
+    "boom_state_local_government_spending": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "state_local_government_spending",
+        "series_ids": ["SLCEC1"],
+        "source_authority": "BEA real state and local government consumption and investment via FRED",
+        "metadata": ("quarterly", "billions_of_chained_2017_dollars", "seasonally_adjusted_annual_rate"),
+    },
+    "boom_government_revenue": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "government_revenue",
+        "series_ids": ["W006RC1Q027SBEA"],
+        "source_authority": "BEA government current receipts via FRED",
+        "metadata": ("quarterly", "billions_of_dollars", "seasonally_adjusted_annual_rate"),
+    },
+    "boom_inventory_level": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "business_inventories",
+        "series_ids": ["BUSINV"],
+        "source_authority": "Census total business inventories via FRED",
+        "metadata": ("monthly", "millions_of_dollars", "seasonally_adjusted"),
+    },
+    "boom_inventory_accumulation_context": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "inventory_accumulation_context",
+        "series_ids": ["CBIC1"],
+        "source_authority": "BEA real change in private inventories via FRED",
+        "metadata": ("quarterly", "billions_of_chained_2017_dollars", "seasonally_adjusted_annual_rate"),
+    },
+    "boom_personal_delinquency_or_default": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "consumer_loan_delinquency",
+        "series_ids": ["DRCLACBS"],
+        "source_authority": "Federal Reserve consumer-loan delinquency rate via FRED",
+        "metadata": ("quarterly", "percent", "not_seasonally_adjusted"),
+    },
+    "boom_corporate_delinquency_or_default": {
+        "status": "ready_revised_diagnostic",
+        "indicator_id": "business_loan_delinquency",
+        "series_ids": ["DRBLACBS"],
+        "source_authority": "Federal Reserve business-loan delinquency rate via FRED",
+        "metadata": ("quarterly", "percent", "not_seasonally_adjusted"),
+    },
+}
+
+PHASE10_RELEASE_SEMANTICS_BLOCKED_ROLES = {
+    "recovery_publication_lag_awareness",
+    "growth_sustainable_inflation_interpretation",
+}
+
 
 def build_book_core_data_contracts(
     path: str | Path = DEFAULT_DATA_CONTRACT_PATH,
+    *,
+    include_phase10_sources: bool = True,
 ) -> list[dict[str, Any]]:
     """Build one data contract per canonical indicator role."""
 
@@ -85,9 +187,14 @@ def build_book_core_data_contracts(
     for coverage in _coverage_rows():
         role_id = coverage["coverage_requirement_id"]
         requirement = manifest[role_id]
-        status = _contract_status(coverage, role_id, spec)
-        frequency, units, seasonal = ROLE_SERIES_METADATA.get(
-            coverage["indicator_id"], ("not_verified", "not_verified", "not_verified")
+        phase10_spec = (
+            PHASE10_ROLE_SOURCE_SPECS.get(role_id) if include_phase10_sources else None
+        )
+        status = _contract_status(coverage, role_id, spec, phase10_spec)
+        frequency, units, seasonal = _role_metadata(
+            role_id,
+            coverage["indicator_id"],
+            phase10_spec,
         )
         contracts.append(
             {
@@ -100,11 +207,11 @@ def build_book_core_data_contracts(
                 "economic_concept": coverage["book_role"],
                 "book_fidelity_class": coverage["provenance_class"],
                 "role_type": subroles[role_id]["role_type"],
-                "current_indicator_ids": _current_indicator_ids(coverage),
-                "current_series_ids": _current_series_ids(coverage),
-                "proposed_primary_series_ids": _proposed_series_ids(coverage),
+                "current_indicator_ids": _current_indicator_ids(coverage, phase10_spec),
+                "current_series_ids": _current_series_ids(coverage, phase10_spec),
+                "proposed_primary_series_ids": _proposed_series_ids(coverage, phase10_spec),
                 "proposed_alternative_series_ids": [],
-                "source_authority": _source_authority(coverage, role_id),
+                "source_authority": _source_authority(coverage, role_id, phase10_spec),
                 "official_source_required": True,
                 "frequency": frequency,
                 "units": units,
@@ -135,13 +242,15 @@ def build_book_core_data_contracts(
                 "production_promotion_status": "not_promoted",
                 "unresolved_reason": _unresolved_reason(coverage, status),
                 "blocker_class": _blocker_class(status),
-                "derived_input_series_ids": _derived_inputs(coverage["indicator_id"]),
-                "series_identity_verified": status
-                in {
-                    "ready_strict_complete",
-                    "ready_strict_partial",
-                    "ready_revised_diagnostic",
-                },
+                "derived_input_series_ids": _derived_inputs(
+                    coverage["indicator_id"],
+                    phase10_spec,
+                ),
+                "series_identity_verified": _series_identity_verified(
+                    role_id,
+                    status,
+                    phase10_spec,
+                ),
             }
         )
     return contracts
@@ -209,7 +318,12 @@ def _contract_status(
     coverage: dict[str, Any],
     role_id: str,
     spec: dict[str, Any],
+    phase10_spec: dict[str, Any] | None,
 ) -> str:
+    if phase10_spec is not None:
+        return str(phase10_spec["status"])
+    if role_id in PHASE10_RELEASE_SEMANTICS_BLOCKED_ROLES:
+        return "blocked_transformation"
     if role_id == "growth_adp_employment":
         return "blocked_license_or_access"
     if role_id in {
@@ -226,25 +340,51 @@ def _contract_status(
     return "unsupported"
 
 
-def _current_indicator_ids(coverage: dict[str, Any]) -> list[str]:
+def _current_indicator_ids(
+    coverage: dict[str, Any],
+    phase10_spec: dict[str, Any] | None,
+) -> list[str]:
+    if phase10_spec is not None and phase10_spec["series_ids"]:
+        return [str(phase10_spec["indicator_id"])]
     return [] if coverage["formal_or_experimental"] == "missing" else [coverage["indicator_id"]]
 
 
-def _current_series_ids(coverage: dict[str, Any]) -> list[str]:
+def _current_series_ids(
+    coverage: dict[str, Any],
+    phase10_spec: dict[str, Any] | None,
+) -> list[str]:
+    if phase10_spec is not None:
+        return list(phase10_spec["series_ids"])
     return [] if coverage["formal_or_experimental"] == "missing" else [coverage["series_id"]]
 
 
-def _proposed_series_ids(coverage: dict[str, Any]) -> list[str]:
+def _proposed_series_ids(
+    coverage: dict[str, Any],
+    phase10_spec: dict[str, Any] | None,
+) -> list[str]:
+    if phase10_spec is not None and phase10_spec["series_ids"]:
+        return list(phase10_spec["series_ids"])
     return _derived_inputs(coverage["indicator_id"]) or [coverage["series_id"]]
 
 
-def _derived_inputs(indicator_id: str) -> list[str]:
+def _derived_inputs(
+    indicator_id: str,
+    phase10_spec: dict[str, Any] | None = None,
+) -> list[str]:
+    if phase10_spec is not None:
+        return list(phase10_spec.get("derived_input_series_ids", []))
     if indicator_id == "credit_spread_baa_aaa":
         return ["BAA", "AAA"]
     return []
 
 
-def _source_authority(coverage: dict[str, Any], role_id: str) -> str:
+def _source_authority(
+    coverage: dict[str, Any],
+    role_id: str,
+    phase10_spec: dict[str, Any] | None,
+) -> str:
+    if phase10_spec is not None:
+        return str(phase10_spec["source_authority"])
     if role_id == "growth_adp_employment":
         return "blocked_non_repository_official_or_licensed_source_required"
     if coverage["formal_or_experimental"] == "missing":
@@ -349,6 +489,36 @@ def _blocker_class(status: str) -> str:
     }[status]
 
 
+def _role_metadata(
+    role_id: str,
+    indicator_id: str,
+    phase10_spec: dict[str, Any] | None,
+) -> tuple[str, str, str]:
+    if phase10_spec is not None:
+        return phase10_spec["metadata"]
+    if role_id in PHASE10_RELEASE_SEMANTICS_BLOCKED_ROLES:
+        return ("methodology", "not_applicable", "not_applicable")
+    return ROLE_SERIES_METADATA.get(
+        indicator_id, ("not_verified", "not_verified", "not_verified")
+    )
+
+
+def _series_identity_verified(
+    role_id: str,
+    status: str,
+    phase10_spec: dict[str, Any] | None,
+) -> bool:
+    if phase10_spec is not None:
+        return bool(phase10_spec["series_ids"]) and status != "blocked_license_or_access"
+    if role_id in PHASE10_RELEASE_SEMANTICS_BLOCKED_ROLES:
+        return True
+    return status in {
+        "ready_strict_complete",
+        "ready_strict_partial",
+        "ready_revised_diagnostic",
+    }
+
+
 def _canonical_role_ids() -> set[str]:
     return {
         row["requirement_id"]
@@ -374,4 +544,3 @@ def _load_spec(path: str | Path) -> dict[str, Any]:
     return yaml.safe_load(Path(path).read_text(encoding="utf-8"))[
         "book_core_indicator_data_contracts"
     ]
-

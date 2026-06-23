@@ -1,0 +1,16 @@
+book_core_source_equivalence_reviews:
+  version: 1
+  phase: 10
+  review_id: book_core_source_equivalence_reviews_v1
+  required_dimensions:
+    - concept
+    - source_population
+    - units
+    - seasonal_adjustment
+    - frequency
+    - nominal_or_real
+    - release_timing
+    - revision_behavior
+    - historical_continuity
+    - current_availability
+    - forward_availability

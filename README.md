@@ -1352,6 +1352,32 @@ After QA12 the recommended next action is
 registered, real backtest progression remains blocked, and Phase 9B1 remains
 blocked.
 
+## Phase 10 book-core official source adapter remediation
+
+Phase 10 runs on the development remediation track. It reconciles the 16
+forward-blocked book-core roles from canonical contracts, verifies source
+identity and economic equivalence for all 40 canonical roles, implements every
+safely available official shadow-only adapter, and records genuine blockers
+where authorized access, a public official equivalent, or release semantics are
+still unavailable.
+
+The remediation adds 11 shadow-only official-source adapters and moves 11 roles
+into forward capture readiness. The remaining five roles are explicit genuine
+blockers: ADP employment, consumer confidence, publication-lag awareness, real
+disposable income versus consumption relation, and sustainable inflation
+interpretation. Source identity verified does not imply historical strict
+readiness; adapter implemented does not imply phase evidence readiness;
+observation runtime readiness does not imply candidate readiness.
+
+The prospective track is unchanged: observation period `2026-07`, canonical
+as-of `2026-08-31`, earliest possible manual append `2026-10-31`, zero real
+registry records, zero write attempts, protocol not started, candidate
+monitoring disabled, and next action `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`. New
+adapters remain shadow-only, production v1 is unchanged, QA12 first-period
+freeze is preserved, holdout is not registered, real backtest progression
+remains blocked, and Phase 9B1 remains blocked. Phase 11 can continue
+book-core phase-evidence evaluator work without touching the prospective clock.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

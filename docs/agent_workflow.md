@@ -296,3 +296,31 @@ The expected closure keeps `manual_start_allowed_now=false`,
 `holdout_registered=false`, `real_backtest_progression_allowed=false`, and
 `phase_9b1_allowed=false`. The recommended next action is
 `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.
+
+## Phase 10 Source Adapter Remediation Gates
+
+Phase 10 is a development remediation track while the prospective monitoring
+track keeps waiting for the first canonical eligible as-of. It may reconcile
+the 16 QA11/QA12 forward-blocked book-core roles, verify official source
+identity and economic equivalence, add shadow-only adapters and cache metadata,
+define release semantics, run no-write preflight, refresh forward-capture and
+observation-only readiness rollups, and freeze alpha6 lineage.
+
+Phase 10 must not change the `2026-07` observation period, the `2026-08-31`
+canonical as-of, the QA12 first-period manifest, the real prospective
+registry, production resolver/state-machine/dashboard behavior, scoring
+weights, thresholds, candidate selection, or live allocation outputs.
+
+Phase 10 completion requires dynamic blocked-role reconciliation, 40/40 source
+identity contracts, zero unresolved source identity, zero silent substitution,
+all safely implementable adapters completed, no implementation failures,
+genuine blocker evidence for remaining roles, valid alpha6 freeze lineage,
+QA12 freeze unchanged, no prospective writes, no leakage, and production
+isolation counts at zero.
+
+The expected closure keeps `candidate_capability_ready=false`,
+`candidate_monitoring_allowed=false`, `formal_decision_model_ready=false`,
+`data_only_model_economically_validated=false`, `holdout_registered=false`,
+`real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
+The development next phase is `11`; the prospective track next action remains
+`WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.

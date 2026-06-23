@@ -901,3 +901,22 @@ The first eligible period remains `2026-07`; the first canonical as-of remains
 records remain zero, candidate monitoring remains disabled, production v1
 remains isolated, and the correct next action is
 `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.
+
+## Phase 10 Source Adapter Update
+
+Phase 10 follows the development remediation track. It verifies source identity
+for all 40 canonical roles, implements shadow-only official adapters for 11
+safely implementable roles, and reduces the forward-blocked set from 16 roles
+to five explicit genuine blockers. The new source families are BLS, BEA,
+Census, and Federal Reserve official series surfaced through FRED where that
+path preserves the book-core economic concept.
+
+The remaining blockers are not substituted by modern extensions or convenient
+series. ADP employment requires authorized reproducible access, consumer
+confidence lacks a public official direct equivalent in the current contract,
+and three roles still require operational release or transformation semantics.
+Phase 10 freezes this remediation as `book_faithful_shadow_v2_alpha6`.
+
+Observation-only coverage expands, but phase-evidence evaluators, candidate
+capability, and production behavior remain unchanged. The prospective track
+continues to wait for `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.

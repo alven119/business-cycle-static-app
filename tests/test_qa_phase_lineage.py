@@ -32,3 +32,12 @@ def test_qa8_qa9_phase_lineage_is_valid() -> None:
         == "prospective_shadow_monitoring_v1"
     )
     assert summary["qa12_manual_start_freeze_hash_valid"] is True
+    assert summary["phase10_source_adapter_freeze_id"] == (
+        "book_faithful_shadow_v2_alpha6"
+    )
+    assert (
+        summary["phase10_source_adapter_parent_freeze_id"]
+        == "book_faithful_shadow_v2_alpha5"
+    )
+    assert summary["phase10_source_adapter_freeze_hash_valid"] is True
+    assert summary["phase10_qa12_freeze_unchanged"] is True

@@ -1,0 +1,17 @@
+book_core_blocked_role_inventory:
+  version: 1
+  phase: 10
+  inventory_id: book_core_blocked_role_inventory_v1
+  source_contract: specs/audits/book_core_indicator_data_contracts.yaml
+  dynamic_from_canonical_contracts: true
+  primary_blocker_mutually_exclusive: true
+  blocker_classes:
+    - source_identity_unknown
+    - no_public_official_equivalent
+    - proprietary_access_required
+    - official_source_found_adapter_missing
+    - official_source_found_release_semantics_missing
+    - official_source_found_transformation_missing
+    - economic_equivalence_unverified
+    - historical_only_gap
+    - unsupported

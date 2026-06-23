@@ -28,6 +28,10 @@ def main() -> None:
         "qa12_manual_start_parent_model_freeze_id",
         "qa12_manual_start_parent_monitoring_freeze_id",
         "qa12_manual_start_freeze_hash_valid",
+        "phase10_source_adapter_freeze_id",
+        "phase10_source_adapter_parent_freeze_id",
+        "phase10_source_adapter_freeze_hash_valid",
+        "phase10_qa12_freeze_unchanged",
     ):
         value = summary[key]
         print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")
