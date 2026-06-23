@@ -1,0 +1,104 @@
+non_emitting_decision_runtime_contract:
+  version: phase14_v1
+  runtime_id: book_faithful_shadow_non_emitting_decision_runtime_v1
+  runtime_version: phase14_non_emitting_decision_runtime_v1
+  parent_freeze_id: book_faithful_shadow_v2_alpha9
+  model_id: book_faithful_shadow_v2_alpha10
+  freeze_id: book_faithful_shadow_v2_alpha10
+  runtime_status: diagnostics_only_candidate_output_disabled
+  allowed_inputs:
+    - formal_decision_model_contract
+    - phase_evidence_profiles
+    - major_group_evidence
+    - candidate_precondition_profiles
+  allowed_outputs:
+    - runtime_version
+    - as_of
+    - data_mode
+    - model_id
+    - freeze_id
+    - readiness_label
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+    - evaluated_phase_or_layer_count
+    - precondition_check_results
+    - abstention_reasons
+    - contradictory_evidence_reasons
+    - mixed_evidence_reasons
+    - unavailable_evidence_reasons
+    - raw_observation_only_reasons
+    - blocked_reason_codes
+    - candidate_selection_enabled
+    - candidate_phase_emitted
+    - current_phase_emitted
+  forbidden_outputs:
+    - candidate_phase
+    - current_phase
+    - winning_phase
+    - selected_phase
+    - selected_candidate_phase
+    - phase_rank
+    - phase_score
+    - phase_probability
+    - confidence_score
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+    - allocation_recommendation
+    - backtest_performance
+    - accuracy_metric
+  enforced_rules:
+    - rule_id: all_required_major_groups_complete_no_forbidden_inputs_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: candidate_precondition_profile_diagnostics
+    - rule_id: abstain_if_required_core_group_incomplete_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: abstention_propagation
+    - rule_id: contradictory_required_core_group_blocks_clean_candidate_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: contradictory_evidence_handling
+    - rule_id: mixed_required_core_group_requires_ambiguity_or_abstention_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: mixed_evidence_handling
+    - rule_id: unavailable_required_core_group_abstains_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: unavailable_evidence_handling
+    - rule_id: raw_observation_is_not_phase_evidence_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: raw_observation_only_blocking
+    - rule_id: same_as_of_same_data_mode_causal_only_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: temporal_integrity_guard
+    - rule_id: watch_confirmation_separation_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: watch_confirmation_separation
+    - rule_id: phase_presence_transition_separation_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: phase_presence_transition_separation
+    - rule_id: candidate_output_disabled_v1
+      source_contract: formal_decision_model_contract
+      runtime_check: non_emission_guard
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_import_allowed: false
+    public_output_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    prospective_registry_write_allowed: false
+  trust_metadata_requirements:
+    model_id: true
+    freeze_id: true
+    parent_freeze_id: true
+    contract_version: true
+    runtime_version: true
+    as_of: true
+    data_mode: true
+    provenance_complete: true

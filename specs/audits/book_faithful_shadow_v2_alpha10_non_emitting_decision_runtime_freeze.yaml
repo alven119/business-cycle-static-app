@@ -1,0 +1,40 @@
+book_faithful_shadow_v2_alpha10_non_emitting_decision_runtime_freeze:
+  freeze_id: book_faithful_shadow_v2_alpha10
+  parent_freeze_id: book_faithful_shadow_v2_alpha9
+  freeze_type: non_emitting_formal_decision_runtime_diagnostics
+  created_at_utc: "2026-06-23T00:00:00Z"
+  component_paths:
+    - specs/common/non_emitting_decision_runtime_contract.yaml
+    - specs/common/formal_decision_model_contract.yaml
+    - specs/audits/book_faithful_shadow_v2_alpha10_non_emitting_decision_runtime_freeze.yaml
+    - specs/audits/phase14_non_emitting_decision_runtime_closure.yaml
+    - specs/audits/book_faithful_shadow_v2_alpha9_decision_contract_freeze.yaml
+  source_paths:
+    - src/business_cycle/shadow_model/formal_decision_runtime.py
+    - src/business_cycle/shadow_model/decision_readiness_matrix.py
+    - src/business_cycle/shadow_model/formal_decision_contract.py
+    - src/business_cycle/shadow_model/candidate_precondition_profiles.py
+    - src/business_cycle/audits/shadow_decision_runtime_freeze.py
+    - src/business_cycle/audits/phase14_non_emitting_decision_runtime_closure.py
+    - src/business_cycle/audits/shadow_decision_contract_freeze.py
+  numeric_weight_added: false
+  arbitrary_threshold_added: false
+  role_count_voting_added: false
+  historical_tuning_used: false
+  candidate_selection_enabled: false
+  candidate_phase_emitted: false
+  current_phase_emitted: false
+  production_integration_allowed: false
+  prospective_protocol_started: false
+  prospective_registry_record_count: 0
+  prospective_registry_write_attempt_count: 0
+  data_backtests_write_allowed: false
+  data_prospective_write_allowed: false
+  public_output_allowed: false
+  holdout_registered: false
+  economic_validation_status: not_started
+  formal_decision_model_ready: false
+  candidate_capability_ready: false
+  book_alignment_claim_allowed: false
+  real_backtest_progression_allowed: false
+  phase_9b1_allowed: false
