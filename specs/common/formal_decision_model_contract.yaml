@@ -1,0 +1,219 @@
+formal_decision_model_contract:
+  version: phase13_v1
+  model_layer_id: book_faithful_shadow_formal_decision_contract_v1
+  parent_freeze_id: book_faithful_shadow_v2_alpha8
+  contract_status: preregistered_disabled
+  allowed_inputs:
+    - typed_phase_presence_evidence
+    - typed_transition_watch_evidence
+    - typed_transition_confirmation_evidence
+    - major_group_evidence_status
+    - major_group_completeness
+    - temporal_completeness
+    - source_provenance
+    - model_freeze_id
+  prohibited_inputs:
+    - scenario_id
+    - expected_historical_label
+    - nber_date
+    - portfolio_return
+    - historical_accuracy_metric
+    - acceptance_window
+    - external_context_prior
+    - display_hint
+    - production_current_phase
+    - state_machine_output
+    - resolver_output
+    - public_dashboard_state
+  phase_presence_requirements:
+    recovery:
+      layer: recovery_indicators
+      required_major_groups:
+        - employment
+        - consumption
+        - investment
+        - trade
+      disallowed_inputs:
+        - policy_only_support
+        - financial_stress_only_support
+    growth:
+      layer: growth_indicators
+      required_major_groups:
+        - saving_and_consumption
+        - employment
+        - private_investment_and_housing
+        - sustainable_core_inflation
+      disallowed_inputs:
+        - adp_substituted_with_payems
+        - headline_inflation_substituted_for_core
+    boom:
+      layer: boom_ending_indicators
+      required_major_groups:
+        - claims_u_shape
+        - consumption_slowdown
+        - consumer_confidence
+        - private_investment_and_durables
+        - government_spending_revenue
+        - inventory_cycle
+        - delinquency_default
+      disallowed_inputs:
+        - boom_ending_risk_as_presence
+        - generic_sentiment_as_confidence
+    recession_confirmation:
+      layer: recession_trough_requirements
+      required_major_groups:
+        - recession_confirmation
+        - recession_employment
+        - recession_consumption
+        - recession_investment_real_activity
+        - recession_trade_or_breadth
+      disallowed_inputs:
+        - recession_watch_only
+        - boom_ending_watch_only
+  transition_watch_requirements:
+    boom_ending_watch:
+      allowed_layers:
+        - boom_ending_indicators
+      cannot_satisfy_phase_presence: true
+    recession_watch:
+      allowed_layers:
+        - recession_trough_requirements
+      cannot_satisfy_recession_confirmation: true
+    recovery_watch:
+      allowed_layers:
+        - recession_trough_requirements
+      cannot_satisfy_formal_recovery: true
+  transition_confirmation_requirements:
+    recession_confirmation:
+      requires_phase_confirmation_groups: true
+      watch_evidence_is_insufficient: true
+    trough_confirmation:
+      requires_real_activity_and_labor_reversal: true
+      policy_financial_only_is_insufficient: true
+  major_group_completeness_requirements:
+    all_required_core_groups_complete: true
+    supporting_roles_may_not_replace_core: true
+    modern_extensions_may_not_replace_book_core: true
+    unavailable_is_not_neutral: true
+    missing_is_not_zero: true
+  abstention_propagation_rule:
+    rule_id: abstain_if_required_core_group_incomplete_v1
+    incomplete_required_group_status: abstain
+    unresolved_rule_status: abstain
+    temporal_incomplete_status: abstain
+    provenance_incomplete_status: abstain
+  contradictory_evidence_rule:
+    rule_id: contradictory_required_core_group_blocks_clean_candidate_v1
+    contradictory_core_group_status: mixed_or_abstain
+    contradictory_evidence_may_not_be_averaged_away: true
+  mixed_evidence_rule:
+    rule_id: mixed_required_core_group_requires_ambiguity_or_abstention_v1
+    mixed_group_status: mixed
+    role_count_voting_allowed: false
+  unavailable_evidence_rule:
+    rule_id: unavailable_required_core_group_abstains_v1
+    unavailable_status: abstain
+    neutral_substitution_allowed: false
+  raw_observation_only_rule:
+    rule_id: raw_observation_is_not_phase_evidence_v1
+    raw_observation_only_status: not_candidate_input_eligible
+    smoothing_alone_phase_support_allowed: false
+    raw_direction_as_turning_point_allowed: false
+  temporal_integrity_rule:
+    rule_id: same_as_of_same_data_mode_causal_only_v1
+    causal_only: true
+    centered_window_allowed: false
+    future_data_allowed: false
+    mixed_data_mode_allowed: false
+  same_as_of_requirement:
+    required: true
+    cross_series_relation_same_as_of: true
+  data_mode_requirement:
+    strict_and_revised_must_be_separated: true
+    revised_diagnostic_not_point_in_time: true
+  provenance_requirement:
+    source_series_required: true
+    release_or_snapshot_required: true
+    transformation_id_required: true
+    rule_id_required: true
+    freeze_id_required: true
+  candidate_input_eligibility_rule:
+    rule_id: all_required_major_groups_complete_no_forbidden_inputs_v1
+    rules:
+      - all_required_major_groups_complete
+      - no_unresolved_required_core_role
+      - no_unavailable_required_core_group
+      - no_mixed_or_contradictory_required_group_without_abstention
+      - same_as_of_and_same_data_mode
+      - provenance_complete
+      - no_transition_watch_as_phase_presence
+      - no_modern_or_supporting_substitution
+      - no_numeric_weight
+      - no_role_count_vote
+  candidate_output_rule:
+    candidate_selection_enabled: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+    selected_candidate_phase_field_allowed: false
+    current_phase_field_allowed: false
+    output_status_when_disabled: diagnostics_only_candidate_output_disabled
+  readiness_gates:
+    formal_decision_contract_ready: true
+    candidate_precondition_profile_ready: true
+    candidate_input_eligibility_rule_count_minimum: 1
+    phase_presence_transition_separation_valid: true
+    abstention_propagation_ready: true
+    contradictory_evidence_rule_ready: true
+    mixed_evidence_rule_ready: true
+    unavailable_evidence_rule_ready: true
+    candidate_output_disabled: true
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    scenario_answer_injection_allowed: false
+    nber_tuning_allowed: false
+    portfolio_return_tuning_allowed: false
+    production_import_allowed: false
+    public_output_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    prospective_registry_write_allowed: false
+  candidate_precondition_profiles:
+    - profile_id: recovery_precondition
+      diagnostic_phase_id: recovery
+      phase_presence_layer: recovery_indicators
+      required_major_groups:
+        - employment
+        - consumption
+        - investment
+        - trade
+    - profile_id: growth_precondition
+      diagnostic_phase_id: growth
+      phase_presence_layer: growth_indicators
+      required_major_groups:
+        - saving_and_consumption
+        - employment
+        - private_investment_and_housing
+        - sustainable_core_inflation
+    - profile_id: boom_precondition
+      diagnostic_phase_id: boom
+      phase_presence_layer: boom_ending_indicators
+      required_major_groups:
+        - claims_u_shape
+        - consumption_slowdown
+        - consumer_confidence
+        - private_investment_and_durables
+        - government_spending_revenue
+        - inventory_cycle
+        - delinquency_default
+    - profile_id: recession_confirmation_precondition
+      diagnostic_phase_id: recession_confirmation
+      phase_presence_layer: recession_trough_requirements
+      required_major_groups:
+        - recession_confirmation
+        - recession_employment
+        - recession_consumption
+        - recession_investment_real_activity
+        - recession_trade_or_breadth
