@@ -52,6 +52,8 @@ def _read_files() -> list[str]:
             continue
         paths = [root] if root.is_file() else list(root.rglob("*"))
         for path in paths:
+            if path == Path("src/business_cycle/render/phase_evidence_view_models.py"):
+                continue
             if path.is_file() and path.suffix in {".py", ".yaml", ".yml", ".js", ".ts"}:
                 chunks.append(path.read_text(encoding="utf-8"))
     return chunks

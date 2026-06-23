@@ -34,3 +34,15 @@ Blocked report must include:
 ```
 
 This suffix does not authorize changes to formal scoring, resolver logic, FRED provider behavior, dashboard integration, GitHub Pages workflow, generated data, public output, secrets, or investment advice unless the main prompt explicitly requests them.
+
+## North Star Phase Addendum
+
+Future phase prompts should require:
+
+```text
+Read docs/project_north_star.md and specs/common/project_north_star_contract.yaml.
+Map the phase to product_capabilities_advanced, milestone_ids_advanced, and web_surfaces_advanced.
+Report north_star_alignment_status, deferred_capability_gaps, semantic_drift_count, and production_behavior_change_count.
+Do not mark the phase complete when semantic_drift_count > 0.
+Preserve: observation != phase evidence, watch != confirmation, candidate phase != current phase, revised diagnostic != point-in-time result, structural readiness != economic validation, and portfolio research != investment recommendation.
+```

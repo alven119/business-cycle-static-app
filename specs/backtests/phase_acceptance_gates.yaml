@@ -938,3 +938,40 @@ phase_specific_gates:
       - result == passed
     soft_warnings_allowed:
       - genuine blocker count may remain positive when official public data, authorized access, or release semantics are genuinely unavailable
+
+  phase11_book_core_phase_evidence_closure:
+    hard_gates:
+      - north_star_document_present == true
+      - north_star_contract_valid == true
+      - phase_capability_mapping_complete == true
+      - web_surface_mapping_complete == true
+      - semantic_drift_count == 0
+      - unsupported_product_claim_count == 0
+      - role_type_registry_ready == true
+      - denominator_semantics_valid == true
+      - evidence_rule_registry_ready == true
+      - implemented_phase_evidence_evaluator_count > 0
+      - new_phase_evidence_evaluable_role_count > 0
+      - phase_evidence_partial_major_group_count > 0
+      - retrospective_diagnostics_ready == true
+      - phase_evidence_view_model_ready == true
+      - numeric_weight_added_count == 0
+      - arbitrary_threshold_added_count == 0
+      - candidate_selection_enabled == false
+      - candidate_phase_emitted == false
+      - current_phase_emitted == false
+      - production_behavior_change_count == 0
+      - prospective_registry_record_count == 0
+      - candidate_capability_ready == false
+      - formal_decision_model_ready == false
+      - data_only_model_economically_validated == false
+      - independent_validation_ready == false
+      - holdout_registered == false
+      - production_book_fidelity_ready == false
+      - book_alignment_claim_allowed == false
+      - development_next_phase == 12
+      - prospective_track_next_action == WAIT_FOR_FIRST_ELIGIBLE_AS_OF
+      - phase11_closure_status == closed_north_star_institutionalized_phase_evidence_runtime_expanded_candidate_model_disabled
+      - result == passed
+    soft_warnings_allowed:
+      - genuine blocked role count may remain positive when source, access, composite-rule, or qualitative semantics are incomplete

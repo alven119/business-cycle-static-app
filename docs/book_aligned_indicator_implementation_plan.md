@@ -920,3 +920,22 @@ Phase 10 freezes this remediation as `book_faithful_shadow_v2_alpha6`.
 Observation-only coverage expands, but phase-evidence evaluators, candidate
 capability, and production behavior remain unchanged. The prospective track
 continues to wait for `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.
+
+## Phase 11 North Star and phase evidence update
+
+Phase 11 adds the repository North Star as the highest-level product contract
+and machine-readable governance input for later work. Book-core phase evidence
+implementation now advances only roles whose official source, transformation,
+and preregistered rule semantics are complete without historical-label tuning,
+arbitrary thresholds, or weights.
+
+Role taxonomy separates direct indicators, derived indicators, composite
+interpretations, transition evidence, methodology requirements, and modern
+supporting roles. `recovery_publication_lag_awareness` is retained for F1
+temporal integrity but excluded from the indicator denominator. Composite roles
+such as real disposable income versus consumption and sustainable inflation
+remain blocked for phase support until their interpretation rules are complete.
+
+The alpha7 phase-evidence freeze remains shadow-only. It does not enable
+candidate selection, current phase decisions, production dashboard wiring,
+portfolio actions, prospective registry writes, or real backtest progression.

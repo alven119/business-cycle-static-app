@@ -1,0 +1,29 @@
+book_faithful_shadow_phase_evidence_freeze:
+  freeze_id: book_faithful_shadow_v2_alpha7
+  parent_freeze_id: book_faithful_shadow_v2_alpha6
+  freeze_type: book_core_phase_evidence_evaluator_implementation
+  created_at_utc: "2026-06-23T00:00:00Z"
+  component_paths:
+    - docs/project_north_star.md
+    - specs/common/project_north_star_contract.yaml
+    - specs/audits/book_core_role_type_registry.yaml
+    - specs/audits/book_phase_evidence_rule_registry.yaml
+    - specs/audits/phase_evidence_evaluator_fixtures.yaml
+    - specs/common/phase_evidence_view_model_contract.yaml
+  source_paths:
+    - src/business_cycle/audits/project_north_star.py
+    - src/business_cycle/audits/book_core_role_types.py
+    - src/business_cycle/audits/book_phase_evidence_rules.py
+    - src/business_cycle/shadow_model/phase_evidence_primitives.py
+    - src/business_cycle/shadow_model/phase_evidence_evaluators.py
+    - src/business_cycle/shadow_model/major_group_evidence.py
+    - src/business_cycle/shadow_model/phase_evidence_profiles.py
+    - src/business_cycle/render/phase_evidence_view_models.py
+  numeric_weight_added: false
+  arbitrary_threshold_added: false
+  candidate_selection_enabled: false
+  current_phase_enabled: false
+  production_integration_allowed: false
+  prospective_protocol_started: false
+  holdout_registered: false
+  economic_validation_status: not_started

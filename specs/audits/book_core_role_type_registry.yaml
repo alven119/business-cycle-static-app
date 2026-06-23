@@ -1,0 +1,16 @@
+book_core_role_type_registry:
+  version: phase11_v1
+  status: preregistered
+  primary_role_types:
+    - direct_indicator_role
+    - derived_indicator_role
+    - composite_interpretation_role
+    - transition_evidence_role
+    - data_methodology_requirement
+    - modern_supporting_role
+  methodology_requirements:
+    - recovery_publication_lag_awareness
+  denominator_policy:
+    economic_indicator_denominator_excludes:
+      - data_methodology_requirement
+    exclusion_reason: temporal_integrity_requirement_not_indicator_evidence

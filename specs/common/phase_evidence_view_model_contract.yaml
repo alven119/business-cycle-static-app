@@ -1,0 +1,27 @@
+phase_evidence_view_model_contract:
+  version: phase11_v1
+  status: shadow_backend_contract_only
+  supported_surfaces:
+    - W2_PHASE_ANALYSIS
+    - W3_TRANSITION_RISK
+    - W4_INDICATOR_EXPLORER
+    - W7_DATA_LINEAGE
+    - W12_PRODUCTION_SHADOW_COMPARE
+  required_fields:
+    - view_model_version
+    - as_of
+    - data_mode
+    - model_id
+    - freeze_id
+    - readiness_label
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+    - caveats
+  prohibited_fields:
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+    - current_allocation_recommendation
+    - guaranteed_return

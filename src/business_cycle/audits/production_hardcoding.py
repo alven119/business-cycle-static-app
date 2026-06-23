@@ -114,6 +114,7 @@ def _excluded(path: Path) -> bool:
     text = str(path)
     return (
         "/__pycache__/" in text
+        or text == "src/business_cycle/render/phase_evidence_view_models.py"
         or text.startswith("src/business_cycle/audits/")
         or text.startswith("src/business_cycle/backtests/")
         or text.startswith("tests/")

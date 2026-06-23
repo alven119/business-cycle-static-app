@@ -1378,6 +1378,29 @@ freeze is preserved, holdout is not registered, real backtest progression
 remains blocked, and Phase 9B1 remains blocked. Phase 11 can continue
 book-core phase-evidence evaluator work without touching the prospective clock.
 
+## Phase 11 North Star and book-core phase evidence
+
+Phase 11 institutionalizes the project North Star in
+`docs/project_north_star.md` and `specs/common/project_north_star_contract.yaml`.
+Future phases must map work to product capabilities, web surfaces, mandatory
+semantic distinctions, and the final definition of done before claiming
+closure.
+
+Phase 11 also expands shadow-only book-core phase-evidence evaluators. Raw
+observations, transition watches, confirmations, candidate phases, current
+phases, and production decisions remain separate. The three-month claims moving
+average remains a noise filter, not phase support. Safe evaluators now emit
+governed research-only evidence states for book-core roles whose source,
+transformation, and rule semantics are complete without arbitrary thresholds or
+weights.
+
+Remaining gaps stay explicit: source/access blockers, composite interpretation
+rules, unresolved qualitative semantics, and methodology requirements do not
+count as completed phase evidence. Candidate capability remains false,
+production v1 is unchanged, prospective registry records remain zero, the
+prospective track continues to wait for `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`, and
+real backtest progression plus Phase 9B1 remain blocked.
+
 ## Agent workflow / self-repair
 
 Agent implementation tasks should follow the repo operating contract and phase acceptance gates before reporting completion.

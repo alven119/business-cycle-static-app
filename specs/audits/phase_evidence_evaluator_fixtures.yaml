@@ -1,0 +1,20 @@
+phase_evidence_evaluator_fixtures:
+  version: phase11_v1
+  status: structural
+  fixture_policy:
+    cases_per_implemented_evaluator:
+      - supportive_case
+      - contradictory_case
+      - neutral_case
+      - insufficient_lookback
+      - missing_input
+      - future_data_rejection
+      - mixed_mode_rejection
+      - deterministic_repeat
+      - unit_consistency
+      - frequency_aware_behavior
+      - provenance_preservation
+      - contextual_label_injection_rejection
+    candidate_phase_output_allowed: false
+    current_phase_output_allowed: false
+    economic_validation: false

@@ -1,0 +1,227 @@
+project_north_star_contract:
+  version: "1.0"
+  status: active
+  document_path: docs/project_north_star.md
+  north_star_statement: >
+    Build a traceable, explainable, point-in-time-aware macroeconomic research web
+    system that uses official data to study US business-cycle phases, transition
+    risks, historical replay, backtest research, portfolio policy research, and
+    governance without producing automatic trading actions.
+  core_capabilities:
+    - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      title_zh: 景氣階段判讀能力
+      objective: Govern evidence for recession, recovery, growth, and boom.
+      required_inputs: [official_macro_data, transformations, major_group_contracts]
+      required_outputs: [current_phase_or_abstention, candidate_phase_or_abstention, evidence_completeness, confidence, major_group_readiness]
+      prohibited_outputs: [buy_signal, sell_signal, target_weight, current_allocation_recommendation]
+      readiness_gates: [phase_evidence_complete, candidate_contract_complete, temporal_integrity_verified]
+      current_status: phase_evidence_runtime_expanding_candidate_disabled
+      related_milestones: [M2, M3]
+      related_execution_phases: [P11, P12, P13, P18, P20]
+      related_web_surfaces: [W1_OVERVIEW, W2_PHASE_ANALYSIS, W5_PHASE_TIMELINE]
+    - capability_id: C2_TRANSITION_RISK_DETECTION
+      title_zh: 轉折風險偵測能力
+      objective: Keep watch and confirmation evidence separate from formal phases.
+      required_inputs: [turning_point_rules, transition_evidence_contracts]
+      required_outputs: [boom_ending_watch, recession_watch, recession_confirmation, trough_recovery_watch]
+      prohibited_outputs: [formal_phase_override, trade_action]
+      readiness_gates: [watch_confirmation_separation_verified, no_candidate_routing]
+      current_status: shadow_contracts_under_governance
+      related_milestones: [M5, M6]
+      related_execution_phases: [P11, P12, P17, P18]
+      related_web_surfaces: [W3_TRANSITION_RISK, W11_SHOCK_OVERLAY]
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      title_zh: 解釋能力
+      objective: Explain evidence, missing data, provenance, and production/shadow differences.
+      required_inputs: [role_contracts, provenance, freeze_lineage]
+      required_outputs: [role_reasoning, group_attribution, abstention_reason, lineage]
+      prohibited_outputs: [opaque_decision]
+      readiness_gates: [trust_metadata_complete, provenance_complete]
+      current_status: contracts_expanding
+      related_milestones: [M6, M11]
+      related_execution_phases: [P11, P18, P20]
+      related_web_surfaces: [W4_INDICATOR_EXPLORER, W7_DATA_LINEAGE, W12_PRODUCTION_SHADOW_COMPARE]
+    - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
+      title_zh: Portfolio policy research 能力
+      objective: Research book benchmark and modern templates without live allocation output.
+      required_inputs: [policy_contracts, backtest_contracts]
+      required_outputs: [research_templates, caveated_backtest_views]
+      prohibited_outputs: [live_allocation, target_weight, trade_signal]
+      readiness_gates: [portfolio_safety_contract_passed, backtest_gate_passed]
+      current_status: contract_only
+      related_milestones: [M7, M8, M9]
+      related_execution_phases: [P14, P16]
+      related_web_surfaces: [W8_BACKTEST_RESEARCH, W9_PORTFOLIO_POLICY_RESEARCH]
+    - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
+      title_zh: 歷史重播與回測能力
+      objective: Separate revised diagnostics from strict point-in-time replay and backtests.
+      required_inputs: [vintage_data, release_semantics, total_return_data]
+      required_outputs: [historical_replay, strict_backtest_or_abstention]
+      prohibited_outputs: [point_in_time_claim_from_revised_data]
+      readiness_gates: [temporal_gate_passed, output_safety_passed]
+      current_status: not_formally_started_for_real_backtest
+      related_milestones: [M4, M8, M9]
+      related_execution_phases: [P13, P14, P15]
+      related_web_surfaces: [W5_PHASE_TIMELINE, W6_HISTORICAL_REPLAY, W8_BACKTEST_RESEARCH]
+    - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
+      title_zh: 安全輸出治理能力
+      objective: Prevent unsafe claims, action fields, silent fallback, and public leakage.
+      required_inputs: [output_contracts, caveat_policy, freeze_lineage]
+      required_outputs: [safe_research_outputs, prohibited_text_validation, append_only_registry]
+      prohibited_outputs: [secret, public_raw_cache, investment_advice]
+      readiness_gates: [safety_validator_passed, production_isolation_verified]
+      current_status: active_governance_track
+      related_milestones: [M6, M12]
+      related_execution_phases: [P11, P18, P19, P21]
+      related_web_surfaces: [W13_MODEL_GOVERNANCE, W14_PROSPECTIVE_MONITORING, W15_SYSTEM_OPERATIONS]
+  foundation_capabilities:
+    - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      title_zh: 時間完整性與 abstention
+      objective: Preserve point-in-time semantics and abstain on missing or incomplete evidence.
+      required_inputs: [release_semantics, vintage_mode, missing_data_policy]
+      required_outputs: [temporal_abstention, strict_revised_separation]
+      prohibited_outputs: [revised_fallback_in_strict, zero_fill_missing]
+      readiness_gates: [temporal_integrity_verified]
+      current_status: active_governance_track
+      related_milestones: [M3, M4, M8]
+      related_execution_phases: [P10, P11, P13, P19]
+      related_web_surfaces: [W7_DATA_LINEAGE, W14_PROSPECTIVE_MONITORING]
+    - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+      title_zh: 模型治理與前瞻驗證
+      objective: Freeze, hash, preregister, and evaluate without peeking.
+      required_inputs: [freeze_lineage, validation_protocol, prospective_registry]
+      required_outputs: [model_freeze, validation_status, lineage]
+      prohibited_outputs: [silent_freeze_rewrite, result_peeking]
+      readiness_gates: [freeze_hash_valid, protocol_not_started_until_gate]
+      current_status: active_governance_track
+      related_milestones: [M4, M10, M12]
+      related_execution_phases: [P11, P15, P19, P21]
+      related_web_surfaces: [W13_MODEL_GOVERNANCE, W14_PROSPECTIVE_MONITORING]
+  milestone_map:
+    M0: {title: 專案骨架與官方資料基礎}
+    M1: {title: 指標轉換與 scoring 基礎}
+    M2: {title: 四階段景氣模型}
+    M3: {title: 書籍指標對齊}
+    M4: {title: Historical diagnostics／calibration}
+    M5: {title: Transition evidence}
+    M6: {title: Evidence display contracts}
+    M7: {title: Portfolio policy research}
+    M8: {title: Real backtest contract stack}
+    M9: {title: Real backtest prototype}
+    M10: {title: Model calibration}
+    M11: {title: Dashboard integration}
+    M12: {title: Automation／deployment／operations}
+  execution_roadmap:
+    P10: {title: Book-core source／adapter remediation}
+    P11: {title: Phase-evidence evaluator implementation}
+    P12: {title: Shadow four-phase model}
+    P13: {title: Point-in-time historical replay}
+    P14: {title: Real backtest prototype}
+    P15: {title: Calibration and candidate freeze}
+    P16: {title: Book benchmark and portfolio policy engine}
+    P17: {title: Secular regime and shock overlay}
+    P18: {title: Dashboard and explainability}
+    P19: {title: Prospective economic validation}
+    P20: {title: Production migration}
+    P21: {title: Automation, deployment and operations}
+  required_web_surfaces:
+    - {surface_id: W1_OVERVIEW, title_zh: 總覽}
+    - {surface_id: W2_PHASE_ANALYSIS, title_zh: 景氣階段}
+    - {surface_id: W3_TRANSITION_RISK, title_zh: 轉折風險}
+    - {surface_id: W4_INDICATOR_EXPLORER, title_zh: 指標總覽}
+    - {surface_id: W5_PHASE_TIMELINE, title_zh: 歷史時間軸}
+    - {surface_id: W6_HISTORICAL_REPLAY, title_zh: 歷史重播}
+    - {surface_id: W7_DATA_LINEAGE, title_zh: 資料與血緣}
+    - {surface_id: W8_BACKTEST_RESEARCH, title_zh: 回測研究}
+    - {surface_id: W9_PORTFOLIO_POLICY_RESEARCH, title_zh: Portfolio Research}
+    - {surface_id: W10_SECULAR_REGIME, title_zh: 長週期 Regime}
+    - {surface_id: W11_SHOCK_OVERLAY, title_zh: Shock Overlay}
+    - {surface_id: W12_PRODUCTION_SHADOW_COMPARE, title_zh: Production v1 vs Shadow v2}
+    - {surface_id: W13_MODEL_GOVERNANCE, title_zh: 模型治理}
+    - {surface_id: W14_PROSPECTIVE_MONITORING, title_zh: 前瞻監控與 Registry}
+    - {surface_id: W15_SYSTEM_OPERATIONS, title_zh: 系統維運}
+  mandatory_semantic_distinctions:
+    - observation != phase evidence
+    - phase evidence != transition watch
+    - watch != confirmation
+    - confirmation != formal phase
+    - candidate phase != current phase
+    - structural validation != economic validation
+    - revised diagnostic != point-in-time result
+    - portfolio research != investment recommendation
+    - source contract ready != live source ready
+    - period complete != candidate capability ready
+  prohibited_product_claims:
+    - book_faithful_model_complete_claim
+    - candidate_phase_ready_claim
+    - prospective_monitoring_started_claim
+    - economically_validated_claim
+    - holdout_active_claim
+    - production_ready_claim
+    - real_backtest_ready_claim
+    - investment_ready_claim
+  required_global_controls:
+    - as_of_date
+    - data_mode
+    - model
+    - model_freeze_version
+    - date_range
+    - frequency
+    - view
+  required_trust_metadata:
+    - data_last_updated_at
+    - data_completeness
+    - stale_or_missing_status
+    - model_version
+    - freeze_id
+    - validation_status
+    - output_label
+    - allowed_uses
+    - prohibited_uses
+  project_definition_of_done:
+    - official_source_adapters_maintainable
+    - book_core_contracts_complete
+    - point_in_time_and_revised_modes_explicit
+    - four_phase_model_outputs_or_abstains
+    - transition_evidence_separated
+    - explainability_and_provenance_complete
+    - historical_replay_available
+    - portfolio_policy_research_safe
+    - strict_backtest_available_with_cash_flows
+    - dashboard_wired
+    - prospective_registry_append_only_and_validated
+    - production_migration_with_rollback
+    - operations_health_available
+    - no_automatic_trade_advice
+  phase11_mapping:
+    phase_id: 11
+    product_capabilities_advanced:
+      - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      - C2_TRANSITION_RISK_DETECTION
+      - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      - C6_SAFE_OUTPUT_GOVERNANCE
+      - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+    milestone_ids_advanced: [M2, M3, M4, M5, M6]
+    web_surfaces_advanced:
+      - W2_PHASE_ANALYSIS
+      - W3_TRANSITION_RISK
+      - W4_INDICATOR_EXPLORER
+      - W7_DATA_LINEAGE
+      - W12_PRODUCTION_SHADOW_COMPARE
+      - W13_MODEL_GOVERNANCE
+    web_surface_mapping_note: >
+      Backend contract and view-model readiness only; no production dashboard wiring.
+  acceptance_gates:
+    north_star_document_present: true
+    north_star_contract_valid: true
+    phase_capability_mapping_complete: true
+    web_surface_mapping_complete: true
+    semantic_drift_count: 0
+    unsupported_product_claim_count: 0
+    user_visible_claim_without_readiness_gate_count: 0
+    research_output_mislabeled_as_production_count: 0
+    observation_mislabeled_as_phase_evidence_count: 0
+    watch_mislabeled_as_confirmation_count: 0
+    revised_mislabeled_as_point_in_time_count: 0
+    production_behavior_change_without_approval_count: 0

@@ -134,3 +134,32 @@ If blocked, report:
 - files inspected
 - attempted fixes
 - why further automated repair is unsafe
+
+## Project North Star Contract
+
+Before planning or implementing any phase, read:
+
+- docs/project_north_star.md
+- specs/common/project_north_star_contract.yaml
+
+Every phase must map its work to at least one product capability and must not conflict with the North Star semantics.
+
+The following distinctions are mandatory:
+
+- observation != phase evidence
+- watch != confirmation
+- candidate phase != current phase
+- revised diagnostic != point-in-time result
+- structural readiness != economic validation
+- portfolio research != investment recommendation
+
+Every final report must include:
+
+- north_star_alignment_status
+- product_capabilities_advanced
+- web_surfaces_advanced
+- deferred_capability_gaps
+- semantic_drift_count
+- production_behavior_change_count
+
+A phase must not be marked complete when semantic_drift_count > 0.

@@ -1,0 +1,19 @@
+book_phase_evidence_rule_registry:
+  version: phase11_v1
+  status: preregistered
+  policy:
+    candidate_selection_eligible_default: false
+    numeric_weight_count: 0
+    arbitrary_threshold_count: 0
+    historical_label_inputs_allowed: false
+    contextual_examples_as_thresholds_allowed: false
+  non_operationalized_roles:
+    - recovery_weekly_claim_noise_filter
+    - growth_personal_saving_rate
+    - growth_real_disposable_income_vs_consumption
+    - growth_core_cpi
+    - growth_core_pce
+    - growth_sustainable_inflation_interpretation
+    - boom_consumer_confidence
+    - growth_adp_employment
+    - trough_policy_financial_not_sufficient_alone

@@ -324,3 +324,41 @@ The expected closure keeps `candidate_capability_ready=false`,
 `real_backtest_progression_allowed=false`, and `phase_9b1_allowed=false`.
 The development next phase is `11`; the prospective track next action remains
 `WAIT_FOR_FIRST_ELIGIBLE_AS_OF`.
+
+## Project North Star Gates
+
+Before planning or implementing any future phase, agents must read
+`docs/project_north_star.md` and
+`specs/common/project_north_star_contract.yaml`. Each phase must declare the
+product capabilities, milestones, and web surfaces it advances and must keep
+the North Star semantic distinctions intact.
+
+Common North Star hard gates are: document present, contract valid, phase
+capability mapping complete, web-surface mapping complete, semantic drift
+count zero, unsupported product claim count zero, no research output mislabeled
+as production, no observation mislabeled as phase evidence, no watch mislabeled
+as confirmation, no revised diagnostic mislabeled as point-in-time, and no
+production behavior change without explicit approval.
+
+## Phase 11 North Star and Phase-Evidence Gates
+
+Phase 11 may institutionalize the North Star, classify canonical roles,
+exclude methodology requirements from indicator denominators, preregister
+book-core evidence rules, implement all safely operationalizable phase-evidence
+evaluators, add structural and metamorphic tests, build major-group evidence
+profiles, run retrospective diagnostics, add shadow-only view-model contracts,
+and freeze alpha7 lineage.
+
+Phase 11 must not compute candidate or current phase, start prospective
+monitoring, write real registry records, use historical labels or portfolio
+returns for rules, add weights or arbitrary thresholds, route evidence to
+resolver/state-machine/dashboard/portfolio, or change production behavior.
+
+Phase 11 completion requires North Star gates passing, every economic role
+represented in the evidence rule registry, methodology requirements excluded
+from the indicator denominator, implemented phase-evidence evaluator count
+greater than zero, new phase-evidence evaluable role count greater than zero,
+partial phase-evidence major groups greater than zero, no candidate/current
+phase emission, 2019 revised diagnostics with nonzero phase evidence, valid
+alpha7 freeze lineage, QA12 freeze unchanged, no leakage, and production plus
+prospective isolation counts at zero.
