@@ -1,0 +1,69 @@
+historical_validation_label_policy:
+  policy_id: book_faithful_shadow_historical_validation_label_policy_v1
+  policy_version: phase17_v1
+  policy_status: preregistered_no_label_runtime_use
+  label_source_rows:
+    - label_source_id: nber_us_business_cycle_dates_declared_validation_label
+      label_source_name: NBER US Business Cycle Dating
+      label_source_type: external_validation_label
+      allowed_uses:
+        - future_historical_validation_label
+        - validation_window_annotation
+      prohibited_uses:
+        - runtime_decision_logic
+        - rule_or_evaluator_tuning
+        - scenario_specific_threshold_change
+        - scenario_specific_weight_change
+        - portfolio_policy_rule_source
+      provenance_requirements:
+        citation_required: true
+        extraction_date_required: true
+        label_window_required: true
+        label_source_version_required: true
+      provenance_complete: true
+    - label_source_id: book_case_examples_traceability_only
+      label_source_name: Book case examples and page references
+      label_source_type: traceability_context
+      allowed_uses:
+        - requirement_traceability
+        - semantic_review_context
+      prohibited_uses:
+        - executable_threshold_source
+        - universal_numeric_rule_source
+        - runtime_decision_logic
+        - validation_metric_source
+      provenance_requirements:
+        citation_required: true
+        short_statement_id_required: true
+        page_reference_required: true
+      provenance_complete: true
+    - label_source_id: preregistered_period_metadata_no_runtime_label
+      label_source_name: Preregistered scenario window metadata
+      label_source_type: scenario_manifest_metadata
+      allowed_uses:
+        - future_validation_window_definition
+      prohibited_uses:
+        - runtime_decision_logic
+        - threshold_or_weight_tuning
+        - performance_metric_source
+      provenance_requirements:
+        manifest_row_required: true
+        selection_reason_required: true
+        window_definition_required: true
+      provenance_complete: true
+  global_restrictions:
+    labels_used_for_future_validation_only: true
+    labels_prohibited_from_runtime_decision_logic: true
+    labels_prohibited_from_rule_or_evaluator_tuning: true
+    labels_prohibited_from_scenario_specific_threshold_changes: true
+    nber_dates_allowed_only_as_declared_validation_label_source: true
+    book_examples_allowed_only_as_traceability: true
+    portfolio_returns_prohibited_as_rule_source: true
+    label_use_requires_explicit_protocol_execution_phase: true
+  counters:
+    label_source_count: 3
+    label_source_without_provenance_count: 0
+    label_runtime_usage_violation_count: 0
+    label_tuning_usage_violation_count: 0
+    scenario_threshold_change_violation_count: 0
+    portfolio_return_rule_source_violation_count: 0

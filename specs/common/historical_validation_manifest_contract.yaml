@@ -1,0 +1,128 @@
+historical_validation_manifest_contract:
+  manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  manifest_version: phase17_v1
+  manifest_status: preregistered_no_validation_execution
+  parent_validation_harness_id: book_faithful_shadow_validation_harness_v1
+  parent_freeze_id: book_faithful_shadow_v2_alpha12
+  scenario_selection_policy:
+    selection_basis: preregistered_named_macroeconomic_cycles
+    selection_made_before_validation_execution: true
+    result_based_selection_allowed: false
+    scenario_specific_threshold_change_allowed: false
+    scenario_specific_weight_change_allowed: false
+    minimum_scenario_count: 1
+  scenario_ids:
+    - dotcom_cycle_2000_2003
+    - global_financial_crisis_2007_2009
+    - covid_recession_2020
+    - euro_debt_slowdown_2011_2012
+    - late_cycle_2018_2019
+  validation_window_definitions:
+    - scenario_id: dotcom_cycle_2000_2003
+      window_start: "2000-01-31"
+      window_end: "2003-12-31"
+      window_use: future_validation_only
+    - scenario_id: global_financial_crisis_2007_2009
+      window_start: "2007-01-31"
+      window_end: "2009-12-31"
+      window_use: future_validation_only
+    - scenario_id: covid_recession_2020
+      window_start: "2020-01-31"
+      window_end: "2021-12-31"
+      window_use: future_validation_only
+    - scenario_id: euro_debt_slowdown_2011_2012
+      window_start: "2011-01-31"
+      window_end: "2012-12-31"
+      window_use: future_validation_only
+    - scenario_id: late_cycle_2018_2019
+      window_start: "2018-01-31"
+      window_end: "2019-12-31"
+      window_use: future_validation_only
+  allowed_data_modes:
+    - vintage_as_of
+    - revised_declared_comparison_only
+  point_in_time_requirements:
+    point_in_time_required: true
+    same_as_of_required: true
+    availability_date_required: true
+    source_release_or_vintage_required: true
+    strict_mode_revised_fallback_allowed: false
+    missing_evidence_abstains: true
+  revised_data_allowed_only_for_declared_comparison: true
+  label_source_policy:
+    label_sources_must_be_preregistered: true
+    nber_recession_dates_allowed_as_declared_validation_label_source: true
+    nber_recession_dates_allowed_for_runtime_logic: false
+    book_case_examples_allowed_as_traceability_only: true
+    portfolio_returns_allowed_as_label_source: false
+  label_provenance_requirements:
+    source_name_required: true
+    source_url_or_citation_required: true
+    label_type_required: true
+    label_window_required: true
+    label_extraction_date_required: true
+    provenance_complete_required: true
+  label_usage_restrictions:
+    future_validation_only: true
+    runtime_decision_logic_allowed: false
+    rule_or_evaluator_tuning_allowed: false
+    scenario_specific_threshold_change_allowed: false
+    portfolio_return_rule_source_allowed: false
+  exclusion_policy:
+    exclude_if_point_in_time_inputs_unavailable: true
+    exclude_if_label_provenance_incomplete: true
+    exclude_if_model_version_changed_without_successor_manifest: true
+    exclusion_must_be_audited: true
+  leakage_prevention_rules:
+    - no_historical_label_tuning
+    - no_nber_date_tuning
+    - no_portfolio_return_tuning
+    - no_scenario_answer_injection
+    - no_post_manifest_result_based_rule_change
+    - no_candidate_or_current_phase_output
+  no_tuning_after_manifest_rule:
+    enabled: true
+    rule_or_threshold_change_requires_new_freeze: true
+    scenario_manifest_successor_required: true
+  metric_preregistration_dependency:
+    metric_computation_enabled: false
+    metric_contract_required_before_execution: true
+    confusion_matrix_allowed: false
+    accuracy_metric_allowed: false
+    performance_metric_allowed: false
+  output_restrictions:
+    real_historical_validation_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    public_output_written: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+  readiness_gates:
+    historical_validation_manifest_contract_ready: true
+    historical_validation_scenario_manifest_ready: true
+    validation_label_policy_ready: true
+    historical_validation_execution_allowed: false
+    metric_computation_allowed: false
+    backtest_execution_allowed: false
+  disabled_runtime_guards:
+    real_historical_validation_executed: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    production_integration_allowed: false
+    prospective_registry_record_written: false
+    prospective_registry_write_attempted: false
+    public_output_allowed: false

@@ -1,0 +1,35 @@
+historical_validation_readiness:
+  readiness_id: book_faithful_shadow_historical_validation_readiness_v1
+  readiness_version: phase17_v1
+  readiness_status: manifest_preregistered_validation_not_started
+  parent_manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  readiness_gates:
+    historical_validation_manifest_contract_ready: true
+    historical_validation_scenario_manifest_ready: true
+    validation_label_policy_ready: true
+    point_in_time_requirement_present: true
+    label_provenance_complete: true
+    label_runtime_usage_prohibited: true
+    no_tuning_after_manifest_rule_present: true
+  execution_counters:
+    real_historical_validation_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  safety_counters:
+    production_behavior_change_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    role_count_voting_added_count: 0
+    historical_tuning_leakage_count: 0
+  next_state:
+    development_next_phase: 18
+    prospective_track_next_action: WAIT_FOR_FIRST_ELIGIBLE_AS_OF
+    phase17_closure_status: closed_historical_validation_manifest_preregistered_no_validation_execution

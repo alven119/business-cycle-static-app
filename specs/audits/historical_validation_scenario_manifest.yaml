@@ -1,0 +1,97 @@
+historical_validation_scenario_manifest:
+  manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  manifest_version: phase17_v1
+  manifest_status: preregistered_no_validation_execution
+  parent_contract_id: book_faithful_shadow_historical_validation_manifest_v1
+  scenario_rows:
+    - scenario_id: dotcom_cycle_2000_2003
+      scenario_family: recession_recovery_cycle
+      selection_reason: named_cycle_for_future_label_validation
+      validation_window_start: "2000-01-31"
+      validation_window_end: "2003-12-31"
+      allowed_data_modes:
+        - vintage_as_of
+        - revised_declared_comparison_only
+      label_source_id: nber_us_business_cycle_dates_declared_validation_label
+      label_source_role: future_validation_label_only
+      point_in_time_required: true
+      label_provenance_complete: true
+      validation_execution_status: not_started
+      metric_computed: false
+      backtest_executed: false
+      candidate_or_current_phase_read: false
+    - scenario_id: global_financial_crisis_2007_2009
+      scenario_family: recession_recovery_cycle
+      selection_reason: named_cycle_for_future_label_validation
+      validation_window_start: "2007-01-31"
+      validation_window_end: "2009-12-31"
+      allowed_data_modes:
+        - vintage_as_of
+        - revised_declared_comparison_only
+      label_source_id: nber_us_business_cycle_dates_declared_validation_label
+      label_source_role: future_validation_label_only
+      point_in_time_required: true
+      label_provenance_complete: true
+      validation_execution_status: not_started
+      metric_computed: false
+      backtest_executed: false
+      candidate_or_current_phase_read: false
+    - scenario_id: covid_recession_2020
+      scenario_family: recession_recovery_cycle
+      selection_reason: named_cycle_for_future_label_validation
+      validation_window_start: "2020-01-31"
+      validation_window_end: "2021-12-31"
+      allowed_data_modes:
+        - vintage_as_of
+        - revised_declared_comparison_only
+      label_source_id: nber_us_business_cycle_dates_declared_validation_label
+      label_source_role: future_validation_label_only
+      point_in_time_required: true
+      label_provenance_complete: true
+      validation_execution_status: not_started
+      metric_computed: false
+      backtest_executed: false
+      candidate_or_current_phase_read: false
+    - scenario_id: euro_debt_slowdown_2011_2012
+      scenario_family: slowdown_without_declared_us_recession
+      selection_reason: named_stress_period_for_future_abstention_and_false_watch_review
+      validation_window_start: "2011-01-31"
+      validation_window_end: "2012-12-31"
+      allowed_data_modes:
+        - vintage_as_of
+        - revised_declared_comparison_only
+      label_source_id: preregistered_period_metadata_no_runtime_label
+      label_source_role: future_validation_label_only
+      point_in_time_required: true
+      label_provenance_complete: true
+      validation_execution_status: not_started
+      metric_computed: false
+      backtest_executed: false
+      candidate_or_current_phase_read: false
+    - scenario_id: late_cycle_2018_2019
+      scenario_family: late_cycle_watch_period
+      selection_reason: named_cycle_maturation_period_for_future_transition_review
+      validation_window_start: "2018-01-31"
+      validation_window_end: "2019-12-31"
+      allowed_data_modes:
+        - vintage_as_of
+        - revised_declared_comparison_only
+      label_source_id: preregistered_period_metadata_no_runtime_label
+      label_source_role: future_validation_label_only
+      point_in_time_required: true
+      label_provenance_complete: true
+      validation_execution_status: not_started
+      metric_computed: false
+      backtest_executed: false
+      candidate_or_current_phase_read: false
+  manifest_counters:
+    real_historical_validation_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
