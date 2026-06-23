@@ -1,0 +1,35 @@
+historical_validation_dry_run_result_registry:
+  registry_id: book_faithful_shadow_historical_validation_dry_run_results_v1
+  registry_version: phase20_v1
+  registry_status: in_memory_or_tmp_result_artifacts_only
+  parent_contract_id: book_faithful_shadow_historical_validation_dry_run_v1
+  parent_execution_plan_id: book_faithful_shadow_historical_validation_execution_plan_v1
+  result_artifact_schema_version: phase20_label_blind_result_artifact_v1
+  artifact_storage_policy:
+    committed_artifacts_allowed: false
+    tmp_artifacts_allowed: true
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  expected_counters:
+    scenario_count: 5
+    scenario_dry_run_result_count: 5
+    model_execution_count: 5
+    real_historical_validation_executed: true
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    prohibited_result_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+  allowed_uses:
+    - label_blind_validation_dry_run_artifact_review
+    - validation_execution_plumbing_check
+    - provenance_and_abstention_diagnostics
+  prohibited_uses:
+    - historical_accuracy_claim
+    - economic_validation_claim
+    - model_selection
+    - parameter_tuning
+    - backtest_or_portfolio_research
+    - production_dashboard_output

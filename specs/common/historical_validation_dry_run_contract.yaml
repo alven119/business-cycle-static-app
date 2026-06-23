@@ -1,0 +1,104 @@
+historical_validation_dry_run_contract:
+  contract_id: book_faithful_shadow_historical_validation_dry_run_v1
+  contract_version: phase20_v1
+  contract_status: controlled_label_blind_dry_run_result_artifacts_only
+  parent_execution_readiness_contract_id: book_faithful_shadow_historical_validation_execution_readiness_v1
+  locked_execution_plan_id: book_faithful_shadow_historical_validation_execution_plan_v1
+  parent_freeze_id: book_faithful_shadow_v2_alpha15
+  runtime_freeze_id: book_faithful_shadow_v2_alpha10
+  dry_run_policy:
+    locked_execution_plan_required: true
+    scenario_count_required: 5
+    label_blind_execution_required: true
+    labels_allowed_for_provenance_verification_only: true
+    labels_allowed_as_runtime_input: false
+    result_artifacts_allowed: true
+    result_artifacts_only: true
+  allowed_result_fields:
+    - run_id
+    - scenario_id
+    - as_of
+    - data_mode
+    - freeze_id
+    - execution_plan_id
+    - input_artifact_ids
+    - label_provenance_verified
+    - label_used_by_runtime
+    - decision_runtime_executed
+    - non_emitting_runtime_output
+    - abstention_reasons
+    - blocked_reason_codes
+    - trust_metadata
+    - allowed_uses
+    - prohibited_uses
+    - metric_computation_enabled
+    - backtest_execution_enabled
+    - candidate_phase_emitted
+    - current_phase_emitted
+  forbidden_result_fields:
+    - expected_label
+    - predicted_label
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - winning_phase
+    - phase_score
+    - phase_probability
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  output_directory_policy:
+    allowed_for_cli_output:
+      - /tmp
+    prohibited_roots:
+      - data/backtests
+      - data/prospective
+      - public
+    repository_output_allowed: false
+    commit_result_artifacts_allowed: false
+  metric_computation_policy:
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    confusion_matrix_enabled: false
+    precision_recall_enabled: false
+    hit_rate_enabled: false
+  backtest_execution_policy:
+    backtest_execution_enabled: false
+    portfolio_return_enabled: false
+    economic_performance_enabled: false
+  candidate_output_policy:
+    candidate_selection_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+  holdout_policy:
+    holdout_registered: false
+  prospective_policy:
+    prospective_registry_record_count: 0
+    prospective_registry_write_attempt_count: 0
+  production_isolation_policy:
+    production_behavior_change_count: 0
+  readiness_gates:
+    historical_validation_dry_run_contract_ready: true
+    locked_execution_plan_used: true
+    label_blind_execution_verified: true
+    result_artifacts_only: true
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    candidate_selection_enabled: false
+    production_behavior_changed: false
+    prospective_registry_written: false
