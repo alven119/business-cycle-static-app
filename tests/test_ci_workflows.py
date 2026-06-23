@@ -29,12 +29,7 @@ def test_fast_ci_has_required_quality_gates_without_full_pytest() -> None:
         "cancel-in-progress: true",
         "ruff check .",
         "git diff --check",
-        "git ls-files | grep -E",
-        'secret_pattern="FRED_API_KEY""="',
-        'grep -R "$secret_pattern"',
-        'claim_pattern="book-faithful model ""complete"',
-        "Unsupported product readiness claim detected.",
-        "find data/backtests data/prospective public -type f",
+        "python scripts/run_ci_safety_scans.py",
         "python scripts/run_qa0_integrity_audit.py",
         "tests/test_phase20_historical_validation_dry_run_closure.py",
         "tests/test_qa1e_strict_scoring.py",
@@ -90,6 +85,16 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
     ]
     for snippet in required_snippets:
         assert snippet in helper
+
+
+def test_ci_safety_scan_helper_uses_tracked_text_claim_scan() -> None:
+    helper = Path("scripts/run_ci_safety_scans.py").read_text(encoding="utf-8")
+
+    assert "git\", \"ls-files" in helper
+    assert "git\", \"grep\", \"-nI\", \"-E" in helper
+    assert "grep -R" not in helper
+    assert '"book-faithful model " + "complete"' in helper
+    assert '"production-" + "ready"' in helper
 
 
 def test_ci_workflows_do_not_publish_or_mutate_git_history() -> None:
