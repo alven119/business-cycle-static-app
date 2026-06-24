@@ -1,0 +1,36 @@
+validation_blocker_resolution_readiness:
+  readiness_id: book_faithful_shadow_validation_blocker_resolution_readiness_v1
+  readiness_version: phase32_v1
+  source_protocol_id: book_faithful_shadow_genuine_validation_blocker_resolution_v1
+  source_work_package_registry_id: book_faithful_shadow_genuine_validation_blocker_work_packages_v1
+  expected_counters:
+    genuine_blocker_resolution_protocol_ready: true
+    genuine_blocker_work_package_registry_ready: true
+    reviewed_genuine_blocker_count: 5
+    blocker_without_work_package_count: 0
+    work_package_without_source_blocker_count: 0
+    work_package_without_allowed_action_count: 0
+    work_package_without_prohibited_action_count: 0
+    work_package_without_completion_gate_count: 0
+    false_resolution_count: 0
+    blocker_resolution_executed: false
+    scenario_promoted_to_comparable_count: 0
+    evidence_rule_modified_count: 0
+    predicted_mapping_rule_modified_count: 0
+    formal_decision_contract_modified_count: 0
+    threshold_modified_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    role_count_voting_added_count: 0
+    historical_tuning_leakage_count: 0
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 5
+    new_accuracy_metric_computed_count: 0
+    economic_performance_metric_count: 0
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    forbidden_repo_output_count: 0

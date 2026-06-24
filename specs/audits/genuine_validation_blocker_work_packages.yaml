@@ -1,0 +1,33 @@
+genuine_validation_blocker_work_packages:
+  registry_id: book_faithful_shadow_genuine_validation_blocker_work_packages_v1
+  registry_version: phase32_v1
+  registry_status: preregistered_planning_only
+  source_protocol_id: book_faithful_shadow_genuine_validation_blocker_resolution_v1
+  source_phase31_freeze_id: book_faithful_shadow_v2_alpha27
+  work_package_policy:
+    dynamically_generated_from_phase31_genuine_blockers: true
+    requires_preregistration: true
+    execution_allowed_in_phase32: false
+    scenario_specific_special_cases_allowed: false
+    historical_result_tuning_allowed: false
+  supported_blocker_types:
+    - missing_point_in_time_input
+    - insufficient_phase_evidence
+    - unresolved_book_rule_semantics
+    - unavailable_source_or_access
+    - taxonomy_or_label_scope_mismatch
+    - abstention_required_by_contract
+    - validation_fixture_gap
+    - provenance_incomplete
+    - unsupported_comparison_scope
+  expected_counters:
+    reviewed_genuine_blocker_count: 5
+    minimum_work_package_count: 5
+    blocker_without_work_package_count: 0
+    work_package_without_source_blocker_count: 0
+    work_package_without_allowed_action_count: 0
+    work_package_without_prohibited_action_count: 0
+    work_package_without_completion_gate_count: 0
+    false_resolution_count: 0
+    blocker_resolution_executed: false
+    scenario_promoted_to_comparable_count: 0

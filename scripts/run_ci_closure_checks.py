@@ -9,6 +9,7 @@ import sys
 
 
 FULL_CLOSURE_SCRIPTS = (
+    "scripts/show_phase32_genuine_blocker_resolution_plan_closure.py",
     "scripts/show_phase31_validation_blockage_remediation_closure.py",
     "scripts/show_phase30_validation_blockage_diagnostics_closure.py",
     "scripts/show_phase29_historical_accuracy_metrics_closure.py",
@@ -29,6 +30,7 @@ FULL_CLOSURE_SCRIPTS = (
 )
 
 NIGHTLY_CLOSURE_SCRIPTS = (
+    "scripts/show_phase32_genuine_blocker_resolution_plan_closure.py",
     "scripts/show_phase31_validation_blockage_remediation_closure.py",
     "scripts/show_phase30_validation_blockage_diagnostics_closure.py",
     "scripts/show_phase29_historical_accuracy_metrics_closure.py",
