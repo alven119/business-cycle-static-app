@@ -8,6 +8,7 @@ research_artifact_explorer_contract:
   allowed_inputs:
     - phase30_blockage_diagnostics_artifact
     - phase30_scenario_validation_trace
+    - phase33_genuine_blocker_resolution_execution_artifact
   prohibited_inputs:
     - remote_js
     - remote_css
@@ -26,6 +27,7 @@ research_artifact_explorer_contract:
     - metric_state_summary
     - provenance_chain
     - remediation_plan_registry
+    - pre_post_blocker_status
     - prohibited_use_notice
   forbidden_explorer_fields:
     - accuracy

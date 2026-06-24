@@ -13,6 +13,10 @@ from business_cycle.render.research_artifact_explorer import (
     validate_research_artifact_explorer_contract,
     validate_research_artifact_explorer_html,
 )
+from business_cycle.validation.genuine_blocker_resolution_execution import (
+    build_genuine_blocker_resolution_execution,
+    write_genuine_blocker_resolution_execution,
+)
 
 
 FORBIDDEN_HTML_TOKENS = {
@@ -78,6 +82,35 @@ def test_research_artifact_explorer_renders_tmp_only_html(tmp_path: Path) -> Non
     assert "Phase 30 Research Artifact Explorer" in html
     assert validation["explorer_schema_valid"] is True
     assert validation["remote_asset_count"] == 0
+
+
+def test_research_artifact_explorer_renders_phase33_pre_post_status(
+    tmp_path: Path,
+) -> None:
+    post_resolution = tmp_path / "phase33_resolution_execution.json"
+    write_genuine_blocker_resolution_execution(
+        build_genuine_blocker_resolution_execution(),
+        output=post_resolution,
+    )
+    output = tmp_path / "phase33_research_artifact_explorer.html"
+    result = render_research_artifact_explorer(
+        output=output,
+        post_resolution_input=post_resolution,
+    )
+    html = output.read_text(encoding="utf-8")
+    validation = validate_research_artifact_explorer_html(
+        html,
+        output_path=output,
+    )
+
+    assert result["research_artifact_explorer_runtime_ready"] is True
+    assert "Post-Resolution Blocker Status" in html
+    assert "Safe packages executed" in html
+    assert "False resolutions" in html
+    assert validation["explorer_schema_valid"] is True
+    assert validation["prohibited_explorer_field_count"] == 0
+    for token in FORBIDDEN_HTML_TOKENS:
+        assert token not in html
 
 
 def test_research_artifact_explorer_rejects_repo_output_path() -> None:
