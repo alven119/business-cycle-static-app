@@ -1,0 +1,149 @@
+historical_research_decision_output_contract:
+  contract_id: book_faithful_shadow_historical_research_decision_output_v1
+  contract_version: phase24_v1
+  contract_status: preregistered_no_output_emission
+  parent_comparison_coverage_freeze_id: book_faithful_shadow_v2_alpha19
+  required_prior_freezes:
+    - book_faithful_shadow_v2_alpha19
+    - book_faithful_shadow_v2_alpha18
+    - book_faithful_shadow_v2_alpha16
+    - book_faithful_shadow_v2_alpha10
+  required_runtime_artifacts:
+    - historical_validation_dry_run_result_artifacts
+    - historical_label_comparison_artifacts
+    - historical_comparison_coverage_metrics
+    - non_emitting_decision_runtime_diagnostics
+  allowed_inputs:
+    - label_blind_historical_runtime_result_artifact
+    - scenario_id
+    - as_of
+    - data_mode
+    - source_runtime_artifact_id
+    - abstention_state
+    - blocked_reason_codes
+    - trust_metadata
+  prohibited_inputs:
+    - validation_label_value
+    - expected_phase_label
+    - nber_label_as_runtime_input
+    - portfolio_return
+    - scenario_specific_threshold
+    - production_phase
+    - candidate_phase
+    - current_phase
+  output_taxonomy:
+    research_only_historical_validation_output:
+      status: preregistered_not_emitted
+      allowed_future_use: offline_validation_artifact_review
+      production_use_allowed: false
+    offline_validation_label:
+      status: label_source_only_not_runtime_input
+      may_be_joined_after_runtime_execution: true
+      may_tune_rules: false
+    candidate_phase:
+      status: prohibited
+      reason: candidate_model_disabled
+    current_phase:
+      status: prohibited
+      reason: current_phase_output_disabled
+    production_phase:
+      status: prohibited
+      reason: production_integration_not_allowed
+  future_allowed_fields:
+    - research_output_id
+    - scenario_id
+    - as_of
+    - data_mode
+    - output_mode
+    - source_runtime_artifact_id
+    - decision_state
+    - abstention_state
+    - blocked_reason_codes
+    - label_used_by_runtime
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+  required_future_field_values:
+    output_mode: research_historical_validation_only
+    label_used_by_runtime: false
+  forbidden_output_fields:
+    - candidate_phase
+    - current_phase
+    - production_phase
+    - selected_phase
+    - winning_phase
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - predicted_label
+  abstention_output_policy:
+    abstention_state_required: true
+    abstention_must_not_be_converted_to_phase: true
+    missing_or_incomplete_runtime_result_blocks_output: true
+  blocked_output_policy:
+    blocked_reason_codes_required_when_blocked: true
+    blocked_result_must_not_emit_phase: true
+  label_usage_policy:
+    labels_available_only_after_runtime_execution: true
+    labels_may_be_used_for_future_offline_comparison: true
+    labels_may_be_used_by_runtime: false
+    labels_may_be_used_for_rule_tuning: false
+    labels_may_be_used_for_threshold_tuning: false
+  candidate_phase_prohibition:
+    candidate_phase_output_allowed: false
+    candidate_model_enabled: false
+  current_phase_prohibition:
+    current_phase_output_allowed: false
+  production_phase_prohibition:
+    production_phase_output_allowed: false
+    production_integration_allowed: false
+  metric_computation_policy:
+    historical_accuracy_metric_enabled: false
+    economic_performance_metric_enabled: false
+    confusion_matrix_enabled: false
+    comparison_coverage_metrics_dependency_allowed: true
+  no_tuning_after_output_policy:
+    runtime_rule_mutation_allowed: false
+    evaluator_mutation_allowed: false
+    threshold_tuning_allowed: false
+    weight_tuning_allowed: false
+  output_restrictions:
+    predicted_label_output_count: 0
+    research_decision_output_emitted: false
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    accuracy_metric_enabled: false
+    economic_performance_metric_enabled: false
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    research_decision_output_contract_ready: true
+    research_decision_output_readiness_ready: true
+    output_taxonomy_ready: true
+    prohibited_output_field_count_required: 0
+    no_output_emission_required: true
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    runtime_rule_mutation: false
+    evaluator_mutation: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false
