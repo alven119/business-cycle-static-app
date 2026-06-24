@@ -9,6 +9,7 @@ import sys
 
 
 FULL_CLOSURE_SCRIPTS = (
+    "scripts/show_phase26_predicted_label_mapping_contract_closure.py",
     "scripts/show_phase25_research_decision_output_closure.py",
     "scripts/show_phase24_research_decision_output_contract_closure.py",
     "scripts/show_phase23_comparison_coverage_metrics_closure.py",
@@ -23,6 +24,7 @@ FULL_CLOSURE_SCRIPTS = (
 )
 
 NIGHTLY_CLOSURE_SCRIPTS = (
+    "scripts/show_phase26_predicted_label_mapping_contract_closure.py",
     "scripts/show_phase25_research_decision_output_closure.py",
     "scripts/show_phase24_research_decision_output_contract_closure.py",
     "scripts/show_phase23_comparison_coverage_metrics_closure.py",

@@ -1,0 +1,134 @@
+offline_predicted_label_mapping_contract:
+  contract_id: book_faithful_shadow_offline_predicted_label_mapping_v1
+  contract_version: phase26_v1
+  contract_status: preregistered_no_predicted_label_emission
+  required_prior_freezes:
+    - book_faithful_shadow_v2_alpha21
+  allowed_inputs:
+    - research_decision_output.decision_state
+    - research_decision_output.abstention_state
+    - research_decision_output.blocked_reason_codes
+    - research_decision_output.output_mode
+    - research_decision_output.trust_metadata
+  prohibited_inputs:
+    - expected_label
+    - validation_label
+    - nber_recession_date
+    - historical_accuracy
+    - confusion_matrix
+    - portfolio_return
+    - candidate_phase
+    - current_phase
+    - production_phase
+    - production_resolver_output
+    - state_machine_output
+  research_decision_state_taxonomy:
+    mapping_ready:
+      description: Future offline label mapping can only consume a research decision output state.
+      allowed_source_output_mode: research_historical_validation_only
+    abstained:
+      description: Runtime abstained or blocked before a phase-like research decision.
+    blocked:
+      description: Required provenance, data, or rule checks blocked future comparability.
+    not_comparable:
+      description: Research output exists but cannot become an offline predicted label.
+  offline_predicted_label_taxonomy:
+    recession:
+      description: Future offline validation label bucket only; never runtime phase output.
+    recovery:
+      description: Future offline validation label bucket only; never runtime phase output.
+    growth:
+      description: Future offline validation label bucket only; never runtime phase output.
+    boom:
+      description: Future offline validation label bucket only; never runtime phase output.
+    abstained:
+      description: Future offline validation abstention bucket.
+    blocked:
+      description: Future offline validation blocker bucket.
+    not_comparable:
+      description: Future offline validation non-comparable bucket.
+  mapping_rules:
+    - rule_id: map_research_ready_phase_like_state
+      source_fields: [decision_state, abstention_state, blocked_reason_codes]
+      output_bucket: future_offline_predicted_label_only
+      emission_allowed_this_phase: false
+    - rule_id: map_runtime_abstention_to_abstained
+      source_fields: [abstention_state]
+      output_bucket: abstained
+      emission_allowed_this_phase: false
+    - rule_id: map_blocked_reasons_to_blocked
+      source_fields: [blocked_reason_codes]
+      output_bucket: blocked
+      emission_allowed_this_phase: false
+    - rule_id: map_missing_research_output_to_not_comparable
+      source_fields: [research_output_id]
+      output_bucket: not_comparable
+      emission_allowed_this_phase: false
+  abstention_mapping_policy:
+    missing_or_temporal_abstention_maps_to: abstained
+    unavailable_must_not_be_neutral: true
+    emission_allowed_this_phase: false
+  blocked_mapping_policy:
+    any_blocked_reason_maps_to: blocked
+    blocker_codes_preserved: true
+    emission_allowed_this_phase: false
+  missing_output_mapping_policy:
+    missing_research_decision_output_maps_to: not_comparable
+    missing_output_does_not_create_label: true
+  label_usage_policy:
+    labels_may_be_used_by_runtime: false
+    labels_may_be_used_for_rule_tuning: false
+    labels_may_be_used_for_threshold_tuning: false
+    labels_may_be_used_for_weight_tuning: false
+    labels_may_be_materialized_this_phase: false
+  candidate_phase_prohibition:
+    candidate_phase_output_allowed: false
+    candidate_selection_enabled: false
+  current_phase_prohibition:
+    current_phase_output_allowed: false
+  production_phase_prohibition:
+    production_phase_output_allowed: false
+    production_import_allowed: false
+  no_metric_computation_policy:
+    historical_accuracy_metric_enabled: false
+    confusion_matrix_enabled: false
+    precision_enabled: false
+    recall_enabled: false
+    hit_rate_enabled: false
+    economic_performance_metric_enabled: false
+    portfolio_metric_enabled: false
+  no_tuning_after_mapping_policy:
+    threshold_tuning_allowed: false
+    weight_tuning_allowed: false
+    role_count_voting_allowed: false
+    historical_result_tuning_allowed: false
+  output_restrictions:
+    predicted_label_output_count: 0
+    predicted_label_artifact_count: 0
+    label_comparison_executed: false
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    predicted_label_mapping_contract_ready: true
+    research_decision_state_taxonomy_ready: true
+    offline_predicted_label_taxonomy_ready: true
+    mapping_rule_count_minimum: 1
+    predicted_label_emission_allowed: false
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    label_comparison_executed: false
+    predicted_label_artifact_generated: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false
