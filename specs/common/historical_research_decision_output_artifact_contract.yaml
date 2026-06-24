@@ -1,0 +1,98 @@
+historical_research_decision_output_artifact_contract:
+  contract_id: book_faithful_shadow_historical_research_decision_output_artifact_v1
+  contract_version: phase25_v1
+  contract_status: research_outputs_allowed_no_predicted_labels_or_metrics
+  parent_research_decision_output_contract_freeze_id: book_faithful_shadow_v2_alpha20
+  source_dry_run_result_registry_id: book_faithful_shadow_historical_validation_dry_run_results_v1
+  source_label_comparison_artifact_registry_id: book_faithful_shadow_historical_label_comparison_artifacts_v1
+  source_coverage_metrics_registry_id: book_faithful_shadow_historical_comparison_coverage_metrics_v1
+  artifact_schema_version: phase25_research_decision_output_v1
+  scenario_count_required: 5
+  output_mode_required: research_historical_validation_only
+  allowed_artifact_fields:
+    - research_output_id
+    - scenario_id
+    - as_of
+    - data_mode
+    - output_mode
+    - source_runtime_artifact_id
+    - source_comparison_artifact_id
+    - source_coverage_metric_artifact_id
+    - decision_state
+    - abstention_state
+    - blocked_reason_codes
+    - label_used_by_runtime
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+  forbidden_artifact_fields:
+    - predicted_label
+    - expected_label
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - winning_phase
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  input_policy:
+    phase20_dry_run_results_allowed: true
+    phase22_comparison_artifacts_allowed: true
+    phase23_coverage_metrics_allowed: true
+    validation_labels_allowed_as_runtime_input: false
+    validation_labels_materialized_in_output: false
+    label_used_by_runtime_required: false
+  output_policy:
+    output_dir_must_be_under_tmp: true
+    committed_artifacts_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  metric_policy:
+    metric_computation_scope: none
+    historical_accuracy_metric_enabled: false
+    economic_performance_metric_enabled: false
+    confusion_matrix_enabled: false
+    backtest_execution_enabled: false
+  output_restrictions:
+    scenario_count: 5
+    research_decision_output_count: 5
+    output_mode_research_only_count: 5
+    predicted_label_output_count: 0
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_scope: none
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    research_decision_output_artifact_contract_ready: true
+    research_decision_output_runtime_ready: true
+    research_decision_output_registry_ready: true
+    prohibited_artifact_field_count_required: 0
+    output_mode_research_only_required: true
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    runtime_rule_mutation: false
+    evaluator_mutation: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false
