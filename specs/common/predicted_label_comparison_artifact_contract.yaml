@@ -1,0 +1,145 @@
+predicted_label_comparison_artifact_contract:
+  contract_id: book_faithful_shadow_predicted_label_comparison_artifacts_v1
+  contract_version: phase28_v1
+  contract_status: comparison_artifacts_allowed_no_accuracy_or_performance_metrics
+  parent_predicted_label_artifact_freeze_id: book_faithful_shadow_v2_alpha23
+  source_predicted_label_artifact_contract_id: book_faithful_shadow_offline_predicted_label_artifacts_v1
+  source_historical_label_manifest_id: book_faithful_shadow_historical_validation_manifest_v1
+  source_historical_label_policy_id: book_faithful_shadow_historical_validation_label_policy_v1
+  source_mapping_contract_id: book_faithful_shadow_offline_predicted_label_mapping_v1
+  artifact_version: phase28_predicted_label_comparison_artifact_v1
+  predicted_label_taxonomy_version: phase26_offline_predicted_label_taxonomy_v1
+  reference_label_taxonomy_version: phase17_historical_validation_label_source_taxonomy_v1
+  scenario_count_required: 5
+  allowed_inputs:
+    - phase27_predicted_label_artifact.scenario_id
+    - phase27_predicted_label_artifact.as_of
+    - phase27_predicted_label_artifact.data_mode
+    - phase27_predicted_label_artifact.predicted_label
+    - phase27_predicted_label_artifact.predicted_label_taxonomy_version
+    - phase27_predicted_label_artifact.abstention_state
+    - phase27_predicted_label_artifact.blocked_reason_codes
+    - phase27_predicted_label_artifact.provenance
+    - phase17_historical_validation_scenario_manifest.scenario_rows
+    - phase17_historical_validation_label_policy.label_source_rows
+  prohibited_inputs:
+    - runtime_rule_inputs
+    - evaluator_inputs
+    - production_resolver_output
+    - state_machine_output
+    - portfolio_returns
+    - backtest_results
+    - historical_accuracy
+    - confusion_matrix
+    - scenario_specific_tuning_result
+  allowed_artifact_fields:
+    - artifact_version
+    - scenario_id
+    - as_of
+    - data_mode
+    - predicted_label_artifact_id
+    - historical_label_manifest_id
+    - predicted_label
+    - predicted_label_taxonomy_version
+    - reference_label_set
+    - reference_label_taxonomy_version
+    - comparison_status
+    - comparison_status_reason
+    - comparable
+    - abstention_state
+    - blocked_reason_codes
+    - predicted_label_provenance
+    - historical_label_provenance
+    - mapping_contract_hash
+    - generated_at_utc
+    - research_only
+    - validation_only
+    - prohibited_uses
+  forbidden_artifact_fields:
+    - correct
+    - incorrect
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - hit_rate
+    - confusion_matrix
+    - performance
+    - return
+    - sharpe
+    - drawdown
+    - portfolio_weight
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - candidate_phase
+    - current_phase
+    - production_phase
+  comparison_status_taxonomy:
+    comparable:
+      description: Predicted label and reference label source taxonomy are comparable; no correctness metric is computed.
+    not_comparable:
+      description: Comparison artifact exists but no correctness comparison is allowed or possible.
+    abstained:
+      description: Predicted label preserved an abstention state.
+    blocked:
+      description: Predicted label preserved blockers.
+    taxonomy_mismatch:
+      description: Predicted label or reference taxonomy is outside the preregistered sets.
+  reference_label_policy:
+    label_values_materialized: false
+    labels_may_enter_runtime: false
+    labels_may_tune_rules: false
+    labels_may_tune_mapping: false
+    reference_label_set_is_provenance_only: true
+  comparison_policy:
+    label_comparison_executed: true
+    correctness_metric_allowed: false
+    confusion_matrix_allowed: false
+    accuracy_metric_allowed: false
+    precision_recall_f1_allowed: false
+    hit_rate_allowed: false
+    economic_performance_metric_allowed: false
+    backtest_execution_allowed: false
+    mapping_rule_mutation_allowed: false
+  output_policy:
+    explicit_output_path_required: true
+    tmp_output_allowed: true
+    committed_artifact_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  output_restrictions:
+    label_comparison_executed: true
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    predicted_label_comparison_artifact_contract_ready: true
+    predicted_label_comparison_generator_ready: true
+    scenario_count_required: 5
+    predicted_label_artifact_count_required: 5
+    label_comparison_artifact_count_required: 5
+    predicted_label_provenance_verified_count_required: 5
+    historical_label_provenance_verified_count_required: 5
+    mapping_contract_hash_verified_required: true
+    prohibited_artifact_field_count_required: 0
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false
+    current_phase_enabled: false
+    production_integration_enabled: false
