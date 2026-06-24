@@ -1,0 +1,62 @@
+from __future__ import annotations
+
+from business_cycle.audits.shadow_comparison_coverage_metrics_freeze import (
+    summarize_shadow_comparison_coverage_metrics_freeze,
+)
+
+
+def main() -> None:
+    summary = summarize_shadow_comparison_coverage_metrics_freeze()
+    for key in (
+        "phase",
+        "comparison_coverage_metrics_freeze_ready",
+        "freeze_id",
+        "parent_freeze_id",
+        "freeze_type",
+        "freeze_manifest_hash",
+        "alpha19_freeze_hash_valid",
+        "alpha18_parent_preserved",
+        "parent_freeze_present",
+        "qa12_freeze_unchanged",
+        "missing_file_count",
+        "hash_mismatch_count",
+        "secret_count",
+        "production_file_count",
+        "comparison_coverage_metrics_contract_ready",
+        "comparison_coverage_metrics_runtime_ready",
+        "comparison_coverage_metrics_registry_ready",
+        "scenario_count",
+        "label_comparison_artifact_count",
+        "label_provenance_verified_count",
+        "label_used_by_runtime_count",
+        "comparison_coverage_metric_count",
+        "metric_computation_enabled",
+        "metric_computation_scope",
+        "historical_accuracy_metric_count",
+        "economic_performance_metric_count",
+        "prohibited_metric_field_count",
+        "predicted_label_output_count",
+        "candidate_phase_emitted",
+        "current_phase_emitted",
+        "backtest_execution_enabled",
+        "holdout_registered",
+        "production_behavior_change_count",
+        "prospective_registry_record_count",
+        "prospective_registry_write_attempt_count",
+        "numeric_weight_added_count",
+        "arbitrary_threshold_added_count",
+        "role_count_voting_added_count",
+        "historical_tuning_leakage_count",
+        "formal_decision_model_ready",
+        "candidate_capability_ready",
+        "economic_validation_status",
+        "book_alignment_claim_allowed",
+        "real_backtest_progression_allowed",
+        "phase_9b1_allowed",
+    ):
+        value = summary[key]
+        print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")
+
+
+if __name__ == "__main__":
+    main()

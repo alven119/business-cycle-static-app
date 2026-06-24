@@ -1,0 +1,93 @@
+historical_comparison_coverage_metrics_contract:
+  contract_id: book_faithful_shadow_historical_comparison_coverage_metrics_v1
+  contract_version: phase23_v1
+  contract_status: coverage_metrics_allowed_no_accuracy_or_performance
+  parent_label_comparison_artifact_freeze_id: book_faithful_shadow_v2_alpha18
+  source_label_comparison_artifact_registry_id: book_faithful_shadow_historical_label_comparison_artifacts_v1
+  metric_artifact_schema_version: phase23_comparison_coverage_metrics_v1
+  metric_computation_scope: comparison_coverage_only
+  scenario_count_required: 5
+  allowed_metric_fields:
+    - scenario_count
+    - label_comparison_artifact_count
+    - label_join_success_count
+    - label_join_coverage_rate
+    - label_provenance_verified_count
+    - label_provenance_coverage_rate
+    - runtime_result_available_count
+    - runtime_result_availability_rate
+    - abstention_result_count
+    - abstention_result_rate
+    - blocked_result_count
+    - blocked_result_rate
+    - comparable_artifact_count
+    - comparable_artifact_rate
+    - non_comparable_artifact_count
+    - non_comparable_artifact_rate
+    - metric_computation_scope
+    - accuracy_metric_enabled
+    - economic_performance_metric_enabled
+  forbidden_metric_fields:
+    - expected_label
+    - predicted_label
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - winning_phase
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - economic_performance
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  metric_policy:
+    coverage_metrics_enabled: true
+    accuracy_metric_enabled: false
+    economic_performance_metric_enabled: false
+    label_value_comparison_enabled: false
+    confusion_matrix_enabled: false
+    backtest_execution_enabled: false
+    holdout_registration_enabled: false
+  output_policy:
+    output_dir_must_be_under_tmp: true
+    committed_artifacts_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  output_restrictions:
+    metric_computation_enabled: true
+    metric_computation_scope: comparison_coverage_only
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    predicted_label_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    backtest_execution_enabled: false
+    holdout_registered: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    comparison_coverage_metrics_contract_ready: true
+    comparison_coverage_metrics_runtime_ready: true
+    comparison_coverage_metrics_registry_ready: true
+    coverage_scope_only_required: true
+    prohibited_metric_field_count_required: 0
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    runtime_rule_mutation: false
+    evaluator_mutation: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false

@@ -1,0 +1,40 @@
+historical_comparison_coverage_metrics_registry:
+  registry_id: book_faithful_shadow_historical_comparison_coverage_metrics_v1
+  registry_version: phase23_v1
+  registry_status: coverage_metrics_only_no_accuracy_or_performance
+  parent_contract_id: book_faithful_shadow_historical_comparison_coverage_metrics_v1
+  source_label_comparison_artifact_registry_id: book_faithful_shadow_historical_label_comparison_artifacts_v1
+  metric_artifact_schema_version: phase23_comparison_coverage_metrics_v1
+  metric_storage_policy:
+    committed_artifacts_allowed: false
+    tmp_artifacts_allowed: true
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  expected_counters:
+    scenario_count: 5
+    label_comparison_artifact_count: 5
+    label_provenance_verified_count: 5
+    label_used_by_runtime_count: 0
+    comparison_coverage_metric_count: 14
+    metric_computation_enabled: true
+    metric_computation_scope: comparison_coverage_only
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    prohibited_metric_field_count: 0
+    predicted_label_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+  allowed_uses:
+    - coverage_metric_readiness_review
+    - label_join_pipeline_quality_review
+    - metric_prerequisite_artifact_review
+  prohibited_uses:
+    - historical_accuracy_claim
+    - confusion_matrix_generation
+    - economic_validation_claim
+    - model_selection
+    - parameter_tuning
+    - runtime_decision_logic
+    - backtest_or_portfolio_research
+    - production_dashboard_output
