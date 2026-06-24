@@ -1,0 +1,145 @@
+validation_blockage_remediation_contract:
+  contract_id: book_faithful_shadow_validation_blockage_remediation_v1
+  contract_version: phase31_v1
+  contract_status: safe_remediation_review_allowed_no_rule_or_mapping_change
+  parent_blockage_diagnostics_freeze_id: book_faithful_shadow_v2_alpha26
+  source_phase30_diagnostics_contract_id: book_faithful_shadow_historical_validation_blockage_diagnostics_v1
+  artifact_version: phase31_validation_blockage_remediation_v1
+  metric_computation_scope: existing_historical_accuracy_registry_only
+  allowed_inputs:
+    - phase30_blockage_diagnostics_artifact
+    - phase30_scenario_validation_trace
+    - phase29_historical_accuracy_metric_artifact
+  prohibited_inputs:
+    - formal_decision_runtime
+    - evidence_evaluator_runtime
+    - historical_label_runtime_input
+    - production_resolver_output
+    - state_machine_output
+    - portfolio_returns
+    - backtest_results
+    - remediation_result_tuning
+  blocker_taxonomy:
+    safe_remediation_candidate:
+      - artifact_reference_alignment
+      - provenance_metadata_completion
+      - schema_contract_alignment
+      - validation_only_taxonomy_alignment_without_mapping_rule_change
+      - comparison_artifact_field_normalization_without_semantic_change
+    genuine_blocker:
+      - candidate_output_disabled_by_contract
+      - incomplete_required_major_group
+      - raw_observation_only_role
+      - label_blind_runtime_guard
+      - backtest_execution_disabled
+      - metric_scope_disabled_by_prior_phase
+  allowed_artifact_fields:
+    - artifact_version
+    - remediation_run_id
+    - source_phase30_diagnostics_id
+    - scenario_count
+    - pre_remediation_blocked_scenario_count
+    - post_remediation_blocked_scenario_count
+    - reviewed_blocker_count
+    - safe_remediation_candidate_count
+    - safe_remediation_executed_count
+    - genuine_blocker_count
+    - unresolved_blocker_count
+    - false_resolution_count
+    - scenario_remediation_profiles
+    - post_remediation_blockage_summary
+    - post_remediation_metric_summary
+    - generated_at_utc
+    - research_only
+    - validation_only
+    - prohibited_uses
+    - provenance
+  required_profile_fields:
+    - scenario_id
+    - original_blocked_reason_codes
+    - blocker_type
+    - remediation_category
+    - remediation_allowed
+    - remediation_executed
+    - remediation_result
+    - still_blocked
+    - false_resolution_detected
+    - evidence_rule_modified
+    - mapping_rule_modified
+    - threshold_modified
+    - label_used_by_runtime
+  forbidden_artifact_fields:
+    - economic_return
+    - excess_return
+    - portfolio_return
+    - performance_metric
+    - sharpe
+    - max_drawdown
+    - CAGR
+    - trade_action
+    - portfolio_weight
+    - target_weight
+    - buy_signal
+    - sell_signal
+    - candidate_phase
+    - current_phase
+    - production_phase
+    - production_ready
+    - investment_ready
+  remediation_policy:
+    safe_remediation_must_not_change_rules: true
+    safe_remediation_must_not_change_mapping_rules: true
+    safe_remediation_must_not_change_thresholds: true
+    safe_remediation_must_not_change_weights: true
+    blocked_must_remain_blocked_when_genuine: true
+    historical_result_tuning_allowed: false
+    false_resolution_allowed: false
+  output_restrictions:
+    rule_modified_count: 0
+    evidence_rule_modified_count: 0
+    mapping_rule_modified_count: 0
+    threshold_modified_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    role_count_voting_added_count: 0
+    historical_tuning_leakage_count: 0
+    new_accuracy_metric_computed_count: 0
+    economic_performance_metric_count: 0
+    backtest_execution_enabled: false
+    label_used_by_runtime_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    forbidden_repo_output_count: 0
+  output_policy:
+    explicit_output_path_required: true
+    tmp_output_allowed: true
+    committed_artifact_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  readiness_gates:
+    validation_blockage_remediation_contract_ready: true
+    validation_blockage_remediation_runtime_ready: true
+    scenario_count_required: 5
+    pre_remediation_blocked_scenario_count_required: 5
+    reviewed_blocker_count_required: 5
+    false_resolution_count_required: 0
+    unresolved_blocker_count_required: 5
+    historical_accuracy_metric_count_required: 5
+  disabled_runtime_guards:
+    evidence_rule_modified: false
+    mapping_rule_modified: false
+    threshold_modified: false
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    economic_performance_metric_enabled: false
+    backtest_execution_enabled: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false
+    current_phase_enabled: false
+    production_integration_enabled: false
