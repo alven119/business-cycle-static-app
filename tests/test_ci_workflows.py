@@ -77,6 +77,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
     helper = Path("scripts/run_ci_closure_checks.py").read_text(encoding="utf-8")
 
     required_snippets = [
+        "show_phase29_historical_accuracy_metrics_closure.py",
         "show_phase28_predicted_label_comparison_closure.py",
         "show_phase27_predicted_label_artifact_closure.py",
         "show_phase26_predicted_label_mapping_contract_closure.py",
