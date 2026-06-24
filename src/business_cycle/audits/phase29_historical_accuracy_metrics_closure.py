@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,7 @@ CLOSURE_STATUS = (
 )
 
 
+@lru_cache(maxsize=1)
 def summarize_phase29_historical_accuracy_metrics_closure(
     path: str | Path = DEFAULT_PHASE29_CLOSURE_PATH,
 ) -> dict[str, Any]:

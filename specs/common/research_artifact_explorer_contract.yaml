@@ -1,0 +1,74 @@
+research_artifact_explorer_contract:
+  contract_id: book_faithful_shadow_research_artifact_explorer_v1
+  contract_version: phase30_v1
+  contract_status: local_research_explorer_allowed_no_public_output
+  parent_blockage_diagnostics_contract_id: book_faithful_shadow_historical_validation_blockage_diagnostics_v1
+  explorer_version: phase30_research_artifact_explorer_v1
+  scenario_count_required: 5
+  allowed_inputs:
+    - phase30_blockage_diagnostics_artifact
+    - phase30_scenario_validation_trace
+  prohibited_inputs:
+    - remote_js
+    - remote_css
+    - public_output_path
+    - production_dashboard_runtime
+    - portfolio_runtime
+  required_notices:
+    - research_only
+    - validation_only
+    - not_production
+    - no_investment_advice
+  allowed_sections:
+    - summary
+    - scenario_cards
+    - blockage_reason_summary
+    - metric_state_summary
+    - provenance_chain
+    - remediation_plan_registry
+    - prohibited_use_notice
+  forbidden_explorer_fields:
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - hit_rate
+    - confusion_matrix
+    - economic_return
+    - excess_return
+    - sharpe
+    - max_drawdown
+    - CAGR
+    - trade_action
+    - portfolio_weight
+    - target_weight
+    - buy_signal
+    - sell_signal
+    - candidate_phase
+    - current_phase
+    - production_phase
+    - production_ready
+    - investment_ready
+  output_policy:
+    explicit_output_path_required: true
+    tmp_output_allowed: true
+    committed_artifact_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+    remote_assets_allowed: false
+    self_contained_html_required: true
+  readiness_gates:
+    research_artifact_explorer_contract_ready: true
+    research_artifact_explorer_runtime_ready: true
+    scenario_count_required: 5
+    prohibited_explorer_field_count_required: 0
+    explorer_written_to_public_count_required: 0
+  disabled_runtime_guards:
+    remediation_action_executed: false
+    new_accuracy_metric_computed: false
+    economic_performance_metric_enabled: false
+    backtest_execution_enabled: false
+    candidate_model_enabled: false
+    current_phase_enabled: false
+    production_integration_enabled: false

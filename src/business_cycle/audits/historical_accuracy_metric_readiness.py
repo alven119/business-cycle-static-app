@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,7 @@ DEFAULT_HISTORICAL_ACCURACY_METRIC_READINESS_PATH = Path(
 )
 
 
+@lru_cache(maxsize=1)
 def summarize_historical_accuracy_metric_readiness(
     path: str | Path = DEFAULT_HISTORICAL_ACCURACY_METRIC_READINESS_PATH,
 ) -> dict[str, Any]:

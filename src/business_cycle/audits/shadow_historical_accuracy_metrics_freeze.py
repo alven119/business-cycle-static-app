@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,7 @@ PARENT_ALPHA24_FREEZE_PATH = Path(
 )
 
 
+@lru_cache(maxsize=1)
 def summarize_shadow_historical_accuracy_metrics_freeze(
     path: str | Path = DEFAULT_ALPHA25_FREEZE_PATH,
 ) -> dict[str, Any]:
