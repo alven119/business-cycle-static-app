@@ -1,0 +1,138 @@
+offline_predicted_label_artifact_contract:
+  contract_id: book_faithful_shadow_offline_predicted_label_artifacts_v1
+  contract_version: phase27_v1
+  contract_status: predicted_label_artifacts_allowed_no_comparison_or_metrics
+  parent_mapping_contract_id: book_faithful_shadow_offline_predicted_label_mapping_v1
+  parent_mapping_contract_freeze_id: book_faithful_shadow_v2_alpha22
+  artifact_version: phase27_offline_predicted_label_artifact_v1
+  predicted_label_taxonomy_version: phase26_offline_predicted_label_taxonomy_v1
+  scenario_count_required: 5
+  allowed_inputs:
+    - phase25_research_decision_output.research_output_id
+    - phase25_research_decision_output.scenario_id
+    - phase25_research_decision_output.as_of
+    - phase25_research_decision_output.data_mode
+    - phase25_research_decision_output.decision_state
+    - phase25_research_decision_output.abstention_state
+    - phase25_research_decision_output.blocked_reason_codes
+    - phase25_research_decision_output.trust_metadata
+    - phase26_mapping_contract.mapping_rules
+  prohibited_inputs:
+    - actual_label
+    - expected_label
+    - nber_label
+    - validation_label
+    - label_comparison_result
+    - historical_accuracy
+    - confusion_matrix
+    - portfolio_return
+    - candidate_phase
+    - current_phase
+    - production_phase
+    - production_resolver_output
+    - state_machine_output
+  allowed_artifact_fields:
+    - artifact_version
+    - scenario_id
+    - as_of
+    - data_mode
+    - source_research_decision_output_id
+    - source_mapping_contract_id
+    - source_mapping_contract_hash
+    - predicted_label
+    - predicted_label_taxonomy_version
+    - mapping_rule_id
+    - mapping_basis
+    - abstention_state
+    - blocked_reason_codes
+    - evidence_completeness_summary
+    - generated_at_utc
+    - research_only
+    - validation_only
+    - prohibited_uses
+    - provenance
+  forbidden_artifact_fields:
+    - actual_label
+    - expected_label
+    - nber_label
+    - correct
+    - incorrect
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - hit_rate
+    - return
+    - sharpe
+    - drawdown
+    - portfolio_weight
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - candidate_phase
+    - current_phase
+    - production_phase
+  predicted_label_taxonomy:
+    recession:
+      description: Offline validation predicted-label bucket only; never a runtime phase.
+    recovery:
+      description: Offline validation predicted-label bucket only; never a runtime phase.
+    growth:
+      description: Offline validation predicted-label bucket only; never a runtime phase.
+    boom:
+      description: Offline validation predicted-label bucket only; never a runtime phase.
+    abstained:
+      description: Offline validation non-decision bucket preserving runtime abstention.
+    blocked:
+      description: Offline validation non-decision bucket preserving blockers.
+    not_comparable:
+      description: Offline validation non-decision bucket for unmappable research outputs.
+  mapping_execution_policy:
+    historical_labels_may_be_read: false
+    nber_dates_may_be_read: false
+    label_manifest_may_be_read: false
+    scenario_answer_may_be_read: false
+    label_comparison_may_execute: false
+    metrics_may_execute: false
+    mapping_rules_may_be_tuned_after_generation: false
+    insufficient_state_preserved_as_nonjudgment: true
+    blocked_state_preserved_as_nonjudgment: true
+    abstained_state_preserved_as_nonjudgment: true
+  output_policy:
+    explicit_output_path_required: true
+    tmp_output_allowed: true
+    committed_artifact_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    public_output_allowed: false
+  output_restrictions:
+    label_comparison_executed: false
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+  readiness_gates:
+    offline_predicted_label_artifact_contract_ready: true
+    offline_predicted_label_artifact_generator_ready: true
+    scenario_count_required: 5
+    predicted_label_artifact_count_required: 5
+    predicted_label_output_count_required: 5
+    prohibited_artifact_field_count_required: 0
+    mapping_contract_hash_verified_required: true
+  disabled_runtime_guards:
+    numeric_weight_added: false
+    arbitrary_threshold_added: false
+    role_count_voting_added: false
+    historical_tuning_used: false
+    label_used_by_runtime: false
+    label_comparison_executed: false
+    formal_decision_model_enabled: false
+    candidate_model_enabled: false
+    current_phase_enabled: false
+    production_integration_enabled: false
