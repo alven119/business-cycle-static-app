@@ -17,6 +17,10 @@ from business_cycle.validation.genuine_blocker_resolution_execution import (
     build_genuine_blocker_resolution_execution,
     write_genuine_blocker_resolution_execution,
 )
+from business_cycle.validation.autonomous_blocker_unblock import (
+    build_autonomous_blocker_unblock,
+    write_autonomous_blocker_unblock,
+)
 
 
 FORBIDDEN_HTML_TOKENS = {
@@ -107,6 +111,35 @@ def test_research_artifact_explorer_renders_phase33_pre_post_status(
     assert "Post-Resolution Blocker Status" in html
     assert "Safe packages executed" in html
     assert "False resolutions" in html
+    assert validation["explorer_schema_valid"] is True
+    assert validation["prohibited_explorer_field_count"] == 0
+    for token in FORBIDDEN_HTML_TOKENS:
+        assert token not in html
+
+
+def test_research_artifact_explorer_renders_phase34_unblock_status(
+    tmp_path: Path,
+) -> None:
+    post_unblock = tmp_path / "phase34_autonomous_unblock.json"
+    write_autonomous_blocker_unblock(
+        build_autonomous_blocker_unblock(),
+        output=post_unblock,
+    )
+    output = tmp_path / "phase34_research_artifact_explorer.html"
+    result = render_research_artifact_explorer(
+        output=output,
+        post_unblock_input=post_unblock,
+    )
+    html = output.read_text(encoding="utf-8")
+    validation = validate_research_artifact_explorer_html(
+        html,
+        output_path=output,
+    )
+
+    assert result["research_artifact_explorer_runtime_ready"] is True
+    assert "Post-Unblock Validation Status" in html
+    assert "Post-unblock blocked scenarios" in html
+    assert "Post label bucket" in html
     assert validation["explorer_schema_valid"] is True
     assert validation["prohibited_explorer_field_count"] == 0
     for token in FORBIDDEN_HTML_TOKENS:

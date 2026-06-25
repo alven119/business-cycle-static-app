@@ -47,17 +47,49 @@ def load_scenario_validation_trace_contract(
     return contract
 
 
+def build_scenario_validation_trace(
+    *,
+    research_run: dict[str, Any] | None = None,
+    predicted_run: dict[str, Any] | None = None,
+    comparison_run: dict[str, Any] | None = None,
+    metric_run: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    if (
+        research_run is None
+        and predicted_run is None
+        and comparison_run is None
+        and metric_run is None
+    ):
+        return _build_scenario_validation_trace_cached()
+    return _build_scenario_validation_trace_uncached(
+        research_run=research_run,
+        predicted_run=predicted_run,
+        comparison_run=comparison_run,
+        metric_run=metric_run,
+    )
+
+
 @lru_cache(maxsize=1)
-def build_scenario_validation_trace() -> dict[str, Any]:
+def _build_scenario_validation_trace_cached() -> dict[str, Any]:
+    return _build_scenario_validation_trace_uncached()
+
+
+def _build_scenario_validation_trace_uncached(
+    *,
+    research_run: dict[str, Any] | None = None,
+    predicted_run: dict[str, Any] | None = None,
+    comparison_run: dict[str, Any] | None = None,
+    metric_run: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     contract = load_scenario_validation_trace_contract()
-    research_run = build_historical_research_decision_outputs()
-    predicted_run = build_offline_predicted_label_artifacts(
+    research_run = research_run or build_historical_research_decision_outputs()
+    predicted_run = predicted_run or build_offline_predicted_label_artifacts(
         research_decision_output_run=research_run,
     )
-    comparison_run = build_predicted_label_comparison_artifacts(
+    comparison_run = comparison_run or build_predicted_label_comparison_artifacts(
         predicted_label_artifact_run=predicted_run,
     )
-    metric_run = compute_historical_accuracy_metrics(
+    metric_run = metric_run or compute_historical_accuracy_metrics(
         comparison_artifact_run=comparison_run,
     )
     traces = _build_traces(
