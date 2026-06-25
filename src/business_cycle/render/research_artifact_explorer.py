@@ -48,18 +48,21 @@ def render_research_artifact_explorer(
     trace_input: str | Path | None = None,
     post_resolution_input: str | Path | None = None,
     post_unblock_input: str | Path | None = None,
+    post_comparability_input: str | Path | None = None,
 ) -> dict[str, Any]:
     contract = load_research_artifact_explorer_contract()
     diagnostics_artifact = _load_or_build_diagnostics(diagnostics_input)
     traces = _load_or_build_traces(trace_input)
     post_resolution = _load_post_resolution(post_resolution_input)
     post_unblock = _load_post_unblock(post_unblock_input)
+    post_comparability = _load_post_comparability(post_comparability_input)
     html = _render_html(
         contract=contract,
         diagnostics_artifact=diagnostics_artifact,
         traces=traces,
         post_resolution=post_resolution,
         post_unblock=post_unblock,
+        post_comparability=post_comparability,
     )
     output_path = _validated_output_path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -236,10 +239,12 @@ def _render_html(
     traces: list[dict[str, Any]],
     post_resolution: dict[str, Any] | None,
     post_unblock: dict[str, Any] | None = None,
+    post_comparability: dict[str, Any] | None = None,
 ) -> str:
     cards = "\n".join(_scenario_card(trace) for trace in traces)
     post_resolution_section = _post_resolution_section(post_resolution)
     post_unblock_section = _post_unblock_section(post_unblock)
+    post_comparability_section = _post_comparability_section(post_comparability)
     blockage_summary = _definition_list(
         diagnostics_artifact["blockage_reason_summary"]
     )
@@ -303,6 +308,7 @@ def _render_html(
 	  </section>
 	  {post_resolution_section}
 	  {post_unblock_section}
+	  {post_comparability_section}
 	  <section>
     <h2>Remediation Plan Registry</h2>
     <p>Registry entries are descriptive only. They do not execute remediation.</p>
@@ -396,6 +402,51 @@ def _post_unblock_row(profile: dict[str, Any]) -> str:
 </article>"""
 
 
+def _post_comparability_section(post_comparability: dict[str, Any] | None) -> str:
+    if post_comparability is None:
+        return ""
+    artifact = post_comparability[
+        "autonomous_comparability_realization_artifact"
+    ]
+    rows = "\n".join(
+        _post_comparability_row(profile)
+        for profile in artifact["scenario_comparability_profiles"]
+    )
+    return f"""<section>
+    <h2>Post-Comparability Validation Status</h2>
+    <dl>
+      <dt>Pre-comparable scenarios</dt><dd>{artifact["pre_comparable_scenario_count"]}</dd>
+      <dt>Post-comparable scenarios</dt><dd>{artifact["post_comparable_scenario_count"]}</dd>
+      <dt>Post-blocked scenarios</dt><dd>{artifact["post_blocked_scenario_count"]}</dd>
+      <dt>Fix iterations</dt><dd>{artifact["attempted_fix_iteration_count"]}</dd>
+      <dt>False comparability</dt><dd>{artifact["false_comparability_count"]}</dd>
+    </dl>
+    <div class="grid">
+      {rows}
+    </div>
+  </section>"""
+
+
+def _post_comparability_row(profile: dict[str, Any]) -> str:
+    evidence = ", ".join(
+        escape(item["genuine_evidence"])
+        for item in profile["remaining_non_comparable_evidence"]
+    )
+    return f"""<article>
+  <h3>{escape(profile["scenario_id"])}</h3>
+  <dl>
+    <dt>Family</dt><dd>{escape(profile["scenario_family"])}</dd>
+    <dt>Before</dt><dd>{escape(profile["pre_comparison_status"])}</dd>
+    <dt>After</dt><dd>{escape(profile["post_comparison_status"])}</dd>
+    <dt>Comparable after realization</dt><dd>{str(profile["post_comparable"]).lower()}</dd>
+    <dt>Post label bucket</dt><dd>{escape(profile["post_predicted_label"])}</dd>
+    <dt>Fix</dt><dd>{escape(profile["attempted_fix"])}</dd>
+    <dt>Result</dt><dd>{escape(profile["fix_result"])}</dd>
+    <dt>Remaining evidence</dt><dd>{evidence}</dd>
+  </dl>
+</article>"""
+
+
 def _scenario_card(trace: dict[str, Any]) -> str:
     blocked = ", ".join(escape(item) for item in trace["blocked_reason_codes"])
     metrics = ", ".join(
@@ -477,6 +528,12 @@ def _load_post_resolution(path: str | Path | None) -> dict[str, Any] | None:
 
 
 def _load_post_unblock(path: str | Path | None) -> dict[str, Any] | None:
+    if path is None:
+        return None
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _load_post_comparability(path: str | Path | None) -> dict[str, Any] | None:
     if path is None:
         return None
     return json.loads(Path(path).read_text(encoding="utf-8"))

@@ -59,6 +59,7 @@ def load_predicted_label_comparison_artifact_contract(
 def build_predicted_label_comparison_artifacts(
     *,
     predicted_label_artifact_run: dict[str, Any] | None = None,
+    comparability_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     contract = load_predicted_label_comparison_artifact_contract()
     predicted_run = (
@@ -78,6 +79,7 @@ def build_predicted_label_comparison_artifacts(
             manifest_id=manifest["manifest_id"],
             label_policy=label_policy,
             mapping_contract_hash=mapping_contract_hash,
+            comparability_policy=comparability_policy,
         )
         for artifact in predicted_run["offline_predicted_label_artifacts"]
     ]
@@ -457,12 +459,14 @@ def _build_comparison_artifact(
     manifest_id: str,
     label_policy: dict[str, Any],
     mapping_contract_hash: str,
+    comparability_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     comparison_status, comparison_status_reason, comparable = _comparison_status(
         predicted_artifact=predicted_artifact,
         manifest_row=manifest_row,
         contract=contract,
         mapping_contract_hash=mapping_contract_hash,
+        comparability_policy=comparability_policy,
     )
     scenario_id = predicted_artifact["scenario_id"]
     as_of = predicted_artifact["as_of"]
@@ -546,6 +550,7 @@ def _comparison_status(
     manifest_row: dict[str, Any],
     contract: dict[str, Any],
     mapping_contract_hash: str,
+    comparability_policy: dict[str, Any] | None = None,
 ) -> tuple[str, str, bool]:
     predicted_label = predicted_artifact.get("predicted_label")
     source_hash = predicted_artifact.get("source_mapping_contract_hash")
@@ -569,10 +574,46 @@ def _comparison_status(
     if predicted_label == "blocked" or predicted_artifact.get("blocked_reason_codes"):
         return "blocked", "blocked_reason_codes_preserved", False
     if predicted_label == "abstained":
+        if _abstention_comparable_reference(
+            manifest_row=manifest_row,
+            predicted_artifact=predicted_artifact,
+            comparability_policy=comparability_policy,
+        ):
+            return (
+                "comparable",
+                "abstention_output_taxonomy_aligned_with_reference_family",
+                True,
+            )
         return "abstained", "runtime_abstention_preserved", False
     if predicted_label == "not_comparable":
         return "not_comparable", "predicted_label_not_comparable", False
     return "comparable", "predicted_and_reference_taxonomies_aligned", True
+
+
+def _abstention_comparable_reference(
+    *,
+    manifest_row: dict[str, Any],
+    predicted_artifact: dict[str, Any],
+    comparability_policy: dict[str, Any] | None,
+) -> bool:
+    if not comparability_policy:
+        return False
+    families = set(
+        comparability_policy.get("abstention_comparable_reference_families", [])
+    )
+    if manifest_row.get("scenario_family") not in families:
+        return False
+    if (
+        comparability_policy.get("require_empty_blocked_reasons", True)
+        and predicted_artifact.get("blocked_reason_codes")
+    ):
+        return False
+    if (
+        comparability_policy.get("require_label_provenance_complete", True)
+        and manifest_row.get("label_provenance_complete") is not True
+    ):
+        return False
+    return predicted_artifact.get("predicted_label") == "abstained"
 
 
 def _mapping_contract_hash() -> str:

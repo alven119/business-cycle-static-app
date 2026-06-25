@@ -21,6 +21,10 @@ from business_cycle.validation.autonomous_blocker_unblock import (
     build_autonomous_blocker_unblock,
     write_autonomous_blocker_unblock,
 )
+from business_cycle.validation.autonomous_comparability_realization import (
+    build_autonomous_comparability_realization,
+    write_autonomous_comparability_realization,
+)
 
 
 FORBIDDEN_HTML_TOKENS = {
@@ -140,6 +144,35 @@ def test_research_artifact_explorer_renders_phase34_unblock_status(
     assert "Post-Unblock Validation Status" in html
     assert "Post-unblock blocked scenarios" in html
     assert "Post label bucket" in html
+    assert validation["explorer_schema_valid"] is True
+    assert validation["prohibited_explorer_field_count"] == 0
+    for token in FORBIDDEN_HTML_TOKENS:
+        assert token not in html
+
+
+def test_research_artifact_explorer_renders_phase35_comparability_status(
+    tmp_path: Path,
+) -> None:
+    post_comparability = tmp_path / "phase35_comparability_realization.json"
+    write_autonomous_comparability_realization(
+        build_autonomous_comparability_realization(),
+        output=post_comparability,
+    )
+    output = tmp_path / "phase35_research_artifact_explorer.html"
+    result = render_research_artifact_explorer(
+        output=output,
+        post_comparability_input=post_comparability,
+    )
+    html = output.read_text(encoding="utf-8")
+    validation = validate_research_artifact_explorer_html(
+        html,
+        output_path=output,
+    )
+
+    assert result["research_artifact_explorer_runtime_ready"] is True
+    assert "Post-Comparability Validation Status" in html
+    assert "Post-comparable scenarios" in html
+    assert "Comparable after realization" in html
     assert validation["explorer_schema_valid"] is True
     assert validation["prohibited_explorer_field_count"] == 0
     for token in FORBIDDEN_HTML_TOKENS:
