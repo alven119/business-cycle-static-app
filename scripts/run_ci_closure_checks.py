@@ -9,6 +9,7 @@ import sys
 
 
 FULL_CLOSURE_SCRIPTS = (
+    "scripts/show_phase36r_recession_recovery_evidence_completion_closure.py",
     "scripts/show_phase36_historical_validation_result_realization_closure.py",
     "scripts/show_phase35_historical_comparability_realization_closure.py",
     "scripts/show_phase34_autonomous_blocker_unblock_closure.py",
@@ -34,6 +35,7 @@ FULL_CLOSURE_SCRIPTS = (
 )
 
 NIGHTLY_CLOSURE_SCRIPTS = (
+    "scripts/show_phase36r_recession_recovery_evidence_completion_closure.py",
     "scripts/show_phase36_historical_validation_result_realization_closure.py",
     "scripts/show_phase35_historical_comparability_realization_closure.py",
     "scripts/show_phase34_autonomous_blocker_unblock_closure.py",
