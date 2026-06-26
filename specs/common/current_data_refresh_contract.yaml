@@ -1,0 +1,59 @@
+current_data_refresh_contract:
+  contract_id: phase40_current_data_refresh_contract
+  contract_version: 1
+  supported_provider_families:
+    - fred_revised_latest
+  required_environment_variables:
+    - FRED_API_KEY
+  allowed_output_locations:
+    - /tmp
+    - data/raw/fred_current_cache
+  forbidden_output_locations:
+    - data/backtests
+    - data/prospective
+    - public
+  cache_policy:
+    default_cache_dir_kind: tmp
+    ignored_cache_dir: data/raw/fred_current_cache
+    cache_must_not_be_tracked: true
+  tmp_output_policy:
+    manifest_outputs_must_be_under_tmp: true
+  secret_redaction_policy:
+    never_log_api_key: true
+    redact_provider_errors: true
+  network_disabled_behavior:
+    live_fetch_attempted: false
+    live_fetch_skipped_reason: live_fetch_disabled_by_cli
+    fixture_fallback_allowed_when_explicit: true
+  ci_hermetic_behavior:
+    ci_requires_network: false
+    ci_requires_fred_key: false
+    tests_use_mock_provider: true
+  fixture_fallback_behavior:
+    fallback_must_be_explicit: true
+    fixture_must_not_be_labeled_live: true
+  raw_data_commit_prohibition:
+    raw_data_commit_forbidden: true
+  snapshot_as_of_semantics:
+    default: current_utc_date
+    override_allowed_for_tests: true
+  revised_latest_data_labeling_semantics:
+    revised_data_labeled_as_revised: true
+    live_revised_mode: revised_live_current
+    cache_revised_mode: revised_cache_current
+    fixture_mode: revised_metadata_fixture
+  point_in_time_distinction:
+    point_in_time_not_claimed_for_latest_revised: true
+    latest_revised_is_not_strict_vintage: true
+  stale_detection_semantics:
+    stale_before_uses_registry_latest_verified_date: true
+    stale_after_uses_refresh_latest_observation_date_when_available: true
+  readiness_gates:
+    current_data_refresh_contract_ready: true
+    ci_requires_network: false
+    ci_requires_fred_key: false
+    live_fetch_allowed_only_when_key_present: true
+    raw_data_commit_forbidden: true
+    secret_redaction_required: true
+    revised_data_labeled_as_revised: true
+    point_in_time_not_claimed_for_latest_revised: true

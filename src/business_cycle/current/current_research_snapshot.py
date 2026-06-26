@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
 import json
 from pathlib import Path
 from typing import Any
@@ -27,9 +26,13 @@ PROHIBITED_OUTPUT_ROOTS = (
     Path("public"),
 )
 ARTIFACT_SCHEMA_VERSION = "phase39_current_research_snapshot_v1"
+ARTIFACT_SCHEMA_VERSION_PHASE40 = "phase40_current_research_snapshot_v1"
 MODEL_ID = "book_faithful_shadow_v2_alpha36"
 FREEZE_ID = "book_faithful_shadow_v2_alpha36"
 PARENT_FREEZE_ID = "book_faithful_shadow_v2_alpha35"
+MODEL_ID_PHASE40 = "book_faithful_shadow_v2_alpha37"
+FREEZE_ID_PHASE40 = "book_faithful_shadow_v2_alpha37"
+PARENT_FREEZE_ID_PHASE40 = "book_faithful_shadow_v2_alpha36"
 PROHIBITED_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -43,11 +46,30 @@ PROHIBITED_FIELDS = {
 }
 
 
-@lru_cache(maxsize=1)
-def build_current_research_snapshot() -> dict[str, Any]:
-    availability = build_current_snapshot_availability()
+def build_current_research_snapshot(
+    *,
+    refresh_manifest_path: str | Path | None = None,
+    refresh_manifest: dict[str, Any] | None = None,
+    data_cache_dir: str | Path | None = None,
+    allow_fixture_fallback: bool = False,
+    no_live_fetch: bool = True,
+) -> dict[str, Any]:
+    availability = build_current_snapshot_availability(
+        refresh_manifest_path=refresh_manifest_path,
+        refresh_manifest=refresh_manifest,
+        data_cache_dir=data_cache_dir,
+        allow_fixture_fallback=allow_fixture_fallback,
+        no_live_fetch=no_live_fetch,
+    )
     as_of = availability["snapshot_as_of"]
     data_mode = availability["data_mode"]
+    phase40 = availability["phase"] == "40"
+    artifact_schema = (
+        ARTIFACT_SCHEMA_VERSION_PHASE40 if phase40 else ARTIFACT_SCHEMA_VERSION
+    )
+    model_id = MODEL_ID_PHASE40 if phase40 else MODEL_ID
+    freeze_id = FREEZE_ID_PHASE40 if phase40 else FREEZE_ID
+    parent_freeze_id = PARENT_FREEZE_ID_PHASE40 if phase40 else PARENT_FREEZE_ID
     phase_view = build_phase_analysis_view_model(as_of=as_of, data_mode="revised")
     transition_view = build_transition_risk_view_model(as_of=as_of, data_mode="revised")
     indicator_view = build_indicator_explorer_view_model(
@@ -62,14 +84,14 @@ def build_current_research_snapshot() -> dict[str, Any]:
     major_groups = indicator_view["payload"]["major_groups"]
     blockers = _blocker_summary(availability=availability, decision=decision)
     artifact = {
-        "artifact_schema_version": ARTIFACT_SCHEMA_VERSION,
+        "artifact_schema_version": artifact_schema,
         "generated_at_utc": f"{as_of}T00:00:00Z",
         "snapshot_as_of": as_of,
         "data_mode": data_mode,
         "output_mode": "research_only",
-        "model_id": MODEL_ID,
-        "freeze_id": FREEZE_ID,
-        "parent_freeze_id": PARENT_FREEZE_ID,
+        "model_id": model_id,
+        "freeze_id": freeze_id,
+        "parent_freeze_id": parent_freeze_id,
         "allowed_uses": [
             "local_research_dashboard",
             "source_availability_review",
@@ -102,12 +124,20 @@ def build_current_research_snapshot() -> dict[str, Any]:
                 "live_fetch_attempted",
                 "live_fetch_succeeded",
                 "live_fetch_failed_reason",
+                "live_fetch_skipped_reason",
+                "provider_error_class",
+                "refresh_mode",
+                "stale_series_count_before",
+                "stale_series_count_after",
+                "refreshed_series_count",
+                "refresh_manifest_artifact_count",
                 "cache_used",
                 "fixture_used",
                 "secret_logged_count",
                 "raw_data_committed_count",
             )
         },
+        "refresh_metadata": _refresh_metadata(availability),
         "source_availability_rows": availability["requested_data_sources"],
         "phase_evidence_summary": _phase_evidence_summary(phase_profiles),
         "major_group_evidence_summary": _major_group_summary(major_groups),
@@ -142,8 +172,8 @@ def build_current_research_snapshot() -> dict[str, Any]:
         "production_integration_enabled": False,
         "blocker_summary": blockers,
         "lineage": {
-            "freeze_id": FREEZE_ID,
-            "parent_freeze_id": PARENT_FREEZE_ID,
+            "freeze_id": freeze_id,
+            "parent_freeze_id": parent_freeze_id,
             "source_availability_runtime": "phase39_current_snapshot_availability",
             "phase_evidence_view_model": phase_view["view_model_version"],
             "formal_decision_runtime": decision["runtime_version"],
@@ -156,8 +186,8 @@ def build_current_research_snapshot() -> dict[str, Any]:
             "data_last_updated_at": f"{as_of}T00:00:00Z",
             "data_completeness": "partial_or_abstained",
             "stale_or_missing_status": "explicit",
-            "model_version": MODEL_ID,
-            "freeze_id": FREEZE_ID,
+            "model_version": model_id,
+            "freeze_id": freeze_id,
             "validation_status": (
                 "current_research_snapshot_available_no_current_phase_or_performance"
             ),
@@ -206,6 +236,22 @@ def summarize_current_research_snapshot() -> dict[str, Any]:
         "live_fetch_attempted": source["live_fetch_attempted"],
         "live_fetch_succeeded": source["live_fetch_succeeded"],
         "live_fetch_failed_reason": source["live_fetch_failed_reason"],
+        "live_fetch_skipped_reason": source.get("live_fetch_skipped_reason"),
+        "provider_error_class": source.get("provider_error_class"),
+        "refresh_mode": source.get("refresh_mode", "fixture"),
+        "stale_series_count_before": source.get(
+            "stale_series_count_before",
+            source["stale_series_count"],
+        ),
+        "stale_series_count_after": source.get(
+            "stale_series_count_after",
+            source["stale_series_count"],
+        ),
+        "refreshed_series_count": source.get("refreshed_series_count", 0),
+        "refresh_manifest_artifact_count": source.get(
+            "refresh_manifest_artifact_count",
+            0,
+        ),
         "cache_used": source["cache_used"],
         "fixture_used": source["fixture_used"],
         "available_series_count": source["available_series_count"],
@@ -234,6 +280,126 @@ def summarize_current_research_snapshot() -> dict[str, Any]:
         "raw_data_committed_count": source["raw_data_committed_count"],
         "forbidden_repo_output_count": 0,
         "snapshot": snapshot,
+    }
+
+
+def summarize_current_research_snapshot_from_manifest(
+    refresh_manifest_path: str | Path,
+) -> dict[str, Any]:
+    snapshot = build_current_research_snapshot(
+        refresh_manifest_path=refresh_manifest_path,
+        allow_fixture_fallback=True,
+    )
+    validation = snapshot["artifact_validation"]
+    source = snapshot["source_availability_summary"]
+    return _snapshot_summary(snapshot=snapshot, validation=validation, source=source) | {
+        "phase": "40",
+        "refresh_metadata_in_snapshot": bool(snapshot["refresh_metadata"]),
+        "source_mode_visible_in_snapshot": bool(
+            snapshot["refresh_metadata"]["source_mode_by_series"]
+        ),
+        "stale_before_after_visible": (
+            "stale_series_count_before" in source
+            and "stale_series_count_after" in source
+        ),
+        "fixture_fallback_explicit": (
+            source.get("refresh_mode") != "fixture"
+            or source.get("live_fetch_skipped_reason") is not None
+        ),
+        "live_mode_not_required_for_ci": True,
+        "live_fetch_attempted": source["live_fetch_attempted"],
+        "live_fetch_succeeded": source["live_fetch_succeeded"],
+        "live_fetch_skipped_reason": source.get("live_fetch_skipped_reason"),
+        "provider_error_class": source.get("provider_error_class"),
+        "refresh_mode": source["refresh_mode"],
+        "stale_series_count_before": source["stale_series_count_before"],
+        "stale_series_count_after": source["stale_series_count_after"],
+        "refreshed_series_count": source["refreshed_series_count"],
+        "refresh_manifest_artifact_count": source["refresh_manifest_artifact_count"],
+        "cache_used": source["cache_used"],
+        "fixture_used": source["fixture_used"],
+        "candidate_phase_emitted": snapshot["candidate_phase_emitted"],
+        "current_phase_emitted": snapshot["current_phase_emitted"],
+        "snapshot": snapshot,
+    }
+
+
+def _snapshot_summary(
+    *,
+    snapshot: dict[str, Any],
+    validation: dict[str, Any],
+    source: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "phase": "40" if snapshot["artifact_schema_version"].startswith("phase40") else "39",
+        "current_research_snapshot_runtime_ready": validation[
+            "artifact_schema_valid"
+        ],
+        "current_snapshot_artifact_count": 1,
+        "snapshot_as_of": snapshot["snapshot_as_of"],
+        "data_mode": snapshot["data_mode"],
+        "snapshot_as_of_present": bool(snapshot["snapshot_as_of"]),
+        "source_availability_summary_present": bool(
+            snapshot["source_availability_summary"]
+        ),
+        "phase_evidence_summary_present": bool(snapshot["phase_evidence_summary"]),
+        "major_group_evidence_summary_present": bool(
+            snapshot["major_group_evidence_summary"]
+        ),
+        "decision_readiness_summary_present": bool(
+            snapshot["non_emitting_decision_readiness"]
+        ),
+        "blocker_summary_present": bool(snapshot["blocker_summary"]),
+        "lineage_present": bool(snapshot["lineage"]),
+        "research_only_label_present": snapshot["output_mode"] == "research_only",
+        "current_snapshot_mislabeled_as_production_count": 0,
+        "current_snapshot_mislabeled_as_current_phase_count": 0,
+        "live_fetch_attempted": source["live_fetch_attempted"],
+        "live_fetch_succeeded": source["live_fetch_succeeded"],
+        "live_fetch_failed_reason": source["live_fetch_failed_reason"],
+        "live_fetch_skipped_reason": source.get("live_fetch_skipped_reason"),
+        "provider_error_class": source.get("provider_error_class"),
+        "refresh_mode": source.get("refresh_mode", "fixture"),
+        "stale_series_count_before": source.get(
+            "stale_series_count_before",
+            source["stale_series_count"],
+        ),
+        "stale_series_count_after": source.get(
+            "stale_series_count_after",
+            source["stale_series_count"],
+        ),
+        "refreshed_series_count": source.get("refreshed_series_count", 0),
+        "refresh_manifest_artifact_count": source.get(
+            "refresh_manifest_artifact_count",
+            0,
+        ),
+        "cache_used": source["cache_used"],
+        "fixture_used": source["fixture_used"],
+        "available_series_count": source["available_series_count"],
+        "missing_series_count": source["missing_series_count"],
+        "stale_series_count": source["stale_series_count"],
+        "unavailable_series_count": source["unavailable_series_count"],
+        "candidate_selection_enabled": snapshot["candidate_selection_enabled"],
+        "candidate_phase_emitted": snapshot["candidate_phase_emitted"],
+        "current_phase_emitted": snapshot["current_phase_emitted"],
+        "predicted_current_phase_output_count": validation[
+            "predicted_current_phase_output_count"
+        ],
+        "prohibited_action_field_count": validation[
+            "prohibited_action_field_count"
+        ],
+        "prohibited_claim_count": 0,
+        "label_used_by_runtime_count": 0,
+        "historical_accuracy_metric_count": 5,
+        "new_accuracy_metric_computed_count": 0,
+        "economic_performance_metric_count": 0,
+        "backtest_execution_enabled": False,
+        "production_behavior_change_count": 0,
+        "prospective_registry_record_count": 0,
+        "real_registry_write_attempt_count": 0,
+        "secret_logged_count": source["secret_logged_count"],
+        "raw_data_committed_count": source["raw_data_committed_count"],
+        "forbidden_repo_output_count": 0,
     }
 
 
@@ -270,6 +436,7 @@ def validate_current_research_snapshot(snapshot: dict[str, Any]) -> dict[str, An
         "prohibited_uses",
         "caveats",
         "source_availability_summary",
+        "refresh_metadata",
         "phase_evidence_summary",
         "major_group_evidence_summary",
         "non_emitting_decision_readiness",
@@ -341,6 +508,34 @@ def _blocker_summary(
         "stale_series_count": availability["stale_series_count"],
         "decision_blocker_count": len(decision["blocked_reason_codes"]),
         "decision_blocker_codes": decision["blocked_reason_codes"],
+    }
+
+
+def _refresh_metadata(availability: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "refresh_mode": availability.get("refresh_mode", "fixture"),
+        "live_fetch_attempted": availability["live_fetch_attempted"],
+        "live_fetch_succeeded": availability["live_fetch_succeeded"],
+        "live_fetch_skipped_reason": availability.get("live_fetch_skipped_reason"),
+        "provider_error_class": availability.get("provider_error_class"),
+        "stale_series_count_before": availability.get(
+            "stale_series_count_before",
+            availability["stale_series_count"],
+        ),
+        "stale_series_count_after": availability.get(
+            "stale_series_count_after",
+            availability["stale_series_count"],
+        ),
+        "refreshed_series_count": availability.get("refreshed_series_count", 0),
+        "source_mode_by_series": availability.get("source_mode_by_series", {}),
+        "latest_observation_date_by_series": availability[
+            "latest_observation_date_by_series"
+        ],
+        "refresh_manifest_artifact_count": availability.get(
+            "refresh_manifest_artifact_count",
+            0,
+        ),
+        "refresh_manifest_hash": availability.get("refresh_manifest_hash"),
     }
 
 

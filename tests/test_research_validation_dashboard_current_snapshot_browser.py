@@ -7,6 +7,9 @@ import sys
 from business_cycle.current.current_research_snapshot import (
     build_current_research_snapshot,
 )
+from business_cycle.current.current_data_refresh import (
+    build_current_data_refresh_manifest,
+)
 from business_cycle.render.research_dashboard_bundle import (
     build_research_dashboard_bundle,
 )
@@ -32,6 +35,7 @@ def test_current_snapshot_dashboard_view_renders_without_forbidden_outputs(tmp_p
     assert 'data-dashboard-view="current_research_snapshot"' in html
     assert "RESEARCH ONLY" in html
     assert "Available series" in html
+    assert "Data Refresh / Source Freshness" in html
     assert "Decision readiness blockers" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
@@ -61,3 +65,26 @@ def test_build_dashboard_script_accepts_current_snapshot(tmp_path) -> None:
     assert (output_dir / "current-snapshot.html").is_file()
     assert "dashboard_view_count=8" in result.stdout
     assert "browser_verification_ready=true" in result.stdout
+
+
+def test_current_snapshot_dashboard_view_shows_phase40_refresh_metadata(tmp_path) -> None:
+    manifest = build_current_data_refresh_manifest(
+        no_live_fetch=True,
+        allow_fixture_fallback=True,
+    )
+    snapshot = build_current_research_snapshot(refresh_manifest=manifest)
+    bundle = build_research_dashboard_bundle(current_snapshot=snapshot)
+    result = build_research_validation_dashboard(
+        output_dir=tmp_path,
+        bundle=bundle,
+    )
+    html = (tmp_path / "current-snapshot.html").read_text(encoding="utf-8")
+
+    assert result["browser_verification_ready"] is True
+    assert "data-refresh-panel" in html
+    assert "data-refresh-mode" in html
+    assert "live_fetch_disabled_by_cli" in html
+    assert manifest["manifest_hash"] in html
+    assert "Source mode" in html
+    assert "candidate_phase" not in html
+    assert "current_phase" not in html

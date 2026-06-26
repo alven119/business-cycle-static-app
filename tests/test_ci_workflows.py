@@ -77,6 +77,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
     helper = Path("scripts/run_ci_closure_checks.py").read_text(encoding="utf-8")
 
     required_snippets = [
+        "show_phase40_current_data_refresh_closure.py",
         "show_phase39_current_research_snapshot_closure.py",
         "show_phase38_research_validation_dashboard_closure.py",
         "show_phase37_recession_recovery_pit_remediation_closure.py",

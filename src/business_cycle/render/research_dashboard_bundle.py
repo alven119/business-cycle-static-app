@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+import hashlib
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from business_cycle.audits.shadow_recession_recovery_pit_remediation_freeze import (
-    summarize_shadow_recession_recovery_pit_remediation_freeze,
-)
 from business_cycle.audits.qa12_major_group_manual_start_closure import (
     summarize_qa12_major_group_manual_start_closure,
 )
@@ -33,6 +31,12 @@ DEFAULT_DASHBOARD_CONTRACT_PATH = Path(
 )
 DEFAULT_SCENARIO_MANIFEST_PATH = Path(
     "specs/audits/historical_validation_scenario_manifest.yaml"
+)
+ALPHA34_FREEZE_PATH = Path(
+    "specs/audits/book_faithful_shadow_v2_alpha34_recession_recovery_pit_remediation_freeze.yaml"
+)
+ALPHA33_FREEZE_PATH = Path(
+    "specs/audits/book_faithful_shadow_v2_alpha33_recession_recovery_evidence_completion_freeze.yaml"
 )
 GENERATED_AT_UTC = "2026-06-26T00:00:00Z"
 SCHEMA_VERSION = "phase38_research_dashboard_v1"
@@ -98,7 +102,7 @@ def build_research_dashboard_bundle(
     evidence_rows = _evidence_summaries(matrix)
     pit_rows = _pit_gap_rows(matrix)
     metrics = _metric_summaries(run["metric_run"]["metric_results"])
-    alpha34 = summarize_shadow_recession_recovery_pit_remediation_freeze()
+    alpha34 = _lightweight_alpha34_lineage_summary()
     qa12 = summarize_qa12_major_group_manual_start_closure()
     comparison_status_counts = Counter(
         scenario["comparison_status"] for scenario in scenarios
@@ -172,7 +176,7 @@ def build_research_dashboard_bundle(
             "parent_freeze_id": PARENT_FREEZE_ID,
             "parent_freeze_hash": alpha34["freeze_manifest_hash"],
             "alpha34_parent_preserved": alpha34["alpha33_parent_preserved"],
-            "qa12_freeze_unchanged": alpha34["qa12_freeze_unchanged"],
+            "qa12_freeze_unchanged": qa12["manual_start_freeze_ready"] is True,
             "qa12_recommended_next_action": qa12["recommended_next_action"],
             "prospective_registry_record_count": qa12["real_registry_record_count"],
             "real_registry_write_attempt_count": qa12[
@@ -246,9 +250,39 @@ def build_research_dashboard_bundle(
         bundle["source_runs"]["phase39_current_snapshot"] = current_snapshot[
             "artifact_schema_version"
         ]
+        if str(current_snapshot["artifact_schema_version"]).startswith("phase40"):
+            bundle["source_runs"]["phase40_current_data_refresh"] = current_snapshot[
+                "refresh_metadata"
+            ].get("refresh_manifest_hash")
     validation = validate_research_dashboard_bundle(bundle, contract=contract)
     bundle["artifact_consistency"] = validation
     return bundle
+
+
+def _lightweight_alpha34_lineage_summary() -> dict[str, Any]:
+    freeze = yaml.safe_load(ALPHA34_FREEZE_PATH.read_text(encoding="utf-8"))[
+        "book_faithful_shadow_v2_alpha34_recession_recovery_pit_remediation_freeze"
+    ]
+    component_paths = [Path(item) for item in freeze["component_paths"]]
+    source_paths = [Path(item) for item in freeze["source_paths"]]
+    all_paths = component_paths + source_paths
+    missing = [item for item in all_paths if not item.exists()]
+    hashes = {
+        str(item): hashlib.sha256(item.read_bytes()).hexdigest()
+        for item in all_paths
+        if item.exists()
+    }
+    freeze_hash = hashlib.sha256(
+        "\n".join(f"{key}:{value}" for key, value in sorted(hashes.items())).encode()
+    ).hexdigest()
+    return {
+        "freeze_manifest_hash": freeze_hash,
+        "alpha33_parent_preserved": (
+            not missing
+            and ALPHA33_FREEZE_PATH.exists()
+            and freeze["parent_freeze_id"] == "book_faithful_shadow_v2_alpha33"
+        ),
+    }
 
 
 def summarize_research_dashboard_bundle() -> dict[str, Any]:

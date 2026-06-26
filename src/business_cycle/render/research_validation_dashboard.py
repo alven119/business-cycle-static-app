@@ -525,6 +525,7 @@ def _pit_gap_page(bundle: dict[str, Any]) -> str:
 def _current_snapshot_page(bundle: dict[str, Any]) -> str:
     snapshot = bundle["current_snapshot"]
     source = snapshot["source_availability_summary"]
+    refresh = snapshot.get("refresh_metadata", {})
     decision = snapshot["non_emitting_decision_readiness"]
     blockers = snapshot["blocker_summary"]
     rows = "".join(
@@ -550,10 +551,23 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
       </div>
       <div class="status-strip">
         <span>live fetch attempted: {_yes_no(source["live_fetch_attempted"])}</span>
+        <span>live fetch succeeded: {_yes_no(source["live_fetch_succeeded"])}</span>
         <span>cache used: {_yes_no(source["cache_used"])}</span>
         <span>fixture used: {_yes_no(source["fixture_used"])}</span>
         <span>candidate/current disabled</span>
       </div>
+    </section>
+    <section class="panel" data-refresh-panel>
+      <h2>Data Refresh / Source Freshness</h2>
+      <dl class="definition-grid">
+        <dt>Refresh mode</dt><dd data-refresh-mode>{_text(refresh.get("refresh_mode", "fixture"))}</dd>
+        <dt>Skipped reason</dt><dd>{_text(refresh.get("live_fetch_skipped_reason") or "none")}</dd>
+        <dt>Provider error</dt><dd>{_text(refresh.get("provider_error_class") or "none")}</dd>
+        <dt>Stale before / after</dt><dd data-stale-before-after>{refresh.get("stale_series_count_before", source["stale_series_count"])} / {refresh.get("stale_series_count_after", source["stale_series_count"])}</dd>
+        <dt>Refreshed series</dt><dd>{refresh.get("refreshed_series_count", 0)}</dd>
+        <dt>Refresh manifest</dt><dd><code>{_text(refresh.get("refresh_manifest_hash") or "not supplied")}</code></dd>
+      </dl>
+      <p class="muted">Latest revised data is labeled separately from point-in-time evidence. Fixture or cache mode is explicit when live refresh is unavailable.</p>
     </section>
     <section class="panel">
       <h2>Decision readiness blockers</h2>
@@ -578,7 +592,7 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
       <h2>Source availability</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Series</th><th>Source</th><th>Frequency</th><th>Status</th><th>Latest verified</th><th>Stale</th></tr></thead>
+          <thead><tr><th>Series</th><th>Source</th><th>Frequency</th><th>Status</th><th>Source mode</th><th>Latest observation</th><th>Latest verified</th><th>Stale</th></tr></thead>
           <tbody>{rows}</tbody>
         </table>
       </div>
@@ -736,6 +750,8 @@ def _source_availability_row(row: dict[str, Any]) -> str:
       <td>{_text(row["source"])}</td>
       <td>{_text(row["frequency"])}</td>
       <td>{_status_badge(row["availability_status"])}</td>
+      <td>{_text(row.get("source_mode", "fixture"))}</td>
+      <td>{_text(row.get("latest_observation_date", "unknown"))}</td>
       <td>{_text(row["latest_verified_vintage_date"])}</td>
       <td>{_yes_no(row["stale"])}</td>
     </tr>"""

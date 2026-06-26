@@ -4,7 +4,11 @@ import subprocess
 import sys
 
 from business_cycle.current.current_snapshot_availability import (
+    build_current_snapshot_availability,
     summarize_current_snapshot_availability,
+)
+from business_cycle.current.current_data_refresh import (
+    build_current_data_refresh_manifest,
 )
 
 
@@ -33,3 +37,20 @@ def test_show_current_snapshot_availability_script() -> None:
 
     assert "current_snapshot_availability_ready=true" in result.stdout
     assert "live_fetch_attempted=false" in result.stdout
+
+
+def test_current_snapshot_availability_accepts_phase40_refresh_manifest() -> None:
+    manifest = build_current_data_refresh_manifest(
+        no_live_fetch=True,
+        allow_fixture_fallback=True,
+    )
+    availability = build_current_snapshot_availability(refresh_manifest=manifest)
+
+    assert availability["phase"] == "40"
+    assert availability["data_mode"] == "revised_metadata_fixture"
+    assert availability["refresh_manifest_artifact_count"] == 1
+    assert availability["live_fetch_attempted"] is False
+    assert availability["live_fetch_skipped_reason"] == "live_fetch_disabled_by_cli"
+    assert availability["refresh_mode"] == "fixture"
+    assert availability["fixture_used"] is True
+    assert availability["raw_data_committed_count"] == 0
