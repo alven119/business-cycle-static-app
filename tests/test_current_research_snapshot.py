@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+
+from business_cycle.current.current_research_snapshot import (
+    build_current_research_snapshot,
+    summarize_current_research_snapshot,
+    write_current_research_snapshot,
+)
+
+
+def test_current_research_snapshot_is_non_emitting_research_only() -> None:
+    summary = summarize_current_research_snapshot()
+
+    assert summary["current_research_snapshot_runtime_ready"] is True
+    assert summary["current_snapshot_artifact_count"] == 1
+    assert summary["snapshot_as_of_present"] is True
+    assert summary["source_availability_summary_present"] is True
+    assert summary["phase_evidence_summary_present"] is True
+    assert summary["major_group_evidence_summary_present"] is True
+    assert summary["decision_readiness_summary_present"] is True
+    assert summary["blocker_summary_present"] is True
+    assert summary["lineage_present"] is True
+    assert summary["candidate_selection_enabled"] is False
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    assert summary["predicted_current_phase_output_count"] == 0
+    assert summary["prohibited_action_field_count"] == 0
+    assert summary["economic_performance_metric_count"] == 0
+
+
+def test_current_research_snapshot_write_requires_tmp(tmp_path) -> None:
+    output = tmp_path / "phase39_current_snapshot.json"
+    write = write_current_research_snapshot(
+        build_current_research_snapshot(),
+        output=output,
+    )
+    payload = json.loads(output.read_text(encoding="utf-8"))
+
+    assert write["current_research_snapshot_written"] is True
+    assert payload["output_mode"] == "research_only"
+    assert payload["candidate_phase_emitted"] is False
+    assert payload["current_phase_emitted"] is False
+
+
+def test_generate_current_research_snapshot_script(tmp_path) -> None:
+    output = tmp_path / "phase39_current_snapshot.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/generate_current_research_snapshot.py",
+            "--output",
+            str(output),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert output.is_file()
+    assert "current_research_snapshot_runtime_ready=true" in result.stdout
+    assert "candidate_phase_emitted=false" in result.stdout
+    assert "current_phase_emitted=false" in result.stdout
+    assert "result=passed" in result.stdout

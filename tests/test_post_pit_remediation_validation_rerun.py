@@ -52,5 +52,5 @@ def test_run_post_pit_remediation_validation_rerun_script(tmp_path) -> None:
         text=True,
     )
 
-    assert "post_pit_remediation_validation_rerun_ready=True" in result.stdout
+    assert "post_pit_remediation_validation_rerun_ready=true" in result.stdout
     assert "result=passed" in result.stdout

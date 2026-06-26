@@ -7,6 +7,7 @@ book_faithful_shadow_v2_alpha34_recession_recovery_pit_remediation_freeze:
     - specs/audits/phase37_recession_recovery_pit_remediation.yaml
     - specs/audits/book_faithful_shadow_v2_alpha34_recession_recovery_pit_remediation_freeze.yaml
     - specs/audits/phase37_recession_recovery_pit_remediation_closure.yaml
+    - specs/audits/phase37_committed_pit_remediation_baseline.yaml
   source_paths:
     - src/business_cycle/validation/recession_recovery_pit_gap_matrix.py
     - src/business_cycle/validation/recession_recovery_pit_remediation.py
@@ -32,6 +33,10 @@ book_faithful_shadow_v2_alpha34_recession_recovery_pit_remediation_freeze:
   target_recession_recovery_scenario_count: 3
   pre_insufficient_point_in_time_role_gap_count: 13
   post_insufficient_point_in_time_role_gap_count: 6
+  pre_insufficient_point_in_time_scenario_role_gap_count: 39
+  post_insufficient_point_in_time_scenario_role_gap_count: 16
+  phase37_clean_environment_deterministic: true
+  scenario_role_gap_row_count_fields_separated: true
   safe_fixable_pit_gap_count: 0
   unresolved_safe_fixable_pit_gap_count: 0
   official_history_insufficient_gap_count: 1

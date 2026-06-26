@@ -106,6 +106,12 @@ def summarize_phase37_recession_recovery_pit_remediation(
         "post_insufficient_point_in_time_scenario_role_gap_count": matrix[
             "post_insufficient_point_in_time_scenario_role_gap_count"
         ],
+        "phase37_clean_environment_deterministic": matrix[
+            "phase37_clean_environment_deterministic"
+        ],
+        "scenario_role_gap_row_count_fields_separated": matrix[
+            "scenario_role_gap_row_count_fields_separated"
+        ],
         "backfill_requested_series_count": backfill[
             "backfill_requested_series_count"
         ],

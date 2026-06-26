@@ -1,0 +1,123 @@
+phase37_committed_pit_remediation_baseline:
+  baseline_id: phase37_committed_pit_remediation_baseline_v1
+  generated_at_utc: "2026-06-26T00:00:00Z"
+  purpose: >
+    Reproduce the Phase 37 clean-environment PIT remediation denominator without
+    relying on ignored local vintage cache files. This fixture contains only
+    role/scenario evidence status metadata derived from the verified Phase 37
+    strict-PIT selection, not raw observations or revised fallback data.
+  raw_observations_included: false
+  revised_fallback_used: false
+  proxy_fallback_used: false
+  label_used_by_runtime: false
+  expected_counts:
+    pre_insufficient_point_in_time_role_gap_count: 13
+    post_insufficient_point_in_time_role_gap_count: 6
+    pre_insufficient_point_in_time_scenario_role_gap_count: 39
+    post_insufficient_point_in_time_scenario_role_gap_count: 16
+    cache_remediated_pit_role_gap_count: 7
+    official_history_insufficient_gap_count: 1
+    genuine_source_unavailable_gap_count: 5
+    rule_unresolved_gap_count: 1
+  remediated_outputs:
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_durable_goods_new_orders
+      evidence_status: supportive
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_exports
+      evidence_status: supportive
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_imports
+      evidence_status: supportive
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_initial_jobless_claims
+      evidence_status: supportive
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_private_nonresidential_fixed_investment
+      evidence_status: contradictory
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_real_pce_durable_goods
+      evidence_status: contradictory
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_real_retail_sales
+      evidence_status: contradictory
+    - scenario_id: covid_recession_2020
+      as_of: "2021-12-31"
+      role_id: recovery_short_term_unemployment
+      evidence_status: contradictory
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_durable_goods_new_orders
+      evidence_status: contradictory
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_exports
+      evidence_status: supportive
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_imports
+      evidence_status: supportive
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_private_nonresidential_fixed_investment
+      evidence_status: supportive
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_real_pce_durable_goods
+      evidence_status: supportive
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_real_retail_sales
+      evidence_status: supportive
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_short_term_unemployment
+      evidence_status: contradictory
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_durable_goods_new_orders
+      evidence_status: supportive
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_exports
+      evidence_status: supportive
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_imports
+      evidence_status: supportive
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_initial_jobless_claims
+      evidence_status: contradictory
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_private_nonresidential_fixed_investment
+      evidence_status: contradictory
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_real_pce_durable_goods
+      evidence_status: supportive
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_real_retail_sales
+      evidence_status: supportive
+    - scenario_id: global_financial_crisis_2007_2009
+      as_of: "2009-12-31"
+      role_id: recovery_short_term_unemployment
+      evidence_status: supportive
+  official_history_insufficient:
+    - scenario_id: dotcom_cycle_2000_2003
+      as_of: "2003-12-31"
+      role_id: recovery_initial_jobless_claims
+      series_ids: [ICSA]
+      reason: >
+        The official weekly claims vintage history is insufficient for the
+        required causal lookback at the dotcom as-of date; revised fallback is
+        prohibited.

@@ -22,10 +22,14 @@ def main() -> int:
     for key, value in summary.items():
         if key == "backfill_rows":
             continue
-        print(f"{key}={value}")
+        print(f"{key}={_format_value(value)}")
     print(f"output={write['output']}")
     print(f"result={'passed' if run['controlled_pit_backfill_ready'] else 'blocked'}")
     return 0 if run["controlled_pit_backfill_ready"] else 1
+
+
+def _format_value(value: object) -> object:
+    return str(value).lower() if isinstance(value, bool) else value
 
 
 if __name__ == "__main__":

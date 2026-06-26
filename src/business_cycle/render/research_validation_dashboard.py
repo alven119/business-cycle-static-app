@@ -43,6 +43,7 @@ REQUIRED_PAGES = (
     "lineage.html",
     "pit-gaps.html",
 )
+CURRENT_SNAPSHOT_PAGE = "current-snapshot.html"
 
 
 def build_research_validation_dashboard(
@@ -66,6 +67,8 @@ def build_research_validation_dashboard(
         "lineage.html": _lineage_page(bundle),
         "pit-gaps.html": _pit_gap_page(bundle),
     }
+    if "current_snapshot" in bundle:
+        pages[CURRENT_SNAPSHOT_PAGE] = _current_snapshot_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -154,6 +157,12 @@ def verify_research_validation_dashboard_directory(
             missing += 1
         else:
             pages[filename] = path.read_text(encoding="utf-8")
+    if _bundle_has_current_snapshot(root):
+        path = root / CURRENT_SNAPSHOT_PAGE
+        if not path.exists():
+            missing += 1
+        else:
+            pages[CURRENT_SNAPSHOT_PAGE] = path.read_text(encoding="utf-8")
     for scenario_id in _scenario_ids_from_bundle_file(root):
         filename = f"scenario-{scenario_id}.html"
         path = root / filename
@@ -201,6 +210,10 @@ def _verify_rendered_html_pages(
             "data-dashboard-view=\"pit_gap_view\"",
         )
     )
+    if "current_snapshot" in bundle:
+        required_missing += int(
+            "data-dashboard-view=\"current_research_snapshot\"" not in combined
+        )
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -241,6 +254,8 @@ def _preview_pages(bundle: dict[str, Any]) -> dict[str, str]:
         "lineage.html": _lineage_page(bundle),
         "pit-gaps.html": _pit_gap_page(bundle),
     }
+    if "current_snapshot" in bundle:
+        pages[CURRENT_SNAPSHOT_PAGE] = _current_snapshot_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -271,6 +286,7 @@ def _overview_page(bundle: dict[str, Any]) -> str:
         <span>Economic performance not computed</span>
         <span>Production isolation count {lineage["production_behavior_change_count"]}</span>
       </div>
+      {_current_snapshot_entry(bundle)}
     </section>
     <section class="panel">
       <h2>Scenario access</h2>
@@ -506,6 +522,80 @@ def _pit_gap_page(bundle: dict[str, Any]) -> str:
     return _page("PIT Gap View", "pit-gaps.html", body)
 
 
+def _current_snapshot_page(bundle: dict[str, Any]) -> str:
+    snapshot = bundle["current_snapshot"]
+    source = snapshot["source_availability_summary"]
+    decision = snapshot["non_emitting_decision_readiness"]
+    blockers = snapshot["blocker_summary"]
+    rows = "".join(
+        _source_availability_row(row) for row in snapshot["source_availability_rows"]
+    )
+    blocker_items = "".join(
+        f"<li><code>{_text(item)}</code></li>"
+        for item in decision["blocked_reason_codes"]
+    )
+    body = f"""
+    <section class="panel" data-dashboard-view="current_research_snapshot">
+      <div class="section-heading">
+        <h1>Current Research Snapshot</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">Latest available observation snapshot for local research review. This is not a production phase decision; candidate/current outputs remain disabled.</p>
+      <div class="metric-grid">
+        {_metric_card("As-of", snapshot["snapshot_as_of"], snapshot["data_mode"])}
+        {_metric_card("Available series", source["available_series_count"], "metadata available")}
+        {_metric_card("Missing series", source["missing_series_count"], "metadata incomplete")}
+        {_metric_card("Stale series", source["stale_series_count"], "latest verified vintage before snapshot")}
+        {_metric_card("Unavailable series", source["unavailable_series_count"], "not eligible for this snapshot")}
+      </div>
+      <div class="status-strip">
+        <span>live fetch attempted: {_yes_no(source["live_fetch_attempted"])}</span>
+        <span>cache used: {_yes_no(source["cache_used"])}</span>
+        <span>fixture used: {_yes_no(source["fixture_used"])}</span>
+        <span>candidate/current disabled</span>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Decision readiness blockers</h2>
+      <dl class="definition-grid">
+        <dt>Readiness label</dt><dd>{_text(decision["readiness_label"])}</dd>
+        <dt>Evaluated layers</dt><dd>{decision["evaluated_phase_or_layer_count"]}</dd>
+        <dt>Source unavailable</dt><dd>{blockers["source_unavailable_series_count"]}</dd>
+        <dt>Stale series</dt><dd>{blockers["stale_series_count"]}</dd>
+      </dl>
+      <ul class="provenance-list">{blocker_items or "<li>No blockers reported.</li>"}</ul>
+    </section>
+    <section class="panel">
+      <h2>Phase evidence and major groups</h2>
+      <dl class="definition-grid">
+        <dt>Phase profiles</dt><dd>{snapshot["phase_evidence_summary"]["profile_count"]}</dd>
+        <dt>Major groups</dt><dd>{snapshot["major_group_evidence_summary"]["major_group_count"]}</dd>
+        <dt>Watch separation</dt><dd>{_yes_no(snapshot["transition_risk_summary"]["watch_confirmation_separated"])}</dd>
+        <dt>Production integration</dt><dd>{_yes_no(snapshot["production_integration_enabled"])}</dd>
+      </dl>
+    </section>
+    <section class="panel">
+      <h2>Source availability</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Series</th><th>Source</th><th>Frequency</th><th>Status</th><th>Latest verified</th><th>Stale</th></tr></thead>
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Lineage</h2>
+      <dl class="definition-grid">
+        <dt>Freeze</dt><dd>{_text(snapshot["freeze_id"])}</dd>
+        <dt>Parent</dt><dd>{_text(snapshot["parent_freeze_id"])}</dd>
+        <dt>Output mode</dt><dd>{_text(snapshot["output_mode"])}</dd>
+        <dt>QA12 unchanged</dt><dd>{_yes_no(snapshot["lineage"]["qa12_freeze_unchanged"])}</dd>
+      </dl>
+    </section>
+    """
+    return _page("Current Research Snapshot", CURRENT_SNAPSHOT_PAGE, body)
+
+
 def _page(title: str, active_href: str, body: str) -> str:
     nav = _nav(active_href)
     return f"""<!doctype html>
@@ -542,19 +632,34 @@ def _page(title: str, active_href: str, body: str) -> str:
 
 
 def _nav(active_href: str) -> str:
-    links = (
+    links = [
         ("index.html", "Overview"),
         ("scenarios.html", "Scenarios"),
         ("validation.html", "Validation"),
         ("evidence.html", "Evidence"),
         ("lineage.html", "Lineage"),
         ("pit-gaps.html", "PIT gaps"),
-    )
+    ]
+    if active_href == CURRENT_SNAPSHOT_PAGE:
+        links.append((CURRENT_SNAPSHOT_PAGE, "Current snapshot"))
     items = []
     for href, label in links:
         active = ' class="active"' if href == active_href else ""
         items.append(f'<a href="{href}"{active}>{label}</a>')
     return "".join(items)
+
+
+def _current_snapshot_entry(bundle: dict[str, Any]) -> str:
+    if "current_snapshot" not in bundle:
+        return ""
+    snapshot = bundle["current_snapshot"]
+    return f"""
+      <div class="callout" data-current-snapshot-entry>
+        <strong>Current Research Snapshot</strong>
+        <span>{_text(snapshot["snapshot_as_of"])} / {_text(snapshot["data_mode"])}</span>
+        <a href="{CURRENT_SNAPSHOT_PAGE}">Open current snapshot</a>
+      </div>
+    """
 
 
 def _overview_scenario_row(scenario: dict[str, Any]) -> str:
@@ -623,6 +728,28 @@ def _pit_gap_table_row(row: dict[str, Any]) -> str:
       <td>{_status_badge(row["post_gap_class"])}</td>
       <td>{_text(row["genuine_blocker_evidence"])}</td>
     </tr>"""
+
+
+def _source_availability_row(row: dict[str, Any]) -> str:
+    return f"""<tr>
+      <td><code>{_text(row["series_id"])}</code></td>
+      <td>{_text(row["source"])}</td>
+      <td>{_text(row["frequency"])}</td>
+      <td>{_status_badge(row["availability_status"])}</td>
+      <td>{_text(row["latest_verified_vintage_date"])}</td>
+      <td>{_yes_no(row["stale"])}</td>
+    </tr>"""
+
+
+def _bundle_has_current_snapshot(root: Path) -> bool:
+    bundle_path = root / "data" / "dashboard_bundle.json"
+    if not bundle_path.exists():
+        return False
+    try:
+        payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    return "current_snapshot" in payload
 
 
 def _metric_summary_row(metric: dict[str, Any]) -> str:

@@ -15,6 +15,10 @@ def test_phase37_recession_recovery_pit_remediation_closure_passes() -> None:
     assert summary["north_star_alignment_status"] == "aligned"
     assert summary["semantic_drift_count"] == 0
     assert summary["post_insufficient_point_in_time_role_gap_count"] == 6
+    assert summary["pre_insufficient_point_in_time_scenario_role_gap_count"] == 39
+    assert summary["post_insufficient_point_in_time_scenario_role_gap_count"] == 16
+    assert summary["phase37_clean_environment_deterministic"] is True
+    assert summary["scenario_role_gap_row_count_fields_separated"] is True
     assert summary["pre_comparable_scenario_count"] == 2
     assert summary["post_comparable_scenario_count"] == 2
     assert summary["false_comparability_count"] == 0

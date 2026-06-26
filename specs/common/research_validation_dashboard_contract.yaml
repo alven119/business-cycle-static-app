@@ -12,6 +12,7 @@ research_validation_dashboard_contract:
     - evidence_explorer
     - data_lineage_governance
     - pit_gap_view
+    - current_research_snapshot
   allowed_inputs:
     - phase37_post_pit_remediation_runtime
     - phase37_pit_gap_matrix
@@ -19,6 +20,7 @@ research_validation_dashboard_contract:
     - qa12_manual_start_closure
     - phase17_historical_validation_scenario_manifest
     - phase11_phase_evidence_view_models
+    - phase39_current_research_snapshot
   prohibited_inputs:
     - production_dashboard_runtime
     - production_resolver

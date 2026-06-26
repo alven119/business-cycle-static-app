@@ -17,6 +17,8 @@ def test_shadow_recession_recovery_pit_remediation_freeze_passes() -> None:
     assert summary["alpha34_freeze_hash_valid"] is True
     assert summary["alpha33_parent_preserved"] is True
     assert summary["qa12_freeze_unchanged"] is True
+    assert summary["phase37_clean_environment_deterministic"] is True
+    assert summary["scenario_role_gap_row_count_fields_separated"] is True
     assert summary["missing_file_count"] == 0
     assert summary["secret_count"] == 0
     assert summary["production_file_count"] == 0

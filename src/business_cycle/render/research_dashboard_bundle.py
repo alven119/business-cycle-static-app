@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -57,6 +56,7 @@ VIEW_IDS = (
     "pit_gap_view",
     "scenario_detail",
 )
+CURRENT_SNAPSHOT_VIEW_ID = "current_research_snapshot"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -83,8 +83,10 @@ def load_research_validation_dashboard_contract(
     return contract
 
 
-@lru_cache(maxsize=1)
-def build_research_dashboard_bundle() -> dict[str, Any]:
+def build_research_dashboard_bundle(
+    *,
+    current_snapshot: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     contract = load_research_validation_dashboard_contract()
     run = build_post_pit_remediation_validation_rerun()
     matrix = run["remediation_run"]["pit_gap_matrix"]
@@ -101,6 +103,7 @@ def build_research_dashboard_bundle() -> dict[str, Any]:
     comparison_status_counts = Counter(
         scenario["comparison_status"] for scenario in scenarios
     )
+    view_ids = _view_ids(current_snapshot=current_snapshot)
     bundle = {
         "dashboard_schema_version": SCHEMA_VERSION,
         "generated_at": GENERATED_AT_UTC,
@@ -116,8 +119,8 @@ def build_research_dashboard_bundle() -> dict[str, Any]:
         "non_comparable_scenario_ids": [
             item["scenario_id"] for item in non_comparable
         ],
-        "dashboard_view_count": len(VIEW_IDS),
-        "views": [{"view_id": view_id, "title": _view_title(view_id)} for view_id in VIEW_IDS],
+        "dashboard_view_count": len(view_ids),
+        "views": [{"view_id": view_id, "title": _view_title(view_id)} for view_id in view_ids],
         "scenarios": scenarios,
         "evidence_summaries": evidence_rows,
         "comparison_summaries": {
@@ -238,6 +241,11 @@ def build_research_dashboard_bundle() -> dict[str, Any]:
         },
         "contract": contract,
     }
+    if current_snapshot is not None:
+        bundle["current_snapshot"] = current_snapshot
+        bundle["source_runs"]["phase39_current_snapshot"] = current_snapshot[
+            "artifact_schema_version"
+        ]
     validation = validate_research_dashboard_bundle(bundle, contract=contract)
     bundle["artifact_consistency"] = validation
     return bundle
@@ -282,6 +290,9 @@ def summarize_research_dashboard_bundle() -> dict[str, Any]:
         "production_behavior_change_count": 0,
         "prospective_registry_record_count": 0,
         "real_registry_write_attempt_count": 0,
+        "current_dashboard_view_ready": bool(bundle.get("current_snapshot"))
+        and bundle["dashboard_view_count"] >= 8,
+        "current_snapshot_artifact_count": int(bool(bundle.get("current_snapshot"))),
         "bundle": bundle,
     }
 
@@ -435,6 +446,12 @@ def _scenario_summaries(
     return _ordered_scenarios(scenarios)
 
 
+def _view_ids(*, current_snapshot: dict[str, Any] | None) -> tuple[str, ...]:
+    if current_snapshot is None:
+        return VIEW_IDS
+    return (*VIEW_IDS, CURRENT_SNAPSHOT_VIEW_ID)
+
+
 def _ordered_scenarios(scenarios: list[dict[str, Any]]) -> list[dict[str, Any]]:
     order = {
         "dotcom_cycle_2000_2003": 0,
@@ -574,6 +591,7 @@ def _view_title(view_id: str) -> str:
         "data_lineage_governance": "Data Lineage / Governance",
         "pit_gap_view": "PIT Gap View",
         "scenario_detail": "Scenario Detail",
+        "current_research_snapshot": "Current Research Snapshot",
     }[view_id]
 
 

@@ -17,6 +17,8 @@ def test_phase37_recession_recovery_pit_remediation_audit_passes() -> None:
     assert summary["controlled_pit_backfill_ready"] is True
     assert summary["post_pit_remediation_validation_rerun_ready"] is True
     assert summary["post_insufficient_point_in_time_role_gap_count"] == 6
+    assert summary["phase37_clean_environment_deterministic"] is True
+    assert summary["scenario_role_gap_row_count_fields_separated"] is True
     assert summary["safe_fixable_pit_gap_count"] == 0
     assert summary["false_comparability_count"] == 0
     assert summary["development_next_phase"] == 38

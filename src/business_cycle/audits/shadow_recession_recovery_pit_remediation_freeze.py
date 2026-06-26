@@ -72,6 +72,10 @@ def summarize_shadow_recession_recovery_pit_remediation_freeze(
         and freeze["attempted_fix_iteration_count"] >= 2
         and freeze["pre_insufficient_point_in_time_role_gap_count"] == 13
         and freeze["post_insufficient_point_in_time_role_gap_count"] == 6
+        and freeze["pre_insufficient_point_in_time_scenario_role_gap_count"] == 39
+        and freeze["post_insufficient_point_in_time_scenario_role_gap_count"] == 16
+        and freeze["phase37_clean_environment_deterministic"] is True
+        and freeze["scenario_role_gap_row_count_fields_separated"] is True
         and freeze["safe_fixable_pit_gap_count"] == 0
         and freeze["unresolved_safe_fixable_pit_gap_count"] == 0
         and freeze["false_comparability_count"] == 0
@@ -121,6 +125,10 @@ def summarize_shadow_recession_recovery_pit_remediation_freeze(
                 "target_recession_recovery_scenario_count",
                 "pre_insufficient_point_in_time_role_gap_count",
                 "post_insufficient_point_in_time_role_gap_count",
+                "pre_insufficient_point_in_time_scenario_role_gap_count",
+                "post_insufficient_point_in_time_scenario_role_gap_count",
+                "phase37_clean_environment_deterministic",
+                "scenario_role_gap_row_count_fields_separated",
                 "safe_fixable_pit_gap_count",
                 "unresolved_safe_fixable_pit_gap_count",
                 "official_history_insufficient_gap_count",

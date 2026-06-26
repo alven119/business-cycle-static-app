@@ -40,8 +40,8 @@ def test_run_controlled_pit_backfill_script(tmp_path) -> None:
     )
 
     assert output.is_file()
-    assert "controlled_pit_backfill_ready=True" in result.stdout
-    assert "network_attempted=False" in result.stdout
+    assert "controlled_pit_backfill_ready=true" in result.stdout
+    assert "network_attempted=false" in result.stdout
     assert "result=passed" in result.stdout
 
 
