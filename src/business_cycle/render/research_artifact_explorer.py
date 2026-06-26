@@ -50,6 +50,7 @@ def render_research_artifact_explorer(
     post_unblock_input: str | Path | None = None,
     post_comparability_input: str | Path | None = None,
     post_validation_result_input: str | Path | None = None,
+    post_pit_input: str | Path | None = None,
 ) -> dict[str, Any]:
     contract = load_research_artifact_explorer_contract()
     diagnostics_artifact = _load_or_build_diagnostics(diagnostics_input)
@@ -60,6 +61,7 @@ def render_research_artifact_explorer(
     post_validation_result = _load_post_validation_result(
         post_validation_result_input
     )
+    post_pit = _load_post_pit(post_pit_input)
     html = _render_html(
         contract=contract,
         diagnostics_artifact=diagnostics_artifact,
@@ -68,6 +70,7 @@ def render_research_artifact_explorer(
         post_unblock=post_unblock,
         post_comparability=post_comparability,
         post_validation_result=post_validation_result,
+        post_pit=post_pit,
     )
     output_path = _validated_output_path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -247,6 +250,7 @@ def _render_html(
     post_unblock: dict[str, Any] | None = None,
     post_comparability: dict[str, Any] | None = None,
     post_validation_result: dict[str, Any] | None = None,
+    post_pit: dict[str, Any] | None = None,
 ) -> str:
     cards = "\n".join(_scenario_card(trace) for trace in traces)
     post_resolution_section = _post_resolution_section(post_resolution)
@@ -255,6 +259,7 @@ def _render_html(
     post_validation_result_section = _post_validation_result_section(
         post_validation_result
     )
+    post_pit_section = _post_pit_section(post_pit)
     blockage_summary = _definition_list(
         diagnostics_artifact["blockage_reason_summary"]
     )
@@ -320,6 +325,7 @@ def _render_html(
 	  {post_unblock_section}
 	  {post_comparability_section}
 	  {post_validation_result_section}
+	  {post_pit_section}
 	  <section>
     <h2>Remediation Plan Registry</h2>
     <p>Registry entries are descriptive only. They do not execute remediation.</p>
@@ -509,7 +515,7 @@ def _post_validation_result_comparable_row(result: dict[str, Any]) -> str:
 
 def _post_validation_result_remaining_row(result: dict[str, Any]) -> str:
     reasons = ", ".join(
-        escape(item["gap_class"])
+        escape(item.get("gap_class") or item.get("post_gap_class") or "unknown_gap")
         for item in result["genuine_non_comparable_reasons"]
     )
     return f"""<article>
@@ -520,6 +526,42 @@ def _post_validation_result_remaining_row(result: dict[str, Any]) -> str:
     <dt>Comparison status</dt><dd>{escape(result["comparison_status"])}</dd>
     <dt>Abstention state</dt><dd>{escape(result["abstention_state"])}</dd>
     <dt>Remaining evidence</dt><dd>{reasons}</dd>
+  </dl>
+</article>"""
+
+
+def _post_pit_section(post_pit: dict[str, Any] | None) -> str:
+    if post_pit is None:
+        return ""
+    artifact = post_pit["pit_remediation_artifact"]
+    remaining_rows = "\n".join(
+        _post_pit_remaining_row(scenario_id, rows)
+        for scenario_id, rows in artifact["remaining_pit_gap_evidence"].items()
+    )
+    return f"""<section>
+    <h2>Post-PIT Input Remediation</h2>
+    <dl>
+      <dt>Pre insufficient PIT role gaps</dt><dd>{artifact["pre_insufficient_point_in_time_role_gap_count"]}</dd>
+      <dt>Post insufficient PIT role gaps</dt><dd>{artifact["post_insufficient_point_in_time_role_gap_count"]}</dd>
+      <dt>Cache-remediated PIT roles</dt><dd>{artifact["cache_remediated_pit_role_gap_count"]}</dd>
+      <dt>Pre-comparable scenarios</dt><dd>{artifact["pre_comparable_scenario_count"]}</dd>
+      <dt>Post-comparable scenarios</dt><dd>{artifact["post_comparable_scenario_count"]}</dd>
+      <dt>False comparability</dt><dd>{artifact["false_comparability_count"]}</dd>
+    </dl>
+    <div class="grid">
+      {remaining_rows}
+    </div>
+  </section>"""
+
+
+def _post_pit_remaining_row(scenario_id: str, rows: list[dict[str, Any]]) -> str:
+    reasons = ", ".join(
+        escape(f"{item['role_id']}:{item['post_gap_class']}") for item in rows
+    )
+    return f"""<article>
+  <h3>{escape(scenario_id)}</h3>
+  <dl>
+    <dt>Remaining PIT evidence</dt><dd>{reasons}</dd>
   </dl>
 </article>"""
 
@@ -617,6 +659,12 @@ def _load_post_comparability(path: str | Path | None) -> dict[str, Any] | None:
 
 
 def _load_post_validation_result(path: str | Path | None) -> dict[str, Any] | None:
+    if path is None:
+        return None
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _load_post_pit(path: str | Path | None) -> dict[str, Any] | None:
     if path is None:
         return None
     return json.loads(Path(path).read_text(encoding="utf-8"))
