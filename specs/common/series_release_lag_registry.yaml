@@ -797,11 +797,13 @@ series_release_lag_registry:
     scenario_coverage_end: '2021-12-31'
     temporal_status: exact_vintage_ready
     point_in_time_eligible: true
+    current_refresh_fetch_enabled: false
     known_revision_behavior: daily market/rate observation; revisions uncommon but
       cache still requires realtime metadata
     official_metadata_source: FRED series metadata and source release documentation
-    caveats: Metadata completeness does not imply local vintage cache coverage; release
-      calendars are not inferred from observation_date.
+    caveats: Alias candidate retained for PIT lineage only; automated current refresh
+      must not request WTI as a FRED series. Use verified official FRED series
+      DCOILWTICO for current live refresh.
   - series_id: derived:credit_spread_baa_10y
     derived_series_id: derived:credit_spread_baa_10y
     source: derived

@@ -20,6 +20,7 @@ from business_cycle.storage.raw_store import RawCsvStore
 DEFAULT_SERIES_REGISTRY_PATH = Path("specs/common/series_release_lag_registry.yaml")
 REFRESH_SCHEMA_VERSION = "phase40_current_data_refresh_v1"
 KEY_ENV_NAME = "FRED" + "_API_KEY"
+LIVE_OPERATOR_CONFIRMATION = "I_UNDERSTAND_THIS_CALLS_FRED_AND_WRITES_IGNORED_CACHE"
 TMP_ROOT = Path("/tmp")
 IGNORED_CACHE_ROOT = Path("data/raw/fred_current_cache")
 PROHIBITED_OUTPUT_ROOTS = (
@@ -49,15 +50,25 @@ def build_current_data_refresh_manifest(
     registry_path: str | Path = DEFAULT_SERIES_REGISTRY_PATH,
     provider: CurrentRefreshProvider | None = None,
     observation_start: str = "2025-01-01",
+    execute_live: bool = False,
+    operator_confirmation: str | None = None,
 ) -> dict[str, Any]:
     snapshot_as_of = snapshot_as_of or datetime.now(timezone.utc).date().isoformat()
     rows = _load_series_rows(registry_path)
     stale_before = _stale_count_from_registry(rows, snapshot_as_of=snapshot_as_of)
     cache_root = _validated_cache_dir(cache_dir) if cache_dir is not None else None
     key_present = bool(os.getenv(KEY_ENV_NAME))
-    live_enabled = not no_live_fetch and key_present
+    operator_confirmed = operator_confirmation == LIVE_OPERATOR_CONFIRMATION
+    live_fetch_blocked_reason = _blocked_reason(
+        no_live_fetch=no_live_fetch,
+        key_present=key_present,
+        execute_live=execute_live,
+        operator_confirmed=operator_confirmed,
+    )
+    live_enabled = live_fetch_blocked_reason is None
     manifest_rows: list[dict[str, Any]] = []
     fetched_series = 0
+    failed_series = 0
     cache_write_attempted = False
     cache_write_succeeded = False
     provider_error_class: str | None = None
@@ -75,7 +86,11 @@ def build_current_data_refresh_manifest(
                     _manifest_row(
                         row,
                         snapshot_as_of=snapshot_as_of,
-                        source_mode=_non_live_source_mode(row, allow_fixture_fallback),
+                        source_mode=_non_live_source_mode(
+                            row,
+                            allow_fixture_fallback,
+                            live_fetch_blocked_reason=live_fetch_blocked_reason,
+                        ),
                     )
                 )
                 continue
@@ -87,6 +102,7 @@ def build_current_data_refresh_manifest(
             except Exception as exc:  # noqa: BLE001 - fail closed with redaction
                 provider_error_class = exc.__class__.__name__
                 provider_error_message_redacted = _redact_secret(str(exc))
+                failed_series += 1
                 manifest_rows.append(
                     _manifest_row(
                         row,
@@ -129,7 +145,11 @@ def build_current_data_refresh_manifest(
                 _manifest_row(
                     row,
                     snapshot_as_of=snapshot_as_of,
-                    source_mode=_non_live_source_mode(row, allow_fixture_fallback),
+                    source_mode=_non_live_source_mode(
+                        row,
+                        allow_fixture_fallback,
+                        live_fetch_blocked_reason=live_fetch_blocked_reason,
+                    ),
                 )
             )
 
@@ -145,6 +165,7 @@ def build_current_data_refresh_manifest(
         no_live_fetch=no_live_fetch,
         key_present=key_present,
         live_fetch_attempted=live_fetch_attempted,
+        live_fetch_blocked_reason=live_fetch_blocked_reason,
     )
     live_fetch_succeeded = (
         live_fetch_attempted and provider_error_class is None and fetched_series > 0
@@ -158,6 +179,16 @@ def build_current_data_refresh_manifest(
         "live_fetch_attempted": live_fetch_attempted,
         "live_fetch_succeeded": live_fetch_succeeded,
         "live_fetch_skipped_reason": skipped_reason,
+        "live_fetch_blocked_reason": live_fetch_blocked_reason,
+        "operator_confirmation_required": not no_live_fetch,
+        "operator_confirmation_valid": operator_confirmed,
+        "execute_live_requested": execute_live,
+        "phase41_live_refresh_status": _phase41_live_refresh_status(
+            live_fetch_succeeded=live_fetch_succeeded,
+            provider_error_class=provider_error_class,
+            live_fetch_blocked_reason=live_fetch_blocked_reason,
+            no_live_fetch=no_live_fetch,
+        ),
         "provider_error_class": provider_error_class,
         "provider_error_message_redacted": provider_error_message_redacted,
         "cache_write_attempted": cache_write_attempted,
@@ -168,6 +199,7 @@ def build_current_data_refresh_manifest(
         "secret_logged": False,
         "requested_series_count": len(rows),
         "fetched_series_count": fetched_series,
+        "failed_series_count": failed_series,
         "refreshed_series_count": fetched_series,
         "missing_series_count": missing_series_count,
         "stale_series_count_before": stale_before,
@@ -180,9 +212,10 @@ def build_current_data_refresh_manifest(
             live_fetch_succeeded=live_fetch_succeeded,
             cache_write_succeeded=cache_write_succeeded,
             allow_fixture_fallback=allow_fixture_fallback,
+            live_fetch_blocked_reason=live_fetch_blocked_reason,
         ),
         "cache_used": cache_write_succeeded,
-        "fixture_used": not live_fetch_succeeded,
+        "fixture_used": allow_fixture_fallback and not live_fetch_succeeded,
         "allowed_uses": [
             "local_research_dashboard",
             "current_source_freshness_review",
@@ -215,7 +248,8 @@ def build_current_data_refresh_manifest(
         "forbidden_repo_output_count": 0,
         "revised_fallback_mislabeled_as_pit_count": 0,
         "fixture_mislabeled_as_live_count": int(
-            not live_fetch_succeeded
+            allow_fixture_fallback
+            and (not live_fetch_succeeded or live_fetch_blocked_reason is not None)
             and any(mode == "live_revised" for mode in source_mode_by_series.values())
         ),
     }
@@ -258,12 +292,15 @@ def summarize_current_data_refresh_manifest(manifest: dict[str, Any]) -> dict[st
         "live_fetch_attempted": manifest["live_fetch_attempted"],
         "live_fetch_succeeded": manifest["live_fetch_succeeded"],
         "live_fetch_skipped_reason": manifest["live_fetch_skipped_reason"],
+        "live_fetch_blocked_reason": manifest["live_fetch_blocked_reason"],
+        "phase41_live_refresh_status": manifest["phase41_live_refresh_status"],
         "provider_error_class": manifest["provider_error_class"],
         "cache_write_attempted": manifest["cache_write_attempted"],
         "cache_write_succeeded": manifest["cache_write_succeeded"],
         "cache_dir_kind": manifest["cache_dir_kind"],
         "requested_series_count": manifest["requested_series_count"],
         "fetched_series_count": manifest["fetched_series_count"],
+        "failed_series_count": manifest["failed_series_count"],
         "refreshed_series_count": manifest["refreshed_series_count"],
         "missing_series_count": manifest["missing_series_count"],
         "stale_series_count_before": manifest["stale_series_count_before"],
@@ -315,17 +352,25 @@ def _manifest_row(
     }
 
 
-def _non_live_source_mode(row: dict[str, Any], allow_fixture_fallback: bool) -> str:
+def _non_live_source_mode(
+    row: dict[str, Any],
+    allow_fixture_fallback: bool,
+    *,
+    live_fetch_blocked_reason: str | None,
+) -> str:
     if str(row.get("source")) == "derived":
         return "derived_not_fetched"
     if not _release_lag_metadata_complete(row):
         return "unsupported_fixture" if allow_fixture_fallback else "unsupported"
+    if live_fetch_blocked_reason and not allow_fixture_fallback and _fetchable_fred_row(row):
+        return f"live_blocked_{live_fetch_blocked_reason}"
     return "fixture" if allow_fixture_fallback else "not_fetched"
 
 
 def _fetchable_fred_row(row: dict[str, Any]) -> bool:
     return (
         str(row.get("source")) == "FRED/ALFRED"
+        and row.get("current_refresh_fetch_enabled", True) is not False
         and _release_lag_metadata_complete(row)
         and bool(row.get("point_in_time_eligible"))
     )
@@ -367,6 +412,7 @@ def _missing_series_count(rows: list[dict[str, Any]]) -> int:
         for row in rows
         if row["source_mode"]
         in {"unsupported", "unsupported_fixture", "provider_error", "live_empty"}
+        or str(row["source_mode"]).startswith("live_blocked_")
     )
 
 
@@ -375,14 +421,33 @@ def _skipped_reason(
     no_live_fetch: bool,
     key_present: bool,
     live_fetch_attempted: bool,
+    live_fetch_blocked_reason: str | None,
 ) -> str | None:
     if live_fetch_attempted:
         return None
     if no_live_fetch:
         return "live_fetch_disabled_by_cli"
+    if live_fetch_blocked_reason is not None:
+        return live_fetch_blocked_reason
     if not key_present:
         return "missing_fred_api_key"
     return "live_fetch_not_requested"
+
+
+def _blocked_reason(
+    *,
+    no_live_fetch: bool,
+    key_present: bool,
+    execute_live: bool,
+    operator_confirmed: bool,
+) -> str | None:
+    if no_live_fetch:
+        return "live_fetch_disabled_by_cli"
+    if not key_present:
+        return "missing_fred_api_key"
+    if not execute_live or not operator_confirmed:
+        return "operator_confirmation_required"
+    return None
 
 
 def _data_mode(
@@ -390,6 +455,7 @@ def _data_mode(
     live_fetch_succeeded: bool,
     cache_write_succeeded: bool,
     allow_fixture_fallback: bool,
+    live_fetch_blocked_reason: str | None,
 ) -> str:
     if live_fetch_succeeded:
         return "revised_live_current"
@@ -397,7 +463,29 @@ def _data_mode(
         return "revised_cache_current"
     if allow_fixture_fallback:
         return "revised_metadata_fixture"
+    if live_fetch_blocked_reason is not None:
+        return "revised_metadata_blocked"
     return "revised_metadata_only"
+
+
+def _phase41_live_refresh_status(
+    *,
+    live_fetch_succeeded: bool,
+    provider_error_class: str | None,
+    live_fetch_blocked_reason: str | None,
+    no_live_fetch: bool,
+) -> str:
+    if live_fetch_succeeded:
+        return "live_refresh_executed"
+    if provider_error_class is not None:
+        return "blocked_provider_error"
+    if live_fetch_blocked_reason == "missing_fred_api_key":
+        return "blocked_missing_local_secret"
+    if live_fetch_blocked_reason == "operator_confirmation_required":
+        return "blocked_operator_confirmation_required"
+    if no_live_fetch:
+        return "no_live_fixture"
+    return "live_refresh_not_executed"
 
 
 def _cache_dir_kind(cache_dir: Path | None) -> str:

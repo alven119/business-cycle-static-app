@@ -125,10 +125,14 @@ def build_current_research_snapshot(
                 "live_fetch_succeeded",
                 "live_fetch_failed_reason",
                 "live_fetch_skipped_reason",
+                "live_fetch_blocked_reason",
+                "phase41_live_refresh_status",
                 "provider_error_class",
                 "refresh_mode",
                 "stale_series_count_before",
                 "stale_series_count_after",
+                "fetched_series_count",
+                "failed_series_count",
                 "refreshed_series_count",
                 "refresh_manifest_artifact_count",
                 "cache_used",
@@ -238,6 +242,8 @@ def summarize_current_research_snapshot() -> dict[str, Any]:
         "live_fetch_failed_reason": source["live_fetch_failed_reason"],
         "live_fetch_skipped_reason": source.get("live_fetch_skipped_reason"),
         "provider_error_class": source.get("provider_error_class"),
+        "live_fetch_blocked_reason": source.get("live_fetch_blocked_reason"),
+        "phase41_live_refresh_status": source.get("phase41_live_refresh_status"),
         "refresh_mode": source.get("refresh_mode", "fixture"),
         "stale_series_count_before": source.get(
             "stale_series_count_before",
@@ -248,6 +254,8 @@ def summarize_current_research_snapshot() -> dict[str, Any]:
             source["stale_series_count"],
         ),
         "refreshed_series_count": source.get("refreshed_series_count", 0),
+        "fetched_series_count": source.get("fetched_series_count", 0),
+        "failed_series_count": source.get("failed_series_count", 0),
         "refresh_manifest_artifact_count": source.get(
             "refresh_manifest_artifact_count",
             0,
@@ -310,6 +318,8 @@ def summarize_current_research_snapshot_from_manifest(
         "live_fetch_attempted": source["live_fetch_attempted"],
         "live_fetch_succeeded": source["live_fetch_succeeded"],
         "live_fetch_skipped_reason": source.get("live_fetch_skipped_reason"),
+        "live_fetch_blocked_reason": source.get("live_fetch_blocked_reason"),
+        "phase41_live_refresh_status": source.get("phase41_live_refresh_status"),
         "provider_error_class": source.get("provider_error_class"),
         "refresh_mode": source["refresh_mode"],
         "stale_series_count_before": source["stale_series_count_before"],
@@ -369,6 +379,8 @@ def _snapshot_summary(
             source["stale_series_count"],
         ),
         "refreshed_series_count": source.get("refreshed_series_count", 0),
+        "fetched_series_count": source.get("fetched_series_count", 0),
+        "failed_series_count": source.get("failed_series_count", 0),
         "refresh_manifest_artifact_count": source.get(
             "refresh_manifest_artifact_count",
             0,
@@ -517,6 +529,8 @@ def _refresh_metadata(availability: dict[str, Any]) -> dict[str, Any]:
         "live_fetch_attempted": availability["live_fetch_attempted"],
         "live_fetch_succeeded": availability["live_fetch_succeeded"],
         "live_fetch_skipped_reason": availability.get("live_fetch_skipped_reason"),
+        "live_fetch_blocked_reason": availability.get("live_fetch_blocked_reason"),
+        "phase41_live_refresh_status": availability.get("phase41_live_refresh_status"),
         "provider_error_class": availability.get("provider_error_class"),
         "stale_series_count_before": availability.get(
             "stale_series_count_before",
@@ -527,6 +541,8 @@ def _refresh_metadata(availability: dict[str, Any]) -> dict[str, Any]:
             availability["stale_series_count"],
         ),
         "refreshed_series_count": availability.get("refreshed_series_count", 0),
+        "fetched_series_count": availability.get("fetched_series_count", 0),
+        "failed_series_count": availability.get("failed_series_count", 0),
         "source_mode_by_series": availability.get("source_mode_by_series", {}),
         "latest_observation_date_by_series": availability[
             "latest_observation_date_by_series"

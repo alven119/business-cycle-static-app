@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from business_cycle.current.current_data_refresh import (
+    LIVE_OPERATOR_CONFIRMATION,
     build_current_data_refresh_manifest,
     write_current_data_refresh_manifest,
 )
@@ -43,6 +44,8 @@ def test_refresh_without_key_falls_back_to_fixture(monkeypatch: pytest.MonkeyPat
     assert manifest["live_fetch_attempted"] is False
     assert manifest["live_fetch_succeeded"] is False
     assert manifest["live_fetch_skipped_reason"] == "missing_fred_api_key"
+    assert manifest["live_fetch_blocked_reason"] == "missing_fred_api_key"
+    assert manifest["phase41_live_refresh_status"] == "blocked_missing_local_secret"
     assert manifest["fixture_used"] is True
     assert manifest["fixture_mislabeled_as_live_count"] == 0
     assert manifest["secret_logged_count"] == 0
@@ -57,8 +60,24 @@ def test_no_live_fetch_is_hermetic(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert manifest["live_fetch_attempted"] is False
     assert manifest["live_fetch_skipped_reason"] == "live_fetch_disabled_by_cli"
+    assert manifest["live_fetch_blocked_reason"] == "live_fetch_disabled_by_cli"
     assert manifest["fetched_series_count"] == 0
     assert manifest["stale_series_count_after"] == manifest["stale_series_count_before"]
+
+
+def test_key_without_operator_confirmation_does_not_live_fetch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("FRED_API_KEY", "secret-token")
+    manifest = build_current_data_refresh_manifest(
+        allow_fixture_fallback=True,
+        provider=FakeProvider(),
+    )
+
+    assert manifest["live_fetch_attempted"] is False
+    assert manifest["live_fetch_succeeded"] is False
+    assert manifest["live_fetch_blocked_reason"] == "operator_confirmation_required"
+    assert manifest["fetched_series_count"] == 0
 
 
 def test_mock_live_provider_writes_tmp_cache(
@@ -69,6 +88,8 @@ def test_mock_live_provider_writes_tmp_cache(
     manifest = build_current_data_refresh_manifest(
         cache_dir=tmp_path / "cache",
         provider=FakeProvider(),
+        execute_live=True,
+        operator_confirmation=LIVE_OPERATOR_CONFIRMATION,
     )
 
     assert manifest["live_fetch_attempted"] is True
@@ -83,11 +104,16 @@ def test_mock_live_provider_writes_tmp_cache(
 
 def test_provider_error_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("FRED_API_KEY", "secret-token")
-    manifest = build_current_data_refresh_manifest(provider=FailingProvider())
+    manifest = build_current_data_refresh_manifest(
+        provider=FailingProvider(),
+        execute_live=True,
+        operator_confirmation=LIVE_OPERATOR_CONFIRMATION,
+    )
 
     assert manifest["live_fetch_attempted"] is True
     assert manifest["live_fetch_succeeded"] is False
     assert manifest["provider_error_class"] == "FredProviderError"
+    assert manifest["failed_series_count"] == 1
     assert "secret-token" not in str(manifest["provider_error_message_redacted"])
     assert manifest["network_error_fails_closed"] is True
 

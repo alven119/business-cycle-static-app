@@ -49,6 +49,12 @@ def main() -> int:
             "live_fetch_skipped_reason": snapshot["refresh_metadata"][
                 "live_fetch_skipped_reason"
             ],
+            "live_fetch_blocked_reason": snapshot["refresh_metadata"][
+                "live_fetch_blocked_reason"
+            ],
+            "phase41_live_refresh_status": snapshot["refresh_metadata"][
+                "phase41_live_refresh_status"
+            ],
             "provider_error_class": snapshot["refresh_metadata"][
                 "provider_error_class"
             ],
@@ -74,6 +80,12 @@ def main() -> int:
             ],
             "refreshed_series_count": snapshot["refresh_metadata"][
                 "refreshed_series_count"
+            ],
+            "fetched_series_count": snapshot["refresh_metadata"][
+                "fetched_series_count"
+            ],
+            "failed_series_count": snapshot["refresh_metadata"][
+                "failed_series_count"
             ],
             "candidate_phase_emitted": snapshot["candidate_phase_emitted"],
             "current_phase_emitted": snapshot["current_phase_emitted"],

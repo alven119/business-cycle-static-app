@@ -76,10 +76,14 @@ def build_current_snapshot_availability(
         "live_fetch_succeeded": False,
         "live_fetch_failed_reason": "live_fetch_disabled_for_phase39_research_snapshot",
         "live_fetch_skipped_reason": "live_fetch_disabled_for_phase39_research_snapshot",
+        "live_fetch_blocked_reason": None,
+        "phase41_live_refresh_status": "not_phase41_refresh",
         "provider_error_class": None,
         "refresh_mode": "fixture",
         "stale_series_count_before": len(stale),
         "stale_series_count_after": len(stale),
+        "fetched_series_count": 0,
+        "failed_series_count": 0,
         "refreshed_series_count": 0,
         "source_mode_by_series": {
             row["series_id"]: "fixture" for row in requested
@@ -158,15 +162,20 @@ def _availability_from_refresh_manifest(manifest: dict[str, Any]) -> dict[str, A
         "live_fetch_succeeded": manifest["live_fetch_succeeded"],
         "live_fetch_failed_reason": (
             manifest["provider_error_class"]
+            or manifest.get("live_fetch_blocked_reason")
             or manifest["live_fetch_skipped_reason"]
             or "none"
         ),
         "live_fetch_skipped_reason": manifest["live_fetch_skipped_reason"],
+        "live_fetch_blocked_reason": manifest.get("live_fetch_blocked_reason"),
+        "phase41_live_refresh_status": manifest.get("phase41_live_refresh_status"),
         "provider_error_class": manifest["provider_error_class"],
         "refresh_mode": _refresh_mode(manifest),
         "stale_series_count_before": manifest["stale_series_count_before"],
         "stale_series_count_after": manifest["stale_series_count_after"],
         "refreshed_series_count": manifest["refreshed_series_count"],
+        "fetched_series_count": manifest.get("fetched_series_count", 0),
+        "failed_series_count": manifest.get("failed_series_count", 0),
         "source_mode_by_series": manifest["source_mode_by_series"],
         "refresh_manifest_artifact_count": 1,
         "refresh_manifest_hash": manifest["manifest_hash"],
@@ -181,6 +190,8 @@ def _availability_from_refresh_manifest(manifest: dict[str, Any]) -> dict[str, A
 
 def _availability_row_from_refresh(row: dict[str, Any]) -> dict[str, Any]:
     if row["source_mode"] in {"unsupported", "unsupported_fixture", "provider_error"}:
+        status = "missing"
+    elif str(row["source_mode"]).startswith("live_blocked_"):
         status = "missing"
     elif row["source_mode"] in {"derived_not_fetched"}:
         status = "available"
@@ -221,6 +232,11 @@ def _refresh_mode(manifest: dict[str, Any]) -> str:
         return "live"
     if manifest["cache_used"]:
         return "cache"
+    if manifest.get("live_fetch_blocked_reason") is not None and not manifest.get(
+        "fixture_used",
+        False,
+    ):
+        return "blocked"
     return "fixture"
 
 

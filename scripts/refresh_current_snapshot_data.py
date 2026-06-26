@@ -22,6 +22,8 @@ def main() -> int:
     parser.add_argument("--snapshot-as-of")
     parser.add_argument("--no-live-fetch", action="store_true")
     parser.add_argument("--allow-fixture-fallback", action="store_true")
+    parser.add_argument("--execute-live", action="store_true")
+    parser.add_argument("--operator-confirmation")
     args = parser.parse_args()
 
     manifest = build_current_data_refresh_manifest(
@@ -29,6 +31,8 @@ def main() -> int:
         no_live_fetch=args.no_live_fetch,
         allow_fixture_fallback=args.allow_fixture_fallback,
         cache_dir=args.cache_dir,
+        execute_live=args.execute_live,
+        operator_confirmation=args.operator_confirmation,
     )
     write = write_current_data_refresh_manifest(manifest, output=args.output)
     summary = summarize_current_data_refresh_manifest(manifest)

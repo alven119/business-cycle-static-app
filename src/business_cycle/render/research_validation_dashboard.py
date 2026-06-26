@@ -562,8 +562,11 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
       <dl class="definition-grid">
         <dt>Refresh mode</dt><dd data-refresh-mode>{_text(refresh.get("refresh_mode", "fixture"))}</dd>
         <dt>Skipped reason</dt><dd>{_text(refresh.get("live_fetch_skipped_reason") or "none")}</dd>
+        <dt>Blocked reason</dt><dd data-live-blocked-reason>{_text(refresh.get("live_fetch_blocked_reason") or "none")}</dd>
         <dt>Provider error</dt><dd>{_text(refresh.get("provider_error_class") or "none")}</dd>
+        <dt>Status</dt><dd>{_text(refresh.get("phase41_live_refresh_status") or "not_phase41_refresh")}</dd>
         <dt>Stale before / after</dt><dd data-stale-before-after>{refresh.get("stale_series_count_before", source["stale_series_count"])} / {refresh.get("stale_series_count_after", source["stale_series_count"])}</dd>
+        <dt>Fetched / failed</dt><dd>{refresh.get("fetched_series_count", 0)} / {refresh.get("failed_series_count", 0)}</dd>
         <dt>Refreshed series</dt><dd>{refresh.get("refreshed_series_count", 0)}</dd>
         <dt>Refresh manifest</dt><dd><code>{_text(refresh.get("refresh_manifest_hash") or "not supplied")}</code></dd>
       </dl>
