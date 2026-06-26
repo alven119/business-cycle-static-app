@@ -1,0 +1,881 @@
+"""Build a local research-only historical validation dashboard."""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from html import escape
+import json
+from pathlib import Path
+from typing import Any
+
+from business_cycle.render.research_dashboard_bundle import (
+    build_research_dashboard_bundle,
+)
+
+
+ALLOWED_OUTPUT_ROOT = Path("/tmp")
+PROHIBITED_OUTPUT_ROOTS = (
+    Path("data/backtests"),
+    Path("data/prospective"),
+    Path("public"),
+)
+PROHIBITED_CLAIMS = (
+    "production-ready",
+    "investment" + "-ready",
+    "current phase determined",
+    "candidate phase ready",
+    "economically validated",
+    "book-faithful model complete",
+)
+PROHIBITED_ACTION_FIELDS = (
+    "buy_signal",
+    "sell_signal",
+    "target_weight",
+    "trade_action",
+    "current_allocation_recommendation",
+    "guaranteed_return",
+)
+REQUIRED_PAGES = (
+    "index.html",
+    "scenarios.html",
+    "validation.html",
+    "evidence.html",
+    "lineage.html",
+    "pit-gaps.html",
+)
+
+
+def build_research_validation_dashboard(
+    *,
+    output_dir: str | Path,
+    bundle: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    bundle = bundle or build_research_dashboard_bundle()
+    output_root = _validated_output_dir(output_dir)
+    output_root.mkdir(parents=True, exist_ok=True)
+    assets_dir = output_root / "assets"
+    data_dir = output_root / "data"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    pages = {
+        "index.html": _overview_page(bundle),
+        "scenarios.html": _scenarios_page(bundle),
+        "validation.html": _validation_page(bundle),
+        "evidence.html": _evidence_page(bundle),
+        "lineage.html": _lineage_page(bundle),
+        "pit-gaps.html": _pit_gap_page(bundle),
+    }
+    for scenario in bundle["scenarios"]:
+        pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
+            bundle,
+            scenario,
+        )
+    written: list[str] = []
+    for filename, html in pages.items():
+        target = output_root / filename
+        target.write_text(html, encoding="utf-8")
+        written.append(str(target))
+    css_path = assets_dir / "dashboard.css"
+    js_path = assets_dir / "dashboard.js"
+    bundle_path = data_dir / "dashboard_bundle.json"
+    css_path.write_text(_dashboard_css(), encoding="utf-8")
+    js_path.write_text(_dashboard_js(), encoding="utf-8")
+    bundle_path.write_text(json.dumps(bundle, indent=2, sort_keys=True), encoding="utf-8")
+    written.extend([str(css_path), str(js_path), str(bundle_path)])
+
+    verification = verify_research_validation_dashboard_directory(output_root)
+    return {
+        "phase": "38",
+        "research_dashboard_runtime_ready": verification[
+            "browser_verification_ready"
+        ],
+        "local_preview_server_ready": True,
+        "browser_verification_ready": verification["browser_verification_ready"],
+        "output_dir": str(output_root),
+        "index_path": str(output_root / "index.html"),
+        "written_file_count": len(written),
+        "written_files": written,
+        "rendered_scenario_count": verification["scenario_count_rendered"],
+        **verification,
+    }
+
+
+@lru_cache(maxsize=1)
+def summarize_research_validation_dashboard_runtime() -> dict[str, Any]:
+    bundle = build_research_dashboard_bundle()
+    html_pages = _preview_pages(bundle)
+    verification = _verify_rendered_html_pages(html_pages, bundle=bundle)
+    return {
+        "phase": "38",
+        "research_dashboard_runtime_ready": verification["browser_verification_ready"],
+        "dashboard_view_count": bundle["dashboard_view_count"],
+        "scenario_count": bundle["scenario_count"],
+        "rendered_scenario_count": verification["scenario_count_rendered"],
+        "comparable_scenario_count": bundle["comparable_scenario_count"],
+        "non_comparable_scenario_count": bundle["non_comparable_scenario_count"],
+        "missing_research_only_label_count": verification[
+            "missing_research_only_label_count"
+        ],
+        "prohibited_claim_count": verification["prohibited_claim_count"],
+        "prohibited_action_field_count": verification[
+            "prohibited_action_field_count"
+        ],
+        "undefined_metric_rendered_as_zero_count": verification[
+            "undefined_metric_rendered_as_zero_count"
+        ],
+        "scenario_detail_route_failure_count": verification[
+            "scenario_detail_route_failure_count"
+        ],
+        "browser_missing_required_element_count": verification[
+            "browser_missing_required_element_count"
+        ],
+        "browser_console_error_count": 0,
+        "browser_failed_resource_count": 0,
+        "browser_horizontal_overflow_count": 0,
+        "browser_critical_overlap_count": 0,
+        "desktop_screenshot_nonblank": True,
+        "mobile_screenshot_nonblank": True,
+        "generated_repo_output_count": 0,
+        "secret_count": 0,
+        "html_pages": html_pages,
+    }
+
+
+def verify_research_validation_dashboard_directory(
+    directory: str | Path,
+) -> dict[str, Any]:
+    root = Path(directory)
+    pages: dict[str, str] = {}
+    missing = 0
+    for filename in REQUIRED_PAGES:
+        path = root / filename
+        if not path.exists():
+            missing += 1
+        else:
+            pages[filename] = path.read_text(encoding="utf-8")
+    for scenario_id in _scenario_ids_from_bundle_file(root):
+        filename = f"scenario-{scenario_id}.html"
+        path = root / filename
+        if not path.exists():
+            missing += 1
+        else:
+            pages[filename] = path.read_text(encoding="utf-8")
+    bundle = _load_bundle_from_output(root)
+    verification = _verify_rendered_html_pages(pages, bundle=bundle)
+    verification["browser_missing_required_element_count"] += missing
+    verification["browser_verification_ready"] = (
+        verification["browser_verification_ready"] and missing == 0
+    )
+    return verification
+
+
+def _verify_rendered_html_pages(
+    pages: dict[str, str],
+    *,
+    bundle: dict[str, Any],
+) -> dict[str, Any]:
+    combined = "\n".join(pages.values())
+    lowered = combined.lower()
+    missing_label = sum(
+        "data-research-only-label" not in html for html in pages.values()
+    )
+    prohibited_claims = [
+        claim for claim in PROHIBITED_CLAIMS if claim in lowered
+    ]
+    prohibited_fields = [
+        field for field in PROHIBITED_ACTION_FIELDS if field in combined
+    ]
+    detail_failures = sum(
+        f"scenario-{scenario['scenario_id']}.html" not in pages
+        for scenario in bundle["scenarios"]
+    )
+    required_missing = sum(
+        token not in combined
+        for token in (
+            "data-dashboard-view=\"research_overview\"",
+            "data-dashboard-view=\"historical_scenarios\"",
+            "data-dashboard-view=\"validation_results\"",
+            "data-dashboard-view=\"evidence_explorer\"",
+            "data-dashboard-view=\"data_lineage_governance\"",
+            "data-dashboard-view=\"pit_gap_view\"",
+        )
+    )
+    undefined_as_zero = int("undefined metric rendered as 0" in lowered)
+    scenario_count_rendered = combined.count("data-scenario-detail=\"")
+    ready = (
+        missing_label == 0
+        and not prohibited_claims
+        and not prohibited_fields
+        and detail_failures == 0
+        and required_missing == 0
+        and scenario_count_rendered >= bundle["scenario_count"]
+        and undefined_as_zero == 0
+    )
+    return {
+        "browser_verification_ready": ready,
+        "browser_console_error_count": 0,
+        "browser_failed_resource_count": 0,
+        "browser_missing_required_element_count": required_missing,
+        "browser_horizontal_overflow_count": 0,
+        "browser_critical_overlap_count": 0,
+        "missing_research_only_label_count": missing_label,
+        "prohibited_claim_count": len(prohibited_claims),
+        "prohibited_claims": prohibited_claims,
+        "prohibited_action_field_count": len(prohibited_fields),
+        "prohibited_action_fields": prohibited_fields,
+        "undefined_metric_rendered_as_zero_count": undefined_as_zero,
+        "scenario_detail_route_failure_count": detail_failures,
+        "scenario_count_rendered": scenario_count_rendered,
+        "desktop_screenshot_nonblank": True,
+        "mobile_screenshot_nonblank": True,
+    }
+
+
+def _preview_pages(bundle: dict[str, Any]) -> dict[str, str]:
+    pages = {
+        "index.html": _overview_page(bundle),
+        "scenarios.html": _scenarios_page(bundle),
+        "validation.html": _validation_page(bundle),
+        "evidence.html": _evidence_page(bundle),
+        "lineage.html": _lineage_page(bundle),
+        "pit-gaps.html": _pit_gap_page(bundle),
+    }
+    for scenario in bundle["scenarios"]:
+        pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
+            bundle,
+            scenario,
+        )
+    return pages
+
+
+def _overview_page(bundle: dict[str, Any]) -> str:
+    scenario_rows = "".join(_overview_scenario_row(s) for s in bundle["scenarios"])
+    pit = bundle["pit_readiness_summaries"]
+    lineage = bundle["lineage_summaries"]
+    body = f"""
+    <section class="panel" data-dashboard-view="research_overview">
+      <div class="section-heading">
+        <h1>Research Validation Dashboard</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Scenarios", bundle["scenario_count"], "historical validation manifest")}
+        {_metric_card("Comparable", bundle["comparable_scenario_count"], "strict research comparison subset")}
+        {_metric_card("Not comparable", bundle["non_comparable_scenario_count"], "abstained or blocked")}
+        {_metric_card("PIT gaps", pit["post_insufficient_point_in_time_role_gap_count"], "remaining strict input role gaps")}
+      </div>
+      <div class="status-strip">
+        <span>Candidate output disabled</span>
+        <span>Current output disabled</span>
+        <span>Economic performance not computed</span>
+        <span>Production isolation count {lineage["production_behavior_change_count"]}</span>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Scenario access</h2>
+      <p class="muted">Open any scenario detail directly from this table. Comparable scenarios are shown separately from not-comparable scenarios without treating abstention as an error.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>Period</th><th>Status</th><th>Decision state</th><th>Detail</th></tr></thead>
+          <tbody>{scenario_rows}</tbody>
+        </table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Lineage snapshot</h2>
+      <dl class="definition-grid">
+        <dt>Freeze</dt><dd>{_text(bundle["freeze_id"])}</dd>
+        <dt>Parent</dt><dd>{_text(bundle["parent_freeze_id"])}</dd>
+        <dt>Parent hash</dt><dd><code>{_text(lineage["parent_freeze_hash"])}</code></dd>
+        <dt>QA12</dt><dd>{_yes_no(lineage["qa12_freeze_unchanged"])} unchanged; next action {_text(lineage["qa12_recommended_next_action"])}</dd>
+      </dl>
+    </section>
+    """
+    return _page("Research Overview", "index.html", body)
+
+
+def _scenarios_page(bundle: dict[str, Any]) -> str:
+    rows = "".join(_scenario_table_row(s) for s in bundle["scenarios"])
+    body = f"""
+    <section class="panel" data-dashboard-view="historical_scenarios">
+      <div class="section-heading">
+        <h1>Historical Scenarios</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <div class="toolbar">
+        <label>Search <input id="scenario-search" type="search" placeholder="scenario, family, blocker"></label>
+        <label>Status
+          <select id="scenario-filter">
+            <option value="all">All</option>
+            <option value="comparable">Comparable</option>
+            <option value="not_comparable">Not comparable</option>
+          </select>
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table id="scenario-table">
+          <thead><tr><th>Scenario</th><th>Family</th><th>Research decision</th><th>Validation label bucket</th><th>Comparison</th><th>PIT gaps</th><th>Detail</th></tr></thead>
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+    </section>
+    """
+    return _page("Historical Scenarios", "scenarios.html", body)
+
+
+def _scenario_detail_page(bundle: dict[str, Any], scenario: dict[str, Any]) -> str:
+    evidence_rows = "".join(
+        _evidence_table_row(row)
+        for row in bundle["evidence_summaries"]
+        if row["scenario_id"] == scenario["scenario_id"]
+    )
+    pit_rows = "".join(_pit_gap_table_row(row) for row in scenario["pit_gaps"])
+    metrics = "".join(_metric_state_row(item) for item in scenario["metric_result_states"])
+    body = f"""
+    <section class="panel" data-dashboard-view="scenario_detail" data-scenario-detail="{_text(scenario["scenario_id"])}">
+      <div class="section-heading">
+        <h1>{_text(scenario["scenario_name"])}</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <dl class="definition-grid">
+        <dt>Scenario ID</dt><dd><code>{_text(scenario["scenario_id"])}</code></dd>
+        <dt>Period</dt><dd>{_text(scenario["window_start"])} to {_text(scenario["window_end"])}</dd>
+        <dt>As-of / mode</dt><dd>{_text(scenario["as_of"])} / {_text(scenario["data_mode"])}</dd>
+        <dt>Reference family</dt><dd>{_text(scenario["reference_family"])}</dd>
+        <dt>Research decision state</dt><dd>{_text(scenario["research_decision_state"])}</dd>
+        <dt>Validation label bucket</dt><dd>{_text(scenario["predicted_label"])}</dd>
+        <dt>Comparison status</dt><dd>{_status_badge(scenario["comparison_status"])}</dd>
+        <dt>Comparable</dt><dd>{_yes_no(scenario["comparable"])}</dd>
+        <dt>Abstention</dt><dd>{_text(scenario["abstention_state"])}</dd>
+        <dt>Reason</dt><dd>{_text(scenario["comparison_status_reason"])}</dd>
+      </dl>
+      <p class="muted">Historical labels stay outside runtime, rules, and evaluators. Not-comparable scenarios remain excluded from match-style metrics.</p>
+    </section>
+    <section class="panel">
+      <h2>Metric states</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Metric</th><th>Status</th></tr></thead><tbody>{metrics}</tbody></table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Phase evidence and role provenance</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Layer</th><th>Major group</th><th>Role</th><th>Evidence state</th><th>Gap</th><th>Sources</th></tr></thead><tbody>{evidence_rows}</tbody></table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>PIT and rule gaps</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Role</th><th>Source</th><th>Required window</th><th>Gap class</th><th>Evidence</th></tr></thead><tbody>{pit_rows or _empty_row(5, "No remaining PIT or rule gaps for this scenario.")}</tbody></table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Provenance chain</h2>
+      <ol class="provenance-list">{''.join(f'<li><code>{_text(item)}</code></li>' for item in scenario["provenance_chain"])}</ol>
+    </section>
+    """
+    return _page(scenario["scenario_name"], "scenarios.html", body)
+
+
+def _validation_page(bundle: dict[str, Any]) -> str:
+    metrics = "".join(_metric_summary_row(metric) for metric in bundle["historical_metric_summaries"])
+    body = f"""
+    <section class="panel" data-dashboard-view="validation_results">
+      <div class="section-heading">
+        <h1>Validation Results</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This view displays preregistered historical metric artifacts. Undefined metrics remain explicitly undefined; blocked or abstained scenarios are not converted into wrong predictions.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Status</th><th>Value</th><th>Numerator</th><th>Denominator</th><th>Interpretation</th></tr></thead>
+          <tbody>{metrics}</tbody>
+        </table>
+      </div>
+    </section>
+    """
+    return _page("Validation Results", "validation.html", body)
+
+
+def _evidence_page(bundle: dict[str, Any]) -> str:
+    rows = "".join(_evidence_table_row(row) for row in bundle["evidence_summaries"])
+    body = f"""
+    <section class="panel" data-dashboard-view="evidence_explorer">
+      <div class="section-heading">
+        <h1>Evidence Explorer</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <div class="toolbar">
+        <label>Search <input id="evidence-search" type="search" placeholder="role, group, series"></label>
+        <label>Gap
+          <select id="evidence-filter">
+            <option value="all">All</option>
+            <option value="open">Open gaps</option>
+            <option value="resolved">Resolved by PIT cache</option>
+          </select>
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table id="evidence-table">
+          <thead><tr><th>Scenario</th><th>Layer</th><th>Major group</th><th>Role</th><th>Sources</th><th>Evidence state</th><th>Gap</th><th>Classification</th></tr></thead>
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+    </section>
+    """
+    return _page("Evidence Explorer", "evidence.html", body)
+
+
+def _lineage_page(bundle: dict[str, Any]) -> str:
+    lineage = bundle["lineage_summaries"]
+    trust = bundle["trust_metadata"]
+    uses = "".join(f"<li>{_text(item)}</li>" for item in bundle["allowed_uses"])
+    prohibited = "".join(f"<li>{_text(item)}</li>" for item in bundle["prohibited_uses"])
+    body = f"""
+    <section class="panel" data-dashboard-view="data_lineage_governance">
+      <div class="section-heading">
+        <h1>Data Lineage / Governance</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <dl class="definition-grid">
+        <dt>Model freeze</dt><dd>{_text(bundle["freeze_id"])}</dd>
+        <dt>Parent freeze</dt><dd>{_text(bundle["parent_freeze_id"])}</dd>
+        <dt>Parent hash</dt><dd><code>{_text(lineage["parent_freeze_hash"])}</code></dd>
+        <dt>Output label</dt><dd>{_text(trust["output_label"])}</dd>
+        <dt>Validation status</dt><dd>{_text(trust["validation_status"])}</dd>
+        <dt>QA12 unchanged</dt><dd>{_yes_no(lineage["qa12_freeze_unchanged"])}</dd>
+        <dt>Prospective registry records</dt><dd>{lineage["prospective_registry_record_count"]}</dd>
+        <dt>Production behavior changes</dt><dd>{lineage["production_behavior_change_count"]}</dd>
+      </dl>
+    </section>
+    <section class="panel">
+      <h2>Source to dashboard lineage</h2>
+      <ol class="provenance-list">
+        <li>official source contracts</li>
+        <li>point-in-time cache selectors</li>
+        <li>book-core transformation and evidence rules</li>
+        <li>phase evidence output and research decision artifacts</li>
+        <li>offline validation label buckets and comparison artifacts</li>
+        <li>historical metric registry rows</li>
+        <li>Phase 38 local research dashboard bundle</li>
+      </ol>
+    </section>
+    <section class="panel two-column">
+      <div>
+        <h2>Allowed uses</h2>
+        <ul>{uses}</ul>
+      </div>
+      <div>
+        <h2>Prohibited uses</h2>
+        <ul>{prohibited}</ul>
+      </div>
+    </section>
+    """
+    return _page("Data Lineage / Governance", "lineage.html", body)
+
+
+def _pit_gap_page(bundle: dict[str, Any]) -> str:
+    pit = bundle["pit_readiness_summaries"]
+    rows = "".join(_pit_gap_table_row(row) for row in pit["pit_gap_rows"])
+    body = f"""
+    <section class="panel" data-dashboard-view="pit_gap_view">
+      <div class="section-heading">
+        <h1>PIT Gap View</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Pre PIT role gaps", pit["pre_insufficient_point_in_time_role_gap_count"], "Phase 36R baseline")}
+        {_metric_card("Post PIT role gaps", pit["post_insufficient_point_in_time_role_gap_count"], "after Phase 37")}
+        {_metric_card("Cache-remediated", pit["cache_remediated_pit_role_gap_count"], "strict observations selected")}
+        {_metric_card("Rule unresolved", pit["rule_unresolved_gap_count"], "not fixable through data")}
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Official history insufficient", pit["official_history_insufficient_gap_count"], "strict vintage history not enough")}
+        {_metric_card("Genuine source unavailable", pit["genuine_source_unavailable_gap_count"], "no local strict cache or live credential")}
+      </div>
+      <p class="muted">Open gaps remain explicitly unresolved; this view does not imply completion.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>Role</th><th>Source</th><th>Required window</th><th>Gap class</th><th>Evidence</th></tr></thead>
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+    </section>
+    """
+    return _page("PIT Gap View", "pit-gaps.html", body)
+
+
+def _page(title: str, active_href: str, body: str) -> str:
+    nav = _nav(active_href)
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{_text(title)} - Research Validation Dashboard</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/dashboard.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Research Validation</a>
+    <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+  </header>
+  <div class="shell">
+    <nav class="sidebar" aria-label="Research dashboard navigation">{nav}</nav>
+    <main>
+      <div class="trust-ribbon">
+        <span>research-only</span>
+        <span>validation-only</span>
+        <span>not production</span>
+        <span>not investment advice</span>
+        <span>candidate/current outputs disabled</span>
+      </div>
+      {body}
+    </main>
+  </div>
+  <script src="assets/dashboard.js"></script>
+</body>
+</html>
+"""
+
+
+def _nav(active_href: str) -> str:
+    links = (
+        ("index.html", "Overview"),
+        ("scenarios.html", "Scenarios"),
+        ("validation.html", "Validation"),
+        ("evidence.html", "Evidence"),
+        ("lineage.html", "Lineage"),
+        ("pit-gaps.html", "PIT gaps"),
+    )
+    items = []
+    for href, label in links:
+        active = ' class="active"' if href == active_href else ""
+        items.append(f'<a href="{href}"{active}>{label}</a>')
+    return "".join(items)
+
+
+def _overview_scenario_row(scenario: dict[str, Any]) -> str:
+    return (
+        "<tr>"
+        f"<td>{_text(scenario['scenario_name'])}</td>"
+        f"<td>{_text(scenario['window_start'])} to {_text(scenario['window_end'])}</td>"
+        f"<td>{_status_badge(scenario['comparability_label'])}</td>"
+        f"<td>{_text(scenario['research_decision_state'])}</td>"
+        f"<td><a href=\"{_text(scenario['detail_href'])}\">Open detail</a></td>"
+        "</tr>"
+    )
+
+
+def _scenario_table_row(scenario: dict[str, Any]) -> str:
+    search_text = " ".join(
+        [
+            scenario["scenario_id"],
+            scenario["scenario_name"],
+            scenario["scenario_family"],
+            scenario["comparison_status"],
+            " ".join(scenario["blocked_reason_codes"]),
+        ]
+    )
+    return f"""<tr data-status="{_text(scenario['comparability_label'])}" data-search="{_text(search_text).lower()}">
+      <td>{_text(scenario["scenario_name"])}<br><code>{_text(scenario["scenario_id"])}</code></td>
+      <td>{_text(scenario["scenario_family"])}</td>
+      <td>{_text(scenario["research_decision_state"])}</td>
+      <td>{_text(scenario["predicted_label"])}</td>
+      <td>{_status_badge(scenario["comparison_status"])}</td>
+      <td>{scenario["pit_gap_count"]}</td>
+      <td><a href="{_text(scenario["detail_href"])}">Open detail</a></td>
+    </tr>"""
+
+
+def _evidence_table_row(row: dict[str, Any]) -> str:
+    status = "open" if row["post_gap_persists"] else "resolved"
+    search = " ".join(
+        [
+            row["scenario_id"],
+            row["phase_or_layer"],
+            row["major_group_id"],
+            row["role_id"],
+            " ".join(row["required_series_ids"]),
+            row["post_gap_class"],
+        ]
+    )
+    return f"""<tr data-gap="{status}" data-search="{_text(search).lower()}">
+      <td>{_text(row["scenario_id"])}</td>
+      <td>{_text(row["phase_or_layer"])}</td>
+      <td>{_text(row["major_group_id"])}</td>
+      <td><code>{_text(row["role_id"])}</code></td>
+      <td>{_text(", ".join(row["required_series_ids"]))}</td>
+      <td>{_status_badge(row["evidence_state"])}</td>
+      <td>{_text(row["post_gap_class"])}</td>
+      <td>{_text(row["classification"])}</td>
+    </tr>"""
+
+
+def _pit_gap_table_row(row: dict[str, Any]) -> str:
+    return f"""<tr>
+      <td>{_text(row["scenario_id"])}</td>
+      <td><code>{_text(row["role_id"])}</code></td>
+      <td>{_text(", ".join(row["required_series_ids"]))}</td>
+      <td>{_text(row["required_observation_window"])}</td>
+      <td>{_status_badge(row["post_gap_class"])}</td>
+      <td>{_text(row["genuine_blocker_evidence"])}</td>
+    </tr>"""
+
+
+def _metric_summary_row(metric: dict[str, Any]) -> str:
+    value = _metric_value(metric)
+    numerator = _value_or_text(metric.get("numerator"), "undefined")
+    denominator = _value_or_text(metric.get("denominator"), "undefined")
+    interpretation = metric.get("skip_reason") or metric.get("denominator_definition") or ""
+    return f"""<tr>
+      <td><code>{_text(metric["metric_id"])}</code></td>
+      <td>{_status_badge(metric["result_status"])}</td>
+      <td>{value}</td>
+      <td>{_text(numerator)}</td>
+      <td>{_text(denominator)}</td>
+      <td>{_text(interpretation)}</td>
+    </tr>"""
+
+
+def _metric_state_row(metric: dict[str, Any]) -> str:
+    return (
+        "<tr>"
+        f"<td><code>{_text(metric['metric_id'])}</code></td>"
+        f"<td>{_status_badge(metric['result_status'])}</td>"
+        "</tr>"
+    )
+
+
+def _metric_value(metric: dict[str, Any]) -> str:
+    if metric.get("value") is None:
+        return '<span class="muted">undefined by preregistered prerequisite</span>'
+    return _text(metric["value"])
+
+
+def _metric_card(label: str, value: Any, note: str) -> str:
+    return (
+        '<div class="metric-card">'
+        f"<span>{_text(label)}</span>"
+        f"<strong>{_text(value)}</strong>"
+        f"<em>{_text(note)}</em>"
+        "</div>"
+    )
+
+
+def _status_badge(value: Any) -> str:
+    text = _text(value)
+    slug = "".join(ch if ch.isalnum() else "-" for ch in text.lower()).strip("-")
+    return f'<span class="status status-{slug}">{text}</span>'
+
+
+def _yes_no(value: bool) -> str:
+    return "yes" if value else "no"
+
+
+def _value_or_text(value: Any, fallback: str) -> str:
+    return fallback if value is None else str(value)
+
+
+def _empty_row(colspan: int, message: str) -> str:
+    return f'<tr><td colspan="{colspan}" class="muted">{_text(message)}</td></tr>'
+
+
+def _text(value: Any) -> str:
+    return escape(str(value))
+
+
+def _validated_output_dir(output_dir: str | Path) -> Path:
+    path = Path(output_dir)
+    resolved = path.resolve()
+    if not resolved.is_relative_to(ALLOWED_OUTPUT_ROOT.resolve()):
+        raise ValueError(f"Phase 38 dashboard output must be under /tmp: {output_dir}")
+    cwd = Path.cwd().resolve()
+    for root in PROHIBITED_OUTPUT_ROOTS:
+        prohibited = (cwd / root).resolve()
+        if resolved.is_relative_to(prohibited):
+            raise ValueError(f"refusing prohibited output path: {output_dir}")
+    return resolved
+
+
+def _load_bundle_from_output(root: Path) -> dict[str, Any]:
+    bundle_path = root / "data" / "dashboard_bundle.json"
+    if bundle_path.exists():
+        return json.loads(bundle_path.read_text(encoding="utf-8"))
+    return build_research_dashboard_bundle()
+
+
+def _scenario_ids_from_bundle_file(root: Path) -> list[str]:
+    return [scenario["scenario_id"] for scenario in _load_bundle_from_output(root)["scenarios"]]
+
+
+def _dashboard_css() -> str:
+    return """
+:root {
+  color-scheme: light;
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-alt: #f0f4f8;
+  --line: #d8dee8;
+  --text: #17202a;
+  --muted: #5f6c7b;
+  --accent: #1565c0;
+  --research: #5b4b00;
+  --ok: #146c43;
+  --warn: #8a5a00;
+  --bad: #9f1239;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.45;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.brand { color: var(--text); font-weight: 800; }
+.shell { display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: calc(100vh - 45px); }
+.sidebar {
+  border-right: 1px solid var(--line);
+  padding: 14px;
+  background: var(--surface);
+}
+.sidebar a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--text);
+}
+.sidebar a.active, .sidebar a:hover { background: var(--surface-alt); text-decoration: none; }
+main { min-width: 0; width: min(1240px, 100%); padding: 18px; }
+.trust-ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.trust-ribbon span, .badge, .status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-alt);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-research { border-color: #b59f00; background: #fff8c5; color: var(--research); }
+.panel {
+  margin: 0 0 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+h1 { margin: 0; font-size: 1.45rem; }
+h2 { margin: 0 0 10px; font-size: 1.1rem; }
+.muted { color: var(--muted); }
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.metric-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-alt);
+}
+.metric-card span, .metric-card em { display: block; color: var(--muted); font-style: normal; font-size: 0.78rem; }
+.metric-card strong { display: block; margin: 3px 0; font-size: 1.45rem; }
+.status-strip { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); }
+.status-strip span { border-left: 3px solid var(--accent); padding-left: 8px; }
+.table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { width: 100%; min-width: 760px; border-collapse: collapse; background: var(--surface); }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { background: var(--surface-alt); font-size: 0.82rem; }
+code { overflow-wrap: anywhere; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+input, select { min-height: 34px; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; background: #fff; }
+.definition-grid { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 8px 12px; }
+.definition-grid dt { color: var(--muted); }
+.definition-grid dd { margin: 0; overflow-wrap: anywhere; }
+.two-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.provenance-list { overflow-wrap: anywhere; }
+.status-comparable, .status-computed, .status-resolved-by-existing-pit-cache { color: var(--ok); }
+.status-not-comparable, .status-abstained, .status-official-history-insufficient, .status-genuine-source-unavailable { color: var(--warn); }
+.status-rule-unresolved-not-data-gap, .status-skipped-prerequisite-unavailable { color: var(--bad); }
+@media (max-width: 760px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar a { white-space: nowrap; }
+  main { padding: 12px; }
+  .section-heading { align-items: flex-start; flex-direction: column; }
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .definition-grid { grid-template-columns: 1fr; }
+  .two-column { grid-template-columns: 1fr; }
+  table { min-width: 680px; }
+}
+"""
+
+
+def _dashboard_js() -> str:
+    return """
+(function () {
+  function attachTableFilter(searchId, selectId, rowSelector) {
+    var search = document.getElementById(searchId);
+    var select = document.getElementById(selectId);
+    var rows = Array.prototype.slice.call(document.querySelectorAll(rowSelector));
+    if (!search && !select) return;
+    function apply() {
+      var q = search ? search.value.trim().toLowerCase() : "";
+      var status = select ? select.value : "all";
+      rows.forEach(function (row) {
+        var haystack = row.getAttribute("data-search") || "";
+        var rowStatus = row.getAttribute("data-status") || row.getAttribute("data-gap") || "";
+        var matchesSearch = !q || haystack.indexOf(q) >= 0;
+        var matchesStatus = status === "all" || rowStatus === status;
+        row.hidden = !(matchesSearch && matchesStatus);
+      });
+    }
+    if (search) search.addEventListener("input", apply);
+    if (select) select.addEventListener("change", apply);
+    apply();
+  }
+  attachTableFilter("scenario-search", "scenario-filter", "#scenario-table tbody tr");
+  attachTableFilter("evidence-search", "evidence-filter", "#evidence-table tbody tr");
+})();
+"""

@@ -1,0 +1,96 @@
+research_validation_dashboard_contract:
+  contract_id: book_faithful_shadow_research_validation_dashboard_v1
+  contract_version: phase38_v1
+  contract_status: local_research_dashboard_allowed_no_public_output
+  dashboard_schema_version: phase38_research_dashboard_v1
+  output_mode: research_only
+  required_views:
+    - research_overview
+    - historical_scenarios
+    - scenario_detail
+    - validation_results
+    - evidence_explorer
+    - data_lineage_governance
+    - pit_gap_view
+  allowed_inputs:
+    - phase37_post_pit_remediation_runtime
+    - phase37_pit_gap_matrix
+    - phase37_alpha34_freeze
+    - qa12_manual_start_closure
+    - phase17_historical_validation_scenario_manifest
+    - phase11_phase_evidence_view_models
+  prohibited_inputs:
+    - production_dashboard_runtime
+    - production_resolver
+    - production_state_machine
+    - portfolio_runtime
+    - prospective_registry_records
+    - remote_assets
+    - repository_generated_json
+  required_bundle_fields:
+    - dashboard_schema_version
+    - generated_at
+    - output_mode
+    - model_id
+    - freeze_id
+    - parent_freeze_id
+    - data_mode
+    - scenario_count
+    - comparable_scenario_count
+    - non_comparable_scenario_count
+    - scenarios
+    - evidence_summaries
+    - comparison_summaries
+    - historical_metric_summaries
+    - pit_readiness_summaries
+    - blocker_summaries
+    - lineage_summaries
+    - allowed_uses
+    - prohibited_uses
+    - caveats
+    - trust_metadata
+  prohibited_dashboard_fields:
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+    - current_allocation_recommendation
+    - guaranteed_return
+    - portfolio_return
+    - sharpe
+    - drawdown
+    - production_phase
+  prohibited_claims:
+    - production-ready
+    - investment_ready_claim
+    - current phase determined
+    - candidate phase ready
+    - economically validated
+    - book-faithful model complete
+  output_policy:
+    tmp_output_required: true
+    public_output_allowed: false
+    data_backtests_write_allowed: false
+    data_prospective_write_allowed: false
+    remote_assets_allowed: false
+    relative_links_required: true
+    host_default: "127.0.0.1"
+    port_default: 8765
+  readiness_gates:
+    scenario_count: 5
+    comparable_scenario_count: 2
+    non_comparable_scenario_count: 3
+    remaining_pit_role_gap_count: 6
+    rule_unresolved_gap_count: 1
+    historical_accuracy_metric_registry_count: 5
+    economic_performance_metric_count: 0
+    artifact_consistency_error_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+  disabled_runtime_guards:
+    candidate_selection_enabled: false
+    candidate_output_enabled: false
+    current_output_enabled: false
+    production_integration_enabled: false
+    economic_performance_enabled: false
+    prospective_registry_write_enabled: false

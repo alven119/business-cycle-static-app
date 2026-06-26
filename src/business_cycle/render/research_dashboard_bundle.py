@@ -1,0 +1,581 @@
+"""Phase 38 research validation dashboard bundle builder."""
+
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+from business_cycle.audits.shadow_recession_recovery_pit_remediation_freeze import (
+    summarize_shadow_recession_recovery_pit_remediation_freeze,
+)
+from business_cycle.audits.qa12_major_group_manual_start_closure import (
+    summarize_qa12_major_group_manual_start_closure,
+)
+from business_cycle.render.phase_evidence_view_models import (
+    build_data_lineage_view_model,
+    build_indicator_explorer_view_model,
+    build_phase_analysis_view_model,
+    build_transition_risk_view_model,
+)
+from business_cycle.validation.post_pit_remediation_validation_rerun import (
+    build_post_pit_remediation_validation_rerun,
+)
+from business_cycle.validation.recession_recovery_pit_gap_matrix import (
+    summarize_recession_recovery_pit_gap_matrix,
+)
+
+
+DEFAULT_DASHBOARD_CONTRACT_PATH = Path(
+    "specs/common/research_validation_dashboard_contract.yaml"
+)
+DEFAULT_SCENARIO_MANIFEST_PATH = Path(
+    "specs/audits/historical_validation_scenario_manifest.yaml"
+)
+GENERATED_AT_UTC = "2026-06-26T00:00:00Z"
+SCHEMA_VERSION = "phase38_research_dashboard_v1"
+FREEZE_ID = "book_faithful_shadow_v2_alpha35"
+PARENT_FREEZE_ID = "book_faithful_shadow_v2_alpha34"
+COMPARABLE_SCENARIO_IDS = (
+    "euro_debt_slowdown_2011_2012",
+    "late_cycle_2018_2019",
+)
+NON_COMPARABLE_SCENARIO_IDS = (
+    "dotcom_cycle_2000_2003",
+    "global_financial_crisis_2007_2009",
+    "covid_recession_2020",
+)
+VIEW_IDS = (
+    "research_overview",
+    "historical_scenarios",
+    "validation_results",
+    "evidence_explorer",
+    "data_lineage_governance",
+    "pit_gap_view",
+    "scenario_detail",
+)
+PROHIBITED_ACTION_FIELDS = {
+    "buy_signal",
+    "sell_signal",
+    "target_weight",
+    "trade_action",
+    "current_allocation_recommendation",
+    "guaranteed_return",
+    "portfolio_return",
+    "sharpe",
+    "drawdown",
+    "production_phase",
+}
+
+
+def load_research_validation_dashboard_contract(
+    path: str | Path = DEFAULT_DASHBOARD_CONTRACT_PATH,
+) -> dict[str, Any]:
+    payload = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("research validation dashboard contract must map")
+    contract = payload.get("research_validation_dashboard_contract")
+    if not isinstance(contract, dict):
+        raise ValueError("research_validation_dashboard_contract must be a mapping")
+    return contract
+
+
+@lru_cache(maxsize=1)
+def build_research_dashboard_bundle() -> dict[str, Any]:
+    contract = load_research_validation_dashboard_contract()
+    run = build_post_pit_remediation_validation_rerun()
+    matrix = run["remediation_run"]["pit_gap_matrix"]
+    matrix_summary = summarize_recession_recovery_pit_gap_matrix()
+    scenario_manifest = _load_scenario_manifest()
+    scenarios = _scenario_summaries(run=run, scenario_manifest=scenario_manifest)
+    comparable = [item for item in scenarios if item["comparable"] is True]
+    non_comparable = [item for item in scenarios if item["comparable"] is False]
+    evidence_rows = _evidence_summaries(matrix)
+    pit_rows = _pit_gap_rows(matrix)
+    metrics = _metric_summaries(run["metric_run"]["metric_results"])
+    alpha34 = summarize_shadow_recession_recovery_pit_remediation_freeze()
+    qa12 = summarize_qa12_major_group_manual_start_closure()
+    comparison_status_counts = Counter(
+        scenario["comparison_status"] for scenario in scenarios
+    )
+    bundle = {
+        "dashboard_schema_version": SCHEMA_VERSION,
+        "generated_at": GENERATED_AT_UTC,
+        "output_mode": "research_only",
+        "model_id": FREEZE_ID,
+        "freeze_id": FREEZE_ID,
+        "parent_freeze_id": PARENT_FREEZE_ID,
+        "data_mode": "vintage_as_of",
+        "scenario_count": len(scenarios),
+        "comparable_scenario_count": len(comparable),
+        "non_comparable_scenario_count": len(non_comparable),
+        "comparable_scenario_ids": [item["scenario_id"] for item in comparable],
+        "non_comparable_scenario_ids": [
+            item["scenario_id"] for item in non_comparable
+        ],
+        "dashboard_view_count": len(VIEW_IDS),
+        "views": [{"view_id": view_id, "title": _view_title(view_id)} for view_id in VIEW_IDS],
+        "scenarios": scenarios,
+        "evidence_summaries": evidence_rows,
+        "comparison_summaries": {
+            "status_counts": dict(sorted(comparison_status_counts.items())),
+            "artifact_count": run["comparison_run"][
+                "label_comparison_artifact_count"
+            ],
+            "label_comparison_executed": True,
+            "label_used_by_runtime_count": run["comparison_run"][
+                "label_used_by_runtime_count"
+            ],
+        },
+        "historical_metric_summaries": metrics,
+        "pit_readiness_summaries": {
+            "pre_insufficient_point_in_time_role_gap_count": run[
+                "pre_insufficient_point_in_time_role_gap_count"
+            ],
+            "post_insufficient_point_in_time_role_gap_count": run[
+                "post_insufficient_point_in_time_role_gap_count"
+            ],
+            "cache_remediated_pit_role_gap_count": matrix_summary[
+                "cache_remediated_pit_role_gap_count"
+            ],
+            "official_history_insufficient_gap_count": matrix_summary[
+                "official_history_insufficient_gap_count"
+            ],
+            "genuine_source_unavailable_gap_count": matrix_summary[
+                "genuine_source_unavailable_gap_count"
+            ],
+            "rule_unresolved_gap_count": matrix_summary["rule_unresolved_gap_count"],
+            "pit_gap_rows": pit_rows,
+        },
+        "blocker_summaries": {
+            "remaining_non_comparable_scenario_ids": run["remediation_run"][
+                "remaining_non_comparable_scenario_ids"
+            ],
+            "blockage_reason_summary": run["diagnostics_run"][
+                "blockage_diagnostics_artifact"
+            ]["blockage_reason_summary"],
+            "abstention_reason_summary": run["diagnostics_run"][
+                "blockage_diagnostics_artifact"
+            ]["abstention_reason_summary"],
+            "metric_skip_reason_summary": run["diagnostics_run"][
+                "blockage_diagnostics_artifact"
+            ]["metric_skip_reason_summary"],
+        },
+        "lineage_summaries": {
+            "freeze_id": FREEZE_ID,
+            "parent_freeze_id": PARENT_FREEZE_ID,
+            "parent_freeze_hash": alpha34["freeze_manifest_hash"],
+            "alpha34_parent_preserved": alpha34["alpha33_parent_preserved"],
+            "qa12_freeze_unchanged": alpha34["qa12_freeze_unchanged"],
+            "qa12_recommended_next_action": qa12["recommended_next_action"],
+            "prospective_registry_record_count": qa12["real_registry_record_count"],
+            "real_registry_write_attempt_count": qa12[
+                "real_registry_write_attempt_count"
+            ],
+            "production_behavior_change_count": 0,
+        },
+        "phase_evidence_view_models": {
+            "phase_analysis": build_phase_analysis_view_model(),
+            "transition_risk": build_transition_risk_view_model(),
+            "indicator_explorer": build_indicator_explorer_view_model(),
+            "data_lineage": build_data_lineage_view_model(),
+        },
+        "allowed_uses": [
+            "local_research_dashboard",
+            "historical_validation_diagnostics",
+            "evidence_review",
+            "lineage_review",
+        ],
+        "prohibited_uses": [
+            "production_decision",
+            "candidate_or_current_phase_selection",
+            "portfolio_or_trade_decision",
+            "economic_validation_claim",
+            "public_output",
+        ],
+        "caveats": [
+            "research-only local dashboard",
+            "partial comparability: two comparable and three not comparable scenarios",
+            "economic performance metrics are not computed",
+            "candidate and current phase outputs remain disabled",
+            "production dashboard remains isolated",
+        ],
+        "trust_metadata": {
+            "data_last_updated_at": GENERATED_AT_UTC,
+            "data_completeness": "partial_comparability",
+            "stale_or_missing_status": "explicit_pit_and_rule_gaps",
+            "model_version": FREEZE_ID,
+            "freeze_id": FREEZE_ID,
+            "validation_status": (
+                "research_dashboard_available_partial_comparability_no_performance"
+            ),
+            "output_label": "research_only",
+            "allowed_uses": ["local_research_dashboard", "diagnostics"],
+            "prohibited_uses": [
+                "production_decision",
+                "portfolio_or_trade_decision",
+                "economic_validation_claim",
+            ],
+        },
+        "safety_counters": {
+            "economic_performance_metric_count": run[
+                "economic_performance_metric_count"
+            ],
+            "candidate_output_emitted": False,
+            "current_output_emitted": False,
+            "label_used_by_runtime_count": run["label_used_by_runtime_count"],
+            "production_behavior_change_count": 0,
+            "prospective_registry_record_count": 0,
+            "real_registry_write_attempt_count": 0,
+        },
+        "source_runs": {
+            "phase37_post_pit": run["run_id"],
+            "phase37_pit_remediation": run["remediation_run"]["run_id"],
+            "phase37_pit_gap_matrix": matrix["run_id"],
+        },
+        "contract": contract,
+    }
+    validation = validate_research_dashboard_bundle(bundle, contract=contract)
+    bundle["artifact_consistency"] = validation
+    return bundle
+
+
+def summarize_research_dashboard_bundle() -> dict[str, Any]:
+    bundle = build_research_dashboard_bundle()
+    validation = bundle["artifact_consistency"]
+    return {
+        "research_dashboard_contract_ready": validate_research_dashboard_contract(
+            bundle["contract"]
+        )["contract_schema_valid"],
+        "research_dashboard_bundle_ready": validation["bundle_schema_valid"],
+        "dashboard_view_count": bundle["dashboard_view_count"],
+        "scenario_count": bundle["scenario_count"],
+        "comparable_scenario_count": bundle["comparable_scenario_count"],
+        "non_comparable_scenario_count": bundle["non_comparable_scenario_count"],
+        "comparable_scenario_ids": bundle["comparable_scenario_ids"],
+        "non_comparable_scenario_ids": bundle["non_comparable_scenario_ids"],
+        "remaining_pit_role_gap_count": bundle["pit_readiness_summaries"][
+            "post_insufficient_point_in_time_role_gap_count"
+        ],
+        "rule_unresolved_gap_count": bundle["pit_readiness_summaries"][
+            "rule_unresolved_gap_count"
+        ],
+        "historical_accuracy_metric_registry_count": len(
+            bundle["historical_metric_summaries"]
+        ),
+        "economic_performance_metric_count": bundle["safety_counters"][
+            "economic_performance_metric_count"
+        ],
+        "artifact_consistency_error_count": validation[
+            "artifact_consistency_error_count"
+        ],
+        "missing_trust_metadata_count": validation["missing_trust_metadata_count"],
+        "prohibited_action_field_count": validation["prohibited_action_field_count"],
+        "candidate_phase_emitted": False,
+        "current_phase_emitted": False,
+        "label_used_by_runtime_count": bundle["safety_counters"][
+            "label_used_by_runtime_count"
+        ],
+        "production_behavior_change_count": 0,
+        "prospective_registry_record_count": 0,
+        "real_registry_write_attempt_count": 0,
+        "bundle": bundle,
+    }
+
+
+def validate_research_dashboard_contract(contract: dict[str, Any]) -> dict[str, Any]:
+    required = (
+        "contract_id",
+        "contract_version",
+        "contract_status",
+        "dashboard_schema_version",
+        "output_mode",
+        "required_views",
+        "allowed_inputs",
+        "prohibited_inputs",
+        "required_bundle_fields",
+        "prohibited_dashboard_fields",
+        "prohibited_claims",
+        "output_policy",
+        "readiness_gates",
+        "disabled_runtime_guards",
+    )
+    missing = [key for key in required if key not in contract]
+    output = contract.get("output_policy", {})
+    guards = contract.get("disabled_runtime_guards", {})
+    schema_valid = (
+        not missing
+        and contract.get("contract_status")
+        == "local_research_dashboard_allowed_no_public_output"
+        and contract.get("output_mode") == "research_only"
+        and len(contract.get("required_views", [])) >= 7
+        and output.get("tmp_output_required") is True
+        and output.get("public_output_allowed") is False
+        and output.get("remote_assets_allowed") is False
+        and all(value is False for value in guards.values())
+    )
+    return {
+        "contract_schema_valid": schema_valid,
+        "missing_contract_key_count": len(missing),
+        "missing_contract_keys": missing,
+    }
+
+
+def validate_research_dashboard_bundle(
+    bundle: dict[str, Any],
+    *,
+    contract: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    contract = contract or load_research_validation_dashboard_contract()
+    missing_fields = [
+        field for field in contract["required_bundle_fields"] if field not in bundle
+    ]
+    consistency_errors: list[str] = []
+    if bundle.get("scenario_count") != 5:
+        consistency_errors.append("scenario_count")
+    if bundle.get("comparable_scenario_count") != 2:
+        consistency_errors.append("comparable_scenario_count")
+    if bundle.get("non_comparable_scenario_count") != 3:
+        consistency_errors.append("non_comparable_scenario_count")
+    if tuple(bundle.get("comparable_scenario_ids", ())) != COMPARABLE_SCENARIO_IDS:
+        consistency_errors.append("comparable_scenario_ids")
+    if tuple(bundle.get("non_comparable_scenario_ids", ())) != NON_COMPARABLE_SCENARIO_IDS:
+        consistency_errors.append("non_comparable_scenario_ids")
+    pit = bundle.get("pit_readiness_summaries", {})
+    if pit.get("post_insufficient_point_in_time_role_gap_count") != 6:
+        consistency_errors.append("remaining_pit_role_gap_count")
+    if pit.get("rule_unresolved_gap_count") != 1:
+        consistency_errors.append("rule_unresolved_gap_count")
+    if len(bundle.get("historical_metric_summaries", [])) != 5:
+        consistency_errors.append("historical_metric_registry_count")
+    if bundle.get("safety_counters", {}).get("economic_performance_metric_count") != 0:
+        consistency_errors.append("economic_performance_metric_count")
+    trust_missing = 0 if bundle.get("trust_metadata") else 1
+    prohibited_count = _contains_prohibited_action_field(bundle)
+    schema_valid = (
+        not missing_fields
+        and not consistency_errors
+        and trust_missing == 0
+        and prohibited_count == 0
+        and bundle.get("output_mode") == "research_only"
+    )
+    return {
+        "bundle_schema_valid": schema_valid,
+        "missing_bundle_field_count": len(missing_fields),
+        "missing_bundle_fields": missing_fields,
+        "artifact_consistency_error_count": len(consistency_errors),
+        "artifact_consistency_errors": consistency_errors,
+        "missing_trust_metadata_count": trust_missing,
+        "prohibited_action_field_count": prohibited_count,
+    }
+
+
+def _scenario_summaries(
+    *,
+    run: dict[str, Any],
+    scenario_manifest: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    research = _by_scenario(run["research_run"]["research_decision_outputs"])
+    predicted = _by_scenario(run["predicted_run"]["offline_predicted_label_artifacts"])
+    comparison = _by_scenario(
+        run["comparison_run"]["predicted_label_comparison_artifacts"]
+    )
+    traces = _by_scenario(run["trace_run"]["scenario_validation_traces"])
+    pit_gaps = _pit_gaps_by_scenario(run["remediation_run"]["pit_gap_matrix"])
+    scenarios: list[dict[str, Any]] = []
+    for scenario_id in sorted(scenario_manifest):
+        manifest_row = scenario_manifest[scenario_id]
+        comparison_row = comparison[scenario_id]
+        trace = traces[scenario_id]
+        gaps = pit_gaps.get(scenario_id, [])
+        comparable = bool(comparison_row["comparable"])
+        scenarios.append(
+            {
+                "scenario_id": scenario_id,
+                "scenario_name": _scenario_title(scenario_id),
+                "window_start": manifest_row["validation_window_start"],
+                "window_end": manifest_row["validation_window_end"],
+                "scenario_family": manifest_row["scenario_family"],
+                "reference_family": comparison_row["reference_label_set"][
+                    "scenario_family"
+                ],
+                "as_of": comparison_row["as_of"],
+                "data_mode": comparison_row["data_mode"],
+                "research_decision_state": research[scenario_id]["decision_state"],
+                "predicted_label": predicted[scenario_id]["predicted_label"],
+                "comparison_status": comparison_row["comparison_status"],
+                "comparison_status_reason": comparison_row[
+                    "comparison_status_reason"
+                ],
+                "comparable": comparable,
+                "comparability_label": "comparable" if comparable else "not_comparable",
+                "abstention_state": comparison_row["abstention_state"],
+                "blocked_reason_codes": comparison_row["blocked_reason_codes"],
+                "metric_result_states": trace["metric_result_states"],
+                "evidence_completeness_summary": predicted[scenario_id][
+                    "evidence_completeness_summary"
+                ],
+                "pit_gap_count": len(gaps),
+                "rule_unresolved_gap_count": sum(
+                    1
+                    for gap in gaps
+                    if gap["post_gap_class"] == "rule_unresolved_not_data_gap"
+                ),
+                "pit_gaps": gaps,
+                "provenance_chain": trace["provenance_chain"],
+                "detail_href": f"scenario-{scenario_id}.html",
+                "allowed_uses": research[scenario_id]["allowed_uses"],
+                "prohibited_uses": research[scenario_id]["prohibited_uses"],
+                "trust_metadata": research[scenario_id]["trust_metadata"],
+            }
+        )
+    return _ordered_scenarios(scenarios)
+
+
+def _ordered_scenarios(scenarios: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    order = {
+        "dotcom_cycle_2000_2003": 0,
+        "global_financial_crisis_2007_2009": 1,
+        "covid_recession_2020": 2,
+        "euro_debt_slowdown_2011_2012": 3,
+        "late_cycle_2018_2019": 4,
+    }
+    return sorted(scenarios, key=lambda row: order[row["scenario_id"]])
+
+
+def _evidence_summaries(matrix: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in matrix["matrix_rows"]:
+        output = row.get("phase_evidence_output") or {}
+        rows.append(
+            {
+                "scenario_id": row["scenario_id"],
+                "as_of": row["as_of"],
+                "data_mode": row["data_mode"],
+                "phase_or_layer": row["phase_or_layer"],
+                "major_group_id": row["major_group_id"],
+                "role_id": row["role_id"],
+                "required_series_ids": row["required_series_ids"],
+                "book_rule_status": row["book_rule_status"],
+                "evidence_state": row["post_evidence_status"],
+                "supportive": bool(output.get("supportive")),
+                "contradictory": bool(output.get("contradictory")),
+                "post_gap_class": row["post_gap_class"],
+                "post_gap_persists": row["post_gap_persists"],
+                "post_abstention_reason": row["post_abstention_reason"],
+                "provenance": output.get("provenance", {}),
+                "source_artifact_ids": _source_artifact_ids(output),
+                "classification": _role_classification(row),
+            }
+        )
+    return rows
+
+
+def _pit_gap_rows(matrix: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for row in matrix["matrix_rows"]:
+        if not row["post_gap_persists"]:
+            continue
+        rows.append(
+            {
+                "scenario_id": row["scenario_id"],
+                "role_id": row["role_id"],
+                "phase_or_layer": row["phase_or_layer"],
+                "major_group_id": row["major_group_id"],
+                "required_series_ids": row["required_series_ids"],
+                "required_observation_window": row["required_observation_window"],
+                "post_gap_class": row["post_gap_class"],
+                "genuine_blocker_evidence": row["genuine_blocker_evidence"],
+                "series_checks": row["series_checks"],
+            }
+        )
+    return rows
+
+
+def _metric_summaries(metric_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    summaries = []
+    for metric in metric_results:
+        summaries.append(
+            {
+                "metric_id": metric["metric_id"],
+                "result_status": metric["result_status"],
+                "value": metric.get("value"),
+                "numerator": metric.get("numerator"),
+                "denominator": metric.get("denominator"),
+                "denominator_definition": metric.get("denominator_definition"),
+                "numerator_definition": metric.get("numerator_definition"),
+                "skip_reason": metric.get("skip_reason"),
+                "notes": metric.get("notes", []),
+                "prohibited_uses": metric.get("prohibited_uses", []),
+            }
+        )
+    return summaries
+
+
+def _load_scenario_manifest(
+    path: str | Path = DEFAULT_SCENARIO_MANIFEST_PATH,
+) -> dict[str, dict[str, Any]]:
+    rows = yaml.safe_load(Path(path).read_text(encoding="utf-8"))[
+        "historical_validation_scenario_manifest"
+    ]["scenario_rows"]
+    return {row["scenario_id"]: row for row in rows}
+
+
+def _by_scenario(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {row["scenario_id"]: row for row in rows}
+
+
+def _pit_gaps_by_scenario(matrix: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in _pit_gap_rows(matrix):
+        grouped[row["scenario_id"]].append(row)
+    return dict(grouped)
+
+
+def _source_artifact_ids(output: dict[str, Any]) -> list[str]:
+    provenance = output.get("provenance", {})
+    if isinstance(provenance, dict):
+        artifacts = provenance.get("source_artifact_ids")
+        if isinstance(artifacts, list):
+            return [str(item) for item in artifacts]
+        artifact = provenance.get("source_artifact_id")
+        if artifact:
+            return [str(artifact)]
+    return []
+
+
+def _role_classification(row: dict[str, Any]) -> str:
+    if row["book_rule_status"] == "operational":
+        return "book_core_phase_evidence"
+    if row["post_gap_class"] == "rule_unresolved_not_data_gap":
+        return "raw_observation_only_rule_unresolved"
+    return "book_core_missing_or_abstained"
+
+
+def _contains_prohibited_action_field(value: Any) -> int:
+    if isinstance(value, dict):
+        if PROHIBITED_ACTION_FIELDS & set(value):
+            return 1
+        return int(any(_contains_prohibited_action_field(item) for item in value.values()))
+    if isinstance(value, list):
+        return int(any(_contains_prohibited_action_field(item) for item in value))
+    return 0
+
+
+def _view_title(view_id: str) -> str:
+    return {
+        "research_overview": "Research Overview",
+        "historical_scenarios": "Historical Scenarios",
+        "validation_results": "Validation Results",
+        "evidence_explorer": "Evidence Explorer",
+        "data_lineage_governance": "Data Lineage / Governance",
+        "pit_gap_view": "PIT Gap View",
+        "scenario_detail": "Scenario Detail",
+    }[view_id]
+
+
+def _scenario_title(scenario_id: str) -> str:
+    return scenario_id.replace("_", " ").title()

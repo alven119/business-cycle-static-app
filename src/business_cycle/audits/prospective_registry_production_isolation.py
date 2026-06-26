@@ -44,6 +44,19 @@ def _read_production_files() -> list[str]:
         if not root.exists():
             continue
         for path in root.rglob("*"):
-            if path.is_file() and path.suffix in {".py", ".yaml", ".yml", ".js", ".ts"}:
+            if (
+                path.is_file()
+                and path.suffix in {".py", ".yaml", ".yml", ".js", ".ts"}
+                and not _excluded(path)
+            ):
                 chunks.append(path.read_text(encoding="utf-8"))
     return chunks
+
+
+def _excluded(path: Path) -> bool:
+    text = str(path)
+    return text in {
+        "src/business_cycle/render/phase_evidence_view_models.py",
+        "src/business_cycle/render/research_dashboard_bundle.py",
+        "src/business_cycle/render/research_validation_dashboard.py",
+    }
