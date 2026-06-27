@@ -1,0 +1,83 @@
+legacy_production_v1_boundary:
+  version: "1.0"
+  status: active
+  created_at: "2026-06-27"
+  document_path: docs/legacy_production_v1_boundary.md
+  doctrine_dependencies:
+    - docs/project_north_star.md
+    - docs/investment_cycle_product_doctrine.md
+    - specs/common/investment_cycle_product_doctrine.yaml
+  boundary_statement: >
+    Production v1 phase scoring, resolver, pipeline, snapshot generation, and
+    Pages workflow are preserved as a legacy baseline for compatibility. They
+    are not the mature doctrine path and must not be presented as the product
+    answer without an explicit migration gate.
+  inventory:
+    - path: src/business_cycle/phases/scoring.py
+      classification: legacy_phase_score_diagnostic
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+    - path: src/business_cycle/phases/batch_scoring.py
+      classification: legacy_batch_score_artifact_writer
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+    - path: src/business_cycle/phases/state_machine.py
+      classification: legacy_score_driven_state_machine_like_resolver
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+    - path: src/business_cycle/phases/data_only_resolver.py
+      classification: legacy_data_only_resolver
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+    - path: scripts/run_cycle_pipeline.py
+      classification: legacy_v1_pipeline_entry
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+    - path: scripts/build_cycle_snapshot.py
+      classification: legacy_snapshot_builder
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+    - path: .github/workflows/pages.yml
+      classification: legacy_pages_deployment_workflow
+      behavior_change_allowed_in_cleanup: false
+      mature_product_answer: false
+  prohibited_promotions:
+    - legacy_phase_score_as_product_answer
+    - legacy_rank_or_winner_as_product_answer
+    - isolated_candidate_classifier_as_candidate_phase
+    - portfolio_template_as_current_allocation_recommendation
+  required_future_migration_gate:
+    replacement_artifacts_documented: true
+    tests_documented: true
+    user_visible_wording_changes_documented: true
+    rollback_behavior_documented: true
+    production_behavior_impact_documented: true
+    candidate_current_phase_output_gates_documented: true
+    data_lineage_preserved: true
+    dashboard_pages_changes_documented: true
+  future_phase_boundaries:
+    phase44:
+      scope:
+        - declared_current_phase_registry
+        - ordered_legal_transition_state_machine
+      prohibited_scope:
+        - portfolio_policy_engine
+        - historical_replay_backtest
+        - boom_transition_monitor
+    phase45:
+      scope:
+        - boom_continuation
+        - boom_ending_watch
+        - recession_watch
+        - recession_confirmation
+    phase46:
+      scope:
+        - portfolio_policy_research_template_engine
+    phase47:
+      scope:
+        - historical_replay_backtest_vertical_slice
+  hard_gates:
+    legacy_v1_boundary_ready: true
+    production_v1_behavior_change_count: 0
+    legacy_inventory_path_count: 7
+    legacy_inventory_missing_path_count: 0

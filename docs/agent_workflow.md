@@ -360,6 +360,14 @@ Future phases must preserve the Phase 43A doctrine amendment:
 - historical validation should support transition timing, replay, and portfolio
   policy research, not only static-label accuracy.
 
+Phase 43B adds doctrine-enforcement cleanup. Future phases must also preserve
+`docs/legacy_production_v1_boundary.md` and
+`specs/common/legacy_production_v1_boundary.yaml`: production v1 scoring,
+resolver, pipeline, Pages workflow, and snapshot scripts are legacy baseline artifacts
+until an explicit migration gate. They may be maintained for
+compatibility, but their phase scores, ranked outputs, and resolver decisions
+must not be described as the mature product answer.
+
 Every future final report must include:
 
 - `product_doctrine_alignment_status`
@@ -375,6 +383,20 @@ Every future final report must include:
 
 Phases that only add governance scaffolding are insufficient unless the prompt
 explicitly frames the phase as cleanup, audit, or safety-blocker work.
+
+Every future phase prompt should answer these doctrine checks before
+implementation:
+
+1. Which declared state, legal transition, evidence explanation, portfolio
+   policy research template, historical replay/backtest, or dashboard education
+   capability is being advanced?
+2. Does any change add or depend on a standalone current phase classifier,
+   phase rank/winner, arbitrary phase score, role-count selector, or isolated
+   candidate classifier?
+3. Are legacy v1 artifacts preserved only as baseline compatibility unless a
+   migration gate is explicitly opened?
+4. Are portfolio template weights treated as research assumptions rather than
+   current allocation recommendations?
 
 ## Phase 11 North Star and Phase-Evidence Gates
 

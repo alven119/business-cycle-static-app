@@ -47,12 +47,12 @@ The project must produce explainable outputs:
 Prefer:
 
 - Python-first implementation
-- deterministic scoring
-- YAML specs for indicator and phase definitions
+- deterministic evidence computations
+- YAML specs for indicator, transition, and legacy phase definitions
 - CSV/Parquet for raw and normalized data
 - JSON for public static-site output
 - Jinja2 or simple static HTML rendering
-- pytest tests for all scoring behavior
+- pytest tests for evidence behavior and legacy scoring compatibility
 
 Avoid:
 
@@ -71,9 +71,10 @@ Use environment variables locally and GitHub Actions secrets in CI.
 
 Public files under public/ must not include secrets, personal holdings, personal notes, or raw copyrighted book content.
 
-## Scoring rules
+## Indicator Evidence And Transition Contracts
 
-Every indicator scoring implementation must define:
+Every indicator evidence, transition-readiness, or legacy scoring implementation
+must define:
 
 - input series
 - frequency
@@ -81,11 +82,20 @@ Every indicator scoring implementation must define:
 - transformation
 - trend window
 - confirmation window
-- score range
+- evidence state or legacy diagnostic output range
 - confidence impact
 - stale_after_days
 - fallback behavior
 - human-readable explanation
+- source provenance
+- relation to declared phase, legal next transition, or portfolio research template
+- explicit prohibited outputs when the artifact is research-only or legacy-only
+
+Legacy production v1 scoring, resolver, pipeline, and GitHub Pages deployment
+remain historical compatibility baselines until an explicit migration phase.
+They must not be presented as the mature product direction. Future work must
+not convert legacy phase scores, ranks, winners, or selected outputs into the
+product answer without a doctrine-aligned migration gate.
 
 ## Testing expectations
 
@@ -112,6 +122,10 @@ This repository builds a deterministic, auditable business-cycle diagnostics and
 - Do not wire experimental candidate indicators into the live dashboard unless explicitly requested.
 - Do not modify GitHub Pages workflow unless explicitly requested.
 - Do not create investment advice or direct buy/sell recommendations.
+- Do not classify the current economic phase from a latest snapshot.
+- Do not present phase score, phase rank, or phase winner as the product answer.
+- Candidate phase must mean legal transition candidate, never isolated classifier winner.
+- Portfolio template weights are research assumptions, not current allocation recommendations.
 - Do not use manual_review_required.
 - Do not commit generated data, raw cache, public output, pyc, pytest cache, ruff cache, or secrets.
 - Never print, persist, or commit FRED_API_KEY.

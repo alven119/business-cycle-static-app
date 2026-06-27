@@ -25,6 +25,19 @@ def test_agents_contains_self_repair_contract() -> None:
     assert "Do not report intermediate failed results unless blocked" in text
 
 
+def test_agent_docs_include_doctrine_and_legacy_boundary() -> None:
+    agents = AGENTS_PATH.read_text(encoding="utf-8")
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    prompt_templates = PROMPT_TEMPLATES_PATH.read_text(encoding="utf-8")
+
+    assert "docs/investment_cycle_product_doctrine.md" in agents
+    assert "Indicator Evidence And Transition Contracts" in agents
+    assert "docs/legacy_production_v1_boundary.md" in workflow
+    assert "legacy baseline artifacts" in workflow
+    assert "docs/legacy_production_v1_boundary.md" in prompt_templates
+    assert "Candidate phase must mean legal transition candidate" in prompt_templates
+
+
 def test_phase_acceptance_gates_yaml_loads() -> None:
     payload = yaml.safe_load(GATES_PATH.read_text(encoding="utf-8"))
 
