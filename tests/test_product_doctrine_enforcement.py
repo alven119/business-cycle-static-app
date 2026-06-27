@@ -17,6 +17,11 @@ def test_product_doctrine_enforcement_passes() -> None:
     assert summary["agents_reframed"] is True
     assert summary["workflow_reframed"] is True
     assert summary["prompt_templates_reframed"] is True
+    assert summary["phase_execution_standing_contract_ready"] is True
+    assert summary["standing_contract_referenced_by_agents"] is True
+    assert summary["standing_contract_referenced_by_workflow"] is True
+    assert summary["standing_contract_referenced_by_prompt_templates"] is True
+    assert summary["repeated_boilerplate_reduced_for_future_prompts"] is True
     assert summary["legacy_v1_boundary_ready"] is True
     assert summary["standalone_classifier_language_count"] == 0
     assert summary["phase_rank_or_winner_language_count"] == 0

@@ -31,10 +31,14 @@ def test_agent_docs_include_doctrine_and_legacy_boundary() -> None:
     prompt_templates = PROMPT_TEMPLATES_PATH.read_text(encoding="utf-8")
 
     assert "docs/investment_cycle_product_doctrine.md" in agents
+    assert "docs/phase_execution_standing_contract.md" in agents
     assert "Indicator Evidence And Transition Contracts" in agents
     assert "docs/legacy_production_v1_boundary.md" in workflow
     assert "legacy baseline artifacts" in workflow
+    assert "docs/phase_execution_standing_contract.md" in workflow
+    assert "test-suite doctrine quarantine" in workflow
     assert "docs/legacy_production_v1_boundary.md" in prompt_templates
+    assert "docs/phase_execution_standing_contract.md" in prompt_templates
     assert "Candidate phase must mean legal transition candidate" in prompt_templates
 
 

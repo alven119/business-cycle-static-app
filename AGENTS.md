@@ -170,6 +170,8 @@ Before planning or implementing any phase, read:
 - specs/common/project_north_star_contract.yaml
 - docs/investment_cycle_product_doctrine.md
 - specs/common/investment_cycle_product_doctrine.yaml
+- docs/phase_execution_standing_contract.md
+- specs/common/phase_execution_standing_contract.yaml
 
 Every phase must map its work to at least one product capability and must not conflict with the North Star semantics.
 
@@ -211,6 +213,8 @@ Before any implementation phase, Codex must read:
 - docs/project_north_star.md
 - docs/investment_cycle_product_doctrine.md
 - specs/common/investment_cycle_product_doctrine.yaml
+- docs/phase_execution_standing_contract.md
+- specs/common/phase_execution_standing_contract.yaml
 
 Every future phase must answer:
 

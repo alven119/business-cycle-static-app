@@ -337,6 +337,10 @@ Phase 43A adds product doctrine files that future phases must also read:
 the product capabilities, milestones, and web surfaces it advances and must
 keep the North Star semantic distinctions intact.
 
+Phase 44 adds a standing execution contract that future prompts should cite
+instead of repeating long boilerplate: `docs/phase_execution_standing_contract.md`
+and `specs/common/phase_execution_standing_contract.yaml`.
+
 Common North Star hard gates are: document present, contract valid, phase
 capability mapping complete, web-surface mapping complete, semantic drift
 count zero, unsupported product claim count zero, no research output mislabeled
@@ -367,6 +371,14 @@ resolver, pipeline, Pages workflow, and snapshot scripts are legacy baseline art
 until an explicit migration gate. They may be maintained for
 compatibility, but their phase scores, ranked outputs, and resolver decisions
 must not be described as the mature product answer.
+
+Phase 44 adds test-suite doctrine quarantine. High-risk tests should be marked
+with pytest markers such as `legacy_v1`, `doctrine_aligned`,
+`transition_monitor`, `portfolio_policy_research`,
+`historical_replay_backtest`, `governance_scaffold`, `safety`, and
+`live_optional`. Legacy v1 tests may remain in full pytest, but their marker
+and compatibility label must make clear that they preserve baseline behavior
+rather than mature product doctrine.
 
 Every future final report must include:
 

@@ -20,6 +20,8 @@ INVESTMENT_DOCTRINE_DOC_PATH = ROOT / "docs/investment_cycle_product_doctrine.md
 INVESTMENT_DOCTRINE_SPEC_PATH = ROOT / "specs/common/investment_cycle_product_doctrine.yaml"
 LEGACY_BOUNDARY_DOC_PATH = ROOT / "docs/legacy_production_v1_boundary.md"
 LEGACY_BOUNDARY_SPEC_PATH = ROOT / "specs/common/legacy_production_v1_boundary.yaml"
+STANDING_CONTRACT_DOC_PATH = ROOT / "docs/phase_execution_standing_contract.md"
+STANDING_CONTRACT_SPEC_PATH = ROOT / "specs/common/phase_execution_standing_contract.yaml"
 PHASE43B_PLAN_PATH = ROOT / "docs/product_alignment_cleanup_plan_phase43b.md"
 
 SCAN_PATHS = (
@@ -70,6 +72,19 @@ def summarize_product_doctrine_enforcement() -> dict[str, Any]:
         "agents_reframed": _agents_reframed(agents_text),
         "workflow_reframed": _workflow_reframed(workflow_text),
         "prompt_templates_reframed": _prompt_templates_reframed(prompts_text),
+        "phase_execution_standing_contract_ready": _standing_contract_ready(),
+        "standing_contract_referenced_by_agents": _standing_contract_referenced(
+            agents_text
+        ),
+        "standing_contract_referenced_by_workflow": _standing_contract_referenced(
+            workflow_text
+        ),
+        "standing_contract_referenced_by_prompt_templates": _standing_contract_referenced(
+            prompts_text
+        ),
+        "repeated_boilerplate_reduced_for_future_prompts": (
+            "instead of repeating the full boilerplate" in prompts_text
+        ),
         "legacy_v1_boundary_ready": legacy_summary["legacy_v1_boundary_ready"],
         "standalone_classifier_language_count": counts[
             "standalone_classifier_language_count"
@@ -145,6 +160,26 @@ def _prompt_templates_reframed(text: str) -> bool:
         "Portfolio template weights are research assumptions",
     )
     return all(marker in text for marker in required)
+
+
+def _standing_contract_ready() -> bool:
+    if not STANDING_CONTRACT_DOC_PATH.exists() or not STANDING_CONTRACT_SPEC_PATH.exists():
+        return False
+    doc = STANDING_CONTRACT_DOC_PATH.read_text(encoding="utf-8")
+    spec = STANDING_CONTRACT_SPEC_PATH.read_text(encoding="utf-8")
+    return (
+        "Universal Product Doctrine Rules" in doc
+        and "Universal Test Strategy" in doc
+        and "final_report_fields:" in spec
+        and "phase_execution_standing_contract_ready: true" in spec
+    )
+
+
+def _standing_contract_referenced(text: str) -> bool:
+    return (
+        "docs/phase_execution_standing_contract.md" in text
+        and "specs/common/phase_execution_standing_contract.yaml" in text
+    )
 
 
 def _scan_language_counts() -> dict[str, int]:
@@ -266,6 +301,11 @@ def _passed(summary: dict[str, Any]) -> bool:
         and summary["agents_reframed"] is True
         and summary["workflow_reframed"] is True
         and summary["prompt_templates_reframed"] is True
+        and summary["phase_execution_standing_contract_ready"] is True
+        and summary["standing_contract_referenced_by_agents"] is True
+        and summary["standing_contract_referenced_by_workflow"] is True
+        and summary["standing_contract_referenced_by_prompt_templates"] is True
+        and summary["repeated_boilerplate_reduced_for_future_prompts"] is True
         and summary["legacy_v1_boundary_ready"] is True
         and summary["standalone_classifier_language_count"] == 0
         and summary["phase_rank_or_winner_language_count"] == 0

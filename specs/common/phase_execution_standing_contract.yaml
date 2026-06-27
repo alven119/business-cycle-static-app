@@ -1,0 +1,76 @@
+phase_execution_standing_contract:
+  version: "1.0"
+  status: active
+  created_at: "2026-06-27"
+  document_path: docs/phase_execution_standing_contract.md
+  required_reading:
+    always:
+      - docs/project_north_star.md
+      - docs/investment_cycle_product_doctrine.md
+      - specs/common/investment_cycle_product_doctrine.yaml
+      - docs/phase_execution_standing_contract.md
+      - specs/common/phase_execution_standing_contract.yaml
+    when_touching_legacy_or_phase_outputs:
+      - docs/legacy_production_v1_boundary.md
+      - specs/common/legacy_production_v1_boundary.yaml
+  universal_start_checks:
+    - git status --short
+    - git status --ignored --short
+    - git branch --show-current
+    - git remote -v
+    - git rev-parse HEAD
+    - git ls-files data/raw docs/景氣循環投資.pdf
+  product_doctrine_rules:
+    no_standalone_current_phase_classifier: true
+    no_phase_rank_or_winner_product_answer: true
+    no_arbitrary_phase_score_product_answer: true
+    no_isolated_candidate_phase_classifier: true
+    candidate_phase_semantics: legal_transition_candidate_only
+    current_phase_semantics: declared_or_governed_state_only
+    phase_evidence_profile_semantics: explanation_or_transition_input_not_selector
+    portfolio_policy_semantics: research_template_not_allocation_recommendation
+    historical_replay_backtest_requirement:
+      must_include_transition_timing: true
+      must_include_policy_replay: true
+      static_label_accuracy_only_allowed: false
+    legacy_v1_semantics: compatibility_baseline_not_mature_product_direction
+  safety_rules:
+    no_secrets: true
+    no_raw_data_commit: true
+    no_book_pdf_commit: true
+    no_public_output_without_explicit_gate: true
+    no_data_backtests_output_without_explicit_gate: true
+    no_data_prospective_output_without_explicit_gate: true
+    no_production_behavior_change_without_explicit_gate: true
+    no_investment_advice_wording: true
+    no_buy_sell_trade_action: true
+    no_current_allocation_recommendation: true
+    no_candidate_current_phase_output_without_gate: true
+    no_live_network_dependency_in_tests: true
+  test_strategy:
+    targeted_tests_during_implementation: true
+    full_pytest_only_when_runtime_changes_or_required: true
+    full_ruff_only_when_broad_python_changes_require_it: true
+    docs_yaml_only_phases_should_not_run_full_pytest_by_default: true
+    always_run_git_diff_check: true
+    run_safety_scans_when_wording_or_output_policy_changes: true
+    live_optional_tests_not_in_default_ci: true
+  final_report_fields:
+    - product_doctrine_alignment_status
+    - cycle_state_machine_alignment_status
+    - standalone_classifier_added_count
+    - phase_rank_or_score_added_count
+    - legal_transition_semantics_preserved
+    - portfolio_policy_research_alignment
+    - historical_replay_backtest_alignment
+    - deviation_cleanup_needed_count
+    - production_behavior_change_count
+    - semantic_drift_count
+    - raw_book_pdf_tracked_count
+    - tracked_data_raw_file_count
+  hard_gates:
+    phase_execution_standing_contract_ready: true
+    standing_contract_referenced_by_agents: true
+    standing_contract_referenced_by_workflow: true
+    standing_contract_referenced_by_prompt_templates: true
+    repeated_boilerplate_reduced_for_future_prompts: true

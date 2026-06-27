@@ -33,3 +33,14 @@ target-version = "py310"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
+addopts = ["-m", "not live_optional"]
+markers = [
+    "legacy_v1: legacy production v1 scoring, resolver, pipeline, snapshot, or Pages compatibility tests",
+    "doctrine_aligned: tests that assert mature product doctrine semantics",
+    "transition_monitor: legal transition, watch, confirmation, or ordered cycle tests",
+    "portfolio_policy_research: portfolio policy template and caveat tests that must not imply current allocation recommendations",
+    "historical_replay_backtest: historical replay, backtest, timing, or replay-support tests",
+    "governance_scaffold: freeze, closure, audit, lineage, or contract scaffolding tests",
+    "safety: secret/output/prohibited wording and safety scan tests",
+    "live_optional: opt-in live/local environment tests excluded from default pytest and CI",
+]
