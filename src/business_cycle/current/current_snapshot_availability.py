@@ -12,6 +12,10 @@ import yaml
 from business_cycle.current.current_data_refresh import (
     build_current_data_refresh_manifest,
 )
+from business_cycle.current.current_freshness_semantics import (
+    freshness_rows_by_series,
+    summarize_current_freshness_semantics,
+)
 
 
 DEFAULT_SERIES_REGISTRY_PATH = Path("specs/common/series_release_lag_registry.yaml")
@@ -82,6 +86,9 @@ def build_current_snapshot_availability(
         "refresh_mode": "fixture",
         "stale_series_count_before": len(stale),
         "stale_series_count_after": len(stale),
+        "fresh_enough_series_count": 0,
+        "source_disabled_count": 0,
+        "freshness_status_counts": {"not_applicable_to_current_mode": len(requested)},
         "fetched_series_count": 0,
         "failed_series_count": 0,
         "refreshed_series_count": 0,
@@ -131,7 +138,14 @@ def summarize_current_snapshot_availability() -> dict[str, Any]:
 
 
 def _availability_from_refresh_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
-    rows = [_availability_row_from_refresh(row) for row in manifest["series_refresh_rows"]]
+    freshness = summarize_current_freshness_semantics(refresh_manifest=manifest)
+    freshness_by_series = freshness_rows_by_series(freshness)
+    rows = []
+    for row in manifest["series_refresh_rows"]:
+        freshness_row = freshness_by_series.get(str(row["series_id"]))
+        if freshness_row is None:
+            continue
+        rows.append(_availability_row_from_refresh(row, freshness_by_series=freshness_row))
     available = [row for row in rows if row["availability_status"] == "available"]
     missing = [row for row in rows if row["availability_status"] == "missing"]
     stale = [row for row in rows if row["stale"]]
@@ -172,7 +186,11 @@ def _availability_from_refresh_manifest(manifest: dict[str, Any]) -> dict[str, A
         "provider_error_class": manifest["provider_error_class"],
         "refresh_mode": _refresh_mode(manifest),
         "stale_series_count_before": manifest["stale_series_count_before"],
-        "stale_series_count_after": manifest["stale_series_count_after"],
+        "stale_series_count_after": freshness["stale_series_count_after"],
+        "fresh_enough_series_count": freshness["fresh_enough_series_count"],
+        "source_disabled_count": freshness["source_disabled_count"],
+        "freshness_status_counts": freshness["freshness_status_counts"],
+        "freshness_summary": freshness,
         "refreshed_series_count": manifest["refreshed_series_count"],
         "fetched_series_count": manifest.get("fetched_series_count", 0),
         "failed_series_count": manifest.get("failed_series_count", 0),
@@ -188,14 +206,15 @@ def _availability_from_refresh_manifest(manifest: dict[str, Any]) -> dict[str, A
     }
 
 
-def _availability_row_from_refresh(row: dict[str, Any]) -> dict[str, Any]:
-    if row["source_mode"] in {"unsupported", "unsupported_fixture", "provider_error"}:
+def _availability_row_from_refresh(
+    row: dict[str, Any],
+    *,
+    freshness_by_series: dict[str, Any],
+) -> dict[str, Any]:
+    freshness_status = freshness_by_series["freshness_status"]
+    if freshness_status == "missing_source":
         status = "missing"
-    elif str(row["source_mode"]).startswith("live_blocked_"):
-        status = "missing"
-    elif row["source_mode"] in {"derived_not_fetched"}:
-        status = "available"
-    elif row["point_in_time_eligible"] is False:
+    elif freshness_status == "unavailable_for_current_mode":
         status = "unavailable"
     else:
         status = "available"
@@ -210,12 +229,15 @@ def _availability_row_from_refresh(row: dict[str, Any]) -> dict[str, Any]:
         "latest_observation_date": row["latest_observation_date"],
         "latest_verified_vintage_date": row["latest_verified_vintage_date"],
         "source_mode": row["source_mode"],
-        "stale": row["stale_after_refresh"],
-        "stale_reason": (
-            "latest observation precedes snapshot_as_of"
-            if row["stale_after_refresh"]
-            else "not stale"
-        ),
+        "stale": freshness_by_series["stale_for_current_research"],
+        "fresh_enough": freshness_by_series["fresh_enough_for_current_research"],
+        "freshness_status": freshness_status,
+        "freshness_reason": freshness_by_series["freshness_reason"],
+        "expected_reference_period": freshness_by_series["expected_reference_period"],
+        "observed_reference_period": freshness_by_series["observed_reference_period"],
+        "stale_reason": freshness_by_series["freshness_reason"]
+        if freshness_by_series["stale_for_current_research"]
+        else "not stale for current research freshness semantics",
         "missing_reason": (
             "refresh source missing or unsupported"
             if status == "missing"

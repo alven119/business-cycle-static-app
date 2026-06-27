@@ -9,6 +9,15 @@ from typing import Any
 from business_cycle.current.current_snapshot_availability import (
     build_current_snapshot_availability,
 )
+from business_cycle.current.current_evidence_readiness import (
+    build_current_evidence_readiness,
+)
+from business_cycle.current.current_data_refresh import (
+    build_current_data_refresh_manifest,
+)
+from business_cycle.current.current_freshness_semantics import (
+    summarize_current_freshness_semantics,
+)
 from business_cycle.render.phase_evidence_view_models import (
     build_indicator_explorer_view_model,
     build_phase_analysis_view_model,
@@ -82,6 +91,21 @@ def build_current_research_snapshot(
     )
     phase_profiles = phase_view["payload"]["phase_profiles"]
     major_groups = indicator_view["payload"]["major_groups"]
+    refresh_manifest_for_current = availability.get("refresh_manifest") or (
+        build_current_data_refresh_manifest(
+            no_live_fetch=True,
+            allow_fixture_fallback=True,
+        )
+    )
+    freshness = (
+        availability.get("freshness_summary")
+        or summarize_current_freshness_semantics(
+            refresh_manifest=refresh_manifest_for_current,
+        )
+    )
+    current_evidence = build_current_evidence_readiness(
+        refresh_manifest=refresh_manifest_for_current,
+    )
     blockers = _blocker_summary(availability=availability, decision=decision)
     artifact = {
         "artifact_schema_version": artifact_schema,
@@ -131,6 +155,8 @@ def build_current_research_snapshot(
                 "refresh_mode",
                 "stale_series_count_before",
                 "stale_series_count_after",
+                "fresh_enough_series_count",
+                "source_disabled_count",
                 "fetched_series_count",
                 "failed_series_count",
                 "refreshed_series_count",
@@ -143,6 +169,8 @@ def build_current_research_snapshot(
         },
         "refresh_metadata": _refresh_metadata(availability),
         "source_availability_rows": availability["requested_data_sources"],
+        "current_freshness_summary": _current_freshness_summary(freshness),
+        "current_evidence_readiness": current_evidence,
         "phase_evidence_summary": _phase_evidence_summary(phase_profiles),
         "major_group_evidence_summary": _major_group_summary(major_groups),
         "transition_risk_summary": {
@@ -180,6 +208,9 @@ def build_current_research_snapshot(
             "parent_freeze_id": parent_freeze_id,
             "source_availability_runtime": "phase39_current_snapshot_availability",
             "phase_evidence_view_model": phase_view["view_model_version"],
+            "current_evidence_readiness": current_evidence[
+                "current_evidence_readiness_version"
+            ],
             "formal_decision_runtime": decision["runtime_version"],
             "qa12_freeze_unchanged": True,
             "production_behavior_change_count": 0,
@@ -226,6 +257,18 @@ def summarize_current_research_snapshot() -> dict[str, Any]:
             snapshot["source_availability_summary"]
         ),
         "phase_evidence_summary_present": bool(snapshot["phase_evidence_summary"]),
+        "current_freshness_summary_present": bool(
+            snapshot["current_freshness_summary"]
+        ),
+        "current_evidence_readiness_present": bool(
+            snapshot["current_evidence_readiness"]
+        ),
+        "phase_profile_count": snapshot["current_evidence_readiness"][
+            "phase_profile_count"
+        ],
+        "fresh_enough_series_count": snapshot["current_freshness_summary"][
+            "fresh_enough_series_count"
+        ],
         "major_group_evidence_summary_present": bool(
             snapshot["major_group_evidence_summary"]
         ),
@@ -271,6 +314,11 @@ def summarize_current_research_snapshot() -> dict[str, Any]:
         "current_phase_emitted": snapshot["current_phase_emitted"],
         "predicted_current_phase_output_count": validation[
             "predicted_current_phase_output_count"
+        ],
+        "selected_phase_output_count": validation["selected_phase_output_count"],
+        "phase_rank_output_count": validation["phase_rank_output_count"],
+        "numeric_phase_score_output_count": validation[
+            "numeric_phase_score_output_count"
         ],
         "prohibited_action_field_count": validation[
             "prohibited_action_field_count"
@@ -353,6 +401,18 @@ def _snapshot_summary(
             snapshot["source_availability_summary"]
         ),
         "phase_evidence_summary_present": bool(snapshot["phase_evidence_summary"]),
+        "current_freshness_summary_present": bool(
+            snapshot["current_freshness_summary"]
+        ),
+        "current_evidence_readiness_present": bool(
+            snapshot["current_evidence_readiness"]
+        ),
+        "phase_profile_count": snapshot["current_evidence_readiness"][
+            "phase_profile_count"
+        ],
+        "fresh_enough_series_count": snapshot["current_freshness_summary"][
+            "fresh_enough_series_count"
+        ],
         "major_group_evidence_summary_present": bool(
             snapshot["major_group_evidence_summary"]
         ),
@@ -396,6 +456,11 @@ def _snapshot_summary(
         "current_phase_emitted": snapshot["current_phase_emitted"],
         "predicted_current_phase_output_count": validation[
             "predicted_current_phase_output_count"
+        ],
+        "selected_phase_output_count": validation["selected_phase_output_count"],
+        "phase_rank_output_count": validation["phase_rank_output_count"],
+        "numeric_phase_score_output_count": validation[
+            "numeric_phase_score_output_count"
         ],
         "prohibited_action_field_count": validation[
             "prohibited_action_field_count"
@@ -450,6 +515,8 @@ def validate_current_research_snapshot(snapshot: dict[str, Any]) -> dict[str, An
         "source_availability_summary",
         "refresh_metadata",
         "phase_evidence_summary",
+        "current_freshness_summary",
+        "current_evidence_readiness",
         "major_group_evidence_summary",
         "non_emitting_decision_readiness",
         "candidate_selection_enabled",
@@ -478,6 +545,9 @@ def validate_current_research_snapshot(snapshot: dict[str, Any]) -> dict[str, An
         "missing_fields": missing,
         "prohibited_action_field_count": prohibited,
         "predicted_current_phase_output_count": predicted_current,
+        "selected_phase_output_count": _field_name_count(snapshot, "selected_phase"),
+        "phase_rank_output_count": _field_name_count(snapshot, "phase_rank"),
+        "numeric_phase_score_output_count": _field_name_count(snapshot, "phase_score"),
     }
 
 
@@ -518,6 +588,8 @@ def _blocker_summary(
             "release_lag_metadata_missing_count"
         ],
         "stale_series_count": availability["stale_series_count"],
+        "fresh_enough_series_count": availability.get("fresh_enough_series_count", 0),
+        "source_disabled_count": availability.get("source_disabled_count", 0),
         "decision_blocker_count": len(decision["blocked_reason_codes"]),
         "decision_blocker_codes": decision["blocked_reason_codes"],
     }
@@ -555,6 +627,36 @@ def _refresh_metadata(availability: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _current_freshness_summary(freshness: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: freshness[key]
+        for key in (
+            "freshness_semantics_version",
+            "freshness_semantics_ready",
+            "requested_series_count",
+            "fetched_series_count",
+            "source_disabled_count",
+            "missing_series_count",
+            "unavailable_series_count",
+            "stale_series_count_before",
+            "stale_series_count_after",
+            "fresh_enough_series_count",
+            "frequency_classified_series_count",
+            "release_lag_metadata_used_count",
+            "release_lag_metadata_missing_count",
+            "missing_counted_as_stale_count",
+            "unavailable_counted_as_stale_count",
+            "source_disabled_counted_as_stale_count",
+            "arbitrary_stale_threshold_added_count",
+            "stale_threshold_modified_count",
+            "fixture_date_mislabeled_as_live_count",
+            "revised_mislabeled_as_point_in_time_count",
+            "freshness_status_counts",
+            "still_stale_series",
+        )
+    }
+
+
 def _contains_forbidden_field(value: Any) -> int:
     if isinstance(value, dict):
         if PROHIBITED_FIELDS & set(value):
@@ -562,6 +664,16 @@ def _contains_forbidden_field(value: Any) -> int:
         return int(any(_contains_forbidden_field(item) for item in value.values()))
     if isinstance(value, list):
         return int(any(_contains_forbidden_field(item) for item in value))
+    return 0
+
+
+def _field_name_count(value: Any, field_name: str) -> int:
+    if isinstance(value, dict):
+        return int(field_name in value) + sum(
+            _field_name_count(item, field_name) for item in value.values()
+        )
+    if isinstance(value, list):
+        return sum(_field_name_count(item, field_name) for item in value)
     return 0
 
 

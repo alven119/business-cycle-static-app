@@ -34,8 +34,15 @@ def test_current_snapshot_dashboard_view_renders_without_forbidden_outputs(tmp_p
     assert bundle["dashboard_view_count"] >= 8
     assert 'data-dashboard-view="current_research_snapshot"' in html
     assert "RESEARCH ONLY" in html
-    assert "Available series" in html
+    assert "Fresh enough" in html
     assert "Data Refresh / Source Freshness" in html
+    assert "Current Phase Evidence Profile" in html
+    assert 'data-phase-profile-card="recovery"' in html
+    assert 'data-phase-profile-card="growth"' in html
+    assert 'data-phase-profile-card="boom"' in html
+    assert 'data-phase-profile-card="recession"' in html
+    assert "Why not formal" in html
+    assert "watch != confirmation" in html
     assert "Decision readiness blockers" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
@@ -82,6 +89,7 @@ def test_current_snapshot_dashboard_view_shows_phase40_refresh_metadata(tmp_path
 
     assert result["browser_verification_ready"] is True
     assert "data-refresh-panel" in html
+    assert "data-current-phase-evidence-profile" in html
     assert "data-refresh-mode" in html
     assert "live_fetch_disabled_by_cli" in html
     assert manifest["manifest_hash"] in html

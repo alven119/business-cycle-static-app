@@ -9,6 +9,7 @@ import sys
 
 
 FULL_CLOSURE_SCRIPTS = (
+    "scripts/show_phase42_current_freshness_and_evidence_profile_closure.py",
     "scripts/show_phase41_live_current_refresh_smoke_closure.py",
     "scripts/show_phase40_current_data_refresh_closure.py",
     "scripts/show_phase39_current_research_snapshot_closure.py",
@@ -40,6 +41,7 @@ FULL_CLOSURE_SCRIPTS = (
 )
 
 NIGHTLY_CLOSURE_SCRIPTS = (
+    "scripts/show_phase42_current_freshness_and_evidence_profile_closure.py",
     "scripts/show_phase41_live_current_refresh_smoke_closure.py",
     "scripts/show_phase40_current_data_refresh_closure.py",
     "scripts/show_phase39_current_research_snapshot_closure.py",

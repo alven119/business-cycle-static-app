@@ -78,6 +78,18 @@ def main() -> int:
             "stale_series_count_after": snapshot["refresh_metadata"][
                 "stale_series_count_after"
             ],
+            "fresh_enough_series_count": snapshot["current_freshness_summary"][
+                "fresh_enough_series_count"
+            ],
+            "phase_profile_count": snapshot["current_evidence_readiness"][
+                "phase_profile_count"
+            ],
+            "why_not_formal_phase_present": snapshot["current_evidence_readiness"][
+                "why_not_formal_phase_present"
+            ],
+            "blocker_summary_present": snapshot["current_evidence_readiness"][
+                "blocker_summary_present"
+            ],
             "refreshed_series_count": snapshot["refresh_metadata"][
                 "refreshed_series_count"
             ],

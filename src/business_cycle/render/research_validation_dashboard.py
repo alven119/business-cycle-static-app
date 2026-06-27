@@ -214,6 +214,18 @@ def _verify_rendered_html_pages(
         required_missing += int(
             "data-dashboard-view=\"current_research_snapshot\"" not in combined
         )
+        for token in (
+            "data-current-phase-evidence-profile",
+            "data-phase-profile-card=\"recovery\"",
+            "data-phase-profile-card=\"growth\"",
+            "data-phase-profile-card=\"boom\"",
+            "data-phase-profile-card=\"recession\"",
+            "data-top-blockers",
+            "data-why-not-formal",
+            "data-transition-watch-caveat",
+            "data-refresh-panel",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -525,9 +537,15 @@ def _pit_gap_page(bundle: dict[str, Any]) -> str:
 def _current_snapshot_page(bundle: dict[str, Any]) -> str:
     snapshot = bundle["current_snapshot"]
     source = snapshot["source_availability_summary"]
+    freshness = snapshot["current_freshness_summary"]
+    current_evidence = snapshot["current_evidence_readiness"]
     refresh = snapshot.get("refresh_metadata", {})
     decision = snapshot["non_emitting_decision_readiness"]
     blockers = snapshot["blocker_summary"]
+    phase_cards = "".join(
+        _phase_profile_card(phase, profile)
+        for phase, profile in current_evidence["phase_profiles"].items()
+    )
     rows = "".join(
         _source_availability_row(row) for row in snapshot["source_availability_rows"]
     )
@@ -544,17 +562,20 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
       <p class="muted">Latest available observation snapshot for local research review. This is not a production phase decision; candidate/current outputs remain disabled.</p>
       <div class="metric-grid">
         {_metric_card("As-of", snapshot["snapshot_as_of"], snapshot["data_mode"])}
-        {_metric_card("Available series", source["available_series_count"], "metadata available")}
+        {_metric_card("Fresh enough", freshness["fresh_enough_series_count"], "frequency-aware current research")}
         {_metric_card("Missing series", source["missing_series_count"], "metadata incomplete")}
-        {_metric_card("Stale series", source["stale_series_count"], "latest verified vintage before snapshot")}
+        {_metric_card("Stale series", source["stale_series_count"], "release/frequency-aware")}
         {_metric_card("Unavailable series", source["unavailable_series_count"], "not eligible for this snapshot")}
       </div>
       <div class="status-strip">
+        <span>data mode: {_text(snapshot["data_mode"])}</span>
+        <span>refresh mode: {_text(refresh.get("refresh_mode", "fixture"))}</span>
+        <span>freshness mode: frequency/release-lag aware</span>
+        <span>freeze: {_text(current_evidence["freeze_id"])}</span>
         <span>live fetch attempted: {_yes_no(source["live_fetch_attempted"])}</span>
         <span>live fetch succeeded: {_yes_no(source["live_fetch_succeeded"])}</span>
-        <span>cache used: {_yes_no(source["cache_used"])}</span>
-        <span>fixture used: {_yes_no(source["fixture_used"])}</span>
-        <span>candidate/current disabled</span>
+        <span>research-only</span>
+        <span>no candidate/current output</span>
       </div>
     </section>
     <section class="panel" data-refresh-panel>
@@ -571,6 +592,29 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
         <dt>Refresh manifest</dt><dd><code>{_text(refresh.get("refresh_manifest_hash") or "not supplied")}</code></dd>
       </dl>
       <p class="muted">Latest revised data is labeled separately from point-in-time evidence. Fixture or cache mode is explicit when live refresh is unavailable.</p>
+    </section>
+    <section class="panel" data-current-phase-evidence-profile>
+      <div class="section-heading">
+        <h2>Current Phase Evidence Profile</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This section shows current research evidence readiness by phase lane. It is not a formal current phase decision and it does not emit a candidate phase.</p>
+      <div class="metric-grid">
+        {_metric_card("Phase lanes", current_evidence["phase_profile_count"], "recovery / growth / boom / recession")}
+        {_metric_card("Fresh enough series", freshness["fresh_enough_series_count"], "latest revised current data")}
+        {_metric_card("Still stale", freshness["stale_series_count_after"], "defensible release/frequency reason")}
+        {_metric_card("Rule/data blockers", len(current_evidence["global_blockers"]["top_blockers"]), "top current blockers")}
+      </div>
+      <div class="phase-card-grid">{phase_cards}</div>
+    </section>
+    <section class="panel" data-transition-watch-caveat>
+      <h2>Transition Risk Lane Summary</h2>
+      <div class="metric-grid">
+        {_metric_card("Boom ending watch", current_evidence["phase_profiles"]["boom"]["transition_watch_count"], "watch evidence only")}
+        {_metric_card("Recession confirmation watch", current_evidence["phase_profiles"]["recession"]["transition_watch_count"], "confirmation lane remains separate")}
+        {_metric_card("Trough / recovery watch", current_evidence["phase_profiles"]["recession"]["abstention_count"], "abstentions stay visible")}
+      </div>
+      <p class="muted">watch != confirmation; evidence profile != formal phase; no portfolio action is produced.</p>
     </section>
     <section class="panel">
       <h2>Decision readiness blockers</h2>
@@ -611,6 +655,39 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
     </section>
     """
     return _page("Current Research Snapshot", CURRENT_SNAPSHOT_PAGE, body)
+
+
+def _phase_profile_card(phase: str, profile: dict[str, Any]) -> str:
+    supportive = _list_items(profile["top_supportive_roles"], "No current supportive role output.")
+    blockers = _list_items(profile["top_blockers"], "No current blocker reported.")
+    why_not = _list_items(profile["why_not_formal_phase"], "Formal gate remains closed.")
+    return f"""
+      <article class="phase-profile-card" data-phase-profile-card="{_text(phase)}">
+        <h3>{_text(profile["display_label"])}</h3>
+        <dl class="mini-grid">
+          <dt>Evidence readiness</dt><dd>{_text(profile["profile_kind"])}</dd>
+          <dt>Major groups</dt><dd>{profile["major_group_ready_count"]} ready / {profile["major_group_partial_count"]} partial / {profile["major_group_missing_count"]} missing</dd>
+          <dt>Supportive</dt><dd>{profile["supportive_evidence_count"]}</dd>
+          <dt>Contradictory</dt><dd>{profile["contradictory_evidence_count"]}</dd>
+          <dt>Mixed</dt><dd>{profile["mixed_evidence_count"]}</dd>
+          <dt>Unavailable</dt><dd>{profile["unavailable_evidence_count"]}</dd>
+          <dt>Abstained</dt><dd>{profile["abstention_count"]}</dd>
+          <dt>Observation only</dt><dd>{profile["observation_only_count"]}</dd>
+        </dl>
+        <div class="phase-profile-detail">
+          <h4>Top supportive evidence</h4>
+          <ul>{supportive}</ul>
+        </div>
+        <div class="phase-profile-detail" data-top-blockers>
+          <h4>Top blockers</h4>
+          <ul>{blockers}</ul>
+        </div>
+        <div class="phase-profile-detail" data-why-not-formal>
+          <h4>Why not formal</h4>
+          <ul>{why_not}</ul>
+        </div>
+      </article>
+    """
 
 
 def _page(title: str, active_href: str, body: str) -> str:
@@ -753,11 +830,17 @@ def _source_availability_row(row: dict[str, Any]) -> str:
       <td>{_text(row["source"])}</td>
       <td>{_text(row["frequency"])}</td>
       <td>{_status_badge(row["availability_status"])}</td>
-      <td>{_text(row.get("source_mode", "fixture"))}</td>
+      <td>{_text(row.get("source_mode", "fixture"))}<br><span class="muted">{_text(row.get("freshness_status", "legacy"))}</span></td>
       <td>{_text(row.get("latest_observation_date", "unknown"))}</td>
       <td>{_text(row["latest_verified_vintage_date"])}</td>
       <td>{_yes_no(row["stale"])}</td>
     </tr>"""
+
+
+def _list_items(items: list[str], empty: str) -> str:
+    if not items:
+        return f"<li>{_text(empty)}</li>"
+    return "".join(f"<li><code>{_text(item)}</code></li>" for item in items)
 
 
 def _bundle_has_current_snapshot(root: Path) -> bool:
@@ -961,6 +1044,30 @@ h2 { margin: 0 0 10px; font-size: 1.1rem; }
 }
 .metric-card span, .metric-card em { display: block; color: var(--muted); font-style: normal; font-size: 0.78rem; }
 .metric-card strong { display: block; margin: 3px 0; font-size: 1.45rem; }
+.phase-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.phase-profile-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-alt);
+}
+.phase-profile-card h3 { margin: 0 0 8px; font-size: 1rem; }
+.phase-profile-card h4 { margin: 8px 0 4px; font-size: 0.86rem; }
+.phase-profile-card ul { margin: 0; padding-left: 18px; }
+.mini-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 8px;
+  margin: 0;
+  font-size: 0.82rem;
+}
+.mini-grid dt { color: var(--muted); }
+.mini-grid dd { margin: 0; overflow-wrap: anywhere; }
 .status-strip { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); }
 .status-strip span { border-left: 3px solid var(--accent); padding-left: 8px; }
 .table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
@@ -991,6 +1098,7 @@ input, select { min-height: 34px; border: 1px solid var(--line); border-radius: 
   main { padding: 12px; }
   .section-heading { align-items: flex-start; flex-direction: column; }
   .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phase-card-grid { grid-template-columns: 1fr; }
   .definition-grid { grid-template-columns: 1fr; }
   .two-column { grid-template-columns: 1fr; }
   table { min-width: 680px; }

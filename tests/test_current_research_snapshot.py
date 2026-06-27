@@ -24,6 +24,9 @@ def test_current_research_snapshot_is_non_emitting_research_only() -> None:
     assert summary["snapshot_as_of_present"] is True
     assert summary["source_availability_summary_present"] is True
     assert summary["phase_evidence_summary_present"] is True
+    assert summary["current_freshness_summary_present"] is True
+    assert summary["current_evidence_readiness_present"] is True
+    assert summary["phase_profile_count"] == 4
     assert summary["major_group_evidence_summary_present"] is True
     assert summary["decision_readiness_summary_present"] is True
     assert summary["blocker_summary_present"] is True
@@ -32,6 +35,9 @@ def test_current_research_snapshot_is_non_emitting_research_only() -> None:
     assert summary["candidate_phase_emitted"] is False
     assert summary["current_phase_emitted"] is False
     assert summary["predicted_current_phase_output_count"] == 0
+    assert summary["selected_phase_output_count"] == 0
+    assert summary["phase_rank_output_count"] == 0
+    assert summary["numeric_phase_score_output_count"] == 0
     assert summary["prohibited_action_field_count"] == 0
     assert summary["economic_performance_metric_count"] == 0
 
@@ -86,6 +92,8 @@ def test_current_research_snapshot_uses_phase40_refresh_manifest(tmp_path) -> No
     assert snapshot["freeze_id"] == "book_faithful_shadow_v2_alpha37"
     assert snapshot["parent_freeze_id"] == "book_faithful_shadow_v2_alpha36"
     assert snapshot["refresh_metadata"]["refresh_manifest_hash"] == manifest["manifest_hash"]
+    assert snapshot["current_freshness_summary"]["freshness_semantics_ready"] is True
+    assert snapshot["current_evidence_readiness"]["phase_profile_count"] == 4
     assert snapshot["candidate_phase_emitted"] is False
     assert snapshot["current_phase_emitted"] is False
     assert summary["phase"] == "40"

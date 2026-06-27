@@ -348,6 +348,7 @@ def _manifest_row(
         "stale_before_refresh": stale_before,
         "stale_after_refresh": stale_after,
         "point_in_time_eligible": bool(row.get("point_in_time_eligible")),
+        "current_refresh_fetch_enabled": row.get("current_refresh_fetch_enabled", True),
         "release_lag_metadata_complete": _release_lag_metadata_complete(row),
     }
 
