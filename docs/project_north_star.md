@@ -14,6 +14,41 @@ contract_path: specs/common/project_north_star_contract.yaml
 - 專案依據：《景氣循環投資》、現有 repository contracts、QA0-QA12 治理成果，以及產品功能討論
 - 目前狀態：本文件描述「最終應達成的能力」，不代表目前功能已完成或已通過經濟驗證
 
+## 2026-06-27 Doctrine Amendment
+
+Phase 43A adds `docs/investment_cycle_product_doctrine.md` and
+`specs/common/investment_cycle_product_doctrine.yaml` as a product-doctrine
+amendment to this North Star. The amendment does not replace the six
+capabilities, web information architecture, or safety principles in this file.
+It clarifies the mature product shape:
+
+```text
+current_declared_cycle_phase
++ ordered cycle state machine
++ phase-specific transition monitor
++ evidence explanation
++ portfolio policy research template
++ historical replay/backtest
+```
+
+Future phases must not reinterpret this North Star as a standalone four-way
+current phase classifier, phase winner/ranking system, or governance scaffold
+that does not move the product journey forward. Candidate phase, if used in a
+future phase, must mean a legal state-machine transition candidate rather than
+the winner of an isolated classifier. Current evidence profiles may explain
+support, contradiction, missing evidence, and abstention; they must not select
+the current phase before an explicit doctrine-aligned migration gate.
+
+The current user premise may initially declare the cycle as boom. Near-term
+work should therefore prioritize boom continuation, boom ending watch,
+recession watch, and recession confirmation while preserving the full legal
+cycle order:
+
+`recession -> recovery -> growth -> boom -> recession`
+
+All future planning must read this file, `docs/investment_cycle_product_doctrine.md`,
+and `specs/common/investment_cycle_product_doctrine.yaml`.
+
 ## 1. 產品北極星
 
 本專案的最終目標，是建立一套可長期使用、可追溯、可解釋、具 point-in-time 意識的總體經濟研究網頁系統。系統應定期取得官方總體資料，判讀美國景氣循環所處的復甦、成長、榮景、衰退階段，偵測階段轉折風險，解釋所有判斷的資料與規則來源，並提供安全隔離的歷史重播、回測與 portfolio policy research。

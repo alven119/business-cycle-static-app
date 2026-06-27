@@ -4,7 +4,12 @@
 
 This repository implements a Python-first static web app for business-cycle investing.
 
-The system maps macroeconomic indicators to four economic-cycle phases:
+The mature product is an ordered-cycle investing assistant, not a standalone
+four-way classifier. It tracks a declared cycle state, monitors legal
+transitions, explains evidence, supports portfolio policy research templates,
+and enables historical replay/backtest research.
+
+The legal business-cycle order is:
 
 1. recession
 2. recovery
@@ -17,12 +22,20 @@ The output is a static dashboard deployable to GitHub Pages and readable on iPho
 
 Do not classify the economic phase from a single latest data point.
 
-Most indicators must be interpreted through trend, momentum, reversal, percentile, persistence, and confidence rules.
+Do not build future work around a standalone current phase classifier, phase
+winner, phase ranking, role-count vote, or arbitrary numeric phase score.
+Evidence should support the declared state, legal next transition monitoring,
+abstention, or research replay/backtest.
+
+Most indicators must be interpreted through trend, momentum, reversal,
+percentile, persistence, confidence rules, release timing, and source
+provenance.
 
 The project must produce explainable outputs:
 
-- current phase
-- phase scores
+- declared current phase and declared phase age
+- legal next phase
+- transition watch and confirmation evidence
 - transition radar
 - indicator-level reasoning
 - data freshness
@@ -141,6 +154,8 @@ Before planning or implementing any phase, read:
 
 - docs/project_north_star.md
 - specs/common/project_north_star_contract.yaml
+- docs/investment_cycle_product_doctrine.md
+- specs/common/investment_cycle_product_doctrine.yaml
 
 Every phase must map its work to at least one product capability and must not conflict with the North Star semantics.
 
@@ -152,6 +167,9 @@ The following distinctions are mandatory:
 - revised diagnostic != point-in-time result
 - structural readiness != economic validation
 - portfolio research != investment recommendation
+- current evidence profile != standalone current phase classifier
+- candidate phase != isolated classifier winner
+- phase score != product answer
 
 Every final report must include:
 
@@ -161,5 +179,44 @@ Every final report must include:
 - deferred_capability_gaps
 - semantic_drift_count
 - production_behavior_change_count
+- product_doctrine_alignment_status
+- cycle_state_machine_alignment_status
+- standalone_classifier_added_count
+- phase_rank_or_score_added_count
+- legal_transition_semantics_preserved
+- portfolio_policy_research_alignment
+- historical_replay_backtest_alignment
+- deviation_cleanup_needed_count
 
 A phase must not be marked complete when semantic_drift_count > 0.
+
+## Investment Cycle Product Doctrine
+
+Before any implementation phase, Codex must read:
+
+- docs/project_north_star.md
+- docs/investment_cycle_product_doctrine.md
+- specs/common/investment_cycle_product_doctrine.yaml
+
+Every future phase must answer:
+
+1. Does this move the system closer to long-term cycle investing?
+2. Does this preserve ordered cycle state-machine semantics?
+3. Does this help transition detection, portfolio policy research,
+   replay/backtest, or dashboard education?
+4. Did it add standalone classifier, ranking, or scoring behavior that should
+   not exist as a mature product shape?
+5. Did it add governance-only scaffold without product progress?
+
+The default future product shape is:
+
+- current_declared_cycle_phase
+- ordered cycle state machine
+- phase-specific transition monitor
+- evidence explanation
+- portfolio policy research template
+- historical replay/backtest
+
+Do not delete existing legacy production v1 or governance artifacts merely
+because they are cleanup candidates. Record cleanup scope first, preserve
+lineage, and migrate only through an explicit phase gate.

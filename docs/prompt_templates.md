@@ -46,3 +46,15 @@ Report north_star_alignment_status, deferred_capability_gaps, semantic_drift_cou
 Do not mark the phase complete when semantic_drift_count > 0.
 Preserve: observation != phase evidence, watch != confirmation, candidate phase != current phase, revised diagnostic != point-in-time result, structural readiness != economic validation, and portfolio research != investment recommendation.
 ```
+
+## Product Doctrine Addendum
+
+Future phase prompts should also require:
+
+```text
+Read docs/investment_cycle_product_doctrine.md and specs/common/investment_cycle_product_doctrine.yaml.
+Treat the mature product as current_declared_cycle_phase + ordered cycle state machine + phase-specific transition monitor + evidence explanation + portfolio policy research template + historical replay/backtest.
+Do not add standalone current phase classifier, phase rank/winner, role-count voting selector, arbitrary phase score, or isolated candidate phase classifier.
+Report product_doctrine_alignment_status, cycle_state_machine_alignment_status, standalone_classifier_added_count, phase_rank_or_score_added_count, legal_transition_semantics_preserved, portfolio_policy_research_alignment, historical_replay_backtest_alignment, deviation_cleanup_needed_count, production_behavior_change_count, and semantic_drift_count.
+Every phase must answer whether it advances transition detection, portfolio policy research, replay/backtest, dashboard education, or a documented cleanup/safety blocker.
+```

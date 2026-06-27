@@ -329,9 +329,13 @@ The development next phase is `11`; the prospective track next action remains
 
 Before planning or implementing any future phase, agents must read
 `docs/project_north_star.md` and
-`specs/common/project_north_star_contract.yaml`. Each phase must declare the
-product capabilities, milestones, and web surfaces it advances and must keep
-the North Star semantic distinctions intact.
+`specs/common/project_north_star_contract.yaml`.
+
+Phase 43A adds product doctrine files that future phases must also read:
+`docs/investment_cycle_product_doctrine.md` and
+`specs/common/investment_cycle_product_doctrine.yaml`. Each phase must declare
+the product capabilities, milestones, and web surfaces it advances and must
+keep the North Star semantic distinctions intact.
 
 Common North Star hard gates are: document present, contract valid, phase
 capability mapping complete, web-surface mapping complete, semantic drift
@@ -339,6 +343,38 @@ count zero, unsupported product claim count zero, no research output mislabeled
 as production, no observation mislabeled as phase evidence, no watch mislabeled
 as confirmation, no revised diagnostic mislabeled as point-in-time, and no
 production behavior change without explicit approval.
+
+## Investment Cycle Product Doctrine Gates
+
+Future phases must preserve the Phase 43A doctrine amendment:
+
+- the mature product is not a standalone current phase classifier;
+- the legal cycle order is `recession -> recovery -> growth -> boom -> recession`;
+- current phase handling should use a declared state plus legal transition
+  monitoring;
+- candidate phase, if used, must mean legal transition candidate, not isolated
+  classifier winner;
+- current evidence profile may explain support, contradiction, missing evidence,
+  and abstention, but must not select the current phase before an explicit
+  migration gate;
+- historical validation should support transition timing, replay, and portfolio
+  policy research, not only static-label accuracy.
+
+Every future final report must include:
+
+- `product_doctrine_alignment_status`
+- `cycle_state_machine_alignment_status`
+- `standalone_classifier_added_count`
+- `phase_rank_or_score_added_count`
+- `legal_transition_semantics_preserved`
+- `portfolio_policy_research_alignment`
+- `historical_replay_backtest_alignment`
+- `deviation_cleanup_needed_count`
+- `production_behavior_change_count`
+- `semantic_drift_count`
+
+Phases that only add governance scaffolding are insufficient unless the prompt
+explicitly frames the phase as cleanup, audit, or safety-blocker work.
 
 ## Phase 11 North Star and Phase-Evidence Gates
 

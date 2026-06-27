@@ -1,0 +1,171 @@
+investment_cycle_product_doctrine:
+  doctrine_version: "1.0"
+  status: active
+  approved_at: "2026-06-27"
+  document_path: docs/investment_cycle_product_doctrine.md
+  source_book:
+    title: 景氣循環投資
+    local_review_source: docs/景氣循環投資.pdf
+    source_policy:
+      commit_pdf: false
+      runtime_data_source: false
+      allowed_extraction:
+        - page_reference
+        - short_statement_id
+        - operational_rule_semantics
+  primary_user_goal: >
+    Build a durable business-cycle investing assistant that tracks the current
+    declared cycle state, monitors legal transitions using book-aligned evidence,
+    explains data and gaps, supports portfolio policy research templates, and
+    enables historical replay/backtest without automatic trade actions.
+  prohibited_product_shapes:
+    - standalone_current_phase_classifier
+    - phase_rank_winner
+    - role_count_voting_phase_selector
+    - arbitrary_phase_score
+    - isolated_candidate_phase_classifier
+    - trading_signal_output
+    - target_weight_as_current_recommendation
+    - production_claim_without_migration
+    - current_evidence_profile_as_phase_picker
+    - static_label_accuracy_as_only_validation_goal
+    - governance_scaffold_without_product_progress
+  required_product_shapes:
+    - stateful_cycle_state_machine
+    - declared_current_phase_registry
+    - phase_specific_transition_monitor
+    - evidence_explanation
+    - portfolio_policy_research_template
+    - historical_replay
+    - strict_point_in_time_backtest
+    - dashboard_education_layer
+  cycle_order:
+    - recession
+    - recovery
+    - growth
+    - boom
+  legal_transitions:
+    recession: recovery
+    recovery: growth
+    growth: boom
+    boom: recession
+  current_phase_handling:
+    phase_may_be_user_declared: true
+    current_user_premise_phase: boom
+    standalone_reclassification_allowed: false
+    legal_transition_required_for_phase_change: true
+    phase_change_requires_evidence_confirmation: true
+    phase_change_requires_lineage: true
+    current_evidence_profile_may_explain: true
+    current_evidence_profile_may_select_phase: false
+  transition_monitoring:
+    legal_next_phase_by_declared_phase:
+      recession: recovery
+      recovery: growth
+      growth: boom
+      boom: recession
+    phase_specific_monitors:
+      boom:
+        - boom_continuation
+        - boom_ending_watch
+        - recession_watch
+        - recession_confirmation
+      recession:
+        - recession_depth
+        - trough_watch
+        - recovery_confirmation
+      recovery:
+        - recovery_confirmation
+        - growth_transition_readiness
+      growth:
+        - healthy_expansion
+        - overheating_watch
+        - boom_transition_readiness
+    watch_is_confirmation: false
+    transition_confirmation_changes_phase_automatically: false
+  portfolio_policy_research:
+    enabled_as_research_template: true
+    may_show_book_template_weights: true
+    must_not_emit_trade_action: true
+    must_not_claim_investment_advice: true
+    templates:
+      - passive_all_stock_baseline
+      - stock_cash_initial
+      - stock_cash_advanced
+      - stock_long_treasury_initial
+      - stock_long_treasury_advanced
+      - boom_70_50_30_template
+      - recession_defense_research_template
+      - recovery_re_risk_research_template
+  historical_replay_and_backtest:
+    required_scenarios:
+      - dotcom_cycle_2000_2003
+      - global_financial_crisis_2007_2009
+      - covid_recession_2020
+      - euro_debt_slowdown_2011_2012
+      - late_cycle_2018_2019
+      - custom_user_period
+    required_modes:
+      - revised_diagnostic
+      - strict_point_in_time
+    required_outputs:
+      - transition_timing
+      - evidence_attribution
+      - portfolio_policy_replay
+      - cash_flow_aware_returns
+      - drawdown_metrics
+      - false_signal_cost
+      - missed_recovery_cost
+    static_label_accuracy_only_is_sufficient: false
+  dashboard_requirements:
+    required_current_view_fields:
+      - declared_current_phase
+      - declared_phase_start
+      - phase_age
+      - legal_next_phase
+      - continuation_evidence
+      - transition_watch_evidence
+      - transition_confirmation_evidence
+      - missing_or_stale_evidence
+      - book_logic_explanation
+      - source_lineage
+      - relevant_portfolio_policy_template
+      - similar_historical_scenarios
+    must_label_research_only: true
+    must_not_imply_formal_current_decision_before_gate: true
+  safety_requirements:
+    no_trade_action: true
+    no_current_allocation_recommendation: true
+    no_promised_return: true
+    no_hidden_data_gap: true
+    no_revised_as_point_in_time: true
+    production_migration_requires_explicit_gate: true
+    book_pdf_must_not_be_committed: true
+  cleanup_policy:
+    phase43a_deletes_code: false
+    cleanup_candidates_must_not_be_deleted_without_audit: true
+    allowed_actions:
+      - keep
+      - keep_but_rename_or_reframe
+      - consolidate
+      - quarantine
+      - deprecate
+      - remove_candidate
+      - convert_to_state_machine_transition_monitor
+      - convert_to_backtest_replay_support
+  future_phase_policy:
+    every_phase_must_advance_doctrine: true
+    every_phase_must_report_product_goal_alignment: true
+    phases_that_only_add_governance_are_not_sufficient: true
+    cleanup_candidates_must_not_be_deleted_without_audit: true
+    required_final_report_fields:
+      - product_doctrine_alignment_status
+      - cycle_state_machine_alignment_status
+      - standalone_classifier_added_count
+      - phase_rank_or_score_added_count
+      - legal_transition_semantics_preserved
+      - portfolio_policy_research_alignment
+      - historical_replay_backtest_alignment
+      - deviation_cleanup_needed_count
+      - production_behavior_change_count
+      - semantic_drift_count
