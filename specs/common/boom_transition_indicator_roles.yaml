@@ -1,0 +1,91 @@
+boom_transition_indicator_roles:
+  role_contract_id: boom_transition_indicator_roles_v1
+  role_contract_version: "1.0"
+  status: active_research_runtime
+  source_phase: "48"
+  priority_roles:
+    - role_id: boom_claims_u_shape
+      phase_or_layer: boom_ending_indicators
+      required_series_ids:
+        - initial_jobless_claims
+      lane_mappings:
+        - boom_ending_watch
+        - recession_watch
+      transformation_semantics:
+        primary: moving_average_turning_point
+        raw_direction_alone_sufficient: false
+        smoothing_alone_sufficient: false
+      evidence_semantics:
+        watch_only: true
+        confirmation_by_itself: false
+        abstain_when_missing_or_unaligned: true
+      book_logic_summary: >
+        Initial claims may warn that boom labor strength is weakening, but the
+        role remains watch evidence. It cannot confirm recession by itself.
+    - role_id: boom_retail_sales_vs_broad_pce
+      phase_or_layer: boom_ending_indicators
+      required_series_ids:
+        - real_retail_sales
+      contextual_series_ids:
+        - real_personal_consumption_expenditures
+      lane_mappings:
+        - boom_continuation
+        - boom_ending_watch
+      transformation_semantics:
+        primary: same_mode_consumption_resilience_or_weakening
+        broad_consumption_context_required: true
+        raw_direction_alone_sufficient: false
+      evidence_semantics:
+        continuation_when_resilient: true
+        watch_when_persistent_weakening: true
+        abstain_when_alignment_incomplete: true
+      book_logic_summary: >
+        Retail sales must be interpreted with broader real consumption context.
+        Missing alignment produces abstention rather than a phase conclusion.
+    - role_id: boom_private_investment
+      phase_or_layer: boom_ending_indicators
+      required_series_ids:
+        - real_private_fixed_investment
+      lane_mappings:
+        - boom_continuation
+        - boom_ending_watch
+      transformation_semantics:
+        primary: investment_resilience_or_persistent_weakening
+        arbitrary_threshold_allowed: false
+      evidence_semantics:
+        continuation_when_resilient: true
+        watch_when_persistent_weakening: true
+        abstain_when_missing_or_unaligned: true
+      book_logic_summary: >
+        Private investment can explain boom continuation or late-cycle
+        weakening, but no numeric threshold or role-count vote is introduced.
+    - role_id: recession_employment_confirmation
+      phase_or_layer: recession_trough_requirements
+      required_series_ids:
+        - continuing_jobless_claims
+      lane_mappings:
+        - recession_confirmation
+      transformation_semantics:
+        primary: broad_employment_deterioration_confirmation
+        initial_claims_alone_sufficient: false
+      evidence_semantics:
+        confirmation_requires_stronger_evidence_than_watch: true
+        abstain_when_insufficient: true
+      book_logic_summary: >
+        Recession employment confirmation requires stronger labor deterioration
+        evidence than a watch lane. Initial claims alone cannot confirm.
+    - role_id: recession_consumption_confirmation
+      phase_or_layer: recession_trough_requirements
+      required_series_ids:
+        - real_personal_consumption_expenditures
+      lane_mappings:
+        - recession_confirmation
+      transformation_semantics:
+        primary: broad_consumption_deterioration_confirmation
+        single_retail_datapoint_sufficient: false
+      evidence_semantics:
+        confirmation_requires_broad_consumer_weakening: true
+        abstain_when_insufficient: true
+      book_logic_summary: >
+        Recession consumption confirmation requires broad consumer weakening.
+        A single weak retail datapoint is not sufficient.

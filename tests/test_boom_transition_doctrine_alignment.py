@@ -13,9 +13,10 @@ def test_phase46_closure_preserves_doctrine_boundaries() -> None:
 
     assert summary["result"] == "passed"
     assert summary["product_doctrine_alignment_status"] == "aligned"
-    assert summary["cycle_state_machine_alignment_status"] == (
-        "declared_registry_used_by_boom_transition_monitor"
-    )
+    assert summary["cycle_state_machine_alignment_status"] in {
+        "declared_registry_used_by_boom_transition_monitor",
+        "boom_transition_monitor_evidence_wired",
+    }
     assert summary["legal_transition_semantics_preserved"] is True
     assert summary["phase_start_research_assistant_added_to_future_plan"] is True
     assert summary["standalone_classifier_added_count"] == 0

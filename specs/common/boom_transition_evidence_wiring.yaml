@@ -1,0 +1,93 @@
+boom_transition_evidence_wiring:
+  wiring_id: boom_transition_evidence_wiring_v1
+  wiring_version: "1.0"
+  status: active_research_runtime
+  source_phase: "48"
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
+  monitor_dependency: specs/common/boom_transition_monitor.yaml
+  evidence_contract_dependency: specs/common/boom_transition_evidence_contract.yaml
+  priority_role_dependency: specs/common/boom_transition_indicator_roles.yaml
+  declared_state_requirements:
+    declared_current_phase: boom
+    legal_next_phase: recession
+    current_data_may_infer_declared_phase: false
+    declared_registry_auto_write_allowed: false
+  required_priority_role_ids:
+    - boom_claims_u_shape
+    - boom_retail_sales_vs_broad_pce
+    - boom_private_investment
+    - recession_employment_confirmation
+    - recession_consumption_confirmation
+  lane_requirements:
+    boom_continuation:
+      must_have_evidence_or_explicit_abstention: true
+      allowed_priority_role_ids:
+        - boom_retail_sales_vs_broad_pce
+        - boom_private_investment
+    boom_ending_watch:
+      must_have_evidence_or_explicit_abstention: true
+      allowed_priority_role_ids:
+        - boom_claims_u_shape
+        - boom_retail_sales_vs_broad_pce
+        - boom_private_investment
+    recession_watch:
+      must_have_evidence_or_explicit_abstention: true
+      allowed_priority_role_ids:
+        - boom_claims_u_shape
+    recession_confirmation:
+      must_have_evidence_or_explicit_abstention: true
+      allowed_priority_role_ids:
+        - recession_employment_confirmation
+        - recession_consumption_confirmation
+  evaluation_policy:
+    missing_input_behavior: explicit_abstention
+    unavailable_input_behavior: explicit_abstention
+    stale_input_behavior: explicit_abstention
+    watch_may_confirm_recession: false
+    recession_confirmation_may_use_watch_only: false
+    smoothing_alone_is_evidence: false
+    raw_direction_alone_is_turning_point: false
+    phase_age_used_as_transition_gate: false
+    missing_as_neutral: false
+    missing_as_zero: false
+  prohibited_runtime_behaviors:
+    - standalone_current_phase_classifier
+    - current_data_infers_declared_phase
+    - selected_phase_output
+    - phase_rank_output
+    - phase_score_output
+    - role_count_voting
+    - candidate_phase_emission
+    - current_phase_emission
+    - portfolio_policy_output
+    - backtest_execution
+    - label_runtime_feedback
+    - arbitrary_threshold
+    - numeric_weight
+    - historical_tuning
+    - production_behavior_change
+  hard_gates:
+    boom_transition_evidence_wiring_ready: true
+    boom_transition_evaluator_runtime_ready: true
+    declared_state_input_used: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    required_priority_role_count: 5
+    wired_priority_role_count: 5
+    evaluable_priority_role_count_min: 1
+    lane_output_count_min: 4
+    watch_confirmation_separation_valid: true
+    recession_confirmation_not_derived_from_watch_only: true
+    phase_age_used_as_transition_gate: false
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    selected_phase_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    declared_registry_modified: false
+    production_behavior_change_count: 0
+    legacy_v1_behavior_modified_count: 0
+    semantic_drift_count: 0

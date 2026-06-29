@@ -23,6 +23,14 @@ from business_cycle.cycle_state.declared_phase_registry import (
     DeclaredCycleState,
     load_declared_cycle_state,
 )
+from business_cycle.transition_monitor.boom_evidence_evaluators import (
+    evaluate_boom_transition_evidence,
+)
+from business_cycle.transition_monitor.boom_evidence_wiring import (
+    build_boom_transition_evidence_wiring,
+    load_boom_transition_indicator_roles,
+    priority_role_ids_for_lane,
+)
 from business_cycle.transition_monitor.boom_transition_rules import (
     LANE_RULES,
     BoomTransitionLaneRule,
@@ -68,11 +76,25 @@ def build_boom_transition_monitor(
     _load_required_contracts()
     declared_state = declared_state or load_declared_cycle_state()
     current_evidence = current_evidence or build_current_evidence_readiness()
-    rule_rows = {row["role_id"]: row for row in build_book_phase_evidence_rule_rows()}
+    rule_row_list = build_book_phase_evidence_rule_rows()
+    rule_rows = {row["role_id"]: row for row in rule_row_list}
     role_rows = current_evidence["role_readiness_rows"]
+    role_rows_by_id = {row["role_id"]: row for row in role_rows}
+    priority_role_contracts = load_boom_transition_indicator_roles()
+    evidence_wiring = build_boom_transition_evidence_wiring(
+        current_evidence=current_evidence,
+        declared_state=declared_state,
+        rule_rows=rule_row_list,
+    )
     source_freshness = _source_freshness_summary(current_evidence)
     lanes = {
-        rule.lane_id: _build_lane(rule, role_rows, rule_rows)
+        rule.lane_id: _build_lane(
+            rule,
+            role_rows,
+            role_rows_by_id,
+            rule_rows,
+            priority_role_contracts,
+        )
         for rule in LANE_RULES
     }
     missing = _missing_or_stale_evidence(lanes)
@@ -102,6 +124,44 @@ def build_boom_transition_monitor(
         and declared_state.phase_age_status == "unknown_or_user_required"
         else 0,
         "source_freshness_summary": source_freshness,
+        "boom_transition_evidence_wiring_ready": evidence_wiring[
+            "boom_transition_evidence_wiring_ready"
+        ],
+        "boom_transition_evaluator_runtime_ready": evidence_wiring[
+            "boom_transition_evaluator_runtime_ready"
+        ],
+        "required_priority_role_count": evidence_wiring[
+            "required_priority_role_count"
+        ],
+        "wired_priority_role_count": evidence_wiring["wired_priority_role_count"],
+        "evaluable_priority_role_count": evidence_wiring[
+            "evaluable_priority_role_count"
+        ],
+        "wired_evidence_role_count": evidence_wiring["wired_priority_role_count"],
+        "evaluable_evidence_role_count": evidence_wiring[
+            "evaluable_priority_role_count"
+        ],
+        "abstained_evidence_role_count": _abstained_priority_role_count(
+            evidence_wiring
+        ),
+        "missing_or_blocked_evidence_role_count": (
+            _missing_or_blocked_priority_role_count(evidence_wiring)
+        ),
+        "lane_output_count": len(lanes),
+        "boom_continuation_lane_has_evidence_or_explicit_abstention": (
+            _lane_has_evidence_or_explicit_abstention(lanes["boom_continuation"])
+        ),
+        "boom_ending_watch_lane_has_evidence_or_explicit_abstention": (
+            _lane_has_evidence_or_explicit_abstention(lanes["boom_ending_watch"])
+        ),
+        "recession_watch_lane_has_evidence_or_explicit_abstention": (
+            _lane_has_evidence_or_explicit_abstention(lanes["recession_watch"])
+        ),
+        "recession_confirmation_lane_has_evidence_or_explicit_abstention": (
+            _lane_has_evidence_or_explicit_abstention(
+                lanes["recession_confirmation"]
+            )
+        ),
         "boom_continuation_evidence": lanes["boom_continuation"],
         "boom_ending_watch_evidence": lanes["boom_ending_watch"],
         "recession_watch_evidence": lanes["recession_watch"],
@@ -118,6 +178,9 @@ def build_boom_transition_monitor(
         "watch_confirmation_separation_valid": _watch_confirmation_separation_valid(
             lanes
         ),
+        "recession_confirmation_not_derived_from_watch_only": (
+            _recession_confirmation_not_derived_from_watch_only(lanes)
+        ),
         "allowed_uses": [
             "dashboard_declared_state_transition_context",
             "boom_transition_research_monitor",
@@ -133,6 +196,7 @@ def build_boom_transition_monitor(
         "candidate_selection_enabled": False,
         "candidate_phase_emitted": False,
         "current_phase_emitted": False,
+        "declared_registry_modified": False,
         "selected_phase_output_count": 0,
         "phase_rank_or_score_added_count": 0,
         "standalone_classifier_added_count": 0,
@@ -155,18 +219,34 @@ def build_boom_transition_monitor(
 
 
 def summarize_boom_transition_monitor() -> dict[str, Any]:
-    """Summarize Phase46 hard gates."""
+    """Summarize boom transition monitor hard gates."""
 
     monitor = build_boom_transition_monitor()
     return {
-        "phase": "46",
+        "phase": "48",
         "boom_transition_monitor_contract_ready": True,
         "boom_transition_monitor_runtime_ready": monitor["result"] == "passed",
+        "boom_transition_evidence_wiring_ready": monitor[
+            "boom_transition_evidence_wiring_ready"
+        ],
+        "boom_transition_evaluator_runtime_ready": monitor[
+            "boom_transition_evaluator_runtime_ready"
+        ],
         "declared_state_input_used": monitor["declared_state_input_used"],
         "declared_current_phase": monitor["declared_current_phase"],
         "legal_next_phase": monitor["legal_next_phase"],
         "monitor_as_of": monitor["monitor_as_of"],
         "data_mode": monitor["data_mode"],
+        "required_priority_role_count": monitor["required_priority_role_count"],
+        "wired_priority_role_count": monitor["wired_priority_role_count"],
+        "evaluable_priority_role_count": monitor["evaluable_priority_role_count"],
+        "wired_evidence_role_count": monitor["wired_evidence_role_count"],
+        "evaluable_evidence_role_count": monitor["evaluable_evidence_role_count"],
+        "abstained_evidence_role_count": monitor["abstained_evidence_role_count"],
+        "missing_or_blocked_evidence_role_count": monitor[
+            "missing_or_blocked_evidence_role_count"
+        ],
+        "lane_output_count": monitor["lane_output_count"],
         "boom_continuation_lane_ready": monitor["boom_continuation_evidence"][
             "lane_ready"
         ],
@@ -182,6 +262,21 @@ def summarize_boom_transition_monitor() -> dict[str, Any]:
         "watch_confirmation_separation_valid": monitor[
             "watch_confirmation_separation_valid"
         ],
+        "boom_continuation_lane_has_evidence_or_explicit_abstention": monitor[
+            "boom_continuation_lane_has_evidence_or_explicit_abstention"
+        ],
+        "boom_ending_watch_lane_has_evidence_or_explicit_abstention": monitor[
+            "boom_ending_watch_lane_has_evidence_or_explicit_abstention"
+        ],
+        "recession_watch_lane_has_evidence_or_explicit_abstention": monitor[
+            "recession_watch_lane_has_evidence_or_explicit_abstention"
+        ],
+        "recession_confirmation_lane_has_evidence_or_explicit_abstention": monitor[
+            "recession_confirmation_lane_has_evidence_or_explicit_abstention"
+        ],
+        "recession_confirmation_not_derived_from_watch_only": monitor[
+            "recession_confirmation_not_derived_from_watch_only"
+        ],
         "phase_age_context_available": monitor["phase_age_context_available"],
         "phase_age_status": monitor["phase_age_status"],
         "phase_age_used_as_transition_gate": monitor[
@@ -196,6 +291,7 @@ def summarize_boom_transition_monitor() -> dict[str, Any]:
         "selected_phase_output_count": monitor["selected_phase_output_count"],
         "candidate_phase_emitted": monitor["candidate_phase_emitted"],
         "current_phase_emitted": monitor["current_phase_emitted"],
+        "declared_registry_modified": monitor["declared_registry_modified"],
         "portfolio_policy_output_count": monitor["portfolio_policy_output_count"],
         "backtest_execution_count": monitor["backtest_execution_count"],
         "label_used_by_runtime_count": monitor["label_used_by_runtime_count"],
@@ -213,7 +309,7 @@ def summarize_boom_transition_monitor() -> dict[str, Any]:
         "semantic_drift_count": monitor["semantic_drift_count"],
         "product_doctrine_alignment_status": "aligned",
         "cycle_state_machine_alignment_status": (
-            "declared_registry_used_by_boom_transition_monitor"
+            "boom_transition_monitor_evidence_wired"
         ),
         "legal_transition_semantics_preserved": True,
         "boom_continuation_evidence_summary": _lane_report(
@@ -237,17 +333,27 @@ def summarize_boom_transition_monitor() -> dict[str, Any]:
 def _build_lane(
     lane_rule: BoomTransitionLaneRule,
     role_rows: list[dict[str, Any]],
+    role_rows_by_id: dict[str, dict[str, Any]],
     rule_rows: dict[str, dict[str, Any]],
+    priority_role_contracts: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
-    source_rows = [
-        row
+    source_rows_by_id = {
+        row["role_id"]: row
         for row in role_rows
         if row["phase"] == lane_rule.source_phase
         and row["phase_or_layer"] == lane_rule.source_phase_or_layer
         and row["role_id"].startswith(lane_rule.role_prefixes)
-    ]
+    }
+    for role_id in priority_role_ids_for_lane(lane_rule.lane_id):
+        source_rows_by_id[role_id] = role_rows_by_id[role_id]
+    source_rows = list(source_rows_by_id.values())
     evidence_items = [
-        _evidence_item(row, rule_rows[row["role_id"]], lane_rule)
+        _evidence_item(
+            row,
+            rule_rows[row["role_id"]],
+            lane_rule,
+            priority_role_contracts,
+        )
         for row in source_rows
     ]
     supportive = [item for item in evidence_items if item["lane_evidence_state"] == "supportive"]
@@ -262,6 +368,8 @@ def _build_lane(
         lane_status = "evidence_present"
     elif contradictory:
         lane_status = "contradictory_or_mixed"
+    elif evidence_items and len(missing) == len(evidence_items):
+        lane_status = "explicit_abstention"
     return {
         "lane_id": lane_rule.lane_id,
         "lane_type": lane_rule.lane_type,
@@ -273,6 +381,18 @@ def _build_lane(
         "supportive_evidence_count": len(supportive),
         "contradictory_evidence_count": len(contradictory),
         "missing_or_abstained_evidence_count": len(missing),
+        "phase48_wired_evidence_count": sum(
+            item.get("wired_by_phase48", False) for item in evidence_items
+        ),
+        "phase48_evaluable_evidence_count": sum(
+            item.get("evaluator_runtime_ready", False) for item in evidence_items
+        ),
+        "explicit_abstention_count": sum(
+            item.get("explicit_abstention", False) for item in evidence_items
+        ),
+        "has_evidence_or_explicit_abstention": (
+            _evidence_items_have_evidence_or_explicit_abstention(evidence_items)
+        ),
         "book_logic_summary": lane_rule.book_logic_summary,
         "evidence_items": evidence_items,
         "selected_phase_output_count": 0,
@@ -285,7 +405,16 @@ def _evidence_item(
     row: dict[str, Any],
     rule: dict[str, Any],
     lane_rule: BoomTransitionLaneRule,
+    priority_role_contracts: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
+    role_contract = priority_role_contracts.get(row["role_id"])
+    if role_contract and lane_rule.lane_id in role_contract["lane_mappings"]:
+        return evaluate_boom_transition_evidence(
+            role_row=row,
+            rule_row=rule,
+            role_contract=role_contract,
+            lane_rule=lane_rule,
+        )
     status = row["current_evidence_status"]
     lane_state = _lane_state(status, lane_rule.lane_id)
     return {
@@ -302,6 +431,35 @@ def _evidence_item(
         "typed_evidence_family": rule["typed_evidence_family"],
         "provenance_status": "available_from_existing_rule_registry",
         "data_mode": row["data_mode"],
+        "evaluator_runtime_ready": (
+            rule["evaluator_status"] == "implemented_phase_evidence"
+        ),
+        "evaluator_runtime_status": "existing_non_priority_row",
+        "phase_evidence_output_available": row[
+            "current_phase_evidence_output_available"
+        ],
+        "explicit_abstention": lane_state in {"abstained", "unavailable"},
+        "watch_vs_confirmation_semantics": (
+            "confirmation_lane_not_watch"
+            if lane_rule.confirmation_lane
+            else "watch_lane_not_confirmation"
+            if lane_rule.watch_lane
+            else "continuation_context_not_transition_confirmation"
+        ),
+        "watch_evidence_promoted_to_confirmation": False,
+        "confirmation_derived_from_watch_only": False,
+        "smoothing_only_used_as_evidence": False,
+        "raw_direction_alone_used_as_turning_point": False,
+        "missing_treated_as_neutral": False,
+        "missing_treated_as_zero": False,
+        "proxy_fallback_used": False,
+        "revised_fallback_used_for_point_in_time": False,
+        "arbitrary_threshold_used": False,
+        "numeric_weight_used": False,
+        "role_count_voting_used": False,
+        "historical_label_tuning_used": False,
+        "market_return_tuning_used": False,
+        "wired_by_phase48": False,
     }
 
 
@@ -387,10 +545,60 @@ def _watch_confirmation_separation_valid(lanes: dict[str, dict[str, Any]]) -> bo
     )
 
 
+def _evidence_items_have_evidence_or_explicit_abstention(
+    evidence_items: list[dict[str, Any]],
+) -> bool:
+    if not evidence_items:
+        return False
+    return any(
+        item["lane_evidence_state"] in {"supportive", "contradictory"}
+        or item.get("explicit_abstention", False)
+        for item in evidence_items
+    )
+
+
+def _lane_has_evidence_or_explicit_abstention(lane: dict[str, Any]) -> bool:
+    return bool(lane["has_evidence_or_explicit_abstention"])
+
+
+def _recession_confirmation_not_derived_from_watch_only(
+    lanes: dict[str, dict[str, Any]],
+) -> bool:
+    confirmation_items = lanes["recession_confirmation"]["evidence_items"]
+    return bool(confirmation_items) and all(
+        item.get("watch_evidence_promoted_to_confirmation") is False
+        and item.get("confirmation_derived_from_watch_only") is False
+        and item["watch_vs_confirmation_semantics"] == "confirmation_lane_not_watch"
+        for item in confirmation_items
+    )
+
+
+def _abstained_priority_role_count(evidence_wiring: dict[str, Any]) -> int:
+    return sum(
+        row["explicit_abstention"]
+        for row in evidence_wiring["priority_role_rows"]
+    )
+
+
+def _missing_or_blocked_priority_role_count(evidence_wiring: dict[str, Any]) -> int:
+    return sum(
+        row["explicit_abstention"] or bool(row["blocker_reason_codes"])
+        for row in evidence_wiring["priority_role_rows"]
+    )
+
+
 def _lane_report(lane: dict[str, Any]) -> dict[str, Any]:
     return {
         "lane_status": lane["lane_status"],
         "evidence_count": lane["evidence_count"],
+        "phase48_wired_evidence_count": lane["phase48_wired_evidence_count"],
+        "phase48_evaluable_evidence_count": lane[
+            "phase48_evaluable_evidence_count"
+        ],
+        "explicit_abstention_count": lane["explicit_abstention_count"],
+        "has_evidence_or_explicit_abstention": lane[
+            "has_evidence_or_explicit_abstention"
+        ],
         "supportive_evidence_count": lane["supportive_evidence_count"],
         "contradictory_evidence_count": lane["contradictory_evidence_count"],
         "missing_or_abstained_evidence_count": lane[
@@ -416,14 +624,33 @@ def _load_required_contracts() -> None:
 
 def _passes(artifact: dict[str, Any]) -> bool:
     return (
-        artifact["declared_state_input_used"] is True
+        artifact["boom_transition_evidence_wiring_ready"] is True
+        and artifact["boom_transition_evaluator_runtime_ready"] is True
+        and artifact["declared_state_input_used"] is True
         and artifact["declared_current_phase"] == "boom"
         and artifact["legal_next_phase"] == "recession"
+        and artifact["required_priority_role_count"] == 5
+        and artifact["wired_priority_role_count"] == 5
+        and artifact["evaluable_priority_role_count"] > 0
+        and artifact["lane_output_count"] >= 4
         and artifact["boom_continuation_evidence"]["lane_ready"] is True
         and artifact["boom_ending_watch_evidence"]["lane_ready"] is True
         and artifact["recession_watch_evidence"]["lane_ready"] is True
         and artifact["recession_confirmation_evidence"]["lane_ready"] is True
+        and artifact[
+            "boom_continuation_lane_has_evidence_or_explicit_abstention"
+        ] is True
+        and artifact[
+            "boom_ending_watch_lane_has_evidence_or_explicit_abstention"
+        ] is True
+        and artifact[
+            "recession_watch_lane_has_evidence_or_explicit_abstention"
+        ] is True
+        and artifact[
+            "recession_confirmation_lane_has_evidence_or_explicit_abstention"
+        ] is True
         and artifact["watch_confirmation_separation_valid"] is True
+        and artifact["recession_confirmation_not_derived_from_watch_only"] is True
         and artifact["phase_age_context_available"] is False
         and artifact["phase_age_status"] == "unknown_or_user_required"
         and artifact["phase_age_used_as_transition_gate"] is False
@@ -434,6 +661,9 @@ def _passes(artifact: dict[str, Any]) -> bool:
         and artifact["selected_phase_output_count"] == 0
         and artifact["candidate_phase_emitted"] is False
         and artifact["current_phase_emitted"] is False
+        and artifact["declared_registry_modified"] is False
+        and artifact["portfolio_policy_output_count"] == 0
+        and artifact["backtest_execution_count"] == 0
         and artifact["label_used_by_runtime_count"] == 0
         and artifact["evidence_rule_modified_count"] == 0
         and artifact["arbitrary_threshold_added_count"] == 0
@@ -442,5 +672,6 @@ def _passes(artifact: dict[str, Any]) -> bool:
         and artifact["historical_tuning_leakage_count"] == 0
         and artifact["production_behavior_change_count"] == 0
         and artifact["legacy_v1_behavior_modified_count"] == 0
+        and artifact["semantic_drift_count"] == 0
         and artifact["prohibited_action_field_count"] == 0
     )

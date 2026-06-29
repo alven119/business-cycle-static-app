@@ -178,6 +178,14 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor"),
         rationale="boom transition view model labels watch/confirmation as research-only",
     ),
+    "tests/test_boom_transition_evidence_wiring.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="Phase48 wiring maps priority macro evidence to transition lanes",
+    ),
+    "tests/test_boom_transition_evaluators.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="Phase48 evaluators preserve watch/confirmation and abstention boundaries",
+    ),
     "tests/test_boom_transition_doctrine_alignment.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase46 closure proves boom monitor doctrine boundaries",
@@ -193,6 +201,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
     "tests/test_phase47_doctrine_alignment.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase47 closure proves phase-start assistant boundaries",
+    ),
+    "tests/test_phase48_doctrine_alignment.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase48 closure proves boom transition evidence wiring boundaries",
     ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),

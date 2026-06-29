@@ -309,6 +309,7 @@ def build_phase48_boom_monitor_evidence_wiring_plan(
                     "watch_vs_confirmation_semantics": _watch_confirmation_semantics(
                         lane
                     ),
+                    "wired_by_phase48": item.get("wired_by_phase48", False),
                     "blocker": role["blocker_reason_codes"] or [],
                 }
             )
@@ -316,6 +317,7 @@ def build_phase48_boom_monitor_evidence_wiring_plan(
         item
         for item in lane_inputs
         if item["role_id"] in PHASE48_PRIORITY_ROLE_IDS
+        and item["wired_by_phase48"]
     ]
     return {
         "phase48_boom_monitor_evidence_wiring_plan_ready": True,

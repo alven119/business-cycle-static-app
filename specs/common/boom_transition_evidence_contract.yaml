@@ -5,6 +5,7 @@ boom_transition_evidence_contract:
   declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
   ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
   evidence_source_dependency: src/business_cycle/current/current_evidence_readiness.py
+  evidence_wiring_dependency: specs/common/boom_transition_evidence_wiring.yaml
   doctrine_dependency: specs/common/investment_cycle_product_doctrine.yaml
   required_lanes:
     boom_continuation:

@@ -5,6 +5,7 @@ boom_transition_monitor:
   declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
   ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
   evidence_contract_dependency: specs/common/boom_transition_evidence_contract.yaml
+  evidence_wiring_dependency: specs/common/boom_transition_evidence_wiring.yaml
   current_evidence_source: src/business_cycle/current/current_evidence_readiness.py
   declared_state_requirements:
     declared_current_phase: boom
@@ -30,10 +31,17 @@ boom_transition_monitor:
   hard_gates:
     boom_transition_monitor_contract_ready: true
     boom_transition_monitor_runtime_ready: true
+    boom_transition_evidence_wiring_ready: true
+    boom_transition_evaluator_runtime_ready: true
     declared_state_input_used: true
     declared_current_phase: boom
     legal_next_phase: recession
+    required_priority_role_count: 5
+    wired_priority_role_count: 5
+    evaluable_priority_role_count_min: 1
+    lane_output_count_min: 4
     watch_confirmation_separation_valid: true
+    recession_confirmation_not_derived_from_watch_only: true
     phase_age_used_as_transition_gate: false
     current_data_used_to_infer_declared_phase_count: 0
     standalone_classifier_added_count: 0

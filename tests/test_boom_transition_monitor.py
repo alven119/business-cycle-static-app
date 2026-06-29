@@ -28,6 +28,30 @@ def test_all_required_lanes_are_ready_and_separated() -> None:
     assert monitor["recession_watch_evidence"]["watch_lane"] is True
     assert monitor["recession_confirmation_evidence"]["confirmation_lane"] is True
     assert monitor["watch_confirmation_separation_valid"] is True
+    assert monitor["recession_confirmation_not_derived_from_watch_only"] is True
+
+
+def test_phase48_priority_evidence_is_wired_into_lanes() -> None:
+    monitor = build_boom_transition_monitor()
+
+    assert monitor["boom_transition_evidence_wiring_ready"] is True
+    assert monitor["boom_transition_evaluator_runtime_ready"] is True
+    assert monitor["required_priority_role_count"] == 5
+    assert monitor["wired_priority_role_count"] == 5
+    assert monitor["evaluable_priority_role_count"] > 0
+    assert monitor["lane_output_count"] >= 4
+    assert monitor[
+        "boom_continuation_lane_has_evidence_or_explicit_abstention"
+    ] is True
+    assert monitor[
+        "boom_ending_watch_lane_has_evidence_or_explicit_abstention"
+    ] is True
+    assert monitor[
+        "recession_watch_lane_has_evidence_or_explicit_abstention"
+    ] is True
+    assert monitor[
+        "recession_confirmation_lane_has_evidence_or_explicit_abstention"
+    ] is True
 
 
 def test_phase_age_unknown_status_is_not_a_transition_gate() -> None:
@@ -45,8 +69,12 @@ def test_monitor_summary_hard_gates_pass() -> None:
 
     assert summary["boom_transition_monitor_contract_ready"] is True
     assert summary["boom_transition_monitor_runtime_ready"] is True
+    assert summary["boom_transition_evidence_wiring_ready"] is True
+    assert summary["boom_transition_evaluator_runtime_ready"] is True
     assert summary["declared_current_phase"] == "boom"
     assert summary["legal_next_phase"] == "recession"
+    assert summary["required_priority_role_count"] == 5
+    assert summary["wired_priority_role_count"] == 5
     assert summary["standalone_classifier_added_count"] == 0
     assert summary["phase_rank_or_score_added_count"] == 0
     assert summary["selected_phase_output_count"] == 0

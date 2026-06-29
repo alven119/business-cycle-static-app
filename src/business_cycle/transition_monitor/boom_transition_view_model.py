@@ -28,6 +28,13 @@ def build_boom_transition_view_model(
         "legal_next_phase": monitor["legal_next_phase"],
         "monitor_as_of": monitor["monitor_as_of"],
         "data_mode": monitor["data_mode"],
+        "required_priority_role_count": monitor["required_priority_role_count"],
+        "wired_priority_role_count": monitor["wired_priority_role_count"],
+        "evaluable_priority_role_count": monitor["evaluable_priority_role_count"],
+        "abstained_evidence_role_count": monitor["abstained_evidence_role_count"],
+        "missing_or_blocked_evidence_role_count": monitor[
+            "missing_or_blocked_evidence_role_count"
+        ],
         "phase_age_context_available": monitor["phase_age_context_available"],
         "phase_age_status": monitor["phase_age_status"],
         "phase_age_used_as_transition_gate": monitor[
@@ -54,6 +61,12 @@ def build_boom_transition_view_model(
             "watch_confirmation_separated": monitor[
                 "watch_confirmation_separation_valid"
             ],
+            "recession_confirmation_not_derived_from_watch_only": monitor[
+                "recession_confirmation_not_derived_from_watch_only"
+            ],
+            "phase48_evidence_wiring_ready": monitor[
+                "boom_transition_evidence_wiring_ready"
+            ],
         },
     }
     if PROHIBITED_FIELDS.intersection(view_model):
@@ -70,6 +83,14 @@ def _lane_summary(lane: dict[str, Any]) -> dict[str, Any]:
         "watch_lane": lane["watch_lane"],
         "confirmation_lane": lane["confirmation_lane"],
         "evidence_count": lane["evidence_count"],
+        "phase48_wired_evidence_count": lane["phase48_wired_evidence_count"],
+        "phase48_evaluable_evidence_count": lane[
+            "phase48_evaluable_evidence_count"
+        ],
+        "explicit_abstention_count": lane["explicit_abstention_count"],
+        "has_evidence_or_explicit_abstention": lane[
+            "has_evidence_or_explicit_abstention"
+        ],
         "supportive_evidence_count": lane["supportive_evidence_count"],
         "contradictory_evidence_count": lane["contradictory_evidence_count"],
         "missing_or_abstained_evidence_count": lane[

@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-"""Show boom transition monitor summary."""
+"""Show Phase48 boom transition evidence wiring closure summary."""
 
 from __future__ import annotations
 
-from business_cycle.transition_monitor.boom_transition_monitor import (
-    summarize_boom_transition_monitor,
+from business_cycle.audits.phase48_boom_transition_evidence_wiring_closure import (
+    summarize_phase48_boom_transition_evidence_wiring_closure,
 )
 
 
 def main() -> int:
-    summary = summarize_boom_transition_monitor()
+    summary = summarize_phase48_boom_transition_evidence_wiring_closure()
     for key, value in summary.items():
         print(f"{key}={_format(value)}")
     return 0 if summary["result"] == "passed" else 1

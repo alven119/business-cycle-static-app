@@ -1,0 +1,36 @@
+phase48_boom_transition_evidence_wiring_closure:
+  phase_id: "48"
+  status: active
+  closure_status: closed_boom_transition_monitor_evidence_wired_no_phase_selection
+  required_artifacts:
+    - specs/common/boom_transition_evidence_wiring.yaml
+    - specs/common/boom_transition_indicator_roles.yaml
+    - src/business_cycle/transition_monitor/boom_evidence_wiring.py
+    - src/business_cycle/transition_monitor/boom_evidence_evaluators.py
+    - scripts/show_boom_transition_evidence_wiring.py
+    - scripts/show_boom_transition_monitor.py
+  hard_gates:
+    boom_transition_evidence_wiring_ready: true
+    boom_transition_evaluator_runtime_ready: true
+    declared_state_input_used: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    required_priority_role_count: 5
+    wired_priority_role_count: 5
+    evaluable_priority_role_count_min: 1
+    lane_output_count_min: 4
+    watch_confirmation_separation_valid: true
+    recession_confirmation_not_derived_from_watch_only: true
+    phase_age_used_as_transition_gate: false
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    selected_phase_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    declared_registry_modified: false
+    production_behavior_change_count: 0
+    legacy_v1_behavior_modified_count: 0
+    semantic_drift_count: 0
+    cycle_state_machine_alignment_status: boom_transition_monitor_evidence_wired

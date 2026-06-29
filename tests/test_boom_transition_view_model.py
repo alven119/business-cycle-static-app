@@ -15,7 +15,10 @@ def test_boom_transition_view_model_labels_declared_state_and_research_only() ->
     assert view_model["research_only"] is True
     assert view_model["declared_current_phase"] == "boom"
     assert view_model["legal_next_phase"] == "recession"
+    assert view_model["required_priority_role_count"] == 5
+    assert view_model["wired_priority_role_count"] == 5
     assert view_model["trust_metadata"]["uses_current_data_to_infer_declared_phase"] is False
+    assert view_model["trust_metadata"]["phase48_evidence_wiring_ready"] is True
 
 
 def test_boom_transition_view_model_has_no_prohibited_fields() -> None:
@@ -33,3 +36,7 @@ def test_boom_transition_view_model_lane_summaries_preserve_watch_confirmation_s
     assert lanes["recession_watch"]["watch_lane"] is True
     assert lanes["recession_confirmation"]["confirmation_lane"] is True
     assert lanes["recession_confirmation"]["watch_lane"] is False
+    assert lanes["boom_continuation"]["has_evidence_or_explicit_abstention"] is True
+    assert lanes["boom_ending_watch"]["has_evidence_or_explicit_abstention"] is True
+    assert lanes["recession_watch"]["has_evidence_or_explicit_abstention"] is True
+    assert lanes["recession_confirmation"]["has_evidence_or_explicit_abstention"] is True
