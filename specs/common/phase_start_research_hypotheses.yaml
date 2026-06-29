@@ -1,0 +1,46 @@
+phase_start_research_hypotheses:
+  hypothesis_contract_id: phase_start_research_hypotheses_v1
+  hypothesis_contract_version: "1.0"
+  status: active_research_contract
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  hypothesis_scope:
+    declared_phase: boom
+    legal_previous_phase: growth
+    legal_next_phase: recession
+    transition_context: recovery_to_boom_start_context_for_declared_boom
+  required_hypotheses:
+    - hypothesis_id: user_prior_hypothesis
+      hypothesis_source: user_provided
+      candidate_start_date_or_window: >
+        User-provided rough window: boom may have started before mid-2025;
+        April-May 2026 may be a recovery-to-boom transition revision window.
+      hypothesis_status: user_input_unverified
+      may_modify_declared_registry: false
+      requires_user_confirmation: true
+      false_precision_allowed: false
+    - hypothesis_id: evidence_based_research_hypothesis
+      hypothesis_source: existing_macro_evidence_contracts
+      candidate_start_date_or_window: null
+      hypothesis_status: insufficient_evidence
+      may_modify_declared_registry: false
+      requires_user_confirmation: true
+      false_precision_allowed: false
+  evidence_requirements:
+    supporting_evidence:
+      - growth_stability_roles
+      - boom_presence_roles
+      - transition_watch_roles
+    contradictory_evidence:
+      - recession_watch_roles
+      - recession_confirmation_roles
+    missing_evidence_policy: list_role_and_source_blockers
+    freshness_policy: preserve_release_lag_and_stale_caveats
+    source_provenance_policy: include_series_rule_and_snapshot_metadata
+    book_traceability_policy: include_statement_ids_and_page_references_only
+  hard_gates:
+    hypothesis_count_minimum: 2
+    user_prior_hypothesis_present: true
+    evidence_based_hypothesis_present: true
+    evidence_based_hypothesis_may_abstain: true
+    false_precision_start_date_count: 0
+    registry_write_allowed: false

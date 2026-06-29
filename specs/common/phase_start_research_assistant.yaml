@@ -1,0 +1,83 @@
+phase_start_research_assistant:
+  assistant_id: phase_start_research_assistant_v1
+  assistant_version: "1.0"
+  status: active_research_runtime
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
+  boom_transition_monitor_dependency: specs/common/boom_transition_monitor.yaml
+  hypothesis_contract_dependency: specs/common/phase_start_research_hypotheses.yaml
+  current_evidence_dependency: src/business_cycle/current/current_evidence_readiness.py
+  purpose:
+    - research_candidate_start_windows_for_declared_boom
+    - explain_recovery_to_boom_transition_hypothesis_context
+    - preserve_missing_contradictory_and_stale_evidence
+    - prepare_phase48_boom_transition_monitor_evidence_wiring
+  declared_registry_policy:
+    registry_write_allowed: false
+    declared_phase_start_date_may_be_modified_by_assistant: false
+    user_confirmation_required: true
+    governed_declaration_required_before_registry_write: true
+  phase_age_policy:
+    phase_age_used_as_transition_gate: false
+    phase_age_false_precision_count: 0
+    no_duration_only_transition_rule: true
+  output_policy:
+    research_only: true
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    selected_phase_output_count: 0
+    phase_rank_or_score_added_count: 0
+    portfolio_policy_output_count: 0
+    backtest_execution_count: 0
+  required_output_fields:
+    - declared_current_phase
+    - declared_phase_start_date_current_value
+    - phase_age_status_current_value
+    - legal_next_phase
+    - hypothesis_count
+    - user_prior_hypothesis_present
+    - evidence_based_hypothesis_present
+    - candidate_start_date_or_window
+    - hypothesis_status
+    - supporting_evidence
+    - contradictory_evidence
+    - missing_evidence
+    - freshness_or_release_lag_caveats
+    - source_provenance
+    - book_traceability
+    - user_confirmation_required
+    - registry_write_allowed
+    - phase_age_used_as_transition_gate
+    - declared_registry_modified
+  prohibited_outputs:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_winner
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    phase_start_research_assistant_contract_ready: true
+    phase_start_research_assistant_runtime_ready: true
+    declared_current_phase: boom
+    declared_phase_start_date_unchanged: true
+    registry_write_allowed: false
+    user_confirmation_required: true
+    hypothesis_count_minimum: 2
+    user_prior_hypothesis_present: true
+    evidence_based_hypothesis_present: true
+    false_precision_start_date_count: 0
+    phase_age_used_as_transition_gate: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    selected_phase_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
