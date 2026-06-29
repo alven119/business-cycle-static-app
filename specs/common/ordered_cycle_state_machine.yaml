@@ -1,0 +1,42 @@
+ordered_cycle_state_machine:
+  state_machine_id: ordered_cycle_state_machine_v1
+  state_machine_version: "1.0"
+  status: active_research_contract
+  doctrine_dependency: specs/common/investment_cycle_product_doctrine.yaml
+  cycle_order:
+    - recession
+    - recovery
+    - growth
+    - boom
+  legal_transitions:
+    recession: recovery
+    recovery: growth
+    growth: boom
+    boom: recession
+  legal_previous_transitions:
+    recession: boom
+    recovery: recession
+    growth: recovery
+    boom: growth
+  transition_rules:
+    self_transition_legal_next_allowed: false
+    skip_transition_allowed_without_override: false
+    reverse_transition_allowed_without_override: false
+    override_contract_required_for_illegal_transition: true
+    override_contract_implemented_in_phase45: false
+  prohibited_selector_mechanics:
+    standalone_current_phase_classifier: true
+    phase_score_selector: true
+    phase_rank_selector: true
+    phase_winner_selector: true
+    role_count_voting_selector: true
+    current_data_phase_inference: true
+  hard_gates:
+    ordered_cycle_state_machine_ready: true
+    legal_cycle_order_valid: true
+    boom_legal_next_phase: recession
+    recession_legal_next_phase: recovery
+    recovery_legal_next_phase: growth
+    growth_legal_next_phase: boom
+    no_self_transition_as_legal_next: true
+    legal_transition_semantics_preserved: true

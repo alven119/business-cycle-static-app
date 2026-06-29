@@ -1,0 +1,58 @@
+declared_cycle_state_registry:
+  registry_id: declared_cycle_state_registry_v1
+  registry_version: "1.0"
+  status: active_research_default
+  doctrine_dependency: specs/common/investment_cycle_product_doctrine.yaml
+  standing_contract_dependency: specs/common/phase_execution_standing_contract.yaml
+  registry_semantics:
+    declared_state_not_inferred_current_phase: true
+    current_data_used_to_infer_declared_phase: false
+    formal_current_phase_inference_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+  declared_state:
+    declared_current_phase: boom
+    declared_phase_start_date: null
+    declared_phase_start_date_status: user_required
+    phase_age_status: unknown_or_user_required
+    declaration_source: user_declared
+    declaration_status: active_research_default
+    declaration_rationale: >
+      Initial doctrine-aligned research default from the user premise. This is
+      a declared state registry value, not an inferred current phase result.
+  legal_state_context:
+    legal_previous_phase: growth
+    legal_next_phase: recession
+    cycle_order:
+      - recession
+      - recovery
+      - growth
+      - boom
+  phase_age_contract:
+    age_precision_allowed_without_start_date: false
+    unknown_start_date_status: unknown_or_user_required
+    false_precision_policy: abstain_when_start_date_missing
+  required_output_fields:
+    - declared_current_phase
+    - declared_phase_start_date
+    - declared_phase_age
+    - phase_age_status
+    - declaration_source
+    - declaration_status
+    - legal_previous_phase
+    - legal_next_phase
+  prohibited_output_fields:
+    - current_phase
+    - candidate_phase
+    - phase_score
+    - phase_rank
+    - phase_winner
+    - selected_phase
+    - winning_phase
+  hard_gates:
+    declared_cycle_state_registry_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    phase_age_contract_ready: true
+    phase_age_false_precision_count: 0
+    formal_current_phase_inference_enabled: false

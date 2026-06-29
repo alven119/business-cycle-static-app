@@ -32,6 +32,9 @@ def test_high_risk_marker_map_has_all_categories() -> None:
 def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "legacy_v1" in markers_for_test_path("tests/test_phase_scoring.py")
     assert "transition_monitor" in markers_for_test_path("tests/test_state_machine.py")
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_ordered_cycle_state_machine.py"
+    )
     assert "portfolio_policy_research" in markers_for_test_path(
         "tests/test_portfolio_policy_template_schema.py"
     )

@@ -154,6 +154,22 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned",),
         rationale="current snapshot is research readiness, not current phase selection",
     ),
+    "tests/test_declared_cycle_state_registry.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="declared cycle state registry is doctrine-aligned transition context",
+    ),
+    "tests/test_ordered_cycle_state_machine.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="ordered legal transition contract rejects classifier-style jumps",
+    ),
+    "tests/test_ordered_cycle_state_view_models.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="declared-state view models must not emit inferred phase outputs",
+    ),
+    "tests/test_phase45_declared_cycle_state_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase45 closure proves declared registry and legal order gates",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

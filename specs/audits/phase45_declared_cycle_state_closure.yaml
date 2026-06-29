@@ -1,0 +1,41 @@
+phase45_declared_cycle_state_closure:
+  phase_id: "45"
+  closure_status: closed_declared_registry_and_legal_order_ready
+  required_contracts:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/ordered_cycle_state_machine.yaml
+  required_scripts:
+    - scripts/show_declared_cycle_state.py
+    - scripts/show_ordered_cycle_state_machine.py
+  prohibited_scope:
+    - standalone_current_phase_classifier
+    - phase_score_selector
+    - phase_rank_selector
+    - phase_winner_selector
+    - role_count_voting_selector
+    - candidate_phase_emission
+    - current_phase_emission
+    - production_behavior_change
+    - portfolio_policy_output
+    - backtest_execution
+  hard_gates:
+    declared_cycle_state_registry_ready: true
+    ordered_cycle_state_machine_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    legal_cycle_order_valid: true
+    phase_age_contract_ready: true
+    phase_age_false_precision_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    legacy_v1_behavior_modified_count: 0
+    portfolio_policy_output_count: 0
+    backtest_execution_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_registry_and_legal_order_ready
+    legal_transition_semantics_preserved: true
