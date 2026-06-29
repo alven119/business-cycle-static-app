@@ -1,0 +1,42 @@
+boom_transition_monitor:
+  monitor_id: boom_transition_monitor_v1
+  monitor_version: "1.0"
+  status: active_research_runtime
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
+  evidence_contract_dependency: specs/common/boom_transition_evidence_contract.yaml
+  current_evidence_source: src/business_cycle/current/current_evidence_readiness.py
+  declared_state_requirements:
+    declared_current_phase: boom
+    legal_next_phase: recession
+    current_data_may_infer_declared_phase: false
+  lane_readiness:
+    boom_continuation_lane_ready: true
+    boom_ending_watch_lane_ready: true
+    recession_watch_lane_ready: true
+    recession_confirmation_lane_ready: true
+  phase_age_policy:
+    phase_age_context_available_when_start_date_null: false
+    phase_age_status_when_start_date_null: unknown_or_user_required
+    phase_age_used_as_transition_gate: false
+    phase_age_false_precision_count: 0
+  output_policy:
+    research_only: true
+    production_integration_enabled: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    portfolio_policy_output_count: 0
+    backtest_execution_count: 0
+  hard_gates:
+    boom_transition_monitor_contract_ready: true
+    boom_transition_monitor_runtime_ready: true
+    declared_state_input_used: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    watch_confirmation_separation_valid: true
+    phase_age_used_as_transition_gate: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    selected_phase_output_count: 0
+    production_behavior_change_count: 0

@@ -1,0 +1,42 @@
+phase46_boom_transition_monitor_closure:
+  phase_id: "46"
+  closure_status: closed_boom_transition_monitor_ready_no_phase_selection
+  required_contracts:
+    - specs/common/boom_transition_monitor.yaml
+    - specs/common/boom_transition_evidence_contract.yaml
+  required_scripts:
+    - scripts/show_boom_transition_monitor.py
+  hard_gates:
+    boom_transition_monitor_contract_ready: true
+    boom_transition_monitor_runtime_ready: true
+    declared_state_input_used: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    boom_continuation_lane_ready: true
+    boom_ending_watch_lane_ready: true
+    recession_watch_lane_ready: true
+    recession_confirmation_lane_ready: true
+    watch_confirmation_separation_valid: true
+    phase_age_context_available: false
+    phase_age_used_as_transition_gate: false
+    phase_age_false_precision_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    selected_phase_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    portfolio_policy_output_count: 0
+    backtest_execution_count: 0
+    label_used_by_runtime_count: 0
+    evidence_rule_modified_count: 0
+    arbitrary_threshold_added_count: 0
+    numeric_weight_added_count: 0
+    role_count_voting_added_count: 0
+    historical_tuning_leakage_count: 0
+    production_behavior_change_count: 0
+    legacy_v1_behavior_modified_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_registry_used_by_boom_transition_monitor
+    legal_transition_semantics_preserved: true
+    phase_start_research_assistant_added_to_future_plan: true

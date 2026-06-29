@@ -1,0 +1,77 @@
+boom_transition_evidence_contract:
+  contract_id: boom_transition_evidence_contract_v1
+  contract_version: "1.0"
+  status: active_research_contract
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
+  evidence_source_dependency: src/business_cycle/current/current_evidence_readiness.py
+  doctrine_dependency: specs/common/investment_cycle_product_doctrine.yaml
+  required_lanes:
+    boom_continuation:
+      lane_type: continuation_context
+      source_phase_rows:
+        - boom
+      interpretation_policy: >
+        Continuation evidence may only come from existing boom book-core rows
+        that contradict weakening or from explicitly traced continuation rows.
+        Absence of weakening evidence is not a phase decision.
+    boom_ending_watch:
+      lane_type: transition_watch
+      source_phase_rows:
+        - boom
+      interpretation_policy: >
+        Boom-ending evidence is watch evidence. It must not be treated as
+        recession confirmation or as a current phase change.
+    recession_watch:
+      lane_type: transition_watch
+      source_phase_rows:
+        - recession
+      interpretation_policy: >
+        Recession watch reports accumulating risk from recession-facing rows.
+        A single weak input must not confirm recession.
+    recession_confirmation:
+      lane_type: transition_confirmation_diagnostic
+      source_phase_rows:
+        - recession
+      interpretation_policy: >
+        Recession confirmation requires confirmation-lane evidence and complete
+        provenance. Watch evidence cannot be promoted into confirmation.
+  required_output_semantics:
+    - declared_current_phase
+    - legal_next_phase
+    - monitor_as_of
+    - data_mode
+    - source_freshness_summary
+    - boom_continuation_evidence
+    - boom_ending_watch_evidence
+    - recession_watch_evidence
+    - recession_confirmation_evidence
+    - contradictory_evidence
+    - missing_or_stale_evidence
+    - blocker_summary
+    - why_not_formal_transition
+    - phase_age_context_available
+    - phase_age_status
+    - phase_age_used_as_transition_gate
+    - research_only
+  prohibited_outputs:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - phase_winner
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    watch_confirmation_separation_valid: true
+    phase_age_used_as_transition_gate: false
+    selected_phase_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    arbitrary_threshold_added_count: 0
+    numeric_weight_added_count: 0
+    role_count_voting_added_count: 0

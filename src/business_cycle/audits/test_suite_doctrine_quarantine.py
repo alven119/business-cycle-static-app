@@ -170,6 +170,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase45 closure proves declared registry and legal order gates",
     ),
+    "tests/test_boom_transition_monitor.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="boom transition monitor consumes declared state without phase selection",
+    ),
+    "tests/test_boom_transition_view_model.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="boom transition view model labels watch/confirmation as research-only",
+    ),
+    "tests/test_boom_transition_doctrine_alignment.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase46 closure proves boom monitor doctrine boundaries",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",
