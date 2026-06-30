@@ -47,6 +47,11 @@ boom_transition_dashboard_surface:
     watch_confirmation_separation_required: true
     indicator_meaning_required: true
     indicator_status_required: true
+    data_risk_label_required: true
+    source_credibility_label_required: true
+    alternative_source_candidates_required: true
+    substitution_degree_label_required: true
+    alternative_sources_are_display_risk_only: true
     missing_or_abstained_reason_required: true
     source_series_required: true
     formal_phase_decision_disclaimer_required: true
@@ -70,6 +75,13 @@ boom_transition_dashboard_surface:
     indicator_card_count: 5
     indicator_meaning_present_count: 5
     indicator_status_present_count: 5
+    data_risk_label_present_count: 5
+    source_credibility_label_present_count: 5
+    alternative_source_candidate_card_count: 5
+    substitution_degree_visible_count: 5
+    silent_substitution_count: 0
+    alternative_promoted_to_core_count: 0
+    data_risk_surface_ready: true
     missing_or_abstention_reason_visible_count_min: 1
     watch_confirmation_separation_visible: true
     research_only_label_present: true

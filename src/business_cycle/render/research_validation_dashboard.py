@@ -251,6 +251,9 @@ def _verify_rendered_html_pages(
             "data-transition-indicator-card=\"boom_private_investment\"",
             "data-transition-indicator-card=\"recession_employment_confirmation\"",
             "data-transition-indicator-card=\"recession_consumption_confirmation\"",
+            "data-source-risk-panel",
+            "data-risk-label",
+            "data-alternative-source-candidate",
             "data-watch-confirmation-boundary",
             "data-declared-state-disclaimer",
         ):
@@ -766,6 +769,17 @@ def _boom_indicator_card(card: dict[str, Any]) -> str:
         f"<li>{_text(item['lane_title_zh'])}: {_text(item['status_label_zh'])}</li>"
         for item in card["lane_states"]
     )
+    alternatives = "".join(
+        f"""
+          <li data-alternative-source-candidate="{_text(item['source_id'])}">
+            <strong>{_text(item['source_title_zh'])}</strong>
+            <span>{_text(item['source_family'])}</span>
+            <span>{_text(item['substitution_degree'])}</span>
+            <p>{_text(item['data_risk_zh'])}</p>
+          </li>
+        """
+        for item in card["alternative_source_candidates"]
+    )
     return f"""
       <article class="transition-indicator-card" data-transition-indicator-card="{_text(card["role_id"])}">
         <h3>{_text(card["title_zh"])}</h3>
@@ -776,19 +790,28 @@ def _boom_indicator_card(card: dict[str, Any]) -> str:
           <dt>Sources</dt><dd>{_text(sources)}</dd>
           <dt>Context</dt><dd>{_text(context)}</dd>
           <dt>Data mode</dt><dd>{_text(card["data_mode"])}</dd>
+          <dt>Data risk</dt><dd>{_status_badge(card["data_risk_level"])}</dd>
         </dl>
         <div class="phase-profile-detail">
-          <h4>Meaning</h4>
+          <h4>指標意涵 / Meaning</h4>
           <p>{_text(card["meaning_zh"])}</p>
         </div>
         <div class="phase-profile-detail">
-          <h4>Why it matters</h4>
+          <h4>為什麼重要 / Why it matters</h4>
           <p>{_text(card["why_it_matters_zh"])}</p>
         </div>
         <div class="phase-profile-detail">
-          <h4>Current status</h4>
+          <h4>目前狀況 / Current status</h4>
           <p>{_text(card["abstention_or_blocker_reason_zh"])}</p>
           <ul>{lane_states}</ul>
+        </div>
+        <div class="phase-profile-detail" data-source-risk-panel>
+          <h4>資料風險與替代程度</h4>
+          <p data-risk-label>{_text(card["data_risk_label_zh"])}</p>
+          <p>{_text(card["source_credibility_label_zh"])}</p>
+          <p>{_text(card["substitution_degree_label_zh"])}</p>
+          <p>{_text(card["display_usage_policy_zh"])}</p>
+          <ul>{alternatives}</ul>
         </div>
       </article>
     """

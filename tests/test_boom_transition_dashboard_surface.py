@@ -27,6 +27,20 @@ def test_boom_transition_dashboard_surface_has_indicator_meanings_and_status() -
         card["abstention_or_blocker_reason_zh"]
         for card in surface["indicator_cards"]
     )
+    assert all(card["data_risk_label_zh"] for card in surface["indicator_cards"])
+    assert all(
+        card["source_credibility_label_zh"] for card in surface["indicator_cards"]
+    )
+    assert all(
+        card["alternative_source_candidates"] for card in surface["indicator_cards"]
+    )
+    assert all(
+        card["substitution_degree_label_zh"] for card in surface["indicator_cards"]
+    )
+    assert not any(card["silent_substitution"] for card in surface["indicator_cards"])
+    assert not any(
+        card["alternative_promoted_to_core"] for card in surface["indicator_cards"]
+    )
 
 
 def test_boom_transition_dashboard_surface_preserves_doctrine_boundaries() -> None:
@@ -34,6 +48,13 @@ def test_boom_transition_dashboard_surface_preserves_doctrine_boundaries() -> No
 
     assert summary["boom_transition_dashboard_surface_ready"] is True
     assert summary["watch_confirmation_separation_visible"] is True
+    assert summary["data_risk_surface_ready"] is True
+    assert summary["data_risk_label_present_count"] == 5
+    assert summary["source_credibility_label_present_count"] == 5
+    assert summary["alternative_source_candidate_card_count"] == 5
+    assert summary["substitution_degree_visible_count"] == 5
+    assert summary["silent_substitution_count"] == 0
+    assert summary["alternative_promoted_to_core_count"] == 0
     assert summary["prohibited_surface_field_count"] == 0
     assert summary["standalone_classifier_added_count"] == 0
     assert summary["phase_rank_or_score_added_count"] == 0

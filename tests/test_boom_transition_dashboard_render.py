@@ -32,6 +32,10 @@ def test_research_dashboard_renders_declared_boom_transition_surface(tmp_path) -
     assert 'data-transition-indicator-card="boom_claims_u_shape"' in html
     assert "Meaning" in html
     assert "Current status" in html
+    assert "資料風險與替代程度" in html
+    assert "data-source-risk-panel" in html
+    assert "data-risk-label" in html
+    assert "data-alternative-source-candidate" in html
     assert "watch is not confirmation" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html

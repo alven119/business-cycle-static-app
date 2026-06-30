@@ -33,6 +33,175 @@ ROLE_TITLES = {
     "recession_employment_confirmation": "衰退就業確認",
     "recession_consumption_confirmation": "衰退消費確認",
 }
+DATA_RISK_PROFILES: dict[str, dict[str, Any]] = {
+    "boom_claims_u_shape": {
+        "data_risk_level": "medium",
+        "data_risk_label_zh": (
+            "中等：初領失業救濟金本身有高可信官方來源，但目前本地快照缺少"
+            "可對齊輸入，不能直接形成 watch 或 confirmation。"
+        ),
+        "source_credibility_label_zh": "高：DOL/FRED 官方勞動市場資料。",
+        "substitution_degree": "high_official_direct_when_available",
+        "substitution_degree_label_zh": (
+            "高：DOL weekly claims 或 FRED ICSA 是同概念官方來源；"
+            "缺口主要是目前快照可用性。"
+        ),
+        "display_usage_policy_zh": (
+            "可在 transition surface 標為高可信候選來源；不得在缺資料時自動補值。"
+        ),
+        "alternative_source_candidates": [
+            {
+                "source_id": "dol_weekly_initial_claims_release",
+                "source_family": "DOL",
+                "source_title_zh": "美國勞工部 weekly unemployment insurance claims release",
+                "substitution_degree": "direct_official",
+                "data_risk_zh": "需要穩定 parser 與 release-date 對齊。",
+                "usage_policy": "preferred_when_adapter_and_cache_are_available",
+            },
+            {
+                "source_id": "fred_icsa",
+                "source_family": "FRED",
+                "source_title_zh": "FRED ICSA 初領失業救濟金",
+                "substitution_degree": "direct_official_redistribution",
+                "data_risk_zh": "適合快速研究顯示；point-in-time 仍需 vintage/release policy。",
+                "usage_policy": "research_display_candidate",
+            },
+        ],
+    },
+    "boom_retail_sales_vs_broad_pce": {
+        "data_risk_level": "medium",
+        "data_risk_label_zh": (
+            "中等：零售與 PCE 都有官方來源，但跨系列比較需要頻率、實質/名目、"
+            "release timing 對齊。"
+        ),
+        "source_credibility_label_zh": "高：Census retail sales 與 BEA PCE 官方來源。",
+        "substitution_degree": "medium_high_official_composite",
+        "substitution_degree_label_zh": (
+            "中高：官方資料足夠接近書中消費韌性概念，但屬 composite relation，"
+            "不能只看單一系列。"
+        ),
+        "display_usage_policy_zh": (
+            "可顯示為消費動能風險；只有完成 same-as-of 對齊後才可升級為 evidence。"
+        ),
+        "alternative_source_candidates": [
+            {
+                "source_id": "census_retail_sales_release",
+                "source_family": "Census",
+                "source_title_zh": "Census retail sales official release",
+                "substitution_degree": "partial_official_component",
+                "data_risk_zh": "零售不等於全部消費，需要與 BEA PCE 一起看。",
+                "usage_policy": "supporting_component",
+            },
+            {
+                "source_id": "bea_real_pce",
+                "source_family": "BEA",
+                "source_title_zh": "BEA real personal consumption expenditures",
+                "substitution_degree": "official_broad_consumption_component",
+                "data_risk_zh": "發布較慢，需處理修正與 reference period。",
+                "usage_policy": "core_composite_component",
+            },
+        ],
+    },
+    "boom_private_investment": {
+        "data_risk_level": "medium",
+        "data_risk_label_zh": (
+            "中等：BEA 私人固定投資是高可信官方資料，但季頻與發布落後會讓"
+            "即時 transition surface 較鈍化。"
+        ),
+        "source_credibility_label_zh": "高：BEA NIPA 官方投資資料。",
+        "substitution_degree": "high_official_direct_low_frequency",
+        "substitution_degree_label_zh": (
+            "高：概念直接，但頻率低；可搭配 durable goods 作輔助，不可互相取代。"
+        ),
+        "display_usage_policy_zh": (
+            "可顯示為榮景延續/轉弱的大方向；短期訊號需標示低頻資料風險。"
+        ),
+        "alternative_source_candidates": [
+            {
+                "source_id": "bea_private_fixed_investment",
+                "source_family": "BEA",
+                "source_title_zh": "BEA real private fixed investment",
+                "substitution_degree": "direct_official",
+                "data_risk_zh": "季頻與修正風險較高。",
+                "usage_policy": "preferred_core_source_when_available",
+            },
+            {
+                "source_id": "census_durable_goods_orders",
+                "source_family": "Census",
+                "source_title_zh": "Census durable goods orders",
+                "substitution_degree": "supporting_only",
+                "data_risk_zh": "可輔助觀察企業需求，不可替代固定投資。",
+                "usage_policy": "supporting_indicator_only",
+            },
+        ],
+    },
+    "recession_employment_confirmation": {
+        "data_risk_level": "medium",
+        "data_risk_label_zh": (
+            "中等：就業確認有多個官方來源，但不同來源代表初期壓力、持續失業、"
+            "或薪資就業，不能混成單一結論。"
+        ),
+        "source_credibility_label_zh": "高：DOL claims 與 BLS labor statistics。",
+        "substitution_degree": "medium_high_official_multi_signal",
+        "substitution_degree_label_zh": (
+            "中高：continuing claims、payrolls、unemployment 都可信，但用途不同；"
+            "PAYEMS 不可冒充 ADP。"
+        ),
+        "display_usage_policy_zh": (
+            "可顯示就業確認風險層次；confirmation 必須比 watch 更嚴格。"
+        ),
+        "alternative_source_candidates": [
+            {
+                "source_id": "dol_continued_claims",
+                "source_family": "DOL/FRED",
+                "source_title_zh": "continuing unemployment claims",
+                "substitution_degree": "direct_or_near_direct_official",
+                "data_risk_zh": "需與初領 claims 分清 watch/confirmation。",
+                "usage_policy": "confirmation_candidate_when_available",
+            },
+            {
+                "source_id": "bls_nonfarm_payrolls",
+                "source_family": "BLS",
+                "source_title_zh": "nonfarm payroll employment",
+                "substitution_degree": "supporting_official",
+                "data_risk_zh": "可信但不可替代 ADP，也不可單獨確認衰退。",
+                "usage_policy": "supporting_indicator_only",
+            },
+        ],
+    },
+    "recession_consumption_confirmation": {
+        "data_risk_level": "medium",
+        "data_risk_label_zh": (
+            "中等：廣義消費有 BEA 官方來源，但發布落後與修正會影響即時確認。"
+        ),
+        "source_credibility_label_zh": "高：BEA PCE 與 Census retail sales 官方來源。",
+        "substitution_degree": "medium_high_official_composite",
+        "substitution_degree_label_zh": (
+            "中高：BEA real PCE 最接近廣義消費，retail sales 可作較快輔助。"
+        ),
+        "display_usage_policy_zh": (
+            "可顯示需求擴散風險；不得用零售單一轉弱直接宣告 recession confirmation。"
+        ),
+        "alternative_source_candidates": [
+            {
+                "source_id": "bea_real_pce",
+                "source_family": "BEA",
+                "source_title_zh": "BEA real personal consumption expenditures",
+                "substitution_degree": "direct_official_broad_consumption",
+                "data_risk_zh": "月頻但發布落後，且 revised diagnostics 需標示。",
+                "usage_policy": "preferred_confirmation_component_when_available",
+            },
+            {
+                "source_id": "census_retail_sales",
+                "source_family": "Census",
+                "source_title_zh": "Census retail sales",
+                "substitution_degree": "supporting_official",
+                "data_risk_zh": "較快但涵蓋較窄，只能輔助 PCE。",
+                "usage_policy": "supporting_indicator_only",
+            },
+        ],
+    },
+}
 STATUS_LABELS = {
     "supportive": "目前有支持此 lane 的證據",
     "contradictory": "目前有反向或混合證據",
@@ -162,6 +331,23 @@ def summarize_boom_transition_dashboard_surface() -> dict[str, Any]:
         "missing_or_abstention_reason_visible_count": validation[
             "missing_or_abstention_reason_visible_count"
         ],
+        "data_risk_label_present_count": validation[
+            "data_risk_label_present_count"
+        ],
+        "source_credibility_label_present_count": validation[
+            "source_credibility_label_present_count"
+        ],
+        "alternative_source_candidate_card_count": validation[
+            "alternative_source_candidate_card_count"
+        ],
+        "substitution_degree_visible_count": validation[
+            "substitution_degree_visible_count"
+        ],
+        "silent_substitution_count": validation["silent_substitution_count"],
+        "alternative_promoted_to_core_count": validation[
+            "alternative_promoted_to_core_count"
+        ],
+        "data_risk_surface_ready": validation["data_risk_surface_ready"],
         "watch_confirmation_separation_visible": validation[
             "watch_confirmation_separation_visible"
         ],
@@ -229,7 +415,32 @@ def validate_boom_transition_dashboard_surface(surface: dict[str, Any]) -> dict[
         bool(card.get("abstention_or_blocker_reason_zh"))
         for card in indicator_cards
     )
+    data_risk_count = sum(bool(card.get("data_risk_label_zh")) for card in indicator_cards)
+    credibility_count = sum(
+        bool(card.get("source_credibility_label_zh")) for card in indicator_cards
+    )
+    alternative_count = sum(
+        bool(card.get("alternative_source_candidates")) for card in indicator_cards
+    )
+    substitution_count = sum(
+        bool(card.get("substitution_degree_label_zh")) for card in indicator_cards
+    )
+    silent_substitution_count = sum(
+        int(card.get("silent_substitution") is True) for card in indicator_cards
+    )
+    promoted_to_core_count = sum(
+        int(card.get("alternative_promoted_to_core") is True)
+        for card in indicator_cards
+    )
     prohibited_count = _contains_prohibited_field(surface)
+    data_risk_ready = (
+        data_risk_count == 5
+        and credibility_count == 5
+        and alternative_count == 5
+        and substitution_count == 5
+        and silent_substitution_count == 0
+        and promoted_to_core_count == 0
+    )
     valid = (
         not missing
         and surface.get("output_mode") == "research_only_declared_transition_dashboard"
@@ -241,6 +452,7 @@ def validate_boom_transition_dashboard_surface(surface: dict[str, Any]) -> dict[
         and meaning_count == 5
         and status_count == 5
         and abstention_visible >= 1
+        and data_risk_ready
         and surface.get("trust_metadata", {}).get(
             "watch_confirmation_separated"
         )
@@ -257,6 +469,13 @@ def validate_boom_transition_dashboard_surface(surface: dict[str, Any]) -> dict[
         "indicator_meaning_present_count": meaning_count,
         "indicator_status_present_count": status_count,
         "missing_or_abstention_reason_visible_count": abstention_visible,
+        "data_risk_label_present_count": data_risk_count,
+        "source_credibility_label_present_count": credibility_count,
+        "alternative_source_candidate_card_count": alternative_count,
+        "substitution_degree_visible_count": substitution_count,
+        "silent_substitution_count": silent_substitution_count,
+        "alternative_promoted_to_core_count": promoted_to_core_count,
+        "data_risk_surface_ready": data_risk_ready,
         "watch_confirmation_separation_visible": surface.get(
             "trust_metadata",
             {},
@@ -350,6 +569,7 @@ def _indicator_card_base(item: dict[str, Any]) -> dict[str, Any]:
             blockers=blockers,
         ),
         "why_it_matters_zh": _why_it_matters(item["role_id"]),
+        **_data_risk_profile(item["role_id"]),
         "provenance_status": item["provenance_status"],
         "data_mode": item["data_mode"],
     }
@@ -381,6 +601,21 @@ def _why_it_matters(role_id: str) -> str:
             "廣義消費轉弱可協助確認衰退壓力是否從勞動市場擴散到需求。"
         ),
     }[role_id]
+
+
+def _data_risk_profile(role_id: str) -> dict[str, Any]:
+    profile = DATA_RISK_PROFILES[role_id]
+    return {
+        "data_risk_level": profile["data_risk_level"],
+        "data_risk_label_zh": profile["data_risk_label_zh"],
+        "source_credibility_label_zh": profile["source_credibility_label_zh"],
+        "substitution_degree": profile["substitution_degree"],
+        "substitution_degree_label_zh": profile["substitution_degree_label_zh"],
+        "display_usage_policy_zh": profile["display_usage_policy_zh"],
+        "alternative_source_candidates": profile["alternative_source_candidates"],
+        "alternative_promoted_to_core": False,
+        "silent_substitution": False,
+    }
 
 
 def _lane_boundary(lane: dict[str, Any]) -> str:
