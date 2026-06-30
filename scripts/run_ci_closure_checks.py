@@ -11,6 +11,7 @@ import sys
 FULL_CLOSURE_SCRIPTS = (
     "scripts/audit_product_doctrine_enforcement.py",
     "scripts/audit_test_suite_doctrine_quarantine.py",
+    "scripts/show_phase52_official_macro_source_adapter_wiring_closure.py",
     "scripts/show_phase51_declared_start_and_gap_alternatives_closure.py",
     "scripts/show_phase50_transition_surface_data_risk_closure.py",
     "scripts/show_phase49_boom_transition_dashboard_closure.py",
@@ -52,6 +53,7 @@ FULL_CLOSURE_SCRIPTS = (
 NIGHTLY_CLOSURE_SCRIPTS = (
     "scripts/audit_product_doctrine_enforcement.py",
     "scripts/audit_test_suite_doctrine_quarantine.py",
+    "scripts/show_phase52_official_macro_source_adapter_wiring_closure.py",
     "scripts/show_phase51_declared_start_and_gap_alternatives_closure.py",
     "scripts/show_phase50_transition_surface_data_risk_closure.py",
     "scripts/show_phase49_boom_transition_dashboard_closure.py",

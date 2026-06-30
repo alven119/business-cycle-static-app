@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from business_cycle.audits import point_in_time_coverage as coverage
 from business_cycle.storage.point_in_time_cache import PointInTimeCache
 
@@ -60,9 +62,22 @@ def test_registry_declared_exact_is_separate_from_live_verified_cache(
 
     summary = coverage.summarize_point_in_time_coverage(cache_dir=tmp_path)
 
-    assert summary["registry_declared_exact_vintage_series_count"] == 37
+    assert (
+        summary["registry_declared_exact_vintage_series_count"]
+        == _registry_point_in_time_eligible_count()
+    )
     assert summary["live_verified_exact_vintage_series_count"] == 1
     assert summary["official_query_attempted_series_count"] == 1
+
+
+def _registry_point_in_time_eligible_count() -> int:
+    payload = yaml.safe_load(
+        Path("specs/common/series_release_lag_registry.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    rows = payload["series_release_lag_registry"]["series"]
+    return sum(row.get("point_in_time_eligible") is True for row in rows)
 
 
 def test_live_verified_partial_history_recommends_qa1c(

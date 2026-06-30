@@ -20,6 +20,9 @@ from business_cycle.current.current_freshness_semantics import (
     freshness_rows_by_series,
     summarize_current_freshness_semantics,
 )
+from business_cycle.current.official_macro_source_wiring import (
+    resolve_official_series_ids,
+)
 from business_cycle.storage.raw_store import RawCsvStore
 from business_cycle.shadow_model.phase_evidence_evaluators import evaluate_phase_evidence
 
@@ -212,7 +215,8 @@ def _role_readiness_row(
 ) -> dict[str, Any]:
     role_id = rule["role_id"]
     required_series = [str(item) for item in contract["current_series_ids"]]
-    series_rows = [freshness_by_series.get(item) for item in required_series]
+    official_series = resolve_official_series_ids(required_series)
+    series_rows = [freshness_by_series.get(item) for item in official_series]
     missing_series = [
         series_id
         for series_id, row in zip(required_series, series_rows, strict=False)
@@ -247,8 +251,8 @@ def _role_readiness_row(
         blockers.append(f"stale_data:{','.join(stale_series)}")
     if not_current_series:
         blockers.append(f"not_current_mode:{','.join(not_current_series)}")
-    observations = _observations_for(required_series[:1], store)
-    right_observations = _observations_for(required_series[1:2], store)
+    observations = _observations_for(official_series[:1], store)
+    right_observations = _observations_for(official_series[1:2], store)
     if role_id in safe_roles and not blockers and observations:
         output = evaluate_phase_evidence(
             role_id=role_id,
@@ -272,6 +276,8 @@ def _role_readiness_row(
         "required_series_ids": required_series,
         "evaluator_status": rule["evaluator_status"],
         "current_evidence_status": status,
+        "source_series_alias_ids": required_series,
+        "official_source_series_ids": official_series,
         "current_phase_evidence_output_available": current_output_available,
         "supportive": status == "supportive",
         "contradictory": status == "contradictory",

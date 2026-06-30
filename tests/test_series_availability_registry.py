@@ -9,7 +9,9 @@ def test_all_discovered_series_have_availability_status() -> None:
     payload = yaml.safe_load(Path("specs/common/series_release_lag_registry.yaml").read_text())
     rows = payload["series_release_lag_registry"]["series"]
 
-    assert len(rows) == 38
+    assert len(rows) == payload["series_release_lag_registry"]["summary"][
+        "discovered_unique_series_count"
+    ]
     assert all(row.get("temporal_status") for row in rows)
     assert all("point_in_time_eligible" in row for row in rows)
     assert payload["series_release_lag_registry"]["summary"][

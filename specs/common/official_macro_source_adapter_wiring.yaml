@@ -1,0 +1,43 @@
+official_macro_source_adapter_wiring:
+  contract_id: official_macro_source_adapter_wiring_v1
+  contract_version: "1.0"
+  phase_id: 52
+  status: active_research_contract
+  source_dependency:
+    phase51_alternative_registry: specs/common/macro_indicator_gap_alternative_sources.yaml
+    current_refresh_registry: specs/common/series_release_lag_registry.yaml
+    current_refresh_runtime: src/business_cycle/current/current_data_refresh.py
+  scope:
+    include_planned_resolution_phase: Phase52
+    candidate_scope: Official and official-redistributed macro sources that can be
+      reached through the current FRED/ALFRED refresh adapter path.
+    excluded_scope:
+      - Phase53 composite transformation and rule semantics
+      - Phase54 licensed or proxy-only sources
+      - candidate or current phase output
+      - production resolver/dashboard behavior
+  policy:
+    alias_resolution_allowed: true
+    alias_resolution_must_preserve_role_alias: true
+    source_risk_label_required: true
+    substitution_degree_required: true
+    direct_release_adapter_may_be_deferred_when_fred_official_redistribution_exists: true
+    source_identity_correction_must_be_visible: true
+    silent_substitution_allowed: false
+    alternative_promoted_to_book_core_allowed: false
+    tests_must_not_use_network: true
+  hard_gates:
+    official_macro_source_adapter_wiring_ready: true
+    phase52_candidate_role_count: 29
+    official_wired_role_count: 29
+    unique_official_series_count_minimum: 15
+    source_risk_label_missing_count: 0
+    substitution_degree_missing_count: 0
+    registry_missing_series_count: 0
+    release_lag_metadata_incomplete_count: 0
+    current_refresh_disabled_series_count: 0
+    silent_substitution_count: 0
+    alternative_promoted_to_core_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0

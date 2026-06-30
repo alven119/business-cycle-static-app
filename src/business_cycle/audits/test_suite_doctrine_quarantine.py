@@ -234,6 +234,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase51 closure proves start governance and alternatives stay safe",
     ),
+    "tests/test_official_macro_source_adapter_wiring.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase52 official source wiring supports transition evidence without phase emission",
+    ),
+    "tests/test_product_capability_progress.py": QuarantineEntry(
+        markers=("doctrine_aligned", "governance_scaffold"),
+        rationale="Product capability progress is orientation reporting, not readiness promotion",
+    ),
+    "tests/test_phase52_official_macro_source_adapter_wiring_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase52 closure proves official source wiring preserves doctrine boundaries",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

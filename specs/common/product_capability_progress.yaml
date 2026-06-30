@@ -1,0 +1,91 @@
+product_capability_progress:
+  version: "1.0"
+  status: active_research_progress_view
+  progress_semantics: >
+    Percentages are governed product-readiness estimates for orientation. They
+    are not economic validation, production readiness, investment advice, or a
+    formal current phase decision.
+  phase_id: 52
+  phase_label: official_macro_source_adapter_wiring
+  capability_progress:
+    - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      title_zh: 景氣階段判讀能力
+      previous_progress_percent: 58
+      current_progress_percent: 60
+      phase_delta_percent: 2
+      phase52_impacted: true
+      phase52_impact_zh: 官方 macro source wiring 讓更多 book-core roles 可被 current research runtime 定位到正式 series。
+      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles；仍未啟用 formal current/candidate phase。
+      remaining_gap_zh: 還需要 Phase53 composite/rule semantics、Phase54 授權/代理風險處理，以及後續 state-machine migration gate。
+    - capability_id: C2_TRANSITION_RISK_DETECTION
+      title_zh: 轉折風險偵測能力
+      previous_progress_percent: 62
+      current_progress_percent: 64
+      phase_delta_percent: 2
+      phase52_impacted: true
+      phase52_impact_zh: boom/recession/recovery/growth transition roles 的官方來源覆蓋提高，轉折 surface 可少一些純 missing input。
+      current_status_zh: 已有 boom transition monitor、transition surface 與 data-risk labels；仍不自動改寫 declared phase。
+      remaining_gap_zh: 需要把官方來源實際接入 dashboard snapshot，並補 composite/turning-point rules。
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      title_zh: 解釋能力
+      previous_progress_percent: 64
+      current_progress_percent: 67
+      phase_delta_percent: 3
+      phase52_impacted: true
+      phase52_impact_zh: 新增 alias-to-official-series lineage、source identity correction 與資料風險說明。
+      current_status_zh: 指標意涵、來源、替代程度、風險標籤與 why-not-formal 說明逐步完整。
+      remaining_gap_zh: 需要將 Phase52 wiring 後的 resolved series 更完整地顯示在 dashboard indicator detail。
+    - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
+      title_zh: Portfolio policy research 能力
+      previous_progress_percent: 38
+      current_progress_percent: 38
+      phase_delta_percent: 0
+      phase52_impacted: false
+      phase52_impact_zh: 本 Phase 未修改 portfolio policy template 或 policy replay。
+      current_status_zh: 研究模板與安全邊界存在，但沒有 current allocation 或交易建議。
+      remaining_gap_zh: 後續仍需 policy replay、cash-flow-aware backtest 與安全 dashboard 呈現。
+    - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
+      title_zh: 歷史重播與回測能力
+      previous_progress_percent: 52
+      current_progress_percent: 52
+      phase_delta_percent: 0
+      phase52_impacted: false
+      phase52_impact_zh: 本 Phase 不執行 replay/backtest，也不新增 performance metric。
+      current_status_zh: 歷史 validation/research artifacts 已有，真正 strict replay/backtest 仍受資料完整度與 gate 限制。
+      remaining_gap_zh: 需要 transition timing replay、policy replay、total-return/cash-flow-aware backtest gate。
+    - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
+      title_zh: 安全輸出治理能力
+      previous_progress_percent: 74
+      current_progress_percent: 75
+      phase_delta_percent: 1
+      phase52_impacted: true
+      phase52_impact_zh: Phase52 wiring 明確禁止 silent substitution、candidate/current phase emission 與 production behavior change。
+      current_status_zh: safety scans、closure checks、forbidden output policy 與 production isolation 持續運作。
+      remaining_gap_zh: 需要把後續每個 Phase 的產品能力進度表納入固定 closure reporting。
+    - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      title_zh: 時間完整性與 abstention
+      previous_progress_percent: 72
+      current_progress_percent: 74
+      phase_delta_percent: 2
+      phase52_impacted: true
+      phase52_impact_zh: 補齊官方 series release metadata，並把 current refresh source discovery 與 PIT caveat 分開。
+      current_status_zh: release metadata 與 revised/PIT 分層清楚；latest current research 仍標示 revised/current，不宣稱 PIT。
+      remaining_gap_zh: 需要後續 PIT cache/backfill 與 exact vintage coverage 擴充。
+    - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+      title_zh: 模型治理與前瞻驗證
+      previous_progress_percent: 70
+      current_progress_percent: 70
+      phase_delta_percent: 0
+      phase52_impacted: false
+      phase52_impact_zh: 本 Phase 不改 prospective registry、freeze lineage 或 validation protocol。
+      current_status_zh: freeze/closure/prospective governance 持續隔離，prospective registry 未啟動。
+      remaining_gap_zh: 未來仍需前瞻驗證資料累積與 explicit migration gate。
+  hard_gates:
+    product_capability_progress_ready: true
+    capability_count: 8
+    capability_with_percent_count: 8
+    impacted_capability_count: 5
+    progress_percent_out_of_range_count: 0
+    unsupported_readiness_claim_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

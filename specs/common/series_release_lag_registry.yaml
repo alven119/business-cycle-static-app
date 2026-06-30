@@ -74,6 +74,54 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: BUSINV
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: Census Manufacturing and Trade Inventories and Sales
+    release_source: Census Manufacturing and Trade Inventories and Sales
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
+  - series_id: CBIC1
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
   - series_id: CCNSA
     source: FRED/ALFRED
     frequency: weekly
@@ -146,6 +194,30 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: CPILFESL
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS CPI
+    release_source: BLS CPI
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
   - series_id: DCOILWTICO
     source: FRED/ALFRED
     frequency: daily
@@ -246,6 +318,54 @@ series_release_lag_registry:
       1995-2021 queries failed; strict scenario coverage from 1998 is history
       insufficient until an official or provider-supported earlier vintage source
       is identified. Release calendars are not inferred from observation_date.
+  - series_id: DRBLACBS
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: Federal Reserve charge-off and delinquency rates
+    release_source: Federal Reserve charge-off and delinquency rates
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Near-direct boom delinquency source; sector definition and book
+      equivalence remain visible in source-risk labels.
+  - series_id: DRCLACBS
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: Federal Reserve charge-off and delinquency rates
+    release_source: Federal Reserve charge-off and delinquency rates
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Near-direct boom delinquency source; sector definition and book
+      equivalence remain visible in source-risk labels.
   - series_id: EXPGS
     source: FRED/ALFRED
     frequency: quarterly
@@ -513,6 +633,30 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: PAYEMS
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BLS Employment Situation
+    release_source: BLS Employment Situation
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Nonfarm payrolls are an official growth employment role and must not
+      be relabeled as ADP employment.
   - series_id: PCEC96
     source: FRED/ALFRED
     frequency: monthly
@@ -561,6 +705,30 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: PCEPILFE
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BEA Personal Income and Outlays
+    release_source: BEA Personal Income and Outlays
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Core PCE source wiring does not by itself operationalize sustainable
+      inflation interpretation; rule semantics remain separate.
   - series_id: PPIACO
     source: FRED/ALFRED
     frequency: monthly
@@ -585,6 +753,54 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: PRFIC1
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
+  - series_id: PSAVERT
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BEA Personal Income and Outlays
+    release_source: BEA Personal Income and Outlays
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
   - series_id: RRSFS
     source: FRED/ALFRED
     frequency: monthly
@@ -637,6 +853,30 @@ series_release_lag_registry:
       required scenario months before that date are official history insufficient
       for strict ALFRED selection. Release calendars are not inferred from
       observation_date.
+  - series_id: SLCEC1
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
   - series_id: STLFSI4
     source: FRED/ALFRED
     frequency: daily
@@ -779,6 +1019,30 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: W006RC1Q027SBEA
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase52 metadata wires current research source discovery only; local
+      vintage cache coverage remains unverified until a later PIT backfill.
   - series_id: WTI
     source: FRED/ALFRED
     frequency: daily
@@ -936,7 +1200,7 @@ series_release_lag_registry:
       for the same as_of date.
   summary:
     authoritative_registry: series_release_lag_registry.yaml
-    discovered_unique_series_count: 38
+    discovered_unique_series_count: 49
     series_missing_availability_metadata_count: 0
     series_without_temporal_status_count: 0
     revised_data_only: false
