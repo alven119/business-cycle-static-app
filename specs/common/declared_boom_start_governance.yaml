@@ -1,0 +1,57 @@
+declared_boom_start_governance:
+  contract_id: declared_boom_start_governance_v1
+  contract_version: "1.0"
+  status: active_research_contract
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  phase_start_research_dependency: specs/common/phase_start_research_hypotheses.yaml
+  scope:
+    declared_current_phase: boom
+    legal_previous_phase: growth
+    legal_next_phase: recession
+    governance_goal: >
+      Prepare a user/governance-confirmed boom start date or start window
+      without inferring the current phase from latest data and without writing
+      the declared registry automatically.
+  allowed_confirmation_modes:
+    - exact_user_declared_start_date
+    - governed_user_declared_start_window
+    - keep_unknown_until_more_evidence
+  required_confirmation_fields:
+    - declared_phase
+    - proposed_start_date_or_window
+    - confirmation_source
+    - rationale
+    - confidence_label
+    - false_precision_acknowledged
+    - registry_write_intent
+  prohibited_inputs:
+    - standalone_current_phase_classifier
+    - phase_rank
+    - phase_score
+    - phase_winner
+    - portfolio_return
+    - historical_accuracy_label
+    - current_data_phase_picker
+  prohibited_outputs:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_score
+    - phase_rank
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  hard_gates:
+    declared_boom_start_governance_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    governed_confirmation_option_count_minimum: 3
+    registry_write_allowed: false
+    declared_registry_modified: false
+    user_confirmation_required: true
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false

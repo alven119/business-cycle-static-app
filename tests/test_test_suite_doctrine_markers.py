@@ -50,6 +50,15 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_phase50_transition_surface_data_risk_closure.py"
     )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_declared_boom_start_governance.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_macro_indicator_gap_alternative_sources.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_phase51_declared_start_and_gap_alternatives_closure.py"
+    )
     assert "portfolio_policy_research" in markers_for_test_path(
         "tests/test_portfolio_policy_template_schema.py"
     )

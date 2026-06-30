@@ -1,0 +1,53 @@
+macro_indicator_gap_alternative_sources:
+  contract_id: macro_indicator_gap_alternative_sources_v1
+  contract_version: "1.0"
+  status: active_research_contract
+  source_dependency:
+    current_evidence_readiness: src/business_cycle/current/current_evidence_readiness.py
+    book_phase_evidence_rules: specs/audits/book_phase_evidence_rule_registry.yaml
+    doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  scope:
+    include_phases:
+      - recovery
+      - growth
+      - boom
+      - recession
+    include_gap_types:
+      - missing_input
+      - rule_unresolved
+      - observation_only
+      - composite_alignment_required
+  policy:
+    evaluate_alternative_sources_for_display: true
+    silent_substitution_allowed: false
+    alternative_promoted_to_book_core_allowed: false
+    supporting_proxy_may_be_displayed_with_risk_label: true
+    source_risk_label_required: true
+    substitution_degree_required: true
+    planned_resolution_phase_required: true
+    tests_must_not_use_network: true
+  resolution_stage_order:
+    - phase_id: Phase52
+      label: official_macro_source_adapter_wiring
+      scope: Official and FRED/BEA/BLS/Census/EIA/Federal Reserve sources with direct or near-direct concepts.
+    - phase_id: Phase53
+      label: composite_transformation_and_rule_semantics
+      scope: Same-as-of composites, derived turning points, and qualitative rule semantics.
+    - phase_id: Phase54
+      label: licensed_or_proxy_source_review
+      scope: ADP, consumer confidence, and other non-official or licensed candidates.
+    - phase_id: Phase55
+      label: current_dashboard_gap_reduction
+      scope: Wire approved adapters/transforms into current research dashboard snapshots.
+  hard_gates:
+    macro_gap_alternative_registry_ready: true
+    gap_role_count_minimum: 1
+    gap_with_alternative_candidate_count_equals_gap_role_count: true
+    source_risk_label_missing_count: 0
+    substitution_degree_missing_count: 0
+    planned_resolution_phase_missing_count: 0
+    silent_substitution_count: 0
+    alternative_promoted_to_core_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0

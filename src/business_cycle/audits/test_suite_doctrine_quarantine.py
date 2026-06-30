@@ -222,6 +222,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase50 closure proves data-risk display does not promote substitutes",
     ),
+    "tests/test_declared_boom_start_governance.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase51 start governance prepares confirmation without registry writes",
+    ),
+    "tests/test_macro_indicator_gap_alternative_sources.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase51 macro gap alternatives remain risk-labeled research inputs",
+    ),
+    "tests/test_phase51_declared_start_and_gap_alternatives_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase51 closure proves start governance and alternatives stay safe",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",
