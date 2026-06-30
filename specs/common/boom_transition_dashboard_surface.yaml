@@ -1,0 +1,80 @@
+boom_transition_dashboard_surface:
+  surface_id: boom_transition_dashboard_surface_v1
+  surface_version: "1.0"
+  status: active_research_dashboard_surface
+  source_phase: "49"
+  declared_state_dependency: specs/common/declared_cycle_state_registry.yaml
+  ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
+  boom_transition_monitor_dependency: specs/common/boom_transition_monitor.yaml
+  boom_transition_evidence_wiring_dependency: specs/common/boom_transition_evidence_wiring.yaml
+  output_policy:
+    output_mode: research_only_declared_transition_dashboard
+    public_output_allowed: false
+    production_integration_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    phase_score_or_rank_allowed: false
+    portfolio_action_allowed: false
+  required_surface_fields:
+    - surface_id
+    - surface_version
+    - output_mode
+    - research_only
+    - declared_current_phase
+    - legal_next_phase
+    - monitor_as_of
+    - data_mode
+    - headline
+    - lane_cards
+    - indicator_cards
+    - missing_evidence_summary
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+  required_lane_ids:
+    - boom_continuation
+    - boom_ending_watch
+    - recession_watch
+    - recession_confirmation
+  required_priority_role_ids:
+    - boom_claims_u_shape
+    - boom_retail_sales_vs_broad_pce
+    - boom_private_investment
+    - recession_employment_confirmation
+    - recession_consumption_confirmation
+  display_semantics:
+    declared_state_label_required: true
+    watch_confirmation_separation_required: true
+    indicator_meaning_required: true
+    indicator_status_required: true
+    missing_or_abstained_reason_required: true
+    source_series_required: true
+    formal_phase_decision_disclaimer_required: true
+  prohibited_output_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - phase_winner
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    boom_transition_dashboard_surface_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    lane_card_count: 4
+    indicator_card_count: 5
+    indicator_meaning_present_count: 5
+    indicator_status_present_count: 5
+    missing_or_abstention_reason_visible_count_min: 1
+    watch_confirmation_separation_visible: true
+    research_only_label_present: true
+    prohibited_surface_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    production_behavior_change_count: 0

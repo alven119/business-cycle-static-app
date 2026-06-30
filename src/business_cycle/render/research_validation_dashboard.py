@@ -44,6 +44,7 @@ REQUIRED_PAGES = (
     "pit-gaps.html",
 )
 CURRENT_SNAPSHOT_PAGE = "current-snapshot.html"
+BOOM_TRANSITION_PAGE = "boom-transition.html"
 
 
 def build_research_validation_dashboard(
@@ -69,6 +70,8 @@ def build_research_validation_dashboard(
     }
     if "current_snapshot" in bundle:
         pages[CURRENT_SNAPSHOT_PAGE] = _current_snapshot_page(bundle)
+    if "boom_transition_dashboard" in bundle:
+        pages[BOOM_TRANSITION_PAGE] = _boom_transition_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -163,6 +166,12 @@ def verify_research_validation_dashboard_directory(
             missing += 1
         else:
             pages[CURRENT_SNAPSHOT_PAGE] = path.read_text(encoding="utf-8")
+    if _bundle_has_boom_transition(root):
+        path = root / BOOM_TRANSITION_PAGE
+        if not path.exists():
+            missing += 1
+        else:
+            pages[BOOM_TRANSITION_PAGE] = path.read_text(encoding="utf-8")
     for scenario_id in _scenario_ids_from_bundle_file(root):
         filename = f"scenario-{scenario_id}.html"
         path = root / filename
@@ -226,6 +235,26 @@ def _verify_rendered_html_pages(
             "data-refresh-panel",
         ):
             required_missing += int(token not in combined)
+    if "boom_transition_dashboard" in bundle:
+        required_missing += int(
+            "data-dashboard-view=\"declared_boom_transition_monitor\""
+            not in combined
+        )
+        for token in (
+            "data-declared-transition-surface",
+            "data-transition-lane-card=\"boom_continuation\"",
+            "data-transition-lane-card=\"boom_ending_watch\"",
+            "data-transition-lane-card=\"recession_watch\"",
+            "data-transition-lane-card=\"recession_confirmation\"",
+            "data-transition-indicator-card=\"boom_claims_u_shape\"",
+            "data-transition-indicator-card=\"boom_retail_sales_vs_broad_pce\"",
+            "data-transition-indicator-card=\"boom_private_investment\"",
+            "data-transition-indicator-card=\"recession_employment_confirmation\"",
+            "data-transition-indicator-card=\"recession_consumption_confirmation\"",
+            "data-watch-confirmation-boundary",
+            "data-declared-state-disclaimer",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -268,6 +297,8 @@ def _preview_pages(bundle: dict[str, Any]) -> dict[str, str]:
     }
     if "current_snapshot" in bundle:
         pages[CURRENT_SNAPSHOT_PAGE] = _current_snapshot_page(bundle)
+    if "boom_transition_dashboard" in bundle:
+        pages[BOOM_TRANSITION_PAGE] = _boom_transition_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -299,6 +330,7 @@ def _overview_page(bundle: dict[str, Any]) -> str:
         <span>Production isolation count {lineage["production_behavior_change_count"]}</span>
       </div>
       {_current_snapshot_entry(bundle)}
+      {_boom_transition_entry(bundle)}
     </section>
     <section class="panel">
       <h2>Scenario access</h2>
@@ -657,6 +689,111 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
     return _page("Current Research Snapshot", CURRENT_SNAPSHOT_PAGE, body)
 
 
+def _boom_transition_page(bundle: dict[str, Any]) -> str:
+    surface = bundle["boom_transition_dashboard"]
+    lanes = "".join(_boom_lane_card(lane) for lane in surface["lane_cards"])
+    indicators = "".join(
+        _boom_indicator_card(card) for card in surface["indicator_cards"]
+    )
+    blockers = "".join(
+        f"<li><code>{_text(item)}</code></li>"
+        for item in surface["missing_evidence_summary"]["top_blockers"]
+    )
+    why_not = "".join(
+        f"<li>{_text(item)}</li>" for item in surface["why_not_formal_transition"]
+    )
+    body = f"""
+    <section class="panel" data-dashboard-view="declared_boom_transition_monitor" data-declared-transition-surface>
+      <div class="section-heading">
+        <h1>Declared Boom Transition Monitor</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted" data-declared-state-disclaimer>This surface starts from the declared boom state and monitors only the legal next transition to recession. It does not infer or select a formal phase from current data.</p>
+      <div class="metric-grid">
+        {_metric_card("Declared state", surface["declared_current_phase"], "governed registry input")}
+        {_metric_card("Legal next", surface["legal_next_phase"], "ordered cycle transition")}
+        {_metric_card("Monitor as-of", surface["monitor_as_of"], surface["data_mode"])}
+        {_metric_card("Priority roles", surface["surface_validation"]["indicator_status_present_count"], "all display statuses visible")}
+      </div>
+      <div class="status-strip" data-watch-confirmation-boundary>
+        <span>watch is not confirmation</span>
+        <span>missing evidence abstains</span>
+        <span>no phase score or rank</span>
+        <span>no portfolio action</span>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Transition lanes</h2>
+      <div class="transition-lane-grid">{lanes}</div>
+    </section>
+    <section class="panel">
+      <h2>Indicator meanings and current status</h2>
+      <p class="muted">Each indicator card shows why the role matters, what lane it supports, and why missing inputs remain visible instead of being treated as neutral.</p>
+      <div class="transition-indicator-grid">{indicators}</div>
+    </section>
+    <section class="panel">
+      <h2>Why this is not a formal transition</h2>
+      <ul class="provenance-list">{why_not}</ul>
+      <h2>Current blockers</h2>
+      <ul class="provenance-list">{blockers or "<li>No transition blockers reported.</li>"}</ul>
+    </section>
+    """
+    return _page("Declared Boom Transition Monitor", BOOM_TRANSITION_PAGE, body)
+
+
+def _boom_lane_card(lane: dict[str, Any]) -> str:
+    return f"""
+      <article class="transition-lane-card" data-transition-lane-card="{_text(lane["lane_id"])}">
+        <h3>{_text(lane["title_zh"])}</h3>
+        <p class="muted">{_text(lane["purpose_zh"])}</p>
+        <dl class="mini-grid">
+          <dt>Status</dt><dd>{_status_badge(lane["lane_status"])}</dd>
+          <dt>Wired roles</dt><dd>{lane["wired_evidence_count"]}</dd>
+          <dt>Evaluable roles</dt><dd>{lane["evaluable_evidence_count"]}</dd>
+          <dt>Explicit abstentions</dt><dd>{lane["explicit_abstention_count"]}</dd>
+          <dt>Boundary</dt><dd>{_text(lane["watch_confirmation_boundary_zh"])}</dd>
+        </dl>
+        <p>{_text(lane["book_logic_summary"])}</p>
+      </article>
+    """
+
+
+def _boom_indicator_card(card: dict[str, Any]) -> str:
+    lanes = ", ".join(card["lane_titles_zh"])
+    sources = ", ".join(card["required_series_ids"])
+    context = ", ".join(card["contextual_series_ids"]) or "none"
+    lane_states = "".join(
+        f"<li>{_text(item['lane_title_zh'])}: {_text(item['status_label_zh'])}</li>"
+        for item in card["lane_states"]
+    )
+    return f"""
+      <article class="transition-indicator-card" data-transition-indicator-card="{_text(card["role_id"])}">
+        <h3>{_text(card["title_zh"])}</h3>
+        <dl class="mini-grid">
+          <dt>Role</dt><dd><code>{_text(card["role_id"])}</code></dd>
+          <dt>Lanes</dt><dd>{_text(lanes)}</dd>
+          <dt>Status</dt><dd>{_status_badge(card["status_label_zh"])}</dd>
+          <dt>Sources</dt><dd>{_text(sources)}</dd>
+          <dt>Context</dt><dd>{_text(context)}</dd>
+          <dt>Data mode</dt><dd>{_text(card["data_mode"])}</dd>
+        </dl>
+        <div class="phase-profile-detail">
+          <h4>Meaning</h4>
+          <p>{_text(card["meaning_zh"])}</p>
+        </div>
+        <div class="phase-profile-detail">
+          <h4>Why it matters</h4>
+          <p>{_text(card["why_it_matters_zh"])}</p>
+        </div>
+        <div class="phase-profile-detail">
+          <h4>Current status</h4>
+          <p>{_text(card["abstention_or_blocker_reason_zh"])}</p>
+          <ul>{lane_states}</ul>
+        </div>
+      </article>
+    """
+
+
 def _phase_profile_card(phase: str, profile: dict[str, Any]) -> str:
     supportive = _list_items(profile["top_supportive_roles"], "No current supportive role output.")
     blockers = _list_items(profile["top_blockers"], "No current blocker reported.")
@@ -736,6 +873,8 @@ def _nav(active_href: str) -> str:
     ]
     if active_href == CURRENT_SNAPSHOT_PAGE:
         links.append((CURRENT_SNAPSHOT_PAGE, "Current snapshot"))
+    if active_href == BOOM_TRANSITION_PAGE:
+        links.append((BOOM_TRANSITION_PAGE, "Boom transition"))
     items = []
     for href, label in links:
         active = ' class="active"' if href == active_href else ""
@@ -752,6 +891,19 @@ def _current_snapshot_entry(bundle: dict[str, Any]) -> str:
         <strong>Current Research Snapshot</strong>
         <span>{_text(snapshot["snapshot_as_of"])} / {_text(snapshot["data_mode"])}</span>
         <a href="{CURRENT_SNAPSHOT_PAGE}">Open current snapshot</a>
+      </div>
+    """
+
+
+def _boom_transition_entry(bundle: dict[str, Any]) -> str:
+    if "boom_transition_dashboard" not in bundle:
+        return ""
+    surface = bundle["boom_transition_dashboard"]
+    return f"""
+      <div class="callout" data-boom-transition-entry>
+        <strong>Declared Boom Transition Monitor</strong>
+        <span>{_text(surface["monitor_as_of"])} / legal next {_text(surface["legal_next_phase"])}</span>
+        <a href="{BOOM_TRANSITION_PAGE}">Open transition monitor</a>
       </div>
     """
 
@@ -852,6 +1004,17 @@ def _bundle_has_current_snapshot(root: Path) -> bool:
     except json.JSONDecodeError:
         return False
     return "current_snapshot" in payload
+
+
+def _bundle_has_boom_transition(root: Path) -> bool:
+    bundle_path = root / "data" / "dashboard_bundle.json"
+    if not bundle_path.exists():
+        return False
+    try:
+        payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    return "boom_transition_dashboard" in payload
 
 
 def _metric_summary_row(metric: dict[str, Any]) -> str:
@@ -1049,16 +1212,26 @@ h2 { margin: 0 0 10px; font-size: 1.1rem; }
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
-.phase-profile-card {
+.phase-profile-card, .transition-lane-card, .transition-indicator-card {
   min-width: 0;
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface-alt);
 }
-.phase-profile-card h3 { margin: 0 0 8px; font-size: 1rem; }
-.phase-profile-card h4 { margin: 8px 0 4px; font-size: 0.86rem; }
-.phase-profile-card ul { margin: 0; padding-left: 18px; }
+.phase-profile-card h3, .transition-lane-card h3, .transition-indicator-card h3 { margin: 0 0 8px; font-size: 1rem; }
+.phase-profile-card h4, .transition-indicator-card h4 { margin: 8px 0 4px; font-size: 0.86rem; }
+.phase-profile-card ul, .transition-indicator-card ul { margin: 0; padding-left: 18px; }
+.transition-lane-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.transition-indicator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
 .mini-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -1099,6 +1272,7 @@ input, select { min-height: 34px; border: 1px solid var(--line); border-radius: 
   .section-heading { align-items: flex-start; flex-direction: column; }
   .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .phase-card-grid { grid-template-columns: 1fr; }
+  .transition-lane-grid, .transition-indicator-grid { grid-template-columns: 1fr; }
   .definition-grid { grid-template-columns: 1fr; }
   .two-column { grid-template-columns: 1fr; }
   table { min-width: 680px; }

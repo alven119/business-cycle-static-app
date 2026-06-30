@@ -18,6 +18,9 @@ from business_cycle.render.phase_evidence_view_models import (
     build_phase_analysis_view_model,
     build_transition_risk_view_model,
 )
+from business_cycle.render.boom_transition_dashboard_surface import (
+    build_boom_transition_dashboard_surface,
+)
 from business_cycle.validation.post_pit_remediation_validation_rerun import (
     build_post_pit_remediation_validation_rerun,
 )
@@ -61,6 +64,7 @@ VIEW_IDS = (
     "scenario_detail",
 )
 CURRENT_SNAPSHOT_VIEW_ID = "current_research_snapshot"
+BOOM_TRANSITION_VIEW_ID = "declared_boom_transition_monitor"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -90,6 +94,7 @@ def load_research_validation_dashboard_contract(
 def build_research_dashboard_bundle(
     *,
     current_snapshot: dict[str, Any] | None = None,
+    boom_transition_surface: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     contract = load_research_validation_dashboard_contract()
     run = build_post_pit_remediation_validation_rerun()
@@ -107,7 +112,10 @@ def build_research_dashboard_bundle(
     comparison_status_counts = Counter(
         scenario["comparison_status"] for scenario in scenarios
     )
-    view_ids = _view_ids(current_snapshot=current_snapshot)
+    view_ids = _view_ids(
+        current_snapshot=current_snapshot,
+        boom_transition_surface=boom_transition_surface,
+    )
     bundle = {
         "dashboard_schema_version": SCHEMA_VERSION,
         "generated_at": GENERATED_AT_UTC,
@@ -254,6 +262,11 @@ def build_research_dashboard_bundle(
             bundle["source_runs"]["phase40_current_data_refresh"] = current_snapshot[
                 "refresh_metadata"
             ].get("refresh_manifest_hash")
+    if boom_transition_surface is not None:
+        bundle["boom_transition_dashboard"] = boom_transition_surface
+        bundle["source_runs"]["phase49_boom_transition_dashboard"] = (
+            boom_transition_surface["surface_id"]
+        )
     validation = validate_research_dashboard_bundle(bundle, contract=contract)
     bundle["artifact_consistency"] = validation
     return bundle
@@ -327,6 +340,13 @@ def summarize_research_dashboard_bundle() -> dict[str, Any]:
         "current_dashboard_view_ready": bool(bundle.get("current_snapshot"))
         and bundle["dashboard_view_count"] >= 8,
         "current_snapshot_artifact_count": int(bool(bundle.get("current_snapshot"))),
+        "boom_transition_dashboard_view_ready": bool(
+            bundle.get("boom_transition_dashboard")
+        )
+        and bundle["dashboard_view_count"] >= 8,
+        "boom_transition_dashboard_artifact_count": int(
+            bool(bundle.get("boom_transition_dashboard"))
+        ),
         "bundle": bundle,
     }
 
@@ -480,10 +500,17 @@ def _scenario_summaries(
     return _ordered_scenarios(scenarios)
 
 
-def _view_ids(*, current_snapshot: dict[str, Any] | None) -> tuple[str, ...]:
-    if current_snapshot is None:
-        return VIEW_IDS
-    return (*VIEW_IDS, CURRENT_SNAPSHOT_VIEW_ID)
+def _view_ids(
+    *,
+    current_snapshot: dict[str, Any] | None,
+    boom_transition_surface: dict[str, Any] | None,
+) -> tuple[str, ...]:
+    view_ids = list(VIEW_IDS)
+    if current_snapshot is not None:
+        view_ids.append(CURRENT_SNAPSHOT_VIEW_ID)
+    if boom_transition_surface is not None:
+        view_ids.append(BOOM_TRANSITION_VIEW_ID)
+    return tuple(view_ids)
 
 
 def _ordered_scenarios(scenarios: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -626,7 +653,16 @@ def _view_title(view_id: str) -> str:
         "pit_gap_view": "PIT Gap View",
         "scenario_detail": "Scenario Detail",
         "current_research_snapshot": "Current Research Snapshot",
+        "declared_boom_transition_monitor": "Declared Boom Transition Monitor",
     }[view_id]
+
+
+def build_research_dashboard_bundle_with_boom_transition() -> dict[str, Any]:
+    """Build a bundle including the Phase49 transition dashboard surface."""
+
+    return build_research_dashboard_bundle(
+        boom_transition_surface=build_boom_transition_dashboard_surface(),
+    )
 
 
 def _scenario_title(scenario_id: str) -> str:

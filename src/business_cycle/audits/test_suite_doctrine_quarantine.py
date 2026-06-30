@@ -206,6 +206,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase48 closure proves boom transition evidence wiring boundaries",
     ),
+    "tests/test_boom_transition_dashboard_surface.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="Phase49 dashboard surface renders transition evidence as research-only",
+    ),
+    "tests/test_boom_transition_dashboard_render.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor"),
+        rationale="Phase49 local dashboard rendering must preserve transition boundaries",
+    ),
+    "tests/test_phase49_boom_transition_dashboard_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase49 closure proves dashboard surface has no phase selection",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

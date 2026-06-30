@@ -7,7 +7,9 @@ from pathlib import Path
 
 from business_cycle.render.research_dashboard_bundle import (
     build_research_dashboard_bundle,
-    summarize_research_dashboard_bundle,
+)
+from business_cycle.render.boom_transition_dashboard_surface import (
+    build_boom_transition_dashboard_surface,
 )
 from business_cycle.render.research_validation_dashboard import (
     build_research_validation_dashboard,
@@ -18,34 +20,25 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--include-current-snapshot")
+    parser.add_argument(
+        "--include-boom-transition-monitor",
+        action="store_true",
+        help="include the Phase49 declared boom transition dashboard surface",
+    )
     args = parser.parse_args()
 
     current_snapshot = _load_current_snapshot(args.include_current_snapshot)
-    bundle = build_research_dashboard_bundle(current_snapshot=current_snapshot)
-    result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
-    bundle_summary = (
-        summarize_research_dashboard_bundle()
-        if current_snapshot is None
-        else {
-            "research_dashboard_contract_ready": True,
-            "research_dashboard_bundle_ready": bundle["artifact_consistency"][
-                "bundle_schema_valid"
-            ],
-            "dashboard_view_count": bundle["dashboard_view_count"],
-            "scenario_count": bundle["scenario_count"],
-            "comparable_scenario_count": bundle["comparable_scenario_count"],
-            "non_comparable_scenario_count": bundle["non_comparable_scenario_count"],
-            "remaining_pit_role_gap_count": bundle["pit_readiness_summaries"][
-                "post_insufficient_point_in_time_role_gap_count"
-            ],
-            "rule_unresolved_gap_count": bundle["pit_readiness_summaries"][
-                "rule_unresolved_gap_count"
-            ],
-            "artifact_consistency_error_count": bundle["artifact_consistency"][
-                "artifact_consistency_error_count"
-            ],
-        }
+    boom_transition_surface = (
+        build_boom_transition_dashboard_surface()
+        if args.include_boom_transition_monitor
+        else None
     )
+    bundle = build_research_dashboard_bundle(
+        current_snapshot=current_snapshot,
+        boom_transition_surface=boom_transition_surface,
+    )
+    result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
+    bundle_summary = _bundle_summary(bundle)
     for key in (
         "research_dashboard_contract_ready",
         "research_dashboard_bundle_ready",
@@ -59,6 +52,10 @@ def main() -> None:
     ):
         value = bundle_summary[key]
         print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")
+    print(
+        "boom_transition_dashboard_view_ready="
+        f"{str(bool(bundle.get('boom_transition_dashboard'))).lower()}"
+    )
     for key in (
         "research_dashboard_runtime_ready",
         "local_preview_server_ready",
@@ -81,6 +78,26 @@ def _load_current_snapshot(path: str | None) -> dict[str, object] | None:
     if path is None:
         return None
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _bundle_summary(bundle: dict[str, object]) -> dict[str, object]:
+    pit = bundle["pit_readiness_summaries"]
+    consistency = bundle["artifact_consistency"]
+    return {
+        "research_dashboard_contract_ready": True,
+        "research_dashboard_bundle_ready": consistency["bundle_schema_valid"],
+        "dashboard_view_count": bundle["dashboard_view_count"],
+        "scenario_count": bundle["scenario_count"],
+        "comparable_scenario_count": bundle["comparable_scenario_count"],
+        "non_comparable_scenario_count": bundle["non_comparable_scenario_count"],
+        "remaining_pit_role_gap_count": pit[
+            "post_insufficient_point_in_time_role_gap_count"
+        ],
+        "rule_unresolved_gap_count": pit["rule_unresolved_gap_count"],
+        "artifact_consistency_error_count": consistency[
+            "artifact_consistency_error_count"
+        ],
+    }
 
 
 if __name__ == "__main__":

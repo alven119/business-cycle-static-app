@@ -19,6 +19,9 @@ PRODUCTION_SCRIPT_PATHS = (
     Path("scripts/build_site.py"),
     Path("scripts/run_cycle_pipeline.py"),
 )
+RESEARCH_ONLY_RENDER_PATHS = {
+    Path("src/business_cycle/render/boom_transition_dashboard_surface.py"),
+}
 NEEDLES = (
     "shadow_aggregation",
     "aggregation_contract",
@@ -66,7 +69,10 @@ def _count_mentions(paths: tuple[Path, ...]) -> int:
             count += _text_count(path)
             continue
         for file_path in path.rglob("*.py"):
-            if "__pycache__" not in file_path.parts:
+            if (
+                "__pycache__" not in file_path.parts
+                and file_path not in RESEARCH_ONLY_RENDER_PATHS
+            ):
                 count += _text_count(file_path)
     return count
 

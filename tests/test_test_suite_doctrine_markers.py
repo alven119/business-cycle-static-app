@@ -44,6 +44,9 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_boom_transition_evidence_wiring.py"
     )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_boom_transition_dashboard_surface.py"
+    )
     assert "portfolio_policy_research" in markers_for_test_path(
         "tests/test_portfolio_policy_template_schema.py"
     )
