@@ -66,6 +66,7 @@ VIEW_IDS = (
 CURRENT_SNAPSHOT_VIEW_ID = "current_research_snapshot"
 BOOM_TRANSITION_VIEW_ID = "declared_boom_transition_monitor"
 MACRO_COVERAGE_VIEW_ID = "macro_indicator_coverage_readiness"
+INDICATOR_DETAIL_VIEW_ID = "indicator_detail_source_risk_value_cards"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -97,6 +98,7 @@ def build_research_dashboard_bundle(
     current_snapshot: dict[str, Any] | None = None,
     boom_transition_surface: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
+    indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     contract = load_research_validation_dashboard_contract()
     run = build_post_pit_remediation_validation_rerun()
@@ -118,6 +120,7 @@ def build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
         macro_coverage_matrix=macro_coverage_matrix,
+        indicator_detail_cards=indicator_detail_cards,
     )
     bundle = {
         "dashboard_schema_version": SCHEMA_VERSION,
@@ -274,6 +277,11 @@ def build_research_dashboard_bundle(
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
         bundle["source_runs"]["phase55_macro_indicator_coverage_readiness"] = (
             macro_coverage_matrix["view_id"]
+        )
+    if indicator_detail_cards is not None:
+        bundle["indicator_detail_source_risk_value_cards"] = indicator_detail_cards
+        bundle["source_runs"]["phase56_indicator_detail_source_risk_values"] = (
+            indicator_detail_cards["view_id"]
         )
     validation = validate_research_dashboard_bundle(bundle, contract=contract)
     bundle["artifact_consistency"] = validation
@@ -513,6 +521,7 @@ def _view_ids(
     current_snapshot: dict[str, Any] | None,
     boom_transition_surface: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
+    indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
     view_ids = list(VIEW_IDS)
     if current_snapshot is not None:
@@ -521,6 +530,8 @@ def _view_ids(
         view_ids.append(BOOM_TRANSITION_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
+    if indicator_detail_cards is not None:
+        view_ids.append(INDICATOR_DETAIL_VIEW_ID)
     return tuple(view_ids)
 
 
@@ -666,6 +677,9 @@ def _view_title(view_id: str) -> str:
         "current_research_snapshot": "Current Research Snapshot",
         "declared_boom_transition_monitor": "Declared Boom Transition Monitor",
         "macro_indicator_coverage_readiness": "Macro Indicator Coverage Readiness",
+        "indicator_detail_source_risk_value_cards": (
+            "Indicator Detail Source Risk and Value Context"
+        ),
     }[view_id]
 
 

@@ -1,0 +1,82 @@
+indicator_detail_source_risk_value_rendering:
+  contract_id: indicator_detail_source_risk_value_rendering_v1
+  contract_version: "1.0"
+  phase_id: 56
+  phase_label: indicator_detail_source_risk_and_value_rendering
+  status: active_research_contract
+  purpose: >
+    Render one dashboard-ready indicator detail card per Phase55 macro coverage
+    role. Each card must expose source tier, data-risk label, freshness,
+    release timing, value context when available, transformation status, and
+    why-not-evidence caveats without promoting proxy sources or emitting
+    candidate/current phase outputs.
+  dependencies:
+    phase55_coverage_matrix: specs/common/macro_indicator_coverage_readiness_matrix.yaml
+    phase52_official_source_wiring: specs/common/official_macro_source_adapter_wiring.yaml
+    phase53_value_context: specs/common/composite_transition_surface_value_wiring.yaml
+    phase42_freshness: src/business_cycle/current/current_freshness_semantics.py
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  policy:
+    output_mode: research_only_indicator_detail_context
+    role_card_required_for_each_phase55_role: true
+    value_context_visible_even_when_numeric_cache_missing: true
+    authorized_private_input_must_remain_missing_until_supplied: true
+    supporting_proxy_may_replace_book_core: false
+    phase_picker_allowed: false
+    current_phase_emission_allowed: false
+    candidate_phase_emission_allowed: false
+    phase_score_rank_or_winner_allowed: false
+    portfolio_or_trade_output_allowed: false
+    repo_output_allowed: false
+    tests_must_not_use_network: true
+  dashboard_view_model:
+    view_id: indicator_detail_source_risk_value_cards
+    view_title: Indicator Detail Source Risk and Value Context
+    allowed_uses:
+      - local_research_dashboard
+      - indicator_detail_explanation
+      - source_risk_explanation
+      - freshness_and_release_review
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  output_restrictions:
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - phase_score
+      - target_weight
+      - allocation_recommendation
+      - buy_signal
+      - sell_signal
+      - trade_action
+  hard_gates:
+    indicator_detail_source_risk_value_rendering_ready: true
+    indicator_detail_source_risk_ready: true
+    indicator_detail_value_context_ready: true
+    indicator_detail_card_count: 39
+    phase_count: 4
+    phase_with_indicator_detail_count: 4
+    source_risk_visible_card_count: 39
+    freshness_context_visible_card_count: 39
+    release_timing_context_visible_card_count: 39
+    value_context_visible_card_count: 39
+    transformation_context_visible_card_count: 39
+    why_not_evidence_visible_card_count: 39
+    authorized_input_missing_card_count: 2
+    supporting_proxy_only_card_count: 3
+    proxy_promoted_to_book_core_count: 0
+    silent_substitution_count: 0
+    false_resolution_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

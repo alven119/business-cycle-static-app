@@ -33,7 +33,10 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
 
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
-    assert summary["phase_label"] == "macro_indicator_coverage_readiness_matrix"
+    assert (
+        summary["phase_label"]
+        == "indicator_detail_source_risk_and_value_rendering"
+    )
     assert all(
         0 <= row["current_progress_percent"] <= 100
         for row in summary["capability_progress"]

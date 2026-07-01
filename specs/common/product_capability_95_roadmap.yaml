@@ -1,0 +1,278 @@
+product_capability_95_roadmap:
+  version: "1.0"
+  status: active_planning_contract
+  baseline_phase_id: 55
+  baseline_phase_label: macro_indicator_coverage_readiness_matrix
+  max_phase_count: 10
+  planned_phase_count: 9
+  target_phase_id: 64
+  progress_semantics: >
+    Percentages estimate distance to formal production use for the three
+    user-prioritized product capabilities. They are planning targets, not
+    economic validation, investment advice, or a formal current phase decision.
+    Planned percentages must be monotonic unless a future phase records a
+    governed decrease reason.
+  target_capabilities:
+    - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      title_zh: 景氣階段判讀能力
+      baseline_percent: 66
+      target_percent: 95
+      target_phase_id: 64
+      production_use_definition_zh: >
+        Dashboard can present declared current phase, declared phase age,
+        legal next phase, evidence profile, major-group readiness,
+        abstention reasons, source risk, and confidence caveats without using
+        a standalone classifier.
+      remaining_after_target_zh: >
+        Portfolio policy migration, economic validation completion, and
+        prospective validation remain separate gates.
+      phase_targets:
+        "56": 70
+        "57": 74
+        "58": 78
+        "59": 82
+        "60": 86
+        "61": 89
+        "62": 91
+        "63": 93
+        "64": 95
+    - capability_id: C2_TRANSITION_RISK_DETECTION
+      title_zh: 轉折風險偵測能力
+      baseline_percent: 71
+      target_percent: 95
+      target_phase_id: 64
+      production_use_definition_zh: >
+        Dashboard can explain legal next transition watch and confirmation
+        lanes, missing and contradictory evidence, freshness, source risk, and
+        confidence caveats without rewriting declared state.
+      remaining_after_target_zh: >
+        Portfolio action, backtest-based policy optimization, and automatic
+        state migration remain separate gates.
+      phase_targets:
+        "56": 74
+        "57": 79
+        "58": 83
+        "59": 86
+        "60": 89
+        "61": 91
+        "62": 93
+        "63": 94
+        "64": 95
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      title_zh: 解釋能力
+      baseline_percent: 75
+      target_percent: 95
+      target_phase_id: 64
+      production_use_definition_zh: >
+        Dashboard can drill down from declared state and transition surfaces
+        to source, release timing, transformation, rule, provenance, data
+        mode, data risk, and abstention reason for every priority role.
+      remaining_after_target_zh: >
+        Full replay visualization and portfolio policy attribution remain
+        separate product tracks.
+      phase_targets:
+        "56": 80
+        "57": 83
+        "58": 86
+        "59": 88
+        "60": 90
+        "61": 92
+        "62": 94
+        "63": 95
+        "64": 95
+  planned_phases:
+    - phase_id: 56
+      phase_title: Indicator detail source-risk and value rendering
+      objective_zh: >
+        將 Phase55 coverage role cards 接入 indicator detail rendering，顯示
+        source tier、data risk、current value context、freshness、release
+        timing、transformation 與 why-not-evidence caveat。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W1_OVERVIEW
+        - W3_TRANSITION_RISK
+        - W4_INDICATOR_EXPLORER
+        - W7_DATA_LINEAGE
+      key_acceptance_gates:
+        - indicator_detail_source_risk_ready=true
+        - indicator_detail_value_context_ready=true
+        - proxy_not_promoted_to_book_core=true
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
+    - phase_id: 57
+      phase_title: Boom-to-recession transition surface completion
+      objective_zh: >
+        補完整 declared boom 狀態下的 boom continuation、boom-ending watch、
+        recession watch、recession confirmation、contradiction 與 abstention
+        display surface。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W1_OVERVIEW
+        - W2_PHASE_ANALYSIS
+        - W3_TRANSITION_RISK
+      key_acceptance_gates:
+        - boom_to_recession_transition_surface_ready=true
+        - watch_confirmation_separation_valid=true
+        - declared_phase_preserved=true
+    - phase_id: 58
+      phase_title: Full ordered-cycle transition lane templates
+      objective_zh: >
+        將 transition lane 模板擴展到 recession->recovery、
+        recovery->growth、growth->boom、boom->recession，保留 legal order
+        與 phase-specific evidence semantics。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W2_PHASE_ANALYSIS
+        - W3_TRANSITION_RISK
+        - W5_PHASE_TIMELINE
+      key_acceptance_gates:
+        - full_ordered_transition_lane_templates_ready=true
+        - legal_cycle_order_valid=true
+        - illegal_transition_rejected=true
+    - phase_id: 59
+      phase_title: Governed declared boom start and phase-age confirmation
+      objective_zh: >
+        建立受治理的 declared boom start date 確認流程，顯示 phase age、
+        provenance、uncertainty 與 user-declared caveat，避免硬猜起始日。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W1_OVERVIEW
+        - W2_PHASE_ANALYSIS
+        - W13_MODEL_GOVERNANCE
+      key_acceptance_gates:
+        - declared_phase_start_governance_ready=true
+        - phase_age_false_precision_count=0
+        - declaration_provenance_complete=true
+    - phase_id: 60
+      phase_title: Evidence freshness, release timing, and current value continuity
+      objective_zh: >
+        強化 current value continuity、release timing、freshness、stale/missing
+        與 data mode caveat，讓 indicator 和 transition surfaces 能穩定回答
+        目前資料狀態。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W1_OVERVIEW
+        - W3_TRANSITION_RISK
+        - W4_INDICATOR_EXPLORER
+        - W7_DATA_LINEAGE
+        - W15_SYSTEM_OPERATIONS
+      key_acceptance_gates:
+        - evidence_freshness_ready=true
+        - release_timing_context_ready=true
+        - missing_and_stale_caveats_visible=true
+    - phase_id: 61
+      phase_title: Major-group evidence profile and readiness explanation
+      objective_zh: >
+        建立 major-group evidence profile，清楚呈現 supportive、
+        contradictory、mixed、incomplete、unavailable、raw-observation-only 與
+        rule-unresolved 狀態；profile 只作 explanation，不作 phase selector。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W1_OVERVIEW
+        - W2_PHASE_ANALYSIS
+        - W3_TRANSITION_RISK
+      key_acceptance_gates:
+        - major_group_evidence_profile_ready=true
+        - profile_not_used_as_selector=true
+        - unavailable_not_treated_as_neutral=true
+    - phase_id: 62
+      phase_title: Indicator-to-dashboard explanation drill-down
+      objective_zh: >
+        從 overview、phase analysis、transition surface 點進每個 role 的
+        source、release、transformation、rule、provenance、data mode、risk 與
+        abstention explanation。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W2_PHASE_ANALYSIS
+        - W3_TRANSITION_RISK
+        - W4_INDICATOR_EXPLORER
+        - W7_DATA_LINEAGE
+      key_acceptance_gates:
+        - explanation_drill_down_ready=true
+        - source_rule_provenance_complete=true
+        - prohibited_action_field_count=0
+    - phase_id: 63
+      phase_title: Research-only transition timing replay preview
+      objective_zh: >
+        建立 research-only transition timing replay preview，讓使用者看見
+        transition evidence 如何在歷史期間累積、延遲、矛盾或 abstain，但不
+        計算投資績效或把 static label accuracy 當成產品答案。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      web_surfaces_advanced:
+        - W3_TRANSITION_RISK
+        - W5_PHASE_TIMELINE
+        - W6_HISTORICAL_REPLAY
+      key_acceptance_gates:
+        - transition_timing_replay_preview_ready=true
+        - backtest_execution_count=0
+        - economic_performance_metric_count=0
+    - phase_id: 64
+      phase_title: Production-use readiness rehearsal for declared-state dashboard surfaces
+      objective_zh: >
+        對 declared-state dashboard、transition surface、indicator detail、
+        source-risk labels、mobile readability、forbidden fields、safety wording
+        與 doctrine alignment 進行 production-use readiness rehearsal。此
+        phase 應準備 explicit migration gate，但不自動打開 portfolio 或 trade
+        outputs。
+      capabilities_advanced:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+      web_surfaces_advanced:
+        - W1_OVERVIEW
+        - W2_PHASE_ANALYSIS
+        - W3_TRANSITION_RISK
+        - W4_INDICATOR_EXPLORER
+        - W7_DATA_LINEAGE
+        - W13_MODEL_GOVERNANCE
+      key_acceptance_gates:
+        - declared_state_dashboard_production_use_rehearsal_ready=true
+        - prioritized_capability_target_percent_reached=true
+        - production_behavior_change_count=0
+  universal_guardrails:
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_without_gate_count: 0
+    portfolio_policy_output_count: 0
+    buy_sell_or_trade_action_output_count: 0
+    supporting_proxy_promoted_to_book_core_count: 0
+    raw_data_or_book_pdf_tracked_count: 0
+  hard_gates:
+    roadmap_ready: true
+    target_capability_count: 3
+    planned_phase_count_max: 10
+    planned_phase_count: 9
+    target_phase_id: 64
+    all_target_capabilities_reach_95: true
+    monotonic_progress_targets: true
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    semantic_drift_count: 0

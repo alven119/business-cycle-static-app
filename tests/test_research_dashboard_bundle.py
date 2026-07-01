@@ -8,6 +8,9 @@ from business_cycle.render.research_dashboard_bundle import (
 from business_cycle.audits.macro_indicator_coverage_readiness_matrix import (
     build_macro_indicator_coverage_dashboard_view_model,
 )
+from business_cycle.render.indicator_detail_source_risk_values import (
+    build_indicator_detail_source_risk_value_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -66,6 +69,29 @@ def test_research_dashboard_bundle_accepts_macro_coverage_view_model() -> None:
     )
     assert (
         bundle["macro_indicator_coverage_readiness"]["current_phase_emitted"]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_indicator_detail_view_model() -> None:
+    indicator_detail = build_indicator_detail_source_risk_value_view_model()
+    bundle = build_research_dashboard_bundle(indicator_detail_cards=indicator_detail)
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "indicator_detail_source_risk_value_cards" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["indicator_detail_source_risk_value_cards"]["research_only"] is True
+    assert (
+        bundle["indicator_detail_source_risk_value_cards"][
+            "candidate_phase_emitted"
+        ]
+        is False
+    )
+    assert (
+        bundle["indicator_detail_source_risk_value_cards"]["current_phase_emitted"]
         is False
     )
     assert validation["prohibited_action_field_count"] == 0

@@ -65,6 +65,9 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "doctrine_aligned" in markers_for_test_path(
         "tests/test_product_capability_progress.py"
     )
+    assert "doctrine_aligned" in markers_for_test_path(
+        "tests/test_product_capability_95_roadmap.py"
+    )
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_phase52_official_macro_source_adapter_wiring_closure.py"
     )
@@ -85,6 +88,12 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
     )
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_phase55_macro_indicator_coverage_readiness_closure.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_indicator_detail_source_risk_value_rendering.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_phase56_indicator_detail_source_risk_value_closure.py"
     )
     assert "portfolio_policy_research" in markers_for_test_path(
         "tests/test_portfolio_policy_template_schema.py"

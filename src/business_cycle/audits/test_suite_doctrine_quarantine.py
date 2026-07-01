@@ -242,6 +242,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "governance_scaffold"),
         rationale="Product capability progress is orientation reporting, not readiness promotion",
     ),
+    "tests/test_product_capability_95_roadmap.py": QuarantineEntry(
+        markers=("doctrine_aligned", "governance_scaffold"),
+        rationale="95 percent roadmap is planning orientation, not readiness promotion",
+    ),
     "tests/test_phase52_official_macro_source_adapter_wiring_closure.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase52 closure proves official source wiring preserves doctrine boundaries",
@@ -281,6 +285,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
     "tests/test_show_phase55_macro_indicator_coverage_readiness_closure_script.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase55 closure script smoke test remains research-only",
+    ),
+    "tests/test_indicator_detail_source_risk_value_rendering.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase56 indicator detail cards explain source risk without phase selection",
+    ),
+    "tests/test_phase56_indicator_detail_source_risk_value_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase56 closure proves indicator detail rendering remains research-only",
+    ),
+    "tests/test_show_phase56_indicator_detail_source_risk_value_closure_script.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase56 closure script smoke test remains research-only",
     ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
