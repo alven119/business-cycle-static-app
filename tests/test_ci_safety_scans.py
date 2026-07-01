@@ -37,6 +37,22 @@ def test_unsupported_claim_scan_allows_dashboard_denylist_definition() -> None:
     assert allowed is True
 
 
+def test_unsupported_claim_scan_allows_product_progress_denylist_definition() -> None:
+    path = Path("src/business_cycle/audits/product_capability_progress.py")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    line_number = next(
+        index
+        for index, line in enumerate(lines, start=1)
+        if '"candidate phase " + "ready"' in line
+    )
+
+    allowed = scans._approved_prohibited_claim_definition(  # noqa: SLF001
+        f'{path}:{line_number}:    "candidate phase " + "ready",'
+    )
+
+    assert allowed is True
+
+
 def test_unsupported_claim_scan_allows_yaml_prohibited_claim_registry() -> None:
     path = Path("specs/common/research_validation_dashboard_contract.yaml")
     lines = path.read_text(encoding="utf-8").splitlines()

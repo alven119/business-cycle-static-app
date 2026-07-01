@@ -114,6 +114,12 @@ def _approved_prohibited_claim_definition(grep_line: str) -> bool:
         return _inside_yaml_list(lines, index, parent_key="prohibited_claims")
     if path == Path("src/business_cycle/render/research_validation_dashboard.py"):
         return _inside_python_tuple_assignment(lines, index, assignment_name="PROHIBITED_CLAIMS")
+    if path == Path("src/business_cycle/audits/product_capability_progress.py"):
+        return _inside_python_set_assignment(
+            lines,
+            index,
+            assignment_name="PROHIBITED_CLAIM_FRAGMENTS",
+        )
     if path == Path("scripts/run_ci_safety_scans.py"):
         return (
             "_claim_pattern" in "\n".join(lines[max(0, index - 12) : index + 3])
@@ -157,6 +163,28 @@ def _inside_python_tuple_assignment(
         return False
     for current in range(start + 1, len(lines)):
         if current >= index and lines[current].strip() == ")":
+            return index < current
+    return False
+
+
+def _inside_python_set_assignment(
+    lines: list[str],
+    index: int,
+    *,
+    assignment_name: str,
+) -> bool:
+    start = None
+    for previous in range(index, -1, -1):
+        text = lines[previous]
+        if text.startswith(f"{assignment_name} = {{"):
+            start = previous
+            break
+        if text and not text.startswith((" ", "\t", "#")):
+            break
+    if start is None:
+        return False
+    for current in range(start + 1, len(lines)):
+        if current >= index and lines[current].strip() == "}":
             return index < current
     return False
 
