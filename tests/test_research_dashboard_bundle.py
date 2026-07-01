@@ -11,6 +11,9 @@ from business_cycle.audits.macro_indicator_coverage_readiness_matrix import (
 from business_cycle.render.indicator_detail_source_risk_values import (
     build_indicator_detail_source_risk_value_view_model,
 )
+from business_cycle.render.boom_to_recession_transition_surface import (
+    build_boom_to_recession_transition_surface_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -92,6 +95,36 @@ def test_research_dashboard_bundle_accepts_indicator_detail_view_model() -> None
     )
     assert (
         bundle["indicator_detail_source_risk_value_cards"]["current_phase_emitted"]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_boom_to_recession_completion_view_model() -> None:
+    transition_surface = build_boom_to_recession_transition_surface_view_model()
+    bundle = build_research_dashboard_bundle(
+        boom_to_recession_transition_surface=transition_surface,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "boom_to_recession_transition_surface_completion" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert (
+        bundle["boom_to_recession_transition_surface_completion"]["research_only"]
+        is True
+    )
+    assert (
+        bundle["boom_to_recession_transition_surface_completion"][
+            "candidate_phase_emitted"
+        ]
+        is False
+    )
+    assert (
+        bundle["boom_to_recession_transition_surface_completion"][
+            "current_phase_emitted"
+        ]
         is False
     )
     assert validation["prohibited_action_field_count"] == 0

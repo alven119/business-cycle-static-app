@@ -298,6 +298,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase56 closure script smoke test remains research-only",
     ),
+    "tests/test_boom_to_recession_transition_surface_completion.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase57 completion surface preserves lane boundaries without phase selection",
+    ),
+    "tests/test_phase57_boom_to_recession_transition_surface_completion_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase57 closure proves completed transition surface remains research-only",
+    ),
+    "tests/test_show_phase57_boom_to_recession_transition_surface_completion_closure_script.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase57 closure script smoke test remains research-only",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

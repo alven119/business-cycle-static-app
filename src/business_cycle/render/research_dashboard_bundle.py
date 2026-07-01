@@ -21,6 +21,9 @@ from business_cycle.render.phase_evidence_view_models import (
 from business_cycle.render.boom_transition_dashboard_surface import (
     build_boom_transition_dashboard_surface,
 )
+from business_cycle.render.boom_to_recession_transition_surface import (
+    build_boom_to_recession_transition_surface_view_model,
+)
 from business_cycle.validation.post_pit_remediation_validation_rerun import (
     build_post_pit_remediation_validation_rerun,
 )
@@ -67,6 +70,7 @@ CURRENT_SNAPSHOT_VIEW_ID = "current_research_snapshot"
 BOOM_TRANSITION_VIEW_ID = "declared_boom_transition_monitor"
 MACRO_COVERAGE_VIEW_ID = "macro_indicator_coverage_readiness"
 INDICATOR_DETAIL_VIEW_ID = "indicator_detail_source_risk_value_cards"
+BOOM_TO_RECESSION_COMPLETION_VIEW_ID = "boom_to_recession_transition_surface_completion"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -97,6 +101,7 @@ def build_research_dashboard_bundle(
     *,
     current_snapshot: dict[str, Any] | None = None,
     boom_transition_surface: dict[str, Any] | None = None,
+    boom_to_recession_transition_surface: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -119,6 +124,7 @@ def build_research_dashboard_bundle(
     view_ids = _view_ids(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
+        boom_to_recession_transition_surface=boom_to_recession_transition_surface,
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -272,6 +278,13 @@ def build_research_dashboard_bundle(
         bundle["boom_transition_dashboard"] = boom_transition_surface
         bundle["source_runs"]["phase49_boom_transition_dashboard"] = (
             boom_transition_surface["surface_id"]
+        )
+    if boom_to_recession_transition_surface is not None:
+        bundle["boom_to_recession_transition_surface_completion"] = (
+            boom_to_recession_transition_surface
+        )
+        bundle["source_runs"]["phase57_boom_to_recession_transition_surface"] = (
+            boom_to_recession_transition_surface["view_id"]
         )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
@@ -520,6 +533,7 @@ def _view_ids(
     *,
     current_snapshot: dict[str, Any] | None,
     boom_transition_surface: dict[str, Any] | None,
+    boom_to_recession_transition_surface: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -528,6 +542,8 @@ def _view_ids(
         view_ids.append(CURRENT_SNAPSHOT_VIEW_ID)
     if boom_transition_surface is not None:
         view_ids.append(BOOM_TRANSITION_VIEW_ID)
+    if boom_to_recession_transition_surface is not None:
+        view_ids.append(BOOM_TO_RECESSION_COMPLETION_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -680,6 +696,9 @@ def _view_title(view_id: str) -> str:
         "indicator_detail_source_risk_value_cards": (
             "Indicator Detail Source Risk and Value Context"
         ),
+        "boom_to_recession_transition_surface_completion": (
+            "Boom to Recession Transition Surface"
+        ),
     }[view_id]
 
 
@@ -688,6 +707,16 @@ def build_research_dashboard_bundle_with_boom_transition() -> dict[str, Any]:
 
     return build_research_dashboard_bundle(
         boom_transition_surface=build_boom_transition_dashboard_surface(),
+    )
+
+
+def build_research_dashboard_bundle_with_boom_to_recession_surface() -> dict[str, Any]:
+    """Build a bundle including the Phase57 completed transition surface."""
+
+    return build_research_dashboard_bundle(
+        boom_to_recession_transition_surface=(
+            build_boom_to_recession_transition_surface_view_model()
+        ),
     )
 
 

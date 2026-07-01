@@ -1,0 +1,36 @@
+phase57_boom_to_recession_transition_surface_completion_closure:
+  phase_id: "57"
+  status: active_research_closure
+  expected:
+    phase57_boom_to_recession_transition_surface_completion_ready: true
+    boom_to_recession_transition_surface_completion_ready: true
+    dashboard_transition_surface_completion_view_ready: true
+    product_capability_progress_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    transition_lane_count: 4
+    continuation_lane_count: 1
+    watch_lane_count: 2
+    confirmation_lane_count: 1
+    transition_priority_indicator_count: 5
+    transition_priority_indicator_with_detail_count: 5
+    full_macro_indicator_detail_count: 39
+    watch_confirmation_separation_valid: true
+    recession_confirmation_not_derived_from_watch_only: true
+    watch_promoted_to_confirmation_count: 0
+    confirmation_derived_from_watch_only_count: 0
+    boom_ending_watch_mislabeled_confirmation_count: 0
+    recession_watch_mislabeled_confirmation_count: 0
+    continuation_mislabeled_transition_count: 0
+    proxy_promoted_to_book_core_count: 0
+    silent_substitution_count: 0
+    false_resolution_count: 0
+    phase_support_added_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

@@ -9,47 +9,47 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: 56
-  phase_label: indicator_detail_source_risk_and_value_rendering
+  phase_id: 57
+  phase_label: boom_to_recession_transition_surface_completion
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
-      previous_progress_percent: 66
-      current_progress_percent: 70
+      previous_progress_percent: 70
+      current_progress_percent: 74
       phase_delta_percent: 4
       phase_impacted: true
-      phase_impact_zh: Phase56 將 39 個 macro role 接成 indicator detail cards，讓 declared-state dashboard 可看見來源風險、freshness、release timing、value context 與 why-not-evidence。
-      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix 與 39 張 indicator detail cards；仍未啟用 formal current/candidate phase。
-      remaining_gap_zh: 還需要 governed declared boom start date、完整 transition surface、major-group evidence profile、更多 actual numeric cache/user input 與 production migration gate。
-      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix，以及每個 macro role 的 source-risk/value/freshness detail card。
-      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、declared boom 起始日治理、完整 transition lanes、major-group profile、授權私有資料讀取與 production migration。
-      next_gap_zh: 完成 boom-to-recession transition surface，直接使用 indicator detail cards 呈現 continuation、watch、confirmation 與 abstention。
+      phase_impact_zh: Phase57 完成 declared boom 到 recession 的 transition surface，把 continuation、boom-ending watch、recession watch、recession confirmation、contradiction 與 abstention 分開呈現。
+      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards 與 boom-to-recession completion surface；仍未啟用 formal current/candidate phase。
+      remaining_gap_zh: 還需要 full ordered-cycle transition lane templates、governed declared boom start date、major-group evidence profile、更多 actual numeric cache/user input 與 production migration gate。
+      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards，以及 boom-to-recession 四 lane transition surface。
+      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、declared boom 起始日治理、全循環 transition lanes、major-group profile、授權私有資料讀取與 production migration。
+      next_gap_zh: 將 transition lane 模板擴展到 recession->recovery、recovery->growth、growth->boom，保留 watch/confirmation/abstention 邊界。
       decrease_reason_zh:
     - capability_id: C2_TRANSITION_RISK_DETECTION
       title_zh: 轉折風險偵測能力
-      previous_progress_percent: 71
-      current_progress_percent: 74
-      phase_delta_percent: 3
+      previous_progress_percent: 74
+      current_progress_percent: 79
+      phase_delta_percent: 5
       phase_impacted: true
-      phase_impact_zh: Phase56 讓 transition monitor 可在 indicator detail 層直接讀到 source tier、data risk、freshness、release timing 與 why-not-confirmation caveat。
-      current_status_zh: 已有 boom transition monitor、transition surface、data-risk labels、value/context semantics、coverage burn-down view 與 indicator-level detail cards；仍不自動改寫 declared phase。
-      remaining_gap_zh: 需要補 declared boom start governance、boom-to-recession surface completion、turning-point confirmation rules 與更完整的 watch/confirmation 視覺化。
-      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view 與 indicator detail source-risk cards。
-      incomplete_summary_zh: 尚未完成 governed phase-age context、完整 boom-to-recession transition surface、turning-point confirmation rules，以及授權私有來源讀取。
-      next_gap_zh: 將 Phase56 cards 接進 boom-to-recession transition surface，清楚分開 continuation、watch、confirmation、contradiction 與 abstention。
+      phase_impact_zh: Phase57 把 boom continuation、boom-ending watch、recession watch、recession confirmation 與 contradictory/abstained evidence 收斂成一個完整 transition surface。
+      current_status_zh: 已有 boom transition monitor、completed boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view 與 indicator-level detail cards；仍不自動改寫 declared phase。
+      remaining_gap_zh: 需要補全循環 transition lane templates、declared boom start governance、turning-point confirmation rules 與更完整的跨 phase watch/confirmation 視覺化。
+      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view 與 indicator detail source-risk cards。
+      incomplete_summary_zh: 尚未完成 governed phase-age context、全循環 transition surface、turning-point confirmation rules，以及授權私有來源讀取。
+      next_gap_zh: Phase58 將相同 lane 模型推廣到完整 ordered cycle transition templates。
       decrease_reason_zh:
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
       title_zh: 解釋能力
-      previous_progress_percent: 75
-      current_progress_percent: 80
-      phase_delta_percent: 5
+      previous_progress_percent: 80
+      current_progress_percent: 83
+      phase_delta_percent: 3
       phase_impacted: true
-      phase_impact_zh: Phase56 把每個 macro role 的 source-risk、value context、freshness、release timing、transformation status 與 why-not-evidence 做成 dashboard detail cards。
-      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage 與 next gap 已能以 role card 呈現。
-      remaining_gap_zh: 需要把 detail cards 深入 transition surface、major-group profile、資料血緣頁與最終 dashboard renderer，並補更多 local cache numeric values。
-      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context 與 39-role indicator detail cards。
-      incomplete_summary_zh: 尚未完成完整 transition drill-down、major-group attribution、資料血緣頁 renderer、所有 numeric values 與授權私有來源讀取。
-      next_gap_zh: 在 Phase57 transition surface 中使用 detail cards 顯示每個 evidence item 的 source-risk、value context 與 why-not-confirmation。
+      phase_impact_zh: Phase57 將 Phase56 indicator detail cards 接入 transition lane，讓每個 lane 都能說明來源風險、value context、freshness、release timing 與 why-not-confirmation。
+      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap 與 transition lane attribution 已能以 research surface 呈現。
+      remaining_gap_zh: 需要補全循環 transition drill-down、major-group profile、資料血緣頁 renderer、所有 numeric values 與授權私有來源讀取。
+      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards，以及 boom-to-recession lane attribution。
+      incomplete_summary_zh: 尚未完成全循環 transition drill-down、major-group attribution、資料血緣頁 renderer、所有 numeric values 與授權私有來源讀取。
+      next_gap_zh: 將相同解釋模型推廣到全循環 transition lanes 與 major-group evidence profile。
       decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
@@ -79,29 +79,29 @@ product_capability_progress:
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 78
-      current_progress_percent: 79
+      previous_progress_percent: 79
+      current_progress_percent: 80
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase56 將 forbidden fields、proxy promotion、silent substitution、false resolution 與 no phase emission gates 套用到 indicator detail view。
-      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates 與 indicator detail gates 持續運作。
-      remaining_gap_zh: 需要把相同 source-risk/forbidden-field 契約套用到 transition surface、major-group profile 與最終 dashboard renderer。
-      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix 與 indicator detail hard gates。
+      phase_impact_zh: Phase57 將 forbidden fields、watch/confirmation separation、proxy promotion、silent substitution、false resolution 與 no phase emission gates 套用到 completed transition surface。
+      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates 與 transition completion gates 持續運作。
+      remaining_gap_zh: 需要把相同 source-risk/forbidden-field 契約套用到全循環 transition lanes、major-group profile 與最終 dashboard renderer。
+      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates 與 transition completion hard gates。
       incomplete_summary_zh: 尚未把所有 transition/major-group/product-facing surfaces 統一納入相同 forbidden-field、source-risk、actual-value 與 progress reporting 契約。
-      next_gap_zh: Phase57 transition surface 必須沿用 Phase56 indicator detail safety gates。
+      next_gap_zh: Phase58 full ordered-cycle transition lanes 必須沿用 Phase57 surface safety gates。
       decrease_reason_zh:
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       title_zh: 時間完整性與 abstention
-      previous_progress_percent: 78
-      current_progress_percent: 79
+      previous_progress_percent: 79
+      current_progress_percent: 80
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase56 將 freshness、release timing、missing/authorized/proxy-only 與 metadata-only value context 放進每張 indicator detail card。
-      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification 與 detail-card freshness context 清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
+      phase_impact_zh: Phase57 在 transition lane 層直接顯示每個 priority evidence 的 freshness、release timing、metadata-only/value status 與 abstention reason。
+      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification、detail-card freshness context 與 transition-lane abstention context 清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
       remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance、更多 numeric current cache display 與 transition timing replay。
-      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界、coverage classification 與 indicator detail freshness context。
+      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界、coverage classification、indicator detail freshness context 與 transition-lane freshness context。
       incomplete_summary_zh: 尚未完成完整 exact-vintage cache、PIT backfill、所有 historical scenario 的 vintage availability、authorized private input provenance 與更多 numeric current values。
-      next_gap_zh: Phase57 transition surface 應直接顯示每個 transition evidence 的 freshness/release context 與 abstention reason。
+      next_gap_zh: Phase58 全循環 transition lane templates 應延續每個 lane 的 freshness/release/abstention 顯示。
       decrease_reason_zh:
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       title_zh: 模型治理與前瞻驗證
