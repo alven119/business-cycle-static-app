@@ -1,0 +1,96 @@
+low_cost_macro_source_completion:
+  contract_id: low_cost_macro_source_completion_v1
+  contract_version: "1.0"
+  phase_id: 54
+  phase_label: low_cost_macro_source_completion
+  status: active_research_contract
+  purpose: >
+    Remove unaffordable paid API dependency from the remaining Phase54 macro
+    source plan and define low-cost, risk-labeled completion paths for the
+    licensed or proxy-only ADP employment and consumer-confidence roles.
+  dependencies:
+    macro_gap_alternatives: specs/common/macro_indicator_gap_alternative_sources.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+    phase_execution_contract: specs/common/phase_execution_standing_contract.yaml
+  excluded_source_families:
+    - MacroMicro API
+    - MacroMicro paid API
+    - 財經M平方 API
+  policy:
+    macromicro_api_allowed: false
+    unaffordable_paid_api_allowed: false
+    user_supplied_authorized_private_input_allowed: true
+    supporting_proxy_may_be_displayed_with_visible_risk: true
+    supporting_proxy_may_replace_book_core: false
+    book_core_replacement_requires_direct_license_or_authorized_user_input: true
+    source_risk_label_required: true
+    substitution_degree_required: true
+    tests_must_not_use_network: true
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+  roles:
+    - role_id: growth_adp_employment
+      phase_or_layer: growth
+      major_group_id: employment
+      direct_source_candidate_id: adp_national_employment_report
+      direct_source_family: ADP
+      direct_source_status: authorized_private_or_user_supplied_only
+      low_cost_completion_path: user_supplied_authorized_private_csv
+      user_supplied_input_contract: local_private_operator_supplied_csv_not_committed
+      source_risk_label: high_until_license_or_user_authorization_confirmed
+      substitution_degree: direct_if_authorized_private_input
+      book_core_replacement_without_license_allowed: false
+      supporting_proxy_candidates:
+        - candidate_id: fred_payems_supporting_not_adp
+          source_family: BLS/FRED
+          source_title: Nonfarm payrolls as supporting employment context
+          substitution_degree: supporting_only_not_adp
+          can_replace_book_core: false
+          display_policy: supporting_context_with_visible_risk_label
+      prohibited_paths:
+        - payems_as_adp_replacement
+        - macromicro_api_dependency
+        - unlabeled_private_csv
+        - proxy_promoted_to_book_core
+    - role_id: boom_consumer_confidence
+      phase_or_layer: boom
+      major_group_id: consumer_confidence
+      direct_source_candidate_id: conference_board_consumer_confidence
+      direct_source_family: Conference Board
+      direct_source_status: licensed_or_user_supplied_only
+      low_cost_completion_path: user_supplied_authorized_private_csv
+      user_supplied_input_contract: local_private_operator_supplied_csv_not_committed
+      source_risk_label: high_until_license_or_user_authorization_confirmed
+      substitution_degree: direct_if_licensed_or_authorized_private_input
+      book_core_replacement_without_license_allowed: false
+      supporting_proxy_candidates:
+        - candidate_id: fred_umich_sentiment_supporting
+          source_family: University of Michigan/FRED
+          source_title: Consumer sentiment as supporting confidence proxy
+          substitution_degree: supporting_proxy_only
+          can_replace_book_core: false
+          display_policy: supporting_context_with_visible_risk_label
+      prohibited_paths:
+        - generic_sentiment_as_consumer_confidence_replacement
+        - macromicro_api_dependency
+        - unlabeled_private_csv
+        - proxy_promoted_to_book_core
+  hard_gates:
+    low_cost_macro_source_completion_ready: true
+    remaining_phase54_role_count: 2
+    low_cost_path_defined_role_count: 2
+    macromicro_api_candidate_count: 0
+    unaffordable_paid_api_candidate_count: 0
+    user_supplied_authorized_input_contract_count: 2
+    supporting_proxy_only_role_count: 2
+    book_core_replacement_without_license_count: 0
+    source_risk_label_missing_count: 0
+    substitution_degree_missing_count: 0
+    silent_substitution_count: 0
+    alternative_promoted_to_core_count: 0
+    payems_replaces_adp_count: 0
+    generic_sentiment_replaces_consumer_confidence_count: 0
+    proxy_promoted_to_book_core_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
