@@ -2,89 +2,130 @@ product_capability_progress:
   version: "1.0"
   status: active_research_progress_view
   progress_semantics: >
-    Percentages are governed product-readiness estimates for orientation. They
-    are not economic validation, production readiness, investment advice, or a
-    formal current phase decision.
-  phase_id: 52
-  phase_label: official_macro_source_adapter_wiring
+    Percentages estimate distance to formal production use. They are governed
+    orientation numbers, not economic validation, investment advice, or a formal
+    current phase decision. Percentages are monotonic by default. They may
+    decrease only when a test or gate fails, a safety or data-correctness issue
+    is found, code is removed or broken, or the user explicitly expands the
+    capability definition. Any decrease must include decrease_reason_zh in the
+    affected row.
+  phase_id: 53
+  phase_label: composite_transition_surface_value_wiring
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
-      previous_progress_percent: 58
-      current_progress_percent: 60
+      previous_progress_percent: 60
+      current_progress_percent: 62
       phase_delta_percent: 2
-      phase52_impacted: true
-      phase52_impact_zh: 官方 macro source wiring 讓更多 book-core roles 可被 current research runtime 定位到正式 series。
-      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles；仍未啟用 formal current/candidate phase。
-      remaining_gap_zh: 還需要 Phase53 composite/rule semantics、Phase54 授權/代理風險處理，以及後續 state-machine migration gate。
+      phase_impacted: true
+      phase_impact_zh: Phase53 把官方來源接成 value/context 與 composite alignment 可見狀態，讓 declared boom surface 更接近可解釋 evidence。
+      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring 與 Phase53 value/context semantics；仍未啟用 formal current/candidate phase。
+      remaining_gap_zh: 還需要 governed declared boom start date、更多 transformation rule、validated state-machine migration gate 與 production migration。
+      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、current research evidence 摘要、official source wiring 與 Phase53 value/context semantics。
+      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、完整 transformation rule、validated state-machine migration 與 production migration。
+      next_gap_zh: 補 declared boom 起始日治理與 indicator detail wiring，讓 current dashboard 能顯示 phase age 與指標 value context。
+      decrease_reason_zh:
     - capability_id: C2_TRANSITION_RISK_DETECTION
       title_zh: 轉折風險偵測能力
-      previous_progress_percent: 62
-      current_progress_percent: 64
-      phase_delta_percent: 2
-      phase52_impacted: true
-      phase52_impact_zh: boom/recession/recovery/growth transition roles 的官方來源覆蓋提高，轉折 surface 可少一些純 missing input。
-      current_status_zh: 已有 boom transition monitor、transition surface 與 data-risk labels；仍不自動改寫 declared phase。
-      remaining_gap_zh: 需要把官方來源實際接入 dashboard snapshot，並補 composite/turning-point rules。
-    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
-      title_zh: 解釋能力
       previous_progress_percent: 64
       current_progress_percent: 67
       phase_delta_percent: 3
-      phase52_impacted: true
-      phase52_impact_zh: 新增 alias-to-official-series lineage、source identity correction 與資料風險說明。
-      current_status_zh: 指標意涵、來源、替代程度、風險標籤與 why-not-formal 說明逐步完整。
-      remaining_gap_zh: 需要將 Phase52 wiring 後的 resolved series 更完整地顯示在 dashboard indicator detail。
+      phase_impacted: true
+      phase_impact_zh: Phase53 讓 transition surface 的 priority indicators 顯示 source/value readiness、composite alignment 與 abstention reason。
+      current_status_zh: 已有 boom transition monitor、transition surface、data-risk labels 與 value/context semantics；仍不自動改寫 declared phase。
+      remaining_gap_zh: 需要補 declared boom start governance、turning-point confirmation rules 與更完整的 watch/confirmation 視覺化。
+      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、data-risk labeling、官方來源定位與 transition indicator value/context wiring。
+      incomplete_summary_zh: 尚未完成 governed phase-age context、完整 turning-point confirmation rules 與所有 transition lanes 的 actual value dashboard rendering。
+      next_gap_zh: 補 declared boom 起始日與 phase-age context，讓 transition monitor 能描述榮景持續時間但不硬套時長規則。
+      decrease_reason_zh:
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      title_zh: 解釋能力
+      previous_progress_percent: 67
+      current_progress_percent: 70
+      phase_delta_percent: 3
+      phase_impacted: true
+      phase_impact_zh: Phase53 在 indicator cards 增加 value context、composite alignment、transformation semantics 與 explicit abstention reason。
+      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、why-not-formal 與 lineage 更完整。
+      remaining_gap_zh: 需要將 Phase53 value context 更完整地接到 dashboard indicator detail 與資料血緣頁。
+      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage 與 Phase53 value/context 欄位。
+      incomplete_summary_zh: 尚未把所有 resolved official series、numeric context、transformation、release timing 與 abstention reason 完整接到 dashboard drill-down。
+      next_gap_zh: 讓 indicator detail 顯示 resolved series、latest value context、transformation、release timing、data mode 與 evidence caveat。
+      decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
       previous_progress_percent: 38
       current_progress_percent: 38
       phase_delta_percent: 0
-      phase52_impacted: false
-      phase52_impact_zh: 本 Phase 未修改 portfolio policy template 或 policy replay。
+      phase_impacted: false
+      phase_impact_zh: 本 Phase 未修改 portfolio policy template 或 policy replay。
       current_status_zh: 研究模板與安全邊界存在，但沒有 current allocation 或交易建議。
       remaining_gap_zh: 後續仍需 policy replay、cash-flow-aware backtest 與安全 dashboard 呈現。
+      completed_summary_zh: 已完成 portfolio policy research 的基本安全邊界與模板方向，並維持非投資建議定位。
+      incomplete_summary_zh: 尚未完成 policy replay、cash-flow-aware backtest、成本/再平衡模型與 dashboard 研究呈現。
+      next_gap_zh: 在 validation/replay gate 通過後，補 policy replay 與 cash-flow-aware research view。
+      decrease_reason_zh:
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
       title_zh: 歷史重播與回測能力
       previous_progress_percent: 52
       current_progress_percent: 52
       phase_delta_percent: 0
-      phase52_impacted: false
-      phase52_impact_zh: 本 Phase 不執行 replay/backtest，也不新增 performance metric。
+      phase_impacted: false
+      phase_impact_zh: 本 Phase 不執行 replay/backtest，也不新增 performance metric。
       current_status_zh: 歷史 validation/research artifacts 已有，真正 strict replay/backtest 仍受資料完整度與 gate 限制。
       remaining_gap_zh: 需要 transition timing replay、policy replay、total-return/cash-flow-aware backtest gate。
+      completed_summary_zh: 已完成 research-only validation artifact chain、label comparison、coverage/accuracy research artifacts 與 safety gates。
+      incomplete_summary_zh: 尚未完成 strict point-in-time replay、transition timing replay、total-return backtest 與 portfolio performance research。
+      next_gap_zh: 先補 transition timing replay 所需 evidence continuity，再進入 policy/backtest gate。
+      decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 74
-      current_progress_percent: 75
+      previous_progress_percent: 75
+      current_progress_percent: 76
       phase_delta_percent: 1
-      phase52_impacted: true
-      phase52_impact_zh: Phase52 wiring 明確禁止 silent substitution、candidate/current phase emission 與 production behavior change。
-      current_status_zh: safety scans、closure checks、forbidden output policy 與 production isolation 持續運作。
-      remaining_gap_zh: 需要把後續每個 Phase 的產品能力進度表納入固定 closure reporting。
+      phase_impacted: true
+      phase_impact_zh: Phase53 讓 value/context wiring 明確維持 phase_support_added=0、no current/candidate emission 與 no silent substitution。
+      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule 與 production isolation 持續運作。
+      remaining_gap_zh: 需要把 Phase53 後每個 product-facing surface 都固定輸出 forbidden-field checks 與 capability progress table。
+      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates 與產品進度 monotonic rule。
+      incomplete_summary_zh: 尚未把所有 product-facing scripts/surfaces 統一納入相同 forbidden-field 與 progress reporting 契約。
+      next_gap_zh: 將 Phase53 value context 欄位納入 dashboard detail 時，維持相同 safety scan 與 forbidden-field checks。
+      decrease_reason_zh:
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       title_zh: 時間完整性與 abstention
-      previous_progress_percent: 72
-      current_progress_percent: 74
+      previous_progress_percent: 74
+      current_progress_percent: 76
       phase_delta_percent: 2
-      phase52_impacted: true
-      phase52_impact_zh: 補齊官方 series release metadata，並把 current refresh source discovery 與 PIT caveat 分開。
-      current_status_zh: release metadata 與 revised/PIT 分層清楚；latest current research 仍標示 revised/current，不宣稱 PIT。
-      remaining_gap_zh: 需要後續 PIT cache/backfill 與 exact vintage coverage 擴充。
+      phase_impacted: true
+      phase_impact_zh: Phase53 將 source metadata、numeric cache availability、same-as-of alignment 與 metadata-only caveat 分開顯示。
+      current_status_zh: release metadata、value context、alignment status 與 revised/PIT 分層清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
+      remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage 與 actual current cache display 擴充。
+      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context 與 alignment visibility。
+      incomplete_summary_zh: 尚未完成完整 exact-vintage cache、PIT backfill、所有 historical scenario 的 vintage availability 與 dashboard actual-value rendering。
+      next_gap_zh: 擴充 indicator detail 的 latest value/release context，並保留 revised/current 與 strict PIT caveat。
+      decrease_reason_zh:
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       title_zh: 模型治理與前瞻驗證
       previous_progress_percent: 70
       current_progress_percent: 70
       phase_delta_percent: 0
-      phase52_impacted: false
-      phase52_impact_zh: 本 Phase 不改 prospective registry、freeze lineage 或 validation protocol。
+      phase_impacted: false
+      phase_impact_zh: 本 Phase 不改 prospective registry、freeze lineage 或 validation protocol。
       current_status_zh: freeze/closure/prospective governance 持續隔離，prospective registry 未啟動。
       remaining_gap_zh: 未來仍需前瞻驗證資料累積與 explicit migration gate。
+      completed_summary_zh: 已完成 freeze lineage、closure gates、prospective registry isolation 與 no-result-peeking governance。
+      incomplete_summary_zh: 尚未完成前瞻資料累積、economic validation、holdout/migration gate 與 production book-fidelity migration。
+      next_gap_zh: 保持 prospective wait state，等資料累積後再建立 explicit validation/migration gate。
+      decrease_reason_zh:
   hard_gates:
     product_capability_progress_ready: true
     capability_count: 8
     capability_with_percent_count: 8
+    capability_with_completed_summary_count: 8
+    capability_with_incomplete_summary_count: 8
+    capability_with_next_gap_count: 8
     impacted_capability_count: 5
+    progress_decrease_count: 0
+    progress_decrease_without_reason_count: 0
     progress_percent_out_of_range_count: 0
     unsupported_readiness_claim_count: 0
     production_behavior_change_count: 0

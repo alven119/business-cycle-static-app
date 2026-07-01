@@ -366,6 +366,31 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Near-direct boom delinquency source; sector definition and book
       equivalence remain visible in source-risk labels.
+  - series_id: DSPIC96
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: BEA Personal Income and Outlays
+    release_source: BEA Personal Income and Outlays
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: unknown
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '1998-01-31'
+    scenario_coverage_end: '2021-12-31'
+    temporal_status: exact_vintage_ready
+    point_in_time_eligible: true
+    known_revision_behavior: revised_or_republished_by_source; strict selection must
+      use realtime_start/realtime_end
+    official_metadata_source: FRED series metadata and source release documentation
+    caveats: Phase53 metadata wires real disposable income as a component of a
+      same-as-of income-consumption composite. It does not by itself
+      operationalize growth phase support.
   - series_id: EXPGS
     source: FRED/ALFRED
     frequency: quarterly
@@ -1200,7 +1225,7 @@ series_release_lag_registry:
       for the same as_of date.
   summary:
     authoritative_registry: series_release_lag_registry.yaml
-    discovered_unique_series_count: 49
+    discovered_unique_series_count: 50
     series_missing_availability_metadata_count: 0
     series_without_temporal_status_count: 0
     revised_data_only: false

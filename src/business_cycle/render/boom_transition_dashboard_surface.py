@@ -8,6 +8,10 @@ from typing import Any
 
 import yaml
 
+from business_cycle.current.composite_transition_surface_values import (
+    build_composite_transition_surface_value_rows,
+    summarize_composite_transition_surface_value_wiring,
+)
 from business_cycle.transition_monitor.boom_transition_monitor import (
     PROHIBITED_FIELDS,
     build_boom_transition_monitor,
@@ -227,7 +231,10 @@ def build_boom_transition_dashboard_surface(
             "recession_confirmation",
         )
     ]
-    indicator_cards = _indicator_cards(lane_cards)
+    value_rows = build_composite_transition_surface_value_rows()
+    value_rows_by_role = {row["role_id"]: row for row in value_rows}
+    value_summary = summarize_composite_transition_surface_value_wiring()
+    indicator_cards = _indicator_cards(lane_cards, value_rows_by_role)
     surface = {
         "surface_id": "boom_transition_dashboard_surface_v1",
         "surface_version": "1.0",
@@ -250,6 +257,26 @@ def build_boom_transition_dashboard_surface(
         ),
         "lane_cards": lane_cards,
         "indicator_cards": indicator_cards,
+        "phase53_value_context_summary": {
+            "composite_transition_surface_value_wiring_ready": value_summary[
+                "composite_transition_surface_value_wiring_ready"
+            ],
+            "transition_surface_role_count": value_summary[
+                "transition_surface_role_count"
+            ],
+            "value_context_visible_role_count": sum(
+                card["role_id"] in value_rows_by_role
+                and bool(card["value_context_status"])
+                for card in indicator_cards
+            ),
+            "composite_alignment_status_visible_count": sum(
+                bool(row.get("composite_alignment_status"))
+                for row in indicator_cards
+            ),
+            "phase_support_added_count": sum(
+                row.get("phase_support_added") is True for row in indicator_cards
+            ),
+        },
         "missing_evidence_summary": {
             "missing_or_stale_evidence_count": len(
                 monitor["missing_or_stale_evidence"]
@@ -343,6 +370,16 @@ def summarize_boom_transition_dashboard_surface() -> dict[str, Any]:
         "substitution_degree_visible_count": validation[
             "substitution_degree_visible_count"
         ],
+        "value_context_status_visible_count": validation[
+            "value_context_status_visible_count"
+        ],
+        "composite_alignment_status_visible_count": validation[
+            "composite_alignment_status_visible_count"
+        ],
+        "phase53_explicit_abstention_reason_count": validation[
+            "phase53_explicit_abstention_reason_count"
+        ],
+        "phase_support_added_count": validation["phase_support_added_count"],
         "silent_substitution_count": validation["silent_substitution_count"],
         "alternative_promoted_to_core_count": validation[
             "alternative_promoted_to_core_count"
@@ -425,6 +462,19 @@ def validate_boom_transition_dashboard_surface(surface: dict[str, Any]) -> dict[
     substitution_count = sum(
         bool(card.get("substitution_degree_label_zh")) for card in indicator_cards
     )
+    value_context_count = sum(
+        bool(card.get("value_context_status")) for card in indicator_cards
+    )
+    composite_alignment_count = sum(
+        bool(card.get("composite_alignment_status")) for card in indicator_cards
+    )
+    phase53_abstention_count = sum(
+        bool(card.get("phase53_explicit_abstention_reason"))
+        for card in indicator_cards
+    )
+    phase_support_added_count = sum(
+        int(card.get("phase_support_added") is True) for card in indicator_cards
+    )
     silent_substitution_count = sum(
         int(card.get("silent_substitution") is True) for card in indicator_cards
     )
@@ -453,6 +503,10 @@ def validate_boom_transition_dashboard_surface(surface: dict[str, Any]) -> dict[
         and status_count == 5
         and abstention_visible >= 1
         and data_risk_ready
+        and value_context_count == 5
+        and composite_alignment_count == 5
+        and phase53_abstention_count == 5
+        and phase_support_added_count == 0
         and surface.get("trust_metadata", {}).get(
             "watch_confirmation_separated"
         )
@@ -473,6 +527,10 @@ def validate_boom_transition_dashboard_surface(surface: dict[str, Any]) -> dict[
         "source_credibility_label_present_count": credibility_count,
         "alternative_source_candidate_card_count": alternative_count,
         "substitution_degree_visible_count": substitution_count,
+        "value_context_status_visible_count": value_context_count,
+        "composite_alignment_status_visible_count": composite_alignment_count,
+        "phase53_explicit_abstention_reason_count": phase53_abstention_count,
+        "phase_support_added_count": phase_support_added_count,
         "silent_substitution_count": silent_substitution_count,
         "alternative_promoted_to_core_count": promoted_to_core_count,
         "data_risk_surface_ready": data_risk_ready,
@@ -516,13 +574,19 @@ def _lane_card(lane: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _indicator_cards(lane_cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _indicator_cards(
+    lane_cards: list[dict[str, Any]],
+    value_rows_by_role: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
     by_role: OrderedDict[str, dict[str, Any]] = OrderedDict()
     for lane in lane_cards:
         for item in lane["evidence_items"]:
             role_id = item["role_id"]
             if role_id not in by_role:
-                by_role[role_id] = _indicator_card_base(item)
+                by_role[role_id] = _indicator_card_base(
+                    item,
+                    value_rows_by_role=value_rows_by_role,
+                )
             by_role[role_id]["lane_ids"].append(lane["lane_id"])
             by_role[role_id]["lane_titles_zh"].append(lane["title_zh"])
             by_role[role_id]["lane_states"].append(
@@ -542,9 +606,14 @@ def _indicator_cards(lane_cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return list(by_role.values())
 
 
-def _indicator_card_base(item: dict[str, Any]) -> dict[str, Any]:
+def _indicator_card_base(
+    item: dict[str, Any],
+    *,
+    value_rows_by_role: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
     blockers = item["blocker_reason_codes"]
     state = item["lane_evidence_state"]
+    value_context = value_rows_by_role[item["role_id"]]
     return {
         "role_id": item["role_id"],
         "title_zh": ROLE_TITLES[item["role_id"]],
@@ -569,6 +638,17 @@ def _indicator_card_base(item: dict[str, Any]) -> dict[str, Any]:
             blockers=blockers,
         ),
         "why_it_matters_zh": _why_it_matters(item["role_id"]),
+        "value_context_status": value_context["value_context_status"],
+        "latest_observation_context": value_context["series_context"],
+        "composite_alignment_status": value_context["composite_alignment_status"],
+        "transformation_semantics_status": value_context[
+            "transformation_semantics_status"
+        ],
+        "phase53_explicit_abstention_reason": value_context[
+            "explicit_abstention_reason"
+        ],
+        "phase_support_added": value_context["phase_support_added"],
+        "phase53_dashboard_status_zh": value_context["dashboard_status_zh"],
         **_data_risk_profile(item["role_id"]),
         "provenance_status": item["provenance_status"],
         "data_mode": item["data_mode"],

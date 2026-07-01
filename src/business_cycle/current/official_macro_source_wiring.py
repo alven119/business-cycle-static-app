@@ -41,6 +41,8 @@ ALIAS_TO_OFFICIAL_SERIES: dict[str, tuple[str, ...]] = {
     "CPILFESL": ("CPILFESL",),
     "PCEPILFE": ("PCEPILFE",),
     "PSAVERT": ("PSAVERT",),
+    "DSPIC96": ("DSPIC96",),
+    "PCECC96": ("PCEC96",),
     "PRFIC1": ("PRFIC1",),
     "DRBLACBS": ("DRBLACBS",),
     "DRCLACBS": ("DRCLACBS",),
@@ -48,6 +50,7 @@ ALIAS_TO_OFFICIAL_SERIES: dict[str, tuple[str, ...]] = {
     "CBIC1": ("CBIC1",),
     "BUSINV": ("BUSINV",),
     "SLCEC1": ("SLCEC1",),
+    "fed_policy_easing_signal": ("FEDFUNDS",),
 }
 
 SOURCE_IDENTITY_CORRECTIONS = {

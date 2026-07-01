@@ -1,0 +1,74 @@
+composite_transition_surface_value_wiring:
+  contract_id: composite_transition_surface_value_wiring_v1
+  contract_version: "1.0"
+  phase_id: 53
+  status: active_research_contract
+  objective_zh: >
+    Wire Phase52 official macro source identities into current research
+    transition-surface value context and composite/rule-semantics visibility.
+    This contract makes value readiness, same-as-of alignment, and abstention
+    visible without emitting current phase, candidate phase, phase score, rank,
+    winner, or production behavior.
+  source_dependency:
+    official_macro_source_wiring: src/business_cycle/current/official_macro_source_wiring.py
+    current_data_refresh_manifest: src/business_cycle/current/current_data_refresh.py
+    boom_transition_indicator_roles: specs/common/boom_transition_indicator_roles.yaml
+    gap_resolution_registry: specs/audits/book_phase_evidence_gap_resolution_registry.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  scope:
+    transition_surface_priority_roles:
+      - boom_claims_u_shape
+      - boom_retail_sales_vs_broad_pce
+      - boom_private_investment
+      - recession_employment_confirmation
+      - recession_consumption_confirmation
+    composite_or_rule_gap_roles:
+      - growth_real_disposable_income_vs_consumption
+      - growth_sustainable_inflation_interpretation
+      - recovery_weekly_claim_noise_filter
+      - growth_personal_saving_rate
+      - growth_core_cpi
+      - growth_core_pce
+      - trough_policy_financial_not_sufficient_alone
+  policy:
+    value_context_visible_even_when_numeric_cache_missing: true
+    source_metadata_can_support_display_context: true
+    numeric_value_required_for_phase_support: false
+    phase_support_upgrade_allowed: false
+    composite_same_as_of_status_required: true
+    explicit_abstention_reason_required: true
+    silent_substitution_allowed: false
+    pcecc96_must_resolve_to_pcec96: true
+    core_cpi_or_core_pce_alone_must_not_confirm_sustainable_inflation: true
+    claims_noise_filter_alone_must_not_be_phase_support: true
+    policy_financial_only_must_remain_supporting_only: true
+    tests_must_not_use_network: true
+  output_restrictions:
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - phase_score
+      - target_weight
+      - allocation_recommendation
+      - buy_signal
+      - sell_signal
+      - trade_action
+  hard_gates:
+    composite_transition_surface_value_wiring_ready: true
+    role_count: 12
+    transition_surface_role_count: 5
+    composite_or_rule_gap_role_count: 7
+    source_metadata_ready_role_count: 12
+    value_context_visible_role_count: 12
+    composite_alignment_status_visible_count: 12
+    explicit_abstention_reason_count: 12
+    phase_support_added_count: 0
+    silent_substitution_count: 0
+    alternative_promoted_to_core_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

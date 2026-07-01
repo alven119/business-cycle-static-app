@@ -1,17 +1,17 @@
 #!/usr/bin/env python
-"""Show governed product capability progress."""
+"""Show Phase53 composite transition-surface value wiring."""
 
 from __future__ import annotations
 
-from business_cycle.audits.product_capability_progress import (
-    summarize_product_capability_progress,
+from business_cycle.current.composite_transition_surface_values import (
+    summarize_composite_transition_surface_value_wiring,
 )
 
 
 def main() -> int:
-    summary = summarize_product_capability_progress()
+    summary = summarize_composite_transition_surface_value_wiring()
     for key, value in summary.items():
-        if key in {"capability_progress", "capability_table_rows"}:
+        if key == "rows":
             continue
         print(f"{key}={_format(value)}")
     return 0 if summary["result"] == "passed" else 1

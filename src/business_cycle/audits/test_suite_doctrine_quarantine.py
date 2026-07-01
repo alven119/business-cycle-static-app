@@ -246,6 +246,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase52 closure proves official source wiring preserves doctrine boundaries",
     ),
+    "tests/test_composite_transition_surface_value_wiring.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase53 value-context wiring preserves transition boundaries",
+    ),
+    "tests/test_phase53_composite_transition_surface_value_wiring_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase53 closure proves composite value context emits no phase decision",
+    ),
+    "tests/test_show_phase53_composite_transition_surface_value_wiring_closure_script.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase53 closure script smoke test remains research-only",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

@@ -68,6 +68,12 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_phase52_official_macro_source_adapter_wiring_closure.py"
     )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_composite_transition_surface_value_wiring.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_phase53_composite_transition_surface_value_wiring_closure.py"
+    )
     assert "portfolio_policy_research" in markers_for_test_path(
         "tests/test_portfolio_policy_template_schema.py"
     )
