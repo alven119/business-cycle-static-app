@@ -5,6 +5,9 @@ from business_cycle.render.research_dashboard_bundle import (
     summarize_research_dashboard_bundle,
     validate_research_dashboard_bundle,
 )
+from business_cycle.audits.macro_indicator_coverage_readiness_matrix import (
+    build_macro_indicator_coverage_dashboard_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -45,3 +48,24 @@ def test_research_dashboard_bundle_is_research_only_and_trusted() -> None:
     assert bundle["trust_metadata"]["output_label"] == "research_only"
     assert "production_decision" in bundle["prohibited_uses"]
     assert bundle["safety_counters"]["economic_performance_metric_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_macro_coverage_view_model() -> None:
+    macro_coverage = build_macro_indicator_coverage_dashboard_view_model()
+    bundle = build_research_dashboard_bundle(macro_coverage_matrix=macro_coverage)
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "macro_indicator_coverage_readiness" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["macro_indicator_coverage_readiness"]["research_only"] is True
+    assert (
+        bundle["macro_indicator_coverage_readiness"]["candidate_phase_emitted"]
+        is False
+    )
+    assert (
+        bundle["macro_indicator_coverage_readiness"]["current_phase_emitted"]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0

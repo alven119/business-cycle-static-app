@@ -9,47 +9,47 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: 54
-  phase_label: low_cost_macro_source_completion
+  phase_id: 55
+  phase_label: macro_indicator_coverage_readiness_matrix
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
-      previous_progress_percent: 62
-      current_progress_percent: 64
+      previous_progress_percent: 64
+      current_progress_percent: 66
       phase_delta_percent: 2
       phase_impacted: true
-      phase_impact_zh: Phase54 排除不可負擔的財經M平方 API 路線，並為 ADP employment 與 consumer confidence 建立低成本、授權或使用者自備資料的補齊矩陣。
-      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、value/context semantics 與 Phase54 低成本來源補齊決策；仍未啟用 formal current/candidate phase。
-      remaining_gap_zh: 還需要 governed declared boom start date、將低成本/自備/輔助來源風險接到 indicator detail、更多 transformation rule、validated state-machine migration gate 與 production migration。
-      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、current research evidence 摘要、official source wiring、value/context semantics 與 ADP/consumer confidence 低成本來源決策。
-      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、授權私有資料讀取、完整 transformation rule、validated state-machine migration 與 production migration。
-      next_gap_zh: 將 Phase54 source-risk 與 low-cost completion path 接到 indicator detail，讓缺資料角色能清楚顯示 direct、user-supplied 或 supporting-only 狀態。
+      phase_impact_zh: Phase55 將 39 個 recovery/growth/boom/recession macro evidence roles 彙整成 coverage readiness matrix，讓每個角色都有 source tier、data risk、dashboard 說明與下一個缺口。
+      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、value/context semantics、低成本來源決策與跨四階段 coverage matrix；仍未啟用 formal current/candidate phase。
+      remaining_gap_zh: 還需要 governed declared boom start date、indicator detail actual value rendering、授權私有資料讀取、更多 transformation rule、validated state-machine migration gate 與 production migration。
+      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、current research evidence 摘要、official source wiring、value/context semantics、低成本來源決策與 39-role coverage readiness matrix。
+      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、授權私有資料讀取、完整 transformation rule、actual value drill-down、validated state-machine migration 與 production migration。
+      next_gap_zh: 將 coverage matrix 的 source-risk、next-gap 與 current value/freshness context 接到 indicator detail cards。
       decrease_reason_zh:
     - capability_id: C2_TRANSITION_RISK_DETECTION
       title_zh: 轉折風險偵測能力
-      previous_progress_percent: 67
-      current_progress_percent: 69
+      previous_progress_percent: 69
+      current_progress_percent: 71
       phase_delta_percent: 2
       phase_impacted: true
-      phase_impact_zh: Phase54 釐清 boom consumer confidence 與 growth ADP employment 的 direct/licensed/proxy 邊界，降低 transition monitor 對缺口來源的解釋不確定性。
-      current_status_zh: 已有 boom transition monitor、transition surface、data-risk labels、value/context semantics 與剩餘 licensed/proxy roles 的補齊路線；仍不自動改寫 declared phase。
-      remaining_gap_zh: 需要補 declared boom start governance、turning-point confirmation rules、source-risk dashboard rendering 與更完整的 watch/confirmation 視覺化。
-      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、data-risk labeling、官方來源定位、transition indicator value/context wiring 與低成本補齊矩陣。
+      phase_impact_zh: Phase55 讓 transition monitor 可引用跨四階段缺口矩陣，清楚分辨 official direct、official composite、authorized input 與 supporting proxy 對 watch/confirmation 的影響。
+      current_status_zh: 已有 boom transition monitor、transition surface、data-risk labels、value/context semantics、剩餘 licensed/proxy roles 補齊路線與 coverage burn-down view；仍不自動改寫 declared phase。
+      remaining_gap_zh: 需要補 declared boom start governance、turning-point confirmation rules、actual value rendering 與更完整的 watch/confirmation 視覺化。
+      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、data-risk labeling、官方來源定位、transition indicator value/context wiring、低成本補齊矩陣與 coverage burn-down view。
       incomplete_summary_zh: 尚未完成 governed phase-age context、完整 turning-point confirmation rules、所有 transition lanes 的 actual value dashboard rendering，以及授權私有來源讀取。
-      next_gap_zh: 將低成本/自備/輔助來源狀態接入 transition indicator cards，讓轉折風險頁能說明缺口如何影響 watch/confirmation。
+      next_gap_zh: 在 transition indicator cards 直接顯示 source tier、data risk、next gap 與 why-not-confirmation。
       decrease_reason_zh:
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
       title_zh: 解釋能力
-      previous_progress_percent: 70
-      current_progress_percent: 72
-      phase_delta_percent: 2
+      previous_progress_percent: 72
+      current_progress_percent: 75
+      phase_delta_percent: 3
       phase_impacted: true
-      phase_impact_zh: Phase54 將 ADP 與 consumer confidence 的資料風險、替代程度、不可替代規則與使用者自備資料路線寫成可測 contract。
-      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、why-not-formal、lineage 與 low-cost completion path 更完整。
-      remaining_gap_zh: 需要將 Phase54 source-risk/low-cost fields 接到 dashboard indicator detail 與資料血緣頁。
-      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/context 欄位與低成本來源補齊決策。
+      phase_impact_zh: Phase55 為每個 macro role 產出 dashboard explanation、source coverage tier、data risk、next gap 與 supporting-proxy caveat，讓缺口不再只是 missing。
+      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、why-not-formal、lineage、low-cost completion path 與 coverage readiness view 更完整。
+      remaining_gap_zh: 需要將 Phase55 role cards 接到 dashboard indicator detail 與資料血緣頁，並加入 actual value、release timing 與 transformation drill-down。
+      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/context 欄位、低成本來源補齊決策與 coverage readiness role cards。
       incomplete_summary_zh: 尚未把所有 source-risk、authorized private input、numeric context、transformation、release timing 與 abstention reason 完整接到 dashboard drill-down。
-      next_gap_zh: 讓 indicator detail 顯示 direct/license/user-supplied/proxy-only 狀態、資料風險與為什麼不能替代 book-core。
+      next_gap_zh: 讓 indicator detail 顯示 source tier、direct/license/user-supplied/proxy-only 狀態、資料風險、actual value context 與為什麼不能替代 book-core。
       decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
@@ -79,29 +79,29 @@ product_capability_progress:
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 76
-      current_progress_percent: 77
+      previous_progress_percent: 77
+      current_progress_percent: 78
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase54 明確排除財經M平方 API、禁止 silent substitution，並確認 PAYEMS/UMich sentiment 只能 supporting-only。
-      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation 與 no-silent-substitution gates 持續運作。
-      remaining_gap_zh: 需要把 source-risk fields 接到所有 product-facing surface，並固定檢查 forbidden-field 與替代程度標示。
-      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule 與低成本來源安全契約。
-      incomplete_summary_zh: 尚未把所有 product-facing scripts/surfaces 統一納入相同 forbidden-field、source-risk 與 progress reporting 契約。
-      next_gap_zh: 將 Phase54 source-risk 欄位納入 dashboard detail 時，維持相同 safety scan 與 forbidden-field checks。
+      phase_impact_zh: Phase55 將 source tier、data risk、false resolution、silent substitution 與 proxy promotion counters 納入 matrix hard gates。
+      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates 與 coverage matrix gates 持續運作。
+      remaining_gap_zh: 需要把 source-risk fields 接到所有 product-facing surface，並固定檢查 forbidden-field、替代程度與 actual-value caveat。
+      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、低成本來源安全契約與 coverage matrix hard gates。
+      incomplete_summary_zh: 尚未把所有 product-facing scripts/surfaces 統一納入相同 forbidden-field、source-risk、actual-value 與 progress reporting 契約。
+      next_gap_zh: 將 Phase55 coverage role cards 納入 dashboard detail 時，維持相同 safety scan 與 forbidden-field checks。
       decrease_reason_zh:
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       title_zh: 時間完整性與 abstention
-      previous_progress_percent: 76
-      current_progress_percent: 77
+      previous_progress_percent: 77
+      current_progress_percent: 78
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase54 將 direct licensed source、user-supplied authorized input 與 supporting proxy 狀態分開，讓缺口可以 abstain 而不是被 proxy 填補。
-      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層與缺口 abstention 邊界清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
+      phase_impact_zh: Phase55 將 missing、not-current-mode、rule/composite gap、authorized input 與 supporting proxy 分開顯示，避免用 proxy 或 revised current data 隱藏 abstention。
+      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界與 coverage gap classification 清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
       remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance 與 actual current cache display 擴充。
-      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility 與 proxy abstention 邊界。
+      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界與 coverage gap classification。
       incomplete_summary_zh: 尚未完成完整 exact-vintage cache、PIT backfill、所有 historical scenario 的 vintage availability、authorized private input provenance 與 dashboard actual-value rendering。
-      next_gap_zh: 擴充 indicator detail 的 source-risk/value/release context，並保留 revised/current、strict PIT 與 proxy-only caveat。
+      next_gap_zh: 擴充 indicator detail 的 source-risk/value/release context，並保留 revised/current、strict PIT、not-current-mode 與 proxy-only caveat。
       decrease_reason_zh:
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       title_zh: 模型治理與前瞻驗證

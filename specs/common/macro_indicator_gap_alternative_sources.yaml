@@ -37,8 +37,8 @@ macro_indicator_gap_alternative_sources:
       label: licensed_or_proxy_source_review
       scope: ADP, consumer confidence, and other non-official or licensed candidates.
     - phase_id: Phase55
-      label: current_dashboard_gap_reduction
-      scope: Wire approved adapters/transforms into current research dashboard snapshots.
+      label: macro_indicator_coverage_readiness_matrix
+      scope: Build a dashboard-ready coverage and gap burn-down matrix across recovery, growth, boom, and recession roles.
   hard_gates:
     macro_gap_alternative_registry_ready: true
     gap_role_count_minimum: 1

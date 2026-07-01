@@ -1,0 +1,72 @@
+macro_indicator_coverage_readiness_matrix:
+  contract_id: macro_indicator_coverage_readiness_matrix_v1
+  contract_version: "1.0"
+  phase_id: 55
+  phase_label: macro_indicator_coverage_readiness_matrix
+  status: active_research_contract
+  purpose: >
+    Build a product-facing, research-only matrix that shows each recovery,
+    growth, boom, and recession macro evidence role, its current source
+    coverage path, data-risk label, dashboard display status, and next
+    implementation gap. The matrix makes missing and proxy-only evidence
+    visible without promoting substitutes into book-core evidence.
+  dependencies:
+    current_evidence_readiness: src/business_cycle/current/current_evidence_readiness.py
+    macro_gap_alternatives: specs/common/macro_indicator_gap_alternative_sources.yaml
+    official_macro_source_wiring: specs/common/official_macro_source_adapter_wiring.yaml
+    low_cost_macro_source_completion: specs/common/low_cost_macro_source_completion.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  policy:
+    output_mode: research_only_dashboard_gap_burn_down
+    phase_picker_allowed: false
+    current_phase_emission_allowed: false
+    candidate_phase_emission_allowed: false
+    phase_score_rank_or_winner_allowed: false
+    supporting_proxy_may_replace_book_core: false
+    silent_substitution_allowed: false
+    data_risk_label_required: true
+    dashboard_explanation_required: true
+    source_tier_required: true
+    next_gap_required: true
+    tests_must_not_use_network: true
+    repo_output_allowed: false
+  allowed_source_coverage_tiers:
+    - official_direct_or_near_direct
+    - official_derived_or_composite
+    - authorized_private_or_user_supplied_required
+    - supporting_proxy_only
+  dashboard_view_model:
+    view_id: macro_indicator_coverage_readiness
+    view_title: Macro Indicator Coverage Readiness
+    allowed_uses:
+      - local_research_dashboard
+      - indicator_gap_review
+      - source_risk_explanation
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  hard_gates:
+    macro_indicator_coverage_readiness_matrix_ready: true
+    coverage_role_count: 39
+    phase_count: 4
+    phase_with_coverage_count: 4
+    role_with_source_tier_count: 39
+    role_with_data_risk_label_count: 39
+    role_with_dashboard_explanation_count: 39
+    role_with_next_gap_count: 39
+    dashboard_gap_burn_down_view_ready: true
+    official_or_authorized_path_count_minimum: 34
+    supporting_proxy_only_count: 3
+    user_authorized_input_required_count: 2
+    false_resolution_count: 0
+    silent_substitution_count: 0
+    alternative_promoted_to_core_count: 0
+    proxy_promoted_to_book_core_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
