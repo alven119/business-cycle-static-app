@@ -14,6 +14,9 @@ from business_cycle.render.indicator_detail_source_risk_values import (
 from business_cycle.render.boom_to_recession_transition_surface import (
     build_boom_to_recession_transition_surface_view_model,
 )
+from business_cycle.render.ordered_cycle_transition_lane_templates import (
+    build_full_ordered_cycle_transition_lane_template_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -123,6 +126,33 @@ def test_research_dashboard_bundle_accepts_boom_to_recession_completion_view_mod
     )
     assert (
         bundle["boom_to_recession_transition_surface_completion"][
+            "current_phase_emitted"
+        ]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_ordered_cycle_transition_templates() -> None:
+    transition_templates = build_full_ordered_cycle_transition_lane_template_view_model()
+    bundle = build_research_dashboard_bundle(
+        ordered_cycle_transition_lane_templates=transition_templates,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "full_ordered_cycle_transition_lane_templates" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["full_ordered_cycle_transition_lane_templates"]["research_only"] is True
+    assert (
+        bundle["full_ordered_cycle_transition_lane_templates"][
+            "candidate_phase_emitted"
+        ]
+        is False
+    )
+    assert (
+        bundle["full_ordered_cycle_transition_lane_templates"][
             "current_phase_emitted"
         ]
         is False

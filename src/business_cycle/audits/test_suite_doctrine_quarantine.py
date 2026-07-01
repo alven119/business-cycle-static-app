@@ -310,6 +310,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase57 closure script smoke test remains research-only",
     ),
+    "tests/test_ordered_cycle_transition_lane_templates.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase58 full ordered-cycle templates preserve legal transitions without phase selection",
+    ),
+    "tests/test_phase58_ordered_cycle_transition_lane_templates_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase58 closure proves full-cycle templates remain research-only",
+    ),
+    "tests/test_show_phase58_ordered_cycle_transition_lane_templates_closure_script.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase58 closure script smoke test remains research-only",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

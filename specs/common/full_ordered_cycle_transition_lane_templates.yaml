@@ -1,0 +1,244 @@
+full_ordered_cycle_transition_lane_templates:
+  template_id: full_ordered_cycle_transition_lane_templates_v1
+  template_version: "1.0"
+  status: active_research_dashboard_template
+  source_phase: "58"
+  doctrine_dependency: specs/common/investment_cycle_product_doctrine.yaml
+  ordered_state_machine_dependency: specs/common/ordered_cycle_state_machine.yaml
+  output_policy:
+    output_mode: research_only_full_ordered_cycle_transition_lane_templates
+    public_output_allowed: false
+    production_integration_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    phase_score_or_rank_allowed: false
+    portfolio_action_allowed: false
+  lane_semantics:
+    continuation_context:
+      watch_lane: false
+      confirmation_lane: false
+      changes_declared_phase: false
+    transition_watch:
+      watch_lane: true
+      confirmation_lane: false
+      changes_declared_phase: false
+    transition_confirmation:
+      watch_lane: false
+      confirmation_lane: true
+      changes_declared_phase: false
+  transition_templates:
+    - transition_id: recession_to_recovery
+      from_phase: recession
+      to_phase: recovery
+      lane_templates:
+        - lane_id: recession_depth_context
+          lane_category: continuation_context
+          title_zh: 衰退深度與持續狀態
+          book_core_role_groups:
+            - recession_employment
+            - recession_consumption
+            - recession_investment_or_industrial_confirmation
+            - recession_trade_or_breadth
+          supporting_only_role_groups:
+            - policy_financial_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 說明 declared recession 是否仍由實體經濟證據支撐，不是 recovery confirmation。
+        - lane_id: trough_watch
+          lane_category: transition_watch
+          title_zh: 落底觀察
+          book_core_role_groups:
+            - trough_labor_reversal
+            - trough_consumption_reversal
+            - trough_investment_or_real_activity_reversal
+          supporting_only_role_groups:
+            - policy_financial_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 只能表示 trough/recovery watch，不能單獨確認 recovery。
+        - lane_id: recovery_confirmation
+          lane_category: transition_confirmation
+          title_zh: 復甦確認
+          book_core_role_groups:
+            - recovery_employment
+            - recovery_consumption
+            - recovery_investment
+            - recovery_trade
+          supporting_only_role_groups:
+            - policy_financial_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 需要復甦四大 book-core 群組共同支持；policy/financial easing 只能輔助。
+    - transition_id: recovery_to_growth
+      from_phase: recovery
+      to_phase: growth
+      lane_templates:
+        - lane_id: recovery_continuation_context
+          lane_category: continuation_context
+          title_zh: 復甦延續狀態
+          book_core_role_groups:
+            - recovery_employment
+            - recovery_consumption
+            - recovery_investment
+            - recovery_trade
+          supporting_only_role_groups:
+            - modern_financial_conditions_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 說明 declared recovery 是否仍成立，不把 recovery continuation 當作 growth transition。
+        - lane_id: growth_transition_watch
+          lane_category: transition_watch
+          title_zh: 成長轉折觀察
+          book_core_role_groups:
+            - growth_saving_and_consumption
+            - growth_employment
+            - growth_private_investment_and_housing
+            - growth_sustainable_core_inflation
+          supporting_only_role_groups:
+            - modern_financial_conditions_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 觀察 growth readiness，但 income/consumption、saving、core inflation 語意不完整時必須 abstain。
+        - lane_id: growth_confirmation_readiness
+          lane_category: transition_confirmation
+          title_zh: 成長確認準備
+          book_core_role_groups:
+            - growth_saving_and_consumption
+            - growth_employment
+            - growth_private_investment_and_housing
+            - growth_sustainable_core_inflation
+          supporting_only_role_groups:
+            - modern_financial_conditions_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 只能在 book-core growth 群組具備可治理規則時成為 confirmation input；不得用 recovery 或 boom proxy 代替。
+    - transition_id: growth_to_boom
+      from_phase: growth
+      to_phase: boom
+      lane_templates:
+        - lane_id: healthy_expansion_context
+          lane_category: continuation_context
+          title_zh: 健康成長延續
+          book_core_role_groups:
+            - growth_saving_and_consumption
+            - growth_employment
+            - growth_private_investment_and_housing
+            - growth_sustainable_core_inflation
+          supporting_only_role_groups:
+            - modern_financial_conditions_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 說明 declared growth 是否仍由健康擴張證據支撐，不是 boom winner。
+        - lane_id: overheating_watch
+          lane_category: transition_watch
+          title_zh: 過熱與榮景觀察
+          book_core_role_groups:
+            - boom_claims_u_shape
+            - boom_consumption_slowdown
+            - boom_private_investment_and_durables
+            - boom_inventory_cycle
+          supporting_only_role_groups:
+            - yield_curve_or_credit_spread_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 只能提示 growth 到 boom 的轉折風險，不能以金融 proxy 取代 book-core boom groups。
+        - lane_id: boom_transition_confirmation
+          lane_category: transition_confirmation
+          title_zh: 榮景轉折確認
+          book_core_role_groups:
+            - boom_claims_u_shape
+            - boom_consumption_slowdown
+            - boom_private_investment_and_durables
+            - boom_government_spending_revenue
+            - boom_inventory_cycle
+            - boom_delinquency_default
+          supporting_only_role_groups:
+            - yield_curve_or_credit_spread_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 需要 book-core boom 群組支持；consumer confidence 若缺官方可自動化來源，必須保留資料風險。
+    - transition_id: boom_to_recession
+      from_phase: boom
+      to_phase: recession
+      lane_templates:
+        - lane_id: boom_continuation
+          lane_category: continuation_context
+          title_zh: 榮景延續狀態
+          book_core_role_groups:
+            - boom_claims_u_shape
+            - boom_consumption_slowdown
+            - boom_private_investment_and_durables
+            - boom_government_spending_revenue
+            - boom_inventory_cycle
+            - boom_delinquency_default
+          supporting_only_role_groups:
+            - yield_curve_or_credit_spread_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 說明 declared boom 是否仍有延續證據，不是 phase selector。
+        - lane_id: boom_ending_watch
+          lane_category: transition_watch
+          title_zh: 榮景結束觀察
+          book_core_role_groups:
+            - boom_claims_u_shape
+            - boom_consumption_slowdown
+            - boom_private_investment_and_durables
+            - boom_inventory_cycle
+          supporting_only_role_groups:
+            - yield_curve_or_credit_spread_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 榮景結束風險是 transition watch，不是 recession confirmation。
+        - lane_id: recession_watch
+          lane_category: transition_watch
+          title_zh: 衰退觀察
+          book_core_role_groups:
+            - recession_employment
+            - recession_consumption
+            - recession_investment_or_industrial_confirmation
+            - recession_trade_or_breadth
+          supporting_only_role_groups:
+            - financial_stress_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 衰退觀察不能直接改寫 declared boom，也不能跳過 confirmation。
+        - lane_id: recession_confirmation
+          lane_category: transition_confirmation
+          title_zh: 衰退確認
+          book_core_role_groups:
+            - recession_employment
+            - recession_consumption
+            - recession_investment_or_industrial_confirmation
+            - recession_trade_or_breadth
+          supporting_only_role_groups:
+            - financial_stress_supporting_only
+          supporting_only_can_replace_book_core: false
+          explanation_zh: 衰退確認需要獨立 confirmation lane，不能由 boom-ending watch 自動升級。
+  prohibited_output_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    full_ordered_cycle_transition_lane_templates_ready: true
+    ordered_cycle_state_machine_ready: true
+    legal_cycle_order_valid: true
+    legal_transition_template_count: 4
+    legal_transition_template_with_state_machine_match_count: 4
+    lane_template_count: 13
+    continuation_lane_template_count: 4
+    watch_lane_template_count: 5
+    confirmation_lane_template_count: 4
+    transition_with_continuation_lane_count: 4
+    transition_with_watch_lane_count: 4
+    transition_with_confirmation_lane_count: 4
+    watch_confirmation_separation_valid: true
+    supporting_only_visible_count: 13
+    supporting_only_role_replacement_allowed_count: 0
+    modern_extension_promoted_to_book_core_count: 0
+    proxy_promoted_to_book_core_count: 0
+    silent_substitution_count: 0
+    phase_support_added_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

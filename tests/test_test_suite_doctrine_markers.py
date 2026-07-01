@@ -101,6 +101,12 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_phase57_boom_to_recession_transition_surface_completion_closure.py"
     )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_ordered_cycle_transition_lane_templates.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_phase58_ordered_cycle_transition_lane_templates_closure.py"
+    )
     assert "portfolio_policy_research" in markers_for_test_path(
         "tests/test_portfolio_policy_template_schema.py"
     )

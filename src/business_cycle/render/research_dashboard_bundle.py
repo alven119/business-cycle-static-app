@@ -24,6 +24,9 @@ from business_cycle.render.boom_transition_dashboard_surface import (
 from business_cycle.render.boom_to_recession_transition_surface import (
     build_boom_to_recession_transition_surface_view_model,
 )
+from business_cycle.render.ordered_cycle_transition_lane_templates import (
+    build_full_ordered_cycle_transition_lane_template_view_model,
+)
 from business_cycle.validation.post_pit_remediation_validation_rerun import (
     build_post_pit_remediation_validation_rerun,
 )
@@ -71,6 +74,9 @@ BOOM_TRANSITION_VIEW_ID = "declared_boom_transition_monitor"
 MACRO_COVERAGE_VIEW_ID = "macro_indicator_coverage_readiness"
 INDICATOR_DETAIL_VIEW_ID = "indicator_detail_source_risk_value_cards"
 BOOM_TO_RECESSION_COMPLETION_VIEW_ID = "boom_to_recession_transition_surface_completion"
+ORDERED_CYCLE_TRANSITION_TEMPLATES_VIEW_ID = (
+    "full_ordered_cycle_transition_lane_templates"
+)
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -102,6 +108,7 @@ def build_research_dashboard_bundle(
     current_snapshot: dict[str, Any] | None = None,
     boom_transition_surface: dict[str, Any] | None = None,
     boom_to_recession_transition_surface: dict[str, Any] | None = None,
+    ordered_cycle_transition_lane_templates: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -125,6 +132,7 @@ def build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
         boom_to_recession_transition_surface=boom_to_recession_transition_surface,
+        ordered_cycle_transition_lane_templates=ordered_cycle_transition_lane_templates,
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -285,6 +293,13 @@ def build_research_dashboard_bundle(
         )
         bundle["source_runs"]["phase57_boom_to_recession_transition_surface"] = (
             boom_to_recession_transition_surface["view_id"]
+        )
+    if ordered_cycle_transition_lane_templates is not None:
+        bundle["full_ordered_cycle_transition_lane_templates"] = (
+            ordered_cycle_transition_lane_templates
+        )
+        bundle["source_runs"]["phase58_ordered_cycle_transition_lane_templates"] = (
+            ordered_cycle_transition_lane_templates["view_id"]
         )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
@@ -534,6 +549,7 @@ def _view_ids(
     current_snapshot: dict[str, Any] | None,
     boom_transition_surface: dict[str, Any] | None,
     boom_to_recession_transition_surface: dict[str, Any] | None,
+    ordered_cycle_transition_lane_templates: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -544,6 +560,8 @@ def _view_ids(
         view_ids.append(BOOM_TRANSITION_VIEW_ID)
     if boom_to_recession_transition_surface is not None:
         view_ids.append(BOOM_TO_RECESSION_COMPLETION_VIEW_ID)
+    if ordered_cycle_transition_lane_templates is not None:
+        view_ids.append(ORDERED_CYCLE_TRANSITION_TEMPLATES_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -699,6 +717,9 @@ def _view_title(view_id: str) -> str:
         "boom_to_recession_transition_surface_completion": (
             "Boom to Recession Transition Surface"
         ),
+        "full_ordered_cycle_transition_lane_templates": (
+            "Full Ordered-Cycle Transition Lane Templates"
+        ),
     }[view_id]
 
 
@@ -716,6 +737,16 @@ def build_research_dashboard_bundle_with_boom_to_recession_surface() -> dict[str
     return build_research_dashboard_bundle(
         boom_to_recession_transition_surface=(
             build_boom_to_recession_transition_surface_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_ordered_cycle_transition_templates() -> dict[str, Any]:
+    """Build a bundle including the Phase58 full ordered-cycle lane templates."""
+
+    return build_research_dashboard_bundle(
+        ordered_cycle_transition_lane_templates=(
+            build_full_ordered_cycle_transition_lane_template_view_model()
         ),
     )
 

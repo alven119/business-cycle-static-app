@@ -1,0 +1,34 @@
+phase58_ordered_cycle_transition_lane_templates_closure:
+  phase: "58"
+  status: active_research_closure
+  expected:
+    phase58_ordered_cycle_transition_lane_templates_ready: true
+    full_ordered_cycle_transition_lane_templates_ready: true
+    dashboard_ordered_cycle_transition_template_view_ready: true
+    product_capability_progress_ready: true
+    ordered_cycle_state_machine_ready: true
+    legal_cycle_order_valid: true
+    legal_transition_template_count: 4
+    legal_transition_template_with_state_machine_match_count: 4
+    lane_template_count: 13
+    continuation_lane_template_count: 4
+    watch_lane_template_count: 5
+    confirmation_lane_template_count: 4
+    transition_with_continuation_lane_count: 4
+    transition_with_watch_lane_count: 4
+    transition_with_confirmation_lane_count: 4
+    watch_confirmation_separation_valid: true
+    supporting_only_visible_count: 13
+    supporting_only_role_replacement_allowed_count: 0
+    modern_extension_promoted_to_book_core_count: 0
+    proxy_promoted_to_book_core_count: 0
+    silent_substitution_count: 0
+    phase_support_added_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
