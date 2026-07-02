@@ -19,10 +19,19 @@ def test_pages_workflow_uses_fred_secret_without_inline_key() -> None:
 def test_pages_workflow_uploads_public_artifact() -> None:
     workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
 
-    assert "actions/configure-pages@" in workflow
-    assert "actions/upload-pages-artifact@" in workflow
-    assert "actions/deploy-pages@" in workflow
+    assert "actions/configure-pages@v6" in workflow
+    assert "actions/upload-pages-artifact@v5" in workflow
+    assert "actions/deploy-pages@v5" in workflow
     assert "path: public" in workflow
+
+
+def test_pages_workflow_uses_node24_pages_actions_without_unsecure_node20_fallback() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "actions/configure-pages@v5" not in workflow
+    assert "actions/upload-pages-artifact@v3" not in workflow
+    assert "actions/deploy-pages@v4" not in workflow
+    assert "ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION" not in workflow
 
 
 def test_pages_workflow_does_not_commit_generated_public_output() -> None:
