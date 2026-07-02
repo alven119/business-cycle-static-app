@@ -11,6 +11,9 @@ from business_cycle.render.research_dashboard_bundle import (
 from business_cycle.render.boom_transition_dashboard_surface import (
     build_boom_transition_dashboard_surface,
 )
+from business_cycle.render.indicator_dashboard_explanation_drilldown import (
+    build_indicator_dashboard_explanation_drilldown_view_model,
+)
 from business_cycle.render.research_validation_dashboard import (
     build_research_validation_dashboard,
 )
@@ -25,6 +28,11 @@ def main() -> None:
         action="store_true",
         help="include the Phase49 declared boom transition dashboard surface",
     )
+    parser.add_argument(
+        "--include-latest-evidence-drilldown",
+        action="store_true",
+        help="include the Phase63 latest evidence / indicator drilldown page",
+    )
     args = parser.parse_args()
 
     current_snapshot = _load_current_snapshot(args.include_current_snapshot)
@@ -33,9 +41,15 @@ def main() -> None:
         if args.include_boom_transition_monitor
         else None
     )
+    latest_evidence_drilldown = (
+        build_indicator_dashboard_explanation_drilldown_view_model()
+        if args.include_latest_evidence_drilldown
+        else None
+    )
     bundle = build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
+        indicator_dashboard_explanation_drilldown=latest_evidence_drilldown,
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
     bundle_summary = _bundle_summary(bundle)
@@ -55,6 +69,10 @@ def main() -> None:
     print(
         "boom_transition_dashboard_view_ready="
         f"{str(bool(bundle.get('boom_transition_dashboard'))).lower()}"
+    )
+    print(
+        "latest_evidence_dashboard_view_ready="
+        f"{str(bool(bundle.get('indicator_dashboard_explanation_drilldown'))).lower()}"
     )
     for key in (
         "research_dashboard_runtime_ready",

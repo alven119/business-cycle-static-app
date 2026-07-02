@@ -1,0 +1,41 @@
+phase63_latest_evidence_dashboard_wiring_closure:
+  phase_id: 63
+  phase_label: latest_evidence_dashboard_wiring
+  status: active
+  scope:
+    - wire_phase62_indicator_drilldown_into_research_dashboard_html
+    - keep_legacy_production_v1_unchanged
+    - keep_candidate_current_phase_output_disabled
+    - keep_dashboard_output_tmp_only
+  hard_gates:
+    phase63_latest_evidence_dashboard_wiring_ready: true
+    latest_evidence_dashboard_page_ready: true
+    dashboard_indicator_drilldown_view_ready: true
+    dashboard_bundle_latest_evidence_ready: true
+    rendered_latest_evidence_page_count: 1
+    major_group_drilldown_rendered_count: 24
+    role_drilldown_rendered_count: 39
+    role_source_detail_rendered_count: 39
+    role_release_timing_detail_rendered_count: 39
+    role_freshness_detail_rendered_count: 39
+    role_transformation_detail_rendered_count: 39
+    role_rule_usability_detail_rendered_count: 39
+    role_provenance_detail_rendered_count: 39
+    role_abstention_detail_rendered_count: 39
+    latest_evidence_research_only_label_missing_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    browser_missing_required_element_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: latest_evidence_dashboard_wired_declared_state_preserved
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 5
+    phase63_closure_status: closed_latest_evidence_dashboard_wired_no_phase_selection

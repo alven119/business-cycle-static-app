@@ -45,6 +45,7 @@ REQUIRED_PAGES = (
 )
 CURRENT_SNAPSHOT_PAGE = "current-snapshot.html"
 BOOM_TRANSITION_PAGE = "boom-transition.html"
+LATEST_EVIDENCE_PAGE = "latest-evidence.html"
 
 
 def build_research_validation_dashboard(
@@ -72,6 +73,8 @@ def build_research_validation_dashboard(
         pages[CURRENT_SNAPSHOT_PAGE] = _current_snapshot_page(bundle)
     if "boom_transition_dashboard" in bundle:
         pages[BOOM_TRANSITION_PAGE] = _boom_transition_page(bundle)
+    if "indicator_dashboard_explanation_drilldown" in bundle:
+        pages[LATEST_EVIDENCE_PAGE] = _latest_evidence_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -172,6 +175,12 @@ def verify_research_validation_dashboard_directory(
             missing += 1
         else:
             pages[BOOM_TRANSITION_PAGE] = path.read_text(encoding="utf-8")
+    if _bundle_has_latest_evidence(root):
+        path = root / LATEST_EVIDENCE_PAGE
+        if not path.exists():
+            missing += 1
+        else:
+            pages[LATEST_EVIDENCE_PAGE] = path.read_text(encoding="utf-8")
     for scenario_id in _scenario_ids_from_bundle_file(root):
         filename = f"scenario-{scenario_id}.html"
         path = root / filename
@@ -258,6 +267,26 @@ def _verify_rendered_html_pages(
             "data-declared-state-disclaimer",
         ):
             required_missing += int(token not in combined)
+    if "indicator_dashboard_explanation_drilldown" in bundle:
+        required_missing += int(
+            "data-dashboard-view=\"indicator_dashboard_explanation_drilldown\""
+            not in combined
+        )
+        for token in (
+            "data-latest-evidence-drilldown",
+            "data-major-group-drilldown",
+            "data-role-drilldown",
+            "data-source-detail",
+            "data-release-timing-detail",
+            "data-freshness-detail",
+            "data-transformation-detail",
+            "data-rule-usability-detail",
+            "data-provenance-detail",
+            "data-abstention-detail",
+            "data-score-boundary",
+            "data-role-search",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -302,6 +331,8 @@ def _preview_pages(bundle: dict[str, Any]) -> dict[str, str]:
         pages[CURRENT_SNAPSHOT_PAGE] = _current_snapshot_page(bundle)
     if "boom_transition_dashboard" in bundle:
         pages[BOOM_TRANSITION_PAGE] = _boom_transition_page(bundle)
+    if "indicator_dashboard_explanation_drilldown" in bundle:
+        pages[LATEST_EVIDENCE_PAGE] = _latest_evidence_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -334,6 +365,7 @@ def _overview_page(bundle: dict[str, Any]) -> str:
       </div>
       {_current_snapshot_entry(bundle)}
       {_boom_transition_entry(bundle)}
+      {_latest_evidence_entry(bundle)}
     </section>
     <section class="panel">
       <h2>Scenario access</h2>
@@ -744,6 +776,66 @@ def _boom_transition_page(bundle: dict[str, Any]) -> str:
     return _page("Declared Boom Transition Monitor", BOOM_TRANSITION_PAGE, body)
 
 
+def _latest_evidence_page(bundle: dict[str, Any]) -> str:
+    drilldown = bundle["indicator_dashboard_explanation_drilldown"]
+    group_cards = "".join(
+        _latest_major_group_card(group)
+        for group in drilldown["major_group_drilldowns"]
+    )
+    role_cards = "".join(
+        _latest_role_drilldown_card(role) for role in drilldown["role_drilldowns"]
+    )
+    phase_counts = "".join(
+        _metric_card(phase, count, "role drilldowns")
+        for phase, count in sorted(drilldown["phase_counts"].items())
+    )
+    continuity_counts = "".join(
+        _metric_card(status, count, "continuity status")
+        for status, count in sorted(drilldown["continuity_status_counts"].items())
+    )
+    body = f"""
+    <section class="panel" data-dashboard-view="indicator_dashboard_explanation_drilldown" data-latest-evidence-drilldown>
+      <div class="section-heading">
+        <h1>Latest Evidence / Indicator Drilldown</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This page wires the latest governed indicator explanations into the local research dashboard. It shows source, release timing, freshness, transformation, rule usability, provenance, data mode, and abstention context without selecting a current phase.</p>
+      <div class="metric-grid">
+        {_metric_card("Major groups", drilldown["major_group_drilldown_count"], "dashboard groups")}
+        {_metric_card("Role drilldowns", drilldown["role_drilldown_count"], "indicator cards")}
+        {_metric_card("Numeric values loaded", drilldown["continuity_status_counts"].get("current_numeric_value_available", 0), "current cache only")}
+        {_metric_card("Metadata-ready gaps", drilldown["continuity_status_counts"].get("metadata_ready_value_missing", 0), "explicit abstention")}
+      </div>
+      <div class="status-strip" data-score-boundary>
+        <span>declared state preserved</span>
+        <span>phase score is not the product answer</span>
+        <span>missing values are not neutral</span>
+        <span>proxy inputs do not replace book-core roles</span>
+        <span>no candidate/current output</span>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Phase and continuity coverage</h2>
+      <div class="metric-grid">{phase_counts}</div>
+      <div class="metric-grid">{continuity_counts}</div>
+    </section>
+    <section class="panel">
+      <h2>Major group drilldowns</h2>
+      <p class="muted">Each group links to the underlying role cards. A group can be explainable while still not ready for a formal phase decision.</p>
+      <div class="toolbar">
+        <label>Search <input id="latest-role-search" data-role-search type="search" placeholder="role, group, source, freshness"></label>
+      </div>
+      <div class="major-group-drilldown-grid">{group_cards}</div>
+    </section>
+    <section class="panel">
+      <h2>Role-level evidence explanations</h2>
+      <p class="muted">Role cards disclose current source and rule context. Metadata-only cards remain abstained until a governed numeric value and rule path are available.</p>
+      <div class="role-drilldown-grid" id="latest-role-grid">{role_cards}</div>
+    </section>
+    """
+    return _page("Latest Evidence Drilldown", LATEST_EVIDENCE_PAGE, body)
+
+
 def _boom_lane_card(lane: dict[str, Any]) -> str:
     return f"""
       <article class="transition-lane-card" data-transition-lane-card="{_text(lane["lane_id"])}">
@@ -850,6 +942,169 @@ def _phase_profile_card(phase: str, profile: dict[str, Any]) -> str:
     """
 
 
+def _latest_major_group_card(group: dict[str, Any]) -> str:
+    role_links = "".join(
+        f"""
+          <li>
+            <a href="{_text(link["drilldown_href"])}"><code>{_text(link["role_id"])}</code></a>
+            <span>{_status_badge(link["continuity_status"])}</span>
+            <span>{_text(link["data_risk_level"])}</span>
+          </li>
+        """
+        for link in group["role_links"]
+    )
+    missing = _list_items(
+        group["missing_non_methodology_role_ids"],
+        "No non-methodology role is hidden from this group.",
+    )
+    excluded = _list_items(
+        group["excluded_methodology_role_ids"],
+        "No methodology-only role excluded.",
+    )
+    return f"""
+      <article class="major-group-drilldown-card" data-major-group-drilldown="{_text(group["major_group_drilldown_id"])}">
+        <h3>{_text(group["phase_label_zh"])} / {_text(group["major_group_id"])}</h3>
+        <dl class="mini-grid">
+          <dt>Readiness</dt><dd>{_status_badge(group["readiness_status"])}</dd>
+          <dt>Role links</dt><dd>{group["role_drilldown_count"]}</dd>
+          <dt>Formal-ready</dt><dd>{_yes_no(group["group_ready_for_formal_phase"])}</dd>
+          <dt>Candidate eligible</dt><dd>{_yes_no(group["candidate_selection_eligible"])}</dd>
+        </dl>
+        <p>{_text(group["readiness_explanation_zh"])}</p>
+        <div class="phase-profile-detail">
+          <h4>Role links</h4>
+          <ul>{role_links}</ul>
+        </div>
+        <div class="phase-profile-detail">
+          <h4>Missing / excluded context</h4>
+          <ul>{missing}{excluded}</ul>
+        </div>
+      </article>
+    """
+
+
+def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
+    source = role["source_detail"]
+    release = role["release_timing_detail"]
+    freshness = role["freshness_detail"]
+    transform = role["transformation_detail"]
+    rule = role["rule_or_usability_detail"]
+    provenance = role["provenance_detail"]
+    data_mode = role["data_mode_detail"]
+    abstention = role["abstention_reason_detail"]
+    search_text = " ".join(
+        [
+            role["role_id"],
+            role["phase_or_layer"],
+            role["major_group_id"],
+            source["source_family"],
+            source["data_risk_level"],
+            role["continuity_status"],
+            rule["evidence_usability_status"],
+            " ".join(source["official_series_ids"]),
+        ]
+    ).lower()
+    latest_context = "".join(
+        _latest_observation_context_item(item)
+        for item in source["latest_observation_context"]
+    )
+    release_rows = "".join(
+        _release_context_item(item) for item in release["series_release_rows"]
+    )
+    freshness_counts = ", ".join(
+        f"{key}: {value}"
+        for key, value in sorted(freshness["freshness_status_counts"].items())
+    )
+    gap_codes = _list_items(
+        abstention["continuity_gap_reason_codes"],
+        "No continuity gap reason reported.",
+    )
+    return f"""
+      <article id="role-{_text(role["role_id"])}" class="role-drilldown-card" data-role-drilldown="{_text(role["role_id"])}" data-search="{_text(search_text)}">
+        <div class="section-heading">
+          <h3>{_text(role["phase_label_zh"])} / <code>{_text(role["role_id"])}</code></h3>
+          <span>{_status_badge(role["continuity_status"])}</span>
+        </div>
+        <p>{_text(role["dashboard_explanation_zh"])}</p>
+        <dl class="mini-grid">
+          <dt>Major group</dt><dd>{_text(role["major_group_id"])}</dd>
+          <dt>Source family</dt><dd>{_text(source["source_family"])}</dd>
+          <dt>Data risk</dt><dd>{_status_badge(source["data_risk_level"])}</dd>
+          <dt>Coverage tier</dt><dd>{_text(source["source_coverage_tier"])}</dd>
+          <dt>Replacement allowed</dt><dd>{_yes_no(rule["book_core_replacement_allowed"])}</dd>
+          <dt>Proxy replaces core</dt><dd>{_yes_no(rule["supporting_proxy_can_replace_book_core"])}</dd>
+          <dt>Numeric values</dt><dd>{data_mode["numeric_value_loaded_count"]}</dd>
+          <dt>Point-in-time result</dt><dd>{_yes_no(data_mode["point_in_time_result"])}</dd>
+        </dl>
+        <div class="drilldown-detail-grid">
+          <section data-source-detail>
+            <h4>Source detail</h4>
+            <p>{_text(source["source_risk_label_zh"])}</p>
+            <p>Series: {_text(", ".join(source["official_series_ids"]) or "none")}</p>
+            <ul>{latest_context}</ul>
+          </section>
+          <section data-release-timing-detail>
+            <h4>Release timing</h4>
+            <ul>{release_rows}</ul>
+          </section>
+          <section data-freshness-detail>
+            <h4>Freshness</h4>
+            <p>{_text(freshness_counts or "no freshness status")}</p>
+            <p>Fresh enough: {freshness["fresh_enough_series_count"]}; stale/missing: {freshness["stale_or_missing_series_count"]}</p>
+          </section>
+          <section data-transformation-detail>
+            <h4>Transformation</h4>
+            <p>{_text(transform["transformation_semantics_status"])}</p>
+          </section>
+          <section data-rule-usability-detail>
+            <h4>Rule usability</h4>
+            <p>{_text(rule["coverage_status"])}</p>
+            <p>{_text(rule["dashboard_display_status"])}</p>
+            <p>{_text(rule["evidence_usability_status"])}</p>
+          </section>
+          <section data-provenance-detail>
+            <h4>Provenance</h4>
+            <p>{_text(provenance["source_indicator_detail_contract"])}</p>
+            <p>{_text(provenance["source_continuity_contract"])}</p>
+            <p>{_text(provenance["source_major_group_profile_contract"])}</p>
+            <p>Data mode: {_text(data_mode["display_data_mode"])}</p>
+          </section>
+          <section data-abstention-detail>
+            <h4>Abstention / next gap</h4>
+            <p>{_text(abstention["why_not_evidence_zh"])}</p>
+            <p>{_text(abstention["stale_or_missing_explanation_zh"])}</p>
+            <p>{_text(role["next_gap_zh"])}</p>
+            <ul>{gap_codes}</ul>
+          </section>
+        </div>
+      </article>
+    """
+
+
+def _latest_observation_context_item(item: dict[str, Any]) -> str:
+    return f"""
+      <li>
+        <code>{_text(item["series_id"])}</code>
+        <span>{_text(item["source_mode"])}</span>
+        <span>{_text(item["frequency"])}</span>
+        <span>latest {_text(item["latest_observation_date"])}</span>
+        <span>value {_text(_value_or_text(item.get("latest_value"), "not loaded"))}</span>
+      </li>
+    """
+
+
+def _release_context_item(item: dict[str, Any]) -> str:
+    return f"""
+      <li>
+        <code>{_text(item["series_id"])}</code>
+        <span>{_text(item["release_family"])}</span>
+        <span>{_text(item["frequency"])}</span>
+        <span>expected {_text(item["expected_reference_period"])}</span>
+        <span>observed {_text(item["observed_reference_period"])}</span>
+      </li>
+    """
+
+
 def _page(title: str, active_href: str, body: str) -> str:
     nav = _nav(active_href)
     return f"""<!doctype html>
@@ -898,6 +1153,8 @@ def _nav(active_href: str) -> str:
         links.append((CURRENT_SNAPSHOT_PAGE, "Current snapshot"))
     if active_href == BOOM_TRANSITION_PAGE:
         links.append((BOOM_TRANSITION_PAGE, "Boom transition"))
+    if active_href == LATEST_EVIDENCE_PAGE:
+        links.append((LATEST_EVIDENCE_PAGE, "Latest evidence"))
     items = []
     for href, label in links:
         active = ' class="active"' if href == active_href else ""
@@ -927,6 +1184,19 @@ def _boom_transition_entry(bundle: dict[str, Any]) -> str:
         <strong>Declared Boom Transition Monitor</strong>
         <span>{_text(surface["monitor_as_of"])} / legal next {_text(surface["legal_next_phase"])}</span>
         <a href="{BOOM_TRANSITION_PAGE}">Open transition monitor</a>
+      </div>
+    """
+
+
+def _latest_evidence_entry(bundle: dict[str, Any]) -> str:
+    if "indicator_dashboard_explanation_drilldown" not in bundle:
+        return ""
+    drilldown = bundle["indicator_dashboard_explanation_drilldown"]
+    return f"""
+      <div class="callout" data-latest-evidence-entry>
+        <strong>Latest Evidence / Indicator Drilldown</strong>
+        <span>{drilldown["major_group_drilldown_count"]} groups / {drilldown["role_drilldown_count"]} roles</span>
+        <a href="{LATEST_EVIDENCE_PAGE}">Open latest evidence</a>
       </div>
     """
 
@@ -1038,6 +1308,17 @@ def _bundle_has_boom_transition(root: Path) -> bool:
     except json.JSONDecodeError:
         return False
     return "boom_transition_dashboard" in payload
+
+
+def _bundle_has_latest_evidence(root: Path) -> bool:
+    bundle_path = root / "data" / "dashboard_bundle.json"
+    if not bundle_path.exists():
+        return False
+    try:
+        payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    return "indicator_dashboard_explanation_drilldown" in payload
 
 
 def _metric_summary_row(metric: dict[str, Any]) -> str:
@@ -1245,6 +1526,43 @@ h2 { margin: 0 0 10px; font-size: 1.1rem; }
 .phase-profile-card h3, .transition-lane-card h3, .transition-indicator-card h3 { margin: 0 0 8px; font-size: 1rem; }
 .phase-profile-card h4, .transition-indicator-card h4 { margin: 8px 0 4px; font-size: 0.86rem; }
 .phase-profile-card ul, .transition-indicator-card ul { margin: 0; padding-left: 18px; }
+.major-group-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.role-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.major-group-drilldown-card, .role-drilldown-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-alt);
+  scroll-margin-top: 70px;
+}
+.major-group-drilldown-card h3, .role-drilldown-card h3 { margin: 0 0 8px; font-size: 1rem; }
+.major-group-drilldown-card h4, .role-drilldown-card h4 { margin: 8px 0 4px; font-size: 0.86rem; }
+.major-group-drilldown-card ul, .role-drilldown-card ul { margin: 0; padding-left: 18px; }
+.drilldown-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.drilldown-detail-grid section {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.drilldown-detail-grid p { margin: 4px 0; overflow-wrap: anywhere; }
+.drilldown-detail-grid ul { margin: 0; padding-left: 18px; }
+.drilldown-detail-grid li { margin-bottom: 4px; overflow-wrap: anywhere; }
 .transition-lane-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1296,6 +1614,8 @@ input, select { min-height: 34px; border: 1px solid var(--line); border-radius: 
   .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .phase-card-grid { grid-template-columns: 1fr; }
   .transition-lane-grid, .transition-indicator-grid { grid-template-columns: 1fr; }
+  .major-group-drilldown-grid, .role-drilldown-grid { grid-template-columns: 1fr; }
+  .drilldown-detail-grid { grid-template-columns: 1fr; }
   .definition-grid { grid-template-columns: 1fr; }
   .two-column { grid-template-columns: 1fr; }
   table { min-width: 680px; }
@@ -1328,5 +1648,6 @@ def _dashboard_js() -> str:
   }
   attachTableFilter("scenario-search", "scenario-filter", "#scenario-table tbody tr");
   attachTableFilter("evidence-search", "evidence-filter", "#evidence-table tbody tr");
+  attachTableFilter("latest-role-search", null, "#latest-role-grid [data-role-drilldown]");
 })();
 """
