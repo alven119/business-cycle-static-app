@@ -1,0 +1,87 @@
+evidence_freshness_release_value_continuity:
+  contract_id: evidence_freshness_release_value_continuity_v1
+  contract_version: "1.0"
+  phase_id: 60
+  phase_label: evidence_freshness_release_timing_and_current_value_continuity
+  status: active_research_contract
+  purpose: >
+    Combine Phase56 indicator detail cards and Phase58 ordered-cycle transition
+    templates into a research-only continuity surface. The surface explains
+    whether each indicator has current numeric value continuity, release timing
+    context, freshness context, or an explicit missing/stale/data-risk reason.
+  dependencies:
+    phase56_indicator_details: specs/common/indicator_detail_source_risk_value_rendering.yaml
+    phase58_transition_templates: specs/common/full_ordered_cycle_transition_lane_templates.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  policy:
+    output_mode: research_only_evidence_freshness_release_value_continuity
+    public_output_allowed: false
+    production_integration_enabled: false
+    current_data_may_explain_value_continuity: true
+    current_data_may_infer_declared_phase: false
+    missing_value_may_be_treated_as_neutral: false
+    metadata_only_may_be_treated_as_phase_support: false
+    supporting_proxy_may_replace_book_core: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+    phase_score_rank_or_winner_allowed: false
+    portfolio_or_trade_output_allowed: false
+  dashboard_view_model:
+    view_id: evidence_freshness_release_value_continuity
+    view_title: Evidence Freshness, Release Timing, and Value Continuity
+    allowed_uses:
+      - local_research_dashboard
+      - indicator_value_continuity_review
+      - stale_missing_release_explanation
+      - transition_surface_context
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - phase_score_or_rank_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  output_restrictions:
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - phase_score
+      - target_weight
+      - allocation_recommendation
+      - buy_signal
+      - sell_signal
+      - trade_action
+  hard_gates:
+    evidence_freshness_release_value_continuity_ready: true
+    continuity_card_count: 39
+    phase_count: 4
+    role_with_value_context_count: 39
+    role_with_freshness_context_count: 39
+    role_with_release_timing_context_count: 39
+    role_with_continuity_status_count: 39
+    stale_or_missing_explanation_count: 39
+    current_numeric_value_available_count: 0
+    metadata_ready_value_missing_count: 31
+    authorized_input_required_count: 2
+    supporting_proxy_only_count: 3
+    source_metadata_incomplete_count: 3
+    transition_continuity_context_count: 4
+    transition_lane_context_count: 13
+    freshness_context_missing_count: 0
+    release_timing_context_missing_count: 0
+    value_context_missing_count: 0
+    declared_phase_age_false_precision_count: 0
+    phase59_declared_start_governance_deferred: true
+    missing_value_treated_as_neutral_count: 0
+    metadata_only_promoted_to_phase_support_count: 0
+    supporting_proxy_replacement_allowed_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

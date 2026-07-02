@@ -17,6 +17,9 @@ from business_cycle.render.boom_to_recession_transition_surface import (
 from business_cycle.render.ordered_cycle_transition_lane_templates import (
     build_full_ordered_cycle_transition_lane_template_view_model,
 )
+from business_cycle.render.evidence_freshness_release_value_continuity import (
+    build_evidence_freshness_release_value_continuity_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -153,6 +156,33 @@ def test_research_dashboard_bundle_accepts_ordered_cycle_transition_templates() 
     )
     assert (
         bundle["full_ordered_cycle_transition_lane_templates"][
+            "current_phase_emitted"
+        ]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_evidence_continuity_view_model() -> None:
+    continuity = build_evidence_freshness_release_value_continuity_view_model()
+    bundle = build_research_dashboard_bundle(
+        evidence_freshness_release_value_continuity=continuity,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "evidence_freshness_release_value_continuity" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["evidence_freshness_release_value_continuity"]["research_only"] is True
+    assert (
+        bundle["evidence_freshness_release_value_continuity"][
+            "candidate_phase_emitted"
+        ]
+        is False
+    )
+    assert (
+        bundle["evidence_freshness_release_value_continuity"][
             "current_phase_emitted"
         ]
         is False
