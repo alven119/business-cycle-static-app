@@ -1,0 +1,71 @@
+indicator_chart_explanation_payload:
+  contract_id: indicator_chart_explanation_payload_v1
+  contract_version: "1.0"
+  phase_id: "64"
+  phase_label: indicator_transparency_and_chart_payload
+  status: active_research_view_model_contract
+  objective_zh: >
+    為 latest evidence dashboard 的每個 role 建立 research-only 診斷方法透明度
+    與 YTD / trailing 1Y / trailing 5Y chart payload。若本地 cache 沒有數值，
+    必須顯示 chart unavailable 與原因，不得填假值或把缺值當 neutral。
+  dependencies:
+    - indicator_detail_source_risk_value_rendering_v1
+    - scoring_methods.yaml
+  policy:
+    output_mode: research_only_indicator_chart_explanation_payload
+    research_only: true
+    current_phase_inference_enabled: false
+    candidate_phase_selection_enabled: false
+    production_behavior_change: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    missing_value_treated_as_neutral: false
+    unavailable_chart_treated_as_zero: false
+    diagnostic_score_is_product_answer: false
+  chart_periods:
+    - period_id: ytd
+      label: Year to date
+    - period_id: trailing_1y
+      label: Trailing 1 year
+    - period_id: trailing_5y
+      label: Trailing 5 years
+  required_role_payload_fields:
+    - role_id
+    - diagnostic_transparency_detail
+    - chart_payload_detail
+    - allowed_uses
+    - prohibited_uses
+  dashboard_view_model:
+    view_id: indicator_chart_explanation_payload
+    allowed_uses:
+      - local_research_dashboard
+      - indicator_method_explanation
+      - indicator_chart_payload_preview
+      - chart_unavailable_reason_review
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - phase_score_or_rank_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  hard_gates:
+    indicator_chart_explanation_payload_ready: true
+    role_payload_count: 39
+    role_with_diagnostic_transparency_count: 39
+    role_with_ytd_chart_payload_count: 39
+    role_with_trailing_1y_chart_payload_count: 39
+    role_with_trailing_5y_chart_payload_count: 39
+    chart_period_count: 3
+    chart_unavailable_policy_count: 39
+    diagnostic_score_product_answer_count: 0
+    unavailable_chart_treated_as_zero_count: 0
+    missing_value_treated_as_neutral_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

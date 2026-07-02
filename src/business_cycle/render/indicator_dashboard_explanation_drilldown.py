@@ -12,6 +12,9 @@ import yaml
 from business_cycle.render.evidence_freshness_release_value_continuity import (
     build_evidence_freshness_release_value_continuity,
 )
+from business_cycle.render.indicator_chart_explanation_payload import (
+    build_indicator_chart_explanation_payload,
+)
 from business_cycle.render.indicator_detail_source_risk_values import (
     build_indicator_detail_source_risk_value_cards,
 )
@@ -48,14 +51,19 @@ def build_indicator_dashboard_explanation_drilldown(
     contract = _load_contract(path)
     indicator_cards = build_indicator_detail_source_risk_value_cards()
     continuity = build_evidence_freshness_release_value_continuity()
+    chart_payload = build_indicator_chart_explanation_payload()
     major_groups = build_major_group_evidence_profile_readiness()
     continuity_by_role = {
         card["role_id"]: card for card in continuity["continuity_cards"]
+    }
+    chart_payload_by_role = {
+        payload["role_id"]: payload for payload in chart_payload["role_payloads"]
     }
     role_drilldowns = [
         _role_drilldown(
             indicator_card=card,
             continuity_card=continuity_by_role[card["role_id"]],
+            chart_payload=chart_payload_by_role[card["role_id"]],
         )
         for card in sorted(indicator_cards, key=lambda item: item["role_id"])
     ]
@@ -90,9 +98,11 @@ def build_indicator_dashboard_explanation_drilldown(
             "source_major_group_profile_contract": (
                 "major_group_evidence_profile_readiness_v1"
             ),
+            "source_chart_payload_contract": "indicator_chart_explanation_payload_v1",
             "current_data_used_to_infer_declared_phase": False,
             "missing_values_are_neutral": False,
             "metadata_only_is_phase_support": False,
+            "diagnostic_score_is_product_answer": False,
             "supporting_proxy_may_replace_book_core": False,
             "production_behavior_change": False,
         },
@@ -132,6 +142,26 @@ def build_indicator_dashboard_explanation_drilldown(
             role_drilldowns,
             "abstention_reason_detail",
         ),
+        "role_with_diagnostic_transparency_count": _present_count(
+            role_drilldowns,
+            "diagnostic_transparency_detail",
+        ),
+        "role_with_chart_payload_count": _present_count(
+            role_drilldowns,
+            "chart_payload_detail",
+        ),
+        "role_with_ytd_chart_payload_count": _role_with_chart_period_count(
+            role_drilldowns,
+            "ytd",
+        ),
+        "role_with_trailing_1y_chart_payload_count": _role_with_chart_period_count(
+            role_drilldowns,
+            "trailing_1y",
+        ),
+        "role_with_trailing_5y_chart_payload_count": _role_with_chart_period_count(
+            role_drilldowns,
+            "trailing_5y",
+        ),
         "role_with_dashboard_explanation_count": sum(
             bool(role["dashboard_explanation_zh"]) for role in role_drilldowns
         ),
@@ -163,6 +193,14 @@ def build_indicator_dashboard_explanation_drilldown(
         ],
         "current_numeric_value_available_drilldown_count": continuity_counts[
             "current_numeric_value_available"
+        ],
+        "chart_available_role_count": chart_payload["chart_available_role_count"],
+        "chart_unavailable_role_count": chart_payload["chart_unavailable_role_count"],
+        "diagnostic_score_product_answer_count": chart_payload[
+            "diagnostic_score_product_answer_count"
+        ],
+        "unavailable_chart_treated_as_zero_count": chart_payload[
+            "unavailable_chart_treated_as_zero_count"
         ],
         "group_ready_for_formal_phase_count": sum(
             group["group_ready_for_formal_phase"] for group in major_group_drilldowns
@@ -272,6 +310,27 @@ def summarize_indicator_dashboard_explanation_drilldown(
             "source_rule_provenance_complete"
         ],
         "prohibited_output_field_count": artifact["prohibited_output_field_count"],
+        "role_with_diagnostic_transparency_count": artifact[
+            "role_with_diagnostic_transparency_count"
+        ],
+        "role_with_chart_payload_count": artifact["role_with_chart_payload_count"],
+        "role_with_ytd_chart_payload_count": artifact[
+            "role_with_ytd_chart_payload_count"
+        ],
+        "role_with_trailing_1y_chart_payload_count": artifact[
+            "role_with_trailing_1y_chart_payload_count"
+        ],
+        "role_with_trailing_5y_chart_payload_count": artifact[
+            "role_with_trailing_5y_chart_payload_count"
+        ],
+        "chart_available_role_count": artifact["chart_available_role_count"],
+        "chart_unavailable_role_count": artifact["chart_unavailable_role_count"],
+        "diagnostic_score_product_answer_count": artifact[
+            "diagnostic_score_product_answer_count"
+        ],
+        "unavailable_chart_treated_as_zero_count": artifact[
+            "unavailable_chart_treated_as_zero_count"
+        ],
         "standalone_classifier_added_count": artifact[
             "standalone_classifier_added_count"
         ],
@@ -319,6 +378,21 @@ def build_indicator_dashboard_explanation_drilldown_view_model(
         "role_drilldown_count": artifact["role_drilldown_count"],
         "phase_counts": artifact["phase_counts"],
         "continuity_status_counts": artifact["continuity_status_counts"],
+        "role_with_diagnostic_transparency_count": artifact[
+            "role_with_diagnostic_transparency_count"
+        ],
+        "role_with_chart_payload_count": artifact["role_with_chart_payload_count"],
+        "role_with_ytd_chart_payload_count": artifact[
+            "role_with_ytd_chart_payload_count"
+        ],
+        "role_with_trailing_1y_chart_payload_count": artifact[
+            "role_with_trailing_1y_chart_payload_count"
+        ],
+        "role_with_trailing_5y_chart_payload_count": artifact[
+            "role_with_trailing_5y_chart_payload_count"
+        ],
+        "chart_available_role_count": artifact["chart_available_role_count"],
+        "chart_unavailable_role_count": artifact["chart_unavailable_role_count"],
         "major_group_drilldowns": artifact["major_group_drilldowns"],
         "role_drilldowns": artifact["role_drilldowns"],
         "trust_metadata": artifact["trust_metadata"],
@@ -337,6 +411,7 @@ def _role_drilldown(
     *,
     indicator_card: dict[str, Any],
     continuity_card: dict[str, Any],
+    chart_payload: dict[str, Any],
 ) -> dict[str, Any]:
     role_id = indicator_card["role_id"]
     return {
@@ -390,6 +465,7 @@ def _role_drilldown(
             "source_major_group_profile_contract": (
                 "major_group_evidence_profile_readiness_v1"
             ),
+            "source_chart_payload_contract": "indicator_chart_explanation_payload_v1",
             "source_series_count": len(indicator_card["official_series_ids"]),
             "data_mode": _data_mode_detail(indicator_card),
             "research_only": True,
@@ -404,6 +480,10 @@ def _role_drilldown(
                 "continuity_gap_reason_codes"
             ],
         },
+        "diagnostic_transparency_detail": chart_payload[
+            "diagnostic_transparency_detail"
+        ],
+        "chart_payload_detail": chart_payload["chart_payload_detail"],
         "dashboard_explanation_zh": indicator_card["dashboard_explanation_zh"],
         "next_gap_zh": indicator_card["next_gap_zh"],
         "drilldown_href": f"#role-{role_id}",
@@ -508,6 +588,20 @@ def _role_source_rule_provenance_complete(role: dict[str, Any]) -> bool:
 
 def _present_count(rows: list[dict[str, Any]], field: str) -> int:
     return sum(bool(row[field]) for row in rows)
+
+
+def _role_with_chart_period_count(
+    rows: list[dict[str, Any]],
+    period_id: str,
+) -> int:
+    return sum(
+        any(
+            period["period_id"] == period_id
+            for series in row["chart_payload_detail"]["series_charts"]
+            for period in series["periods"]
+        )
+        for row in rows
+    )
 
 
 def _passes(artifact: dict[str, Any], expected: dict[str, Any]) -> bool:

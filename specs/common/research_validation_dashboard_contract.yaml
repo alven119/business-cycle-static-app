@@ -23,6 +23,7 @@ research_validation_dashboard_contract:
     - phase11_phase_evidence_view_models
     - phase39_current_research_snapshot
     - phase62_indicator_dashboard_explanation_drilldown
+    - phase64_indicator_chart_explanation_payload
   prohibited_inputs:
     - production_dashboard_runtime
     - production_resolver

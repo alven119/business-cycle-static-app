@@ -283,6 +283,13 @@ def _verify_rendered_html_pages(
             "data-rule-usability-detail",
             "data-provenance-detail",
             "data-abstention-detail",
+            "data-score-transparency-detail",
+            "data-indicator-chart-payload",
+            'data-chart-period="ytd"',
+            'data-chart-period="trailing_1y"',
+            'data-chart-period="trailing_5y"',
+            "data-chart-data-mode",
+            "data-chart-unavailable-reason",
             "data-score-boundary",
             "data-role-search",
         ):
@@ -805,12 +812,16 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
         {_metric_card("Role drilldowns", drilldown["role_drilldown_count"], "indicator cards")}
         {_metric_card("Numeric values loaded", drilldown["continuity_status_counts"].get("current_numeric_value_available", 0), "current cache only")}
         {_metric_card("Metadata-ready gaps", drilldown["continuity_status_counts"].get("metadata_ready_value_missing", 0), "explicit abstention")}
+        {_metric_card("Chart payloads", drilldown.get("role_with_chart_payload_count", 0), "YTD / 1Y / 5Y")}
+        {_metric_card("Method recipes", drilldown.get("role_with_diagnostic_transparency_count", 0), "diagnostic transparency")}
       </div>
       <div class="status-strip" data-score-boundary>
         <span>declared state preserved</span>
         <span>phase score is not the product answer</span>
+        <span>diagnostic method recipe visible</span>
         <span>missing values are not neutral</span>
         <span>proxy inputs do not replace book-core roles</span>
+        <span>unavailable charts are not zero</span>
         <span>no candidate/current output</span>
       </div>
     </section>
@@ -992,6 +1003,8 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
     provenance = role["provenance_detail"]
     data_mode = role["data_mode_detail"]
     abstention = role["abstention_reason_detail"]
+    diagnostic = role["diagnostic_transparency_detail"]
+    chart = role["chart_payload_detail"]
     search_text = " ".join(
         [
             role["role_id"],
@@ -1001,6 +1014,8 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
             source["data_risk_level"],
             role["continuity_status"],
             rule["evidence_usability_status"],
+            diagnostic["method_id"],
+            chart["unavailable_reason"] or "chart_available",
             " ".join(source["official_series_ids"]),
         ]
     ).lower()
@@ -1019,6 +1034,7 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
         abstention["continuity_gap_reason_codes"],
         "No continuity gap reason reported.",
     )
+    chart_payload = _indicator_chart_payload_section(chart)
     return f"""
       <article id="role-{_text(role["role_id"])}" class="role-drilldown-card" data-role-drilldown="{_text(role["role_id"])}" data-search="{_text(search_text)}">
         <div class="section-heading">
@@ -1062,11 +1078,30 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
             <p>{_text(rule["dashboard_display_status"])}</p>
             <p>{_text(rule["evidence_usability_status"])}</p>
           </section>
+          <section data-score-transparency-detail>
+            <h4>Diagnostic method transparency</h4>
+            <p><strong>{_text(diagnostic["method_id"])}</strong></p>
+            <p>{_text(diagnostic["method_purpose_zh"])}</p>
+            <p>Inputs: {_text(", ".join(diagnostic["method_inputs_required"]) or "not declared")}</p>
+            <p>Trend windows: {_text(", ".join(str(item) for item in diagnostic["trend_window_options"] if item) or "not declared")}</p>
+            <p>Confirmation: {_text(diagnostic["confirmation_window"])}</p>
+            <p>Computed diagnostic value: {_yes_no(diagnostic["computed_diagnostic_value_present"])}</p>
+            <p>{_text(diagnostic["legacy_diagnostic_boundary_zh"])}</p>
+            <p>{_text(diagnostic["why_not_product_answer_zh"])}</p>
+          </section>
+          <section data-indicator-chart-payload>
+            <h4>Indicator chart payload</h4>
+            <p data-chart-data-mode>{_text(chart["chart_data_mode"])}</p>
+            <p>Chart available: {_yes_no(chart["chart_available"])}</p>
+            <p data-chart-unavailable-reason>{_text(chart["unavailable_reason"] or "available")}</p>
+            {chart_payload}
+          </section>
           <section data-provenance-detail>
             <h4>Provenance</h4>
             <p>{_text(provenance["source_indicator_detail_contract"])}</p>
             <p>{_text(provenance["source_continuity_contract"])}</p>
             <p>{_text(provenance["source_major_group_profile_contract"])}</p>
+            <p>{_text(provenance["source_chart_payload_contract"])}</p>
             <p>Data mode: {_text(data_mode["display_data_mode"])}</p>
           </section>
           <section data-abstention-detail>
@@ -1078,6 +1113,78 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
           </section>
         </div>
       </article>
+    """
+
+
+def _indicator_chart_payload_section(chart: dict[str, Any]) -> str:
+    periods = _aggregate_chart_periods(chart["series_charts"])
+    return (
+        '<div class="chart-period-grid">'
+        + "".join(_chart_period_card(period) for period in periods)
+        + "</div>"
+    )
+
+
+def _aggregate_chart_periods(series_charts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    aggregated: list[dict[str, Any]] = []
+    period_ids = ("ytd", "trailing_1y", "trailing_5y")
+    for period_id in period_ids:
+        matching = [
+            period
+            for series in series_charts
+            for period in series["periods"]
+            if period["period_id"] == period_id
+        ]
+        if not matching:
+            continue
+        available = [period for period in matching if period["chart_status"] == "available"]
+        source = available[0] if available else matching[0]
+        points = [
+            point
+            for period in available
+            for point in period["points"]
+        ]
+        reasons = sorted(
+            {
+                period["unavailable_reason"]
+                for period in matching
+                if period["unavailable_reason"]
+            },
+        )
+        aggregated.append(
+            {
+                "period_id": period_id,
+                "label": source["label"],
+                "start_date": source["start_date"],
+                "end_date": source["end_date"],
+                "chart_status": "available" if available else "unavailable",
+                "point_count": len(points),
+                "points": points[-12:],
+                "unavailable_reason": ", ".join(reasons) if reasons else None,
+            },
+        )
+    return aggregated
+
+
+def _chart_period_card(period: dict[str, Any]) -> str:
+    points = period["points"]
+    first_value = _value_or_text(points[0]["value"], "none") if points else "none"
+    last_value = _value_or_text(points[-1]["value"], "none") if points else "none"
+    point_items = "".join(
+        f"<li>{_text(point['date'])}: {_text(point['value'])}</li>"
+        for point in points[-6:]
+    )
+    if not point_items:
+        point_items = "<li>No numeric points available for this period.</li>"
+    return f"""
+      <div class="chart-period-card" data-chart-period="{_text(period["period_id"])}">
+        <strong>{_text(period["label"])}</strong>
+        <span>{_status_badge(period["chart_status"])}</span>
+        <p>{_text(period["start_date"])} to {_text(period["end_date"])}</p>
+        <p>Points: {period["point_count"]}; first {first_value}; last {last_value}</p>
+        <p>{_text(period["unavailable_reason"] or "chart data available")}</p>
+        <ul class="chart-points">{point_items}</ul>
+      </div>
     """
 
 
@@ -1563,6 +1670,27 @@ h2 { margin: 0 0 10px; font-size: 1.1rem; }
 .drilldown-detail-grid p { margin: 4px 0; overflow-wrap: anywhere; }
 .drilldown-detail-grid ul { margin: 0; padding-left: 18px; }
 .drilldown-detail-grid li { margin-bottom: 4px; overflow-wrap: anywhere; }
+.chart-period-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.chart-period-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--surface-alt);
+}
+.chart-period-card strong,
+.chart-period-card span {
+  display: inline-block;
+  margin-right: 6px;
+}
+.chart-points {
+  max-height: 120px;
+  overflow: auto;
+}
 .transition-lane-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
