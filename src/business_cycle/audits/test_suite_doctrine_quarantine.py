@@ -346,6 +346,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase61 closure script smoke test remains research-only",
     ),
+    "tests/test_indicator_dashboard_explanation_drilldown.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase62 drill-down explains role/source/provenance without phase selection",
+    ),
+    "tests/test_phase62_indicator_dashboard_explanation_drilldown_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase62 closure proves drill-down stays explanation-only",
+    ),
+    "tests/test_show_phase62_indicator_dashboard_explanation_drilldown_closure_script.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase62 closure script smoke test remains research-only",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

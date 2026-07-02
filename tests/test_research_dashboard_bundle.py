@@ -23,6 +23,9 @@ from business_cycle.render.evidence_freshness_release_value_continuity import (
 from business_cycle.render.major_group_evidence_profile_readiness import (
     build_major_group_evidence_profile_readiness_view_model,
 )
+from business_cycle.render.indicator_dashboard_explanation_drilldown import (
+    build_indicator_dashboard_explanation_drilldown_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -213,6 +216,31 @@ def test_research_dashboard_bundle_accepts_major_group_profile_view_model() -> N
     )
     assert (
         bundle["major_group_evidence_profile_readiness"]["current_phase_emitted"]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_indicator_drilldown_view_model() -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "indicator_dashboard_explanation_drilldown" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["indicator_dashboard_explanation_drilldown"]["research_only"] is True
+    assert (
+        bundle["indicator_dashboard_explanation_drilldown"][
+            "candidate_phase_emitted"
+        ]
+        is False
+    )
+    assert (
+        bundle["indicator_dashboard_explanation_drilldown"]["current_phase_emitted"]
         is False
     )
     assert validation["prohibited_action_field_count"] == 0

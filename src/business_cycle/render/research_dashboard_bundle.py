@@ -33,6 +33,9 @@ from business_cycle.render.evidence_freshness_release_value_continuity import (
 from business_cycle.render.major_group_evidence_profile_readiness import (
     build_major_group_evidence_profile_readiness_view_model,
 )
+from business_cycle.render.indicator_dashboard_explanation_drilldown import (
+    build_indicator_dashboard_explanation_drilldown_view_model,
+)
 from business_cycle.validation.post_pit_remediation_validation_rerun import (
     build_post_pit_remediation_validation_rerun,
 )
@@ -89,6 +92,9 @@ EVIDENCE_FRESHNESS_RELEASE_VALUE_CONTINUITY_VIEW_ID = (
 MAJOR_GROUP_EVIDENCE_PROFILE_READINESS_VIEW_ID = (
     "major_group_evidence_profile_readiness"
 )
+INDICATOR_DASHBOARD_EXPLANATION_DRILLDOWN_VIEW_ID = (
+    "indicator_dashboard_explanation_drilldown"
+)
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -123,6 +129,7 @@ def build_research_dashboard_bundle(
     ordered_cycle_transition_lane_templates: dict[str, Any] | None = None,
     evidence_freshness_release_value_continuity: dict[str, Any] | None = None,
     major_group_evidence_profile_readiness: dict[str, Any] | None = None,
+    indicator_dashboard_explanation_drilldown: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -152,6 +159,9 @@ def build_research_dashboard_bundle(
         ),
         major_group_evidence_profile_readiness=(
             major_group_evidence_profile_readiness
+        ),
+        indicator_dashboard_explanation_drilldown=(
+            indicator_dashboard_explanation_drilldown
         ),
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
@@ -334,6 +344,13 @@ def build_research_dashboard_bundle(
         )
         bundle["source_runs"]["phase61_major_group_evidence_profile_readiness"] = (
             major_group_evidence_profile_readiness["view_id"]
+        )
+    if indicator_dashboard_explanation_drilldown is not None:
+        bundle["indicator_dashboard_explanation_drilldown"] = (
+            indicator_dashboard_explanation_drilldown
+        )
+        bundle["source_runs"]["phase62_indicator_dashboard_explanation_drilldown"] = (
+            indicator_dashboard_explanation_drilldown["view_id"]
         )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
@@ -586,6 +603,7 @@ def _view_ids(
     ordered_cycle_transition_lane_templates: dict[str, Any] | None,
     evidence_freshness_release_value_continuity: dict[str, Any] | None,
     major_group_evidence_profile_readiness: dict[str, Any] | None,
+    indicator_dashboard_explanation_drilldown: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -602,6 +620,8 @@ def _view_ids(
         view_ids.append(EVIDENCE_FRESHNESS_RELEASE_VALUE_CONTINUITY_VIEW_ID)
     if major_group_evidence_profile_readiness is not None:
         view_ids.append(MAJOR_GROUP_EVIDENCE_PROFILE_READINESS_VIEW_ID)
+    if indicator_dashboard_explanation_drilldown is not None:
+        view_ids.append(INDICATOR_DASHBOARD_EXPLANATION_DRILLDOWN_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -766,6 +786,9 @@ def _view_title(view_id: str) -> str:
         "major_group_evidence_profile_readiness": (
             "Major-Group Evidence Profile and Readiness Explanation"
         ),
+        "indicator_dashboard_explanation_drilldown": (
+            "Indicator-to-Dashboard Explanation Drill-down"
+        ),
     }[view_id]
 
 
@@ -803,6 +826,16 @@ def build_research_dashboard_bundle_with_major_group_evidence_profiles() -> dict
     return build_research_dashboard_bundle(
         major_group_evidence_profile_readiness=(
             build_major_group_evidence_profile_readiness_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_indicator_drilldown() -> dict[str, Any]:
+    """Build a bundle including the Phase62 indicator explanation drill-down."""
+
+    return build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=(
+            build_indicator_dashboard_explanation_drilldown_view_model()
         ),
     )
 
