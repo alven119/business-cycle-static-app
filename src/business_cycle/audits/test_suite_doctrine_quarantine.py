@@ -334,6 +334,18 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase60 closure script smoke test remains research-only",
     ),
+    "tests/test_major_group_evidence_profile_readiness.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase61 major-group profiles explain readiness without phase selection",
+    ),
+    "tests/test_phase61_major_group_evidence_profile_readiness_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase61 closure proves group profiles stay explanation-only",
+    ),
+    "tests/test_show_phase61_major_group_evidence_profile_readiness_closure_script.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase61 closure script smoke test remains research-only",
+    ),
     "tests/test_historical_accuracy_metrics.py": QuarantineEntry(
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="research-only historical label metric support, not final replay product",

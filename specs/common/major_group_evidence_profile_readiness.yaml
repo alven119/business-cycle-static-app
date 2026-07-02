@@ -1,0 +1,93 @@
+major_group_evidence_profile_readiness:
+  contract_id: major_group_evidence_profile_readiness_v1
+  contract_version: "1.0"
+  phase_id: 61
+  phase_label: major_group_evidence_profile_and_readiness_explanation
+  status: active_research_contract
+  purpose: >
+    Aggregate Phase60 indicator continuity cards into book major-group
+    readiness profiles. The profiles explain whether each group is blocked by
+    missing numeric values, authorized inputs, proxy/supporting-only context, or
+    incomplete source metadata. They are dashboard explanation inputs and not a
+    selector, score, rank, or formal phase decision.
+  dependencies:
+    phase60_continuity_surface: specs/common/evidence_freshness_release_value_continuity.yaml
+    major_group_contract: specs/audits/book_phase_major_group_contract.yaml
+    role_type_registry: specs/audits/book_core_role_type_registry.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  policy:
+    output_mode: research_only_major_group_evidence_profile_readiness
+    public_output_allowed: false
+    production_integration_enabled: false
+    methodology_requirements_must_not_count_as_indicator_gap: true
+    supporting_proxy_may_replace_book_core: false
+    missing_value_may_be_treated_as_neutral: false
+    metadata_only_may_be_treated_as_phase_support: false
+    group_profile_may_emit_phase_support: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+    phase_score_rank_or_winner_allowed: false
+    portfolio_or_trade_output_allowed: false
+  dashboard_view_model:
+    view_id: major_group_evidence_profile_readiness
+    view_title: Major-Group Evidence Profile and Readiness Explanation
+    allowed_uses:
+      - local_research_dashboard
+      - major_group_readiness_explanation
+      - transition_surface_context
+      - indicator_group_attribution
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - phase_score_or_rank_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  output_restrictions:
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - phase_score
+      - target_weight
+      - allocation_recommendation
+      - buy_signal
+      - sell_signal
+      - trade_action
+  hard_gates:
+    major_group_evidence_profile_readiness_ready: true
+    major_group_profile_count: 24
+    phase_count: 4
+    phase_with_major_group_profile_count: 4
+    profiled_role_count: 39
+    profiled_required_core_role_count: 37
+    profiled_supporting_role_count: 2
+    methodology_requirement_excluded_count: 1
+    missing_non_methodology_role_count: 0
+    required_core_group_profile_complete_count: 22
+    supporting_only_group_count: 2
+    group_with_value_context_count: 24
+    group_with_freshness_context_count: 24
+    group_with_release_timing_context_count: 24
+    group_with_readiness_explanation_count: 24
+    core_metadata_ready_value_missing_group_count: 16
+    core_authorized_input_required_group_count: 2
+    core_supporting_proxy_visible_not_book_core_group_count: 1
+    core_source_metadata_incomplete_abstain_group_count: 3
+    supporting_proxy_context_group_count: 3
+    group_ready_for_formal_phase_count: 0
+    group_with_current_numeric_value_count: 0
+    major_group_promoted_with_missing_core_count: 0
+    supporting_proxy_replacement_allowed_count: 0
+    missing_value_treated_as_neutral_count: 0
+    metadata_only_promoted_to_phase_support_count: 0
+    prohibited_output_field_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

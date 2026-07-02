@@ -20,6 +20,9 @@ from business_cycle.render.ordered_cycle_transition_lane_templates import (
 from business_cycle.render.evidence_freshness_release_value_continuity import (
     build_evidence_freshness_release_value_continuity_view_model,
 )
+from business_cycle.render.major_group_evidence_profile_readiness import (
+    build_major_group_evidence_profile_readiness_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -185,6 +188,31 @@ def test_research_dashboard_bundle_accepts_evidence_continuity_view_model() -> N
         bundle["evidence_freshness_release_value_continuity"][
             "current_phase_emitted"
         ]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_major_group_profile_view_model() -> None:
+    major_group_profiles = build_major_group_evidence_profile_readiness_view_model()
+    bundle = build_research_dashboard_bundle(
+        major_group_evidence_profile_readiness=major_group_profiles,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "major_group_evidence_profile_readiness" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["major_group_evidence_profile_readiness"]["research_only"] is True
+    assert (
+        bundle["major_group_evidence_profile_readiness"][
+            "candidate_phase_emitted"
+        ]
+        is False
+    )
+    assert (
+        bundle["major_group_evidence_profile_readiness"]["current_phase_emitted"]
         is False
     )
     assert validation["prohibited_action_field_count"] == 0
