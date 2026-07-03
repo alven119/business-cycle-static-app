@@ -3,12 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from business_cycle.portfolio import (
+    REQUIRED_TEMPLATE_IDS,
+    build_portfolio_policy_research_baseline,
     load_portfolio_policy_research_plan,
+    summarize_portfolio_policy_research_baseline,
     summarize_portfolio_policy_research_plan,
     validate_portfolio_policy_research_plan,
 )
 
 PLAN_PATH = Path("specs/portfolio/portfolio_policy_research_plan.yaml")
+BASELINE_PATH = Path("specs/portfolio/portfolio_policy_research_baseline_contract.yaml")
 
 
 def test_portfolio_policy_research_plan_yaml_can_be_loaded() -> None:
@@ -81,3 +85,39 @@ def test_portfolio_policy_research_plan_contains_no_investment_advice_caveat() -
     plan = load_portfolio_policy_research_plan(PLAN_PATH)
 
     assert any("不構成投資建議" in caveat for caveat in plan.caveats_zh)
+
+
+def test_phase75_portfolio_policy_research_baseline_passes() -> None:
+    summary = summarize_portfolio_policy_research_baseline(BASELINE_PATH)
+
+    assert summary["result"] == "passed"
+    assert summary["portfolio_policy_research_baseline_contract_ready"] is True
+    assert summary["required_policy_template_count"] == 8
+    assert summary["research_only_template_count"] == 8
+    assert summary["backtest_only_template_count"] == 8
+    assert summary["current_allocation_recommendation_count"] == 0
+    assert summary["trade_signal_output_count"] == 0
+    assert summary["live_allocation_output_count"] == 0
+    assert summary["backtest_execution_count"] == 0
+    assert summary["portfolio_policy_replay_execution_count"] == 0
+
+
+def test_phase75_portfolio_policy_research_baseline_template_ids() -> None:
+    summary = summarize_portfolio_policy_research_baseline(BASELINE_PATH)
+
+    assert set(summary["required_policy_template_ids"]) == REQUIRED_TEMPLATE_IDS
+    assert "passive_all_stock_baseline" in summary["required_policy_template_ids"]
+    assert "boom_70_50_30_template" in summary["required_policy_template_ids"]
+    assert "stock_long_treasury_advanced" in summary["required_policy_template_ids"]
+
+
+def test_phase75_portfolio_policy_research_baseline_forbidden_outputs() -> None:
+    baseline = build_portfolio_policy_research_baseline(BASELINE_PATH)
+    prohibited = set(baseline["output_policy"]["prohibited_outputs"])
+
+    assert {"buy_signal", "sell_signal", "trade_action"}.issubset(prohibited)
+    assert baseline["disabled_runtime_guards"]["backtest_execution_enabled"] is False
+    assert (
+        baseline["disabled_runtime_guards"]["portfolio_policy_replay_execution_enabled"]
+        is False
+    )

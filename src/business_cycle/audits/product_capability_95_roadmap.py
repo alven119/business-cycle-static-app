@@ -13,6 +13,11 @@ TARGET_CAPABILITY_IDS = {
     "C1_BUSINESS_CYCLE_PHASE_ASSESSMENT",
     "C2_TRANSITION_RISK_DETECTION",
     "C3_EXPLAINABILITY_AND_ATTRIBUTION",
+    "C4_PORTFOLIO_POLICY_RESEARCH",
+    "C5_HISTORICAL_REPLAY_AND_BACKTEST",
+    "C6_SAFE_OUTPUT_GOVERNANCE",
+    "F1_TEMPORAL_INTEGRITY_AND_ABSTENTION",
+    "F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION",
 }
 
 PROHIBITED_FRAGMENTS = {
@@ -49,18 +54,21 @@ def summarize_product_capability_95_roadmap(
     max_phase_count = int(roadmap["max_phase_count"])
     planned_phase_count = int(roadmap["planned_phase_count"])
     target_phase_id = int(roadmap["target_phase_id"])
-    post_target_enablers = list(roadmap.get("post_target_enablers", ()))
+    prior_enablers = list(roadmap.get("prior_enablers", ()))
     target_reach_count = sum(int(row["target_percent"]) >= 95 for row in target_rows)
     monotonic_targets = _monotonic_target_count(target_rows)
     prohibited_claim_count = _prohibited_claim_count(roadmap)
     expected = dict(roadmap["hard_gates"])
+    planned_phase_ids = [int(row["phase_id"]) for row in planned_phases]
+    prior_enabler_phase_ids = [int(row["phase_id"]) for row in prior_enablers]
     summary = {
         "roadmap_ready": target_ids == TARGET_CAPABILITY_IDS
         and planned_phase_count == len(planned_phases)
         and planned_phase_count <= max_phase_count
         and target_reach_count == len(target_rows)
         and monotonic_targets == len(target_rows)
-        and prohibited_claim_count == 0,
+        and prohibited_claim_count == 0
+        and planned_phase_ids == list(range(75, 85)),
         "version": roadmap["version"],
         "status": roadmap["status"],
         "baseline_phase_id": roadmap["baseline_phase_id"],
@@ -73,59 +81,69 @@ def summarize_product_capability_95_roadmap(
         "target_capability_ids": [row["capability_id"] for row in target_rows],
         "all_target_capabilities_reach_95": target_reach_count == len(target_rows),
         "monotonic_progress_targets": monotonic_targets == len(target_rows),
-        "planned_phase_ids": [int(row["phase_id"]) for row in planned_phases],
-        "post_target_enabler_count": len(post_target_enablers),
-        "post_target_enabler_phase_ids": [
-            int(row["phase_id"]) for row in post_target_enablers
-        ],
+        "planned_phase_ids": planned_phase_ids,
+        "prior_enabler_count": len(prior_enablers),
+        "prior_enabler_phase_ids": prior_enabler_phase_ids,
         "phase65_test_suite_reduction_enabler_present": any(
             int(row["phase_id"]) == 65
             and row.get("capability_percent_effect") == "no_percent_change_enabler"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase66_archive_shard_enabler_present": any(
             int(row["phase_id"]) == 66
             and row.get("capability_percent_effect") == "no_percent_change_enabler"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase67_transition_timing_enabler_present": any(
             int(row["phase_id"]) == 67
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase68_test_index_and_numeric_overlay_enabler_present": any(
             int(row["phase_id"]) == 68
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase69_start_confirmation_enabler_present": any(
             int(row["phase_id"]) == 69
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase70_registry_preview_enabler_present": any(
             int(row["phase_id"]) == 70
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase71_registry_update_gate_enabler_present": any(
             int(row["phase_id"]) == 71
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase72_current_macro_numeric_chart_enabler_present": any(
             int(row["phase_id"]) == 72
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
         "phase73_dashboard_method_explanation_enabler_present": any(
             int(row["phase_id"]) == 73
             and row.get("capability_percent_effect") == "product_surface_increment"
-            for row in post_target_enablers
+            for row in prior_enablers
         ),
-        "phase74_80_plan_recorded": {
-            int(row["phase_id"]) for row in post_target_enablers
-        }.issuperset(set(range(74, 81))),
+        "phase74_local_cache_enabler_present": any(
+            int(row["phase_id"]) == 74
+            and row.get("capability_percent_effect") == "product_surface_increment"
+            for row in prior_enablers
+        ),
+        "phase75_84_plan_recorded": planned_phase_ids == list(range(75, 85)),
+        "portfolio_policy_research_target_present": (
+            "C4_PORTFOLIO_POLICY_RESEARCH" in target_ids
+        ),
+        "historical_replay_backtest_target_present": (
+            "C5_HISTORICAL_REPLAY_AND_BACKTEST" in target_ids
+        ),
+        "model_governance_target_present": (
+            "F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION" in target_ids
+        ),
         "final_targets": {
             row["capability_id"]: int(row["target_percent"]) for row in target_rows
         },
@@ -136,11 +154,23 @@ def summarize_product_capability_95_roadmap(
         "phase_rank_or_score_added_count": int(
             roadmap["universal_guardrails"]["phase_rank_or_score_added_count"]
         ),
+        "role_count_voting_added_count": int(
+            roadmap["universal_guardrails"]["role_count_voting_added_count"]
+        ),
+        "current_allocation_recommendation_count": int(
+            roadmap["universal_guardrails"]["current_allocation_recommendation_count"]
+        ),
+        "trade_signal_output_count": int(
+            roadmap["universal_guardrails"]["trade_signal_output_count"]
+        ),
+        "production_behavior_change_count": int(
+            roadmap["universal_guardrails"]["production_behavior_change_count"]
+        ),
         "semantic_drift_count": 0,
         "prohibited_claim_count": prohibited_claim_count,
         "target_capabilities": target_rows,
         "planned_phases": planned_phases,
-        "post_target_enablers": post_target_enablers,
+        "prior_enablers": prior_enablers,
     }
     summary["result"] = "passed" if _passes(summary, expected) else "blocked"
     return summary

@@ -1,0 +1,151 @@
+portfolio_policy_research_baseline_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 75
+  contract_id: portfolio_policy_research_baseline_v1
+  objective_zh: >
+    建立 portfolio policy research 的最小完整 baseline。此 baseline 只定義
+    future research / replay / backtest 需要支援的 policy templates、輸入、
+    禁止輸出與安全 caveats；本 Phase 不執行 replay、不執行 backtest、
+    不提供目前配置建議。
+  capability_scope:
+    advanced_capabilities:
+      - C4_PORTFOLIO_POLICY_RESEARCH
+      - C5_HISTORICAL_REPLAY_AND_BACKTEST
+      - C6_SAFE_OUTPUT_GOVERNANCE
+      - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+    preserved_capabilities:
+      - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      - C2_TRANSITION_RISK_DETECTION
+      - C3_EXPLAINABILITY_AND_ATTRIBUTION
+  allowed_inputs:
+    - declared_cycle_state
+    - legal_transition_state
+    - transition_watch_or_confirmation_research_state
+    - historical_replay_scenario_metadata
+    - future_backtest_return_series_after_explicit_gate
+    - user_supplied_research_assumptions_after_explicit_gate
+  prohibited_inputs:
+    - current_trade_instruction
+    - private_holdings
+    - live_brokerage_account
+    - historical_label_answer_for_rule_tuning
+    - portfolio_return_for_transition_rule_tuning
+  required_policy_templates:
+    - template_id: passive_all_stock_baseline
+      template_family: book_benchmark_baseline
+      asset_universe:
+        - equity
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 被動全股票基準，用於比較 policy research，不是目前配置建議。
+    - template_id: stock_cash_initial
+      template_family: book_policy_template
+      asset_universe:
+        - equity
+        - cash
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 股票／現金初階模板，用於歷史研究與敏感度測試。
+    - template_id: stock_cash_advanced
+      template_family: book_policy_template
+      asset_universe:
+        - equity
+        - cash
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 股票／現金進階模板，用於研究不同週期階段的曝險路徑。
+    - template_id: stock_long_treasury_initial
+      template_family: book_policy_template
+      asset_universe:
+        - equity
+        - long_treasury
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 股票／長天期美債初階模板，用於研究防守資產替代 cash 的差異。
+    - template_id: stock_long_treasury_advanced
+      template_family: book_policy_template
+      asset_universe:
+        - equity
+        - long_treasury
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 股票／長天期美債進階模板，用於研究週期切換與再平衡路徑。
+    - template_id: boom_70_50_30_template
+      template_family: book_boom_research_template
+      asset_universe:
+        - equity
+        - defensive_asset_placeholder
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 榮景期 70/50/30 曝險研究模板；只作 future backtest parameter grid。
+    - template_id: recession_defense_research_template
+      template_family: doctrine_transition_research_template
+      asset_universe:
+        - equity
+        - cash
+        - long_treasury
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 衰退防守研究模板；需在 future replay/backtest gate 後才可運算。
+    - template_id: recovery_re_risk_research_template
+      template_family: doctrine_transition_research_template
+      asset_universe:
+        - equity
+        - cash
+        - long_treasury
+      research_only: true
+      backtest_only: true
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      description_zh: 復甦再承擔風險研究模板；不得由 recovery watch 直接產生行動。
+  output_policy:
+    allowed_outputs:
+      - template_id
+      - template_family
+      - research_assumption_summary
+      - allowed_uses
+      - prohibited_uses
+      - caveats
+      - required_future_inputs
+    prohibited_outputs:
+      - buy_signal
+      - sell_signal
+      - trade_action
+      - current_allocation_recommendation
+      - live_allocation
+      - guaranteed_return
+      - personal_portfolio_instruction
+  disabled_runtime_guards:
+    portfolio_policy_replay_execution_enabled: false
+    backtest_execution_enabled: false
+    production_portfolio_output_enabled: false
+    public_output_enabled: false
+    broker_or_trade_integration_enabled: false
+  hard_gates:
+    portfolio_policy_research_baseline_contract_ready: true
+    required_policy_template_count: 8
+    research_only_template_count: 8
+    backtest_only_template_count: 8
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    backtest_execution_count: 0
+    portfolio_policy_replay_execution_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

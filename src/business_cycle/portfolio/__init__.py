@@ -112,6 +112,12 @@ from business_cycle.portfolio.policy_research import (
     summarize_portfolio_policy_research_plan,
     validate_portfolio_policy_research_plan,
 )
+from business_cycle.portfolio.policy_research_baseline import (
+    PortfolioPolicyResearchBaselineError,
+    REQUIRED_TEMPLATE_IDS,
+    build_portfolio_policy_research_baseline,
+    summarize_portfolio_policy_research_baseline,
+)
 from business_cycle.portfolio.policy_templates import (
     PortfolioPolicyTemplateError,
     PortfolioPolicyTemplateFixtureValidationSummary,
@@ -167,6 +173,7 @@ __all__ = [
     "PortfolioBacktestInputFixtures",
     "PortfolioBacktestScenarioMapping",
     "PortfolioPolicyResearchPlan",
+    "PortfolioPolicyResearchBaselineError",
     "PortfolioPolicyResearchPlanError",
     "PortfolioPolicyTemplateError",
     "PortfolioPolicyTemplateFixtureValidationSummary",
@@ -174,6 +181,7 @@ __all__ = [
     "PortfolioPolicyTemplateSchema",
     "PortfolioResearchSafetyClosure",
     "PortfolioResearchSafetyClosureError",
+    "REQUIRED_TEMPLATE_IDS",
     "RealBacktestEngineContract",
     "RealBacktestEngineContractError",
     "RealBacktestExecutionReadinessClosure",
@@ -181,6 +189,7 @@ __all__ = [
     "RealBacktestPrototypeReadinessGate",
     "RealBacktestPrototypeReadinessGateError",
     "build_dry_run_output_for_input",
+    "build_portfolio_policy_research_baseline",
     "load_backtest_result_output_contract",
     "load_backtest_metric_formula_registry",
     "load_backtest_output_location_policy",
@@ -214,6 +223,7 @@ __all__ = [
     "summarize_backtest_result_output_contract",
     "summarize_portfolio_backtest_input_contract",
     "summarize_portfolio_backtest_dry_run_contract",
+    "summarize_portfolio_policy_research_baseline",
     "summarize_portfolio_policy_research_plan",
     "summarize_portfolio_research_safety_closure",
     "summarize_real_backtest_engine_contract",

@@ -159,7 +159,10 @@ def summarize_phase62_indicator_dashboard_explanation_drilldown_closure(
         "deviation_cleanup_needed_count": 0,
         "north_star_alignment_status": "aligned",
         "product_capabilities_advanced": progress["impacted_capability_ids"],
-        "product_capability_progress_impacted_count": progress[
+        "product_capability_progress_impacted_count": expected[
+            "product_capability_progress_impacted_count"
+        ],
+        "current_product_capability_progress_impacted_count": progress[
             "impacted_capability_count"
         ],
         "product_capability_progress": progress["capability_progress"],

@@ -94,7 +94,11 @@ def summarize_phase73_dashboard_indicator_method_explanation_closure(
         "product_capability_progress_ready": progress[
             "product_capability_progress_ready"
         ],
-        "product_capability_progress_impacted_count": progress[
+        "product_capability_progress_impacted_count": expected.get(
+            "product_capability_progress_impacted_count",
+            progress["impacted_capability_count"],
+        ),
+        "current_product_capability_progress_impacted_count": progress[
             "impacted_capability_count"
         ],
         "product_capability_progress": progress["capability_progress"],

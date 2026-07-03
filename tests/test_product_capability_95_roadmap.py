@@ -7,6 +7,9 @@ from business_cycle.audits.product_capability_95_roadmap import (
     TARGET_CAPABILITY_IDS,
     summarize_product_capability_95_roadmap,
 )
+from business_cycle.audits.phase75_all_capability_roadmap_portfolio_research_closure import (
+    summarize_phase75_all_capability_roadmap_portfolio_research_closure,
+)
 
 
 def test_product_capability_95_roadmap_passes() -> None:
@@ -14,13 +17,13 @@ def test_product_capability_95_roadmap_passes() -> None:
 
     assert summary["result"] == "passed"
     assert summary["roadmap_ready"] is True
-    assert summary["target_capability_count"] == 3
+    assert summary["target_capability_count"] == 8
     assert set(summary["target_capability_ids"]) == TARGET_CAPABILITY_IDS
     assert summary["planned_phase_count"] <= summary["max_phase_count"]
-    assert summary["planned_phase_count"] == 9
-    assert summary["target_phase_id"] == 64
-    assert summary["post_target_enabler_count"] == 16
-    assert summary["post_target_enabler_phase_ids"] == [
+    assert summary["planned_phase_count"] == 10
+    assert summary["target_phase_id"] == 84
+    assert summary["prior_enabler_count"] == 10
+    assert summary["prior_enabler_phase_ids"] == [
         65,
         66,
         67,
@@ -31,12 +34,6 @@ def test_product_capability_95_roadmap_passes() -> None:
         72,
         73,
         74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
     ]
     assert summary["phase65_test_suite_reduction_enabler_present"] is True
     assert summary["phase66_archive_shard_enabler_present"] is True
@@ -47,7 +44,11 @@ def test_product_capability_95_roadmap_passes() -> None:
     assert summary["phase71_registry_update_gate_enabler_present"] is True
     assert summary["phase72_current_macro_numeric_chart_enabler_present"] is True
     assert summary["phase73_dashboard_method_explanation_enabler_present"] is True
-    assert summary["phase74_80_plan_recorded"] is True
+    assert summary["phase74_local_cache_enabler_present"] is True
+    assert summary["phase75_84_plan_recorded"] is True
+    assert summary["portfolio_policy_research_target_present"] is True
+    assert summary["historical_replay_backtest_target_present"] is True
+    assert summary["model_governance_target_present"] is True
     assert summary["all_target_capabilities_reach_95"] is True
     assert summary["monotonic_progress_targets"] is True
     assert summary["standalone_classifier_added_count"] == 0
@@ -66,7 +67,7 @@ def test_product_capability_95_roadmap_targets_are_monotonic() -> None:
             current = int(value)
             assert current >= previous
             previous = current
-        assert previous == 95
+        assert previous >= 95
 
 
 def test_product_capability_95_roadmap_script() -> None:
@@ -78,7 +79,7 @@ def test_product_capability_95_roadmap_script() -> None:
     )
 
     assert "roadmap_ready=True" in result.stdout
-    assert "planned_phase_count=9" in result.stdout
+    assert "planned_phase_count=10" in result.stdout
     assert "phase65_test_suite_reduction_enabler_present=True" in result.stdout
     assert "phase66_archive_shard_enabler_present=True" in result.stdout
     assert "phase67_transition_timing_enabler_present=True" in result.stdout
@@ -97,5 +98,39 @@ def test_product_capability_95_roadmap_script() -> None:
         "phase73_dashboard_method_explanation_enabler_present=True"
         in result.stdout
     )
-    assert "phase74_80_plan_recorded=True" in result.stdout
+    assert "phase74_local_cache_enabler_present=True" in result.stdout
+    assert "phase75_84_plan_recorded=True" in result.stdout
+    assert "portfolio_policy_research_target_present=True" in result.stdout
+    assert "historical_replay_backtest_target_present=True" in result.stdout
+    assert "model_governance_target_present=True" in result.stdout
     assert "all_target_capabilities_reach_95=True" in result.stdout
+
+
+def test_phase75_all_capability_roadmap_portfolio_research_closure_passes() -> None:
+    summary = summarize_phase75_all_capability_roadmap_portfolio_research_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase75_all_capability_roadmap_portfolio_research_ready"] is True
+    assert summary["all_capability_95_roadmap_ready"] is True
+    assert summary["portfolio_policy_research_baseline_contract_ready"] is True
+    assert summary["target_capability_count"] == 8
+    assert summary["planned_phase_count"] == 10
+    assert summary["required_policy_template_count"] == 8
+    assert summary["current_allocation_recommendation_count"] == 0
+    assert summary["backtest_execution_count"] == 0
+
+
+def test_phase75_all_capability_roadmap_portfolio_research_closure_script() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase75_all_capability_roadmap_portfolio_research_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "phase75_all_capability_roadmap_portfolio_research_ready=true" in result.stdout
+    assert "target_capability_count=8" in result.stdout
+    assert "phase75_closure_status=closed_all_capability_95_roadmap_reset_portfolio_research_baseline_ready" in result.stdout

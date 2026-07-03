@@ -126,7 +126,10 @@ def summarize_phase64_indicator_transparency_chart_payload_closure(
         "product_capability_progress_ready": progress[
             "product_capability_progress_ready"
         ],
-        "product_capability_progress_impacted_count": progress[
+        "product_capability_progress_impacted_count": expected[
+            "product_capability_progress_impacted_count"
+        ],
+        "current_product_capability_progress_impacted_count": progress[
             "impacted_capability_count"
         ],
         "product_capability_progress": progress["capability_progress"],

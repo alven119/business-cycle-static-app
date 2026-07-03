@@ -1,0 +1,38 @@
+phase75_all_capability_roadmap_portfolio_research_closure:
+  version: "1.0"
+  status: active
+  phase_id: 75
+  phase_label: all_capability_95_roadmap_reset_portfolio_research_baseline
+  dependencies:
+    product_capability_95_roadmap: specs/common/product_capability_95_roadmap.yaml
+    product_capability_progress: specs/common/product_capability_progress.yaml
+    portfolio_policy_research_baseline: specs/portfolio/portfolio_policy_research_baseline_contract.yaml
+  hard_gates:
+    phase75_all_capability_roadmap_portfolio_research_ready: true
+    all_capability_95_roadmap_ready: true
+    portfolio_policy_research_baseline_contract_ready: true
+    target_capability_count: 8
+    planned_phase_count: 10
+    target_phase_id: 84
+    phase75_84_plan_recorded: true
+    all_target_capabilities_reach_95: true
+    monotonic_progress_targets: true
+    required_policy_template_count: 8
+    research_only_template_count: 8
+    backtest_only_template_count: 8
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    backtest_execution_count: 0
+    portfolio_policy_replay_execution_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 8
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: all_capability_roadmap_ready_declared_state_preserved
+    portfolio_policy_research_alignment: research_templates_preregistered_no_current_allocation
+    historical_replay_backtest_alignment: future_replay_backtest_inputs_preregistered_no_execution
+    phase75_closure_status: closed_all_capability_95_roadmap_reset_portfolio_research_baseline_ready

@@ -40,6 +40,24 @@ def test_show_portfolio_policy_research_plan_missing_path_fails(tmp_path: Path) 
     assert "Portfolio policy research plan file does not exist" in completed.stderr
 
 
+def test_show_portfolio_policy_research_baseline_outputs_summary() -> None:
+    completed = subprocess.run(
+        [sys.executable, "scripts/show_portfolio_policy_research_baseline.py"],
+        cwd=Path(__file__).resolve().parents[1],
+        env={"PATH": ""},
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "portfolio_policy_research_baseline_contract_ready=true" in completed.stdout
+    assert "required_policy_template_count=8" in completed.stdout
+    assert "research_only_template_count=8" in completed.stdout
+    assert "backtest_execution_count=0" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
 def run_script(*args: str) -> subprocess.CompletedProcess[str]:
     project_root = Path(__file__).resolve().parents[1]
     return subprocess.run(
