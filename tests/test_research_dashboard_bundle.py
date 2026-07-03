@@ -26,6 +26,9 @@ from business_cycle.render.major_group_evidence_profile_readiness import (
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
 )
+from business_cycle.render.transition_timing_replay_preview import (
+    build_transition_timing_replay_preview_view_model,
+)
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
@@ -243,4 +246,23 @@ def test_research_dashboard_bundle_accepts_indicator_drilldown_view_model() -> N
         bundle["indicator_dashboard_explanation_drilldown"]["current_phase_emitted"]
         is False
     )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_transition_timing_replay_preview() -> None:
+    preview = build_transition_timing_replay_preview_view_model()
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        transition_timing_replay_preview=preview,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "transition_timing_replay_preview" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["transition_timing_replay_preview"]["research_only"] is True
+    assert bundle["transition_timing_replay_preview"]["candidate_phase_emitted"] is False
+    assert bundle["transition_timing_replay_preview"]["current_phase_emitted"] is False
     assert validation["prohibited_action_field_count"] == 0

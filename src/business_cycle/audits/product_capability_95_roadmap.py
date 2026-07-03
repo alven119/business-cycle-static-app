@@ -88,6 +88,11 @@ def summarize_product_capability_95_roadmap(
             and row.get("capability_percent_effect") == "no_percent_change_enabler"
             for row in post_target_enablers
         ),
+        "phase67_transition_timing_enabler_present": any(
+            int(row["phase_id"]) == 67
+            and row.get("capability_percent_effect") == "product_surface_increment"
+            for row in post_target_enablers
+        ),
         "final_targets": {
             row["capability_id"]: int(row["target_percent"]) for row in target_rows
         },

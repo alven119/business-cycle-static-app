@@ -36,6 +36,9 @@ from business_cycle.render.major_group_evidence_profile_readiness import (
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
 )
+from business_cycle.render.transition_timing_replay_preview import (
+    build_transition_timing_replay_preview_view_model,
+)
 from business_cycle.validation.post_pit_remediation_validation_rerun import (
     build_post_pit_remediation_validation_rerun,
 )
@@ -95,6 +98,7 @@ MAJOR_GROUP_EVIDENCE_PROFILE_READINESS_VIEW_ID = (
 INDICATOR_DASHBOARD_EXPLANATION_DRILLDOWN_VIEW_ID = (
     "indicator_dashboard_explanation_drilldown"
 )
+TRANSITION_TIMING_REPLAY_PREVIEW_VIEW_ID = "transition_timing_replay_preview"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -130,6 +134,7 @@ def build_research_dashboard_bundle(
     evidence_freshness_release_value_continuity: dict[str, Any] | None = None,
     major_group_evidence_profile_readiness: dict[str, Any] | None = None,
     indicator_dashboard_explanation_drilldown: dict[str, Any] | None = None,
+    transition_timing_replay_preview: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -163,6 +168,7 @@ def build_research_dashboard_bundle(
         indicator_dashboard_explanation_drilldown=(
             indicator_dashboard_explanation_drilldown
         ),
+        transition_timing_replay_preview=transition_timing_replay_preview,
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -351,6 +357,11 @@ def build_research_dashboard_bundle(
         )
         bundle["source_runs"]["phase62_indicator_dashboard_explanation_drilldown"] = (
             indicator_dashboard_explanation_drilldown["view_id"]
+        )
+    if transition_timing_replay_preview is not None:
+        bundle["transition_timing_replay_preview"] = transition_timing_replay_preview
+        bundle["source_runs"]["phase67_transition_timing_replay_preview"] = (
+            transition_timing_replay_preview["view_id"]
         )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
@@ -604,6 +615,7 @@ def _view_ids(
     evidence_freshness_release_value_continuity: dict[str, Any] | None,
     major_group_evidence_profile_readiness: dict[str, Any] | None,
     indicator_dashboard_explanation_drilldown: dict[str, Any] | None,
+    transition_timing_replay_preview: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -622,6 +634,8 @@ def _view_ids(
         view_ids.append(MAJOR_GROUP_EVIDENCE_PROFILE_READINESS_VIEW_ID)
     if indicator_dashboard_explanation_drilldown is not None:
         view_ids.append(INDICATOR_DASHBOARD_EXPLANATION_DRILLDOWN_VIEW_ID)
+    if transition_timing_replay_preview is not None:
+        view_ids.append(TRANSITION_TIMING_REPLAY_PREVIEW_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -789,6 +803,7 @@ def _view_title(view_id: str) -> str:
         "indicator_dashboard_explanation_drilldown": (
             "Indicator-to-Dashboard Explanation Drill-down"
         ),
+        "transition_timing_replay_preview": "Transition Timing Replay Preview",
     }[view_id]
 
 
@@ -836,6 +851,19 @@ def build_research_dashboard_bundle_with_indicator_drilldown() -> dict[str, Any]
     return build_research_dashboard_bundle(
         indicator_dashboard_explanation_drilldown=(
             build_indicator_dashboard_explanation_drilldown_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_transition_timing_replay_preview() -> dict[str, Any]:
+    """Build a bundle including the Phase67 transition timing preview."""
+
+    return build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=(
+            build_indicator_dashboard_explanation_drilldown_view_model()
+        ),
+        transition_timing_replay_preview=(
+            build_transition_timing_replay_preview_view_model()
         ),
     )
 

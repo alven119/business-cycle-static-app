@@ -294,6 +294,18 @@ def _verify_rendered_html_pages(
             "data-role-search",
         ):
             required_missing += int(token not in combined)
+    if (
+        "transition_timing_replay_preview" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-transition-timing-replay-preview",
+            "data-transition-replay-checkpoint",
+            "data-transition-lane-timing-preview",
+            "data-transition-accumulation-event",
+            "data-transition-replay-boundary",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -785,6 +797,7 @@ def _boom_transition_page(bundle: dict[str, Any]) -> str:
 
 def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     drilldown = bundle["indicator_dashboard_explanation_drilldown"]
+    replay_preview = bundle.get("transition_timing_replay_preview")
     group_cards = "".join(
         _latest_major_group_card(group)
         for group in drilldown["major_group_drilldowns"]
@@ -830,6 +843,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
       <div class="metric-grid">{phase_counts}</div>
       <div class="metric-grid">{continuity_counts}</div>
     </section>
+    {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
       <h2>Major group drilldowns</h2>
       <p class="muted">Each group links to the underlying role cards. A group can be explainable while still not ready for a formal phase decision.</p>
@@ -1305,6 +1319,76 @@ def _latest_evidence_entry(bundle: dict[str, Any]) -> str:
         <span>{drilldown["major_group_drilldown_count"]} groups / {drilldown["role_drilldown_count"]} roles</span>
         <a href="{LATEST_EVIDENCE_PAGE}">Open latest evidence</a>
       </div>
+    """
+
+
+def _transition_timing_replay_preview_section(preview: dict[str, Any] | None) -> str:
+    if preview is None:
+        return ""
+    checkpoints = "".join(
+        f"""
+        <article class="mini-card" data-transition-replay-checkpoint="{_text(row["checkpoint_id"])}">
+          <strong>{_text(row["title_zh"])}</strong>
+          <p class="muted">{_text(row["checkpoint_semantics_zh"])}</p>
+        </article>
+        """
+        for row in preview["transition_replay_checkpoints"]
+    )
+    lanes = "".join(
+        f"""
+        <article class="mini-card" data-transition-lane-timing-preview="{_text(row["lane_id"])}">
+          <strong>{_text(row["title_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Transition</dt><dd>{_text(row["transition_id"])}</dd>
+            <dt>Lane</dt><dd>{_text(row["lane_category"])}</dd>
+            <dt>Status</dt><dd>{_status_badge(row["timing_preview_status"])}</dd>
+            <dt>Groups</dt><dd>{len(row["major_group_profile_refs"])}</dd>
+            <dt>Roles</dt><dd>{len(row["continuity_role_refs"])}</dd>
+          </dl>
+          <p>{_text(row["accumulation_interpretation_zh"])}</p>
+        </article>
+        """
+        for row in preview["transition_lane_timing_previews"]
+    )
+    events = "".join(
+        f"""
+        <tr data-transition-accumulation-event="{_text(row["checkpoint_id"])}::{_text(row["lane_id"])}">
+          <td>{_text(row["checkpoint_id"])}</td>
+          <td>{_text(row["transition_id"])}</td>
+          <td>{_text(row["lane_id"])}</td>
+          <td>{_status_badge(row["accumulation_status"])}</td>
+          <td>{_text(row["abstention_state"])}</td>
+        </tr>
+        """
+        for row in preview["evidence_accumulation_events"][:12]
+    )
+    return f"""
+    <section class="panel" data-transition-timing-replay-preview>
+      <div class="section-heading">
+        <h2>Transition timing replay preview</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This preview shows how transition evidence would be accumulated across governed checkpoints. It does not run historical validation, compute accuracy, select a candidate phase, or infer the current phase.</p>
+      <div class="status-strip" data-transition-replay-boundary>
+        <span>declared state preserved</span>
+        <span>watch is not confirmation</span>
+        <span>missing values abstain</span>
+        <span>no phase score or rank</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Checkpoints", preview["transition_replay_checkpoint_count"], "replay preview")}
+        {_metric_card("Lane previews", preview["transition_lane_timing_preview_count"], "legal transitions")}
+        {_metric_card("Accumulation events", preview["evidence_accumulation_event_count"], "research-only")}
+      </div>
+      <div class="mini-grid">{checkpoints}</div>
+      <div class="transition-lane-grid">{lanes}</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Checkpoint</th><th>Transition</th><th>Lane</th><th>Status</th><th>Abstention</th></tr></thead>
+          <tbody>{events}</tbody>
+        </table>
+      </div>
+    </section>
     """
 
 

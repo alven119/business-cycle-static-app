@@ -35,9 +35,9 @@ DEFAULT_PRODUCT_CORE_TEST_FILES = frozenset(
         "tests/test_github_pages_workflow.py",
         "tests/test_product_doctrine_enforcement.py",
         "tests/test_test_suite_doctrine_quarantine.py",
-        "tests/test_test_suite_doctrine_markers.py",
         "tests/test_test_suite_reduction_plan.py",
         "tests/test_archive_regression_shards.py",
+        "tests/test_github_actions_test_efficiency.py",
         "tests/test_product_capability_progress.py",
         "tests/test_product_capability_95_roadmap.py",
         "tests/test_declared_cycle_state_registry.py",
@@ -47,6 +47,7 @@ DEFAULT_PRODUCT_CORE_TEST_FILES = frozenset(
         "tests/test_current_freshness_semantics.py",
         "tests/test_boom_transition_monitor.py",
         "tests/test_boom_transition_view_model.py",
+        "tests/test_transition_timing_replay_preview.py",
         "tests/test_boom_transition_evidence_wiring.py",
         "tests/test_boom_transition_dashboard_surface.py",
         "tests/test_indicator_detail_source_risk_value_rendering.py",
@@ -56,7 +57,6 @@ DEFAULT_PRODUCT_CORE_TEST_FILES = frozenset(
         "tests/test_evidence_freshness_release_value_continuity.py",
         "tests/test_macro_indicator_coverage_readiness_matrix.py",
         "tests/test_official_macro_source_adapter_wiring.py",
-        "tests/test_low_cost_macro_source_completion.py",
         "tests/test_composite_transition_surface_value_wiring.py",
         "tests/test_research_validation_dashboard_latest_evidence.py",
         "tests/test_research_dashboard_bundle.py",
@@ -215,6 +215,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor"),
         rationale="boom transition view model labels watch/confirmation as research-only",
     ),
+    "tests/test_transition_timing_replay_preview.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase67 transition timing replay preview preserves accumulation semantics without phase selection",
+    ),
     "tests/test_boom_transition_evidence_wiring.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor"),
         rationale="Phase48 wiring maps priority macro evidence to transition lanes",
@@ -286,6 +290,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
     "tests/test_test_suite_reduction_plan.py": QuarantineEntry(
         markers=("doctrine_aligned", "governance_scaffold", "safety"),
         rationale="Phase65 default-suite reduction preserves product-core coverage and archives old regressions",
+    ),
+    "tests/test_github_actions_test_efficiency.py": QuarantineEntry(
+        markers=("doctrine_aligned", "governance_scaffold", "safety"),
+        rationale="Phase67 verifies GitHub Actions use reduced product-core and sharded archive suites",
     ),
     "tests/test_phase52_official_macro_source_adapter_wiring_closure.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),

@@ -1,0 +1,75 @@
+transition_timing_replay_preview:
+  contract_id: transition_timing_replay_preview_v1
+  contract_version: "1.0"
+  phase_id: 67
+  status: active_research_only_view_model_contract
+  objective_zh: >
+    將 ordered-cycle transition lane templates、major-group readiness 與
+    freshness/release/value continuity 組成 dashboard-ready 的 transition timing
+    replay preview。此 preview 只呈現 evidence accumulation 的時序容器與缺口，
+    不執行 historical validation、backtest、candidate selection 或 current phase
+    inference。
+  allowed_inputs:
+    - specs/common/full_ordered_cycle_transition_lane_templates.yaml
+    - specs/common/evidence_freshness_release_value_continuity.yaml
+    - specs/common/major_group_evidence_profile_readiness.yaml
+    - specs/common/declared_cycle_state_registry.yaml
+  prohibited_inputs:
+    - historical_validation_labels
+    - nber_recession_dates
+    - scenario_answers
+    - portfolio_returns
+    - production_resolver_outputs
+    - legacy_phase_scores
+  preview_checkpoints:
+    - checkpoint_id: governed_declared_state
+      title_zh: 受治理 declared state
+      checkpoint_semantics_zh: 只顯示 declared phase 與 legal next phase，不推論現在階段。
+    - checkpoint_id: current_metadata_snapshot
+      title_zh: 目前 metadata / release context
+      checkpoint_semantics_zh: 顯示各 lane 目前可用的 metadata、freshness 與缺值狀態。
+    - checkpoint_id: next_release_watch_window
+      title_zh: 下一批 release watch window
+      checkpoint_semantics_zh: 標示後續應觀察哪些 lane，但不預測轉折日期。
+  output_policy:
+    output_mode: research_only_transition_timing_replay_preview
+    dashboard_ready: true
+    public_output_allowed: false
+    repo_output_allowed: false
+    candidate_phase_output_allowed: false
+    current_phase_output_allowed: false
+    metric_computation_allowed: false
+    backtest_execution_allowed: false
+  dashboard_view_model:
+    view_id: transition_timing_replay_preview
+    allowed_uses:
+      - local_research_dashboard
+      - transition_evidence_accumulation_review
+      - evidence_gap_explanation
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - phase_score_or_rank_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  hard_gates:
+    transition_timing_replay_preview_ready: true
+    legal_cycle_order_valid: true
+    transition_replay_checkpoint_count: 3
+    transition_template_count: 4
+    transition_lane_timing_preview_count: 13
+    evidence_accumulation_event_count: 39
+    watch_confirmation_separation_valid: true
+    missing_value_treated_as_neutral_count: 0
+    metadata_only_promoted_to_phase_support_count: 0
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    historical_validation_executed: false
+    backtest_execution_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

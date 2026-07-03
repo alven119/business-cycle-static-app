@@ -48,10 +48,12 @@ jobs:
             tests/test_github_pages_workflow.py \
             tests/test_test_suite_reduction_plan.py \
             tests/test_archive_regression_shards.py \
+            tests/test_github_actions_test_efficiency.py \
             tests/test_product_doctrine_enforcement.py \
             tests/test_declared_cycle_state_registry.py \
             tests/test_ordered_cycle_state_machine.py \
             tests/test_boom_transition_monitor.py \
+            tests/test_transition_timing_replay_preview.py \
             tests/test_indicator_dashboard_explanation_drilldown.py \
             tests/test_research_dashboard_bundle.py
 

@@ -291,6 +291,26 @@ product_capability_95_roadmap:
         - archive_file_coverage_complete=true
         - nightly_matrix_ready=true
         - live_optional_excluded_from_shards=true
+    - phase_id: 67
+      phase_title: Transition timing replay preview and CI efficiency verification
+      objective_zh: >
+        將 transition timing replay preview 接入 dashboard bundle 與
+        latest-evidence 頁面，同時以 GitHub Actions efficiency audit 確認
+        fast/full/nightly workflow 真的使用 product-core suite 與 archive
+        shard matrix。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - transition_timing_replay_preview_ready=true
+        - github_actions_test_efficiency_ready=true
+        - default_product_core_test_file_count=30
+        - nightly_archive_shard_count=8
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

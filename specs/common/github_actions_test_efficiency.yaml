@@ -1,0 +1,52 @@
+github_actions_test_efficiency:
+  contract_id: github_actions_test_efficiency_v1
+  contract_version: "1.0"
+  phase_id: 67
+  status: active_ci_efficiency_contract
+  objective_zh: >
+    驗證 GitHub Actions 已採用 product-core default pytest、fast critical subset、
+    full current closure gates 與 nightly archive shard matrix。此 contract 不刪測試、
+    不放寬 safety scans，目標是確保測試縮減確實反映在 GitHub workflow。
+  workflow_paths:
+    fast_ci: .github/workflows/fast-ci.yml
+    full_ci: .github/workflows/full-ci.yml
+    nightly_ci: .github/workflows/nightly-ci.yml
+  required_fast_ci_core_tests:
+    - tests/test_ci_safety_scans.py
+    - tests/test_ci_workflows.py
+    - tests/test_github_pages_workflow.py
+    - tests/test_test_suite_reduction_plan.py
+    - tests/test_archive_regression_shards.py
+    - tests/test_github_actions_test_efficiency.py
+    - tests/test_product_doctrine_enforcement.py
+    - tests/test_declared_cycle_state_registry.py
+    - tests/test_ordered_cycle_state_machine.py
+    - tests/test_boom_transition_monitor.py
+    - tests/test_transition_timing_replay_preview.py
+    - tests/test_indicator_dashboard_explanation_drilldown.py
+    - tests/test_research_dashboard_bundle.py
+  required_nightly_shards:
+    - legacy_v1_compatibility
+    - phase_closure_history
+    - historical_validation_replay
+    - portfolio_policy_research
+    - source_provider_cache
+    - book_core_shadow_governance
+    - dashboard_rendering_archive
+    - infrastructure_misc_archive
+  hard_gates:
+    github_actions_test_efficiency_ready: true
+    workflow_yaml_parseable_count: 3
+    dependency_cache_workflow_count: 3
+    concurrency_workflow_count: 3
+    fast_ci_critical_subset_ready: true
+    full_ci_uses_default_product_core_pytest: true
+    nightly_ci_uses_archive_shard_matrix: true
+    nightly_archive_shard_count: 8
+    nightly_monolithic_archive_pytest_count: 0
+    default_product_core_test_file_count: 30
+    archive_shard_count: 8
+    workflow_git_mutation_count: 0
+    safety_scan_workflow_count: 3
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

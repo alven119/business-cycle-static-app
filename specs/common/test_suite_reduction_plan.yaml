@@ -14,9 +14,9 @@ test_suite_reduction_plan:
     - tests/test_github_pages_workflow.py
     - tests/test_product_doctrine_enforcement.py
     - tests/test_test_suite_doctrine_quarantine.py
-    - tests/test_test_suite_doctrine_markers.py
     - tests/test_test_suite_reduction_plan.py
     - tests/test_archive_regression_shards.py
+    - tests/test_github_actions_test_efficiency.py
     - tests/test_product_capability_progress.py
     - tests/test_product_capability_95_roadmap.py
     - tests/test_declared_cycle_state_registry.py
@@ -26,6 +26,7 @@ test_suite_reduction_plan:
     - tests/test_current_freshness_semantics.py
     - tests/test_boom_transition_monitor.py
     - tests/test_boom_transition_view_model.py
+    - tests/test_transition_timing_replay_preview.py
     - tests/test_boom_transition_evidence_wiring.py
     - tests/test_boom_transition_dashboard_surface.py
     - tests/test_indicator_detail_source_risk_value_rendering.py
@@ -35,7 +36,6 @@ test_suite_reduction_plan:
     - tests/test_evidence_freshness_release_value_continuity.py
     - tests/test_macro_indicator_coverage_readiness_matrix.py
     - tests/test_official_macro_source_adapter_wiring.py
-    - tests/test_low_cost_macro_source_completion.py
     - tests/test_composite_transition_surface_value_wiring.py
     - tests/test_research_validation_dashboard_latest_evidence.py
     - tests/test_research_dashboard_bundle.py
@@ -69,8 +69,8 @@ test_suite_reduction_plan:
     capability_percent_policy: >
       Phase65 是交付速度與測試治理 enabler，不提高或降低產品能力百分比。
       後續 Phase 仍以 C1/C2/C3/dashboard 達到 95%-100% 為目標。
-    next_enabler_phase_id: 66
-    next_enabler_phase_label: archive_regression_shards_and_nightly_matrix
+    next_enabler_phase_id: 67
+    next_enabler_phase_label: transition_timing_replay_preview_and_ci_efficiency
   prohibited_changes:
     - remove_product_core_tests_without_replacement
     - classify_legacy_v1_as_mature_product

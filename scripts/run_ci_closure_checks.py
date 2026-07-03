@@ -15,6 +15,8 @@ FULL_CLOSURE_SCRIPTS = (
     "scripts/show_archive_regression_shards.py",
     "scripts/show_product_capability_progress.py",
     "scripts/show_product_capability_95_roadmap.py",
+    "scripts/show_github_actions_test_efficiency.py",
+    "scripts/show_phase67_transition_timing_replay_preview_closure.py",
     "scripts/show_qa12_major_group_manual_start_closure.py",
     "scripts/run_qa0_integrity_audit.py",
 )
@@ -24,6 +26,8 @@ NIGHTLY_CLOSURE_SCRIPTS = (
     "scripts/audit_test_suite_doctrine_quarantine.py",
     "scripts/show_test_suite_reduction_plan.py",
     "scripts/show_archive_regression_shards.py",
+    "scripts/show_github_actions_test_efficiency.py",
+    "scripts/show_phase67_transition_timing_replay_preview_closure.py",
     "scripts/show_phase64_indicator_transparency_chart_payload_closure.py",
     "scripts/show_phase63_latest_evidence_dashboard_wiring_closure.py",
     "scripts/show_phase62_indicator_dashboard_explanation_drilldown_closure.py",

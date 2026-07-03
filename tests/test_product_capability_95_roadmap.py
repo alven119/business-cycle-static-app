@@ -19,10 +19,11 @@ def test_product_capability_95_roadmap_passes() -> None:
     assert summary["planned_phase_count"] <= summary["max_phase_count"]
     assert summary["planned_phase_count"] == 9
     assert summary["target_phase_id"] == 64
-    assert summary["post_target_enabler_count"] == 2
-    assert summary["post_target_enabler_phase_ids"] == [65, 66]
+    assert summary["post_target_enabler_count"] == 3
+    assert summary["post_target_enabler_phase_ids"] == [65, 66, 67]
     assert summary["phase65_test_suite_reduction_enabler_present"] is True
     assert summary["phase66_archive_shard_enabler_present"] is True
+    assert summary["phase67_transition_timing_enabler_present"] is True
     assert summary["all_target_capabilities_reach_95"] is True
     assert summary["monotonic_progress_targets"] is True
     assert summary["standalone_classifier_added_count"] == 0
@@ -56,4 +57,5 @@ def test_product_capability_95_roadmap_script() -> None:
     assert "planned_phase_count=9" in result.stdout
     assert "phase65_test_suite_reduction_enabler_present=True" in result.stdout
     assert "phase66_archive_shard_enabler_present=True" in result.stdout
+    assert "phase67_transition_timing_enabler_present=True" in result.stdout
     assert "all_target_capabilities_reach_95=True" in result.stdout
