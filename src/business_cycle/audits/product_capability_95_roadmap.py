@@ -49,6 +49,7 @@ def summarize_product_capability_95_roadmap(
     max_phase_count = int(roadmap["max_phase_count"])
     planned_phase_count = int(roadmap["planned_phase_count"])
     target_phase_id = int(roadmap["target_phase_id"])
+    post_target_enablers = list(roadmap.get("post_target_enablers", ()))
     target_reach_count = sum(int(row["target_percent"]) >= 95 for row in target_rows)
     monotonic_targets = _monotonic_target_count(target_rows)
     prohibited_claim_count = _prohibited_claim_count(roadmap)
@@ -73,6 +74,15 @@ def summarize_product_capability_95_roadmap(
         "all_target_capabilities_reach_95": target_reach_count == len(target_rows),
         "monotonic_progress_targets": monotonic_targets == len(target_rows),
         "planned_phase_ids": [int(row["phase_id"]) for row in planned_phases],
+        "post_target_enabler_count": len(post_target_enablers),
+        "post_target_enabler_phase_ids": [
+            int(row["phase_id"]) for row in post_target_enablers
+        ],
+        "phase65_test_suite_reduction_enabler_present": any(
+            int(row["phase_id"]) == 65
+            and row.get("capability_percent_effect") == "no_percent_change_enabler"
+            for row in post_target_enablers
+        ),
         "final_targets": {
             row["capability_id"]: int(row["target_percent"]) for row in target_rows
         },
@@ -87,6 +97,7 @@ def summarize_product_capability_95_roadmap(
         "prohibited_claim_count": prohibited_claim_count,
         "target_capabilities": target_rows,
         "planned_phases": planned_phases,
+        "post_target_enablers": post_target_enablers,
     }
     summary["result"] = "passed" if _passes(summary, expected) else "blocked"
     return summary

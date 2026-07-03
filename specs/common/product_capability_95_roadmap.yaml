@@ -254,6 +254,25 @@ product_capability_95_roadmap:
         - declared_state_dashboard_production_use_rehearsal_ready=true
         - prioritized_capability_target_percent_reached=true
         - production_behavior_change_count=0
+  post_target_enablers:
+    - phase_id: 65
+      phase_title: Default product-core test suite and archive regression quarantine
+      objective_zh: >
+        將預設測試回圈縮減到 30 個產品核心測項，把 legacy v1、早期 QA、
+        歷史 Phase closure 與治理回歸移到 archive/nightly，讓後續 Phase
+        能更快把景氣階段判讀、轉折風險、解釋能力與 dashboard 推向
+        95%-100%。
+      capability_percent_effect: no_percent_change_enabler
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - default_product_core_test_file_count=30
+        - archive_regression_tests_not_in_default_ci=true
+        - legacy_v1_default_test_count=0
+        - closure_archive_test_count_gt_zero=true
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

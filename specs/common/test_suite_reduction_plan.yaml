@@ -1,0 +1,96 @@
+test_suite_reduction_plan:
+  version: "1.0"
+  status: active_archive_quarantine_contract
+  phase_id: 65
+  phase_label: default_product_core_suite_and_archive_regression_quarantine
+  objective_zh: >
+    將預設 pytest/CI 從完整歷史工程回歸縮減為 30 個產品核心測試檔案，
+    同時保留 legacy v1、早期 QA、歷史 Phase closure 與治理回歸於
+    archive/nightly 層，避免刪除可追溯性。
+  default_product_core_max_file_count: 30
+  default_product_core_test_files:
+    - tests/test_ci_safety_scans.py
+    - tests/test_ci_workflows.py
+    - tests/test_github_pages_workflow.py
+    - tests/test_product_doctrine_enforcement.py
+    - tests/test_test_suite_doctrine_quarantine.py
+    - tests/test_test_suite_doctrine_markers.py
+    - tests/test_test_suite_reduction_plan.py
+    - tests/test_product_capability_progress.py
+    - tests/test_product_capability_95_roadmap.py
+    - tests/test_declared_cycle_state_registry.py
+    - tests/test_ordered_cycle_state_machine.py
+    - tests/test_ordered_cycle_state_view_models.py
+    - tests/test_current_data_refresh_contract.py
+    - tests/test_current_evidence_readiness.py
+    - tests/test_current_freshness_semantics.py
+    - tests/test_boom_transition_monitor.py
+    - tests/test_boom_transition_view_model.py
+    - tests/test_boom_transition_evidence_wiring.py
+    - tests/test_boom_transition_dashboard_surface.py
+    - tests/test_indicator_detail_source_risk_value_rendering.py
+    - tests/test_indicator_dashboard_explanation_drilldown.py
+    - tests/test_indicator_chart_explanation_payload.py
+    - tests/test_major_group_evidence_profile_readiness.py
+    - tests/test_evidence_freshness_release_value_continuity.py
+    - tests/test_macro_indicator_coverage_readiness_matrix.py
+    - tests/test_official_macro_source_adapter_wiring.py
+    - tests/test_low_cost_macro_source_completion.py
+    - tests/test_composite_transition_surface_value_wiring.py
+    - tests/test_research_validation_dashboard_latest_evidence.py
+    - tests/test_research_dashboard_bundle.py
+  product_capabilities_protected:
+    - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+    - C2_TRANSITION_RISK_DETECTION
+    - C3_EXPLAINABILITY_AND_ATTRIBUTION
+    - DASHBOARD_CURRENT_RESEARCH_SURFACES
+  default_suite_policy_zh: >
+    預設測試只保留與 declared current state、ordered transition monitor、
+    macro source coverage、indicator explanation、dashboard bundle、doctrine
+    and safety 直接相關的產品核心測項。
+  archive_regression_policy_zh: >
+    不在 default_product_core_test_files 內的 tests/test_*.py 自動標記為
+    archive_regression，從預設 pytest/full-ci 排除，但由 nightly 或顯式
+    archive command 執行。
+  legacy_v1_policy_zh: >
+    legacy v1 測項不再屬於預設產品核心套件；保留於 archive regression 以維持
+    歷史相容性與必要追溯，不作成熟產品方向。
+  phase_closure_test_policy_zh: >
+    Phase closure tests 是歷史 Phase 的驗收封條，用來證明當時的 hard gates、
+    freeze/lineage、安全輸出與 no-production-change 條件；它們保留於 archive
+    或 nightly，而非每次預設開發回圈全部執行。
+  ci_tiers:
+    fast_ci: product_core_subset
+    full_ci: default_product_core_suite_and_current_closure_bundle
+    nightly_ci: archive_regression_and_full_historical_closure_bundle
+  phase_plan_integration:
+    product_capability_95_roadmap: integrated_as_post_target_enabler
+    integrated_phase_id: 65
+    capability_percent_policy: >
+      Phase65 是交付速度與測試治理 enabler，不提高或降低產品能力百分比。
+      後續 Phase 仍以 C1/C2/C3/dashboard 達到 95%-100% 為目標。
+  prohibited_changes:
+    - remove_product_core_tests_without_replacement
+    - classify_legacy_v1_as_mature_product
+    - weaken_safety_scans
+    - enable_candidate_or_current_phase
+    - modify_production_behavior
+  hard_gates:
+    test_suite_reduction_plan_ready: true
+    default_product_core_test_file_count: 30
+    default_product_core_max_file_count: 30
+    default_pytest_selected_file_count_within_limit: true
+    archive_regression_marker_registered: true
+    archive_regression_tests_not_in_default_ci: true
+    archive_regression_test_count_gt_zero: true
+    closure_archive_test_count_gt_zero: true
+    legacy_v1_default_test_count: 0
+    v1_default_removed: true
+    product_core_capability_mapping_ready: true
+    c1_core_tests_present: true
+    c2_core_tests_present: true
+    c3_core_tests_present: true
+    dashboard_core_tests_present: true
+    live_optional_tests_not_in_default_ci: true
+    semantic_drift_count: 0
+    production_behavior_change_count: 0

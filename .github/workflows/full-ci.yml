@@ -33,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      - name: Run full pytest without FRED API key
+      - name: Run default product-core pytest without FRED API key
         run: env -u FRED_API_KEY python -m pytest
 
       - name: Run lint

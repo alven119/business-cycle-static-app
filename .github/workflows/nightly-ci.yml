@@ -33,7 +33,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Run full regression without FRED API key
-        run: env -u FRED_API_KEY python -m pytest
+        run: env -u FRED_API_KEY python -m pytest -o addopts= -m "not live_optional"
 
       - name: Run lint
         run: ruff check .

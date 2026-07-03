@@ -24,6 +24,43 @@ MARKER_NAMES = (
     "governance_scaffold",
     "safety",
     "live_optional",
+    "archive_regression",
+)
+
+DEFAULT_PRODUCT_CORE_MAX_FILE_COUNT = 30
+DEFAULT_PRODUCT_CORE_TEST_FILES = frozenset(
+    (
+        "tests/test_ci_safety_scans.py",
+        "tests/test_ci_workflows.py",
+        "tests/test_github_pages_workflow.py",
+        "tests/test_product_doctrine_enforcement.py",
+        "tests/test_test_suite_doctrine_quarantine.py",
+        "tests/test_test_suite_doctrine_markers.py",
+        "tests/test_test_suite_reduction_plan.py",
+        "tests/test_product_capability_progress.py",
+        "tests/test_product_capability_95_roadmap.py",
+        "tests/test_declared_cycle_state_registry.py",
+        "tests/test_ordered_cycle_state_machine.py",
+        "tests/test_ordered_cycle_state_view_models.py",
+        "tests/test_current_data_refresh_contract.py",
+        "tests/test_current_evidence_readiness.py",
+        "tests/test_current_freshness_semantics.py",
+        "tests/test_boom_transition_monitor.py",
+        "tests/test_boom_transition_view_model.py",
+        "tests/test_boom_transition_evidence_wiring.py",
+        "tests/test_boom_transition_dashboard_surface.py",
+        "tests/test_indicator_detail_source_risk_value_rendering.py",
+        "tests/test_indicator_dashboard_explanation_drilldown.py",
+        "tests/test_indicator_chart_explanation_payload.py",
+        "tests/test_major_group_evidence_profile_readiness.py",
+        "tests/test_evidence_freshness_release_value_continuity.py",
+        "tests/test_macro_indicator_coverage_readiness_matrix.py",
+        "tests/test_official_macro_source_adapter_wiring.py",
+        "tests/test_low_cost_macro_source_completion.py",
+        "tests/test_composite_transition_surface_value_wiring.py",
+        "tests/test_research_validation_dashboard_latest_evidence.py",
+        "tests/test_research_dashboard_bundle.py",
+    )
 )
 
 
@@ -246,6 +283,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "governance_scaffold"),
         rationale="95 percent roadmap is planning orientation, not readiness promotion",
     ),
+    "tests/test_test_suite_reduction_plan.py": QuarantineEntry(
+        markers=("doctrine_aligned", "governance_scaffold", "safety"),
+        rationale="Phase65 default-suite reduction preserves product-core coverage and archives old regressions",
+    ),
     "tests/test_phase52_official_macro_source_adapter_wiring_closure.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase52 closure proves official source wiring preserves doctrine boundaries",
@@ -429,13 +470,12 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
 def markers_for_test_path(path: str | Path) -> tuple[str, ...]:
     """Return configured doctrine markers for a test path."""
 
-    path_obj = Path(path)
-    try:
-        rel = path_obj.resolve().relative_to(ROOT)
-    except ValueError:
-        rel = path_obj
-    entry = TEST_FILE_MARKER_MAP.get(rel.as_posix())
-    return () if entry is None else entry.markers
+    rel_path = _relative_test_path(path)
+    entry = TEST_FILE_MARKER_MAP.get(rel_path)
+    markers = list(entry.markers) if entry else []
+    if _is_archive_regression_test_path(rel_path):
+        markers.append("archive_regression")
+    return tuple(dict.fromkeys(markers))
 
 
 @lru_cache(maxsize=1)
@@ -444,6 +484,14 @@ def summarize_test_suite_doctrine_quarantine() -> dict[str, Any]:
 
     test_files = sorted(TESTS_ROOT.glob("test_*.py"))
     configured_markers = _configured_pytest_markers()
+    default_product_core_files = [
+        path
+        for path in test_files
+        if _relative_test_path(path) in DEFAULT_PRODUCT_CORE_TEST_FILES
+    ]
+    archive_regression_files = [
+        path for path in test_files if _is_archive_regression_test_path(path)
+    ]
     marker_registered = {
         f"{marker}_marker_registered": marker in configured_markers
         for marker in MARKER_NAMES
@@ -459,21 +507,65 @@ def summarize_test_suite_doctrine_quarantine() -> dict[str, Any]:
         if "legacy_v1" in entry.markers and not entry.legacy_compatibility_label
     ]
     marker_counts = {
-        marker: sum(
-            1 for entry in TEST_FILE_MARKER_MAP.values() if marker in entry.markers
-        )
+        marker: sum(1 for path in test_files if marker in markers_for_test_path(path))
         for marker in MARKER_NAMES
     }
     language_counts = _language_violation_counts()
     live_default_excluded = _live_optional_excluded_from_default_pytest()
+    archive_default_excluded = _archive_regression_excluded_from_default_pytest()
     production_changed_paths = sorted(
         path for path in _git_diff_name_only() if path in _production_runtime_paths()
     )
+    closure_archive_files = [
+        path
+        for path in archive_regression_files
+        if "closure" in _relative_test_path(path)
+    ]
+    legacy_default_files = [
+        path
+        for path in default_product_core_files
+        if "legacy_v1" in markers_for_test_path(path)
+    ]
 
     summary: dict[str, Any] = {
         "test_suite_doctrine_quarantine_ready": False,
         "pytest_marker_taxonomy_ready": all(marker_registered.values()),
         "inspected_test_file_count": len(test_files),
+        "default_product_core_test_file_count": len(default_product_core_files),
+        "default_product_core_max_file_count": DEFAULT_PRODUCT_CORE_MAX_FILE_COUNT,
+        "default_product_core_test_files": [
+            _relative_test_path(path) for path in default_product_core_files
+        ],
+        "archive_regression_test_count": marker_counts["archive_regression"],
+        "closure_archive_test_count": len(closure_archive_files),
+        "legacy_v1_default_test_count": len(legacy_default_files),
+        "v1_default_removed": len(legacy_default_files) == 0,
+        "archive_regression_tests_not_in_default_ci": archive_default_excluded,
+        "product_core_capability_mapping_ready": _product_core_capability_mapping_ready(
+            default_product_core_files
+        ),
+        "c1_core_tests_present": _has_default_core_test(
+            default_product_core_files, "declared_cycle_state"
+        )
+        and _has_default_core_test(default_product_core_files, "major_group_evidence"),
+        "c2_core_tests_present": _has_default_core_test(
+            default_product_core_files, "boom_transition_monitor"
+        )
+        and _has_default_core_test(
+            default_product_core_files, "composite_transition_surface"
+        ),
+        "c3_core_tests_present": _has_default_core_test(
+            default_product_core_files, "indicator_dashboard_explanation"
+        )
+        and _has_default_core_test(
+            default_product_core_files, "indicator_chart_explanation"
+        ),
+        "dashboard_core_tests_present": _has_default_core_test(
+            default_product_core_files, "research_dashboard_bundle"
+        )
+        and _has_default_core_test(
+            default_product_core_files, "boom_transition_dashboard_surface"
+        ),
         "high_risk_test_file_count": len(TEST_FILE_MARKER_MAP),
         "legacy_v1_test_count": marker_counts["legacy_v1"],
         "doctrine_aligned_test_count": marker_counts["doctrine_aligned"],
@@ -487,6 +579,9 @@ def summarize_test_suite_doctrine_quarantine() -> dict[str, Any]:
         "governance_scaffold_test_count": marker_counts["governance_scaffold"],
         "safety_test_count": marker_counts["safety"],
         "live_optional_test_count": marker_counts["live_optional"],
+        "archive_regression_marker_registered": marker_registered[
+            "archive_regression_marker_registered"
+        ],
         "unmarked_high_risk_test_count": len(missing_marker_files),
         "legacy_v1_missing_compatibility_label_count": len(missing_legacy_labels),
         "mature_product_test_asserts_phase_winner_count": language_counts[
@@ -557,7 +652,48 @@ def _load_pytest_ini_options() -> dict[str, list[str]]:
 
 def _live_optional_excluded_from_default_pytest() -> bool:
     addopts = _load_pytest_ini_options()["addopts"]
-    return "-m" in addopts and "not live_optional" in addopts
+    expression = " ".join(addopts)
+    return "-m" in addopts and "not" in expression and "live_optional" in expression
+
+
+def _archive_regression_excluded_from_default_pytest() -> bool:
+    addopts = _load_pytest_ini_options()["addopts"]
+    expression = " ".join(addopts)
+    return (
+        "-m" in addopts and "not" in expression and "archive_regression" in expression
+    )
+
+
+def _relative_test_path(path: str | Path) -> str:
+    path_obj = Path(path)
+    try:
+        rel = path_obj.resolve().relative_to(ROOT)
+    except ValueError:
+        rel = path_obj
+    return rel.as_posix()
+
+
+def _is_archive_regression_test_path(path: str | Path) -> bool:
+    rel_path = _relative_test_path(path)
+    return (
+        rel_path.startswith("tests/test_")
+        and rel_path.endswith(".py")
+        and rel_path not in DEFAULT_PRODUCT_CORE_TEST_FILES
+    )
+
+
+def _product_core_capability_mapping_ready(default_files: list[Path]) -> bool:
+    return (
+        len(default_files) == DEFAULT_PRODUCT_CORE_MAX_FILE_COUNT
+        and _has_default_core_test(default_files, "declared_cycle_state")
+        and _has_default_core_test(default_files, "boom_transition")
+        and _has_default_core_test(default_files, "indicator_dashboard_explanation")
+        and _has_default_core_test(default_files, "research_dashboard_bundle")
+    )
+
+
+def _has_default_core_test(default_files: list[Path], fragment: str) -> bool:
+    return any(fragment in _relative_test_path(path) for path in default_files)
 
 
 def _language_violation_counts() -> dict[str, int]:
@@ -701,7 +837,19 @@ def _passed(summary: dict[str, Any]) -> bool:
         and summary["governance_scaffold_marker_registered"] is True
         and summary["safety_marker_registered"] is True
         and summary["live_optional_marker_registered"] is True
+        and summary["archive_regression_marker_registered"] is True
         and summary["live_optional_tests_not_in_default_ci"] is True
+        and summary["archive_regression_tests_not_in_default_ci"] is True
+        and summary["default_product_core_test_file_count"]
+        == summary["default_product_core_max_file_count"]
+        and summary["archive_regression_test_count"] > 0
+        and summary["closure_archive_test_count"] > 0
+        and summary["v1_default_removed"] is True
+        and summary["product_core_capability_mapping_ready"] is True
+        and summary["c1_core_tests_present"] is True
+        and summary["c2_core_tests_present"] is True
+        and summary["c3_core_tests_present"] is True
+        and summary["dashboard_core_tests_present"] is True
         and summary["unmarked_high_risk_test_count"] == 0
         and summary["legacy_v1_missing_compatibility_label_count"] == 0
         and summary["mature_product_test_asserts_phase_winner_count"] == 0

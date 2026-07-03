@@ -43,15 +43,16 @@ jobs:
       - name: Run critical contract subset
         run: |
           env -u FRED_API_KEY python -m pytest \
-            tests/test_qa0_integrity_audit.py \
-            tests/test_qa1e_strict_scoring.py \
-            tests/test_qa2_eligibility_semantics.py \
-            tests/test_scenario_temporal_eligibility.py \
-            tests/test_phase20_historical_validation_dry_run_closure.py \
-            tests/test_phase19_validation_execution_readiness_closure.py \
-            tests/test_show_phase12_book_core_gap_resolution_closure_script.py \
+            tests/test_ci_safety_scans.py \
+            tests/test_ci_workflows.py \
             tests/test_github_pages_workflow.py \
-            tests/test_ci_workflows.py
+            tests/test_test_suite_reduction_plan.py \
+            tests/test_product_doctrine_enforcement.py \
+            tests/test_declared_cycle_state_registry.py \
+            tests/test_ordered_cycle_state_machine.py \
+            tests/test_boom_transition_monitor.py \
+            tests/test_indicator_dashboard_explanation_drilldown.py \
+            tests/test_research_dashboard_bundle.py
 
       - name: Run QA0 integrity audit
         run: python scripts/run_qa0_integrity_audit.py

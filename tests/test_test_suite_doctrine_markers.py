@@ -27,10 +27,22 @@ def test_high_risk_marker_map_has_all_categories() -> None:
     assert summary["governance_scaffold_test_count"] > 0
     assert summary["safety_test_count"] > 0
     assert summary["live_optional_test_count"] > 0
+    assert summary["archive_regression_test_count"] > 0
+    assert summary["closure_archive_test_count"] > 0
+    assert summary["legacy_v1_default_test_count"] == 0
 
 
 def test_marker_lookup_for_known_high_risk_files() -> None:
     assert "legacy_v1" in markers_for_test_path("tests/test_phase_scoring.py")
+    assert "archive_regression" in markers_for_test_path(
+        "tests/test_phase_scoring.py"
+    )
+    assert "archive_regression" in markers_for_test_path(
+        "tests/test_phase20_historical_validation_dry_run_closure.py"
+    )
+    assert "archive_regression" not in markers_for_test_path(
+        "tests/test_boom_transition_monitor.py"
+    )
     assert "transition_monitor" in markers_for_test_path("tests/test_state_machine.py")
     assert "transition_monitor" in markers_for_test_path(
         "tests/test_ordered_cycle_state_machine.py"
@@ -148,3 +160,11 @@ def test_live_optional_marker_registered_but_not_required_by_default() -> None:
 
     assert summary["live_optional_marker_registered"] is True
     assert summary["live_optional_tests_not_in_default_ci"] is True
+
+
+def test_archive_regression_marker_registered_but_not_required_by_default() -> None:
+    summary = summarize_test_suite_doctrine_quarantine()
+
+    assert summary["archive_regression_marker_registered"] is True
+    assert summary["archive_regression_tests_not_in_default_ci"] is True
+    assert summary["v1_default_removed"] is True

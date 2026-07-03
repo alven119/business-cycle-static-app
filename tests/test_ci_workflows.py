@@ -31,9 +31,11 @@ def test_fast_ci_has_required_quality_gates_without_full_pytest() -> None:
         "git diff --check",
         "python scripts/run_ci_safety_scans.py",
         "python scripts/run_qa0_integrity_audit.py",
-        "tests/test_phase20_historical_validation_dry_run_closure.py",
-        "tests/test_qa1e_strict_scoring.py",
-        "tests/test_scenario_temporal_eligibility.py",
+        "tests/test_test_suite_reduction_plan.py",
+        "tests/test_declared_cycle_state_registry.py",
+        "tests/test_boom_transition_monitor.py",
+        "tests/test_indicator_dashboard_explanation_drilldown.py",
+        "tests/test_research_dashboard_bundle.py",
     ]
     for snippet in required_snippets:
         assert snippet in workflow
@@ -50,6 +52,7 @@ def test_full_ci_runs_full_pytest_and_key_closures_on_main_or_manual() -> None:
         "- main",
         "cache: pip",
         "cancel-in-progress: true",
+        "Run default product-core pytest without FRED API key",
         "env -u FRED_API_KEY python -m pytest",
         "ruff check .",
         "git diff --check",
@@ -66,7 +69,7 @@ def test_nightly_ci_runs_full_regression_and_extended_closures() -> None:
         "schedule:",
         "cache: pip",
         "cancel-in-progress: true",
-        "env -u FRED_API_KEY python -m pytest",
+        'env -u FRED_API_KEY python -m pytest -o addopts= -m "not live_optional"',
         "python scripts/run_ci_closure_checks.py --tier nightly",
     ]
     for snippet in required_snippets:
@@ -77,6 +80,37 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
     helper = Path("scripts/run_ci_closure_checks.py").read_text(encoding="utf-8")
 
     required_snippets = [
+        "show_test_suite_reduction_plan.py",
+        "show_product_capability_progress.py",
+        "show_product_capability_95_roadmap.py",
+        "show_qa12_major_group_manual_start_closure.py",
+        "run_qa0_integrity_audit.py",
+        "sys.executable",
+    ]
+    for snippet in required_snippets:
+        assert snippet in helper
+
+    nightly_only_snippets = [
+        "show_phase64_indicator_transparency_chart_payload_closure.py",
+        "show_phase63_latest_evidence_dashboard_wiring_closure.py",
+        "show_phase62_indicator_dashboard_explanation_drilldown_closure.py",
+        "show_phase61_major_group_evidence_profile_readiness_closure.py",
+        "show_phase60_evidence_freshness_release_value_continuity_closure.py",
+        "show_phase58_ordered_cycle_transition_lane_templates_closure.py",
+        "show_phase57_boom_to_recession_transition_surface_completion_closure.py",
+        "show_phase56_indicator_detail_source_risk_value_closure.py",
+        "show_phase55_macro_indicator_coverage_readiness_closure.py",
+        "show_phase54_low_cost_macro_source_completion_closure.py",
+        "show_phase53_composite_transition_surface_value_wiring_closure.py",
+        "show_phase52_official_macro_source_adapter_wiring_closure.py",
+        "show_phase51_declared_start_and_gap_alternatives_closure.py",
+        "show_phase50_transition_surface_data_risk_closure.py",
+        "show_phase49_boom_transition_dashboard_closure.py",
+        "show_phase48_boom_transition_evidence_wiring_closure.py",
+        "show_phase47_phase_start_research_assistant_closure.py",
+        "show_phase46_boom_transition_monitor_closure.py",
+        "show_phase45_declared_cycle_state_closure.py",
+        "show_phase42_current_freshness_and_evidence_profile_closure.py",
         "show_phase40_current_data_refresh_closure.py",
         "show_phase39_current_research_snapshot_closure.py",
         "show_phase38_research_validation_dashboard_closure.py",
@@ -101,10 +135,8 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_phase20_historical_validation_dry_run_closure.py",
         "show_phase14_non_emitting_decision_runtime_closure.py",
         "show_phase10_book_core_source_adapter_closure.py",
-        "run_qa0_integrity_audit.py",
-        "sys.executable",
     ]
-    for snippet in required_snippets:
+    for snippet in nightly_only_snippets:
         assert snippet in helper
 
 

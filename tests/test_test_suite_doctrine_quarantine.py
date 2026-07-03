@@ -14,6 +14,12 @@ def test_test_suite_doctrine_quarantine_passes() -> None:
     assert summary["result"] == "passed"
     assert summary["test_suite_doctrine_quarantine_ready"] is True
     assert summary["pytest_marker_taxonomy_ready"] is True
+    assert summary["default_product_core_test_file_count"] == 30
+    assert summary["archive_regression_test_count"] > 0
+    assert summary["closure_archive_test_count"] > 0
+    assert summary["legacy_v1_default_test_count"] == 0
+    assert summary["v1_default_removed"] is True
+    assert summary["product_core_capability_mapping_ready"] is True
     assert summary["high_risk_test_file_count"] > 0
     assert summary["unmarked_high_risk_test_count"] == 0
     assert summary["legacy_v1_missing_compatibility_label_count"] == 0
@@ -35,4 +41,6 @@ def test_test_suite_doctrine_quarantine_script() -> None:
     )
 
     assert "test_suite_doctrine_quarantine_ready=true" in completed.stdout
+    assert "default_product_core_test_file_count=30" in completed.stdout
+    assert "legacy_v1_default_test_count=0" in completed.stdout
     assert "result=passed" in completed.stdout
