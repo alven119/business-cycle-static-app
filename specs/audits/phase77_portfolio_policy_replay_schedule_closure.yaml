@@ -1,0 +1,40 @@
+phase77_portfolio_policy_replay_schedule_closure:
+  version: 1
+  phase_id: 77
+  status: active_closure_contract
+  objective_zh: >
+    收斂 Phase77：portfolio policy replay schedule 已 preregistered，
+    但不執行 replay/backtest、不輸出目前配置；dashboard 指標診斷分數
+    也必須明確顯示高分、低分與接近 0 的意義。
+  hard_gates:
+    phase77_closure_ready: true
+    portfolio_policy_replay_schedule_contract_ready: true
+    schedule_row_count: 8
+    template_with_schedule_count: 8
+    missing_template_schedule_count: 0
+    invalid_template_reference_count: 0
+    execution_allowed_now_count: 0
+    backtest_execution_count: 0
+    portfolio_policy_replay_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_schedule_output_field_count: 0
+    score_interpretation_high_low_ready: true
+    role_with_score_interpretation_count: 39
+    score_interpretation_missing_count: 0
+    dashboard_indicator_method_explanation_ready: true
+    indicator_chart_explanation_payload_ready: true
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_policy_replay_schedule_ready
+    portfolio_policy_research_alignment: policy_replay_schedule_preregistered_no_execution_or_current_allocation
+    historical_replay_backtest_alignment: policy_replay_schedule_ready_no_backtest_execution
+    phase77_closure_status: closed_policy_replay_schedule_preregistered_score_interpretation_visible_no_execution

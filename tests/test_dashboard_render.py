@@ -188,6 +188,9 @@ def test_dashboard_contains_indicator_scores() -> None:
     assert "頻率處理" in html
     assert "信心下調條件" in html
     assert "計算步驟摘要" in html
+    assert "分數高代表" in html
+    assert "分數低代表" in html
+    assert "分數接近 0" in html
     assert "此區只解釋 legacy 診斷分數的配方" in html
     assert "企業裁員壓力" in html
     assert "失業率" in html

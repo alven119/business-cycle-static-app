@@ -1251,6 +1251,9 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
     directionality = _definition_list_items(
         diagnostic.get("directionality_detail", {}),
     )
+    score_interpretation = _score_interpretation_html(
+        diagnostic.get("score_interpretation_zh", {}),
+    )
     cleaned_inputs = ", ".join(
         str(item) for item in diagnostic.get("cleaned_input_requirements", [])
     )
@@ -1301,6 +1304,7 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
             <h4>Diagnostic recipe transparency</h4>
             <p><strong>{_text(diagnostic["method_id"])}</strong></p>
             <p>{_text(diagnostic["method_purpose_zh"])}</p>
+            {score_interpretation}
             <div data-method-recipe-detail>
               <p>Assignment: {_text(diagnostic["method_assignment_basis_zh"])}</p>
               <p>Inputs: {_text(", ".join(diagnostic["method_inputs_required"]) or "not declared")}</p>
@@ -1384,6 +1388,23 @@ def _definition_list_items(mapping: dict[str, Any]) -> str:
         f"<dt>{_text(key)}</dt><dd>{_text(value)}</dd>"
         for key, value in mapping.items()
     )
+
+
+def _score_interpretation_html(interpretation: dict[str, Any]) -> str:
+    if not interpretation:
+        return """
+            <div data-score-interpretation-detail>
+              <p>Score interpretation not declared.</p>
+            </div>
+        """
+    return f"""
+            <div data-score-interpretation-detail>
+              <p><strong>分數高代表：</strong>{_text(interpretation.get("high_score_zh") or "未宣告")}</p>
+              <p><strong>分數低代表：</strong>{_text(interpretation.get("low_score_zh") or "未宣告")}</p>
+              <p><strong>分數接近 0：</strong>{_text(interpretation.get("neutral_score_zh") or "未宣告")}</p>
+              <p class="muted">{_text(interpretation.get("boundary_zh") or "此分數不是產品答案。")}</p>
+            </div>
+        """
 
 
 def _aggregate_chart_periods(series_charts: list[dict[str, Any]]) -> list[dict[str, Any]]:

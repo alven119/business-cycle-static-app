@@ -98,6 +98,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_progress.py",
         "show_product_capability_95_roadmap.py",
         "show_github_actions_test_efficiency.py",
+        "show_phase77_portfolio_policy_replay_schedule_closure.py",
         "show_phase76_portfolio_policy_template_fixtures_closure.py",
         "show_phase75_all_capability_roadmap_portfolio_research_closure.py",
         "show_phase74_local_current_cache_dashboard_bridge_closure.py",

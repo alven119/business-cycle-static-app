@@ -16,6 +16,11 @@ default_output:
       "-1.0": strongly_negative_for_target_phase
       "0.0": neutral_or_insufficient_signal
       "1.0": strongly_positive_for_target_phase
+    dashboard_interpretation_zh:
+      high_score_zh: 分數越高，代表依該指標的治理方向與資料視窗，訊號越支持該指標目前要描述的研究語意。
+      low_score_zh: 分數越低，代表訊號越不支持、或偏向該指標研究語意的相反方向。
+      neutral_score_zh: 分數接近 0，代表訊號接近中性、資料不足、方向不明，或治理規則要求保守解讀。
+      boundary_zh: 此分數是 indicator-level diagnostic，不是產品答案、不是 declared current phase，也不是交易或配置訊號。
   confidence:
     range: [0.0, 1.0]
     required: true
@@ -56,6 +61,11 @@ methods:
         lower_is_stronger: 低 percentile 對目標階段較正向。
         moderate_rise_is_supportive_extreme_rise_is_warning: 中間區間較正向，極端高分位轉為 warning。
     output_score_range: [-1.0, 1.0]
+    score_interpretation_zh:
+      high_score_zh: 分數越高，代表依 directionality 換算後，目前水準位於較支持該指標研究語意的一側；若 lower_is_stronger，通常表示原始值較低更有利。
+      low_score_zh: 分數越低，代表目前水準位於較不支持或相反的一側；若 lower_is_stronger，通常表示原始值偏高形成壓力或風險。
+      neutral_score_zh: 分數接近 0，代表目前水準接近歷史中間區間、方向不明，或歷史不足使訊號保守。
+      boundary_zh: 這是分位數診斷分數，只說明單一指標位置，不可單獨推論景氣階段或配置行動。
     confidence_behavior:
       base_confidence: 1.0
       reduce_when:
@@ -121,6 +131,11 @@ methods:
         higher_is_stronger: 正斜率較正向。
         lower_is_stronger: 負斜率較正向。
     output_score_range: [-1.0, 1.0]
+    score_interpretation_zh:
+      high_score_zh: 分數越高，代表移動平均後的趨勢斜率朝治理方向改善，且較不像單期噪音。
+      low_score_zh: 分數越低，代表平滑後趨勢朝相反方向惡化，或尚未形成支持該研究語意的趨勢。
+      neutral_score_zh: 分數接近 0，代表趨勢近似平坦、資料不足，或 confirmation window 尚未支持明確方向。
+      boundary_zh: 這是趨勢診斷分數，不是 turning-point confirmation，也不可直接變成景氣階段判斷。
     confidence_behavior:
       base_confidence: 1.0
       reduce_when:
@@ -191,6 +206,11 @@ methods:
         higher_is_stronger: YoY 上升與動能改善較正向。
         lower_is_stronger: YoY 下降與動能轉弱較正向。
     output_score_range: [-1.0, 1.0]
+    score_interpretation_zh:
+      high_score_zh: 分數越高，代表 YoY 水準或動能在治理視窗內改善，較支持需求、生產或收入等角色的研究語意。
+      low_score_zh: 分數越低，代表 YoY 水準或動能惡化，較不支持該角色語意或顯示相反風險。
+      neutral_score_zh: 分數接近 0，代表 YoY 變化不明顯、同比基期不足、或改善尚未持續。
+      boundary_zh: 這是動能診斷分數，不是 recovery/growth confirmation，也不得把單期跳升視為轉折。
     confidence_behavior:
       base_confidence: 1.0
       reduce_when:
@@ -256,6 +276,11 @@ methods:
         higher_is_stronger: trough reversal upward 較正向。
         lower_is_stronger: peak reversal downward 較正向。
     output_score_range: [-1.0, 1.0]
+    score_interpretation_zh:
+      high_score_zh: 分數越高，代表序列在平滑後較符合治理方向的峰谷反轉，且反轉較有持續性。
+      low_score_zh: 分數越低，代表尚未形成有利反轉，或反轉方向與該角色研究語意相反。
+      neutral_score_zh: 分數接近 0，代表未找到可靠 peak/trough、反轉幅度不足、持續性不足，或 lookback 不足。
+      boundary_zh: 這是反轉診斷分數；smoothing 或 raw direction 本身不等於 transition confirmation。
     confidence_behavior:
       base_confidence: 1.0
       reduce_when:
@@ -320,6 +345,11 @@ methods:
       directionality:
         group_supports_phase: 多數指標同向支持目標階段才給正分。
     output_score_range: [-1.0, 1.0]
+    score_interpretation_zh:
+      high_score_zh: 分數越高，代表多個已可用指標在同一研究語意上較一致，不是單一指標獨自支撐。
+      low_score_zh: 分數越低，代表可用指標整體偏向相反方向，或群組內支持不足。
+      neutral_score_zh: 分數接近 0，代表群組分歧、覆蓋不足，或缺漏資料使群組只能保守解讀。
+      boundary_zh: 這是群組擴散診斷，不可用 role-count voting 取代 required core evidence 或 formal decision gate。
     confidence_behavior:
       base_confidence: weighted_average_indicator_confidence
       reduce_when:
@@ -383,6 +413,11 @@ methods:
       directionality:
         condition_true_supports_phase: 條件持續成立才提高 score。
     output_score_range: [-1.0, 1.0]
+    score_interpretation_zh:
+      high_score_zh: 分數越高，代表 preregistered condition 在 confirmation window 內較持續成立。
+      low_score_zh: 分數越低，代表 condition 未持續、被中斷，或方向與研究語意相反。
+      neutral_score_zh: 分數接近 0，代表 confirmation window 不足、condition 尚未穩定成立，或資料品質要求 abstain。
+      boundary_zh: 這是持續性診斷；單期成立、missing 補零或 stale 資料不得完成 confirmation。
     confidence_behavior:
       base_confidence: average_confidence_over_confirmation_window
       reduce_when:
@@ -415,4 +450,3 @@ methods:
         description_zh: 最新資料 stale 時不得完成 confirmation。
       - name: insufficient_confirmation_history_returns_neutral
         description_zh: 確認窗不足時回傳中性。
-

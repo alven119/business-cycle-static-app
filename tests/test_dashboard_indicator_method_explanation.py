@@ -22,6 +22,7 @@ def test_phase73_dashboard_indicator_method_explanation_passes() -> None:
     assert summary["role_with_missing_value_policy_count"] == 39
     assert summary["role_with_window_rule_count"] == 39
     assert summary["role_with_directionality_count"] == 39
+    assert summary["role_with_score_interpretation_count"] == 39
     assert summary["role_with_confidence_reducer_count"] == 39
     assert summary["role_with_pseudo_code_count"] == 39
     assert summary["legacy_dashboard_method_detail_renderable_count"] == 13
@@ -43,6 +44,9 @@ def test_phase73_method_rows_explain_recipe_without_runtime_decision() -> None:
         assert row["frequency_handling_zh"]
         assert row["missing_value_handling_zh"]
         assert row["directionality_detail"]
+        assert "分數越高" in row["score_interpretation_zh"]["high_score_zh"]
+        assert "分數越低" in row["score_interpretation_zh"]["low_score_zh"]
+        assert "分數接近 0" in row["score_interpretation_zh"]["neutral_score_zh"]
         assert row["confidence_reduce_when"]
         assert row["pseudo_code_zh"]
         assert row["computed_diagnostic_value_present"] is False

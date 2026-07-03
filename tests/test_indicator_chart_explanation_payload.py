@@ -21,6 +21,7 @@ def test_phase64_indicator_chart_payload_passes_without_cache() -> None:
     assert summary["indicator_chart_explanation_payload_ready"] is True
     assert summary["role_payload_count"] == 39
     assert summary["role_with_diagnostic_transparency_count"] == 39
+    assert summary["role_with_score_interpretation_count"] == 39
     assert summary["role_with_ytd_chart_payload_count"] == 39
     assert summary["role_with_trailing_1y_chart_payload_count"] == 39
     assert summary["role_with_trailing_5y_chart_payload_count"] == 39
@@ -77,6 +78,12 @@ def test_phase64_chart_payload_uses_tmp_cache_when_supplied(tmp_path: Path) -> N
     assert role_payload["diagnostic_transparency_detail"]["frequency_handling_zh"]
     assert role_payload["diagnostic_transparency_detail"]["missing_value_handling_zh"]
     assert role_payload["diagnostic_transparency_detail"]["directionality_detail"]
+    interpretation = role_payload["diagnostic_transparency_detail"][
+        "score_interpretation_zh"
+    ]
+    assert "分數越高" in interpretation["high_score_zh"]
+    assert "分數越低" in interpretation["low_score_zh"]
+    assert "分數接近 0" in interpretation["neutral_score_zh"]
     assert role_payload["diagnostic_transparency_detail"]["confidence_reduce_when"]
     assert role_payload["diagnostic_transparency_detail"]["pseudo_code_zh"]
     assert "未使用歷史答案" in role_payload["diagnostic_transparency_detail"][

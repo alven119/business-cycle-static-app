@@ -1,0 +1,257 @@
+portfolio_policy_replay_schedule_contract:
+  version: 1
+  status: preregistered_research_schedule_only
+  phase_id: 77
+  contract_id: portfolio_policy_replay_schedule_contract_v1
+  objective_zh: >
+    將 Phase75/76 的八個 portfolio policy research templates 轉成未來
+    historical replay / backtest 可讀的排程契約。此契約只描述何時可以在研究
+    環境中套用 template，不執行 replay、不計算績效、不輸出目前配置建議。
+  dependencies:
+    template_schema: specs/portfolio/portfolio_policy_template_schema.yaml
+    template_fixtures: specs/portfolio/portfolio_policy_template_fixtures.yaml
+    declared_cycle_state_registry: specs/common/declared_cycle_state_registry.yaml
+    ordered_cycle_state_machine: specs/common/ordered_cycle_state_machine.yaml
+  allowed_inputs:
+    - template_id
+    - scenario_id
+    - as_of
+    - data_mode
+    - declared_cycle_state_timeline_after_replay_gate
+    - legal_transition_watch_or_confirmation
+    - research_only_cost_assumption_after_backtest_gate
+    - research_only_rebalance_clock_after_backtest_gate
+  prohibited_inputs:
+    - current_private_holdings
+    - brokerage_account_state
+    - live_market_order
+    - historical_label_for_policy_rule_tuning
+    - portfolio_return_for_rule_tuning
+    - standalone_current_phase_classifier_output
+    - phase_rank_or_winner
+  output_policy:
+    output_mode: research_schedule_only
+    execution_allowed_now: false
+    backtest_execution_allowed: false
+    current_allocation_recommendation_allowed: false
+    trade_signal_allowed: false
+    live_allocation_allowed: false
+    public_output_allowed: false
+    allowed_fields:
+      - schedule_id
+      - template_id
+      - schedule_family
+      - research_trigger_context_zh
+      - allowed_state_inputs
+      - required_transition_inputs
+      - data_mode_policy
+      - rebalance_clock_policy
+      - cost_assumption_policy
+      - execution_allowed_now
+      - prohibited_outputs
+      - caveats_zh
+    prohibited_fields:
+      - current_allocation
+      - target_weight
+      - target_weights
+      - buy_signal
+      - sell_signal
+      - trade_action
+      - rebalance_now
+      - live_allocation
+      - portfolio_action
+      - current_market_recommendation
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - standalone_phase_score
+  schedule_rows:
+    - schedule_id: schedule_passive_all_stock_baseline
+      template_id: passive_all_stock_baseline
+      schedule_family: passive_research_baseline
+      research_trigger_context_zh: scenario_start_to_end_baseline_only
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+      required_transition_inputs: []
+      data_mode_policy: revised_or_point_in_time_must_be_declared
+      rebalance_clock_policy: annual_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_research_assumption_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - 被動全股票只可作研究基準，不是目前持有建議。
+        - 不得把研究基準績效視為未來績效保證。
+    - schedule_id: schedule_stock_cash_initial
+      template_id: stock_cash_initial
+      schedule_family: state_conditioned_research_template
+      research_trigger_context_zh: declared_state_and_legal_transition_context_only
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - ordered_cycle_state_machine
+      required_transition_inputs:
+        - legal_next_transition_watch_or_confirmation
+      data_mode_policy: revised_or_point_in_time_must_be_declared
+      rebalance_clock_policy: annual_or_transition_confirmation_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_research_assumption_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - 股票／現金初階模板只可作研究假設。
+        - transition watch 不得直接轉成配置動作。
+    - schedule_id: schedule_stock_cash_advanced
+      template_id: stock_cash_advanced
+      schedule_family: state_conditioned_research_template
+      research_trigger_context_zh: declared_state_transition_confirmation_and_sensitivity_grid
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - ordered_cycle_state_machine
+      required_transition_inputs:
+        - legal_next_transition_confirmation
+        - abstention_and_missing_data_context
+      data_mode_policy: point_in_time_required_for_strict_claims_revised_allowed_for_declared_comparison
+      rebalance_clock_policy: annual_or_transition_confirmation_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_cost_grid_required_before_execution
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - 進階模板只可在 replay/backtest gate 後研究。
+        - 不得用 watch 取代 confirmation。
+    - schedule_id: schedule_stock_long_treasury_initial
+      template_id: stock_long_treasury_initial
+      schedule_family: defensive_asset_research_template
+      research_trigger_context_zh: declared_state_and_rate_risk_context_only
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - rate_risk_research_context
+      required_transition_inputs:
+        - legal_next_transition_watch_or_confirmation
+      data_mode_policy: revised_or_point_in_time_must_be_declared
+      rebalance_clock_policy: annual_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_rate_and_duration_risk_assumption_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - 長債模板只可作研究假設。
+        - 不得把長債防守效果當成未來績效保證。
+    - schedule_id: schedule_stock_long_treasury_advanced
+      template_id: stock_long_treasury_advanced
+      schedule_family: defensive_asset_research_template
+      research_trigger_context_zh: declared_state_transition_confirmation_duration_and_cost_grid
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - rate_risk_research_context
+      required_transition_inputs:
+        - legal_next_transition_confirmation
+        - abstention_and_missing_data_context
+      data_mode_policy: point_in_time_required_for_strict_claims_revised_allowed_for_declared_comparison
+      rebalance_clock_policy: annual_or_transition_confirmation_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_duration_cost_and_turnover_grid_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - 進階長債模板只可作研究假設。
+        - 不得在未完成風險與成本分析前使用。
+    - schedule_id: schedule_boom_70_50_30_template
+      template_id: boom_70_50_30_template
+      schedule_family: book_boom_research_template
+      research_trigger_context_zh: declared_boom_state_and_boom_ending_confirmation_context
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - boom_to_recession_legal_transition_context
+      required_transition_inputs:
+        - boom_ending_watch
+        - boom_ending_confirmation_before_policy_replay
+      data_mode_policy: point_in_time_required_for_strict_claims_revised_allowed_for_declared_comparison
+      rebalance_clock_policy: annual_or_boom_ending_confirmation_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_cost_and_false_signal_assumption_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - 70/50/30 僅是研究模板參數，不是目前配置建議。
+        - boom-ending watch 不等於交易或配置行動。
+    - schedule_id: schedule_recession_defense_research_template
+      template_id: recession_defense_research_template
+      schedule_family: legal_transition_research_template
+      research_trigger_context_zh: boom_to_recession_confirmation_after_legal_transition_gate
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - ordered_cycle_state_machine
+      required_transition_inputs:
+        - recession_watch
+        - recession_confirmation_before_policy_replay
+      data_mode_policy: point_in_time_required_for_strict_claims_revised_allowed_for_declared_comparison
+      rebalance_clock_policy: transition_confirmation_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_false_signal_and_transaction_cost_assumption_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - recession confirmation evidence 只可作研究觸發條件。
+        - 不得輸出目前防守配置。
+    - schedule_id: schedule_recovery_re_risk_research_template
+      template_id: recovery_re_risk_research_template
+      schedule_family: legal_transition_research_template
+      research_trigger_context_zh: recession_to_recovery_watch_and_confirmation_after_legal_transition_gate
+      allowed_state_inputs:
+        - declared_cycle_state_timeline_after_replay_gate
+        - ordered_cycle_state_machine
+      required_transition_inputs:
+        - trough_or_recovery_watch
+        - recovery_confirmation_before_policy_replay
+      data_mode_policy: point_in_time_required_for_strict_claims_revised_allowed_for_declared_comparison
+      rebalance_clock_policy: transition_confirmation_research_clock_after_backtest_gate
+      cost_assumption_policy: explicit_missed_recovery_and_false_signal_cost_assumption_required
+      execution_allowed_now: false
+      backtest_execution_allowed: false
+      current_allocation_recommendation_allowed: false
+      trade_signal_allowed: false
+      live_allocation_allowed: false
+      caveats_zh:
+        - recovery watch 不等於正式復甦或配置行動。
+        - policy easing 不得單獨確認 recovery。
+  disabled_runtime_guards:
+    portfolio_policy_replay_execution_enabled: false
+    backtest_execution_enabled: false
+    current_allocation_recommendation_enabled: false
+    live_allocation_enabled: false
+    trade_signal_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    production_integration_enabled: false
+  hard_gates:
+    portfolio_policy_replay_schedule_contract_ready: true
+    schedule_row_count: 8
+    template_with_schedule_count: 8
+    missing_template_schedule_count: 0
+    invalid_template_reference_count: 0
+    execution_allowed_now_count: 0
+    backtest_execution_count: 0
+    portfolio_policy_replay_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_schedule_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

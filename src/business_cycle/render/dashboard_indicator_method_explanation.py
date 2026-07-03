@@ -75,6 +75,10 @@ def build_dashboard_indicator_method_explanation(
             for row in method_rows
         ),
         "role_with_directionality_count": _count(method_rows, "directionality_detail"),
+        "role_with_score_interpretation_count": _count(
+            method_rows,
+            "score_interpretation_zh",
+        ),
         "role_with_confidence_reducer_count": _count(
             method_rows,
             "confidence_reduce_when",
@@ -150,6 +154,7 @@ def summarize_dashboard_indicator_method_explanation(
         "role_with_missing_value_policy_count",
         "role_with_window_rule_count",
         "role_with_directionality_count",
+        "role_with_score_interpretation_count",
         "role_with_confidence_reducer_count",
         "role_with_pseudo_code_count",
         "legacy_dashboard_method_detail_renderable_count",
@@ -224,6 +229,7 @@ def _method_row(role: dict[str, Any]) -> dict[str, Any]:
         "min_history": diagnostic["min_history"],
         "normalization_method": diagnostic["normalization_method"],
         "directionality_detail": diagnostic["directionality_detail"],
+        "score_interpretation_zh": diagnostic["score_interpretation_zh"],
         "confidence_reduce_when": diagnostic["confidence_reduce_when"],
         "insufficient_history_behavior": diagnostic["insufficient_history_behavior"],
         "stale_data_behavior": diagnostic["stale_data_behavior"],

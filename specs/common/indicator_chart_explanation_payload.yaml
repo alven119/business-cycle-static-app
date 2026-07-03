@@ -52,6 +52,7 @@ indicator_chart_explanation_payload:
     indicator_chart_explanation_payload_ready: true
     role_payload_count: 39
     role_with_diagnostic_transparency_count: 39
+    role_with_score_interpretation_count: 39
     role_with_ytd_chart_payload_count: 39
     role_with_trailing_1y_chart_payload_count: 39
     role_with_trailing_5y_chart_payload_count: 39

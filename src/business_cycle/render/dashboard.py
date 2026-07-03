@@ -344,11 +344,13 @@ def _indicator_cards(
         next_impact = _phase_impact_text(explanation, candidate_phase_id)
         method_id = _optional_text(indicator.get("method"))
         method = scoring_methods.get(method_id or "")
+        score_interpretation = _score_interpretation_html(method)
         cards.append(
             f"""<article class="card">
   <h3>{_text(label_for(labels, "indicators", indicator_id))}</h3>
   <div class="technical">technical id: {_text(indicator_id)}; selected_series_id: {_text(details.get("selected_series_id"))}</div>
   {_metric("分數", _format_number(indicator.get("score")))}
+  {score_interpretation}
   {_metric("資料信心", _format_percent(indicator.get("confidence")))}
   {_metric("診斷配方", label_for(labels, "methods", method_id))}
   {_metric("資料日期", indicator.get("as_of"))}
@@ -386,6 +388,7 @@ def _indicator_method_detail_html(
         "未宣告信心下調條件。",
     )
     pseudo_code = _ordered_items(method.get("pseudo_code_zh"))
+    score_interpretation = _score_interpretation_html(method)
     windows = _method_window_text(parameters)
     return f"""
   <details class="method-detail" data-indicator-method-explanation data-method-id="{_text(method_id)}">
@@ -398,6 +401,7 @@ def _indicator_method_detail_html(
       <p><strong>視窗設定：</strong>{_text(windows)}</p>
       <p><strong>正反方向：</strong></p>
       <dl class="technical">{directionality}</dl>
+      {score_interpretation}
       <p><strong>標準化：</strong>{_text(parameters.get("normalization_method") or "未宣告")}</p>
       <p><strong>不足歷史：</strong>{_text(method.get("insufficient_history_behavior") or "abstain_or_low_confidence_diagnostic")}</p>
       <div data-method-confidence>
@@ -411,6 +415,20 @@ def _indicator_method_detail_html(
       <p data-method-boundary class="muted">此區只解釋 legacy 診斷分數的配方；它不是 declared current phase、不是 legal transition confirmation，也不會產生交易或配置建議。</p>
     </div>
   </details>
+"""
+
+
+def _score_interpretation_html(method: dict[str, Any] | None) -> str:
+    interpretation = _mapping(method.get("score_interpretation_zh")) if method else {}
+    if not interpretation:
+        return '<p class="muted" data-score-interpretation>分數高低解讀尚未宣告。</p>'
+    return f"""
+  <div class="technical" data-score-interpretation>
+    <p><strong>分數高代表：</strong>{_text(interpretation.get("high_score_zh"))}</p>
+    <p><strong>分數低代表：</strong>{_text(interpretation.get("low_score_zh"))}</p>
+    <p><strong>分數接近 0：</strong>{_text(interpretation.get("neutral_score_zh"))}</p>
+    <p>{_text(interpretation.get("boundary_zh"))}</p>
+  </div>
 """
 
 

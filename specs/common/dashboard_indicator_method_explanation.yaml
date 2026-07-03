@@ -36,6 +36,7 @@ dashboard_indicator_method_explanation:
     - min_history
     - normalization_method
     - directionality_detail
+    - score_interpretation_zh
     - confidence_reduce_when
     - pseudo_code_zh
     - legacy_diagnostic_boundary_zh
@@ -60,6 +61,7 @@ dashboard_indicator_method_explanation:
     role_with_missing_value_policy_count: 39
     role_with_window_rule_count: 39
     role_with_directionality_count: 39
+    role_with_score_interpretation_count: 39
     role_with_confidence_reducer_count: 39
     role_with_pseudo_code_count: 39
     legacy_dashboard_method_detail_renderable_count: 13

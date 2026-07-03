@@ -69,6 +69,12 @@ def test_phase62_role_drilldowns_preserve_abstention_and_source_risk() -> None:
         assert role["diagnostic_transparency_detail"]["frequency_handling_zh"]
         assert role["diagnostic_transparency_detail"]["missing_value_handling_zh"]
         assert role["diagnostic_transparency_detail"]["directionality_detail"]
+        interpretation = role["diagnostic_transparency_detail"][
+            "score_interpretation_zh"
+        ]
+        assert "分數越高" in interpretation["high_score_zh"]
+        assert "分數越低" in interpretation["low_score_zh"]
+        assert "分數接近 0" in interpretation["neutral_score_zh"]
         assert role["diagnostic_transparency_detail"]["confidence_reduce_when"]
         assert role["diagnostic_transparency_detail"]["pseudo_code_zh"]
         assert role["chart_payload_detail"]["chart_data_mode"] == "local_cache_or_unavailable"

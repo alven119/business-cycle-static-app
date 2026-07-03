@@ -81,6 +81,14 @@ def build_indicator_chart_explanation_payload(
         "role_with_diagnostic_transparency_count": sum(
             bool(payload["diagnostic_transparency_detail"]) for payload in role_payloads
         ),
+        "role_with_score_interpretation_count": sum(
+            bool(
+                payload["diagnostic_transparency_detail"].get(
+                    "score_interpretation_zh"
+                )
+            )
+            for payload in role_payloads
+        ),
         "role_with_ytd_chart_payload_count": _period_payload_count(role_payloads, "ytd"),
         "role_with_trailing_1y_chart_payload_count": _period_payload_count(
             role_payloads,
@@ -170,6 +178,9 @@ def summarize_indicator_chart_explanation_payload(
         "role_payload_count": artifact["role_payload_count"],
         "role_with_diagnostic_transparency_count": artifact[
             "role_with_diagnostic_transparency_count"
+        ],
+        "role_with_score_interpretation_count": artifact[
+            "role_with_score_interpretation_count"
         ],
         "role_with_ytd_chart_payload_count": artifact[
             "role_with_ytd_chart_payload_count"
@@ -346,6 +357,7 @@ def _diagnostic_detail(
         "min_history": parameters.get("min_history"),
         "normalization_method": parameters.get("normalization_method"),
         "directionality_detail": parameters.get("directionality", {}),
+        "score_interpretation_zh": method.get("score_interpretation_zh", {}),
         "confidence_behavior": confidence_behavior,
         "confidence_reduce_when": confidence_behavior.get("reduce_when", []),
         "insufficient_history_behavior": method.get(
