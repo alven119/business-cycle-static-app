@@ -311,6 +311,26 @@ product_capability_95_roadmap:
         - nightly_archive_shard_count=8
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 68
+      phase_title: Governed phase-start intake, numeric overlay, and test index
+      objective_zh: >
+        將 declared boom start governance 升級為可審核 intake，讓
+        transition timing preview 能在 explicit tmp/local cache 下承接
+        actual numeric overlay，並建立測項索引避免後續重複新增測試。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - phase68_phase_start_numeric_test_index_ready=true
+        - numeric_cache_overlay_supported=true
+        - test_suite_index_ready=true
+        - duplicate_test_guard_key_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

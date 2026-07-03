@@ -21,6 +21,9 @@ from business_cycle.cycle_state.declared_phase_registry import (
 from business_cycle.render.evidence_freshness_release_value_continuity import (
     build_evidence_freshness_release_value_continuity,
 )
+from business_cycle.render.indicator_chart_explanation_payload import (
+    build_indicator_chart_explanation_payload,
+)
 from business_cycle.render.major_group_evidence_profile_readiness import (
     build_major_group_evidence_profile_readiness,
 )
@@ -53,6 +56,9 @@ PROHIBITED_FIELDS = {
 @lru_cache(maxsize=1)
 def build_transition_timing_replay_preview(
     path: str | Path = DEFAULT_CONTRACT_PATH,
+    *,
+    cache_dir: str | Path | None = None,
+    snapshot_as_of: str | None = None,
 ) -> dict[str, Any]:
     """Build a research-only transition timing replay preview artifact."""
 
@@ -61,12 +67,17 @@ def build_transition_timing_replay_preview(
     templates = build_full_ordered_cycle_transition_lane_templates()
     continuity = build_evidence_freshness_release_value_continuity()
     major_groups = build_major_group_evidence_profile_readiness()
+    chart_payload_by_role = _chart_payload_by_role(
+        cache_dir=cache_dir,
+        snapshot_as_of=snapshot_as_of,
+    )
     lane_rows = [
         _lane_timing_preview(
             lane,
             transition=transition,
             continuity_cards=continuity["continuity_cards"],
             major_group_profiles=major_groups["major_group_profiles"],
+            chart_payload_by_role=chart_payload_by_role,
         )
         for transition in templates["transition_templates"]
         for lane in transition["lane_templates"]
@@ -84,6 +95,12 @@ def build_transition_timing_replay_preview(
     accumulation_statuses = Counter(
         event["accumulation_status"] for event in accumulation_events
     )
+    actual_numeric_role_ids = {
+        ref["role_id"]
+        for lane in lane_rows
+        for ref in lane["continuity_role_refs"]
+        if ref["actual_numeric_chart_available"]
+    }
     artifact: dict[str, Any] = {
         "artifact_id": contract["contract_id"],
         "artifact_version": contract["contract_version"],
@@ -122,7 +139,14 @@ def build_transition_timing_replay_preview(
             "source_major_group_profile_contract": (
                 "major_group_evidence_profile_readiness_v1"
             ),
+            "source_chart_payload_contract": "indicator_chart_explanation_payload_v1",
             "declared_state_source": "declared_cycle_state_registry",
+            "numeric_cache_overlay_supported": True,
+            "numeric_cache_overlay_data_mode": (
+                "explicit_local_cache"
+                if cache_dir is not None
+                else "not_supplied_metadata_only"
+            ),
             "uses_current_data_to_infer_declared_phase": False,
             "watch_confirmation_separated": templates[
                 "watch_confirmation_separation_valid"
@@ -153,6 +177,15 @@ def build_transition_timing_replay_preview(
         ),
         "lane_with_continuity_context_count": sum(
             bool(lane["continuity_role_refs"]) for lane in lane_rows
+        ),
+        "numeric_cache_overlay_supported": True,
+        "actual_numeric_cache_role_count": len(actual_numeric_role_ids),
+        "lane_with_actual_numeric_context_count": sum(
+            any(
+                ref["actual_numeric_chart_available"]
+                for ref in lane["continuity_role_refs"]
+            )
+            for lane in lane_rows
         ),
         "watch_confirmation_separation_valid": templates[
             "watch_confirmation_separation_valid"
@@ -190,10 +223,17 @@ def build_transition_timing_replay_preview(
 @lru_cache(maxsize=1)
 def summarize_transition_timing_replay_preview(
     path: str | Path = DEFAULT_CONTRACT_PATH,
+    *,
+    cache_dir: str | Path | None = None,
+    snapshot_as_of: str | None = None,
 ) -> dict[str, Any]:
     """Return Phase67 summary fields for scripts and closure checks."""
 
-    artifact = build_transition_timing_replay_preview(path)
+    artifact = build_transition_timing_replay_preview(
+        path,
+        cache_dir=cache_dir,
+        snapshot_as_of=snapshot_as_of,
+    )
     summary = {
         "phase": "67",
         "phase_id": "67",
@@ -234,6 +274,13 @@ def summarize_transition_timing_replay_preview(
         ],
         "lane_with_continuity_context_count": artifact[
             "lane_with_continuity_context_count"
+        ],
+        "numeric_cache_overlay_supported": artifact["numeric_cache_overlay_supported"],
+        "actual_numeric_cache_role_count": artifact[
+            "actual_numeric_cache_role_count"
+        ],
+        "lane_with_actual_numeric_context_count": artifact[
+            "lane_with_actual_numeric_context_count"
         ],
         "watch_confirmation_separation_valid": artifact[
             "watch_confirmation_separation_valid"
@@ -303,6 +350,13 @@ def build_transition_timing_replay_preview_view_model(
         "accumulation_status_counts": artifact["accumulation_status_counts"],
         "lane_category_counts": artifact["lane_category_counts"],
         "trust_metadata": artifact["trust_metadata"],
+        "numeric_cache_overlay_supported": artifact["numeric_cache_overlay_supported"],
+        "actual_numeric_cache_role_count": artifact[
+            "actual_numeric_cache_role_count"
+        ],
+        "lane_with_actual_numeric_context_count": artifact[
+            "lane_with_actual_numeric_context_count"
+        ],
         "allowed_uses": artifact["allowed_uses"],
         "prohibited_uses": artifact["prohibited_uses"],
         "transition_replay_checkpoint_count": artifact[
@@ -329,9 +383,14 @@ def _lane_timing_preview(
     transition: dict[str, Any],
     continuity_cards: list[dict[str, Any]],
     major_group_profiles: list[dict[str, Any]],
+    chart_payload_by_role: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
     profile_refs = _matching_major_group_profiles(lane, major_group_profiles)
-    continuity_refs = _matching_continuity_cards(lane, continuity_cards)
+    continuity_refs = _matching_continuity_cards(
+        lane,
+        continuity_cards,
+        chart_payload_by_role=chart_payload_by_role,
+    )
     continuity_statuses = Counter(row["continuity_status"] for row in continuity_refs)
     missing_codes = sorted(
         {
@@ -397,11 +456,14 @@ def _matching_major_group_profiles(
 def _matching_continuity_cards(
     lane: dict[str, Any],
     continuity_cards: list[dict[str, Any]],
+    *,
+    chart_payload_by_role: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     groups = tuple(str(group) for group in lane["book_core_role_groups"])
     refs: list[dict[str, Any]] = []
     for card in continuity_cards:
         if _card_matches_groups(card, groups):
+            chart_payload = chart_payload_by_role.get(card["role_id"])
             refs.append(
                 {
                     "role_id": card["role_id"],
@@ -416,6 +478,12 @@ def _matching_continuity_cards(
                         "release_timing_context_visible"
                     ],
                     "freshness_context_visible": card["freshness_context_visible"],
+                    "actual_numeric_chart_available": _chart_available(
+                        chart_payload,
+                    ),
+                    "latest_actual_numeric_observation_date": (
+                        _latest_chart_point_date(chart_payload)
+                    ),
                     "metadata_only_promoted_to_phase_support": False,
                 }
             )
@@ -438,6 +506,8 @@ def _timing_preview_status(
     profile_refs: list[dict[str, Any]],
     continuity_refs: list[dict[str, Any]],
 ) -> str:
+    if any(ref["actual_numeric_chart_available"] for ref in continuity_refs):
+        return "actual_numeric_cache_context_available_research_only"
     if any(ref["current_numeric_value_available_role_count"] > 0 for ref in profile_refs):
         return "numeric_context_available_research_only"
     if continuity_refs:
@@ -495,6 +565,41 @@ def _abstention_state(lane: dict[str, Any]) -> str:
     if lane["visible_gap_reason_codes"]:
         return "visible_gap_requires_abstention_or_context_label"
     return "no_gap_visible_research_only_not_decision"
+
+
+def _chart_payload_by_role(
+    *,
+    cache_dir: str | Path | None,
+    snapshot_as_of: str | None,
+) -> dict[str, dict[str, Any]]:
+    if cache_dir is None:
+        return {}
+    payload = build_indicator_chart_explanation_payload(
+        cache_dir=cache_dir,
+        snapshot_as_of=snapshot_as_of,
+    )
+    return {
+        str(role_payload["role_id"]): role_payload
+        for role_payload in payload["role_payloads"]
+    }
+
+
+def _chart_available(payload: dict[str, Any] | None) -> bool:
+    if not payload:
+        return False
+    return bool(payload["chart_payload_detail"]["chart_available"])
+
+
+def _latest_chart_point_date(payload: dict[str, Any] | None) -> str | None:
+    if not payload:
+        return None
+    dates = [
+        str(point["date"])
+        for series in payload["chart_payload_detail"]["series_charts"]
+        for period in series["periods"]
+        for point in period["points"]
+    ]
+    return max(dates) if dates else None
 
 
 def _passes(artifact: dict[str, Any], expected: dict[str, Any]) -> bool:

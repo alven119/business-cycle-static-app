@@ -129,3 +129,18 @@ capabilities:
 - economic performance metrics
 - prospective validation completion
 - production migration of portfolio or trade-related outputs
+
+## Post-Target Enablers
+
+After Phase 64, the project keeps adding small enablers that protect the
+95%-plus product surfaces without reopening the original nine-phase target
+roadmap:
+
+- Phase 65 reduced the default suite to product-core tests and quarantined
+  legacy/archive regression coverage.
+- Phase 66 split archive regression into nightly shards.
+- Phase 67 added transition timing replay preview and verified GitHub Actions
+  test efficiency.
+- Phase 68 adds governed phase-start intake continuity, explicit numeric cache
+  overlay support, and a dynamic test-suite index so new tests first check for
+  related existing coverage.

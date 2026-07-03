@@ -1,0 +1,30 @@
+phase68_phase_start_numeric_test_index_closure:
+  phase_id: 68
+  phase_label: governed_phase_start_numeric_overlay_and_test_index
+  status: active_closure_contract
+  hard_gates:
+    phase68_phase_start_numeric_test_index_ready: true
+    declared_boom_start_governance_ready: true
+    user_confirmation_required: true
+    registry_write_allowed: false
+    declared_registry_modified: false
+    phase_age_false_precision_count: 0
+    numeric_cache_overlay_supported: true
+    actual_numeric_cache_fixture_role_count_minimum: 1
+    lane_with_actual_numeric_context_fixture_count_minimum: 1
+    test_suite_index_ready: true
+    default_product_core_test_file_count: 30
+    duplicate_test_guard_key_count: 0
+    new_test_preflight_policy_ready: true
+    similar_test_extension_policy_ready: true
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 6
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    phase68_closure_status: closed_governed_phase_start_intake_numeric_overlay_and_test_index_ready

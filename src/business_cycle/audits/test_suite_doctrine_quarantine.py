@@ -295,6 +295,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "governance_scaffold", "safety"),
         rationale="Phase67 verifies GitHub Actions use reduced product-core and sharded archive suites",
     ),
+    "tests/test_test_suite_index.py": QuarantineEntry(
+        markers=("doctrine_aligned", "governance_scaffold", "safety"),
+        rationale="Phase68 dynamic test index prevents duplicate new tests and preserves reduced default suite",
+    ),
     "tests/test_phase52_official_macro_source_adapter_wiring_closure.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase52 closure proves official source wiring preserves doctrine boundaries",
@@ -370,6 +374,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
     "tests/test_show_phase58_ordered_cycle_transition_lane_templates_closure_script.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase58 closure script smoke test remains research-only",
+    ),
+    "tests/test_phase68_phase_start_numeric_test_index_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase68 closure proves start-date governance, tmp numeric overlay, and test index stay safe",
     ),
     "tests/test_evidence_freshness_release_value_continuity.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from business_cycle import data_sources
 from business_cycle.render.research_dashboard_bundle import (
     build_research_dashboard_bundle,
     validate_research_dashboard_bundle,
@@ -9,6 +10,7 @@ from business_cycle.render.transition_timing_replay_preview import (
     build_transition_timing_replay_preview_view_model,
     summarize_transition_timing_replay_preview,
 )
+from business_cycle.storage.raw_store import RawCsvStore
 
 
 def test_transition_timing_replay_preview_passes_hard_gates() -> None:
@@ -59,6 +61,45 @@ def test_transition_timing_replay_preview_view_model_is_dashboard_ready() -> Non
     assert view_model["evidence_accumulation_event_count"] == 39
     assert view_model["candidate_phase_emitted"] is False
     assert view_model["current_phase_emitted"] is False
+
+
+def test_transition_timing_replay_preview_can_use_explicit_tmp_numeric_cache(
+    tmp_path,
+) -> None:
+    store = RawCsvStore(tmp_path / "raw")
+    store.write_observations(
+        "fred",
+        "ICSA",
+        [
+            data_sources.SeriesObservation(
+                series_id="ICSA",
+                date="2026-01-03",
+                value="230000",
+            ),
+            data_sources.SeriesObservation(
+                series_id="ICSA",
+                date="2026-06-27",
+                value="245000",
+            ),
+        ],
+    )
+
+    summary = summarize_transition_timing_replay_preview(
+        cache_dir=tmp_path / "raw",
+        snapshot_as_of="2026-07-03",
+    )
+    artifact = summary["transition_timing_replay_preview"]
+
+    assert summary["result"] == "passed"
+    assert summary["numeric_cache_overlay_supported"] is True
+    assert summary["actual_numeric_cache_role_count"] > 0
+    assert summary["lane_with_actual_numeric_context_count"] > 0
+    assert artifact["trust_metadata"]["numeric_cache_overlay_data_mode"] == (
+        "explicit_local_cache"
+    )
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    assert summary["current_data_used_to_infer_declared_phase_count"] == 0
 
 
 def test_research_dashboard_bundle_accepts_transition_timing_replay_preview() -> None:

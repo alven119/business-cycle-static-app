@@ -14,6 +14,7 @@ transition_timing_replay_preview:
     - specs/common/evidence_freshness_release_value_continuity.yaml
     - specs/common/major_group_evidence_profile_readiness.yaml
     - specs/common/declared_cycle_state_registry.yaml
+    - explicit_tmp_or_local_numeric_cache_optional_for_research_overlay
   prohibited_inputs:
     - historical_validation_labels
     - nber_recession_dates
@@ -36,6 +37,7 @@ transition_timing_replay_preview:
     dashboard_ready: true
     public_output_allowed: false
     repo_output_allowed: false
+    explicit_cache_overlay_allowed: true
     candidate_phase_output_allowed: false
     current_phase_output_allowed: false
     metric_computation_allowed: false
