@@ -156,3 +156,8 @@ roadmap:
   write exact-date or bounded-window changes to a `/tmp` registry copy, renders
   the phase-age handoff in the dashboard, and still leaves the canonical
   declared registry unchanged until a future explicit canonical write gate.
+- Phase 72 expands current macro numeric/chart coverage. It verifies that 37
+  roles with official series can carry fixture/local-cache numeric context and
+  YTD/1Y/5Y chart payloads, while two authorized/private-source gaps remain
+  explicitly unavailable. The values are research context only, not declared
+  phase inference or point-in-time evidence.

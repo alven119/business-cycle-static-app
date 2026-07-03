@@ -6,6 +6,9 @@ import sys
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
 )
+from business_cycle.render.current_macro_numeric_chart_coverage import (
+    build_current_macro_numeric_chart_coverage_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -105,6 +108,29 @@ def test_latest_evidence_dashboard_renders_phase71_update_gate(tmp_path) -> None
     assert "current_phase" not in html
 
 
+def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
+    tmp_path,
+) -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_current_macro_numeric_chart_coverage_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+    )
+    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
+    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+
+    assert result["browser_verification_ready"] is True
+    assert result["browser_missing_required_element_count"] == 0
+    assert "data-current-macro-numeric-chart-coverage" in html
+    assert "data-chart-coverage-mode" in html
+    assert "fixture_current_cache_connectivity" in html
+    assert html.count("data-current-macro-chart-row=") == 39
+    assert "numeric context is not phase support" in html
+    assert "candidate_phase" not in html
+    assert "current_phase" not in html
+
+
 def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> None:
     output_dir = tmp_path / "dashboard"
     result = subprocess.run(
@@ -116,6 +142,7 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
             "--include-latest-evidence-drilldown",
             "--include-phase-start-confirmation",
             "--include-phase-start-update-gate",
+            "--include-current-macro-numeric-chart-coverage",
         ],
         check=True,
         capture_output=True,
@@ -126,5 +153,6 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
     assert "latest_evidence_dashboard_view_ready=true" in result.stdout
     assert "phase_start_confirmation_view_ready=true" in result.stdout
     assert "phase_start_update_gate_view_ready=true" in result.stdout
-    assert "dashboard_view_count=10" in result.stdout
+    assert "current_macro_numeric_chart_coverage_view_ready=true" in result.stdout
+    assert "dashboard_view_count=11" in result.stdout
     assert "browser_verification_ready=true" in result.stdout

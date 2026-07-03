@@ -19,7 +19,7 @@ def test_product_capability_progress_passes() -> None:
     assert set(row["capability_id"] for row in summary["capability_progress"]) == (
         CORE_CAPABILITY_IDS
     )
-    assert summary["impacted_capability_count"] == 4
+    assert summary["impacted_capability_count"] == 5
     assert summary["progress_decrease_count"] == 0
     assert summary["progress_decrease_without_reason_count"] == 0
     assert summary["progress_percent_out_of_range_count"] == 0
@@ -35,7 +35,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "monotonic by default" in summary["progress_semantics"]
     assert (
         summary["phase_label"]
-        == "declared_phase_start_registry_update_gate_and_dashboard_handoff"
+        == "current_macro_numeric_chart_coverage_expansion"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

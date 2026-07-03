@@ -398,6 +398,29 @@ product_capability_95_roadmap:
         - phase_age_false_precision_count=0
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 72
+      phase_title: Current macro numeric chart coverage expansion
+      objective_zh: >
+        將目前總經指標的 numeric context 與 YTD/1Y/5Y chart payload
+        coverage 擴大到 37 個具官方序列角色，並保留 2 個授權或私有來源缺口
+        的 unavailable policy。此 phase 只驗證 /tmp fixture 或 explicit local
+        cache connectivity，不把數值當成 current phase inference。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - current_macro_numeric_chart_coverage_ready=true
+        - role_with_available_chart_payload_count=37
+        - fixture_mislabeled_as_live_count=0
+        - point_in_time_claim_count=0
+        - numeric_context_promoted_to_phase_support_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

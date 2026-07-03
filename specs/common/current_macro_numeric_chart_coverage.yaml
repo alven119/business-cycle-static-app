@@ -1,0 +1,64 @@
+current_macro_numeric_chart_coverage:
+  contract_id: current_macro_numeric_chart_coverage_v1
+  contract_version: "1.0"
+  phase_id: 72
+  status: active_research_dashboard_contract
+  objective_zh: >
+    擴充目前總經指標的數值與圖表覆蓋，使 dashboard/drilldown 可展示
+    今年、過去一年、過去五年的 chart payload connectivity。此 contract
+    使用 /tmp fixture cache 驗證路徑，不宣稱 live current value、point-in-time
+    result、phase support 或正式 current phase。
+  policy:
+    output_mode: research_only_current_macro_numeric_chart_context
+    cache_policy: tmp_fixture_or_explicit_local_cache_only
+    no_repo_output: true
+    live_fetch_attempted: false
+    point_in_time_result: false
+    candidate_phase_selection_enabled: false
+    current_phase_inference_enabled: false
+  dashboard_view_model:
+    allowed_uses:
+      - local_research_dashboard
+      - indicator_numeric_context_review
+      - indicator_chart_payload_review
+      - source_risk_and_missing_data_explanation
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - phase_score_or_rank_selection
+      - production_decision
+      - portfolio_or_trade_decision
+  hard_gates:
+    current_macro_numeric_chart_coverage_ready: true
+    role_count: 39
+    role_with_official_series_count: 37
+    role_without_official_series_count: 2
+    role_with_numeric_context_count: 37
+    role_with_chart_payload_count: 39
+    role_with_available_chart_payload_count: 37
+    role_with_ytd_available_chart_count: 37
+    role_with_trailing_1y_available_chart_count: 37
+    role_with_trailing_5y_available_chart_count: 37
+    chart_unavailable_role_count: 2
+    chart_unavailable_policy_count: 2
+    fixture_seeded_series_count_minimum: 1
+    chart_point_count_minimum: 1
+    role_with_source_risk_label_count: 39
+    fixture_cache_written_under_tmp: true
+    repo_output_written_count: 0
+    fixture_mislabeled_as_live_count: 0
+    point_in_time_claim_count: 0
+    numeric_context_promoted_to_phase_support_count: 0
+    missing_value_treated_as_neutral_count: 0
+    unavailable_chart_treated_as_zero_count: 0
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: current_macro_numeric_chart_coverage_ready_declared_state_preserved

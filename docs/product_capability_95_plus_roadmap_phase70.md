@@ -42,6 +42,11 @@ render the dashboard handoff. The canonical declared registry still waits for a
 future explicit write gate after the user supplies the actual start date or
 window.
 
+Phase 72 expands the numeric/chart path for current research surfaces. It
+populates fixture/local-cache chart coverage for official-series roles and
+keeps authorized/private gaps visible, so the dashboard can move toward richer
+indicator drill-downs without turning latest values into phase selection.
+
 ## Guardrails
 
 - No standalone current phase classifier.

@@ -403,6 +403,14 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase71 closure proves registry update gate and dashboard handoff stay safe",
     ),
+    "tests/test_current_macro_numeric_chart_coverage.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase72 current numeric/chart coverage remains fixture/cache context without phase selection",
+    ),
+    "tests/test_phase72_current_macro_numeric_chart_coverage_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase72 closure proves numeric chart coverage preserves declared-state boundaries",
+    ),
     "tests/test_evidence_freshness_release_value_continuity.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase60 continuity view explains freshness and missing values without phase selection",

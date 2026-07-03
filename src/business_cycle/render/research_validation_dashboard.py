@@ -330,6 +330,17 @@ def _verify_rendered_html_pages(
             "data-phase-start-update-next-action",
         ):
             required_missing += int(token not in combined)
+    if (
+        "current_macro_numeric_chart_coverage" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-current-macro-numeric-chart-coverage",
+            "data-current-macro-chart-row",
+            "data-chart-coverage-mode",
+            "data-chart-coverage-boundary",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -824,6 +835,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     replay_preview = bundle.get("transition_timing_replay_preview")
     phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
     phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
+    current_numeric_chart_coverage = bundle.get("current_macro_numeric_chart_coverage")
     group_cards = "".join(
         _latest_major_group_card(group)
         for group in drilldown["major_group_drilldowns"]
@@ -871,6 +883,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     </section>
     {_declared_phase_start_confirmation_section(phase_start_confirmation)}
     {_declared_phase_start_update_gate_section(phase_start_update_gate)}
+    {_current_macro_numeric_chart_coverage_section(current_numeric_chart_coverage)}
     {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
       <h2>Major group drilldowns</h2>
@@ -980,6 +993,51 @@ def _declared_phase_start_update_gate_section(
         <strong>Next governed action</strong>
         <span>{_text(update_gate["operator_next_action"])}</span>
       </div>
+    </section>
+    """
+
+
+def _current_macro_numeric_chart_coverage_section(
+    coverage: dict[str, Any] | None,
+) -> str:
+    if coverage is None:
+        return ""
+    rows = "".join(
+        f"""
+        <article class="mini-card" data-current-macro-chart-row="{_text(row["role_id"])}">
+          <strong>{_text(row["role_id"])}</strong>
+          <dl class="mini-grid">
+            <dt>Phase</dt><dd>{_text(row["phase_or_layer"])}</dd>
+            <dt>Source risk</dt><dd>{_text(row["data_risk_level"])}</dd>
+            <dt>Chart status</dt><dd>{_status_badge(row["chart_coverage_status"])}</dd>
+            <dt>Series</dt><dd>{len(row["official_series_ids"])}</dd>
+            <dt>Points</dt><dd>{row["chart_point_count"]}</dd>
+          </dl>
+        </article>
+        """
+        for row in coverage["role_chart_coverage_rows"]
+    )
+    return f"""
+    <section class="panel" data-current-macro-numeric-chart-coverage>
+      <div class="section-heading">
+        <h2>Current macro numeric and chart coverage</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This section verifies current numeric context and YTD / 1Y / 5Y chart payload connectivity. Fixture/cache values are explanation context only and do not infer the declared state.</p>
+      <div class="status-strip" data-chart-coverage-boundary>
+        <span data-chart-coverage-mode>{_text(coverage["data_mode"])}</span>
+        <span>fixture values are not live</span>
+        <span>not point-in-time evidence</span>
+        <span>missing charts are not zero</span>
+        <span>numeric context is not phase support</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Official-series roles", coverage["role_count"] - coverage["role_without_official_series_count"], "chart capable")}
+        {_metric_card("Numeric context", coverage["role_with_numeric_context_count"], "fixture/cache")}
+        {_metric_card("Available charts", coverage["role_with_available_chart_payload_count"], "YTD / 1Y / 5Y")}
+        {_metric_card("Unavailable roles", coverage["role_without_official_series_count"], "authorized/private gaps")}
+      </div>
+      <div class="mini-grid">{rows}</div>
     </section>
     """
 

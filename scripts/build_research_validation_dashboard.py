@@ -14,6 +14,9 @@ from business_cycle.render.boom_transition_dashboard_surface import (
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
 )
+from business_cycle.render.current_macro_numeric_chart_coverage import (
+    build_current_macro_numeric_chart_coverage_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -49,6 +52,11 @@ def main() -> None:
         action="store_true",
         help="include the Phase71 declared boom start registry update gate",
     )
+    parser.add_argument(
+        "--include-current-macro-numeric-chart-coverage",
+        action="store_true",
+        help="include the Phase72 current macro numeric/chart coverage panel",
+    )
     args = parser.parse_args()
 
     current_snapshot = _load_current_snapshot(args.include_current_snapshot)
@@ -62,6 +70,7 @@ def main() -> None:
         if args.include_latest_evidence_drilldown
         or args.include_phase_start_confirmation
         or args.include_phase_start_update_gate
+        or args.include_current_macro_numeric_chart_coverage
         else None
     )
     phase_start_confirmation = (
@@ -75,12 +84,18 @@ def main() -> None:
         if args.include_phase_start_update_gate
         else None
     )
+    current_macro_numeric_chart_coverage = (
+        build_current_macro_numeric_chart_coverage_view_model()
+        if args.include_current_macro_numeric_chart_coverage
+        else None
+    )
     bundle = build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
         indicator_dashboard_explanation_drilldown=latest_evidence_drilldown,
         declared_phase_start_confirmation=phase_start_confirmation,
         declared_phase_start_registry_update_gate=phase_start_update_gate,
+        current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
     bundle_summary = _bundle_summary(bundle)
@@ -112,6 +127,10 @@ def main() -> None:
     print(
         "phase_start_update_gate_view_ready="
         f"{str(bool(bundle.get('declared_phase_start_registry_update_gate'))).lower()}"
+    )
+    print(
+        "current_macro_numeric_chart_coverage_view_ready="
+        f"{str(bool(bundle.get('current_macro_numeric_chart_coverage'))).lower()}"
     )
     for key in (
         "research_dashboard_runtime_ready",

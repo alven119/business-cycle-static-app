@@ -28,6 +28,7 @@ def main() -> None:
         "phase69_start_confirmation_enabler_present",
         "phase70_registry_preview_enabler_present",
         "phase71_registry_update_gate_enabler_present",
+        "phase72_current_macro_numeric_chart_enabler_present",
         "all_target_capabilities_reach_95",
         "monotonic_progress_targets",
         "planned_phase_ids",

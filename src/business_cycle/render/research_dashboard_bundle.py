@@ -36,6 +36,9 @@ from business_cycle.render.major_group_evidence_profile_readiness import (
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
 )
+from business_cycle.render.current_macro_numeric_chart_coverage import (
+    build_current_macro_numeric_chart_coverage_view_model,
+)
 from business_cycle.render.transition_timing_replay_preview import (
     build_transition_timing_replay_preview_view_model,
 )
@@ -109,6 +112,7 @@ DECLARED_PHASE_START_CONFIRMATION_VIEW_ID = "declared_phase_start_confirmation"
 DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID = (
     "declared_phase_start_registry_update_gate"
 )
+CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID = "current_macro_numeric_chart_coverage"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -147,6 +151,7 @@ def build_research_dashboard_bundle(
     transition_timing_replay_preview: dict[str, Any] | None = None,
     declared_phase_start_confirmation: dict[str, Any] | None = None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None = None,
+    current_macro_numeric_chart_coverage: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -185,6 +190,7 @@ def build_research_dashboard_bundle(
         declared_phase_start_registry_update_gate=(
             declared_phase_start_registry_update_gate
         ),
+        current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -392,6 +398,13 @@ def build_research_dashboard_bundle(
         )
         bundle["source_runs"]["phase71_declared_phase_start_registry_update_gate"] = (
             declared_phase_start_registry_update_gate["view_id"]
+        )
+    if current_macro_numeric_chart_coverage is not None:
+        bundle["current_macro_numeric_chart_coverage"] = (
+            current_macro_numeric_chart_coverage
+        )
+        bundle["source_runs"]["phase72_current_macro_numeric_chart_coverage"] = (
+            current_macro_numeric_chart_coverage["view_id"]
         )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
@@ -648,6 +661,7 @@ def _view_ids(
     transition_timing_replay_preview: dict[str, Any] | None,
     declared_phase_start_confirmation: dict[str, Any] | None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None,
+    current_macro_numeric_chart_coverage: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -672,6 +686,8 @@ def _view_ids(
         view_ids.append(DECLARED_PHASE_START_CONFIRMATION_VIEW_ID)
     if declared_phase_start_registry_update_gate is not None:
         view_ids.append(DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID)
+    if current_macro_numeric_chart_coverage is not None:
+        view_ids.append(CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -844,6 +860,9 @@ def _view_title(view_id: str) -> str:
         "declared_phase_start_registry_update_gate": (
             "Declared Phase Start Registry Update Gate"
         ),
+        "current_macro_numeric_chart_coverage": (
+            "Current Macro Numeric and Chart Coverage"
+        ),
     }[view_id]
 
 
@@ -939,6 +958,19 @@ def build_research_dashboard_bundle_with_declared_phase_start_update_gate() -> d
         ),
         declared_phase_start_registry_update_gate=(
             build_declared_phase_start_registry_update_gate_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_current_macro_numeric_chart_coverage() -> dict[str, Any]:
+    """Build a bundle with Phase72 numeric/chart coverage handoff."""
+
+    return build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=(
+            build_indicator_dashboard_explanation_drilldown_view_model()
+        ),
+        current_macro_numeric_chart_coverage=(
+            build_current_macro_numeric_chart_coverage_view_model()
         ),
     )
 
