@@ -353,6 +353,27 @@ product_capability_95_roadmap:
         - registry_write_allowed=false
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 70
+      phase_title: Declared phase-start registry update preview
+      objective_zh: >
+        建立 declared boom 起始日/起始區間的 registry update dry-run
+        preview，驗證 exact date、bounded window 與缺輸入 wait state。此
+        phase 只產生 /tmp 預覽，不寫 declared registry，也不推論現在階段。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - declared_phase_start_registry_update_preview_ready=true
+        - sample_exact_date_preview_valid=true
+        - sample_window_preview_valid=true
+        - missing_input_wait_state_valid=true
+        - registry_write_allowed=false
+        - phase_age_false_precision_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

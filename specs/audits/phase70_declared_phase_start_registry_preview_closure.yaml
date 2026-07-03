@@ -1,0 +1,39 @@
+phase70_declared_phase_start_registry_preview_closure:
+  phase_id: 70
+  phase_label: declared_phase_start_registry_update_preview
+  status: active_phase_closure_contract
+  objective_zh: >
+    完成 declared boom 起始日/起始區間 intake 與 registry update dry-run
+    preview。此 closure 驗證 exact-date preview、bounded-window preview、缺輸入
+    wait state 與 /tmp output policy 均可用，但 declared registry 仍未修改。
+  hard_gates:
+    phase70_declared_phase_start_registry_preview_ready: true
+    declared_phase_start_registry_update_preview_ready: true
+    intake_contract_ready: true
+    sample_exact_date_preview_valid: true
+    sample_window_preview_valid: true
+    missing_input_wait_state_valid: true
+    cli_preview_output_ready: true
+    cli_preview_output_under_tmp: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    registry_write_allowed: false
+    declared_registry_modified: false
+    future_registry_update_gate_required: true
+    exact_date_preview_can_compute_phase_age: true
+    window_preview_exact_age_allowed: false
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_phase_start_registry_preview_ready_registry_unchanged
+    legal_transition_semantics_preserved: true
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 3
+    phase70_closure_status: closed_declared_phase_start_registry_preview_ready_no_registry_write

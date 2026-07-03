@@ -148,3 +148,7 @@ roadmap:
   dashboard, showing rough start-window context, evidence abstention, data
   risk, phase-age caveats, and the next governed action without writing the
   declared registry or selecting a phase.
+- Phase 70 adds a declared boom start registry update dry-run preview. It
+  validates exact-date, bounded-window, and missing-input cases, writes only to
+  `/tmp` when explicitly requested, and keeps the declared registry unchanged
+  until a future explicit update gate.

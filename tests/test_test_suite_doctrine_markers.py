@@ -78,6 +78,12 @@ def test_marker_lookup_for_known_high_risk_files() -> None:
         "tests/test_phase69_declared_phase_start_confirmation_closure.py"
     )
     assert "transition_monitor" in markers_for_test_path(
+        "tests/test_declared_phase_start_registry_preview.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
+        "tests/test_phase70_declared_phase_start_registry_preview_closure.py"
+    )
+    assert "transition_monitor" in markers_for_test_path(
         "tests/test_official_macro_source_adapter_wiring.py"
     )
     assert "doctrine_aligned" in markers_for_test_path(

@@ -1,0 +1,74 @@
+declared_phase_start_registry_update_preview:
+  contract_id: declared_phase_start_registry_update_preview_v1
+  contract_version: "1.0"
+  phase_id: 70
+  status: active_research_preview_contract
+  objective_zh: >
+    建立 declared boom 起始日或起始區間的受治理 intake 與 registry update
+    dry-run preview。此 contract 只驗證使用者可提供的輸入、產生預覽 artifact、
+    顯示 phase-age 可否精確計算，不自動修改 declared registry。
+  dependencies:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/declared_phase_start_confirmation.yaml
+    - specs/common/investment_cycle_product_doctrine.yaml
+  allowed_inputs:
+    - user_supplied_exact_start_date
+    - user_supplied_start_window
+    - user_supplied_confirmation_note
+    - explicit_as_of_for_preview
+  prohibited_inputs:
+    - current_macro_data_to_infer_phase
+    - standalone_current_phase_classifier
+    - phase_rank
+    - phase_score
+    - phase_winner
+    - historical_accuracy_label
+    - nber_label
+    - portfolio_return
+    - production_resolver_output
+  intake_policy:
+    exact_date_allowed: true
+    bounded_window_allowed: true
+    missing_input_allowed_as_intake_wait_state: true
+    exact_age_allowed_only_for_exact_date: true
+    window_age_display_policy: range_or_unknown_only
+    registry_write_allowed_in_this_phase: false
+    registry_write_requires_future_explicit_gate: true
+  output_policy:
+    output_mode: research_only_declared_phase_start_registry_preview
+    tmp_or_explicit_output_only: true
+    repo_output_allowed: false
+    public_output_allowed: false
+  prohibited_outputs:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_score
+    - phase_rank
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  hard_gates:
+    declared_phase_start_registry_update_preview_ready: true
+    intake_contract_ready: true
+    sample_exact_date_preview_valid: true
+    sample_window_preview_valid: true
+    missing_input_wait_state_valid: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    registry_write_allowed: false
+    declared_registry_modified: false
+    future_registry_update_gate_required: true
+    exact_date_preview_can_compute_phase_age: true
+    window_preview_exact_age_allowed: false
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

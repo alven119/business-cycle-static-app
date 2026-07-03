@@ -387,6 +387,14 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase69 closure proves dashboard handoff preserves declared state boundaries",
     ),
+    "tests/test_declared_phase_start_registry_preview.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase70 registry preview validates user input without registry writes",
+    ),
+    "tests/test_phase70_declared_phase_start_registry_preview_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase70 closure proves intake preview preserves registry and phase boundaries",
+    ),
     "tests/test_evidence_freshness_release_value_continuity.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase60 continuity view explains freshness and missing values without phase selection",
