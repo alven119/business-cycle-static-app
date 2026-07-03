@@ -1,0 +1,76 @@
+declared_phase_start_registry_update_gate:
+  contract_id: declared_phase_start_registry_update_gate_v1
+  contract_version: "1.0"
+  phase_id: 71
+  status: active_research_update_gate
+  objective_zh: >
+    建立 declared boom 起始日或起始區間的受治理 registry update gate。
+    本 contract 可在 /tmp registry copy 上驗證寫入、phase-age 與 dashboard
+    handoff；canonical declared registry 在本 phase 仍不得被修改。
+  dependencies:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/declared_phase_start_registry_update_preview.yaml
+    - specs/common/investment_cycle_product_doctrine.yaml
+  allowed_inputs:
+    - user_supplied_exact_start_date
+    - user_supplied_start_window
+    - user_supplied_confirmation_note
+    - explicit_as_of_for_gate
+    - explicit_tmp_registry_output_path
+  prohibited_inputs:
+    - current_macro_data_to_infer_phase
+    - standalone_current_phase_classifier
+    - phase_rank
+    - phase_score
+    - phase_winner
+    - historical_accuracy_label
+    - nber_label
+    - portfolio_return
+    - production_resolver_output
+  update_policy:
+    exact_date_update_supported: true
+    bounded_window_update_supported: true
+    missing_input_update_rejected: true
+    confirmation_note_required_for_write: true
+    tmp_registry_copy_write_allowed: true
+    canonical_registry_write_allowed_in_this_phase: false
+    canonical_registry_write_requires_future_explicit_user_gate: true
+  phase_age_policy:
+    exact_date_may_display_exact_age_after_registry_update: true
+    bounded_window_may_display_age_range_only: true
+    missing_input_must_keep_wait_state: true
+    false_precision_policy: bounded_window_never_has_exact_age
+  dashboard_handoff:
+    view_id: declared_phase_start_registry_update_gate
+    output_mode: research_only_declared_phase_start_registry_update_gate
+    allowed_uses:
+      - operator_declared_start_date_update_review
+      - dashboard_phase_age_handoff_preparation
+      - registry_update_gate_rehearsal
+    prohibited_uses:
+      - production_decision
+      - candidate_or_current_phase_selection
+      - portfolio_or_trade_decision
+      - automatic_registry_write
+  hard_gates:
+    declared_phase_start_registry_update_gate_ready: true
+    sample_exact_tmp_registry_update_valid: true
+    sample_window_tmp_registry_update_valid: true
+    missing_input_update_rejected: true
+    phase_age_dashboard_handoff_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    exact_tmp_registry_phase_age_days: 397
+    window_tmp_registry_exact_age_allowed: false
+    canonical_registry_write_allowed: false
+    canonical_registry_modified: false
+    future_canonical_registry_update_gate_required: true
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

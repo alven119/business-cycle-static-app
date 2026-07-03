@@ -25,7 +25,7 @@ validation, investment advice, or a formal current phase decision.
 
 | Phase | Primary Outcome | Capabilities Advanced |
 |---|---|---|
-| 71 | User-confirmed declared boom start registry update and phase-age dashboard handoff | C1, C3, C6, F1 |
+| 71 | Registry update gate rehearsal and phase-age dashboard handoff | C1, C3, C6, F1 |
 | 72 | Current macro numeric coverage expansion and chart data population | C1, C2, C3, F1 |
 | 73 | Boom-to-recession confirmation boundary rehearsal with richer evidence accumulation | C1, C2, C3, C6 |
 | 74 | Portfolio policy research template surface, research-only and no allocation advice | C4, C3, C6 |
@@ -35,6 +35,12 @@ validation, investment advice, or a formal current phase decision.
 | 78 | Cash-flow-aware portfolio research harness, research-only metrics only | C4, C5, C6 |
 | 79 | Validation, freeze, and prospective-readiness rehearsal for migration gates | F2, C6, C5 |
 | 80 | Production migration rehearsal for declared-state dashboard and research surfaces | C1, C2, C3, C4, C5, C6, F1, F2 |
+
+Phase 71 implements the safe rehearsal form of the planned registry update: it
+can apply exact-date or bounded-window inputs to a `/tmp` registry copy and
+render the dashboard handoff. The canonical declared registry still waits for a
+future explicit write gate after the user supplies the actual start date or
+window.
 
 ## Guardrails
 

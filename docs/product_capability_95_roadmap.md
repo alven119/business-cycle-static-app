@@ -152,3 +152,7 @@ roadmap:
   validates exact-date, bounded-window, and missing-input cases, writes only to
   `/tmp` when explicitly requested, and keeps the declared registry unchanged
   until a future explicit update gate.
+- Phase 71 upgrades that preview into a registry update gate rehearsal. It can
+  write exact-date or bounded-window changes to a `/tmp` registry copy, renders
+  the phase-age handoff in the dashboard, and still leaves the canonical
+  declared registry unchanged until a future explicit canonical write gate.

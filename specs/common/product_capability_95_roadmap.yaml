@@ -374,6 +374,30 @@ product_capability_95_roadmap:
         - phase_age_false_precision_count=0
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 71
+      phase_title: Declared phase-start registry update gate and dashboard handoff
+      objective_zh: >
+        將 Phase70 preview 升級為可在 /tmp registry copy rehearsal 的
+        registry update gate，並把 phase-age handoff 接入 dashboard。此
+        phase 不修改 canonical declared registry；正式寫入仍等待使用者給定
+        exact date 或 bounded window 與 explicit canonical write gate。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - declared_phase_start_registry_update_gate_ready=true
+        - sample_exact_tmp_registry_update_valid=true
+        - sample_window_tmp_registry_update_valid=true
+        - missing_input_update_rejected=true
+        - canonical_registry_write_allowed=false
+        - canonical_registry_modified=false
+        - phase_age_false_precision_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

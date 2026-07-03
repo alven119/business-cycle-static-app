@@ -1,0 +1,41 @@
+phase71_declared_phase_start_registry_update_closure:
+  phase_id: 71
+  phase_label: declared_phase_start_registry_update_gate_and_dashboard_handoff
+  status: active_phase_closure_contract
+  objective_zh: >
+    完成 declared boom 起始日/起始區間 registry update gate 與 dashboard
+    handoff。此 closure 驗證 exact-date 與 bounded-window 可安全寫入 /tmp
+    registry copy、缺輸入會被拒絕、dashboard 可顯示 handoff，但 canonical
+    declared registry 仍不修改。
+  hard_gates:
+    phase71_declared_phase_start_registry_update_ready: true
+    declared_phase_start_registry_update_gate_ready: true
+    sample_exact_tmp_registry_update_valid: true
+    sample_window_tmp_registry_update_valid: true
+    missing_input_update_rejected: true
+    phase_age_dashboard_handoff_ready: true
+    rendered_phase_start_update_gate_ready: true
+    cli_tmp_registry_update_ready: true
+    cli_tmp_registry_output_under_tmp: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    exact_tmp_registry_phase_age_days: 397
+    window_tmp_registry_exact_age_allowed: false
+    canonical_registry_write_allowed: false
+    canonical_registry_modified: false
+    future_canonical_registry_update_gate_required: true
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_phase_start_update_gate_ready_canonical_registry_unchanged
+    legal_transition_semantics_preserved: true
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 4
+    phase71_closure_status: closed_declared_phase_start_registry_update_gate_ready_canonical_registry_unchanged

@@ -318,6 +318,18 @@ def _verify_rendered_html_pages(
             "data-declared-registry-boundary",
         ):
             required_missing += int(token not in combined)
+    if (
+        "declared_phase_start_registry_update_gate" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-declared-phase-start-update-gate",
+            "data-phase-start-update-handoff",
+            "data-phase-start-update-row",
+            "data-canonical-registry-write-boundary",
+            "data-phase-start-update-next-action",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -811,6 +823,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     drilldown = bundle["indicator_dashboard_explanation_drilldown"]
     replay_preview = bundle.get("transition_timing_replay_preview")
     phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
+    phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
     group_cards = "".join(
         _latest_major_group_card(group)
         for group in drilldown["major_group_drilldowns"]
@@ -857,6 +870,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
       <div class="metric-grid">{continuity_counts}</div>
     </section>
     {_declared_phase_start_confirmation_section(phase_start_confirmation)}
+    {_declared_phase_start_update_gate_section(phase_start_update_gate)}
     {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
       <h2>Major group drilldowns</h2>
@@ -920,6 +934,51 @@ def _declared_phase_start_confirmation_section(
       <div class="callout" data-phase-start-next-action>
         <strong>Next governed action</strong>
         <span>{_text(confirmation["operator_next_action"])}</span>
+      </div>
+    </section>
+    """
+
+
+def _declared_phase_start_update_gate_section(
+    update_gate: dict[str, Any] | None,
+) -> str:
+    if update_gate is None:
+        return ""
+    rows = "".join(
+        f"""
+        <article class="mini-card" data-phase-start-update-row="{_text(row["handoff_id"])}">
+          <strong>{_text(row["label_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Display policy</dt><dd>{_text(row["display_policy"])}</dd>
+            <dt>Canonical write now</dt><dd>{_text(str(row["canonical_write_in_this_phase"]).lower())}</dd>
+          </dl>
+        </article>
+        """
+        for row in update_gate["handoff_rows"]
+    )
+    return f"""
+    <section class="panel" data-declared-phase-start-update-gate>
+      <div class="section-heading">
+        <h2>Declared phase start registry update gate</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This handoff verifies how a user-confirmed declared boom start date or bounded window would update a temporary registry copy. The canonical declared registry is unchanged until a future explicit write gate.</p>
+      <div class="status-strip" data-phase-start-update-handoff>
+        <span>declared state: {_text(update_gate["declared_current_phase"])}</span>
+        <span>legal next: {_text(update_gate["legal_next_phase"])}</span>
+        <span>update gate ready: {_text(str(update_gate["update_gate_ready"]).lower())}</span>
+        <span data-canonical-registry-write-boundary>canonical write allowed: {_text(str(update_gate["canonical_registry_write_allowed"]).lower())}</span>
+        <span>bounded-window exact age: {_text(str(update_gate["bounded_window_exact_age_allowed"]).lower())}</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Exact-date age example", update_gate["exact_date_phase_age_example_days"], "dry-run days")}
+        {_metric_card("False precision", update_gate["phase_age_false_precision_count"], "must stay zero")}
+        {_metric_card("Canonical registry", "unchanged", "future gate required")}
+      </div>
+      <div class="mini-grid">{rows}</div>
+      <div class="callout" data-phase-start-update-next-action>
+        <strong>Next governed action</strong>
+        <span>{_text(update_gate["operator_next_action"])}</span>
       </div>
     </section>
     """

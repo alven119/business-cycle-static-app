@@ -42,6 +42,9 @@ from business_cycle.render.transition_timing_replay_preview import (
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
+from business_cycle.cycle_state.declared_phase_start_registry_update_gate import (
+    build_declared_phase_start_registry_update_gate_view_model,
+)
 from business_cycle.validation.post_pit_remediation_validation_rerun import (
     build_post_pit_remediation_validation_rerun,
 )
@@ -103,6 +106,9 @@ INDICATOR_DASHBOARD_EXPLANATION_DRILLDOWN_VIEW_ID = (
 )
 TRANSITION_TIMING_REPLAY_PREVIEW_VIEW_ID = "transition_timing_replay_preview"
 DECLARED_PHASE_START_CONFIRMATION_VIEW_ID = "declared_phase_start_confirmation"
+DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID = (
+    "declared_phase_start_registry_update_gate"
+)
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -140,6 +146,7 @@ def build_research_dashboard_bundle(
     indicator_dashboard_explanation_drilldown: dict[str, Any] | None = None,
     transition_timing_replay_preview: dict[str, Any] | None = None,
     declared_phase_start_confirmation: dict[str, Any] | None = None,
+    declared_phase_start_registry_update_gate: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -175,6 +182,9 @@ def build_research_dashboard_bundle(
         ),
         transition_timing_replay_preview=transition_timing_replay_preview,
         declared_phase_start_confirmation=declared_phase_start_confirmation,
+        declared_phase_start_registry_update_gate=(
+            declared_phase_start_registry_update_gate
+        ),
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -375,6 +385,13 @@ def build_research_dashboard_bundle(
         )
         bundle["source_runs"]["phase69_declared_phase_start_confirmation"] = (
             declared_phase_start_confirmation["view_id"]
+        )
+    if declared_phase_start_registry_update_gate is not None:
+        bundle["declared_phase_start_registry_update_gate"] = (
+            declared_phase_start_registry_update_gate
+        )
+        bundle["source_runs"]["phase71_declared_phase_start_registry_update_gate"] = (
+            declared_phase_start_registry_update_gate["view_id"]
         )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
@@ -630,6 +647,7 @@ def _view_ids(
     indicator_dashboard_explanation_drilldown: dict[str, Any] | None,
     transition_timing_replay_preview: dict[str, Any] | None,
     declared_phase_start_confirmation: dict[str, Any] | None,
+    declared_phase_start_registry_update_gate: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -652,6 +670,8 @@ def _view_ids(
         view_ids.append(TRANSITION_TIMING_REPLAY_PREVIEW_VIEW_ID)
     if declared_phase_start_confirmation is not None:
         view_ids.append(DECLARED_PHASE_START_CONFIRMATION_VIEW_ID)
+    if declared_phase_start_registry_update_gate is not None:
+        view_ids.append(DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -821,6 +841,9 @@ def _view_title(view_id: str) -> str:
         ),
         "transition_timing_replay_preview": "Transition Timing Replay Preview",
         "declared_phase_start_confirmation": "Declared Phase Start Confirmation",
+        "declared_phase_start_registry_update_gate": (
+            "Declared Phase Start Registry Update Gate"
+        ),
     }[view_id]
 
 
@@ -897,6 +920,25 @@ def build_research_dashboard_bundle_with_declared_phase_start_confirmation() -> 
         ),
         declared_phase_start_confirmation=(
             build_declared_phase_start_confirmation_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_declared_phase_start_update_gate() -> dict[str, Any]:
+    """Build a bundle including the Phase71 registry update-gate surface."""
+
+    return build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=(
+            build_indicator_dashboard_explanation_drilldown_view_model()
+        ),
+        transition_timing_replay_preview=(
+            build_transition_timing_replay_preview_view_model()
+        ),
+        declared_phase_start_confirmation=(
+            build_declared_phase_start_confirmation_view_model()
+        ),
+        declared_phase_start_registry_update_gate=(
+            build_declared_phase_start_registry_update_gate_view_model()
         ),
     )
 
