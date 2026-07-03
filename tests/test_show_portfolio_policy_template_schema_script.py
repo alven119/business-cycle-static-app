@@ -11,11 +11,11 @@ def test_show_portfolio_policy_template_schema_outputs_summary() -> None:
     assert completed.returncode == 0, completed.stderr
     assert "version=1" in completed.stdout
     assert "status=draft" in completed.stdout
-    assert "allowed_template_count=3" in completed.stdout
+    assert "allowed_template_count=8" in completed.stdout
     assert "live_allocation_allowed_now=false" in completed.stdout
     assert "trade_signal_generation_allowed_now=false" in completed.stdout
     assert "public_output_allowed_now=false" in completed.stdout
-    assert "recommended_next_phase=8C" in completed.stdout
+    assert "recommended_next_phase=77" in completed.stdout
 
 
 def test_show_portfolio_policy_template_schema_accepts_custom_path(tmp_path: Path) -> None:
@@ -30,7 +30,7 @@ def test_show_portfolio_policy_template_schema_accepts_custom_path(tmp_path: Pat
 
     assert completed.returncode == 0, completed.stderr
     assert "status=test" in completed.stdout
-    assert "recommended_next_phase=8C" in completed.stdout
+    assert "recommended_next_phase=77" in completed.stdout
 
 
 def test_show_portfolio_policy_template_schema_missing_path_fails(tmp_path: Path) -> None:

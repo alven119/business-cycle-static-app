@@ -9,7 +9,7 @@ def test_validate_portfolio_policy_template_fixtures_outputs_passed() -> None:
     completed = run_script()
 
     assert completed.returncode == 0, completed.stderr
-    assert "valid_template_count=3" in completed.stdout
+    assert "valid_template_count=8" in completed.stdout
     assert "unexpected_invalid_passes=0" in completed.stdout
     assert "result=passed" in completed.stdout
 

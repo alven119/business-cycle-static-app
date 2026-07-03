@@ -6,6 +6,7 @@ import pytest
 
 from business_cycle.portfolio import (
     PortfolioPolicyTemplateError,
+    REQUIRED_TEMPLATE_IDS,
     load_portfolio_policy_template_fixtures,
     load_portfolio_policy_template_schema,
     validate_portfolio_policy_template,
@@ -26,11 +27,12 @@ def test_portfolio_policy_template_schema_loads() -> None:
 def test_portfolio_policy_template_schema_has_allowed_templates_and_prohibited_fields() -> None:
     schema = load_portfolio_policy_template_schema(SCHEMA_PATH)
 
-    assert len(schema.allowed_template_ids) == 3
+    assert set(schema.allowed_template_ids) == REQUIRED_TEMPLATE_IDS
+    assert len(schema.allowed_template_ids) == 8
     assert {"target_weight", "buy_signal", "sell_signal", "current_market_recommendation"}.issubset(
         schema.prohibited_fields
     )
-    assert schema.recommended_next_phase["phase_id"] == "8C"
+    assert schema.recommended_next_phase["phase_id"] == "77"
 
 
 def test_valid_policy_template_fixtures_pass() -> None:
@@ -38,9 +40,9 @@ def test_valid_policy_template_fixtures_pass() -> None:
     fixtures = load_portfolio_policy_template_fixtures(FIXTURES_PATH)
     by_id = {fixture["fixture_id"]: fixture["template"] for fixture in fixtures.valid_templates}
 
-    validate_portfolio_policy_template(by_id["valid_boom_de_risking_template"], schema)
-    validate_portfolio_policy_template(by_id["valid_recession_defense_template"], schema)
-    validate_portfolio_policy_template(by_id["valid_recovery_re_risking_template"], schema)
+    assert set(template["template_id"] for template in by_id.values()) == REQUIRED_TEMPLATE_IDS
+    for template in by_id.values():
+        validate_portfolio_policy_template(template, schema)
 
 
 @pytest.mark.parametrize(

@@ -3,8 +3,9 @@ portfolio_policy_template_schema:
   status: draft
   objective_zh: >
     定義 portfolio policy research templates 的安全 schema，
-    確保榮景減碼、衰退防守、復甦再加碼等策略概念只能作為 backtest-only research template，
-    不得輸出 live allocation、交易訊號或目前配置建議。
+    將 Phase75 的八個 baseline templates 具體化為可驗證的 research-only /
+    backtest-only template objects，並確保它們不得輸出 live allocation、
+    交易訊號或目前配置建議。
   caveats_zh:
     - 此為 portfolio policy template schema，不是正式投資策略。
     - 所有權重都是 backtest-only parameters，不是目前配置建議。
@@ -27,6 +28,8 @@ portfolio_policy_template_schema:
       - prohibited_interpretations_zh
       - caveats_zh
     optional_fields:
+      - template_family
+      - asset_universe
       - book_aligned_parameters
       - backtest_parameter_grid
       - required_risk_metrics
@@ -44,9 +47,14 @@ portfolio_policy_template_schema:
       no_trade_action_language: true
 
   allowed_template_ids:
-    - boom_de_risking_template
-    - recession_defense_template
-    - recovery_re_risking_template
+    - passive_all_stock_baseline
+    - stock_cash_initial
+    - stock_cash_advanced
+    - stock_long_treasury_initial
+    - stock_long_treasury_advanced
+    - boom_70_50_30_template
+    - recession_defense_research_template
+    - recovery_re_risk_research_template
 
   allowed_statuses:
     - proposed_for_backtest
@@ -102,7 +110,27 @@ portfolio_policy_template_schema:
     - 不構成投資建議。
 
   template_specific_rules:
-    boom_de_risking_template:
+    passive_all_stock_baseline:
+      required_prohibited_interpretations:
+        - 被動全股票基準只可作比較基準，不得解讀為目前持有建議。
+        - 不得把基準績效當作未來績效保證。
+    stock_cash_initial:
+      required_prohibited_interpretations:
+        - 股票／現金初階模板只可作研究假設，不得解讀為目前現金比例。
+        - 不得在未定義成本與再平衡規則前作任何行動。
+    stock_cash_advanced:
+      required_prohibited_interpretations:
+        - 股票／現金進階模板只可作研究假設，不得解讀為目前曝險路徑。
+        - 不得用 transition watch 直接產生交易行動。
+    stock_long_treasury_initial:
+      required_prohibited_interpretations:
+        - 股票／長天期美債初階模板只可作研究假設，不得解讀為目前債券比例。
+        - 不得把長債防守效果視為未來績效保證。
+    stock_long_treasury_advanced:
+      required_prohibited_interpretations:
+        - 股票／長天期美債進階模板只可作研究假設，不得解讀為目前曝險路徑。
+        - 不得在未定義利率風險與再平衡規則前作任何行動。
+    boom_70_50_30_template:
       required_book_parameters:
         stock_weight_levels_for_backtest_only:
           - 0.70
@@ -112,19 +140,19 @@ portfolio_policy_template_schema:
         - 不得把 boom ending watch 直接視為賣出或減碼指令。
         - 不得未經回測直接使用 70/50/30。
         - 不得輸出目前配置建議。
-    recession_defense_template:
+    recession_defense_research_template:
       required_prohibited_interpretations:
         - recession confirmation evidence 不得單獨產生交易訊號。
         - 不得在未定義交易成本與錯誤訊號成本前做配置行動。
-    recovery_re_risking_template:
+    recovery_re_risk_research_template:
       required_prohibited_interpretations:
         - recovery watch 不得直接視為買進或加碼訊號。
         - policy easing 不得單獨確認 recovery。
         - COVID 類外生衝擊必須有 caveat。
 
   recommended_next_phase:
-    phase_id: 8C
-    title: portfolio policy template fixtures and validator hardening
+    phase_id: "77"
+    title: portfolio policy replay schedule contract
     reason_zh: >
-      已完成 portfolio policy template schema。下一步可建立合法與非法 policy template fixtures，
-      確保 validator 能阻擋 live allocation、trade signal、current recommendation 與 prohibited text。
+      已完成八個 research-only / backtest-only policy template fixtures。
+      下一步可建立 policy schedule replay contract，但仍不得執行正式回測或輸出目前配置建議。

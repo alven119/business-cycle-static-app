@@ -8,6 +8,8 @@ from typing import Any
 
 import yaml
 
+from business_cycle.portfolio.policy_research_baseline import REQUIRED_TEMPLATE_IDS
+
 
 class PortfolioPolicyTemplateError(ValueError):
     """Raised when portfolio policy template validation fails."""
@@ -94,8 +96,8 @@ def validate_portfolio_policy_template_schema(schema: PortfolioPolicyTemplateSch
         raise PortfolioPolicyTemplateError("prohibited_fields must exist")
     if not schema.prohibited_text_patterns:
         raise PortfolioPolicyTemplateError("prohibited_text_patterns must exist")
-    if str(schema.recommended_next_phase.get("phase_id") or "") != "8C":
-        raise PortfolioPolicyTemplateError("recommended_next_phase.phase_id must be 8C")
+    if str(schema.recommended_next_phase.get("phase_id") or "") != "77":
+        raise PortfolioPolicyTemplateError("recommended_next_phase.phase_id must be 77")
     for field in ("target_weight", "buy_signal", "sell_signal", "current_market_recommendation"):
         if field not in schema.prohibited_fields:
             raise PortfolioPolicyTemplateError(f"prohibited_fields must include {field}")
@@ -106,12 +108,8 @@ def validate_portfolio_policy_template_schema(schema: PortfolioPolicyTemplateSch
     ):
         if caveat not in schema.required_caveats_zh:
             raise PortfolioPolicyTemplateError(f"required_caveats_zh must include {caveat}")
-    if set(schema.allowed_template_ids) != {
-        "boom_de_risking_template",
-        "recession_defense_template",
-        "recovery_re_risking_template",
-    }:
-        raise PortfolioPolicyTemplateError("allowed_template_ids must contain exactly three known templates")
+    if set(schema.allowed_template_ids) != REQUIRED_TEMPLATE_IDS:
+        raise PortfolioPolicyTemplateError("allowed_template_ids must contain the eight Phase75 templates")
 
 
 def validate_portfolio_policy_template(
@@ -370,10 +368,10 @@ def _validate_template_specific_rules(
         raise PortfolioPolicyTemplateError(
             f"{template_id}.prohibited_interpretations_zh missing required item: {missing[0]}"
         )
-    if template_id == "boom_de_risking_template":
+    if template_id == "boom_70_50_30_template":
         params = _mapping(
             template.get("book_aligned_parameters"),
-            "boom_de_risking_template.book_aligned_parameters",
+            "boom_70_50_30_template.book_aligned_parameters",
         )
         weights = [float(value) for value in params.get("stock_weight_levels_for_backtest_only", [])]
         if weights != [0.70, 0.50, 0.30]:

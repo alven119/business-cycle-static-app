@@ -1,0 +1,38 @@
+phase76_portfolio_policy_template_fixtures_closure:
+  version: "1.0"
+  status: active
+  phase_id: 76
+  phase_label: portfolio_policy_template_fixtures_research_only_validation
+  dependencies:
+    portfolio_policy_template_schema: specs/portfolio/portfolio_policy_template_schema.yaml
+    portfolio_policy_template_fixtures: specs/portfolio/portfolio_policy_template_fixtures.yaml
+    portfolio_policy_research_baseline: specs/portfolio/portfolio_policy_research_baseline_contract.yaml
+    product_capability_progress: specs/common/product_capability_progress.yaml
+  hard_gates:
+    phase76_portfolio_policy_template_fixtures_ready: true
+    portfolio_policy_template_schema_ready: true
+    portfolio_policy_template_fixture_validation_ready: true
+    required_policy_template_count: 8
+    valid_policy_template_fixture_count: 8
+    valid_policy_template_pass_count: 8
+    invalid_policy_template_fixture_count: 13
+    invalid_policy_template_rejected_count: 13
+    unexpected_valid_failure_count: 0
+    unexpected_invalid_pass_count: 0
+    expected_error_mismatch_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    backtest_execution_count: 0
+    portfolio_policy_replay_execution_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 8
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_policy_templates_research_only
+    portfolio_policy_research_alignment: book_benchmark_templates_fixture_validated_no_current_allocation
+    historical_replay_backtest_alignment: template_inputs_ready_no_replay_or_backtest_execution
+    phase76_closure_status: closed_book_benchmark_portfolio_templates_fixture_validated_no_advice
