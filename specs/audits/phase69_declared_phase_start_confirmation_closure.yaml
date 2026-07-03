@@ -1,0 +1,38 @@
+phase69_declared_phase_start_confirmation_closure:
+  phase_id: 69
+  phase_label: declared_phase_start_confirmation_dashboard_handoff
+  status: active_phase_closure_contract
+  objective_zh: >
+    將 declared boom 起始日/起始區間確認包接入 dashboard bundle 與
+    latest-evidence HTML。此 closure 只驗證受治理確認 surface 已可呈現，
+    不寫 declared registry、不計算精確 phase age，也不輸出 current/candidate phase。
+  hard_gates:
+    phase69_declared_phase_start_confirmation_ready: true
+    declared_phase_start_confirmation_ready: true
+    dashboard_phase_start_confirmation_view_ready: true
+    rendered_phase_start_confirmation_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    candidate_start_window_count_minimum: 2
+    user_prior_window_visible: true
+    evidence_based_window_abstains: true
+    exact_start_date_confirmed: false
+    start_window_confirmed: false
+    phase_age_precision_allowed: false
+    registry_write_allowed: false
+    declared_registry_modified: false
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_phase_start_confirmation_ready_registry_unchanged
+    legal_transition_semantics_preserved: true
+    product_capability_progress_ready: true
+    product_capability_progress_impacted_count: 5
+    phase69_closure_status: closed_declared_phase_start_confirmation_package_ready_registry_unchanged

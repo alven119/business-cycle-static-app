@@ -18,7 +18,7 @@ phase68_phase_start_numeric_test_index_closure:
     new_test_preflight_policy_ready: true
     similar_test_extension_policy_ready: true
     product_capability_progress_ready: true
-    product_capability_progress_impacted_count: 6
+    product_capability_progress_impacted_count_minimum: 1
     current_data_used_to_infer_declared_phase_count: 0
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

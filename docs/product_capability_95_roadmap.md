@@ -144,3 +144,7 @@ roadmap:
 - Phase 68 adds governed phase-start intake continuity, explicit numeric cache
   overlay support, and a dynamic test-suite index so new tests first check for
   related existing coverage.
+- Phase 69 wires the declared boom start confirmation package into the
+  dashboard, showing rough start-window context, evidence abstention, data
+  risk, phase-age caveats, and the next governed action without writing the
+  declared registry or selecting a phase.

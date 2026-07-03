@@ -14,6 +14,9 @@ from business_cycle.render.boom_transition_dashboard_surface import (
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
 )
+from business_cycle.cycle_state.declared_phase_start_confirmation import (
+    build_declared_phase_start_confirmation_view_model,
+)
 from business_cycle.render.research_validation_dashboard import (
     build_research_validation_dashboard,
 )
@@ -33,6 +36,11 @@ def main() -> None:
         action="store_true",
         help="include the Phase63 latest evidence / indicator drilldown page",
     )
+    parser.add_argument(
+        "--include-phase-start-confirmation",
+        action="store_true",
+        help="include the Phase69 declared boom start confirmation panel",
+    )
     args = parser.parse_args()
 
     current_snapshot = _load_current_snapshot(args.include_current_snapshot)
@@ -44,12 +52,19 @@ def main() -> None:
     latest_evidence_drilldown = (
         build_indicator_dashboard_explanation_drilldown_view_model()
         if args.include_latest_evidence_drilldown
+        or args.include_phase_start_confirmation
+        else None
+    )
+    phase_start_confirmation = (
+        build_declared_phase_start_confirmation_view_model()
+        if args.include_phase_start_confirmation
         else None
     )
     bundle = build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
         indicator_dashboard_explanation_drilldown=latest_evidence_drilldown,
+        declared_phase_start_confirmation=phase_start_confirmation,
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
     bundle_summary = _bundle_summary(bundle)
@@ -73,6 +88,10 @@ def main() -> None:
     print(
         "latest_evidence_dashboard_view_ready="
         f"{str(bool(bundle.get('indicator_dashboard_explanation_drilldown'))).lower()}"
+    )
+    print(
+        "phase_start_confirmation_view_ready="
+        f"{str(bool(bundle.get('declared_phase_start_confirmation'))).lower()}"
     )
     for key in (
         "research_dashboard_runtime_ready",

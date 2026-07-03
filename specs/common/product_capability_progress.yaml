@@ -9,46 +9,46 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: 68
-  phase_label: governed_phase_start_numeric_overlay_and_test_index
+  phase_id: 69
+  phase_label: declared_phase_start_confirmation_dashboard_handoff
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
-      previous_progress_percent: 94
-      current_progress_percent: 95
+      previous_progress_percent: 95
+      current_progress_percent: 96
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase68 將 declared boom 起始日治理升級成可審核 intake，並讓 transition timing preview 能在明確 tmp/local cache 下讀取 actual numeric overlay；仍不改 registry、不推論現在階段。
-      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、Phase62 drill-down、Phase63 latest evidence HTML page、Phase64 method/chart payload、Phase67 transition timing replay preview，以及 Phase68 numeric overlay fixture；仍未啟用 formal current/candidate phase。
-      remaining_gap_zh: 還需要使用者確認 declared boom 精確起始日或區間、更多 actual numeric cache/user input、真實圖表資料覆蓋率、可操作 transition confirmation 條件與 production migration gate。
-      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards、boom-to-recession transition surface、四個合法 transition lane templates、資料新鮮度/發布時點/目前值連續性 surface、24 個 major-group readiness profiles、dashboard drill-down artifact、latest evidence HTML page、診斷方法/圖表 payload、research-only transition timing replay preview，以及可用 tmp/local cache 驗證的 numeric overlay。
-      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、使用者確認的 declared boom 起始日或起始區間、授權私有資料讀取、更多 actual numeric values、真實 chart coverage、transition confirmation 操作規則與 production migration。
-      next_gap_zh: 取得使用者確認的 declared boom 起始日或區間，並擴大 actual numeric cache coverage，讓 phase-age 與 transition timing preview 能呈現更完整的真實資料時序。
+      phase_impact_zh: Phase69 將 declared boom 起始日/起始區間確認包接入 dashboard bundle 與 latest evidence HTML，讓使用者可看到 rough window、evidence abstention、資料風險與下一步；仍不寫 registry、不推論現在階段。
+      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、Phase62 drill-down、Phase63 latest evidence HTML page、Phase64 method/chart payload、Phase67 transition timing replay preview、Phase68 numeric overlay fixture，以及 Phase69 declared phase-start confirmation panel；仍未啟用 formal current/candidate phase。
+      remaining_gap_zh: 還需要使用者確認 declared boom 精確起始日或區間、更多 actual numeric cache/user input、真實圖表資料覆蓋率、可操作 transition confirmation 條件與正式遷移 gate。
+      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards、boom-to-recession transition surface、四個合法 transition lane templates、資料新鮮度/發布時點/目前值連續性 surface、24 個 major-group readiness profiles、dashboard drill-down artifact、latest evidence HTML page、診斷方法/圖表 payload、research-only transition timing replay preview、tmp/local cache numeric overlay，以及 declared boom start confirmation dashboard panel。
+      incomplete_summary_zh: 尚未完成 formal current/candidate phase gate、使用者確認的 declared boom 起始日或起始區間、授權私有資料讀取、更多 actual numeric values、真實 chart coverage、transition confirmation 操作規則與正式遷移。
+      next_gap_zh: 取得使用者確認的 declared boom 起始日或區間，並將確認後的 phase-age context 接入 transition timing preview，但仍需明確 registry update gate。
       decrease_reason_zh:
     - capability_id: C2_TRANSITION_RISK_DETECTION
       title_zh: 轉折風險偵測能力
-      previous_progress_percent: 96
-      current_progress_percent: 97
-      phase_delta_percent: 1
-      phase_impacted: true
-      phase_impact_zh: Phase68 讓 timing preview 能用 explicit cache 驗證 actual numeric context，並保留起始日/phase-age 的治理 caveat；watch、confirmation、continuation 仍分離。
-      current_status_zh: 已有 boom transition monitor、completed boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page、transition role chart payload、transition timing replay preview，以及 tmp numeric overlay 驗證；仍不自動改寫 declared phase。
-      remaining_gap_zh: 需要使用者確認 phase-age context、turning-point confirmation rules、更多 numeric current cache/user input，以及將 timing preview 連到更完整的真實 release accumulation。
-      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view、indicator detail cards、全循環 legal transition templates、freshness/release/value continuity explanation、major-group transition readiness explanation、role-level drill-down、dashboard wiring 與 YTD/1Y/5Y chart payload contract。
-      incomplete_summary_zh: 尚未完成 governed phase-age context、turning-point confirmation rules、授權私有來源讀取、更多 numeric values 與真實 release accumulation。
-      next_gap_zh: 補使用者確認的 declared boom 起始日或區間，並擴大 timing preview 的 actual numeric evidence coverage，讓 transition watch/confirmation 更接近可治理監控。
-      decrease_reason_zh:
-    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
-      title_zh: 解釋能力
       previous_progress_percent: 97
       current_progress_percent: 98
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase68 補上 test index 與 tmp numeric overlay，讓 dashboard/research surface 的指標資料來源更可追溯，也讓新增測項前能先查相似測試並擴充既有範圍。
-      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition timing replay preview 與 numeric overlay 驗證已能以 research surface 呈現。
-      remaining_gap_zh: 需要更多 numeric values、授權私有來源讀取、使用者確認的 phase-age context、真實圖表資料覆蓋率、actual release accumulation，以及最後 production renderer rehearsal。
-      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards、transition lane attribution、freshness/release/value continuity gap explanation、24 個 major-group attribution profiles、dashboard-to-role drill-down、actual HTML wiring、診斷方法透明度、YTD/1Y/5Y chart payload，以及 transition evidence accumulation preview。
-      incomplete_summary_zh: 尚未完成所有 numeric values、授權私有來源讀取、governed phase-age context、真實 chart coverage、actual release accumulation 與最後 production renderer rehearsal。
+      phase_impact_zh: Phase69 讓 transition timing 與 declared start context 在 dashboard 上並列呈現，清楚標示 rough start window 不能直接作為 transition confirmation；watch、confirmation、continuation 仍分離。
+      current_status_zh: 已有 boom transition monitor、completed boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page、transition role chart payload、transition timing replay preview、tmp numeric overlay 驗證，以及 phase-start confirmation panel；仍不自動改寫 declared phase。
+      remaining_gap_zh: 需要使用者確認 phase-age context、turning-point confirmation rules、更多 numeric current cache/user input，以及將 timing preview 連到更完整的真實 release accumulation。
+      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view、indicator detail cards、全循環 legal transition templates、freshness/release/value continuity explanation、major-group transition readiness explanation、role-level drill-down、dashboard wiring 與 YTD/1Y/5Y chart payload contract。
+      incomplete_summary_zh: 尚未完成 governed phase-age context、turning-point confirmation rules、授權私有來源讀取、更多 numeric values 與真實 release accumulation。
+      next_gap_zh: 補使用者確認的 declared boom 起始日或區間，將 phase-age caveat 轉成受治理顯示欄位，再擴大 timing preview 的 actual numeric evidence coverage。
+      decrease_reason_zh:
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      title_zh: 解釋能力
+      previous_progress_percent: 98
+      current_progress_percent: 99
+      phase_delta_percent: 1
+      phase_impacted: true
+      phase_impact_zh: Phase69 補上 declared boom 起始日確認 panel，使「目前宣告狀態、合法下一階段、起始視窗、資料風險、phase-age caveat」能同頁解釋，避免使用者把 rough window 誤讀成正式判斷。
+      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition timing replay preview、numeric overlay 驗證與 phase-start confirmation panel 已能以 research surface 呈現。
+      remaining_gap_zh: 需要更多 numeric values、授權私有來源讀取、使用者確認的 phase-age context、真實圖表資料覆蓋率、actual release accumulation，以及最後正式 renderer rehearsal。
+      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards、transition lane attribution、freshness/release/value continuity gap explanation、24 個 major-group attribution profiles、dashboard-to-role drill-down、actual HTML wiring、診斷方法透明度、YTD/1Y/5Y chart payload、transition evidence accumulation preview，以及 declared start confirmation explanation panel。
+      incomplete_summary_zh: 尚未完成所有 numeric values、授權私有來源讀取、confirmed phase-age context、真實 chart coverage、actual release accumulation 與最後正式 renderer rehearsal。
       next_gap_zh: 補使用者確認的 declared boom 起始日或區間與真實 current cache 覆蓋率，讓 timing preview 的 explanation 從結構完整進一步走向數值完整。
       decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
@@ -66,11 +66,11 @@ product_capability_progress:
       decrease_reason_zh:
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
       title_zh: 歷史重播與回測能力
-      previous_progress_percent: 53
+      previous_progress_percent: 54
       current_progress_percent: 54
-      phase_delta_percent: 1
-      phase_impacted: true
-      phase_impact_zh: Phase68 用 tmp numeric fixture 驗證 transition timing preview 可承接 actual numeric cache，補強未來 replay 時序資料進入 view-model 的路徑；尚不執行 validation/backtest。
+      phase_delta_percent: 0
+      phase_impacted: false
+      phase_impact_zh: 本 Phase 聚焦 current dashboard 的 declared phase-start confirmation，未新增 historical replay/backtest 路徑。
       current_status_zh: 歷史 validation/research artifacts 已有，Phase67 補上 transition timing replay preview，Phase68 補上 explicit numeric overlay 路徑；真正 strict replay/backtest 仍受資料完整度與 gate 限制。
       remaining_gap_zh: 需要 actual historical replay data、更多 numeric/release accumulation、policy replay、total-return/cash-flow-aware backtest gate。
       completed_summary_zh: 已完成 research-only validation artifact chain、label comparison、coverage/accuracy research artifacts 與 safety gates。
@@ -79,29 +79,29 @@ product_capability_progress:
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 87
-      current_progress_percent: 88
+      previous_progress_percent: 88
+      current_progress_percent: 89
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase68 新增 test-suite index audit 與 Phase68 closure gates，確保新增測項前先查重/查相似，並用 tmp fixture 驗證 numeric overlay 不寫 repo output。
-      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates、Phase64 chart/method transparency gates、Phase67 timing preview gates、GitHub Actions efficiency gates 與 Phase68 test-index/numeric-overlay gates 持續運作。
+      phase_impact_zh: Phase69 新增 start-confirmation contract、dashboard rendering check 與 closure gate，確認 rough window 不會寫 registry、phase age 不會假精度、dashboard 不會輸出 phase selection。
+      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates、Phase64 chart/method transparency gates、Phase67 timing preview gates、GitHub Actions efficiency gates、Phase68 test-index/numeric-overlay gates 與 Phase69 phase-start confirmation gates 持續運作。
       remaining_gap_zh: 需要把相同 source-risk/forbidden-field 契約套用到更完整的 actual release accumulation、最終 renderer 與 production migration rehearsal。
-      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates、transition completion hard gates、full-cycle template hard gates、continuity hard gates、major-group readiness hard gates、drill-down hard gates、latest evidence dashboard hard gates、chart/method transparency hard gates、timing replay preview hard gates、CI test-efficiency hard gates 與測項索引 hard gates。
+      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates、transition completion hard gates、full-cycle template hard gates、continuity hard gates、major-group readiness hard gates、drill-down hard gates、latest evidence dashboard hard gates、chart/method transparency hard gates、timing replay preview hard gates、CI test-efficiency hard gates、測項索引 hard gates 與 Phase69 start-confirmation hard gates。
       incomplete_summary_zh: 尚未把更完整的 actual release accumulation、final dashboard renderer 與 production migration rehearsal 統一納入相同 forbidden-field、source-risk、actual-value、continuity、chart payload 與 progress reporting 契約。
       next_gap_zh: 補使用者確認的 declared boom 起始日與更多 actual numeric accumulation，同時維持 no phase selection、no metric/backtest、no label tuning 與 no public output gates。
       decrease_reason_zh:
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       title_zh: 時間完整性與 abstention
-      previous_progress_percent: 88
-      current_progress_percent: 89
+      previous_progress_percent: 89
+      current_progress_percent: 90
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase68 讓 numeric overlay 明確區分 supplied local cache 與 metadata-only，並保留 phase-age unknown/user-required 狀態，避免起始日與缺值假精度。
-      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification、detail-card freshness context、transition-lane abstention context、全循環 template abstention semantics、continuity gap explanation、major-group abstention explanation、role-level drill-down、latest evidence HTML、chart unavailable policy 與 numeric overlay data-mode caveat 已清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
-      remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance、更多 numeric current cache display、使用者確認的 phase-age caveats 與 actual transition replay data。
-      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界、coverage classification、indicator detail freshness context、transition-lane freshness context、全循環 transition template abstention semantics、continuity gap explanation、major-group abstention explanation、role/source/provenance drill-down、HTML 呈現，以及 YTD/1Y/5Y chart payload unavailable policy。
+      phase_impact_zh: Phase69 將 phase-age unknown/user-required 狀態顯示為 dashboard confirmation package，並明確禁止 rough window 計算 exact phase age。
+      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification、detail-card freshness context、transition-lane abstention context、全循環 template abstention semantics、continuity gap explanation、major-group abstention explanation、role-level drill-down、latest evidence HTML、chart unavailable policy、numeric overlay data-mode caveat 與 phase-start confirmation caveat 已清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
+      remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance、更多 numeric current cache display、使用者確認的 phase-age context 與 actual transition replay data。
+      completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界、coverage classification、indicator detail freshness context、transition-lane freshness context、全循環 transition template abstention semantics、continuity gap explanation、major-group abstention explanation、role/source/provenance drill-down、HTML 呈現、YTD/1Y/5Y chart payload unavailable policy，以及 phase-start false-precision caveat。
       incomplete_summary_zh: 尚未完成完整 exact-vintage cache、PIT backfill、所有 historical scenario 的 vintage availability、authorized private input provenance、更多 numeric current values、actual chart/replay coverage 與 governed phase-age caveats。
-      next_gap_zh: 補 actual numeric current cache coverage 與使用者確認的 declared boom start date/window，使圖表和 replay 從 unavailable policy 推進到更多真實資料呈現。
+      next_gap_zh: 補使用者確認的 declared boom start date/window，再把 confirmed phase-age context 接回圖表、timing preview 與 transition evidence accumulation。
       decrease_reason_zh:
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       title_zh: 模型治理與前瞻驗證
@@ -123,7 +123,7 @@ product_capability_progress:
     capability_with_completed_summary_count: 8
     capability_with_incomplete_summary_count: 8
     capability_with_next_gap_count: 8
-    impacted_capability_count: 6
+    impacted_capability_count: 5
     progress_decrease_count: 0
     progress_decrease_without_reason_count: 0
     progress_percent_out_of_range_count: 0

@@ -331,6 +331,28 @@ product_capability_95_roadmap:
         - duplicate_test_guard_key_count=0
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 69
+      phase_title: Declared phase-start confirmation dashboard handoff
+      objective_zh: >
+        將 declared boom 起始日/起始區間確認包接入 dashboard bundle 與
+        latest evidence 頁面，顯示使用者 rough window、evidence abstention、
+        資料風險、phase-age caveat 與下一步，但不寫 registry、不推論現在階段。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - phase69_declared_phase_start_confirmation_ready=true
+        - declared_phase_start_confirmation_ready=true
+        - rendered_phase_start_confirmation_ready=true
+        - phase_age_false_precision_count=0
+        - registry_write_allowed=false
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

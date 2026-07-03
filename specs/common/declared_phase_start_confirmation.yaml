@@ -1,0 +1,73 @@
+declared_phase_start_confirmation:
+  contract_id: declared_phase_start_confirmation_v1
+  contract_version: "1.0"
+  phase_id: 69
+  status: active_research_view_model_contract
+  objective_zh: >
+    將 Phase47/51 的 declared boom phase-start research 轉成 dashboard-ready
+    的受治理確認 package。此 contract 顯示使用者 rough window、evidence-based
+    abstention、風險與下一步，但不自動寫入 declared registry，也不把 start
+    window 當成 current phase inference。
+  allowed_inputs:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/declared_boom_start_governance.yaml
+    - specs/common/phase_start_research_hypotheses.yaml
+    - current_research_evidence_metadata
+  prohibited_inputs:
+    - standalone_current_phase_classifier
+    - phase_rank
+    - phase_score
+    - phase_winner
+    - production_resolver_output
+    - portfolio_return
+    - historical_accuracy_label
+    - nber_label
+  confirmation_policy:
+    exact_start_date_allowed_only_if_user_supplied: true
+    rough_window_may_be_displayed: true
+    rough_window_may_compute_exact_age: false
+    unverified_user_window_may_modify_registry: false
+    evidence_insufficient_window_must_abstain: true
+  dashboard_view_model:
+    view_id: declared_phase_start_confirmation
+    allowed_uses:
+      - local_research_dashboard
+      - declared_phase_age_context_review
+      - operator_start_date_confirmation
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - registry_auto_write
+      - portfolio_or_trade_decision
+      - production_decision
+  prohibited_outputs:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_score
+    - phase_rank
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  hard_gates:
+    declared_phase_start_confirmation_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    candidate_start_window_count_minimum: 2
+    user_prior_window_visible: true
+    evidence_based_window_abstains: true
+    exact_start_date_confirmed: false
+    start_window_confirmed: false
+    registry_write_allowed: false
+    declared_registry_modified: false
+    phase_age_false_precision_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

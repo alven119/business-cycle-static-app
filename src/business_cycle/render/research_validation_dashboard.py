@@ -306,6 +306,18 @@ def _verify_rendered_html_pages(
             "data-transition-replay-boundary",
         ):
             required_missing += int(token not in combined)
+    if (
+        "declared_phase_start_confirmation" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-declared-phase-start-confirmation",
+            "data-phase-start-window",
+            "data-phase-start-next-action",
+            "data-phase-age-boundary",
+            "data-declared-registry-boundary",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -798,6 +810,7 @@ def _boom_transition_page(bundle: dict[str, Any]) -> str:
 def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     drilldown = bundle["indicator_dashboard_explanation_drilldown"]
     replay_preview = bundle.get("transition_timing_replay_preview")
+    phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
     group_cards = "".join(
         _latest_major_group_card(group)
         for group in drilldown["major_group_drilldowns"]
@@ -843,6 +856,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
       <div class="metric-grid">{phase_counts}</div>
       <div class="metric-grid">{continuity_counts}</div>
     </section>
+    {_declared_phase_start_confirmation_section(phase_start_confirmation)}
     {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
       <h2>Major group drilldowns</h2>
@@ -859,6 +873,56 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     </section>
     """
     return _page("Latest Evidence Drilldown", LATEST_EVIDENCE_PAGE, body)
+
+
+def _declared_phase_start_confirmation_section(
+    confirmation: dict[str, Any] | None,
+) -> str:
+    if confirmation is None:
+        return ""
+    windows = "".join(
+        f"""
+        <article class="mini-card" data-phase-start-window="{_text(row["window_id"])}">
+          <strong>{_text(row["window_label_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Source</dt><dd>{_text(row["window_source"])}</dd>
+            <dt>Window</dt><dd>{_text(row.get("start_date") or "open")} to {_text(row.get("end_date") or "open")}</dd>
+            <dt>Status</dt><dd>{_status_badge(row["confirmation_status"])}</dd>
+            <dt>Risk</dt><dd>{_text(row["data_risk_label"])}</dd>
+            <dt>Exact age</dt><dd>{_text(str(row["can_compute_exact_phase_age"]).lower())}</dd>
+          </dl>
+          <p class="muted">{_text(row["required_user_action"])}</p>
+        </article>
+        """
+        for row in confirmation["candidate_start_windows"]
+    )
+    return f"""
+    <section class="panel" data-declared-phase-start-confirmation>
+      <div class="section-heading">
+        <h2>Declared boom start confirmation</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This panel shows governed start-date context for the declared boom state. It preserves the declared registry, keeps exact phase age unavailable until user confirmation, and does not infer the declared state from latest data.</p>
+      <div class="status-strip" data-phase-age-boundary>
+        <span>declared state: {_text(confirmation["declared_current_phase"])}</span>
+        <span>legal next: {_text(confirmation["legal_next_phase"])}</span>
+        <span>exact start confirmed: {_text(str(confirmation["exact_start_date_confirmed"]).lower())}</span>
+        <span>phase age precision: {_text(str(confirmation["phase_age_precision_allowed"]).lower())}</span>
+        <span data-declared-registry-boundary>registry write allowed: {_text(str(confirmation["registry_write_allowed"]).lower())}</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Candidate windows", confirmation["candidate_start_window_count"], "confirmation package")}
+        {_metric_card("User prior visible", str(confirmation["user_prior_window_visible"]).lower(), "rough window")}
+        {_metric_card("Evidence window", "abstain" if confirmation["evidence_based_window_abstains"] else "available", "book evidence")}
+        {_metric_card("Phase age", confirmation["phase_age_status_current_value"], confirmation["phase_age_display_policy"])}
+      </div>
+      <div class="mini-grid">{windows}</div>
+      <div class="callout" data-phase-start-next-action>
+        <strong>Next governed action</strong>
+        <span>{_text(confirmation["operator_next_action"])}</span>
+      </div>
+    </section>
+    """
 
 
 def _boom_lane_card(lane: dict[str, Any]) -> str:
