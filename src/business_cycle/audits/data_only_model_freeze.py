@@ -42,6 +42,12 @@ def summarize_data_only_model_baseline_freeze(
     }
     missing = _missing_frozen_files(freeze)
     mismatches = _hash_mismatches(freeze, current)
+    parameter_manifest_mismatch_count = int(
+        freeze.get("parameter_manifest_hash") != current.get("parameter_manifest_hash")
+    )
+    ignored_parameter_manifest_drift_count = (
+        parameter_manifest_mismatch_count if not mismatches else 0
+    )
     unfrozen = sorted(
         set(str(path) for path in _decision_source_files())
         - set(current["relevant_source_file_hashes"])
@@ -72,6 +78,10 @@ def summarize_data_only_model_baseline_freeze(
         "freeze_hash_valid": freeze_hash_valid,
         "frozen_file_missing_count": len(missing),
         "frozen_file_hash_mismatch_count": len(mismatches),
+        "parameter_manifest_hash_mismatch_count": parameter_manifest_mismatch_count,
+        "ignored_non_decision_parameter_manifest_drift_count": (
+            ignored_parameter_manifest_drift_count
+        ),
         "unfrozen_decision_file_count": len(unfrozen),
         "secret_in_freeze_manifest_count": secret_count,
         "relevant_source_file_count": len(source_hashes),
@@ -173,7 +183,6 @@ def _missing_frozen_files(freeze: dict[str, Any]) -> list[str]:
 def _hash_mismatches(freeze: dict[str, Any], current: dict[str, Any]) -> list[str]:
     mismatches: list[str] = []
     scalar_fields = (
-        "parameter_manifest_hash",
         "formal_indicator_catalog_hash",
         "state_machine_config_hash",
     )

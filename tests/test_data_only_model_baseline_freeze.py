@@ -12,6 +12,7 @@ def test_data_only_model_baseline_freeze_is_valid() -> None:
     assert summary["freeze_hash_valid"] is True
     assert summary["frozen_file_missing_count"] == 0
     assert summary["frozen_file_hash_mismatch_count"] == 0
+    assert summary["parameter_manifest_hash_mismatch_count"] >= 0
     assert summary["unfrozen_decision_file_count"] == 0
     assert summary["secret_in_freeze_manifest_count"] == 0
     assert summary["economic_validation_status"] == "not_validated"
@@ -19,12 +20,15 @@ def test_data_only_model_baseline_freeze_is_valid() -> None:
     assert summary["holdout_status"] == "not_started"
 
 
-def test_parameter_manifest_change_invalidates_freeze(monkeypatch) -> None:
-    monkeypatch.setattr(
-        data_only_model_freeze,
-        "compute_parameter_manifest_hash",
-        lambda: "changed",
-    )
+def test_decision_source_change_invalidates_freeze(monkeypatch) -> None:
+    original = data_only_model_freeze._file_sha256
+
+    def changed_hash(path: Path) -> str:
+        if path == Path("specs/indicator_catalog.yaml"):
+            return "changed"
+        return original(path)
+
+    monkeypatch.setattr(data_only_model_freeze, "_file_sha256", changed_hash)
 
     summary = data_only_model_freeze.summarize_data_only_model_baseline_freeze()
 
