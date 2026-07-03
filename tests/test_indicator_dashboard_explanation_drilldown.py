@@ -66,6 +66,11 @@ def test_phase62_role_drilldowns_preserve_abstention_and_source_risk() -> None:
             role["diagnostic_transparency_detail"]["computed_diagnostic_value_present"]
             is False
         )
+        assert role["diagnostic_transparency_detail"]["frequency_handling_zh"]
+        assert role["diagnostic_transparency_detail"]["missing_value_handling_zh"]
+        assert role["diagnostic_transparency_detail"]["directionality_detail"]
+        assert role["diagnostic_transparency_detail"]["confidence_reduce_when"]
+        assert role["diagnostic_transparency_detail"]["pseudo_code_zh"]
         assert role["chart_payload_detail"]["chart_data_mode"] == "local_cache_or_unavailable"
         assert set(role["chart_payload_detail"]["allowed_periods"]) == {
             "ytd",

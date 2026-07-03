@@ -9,47 +9,47 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: 72
-  phase_label: current_macro_numeric_chart_coverage_expansion
+  phase_id: 73
+  phase_label: dashboard_indicator_method_explanation
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
-      previous_progress_percent: 98
-      current_progress_percent: 99
-      phase_delta_percent: 1
-      phase_impacted: true
-      phase_impact_zh: Phase72 建立 current macro numeric/chart coverage artifact，使用 /tmp fixture cache 驗證 37 個官方序列角色具備目前數值 context 與今年/一年/五年 chart payload；2 個授權或私有來源缺口仍明確顯示 unavailable。
-      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、Phase62 drill-down、Phase63 latest evidence HTML page、Phase64 method/chart payload、Phase67 transition timing replay preview、Phase68 numeric overlay fixture、Phase69 declared phase-start confirmation panel、Phase70 registry update preview、Phase71 registry update gate/dashboard handoff，以及 Phase72 37-role numeric/chart coverage artifact；仍未啟用 formal current/candidate phase。
-      remaining_gap_zh: 還需要使用者提供並確認 declared boom 精確起始日或區間，將 fixture/cache connectivity 換成真實 local current cache coverage，並補 transition confirmation 條件。
-      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards、boom-to-recession transition surface、四個合法 transition lane templates、資料新鮮度/發布時點/目前值連續性 surface、24 個 major-group readiness profiles、dashboard drill-down artifact、latest evidence HTML page、診斷方法/圖表 payload、research-only transition timing replay preview、tmp/local cache numeric overlay、declared boom start confirmation dashboard panel、registry update dry-run preview、/tmp registry update gate rehearsal，以及 37 個官方序列角色的 current numeric/chart fixture coverage。
-      incomplete_summary_zh: 尚未完成使用者確認的 declared boom 起始日或起始區間 canonical registry 寫入、formal current/candidate phase gate、授權私有資料讀取、真實 current cache 全覆蓋、transition confirmation 操作規則與正式遷移。
-      next_gap_zh: 將 Phase72 fixture coverage 接到真實 local current cache refresh，並把 2 個授權或私有資料缺口維持為 visible risk，而不是靜默替代。
-      decrease_reason_zh:
-    - capability_id: C2_TRANSITION_RISK_DETECTION
-      title_zh: 轉折風險偵測能力
-      previous_progress_percent: 98
-      current_progress_percent: 99
-      phase_delta_percent: 1
-      phase_impacted: true
-      phase_impact_zh: Phase72 擴大 transition 相關角色的 current numeric/chart context，讓 boom/recession/growth/recovery 指標可用同一個 YTD/1Y/5Y chart payload 檢視資料走勢；這仍只是 transition explanation context。
-      current_status_zh: 已有 boom transition monitor、completed boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page、transition role chart payload、transition timing replay preview、tmp numeric overlay 驗證、phase-start confirmation panel，以及 Phase72 37-role current numeric/chart coverage；仍不自動改寫 declared phase。
-      remaining_gap_zh: 需要使用者確認 phase-age context、turning-point confirmation rules、真實 local current cache/user input，以及將 timing preview 連到更完整的真實 release accumulation。
-      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view、indicator detail cards、全循環 legal transition templates、freshness/release/value continuity explanation、major-group transition readiness explanation、role-level drill-down、dashboard wiring、YTD/1Y/5Y chart payload contract 與 37-role chart coverage rehearsal。
-      incomplete_summary_zh: 尚未完成 governed phase-age canonical context、turning-point confirmation rules、授權私有來源讀取、真實 current cache 全覆蓋與 actual release accumulation。
-      next_gap_zh: 將 Phase72 fixture chart coverage 換成真實 local current cache，並把 timing preview 的 actual numeric coverage 擴大到 transition confirmation 所需角色。
-      decrease_reason_zh:
-    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
-      title_zh: 解釋能力
       previous_progress_percent: 99
       current_progress_percent: 99
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase72 讓每個可自動化官方序列角色具備可檢視的 current numeric context 與三段期間 chart payload，並明確標示 fixture/cache data mode、source risk 與不可用原因。
-      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition timing replay preview、numeric overlay 驗證、phase-start confirmation panel、registry update gate handoff 與 37-role numeric/chart coverage 已能以 research surface 呈現。
-      remaining_gap_zh: 需要授權私有來源讀取、使用者確認的 phase-age context、真實 local cache 圖表覆蓋率、actual release accumulation，以及最後 renderer rehearsal。
-      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards、transition lane attribution、freshness/release/value continuity gap explanation、24 個 major-group attribution profiles、dashboard-to-role drill-down、actual HTML wiring、診斷方法透明度、YTD/1Y/5Y chart payload、transition evidence accumulation preview、declared start confirmation explanation panel、registry update gate handoff，以及 37-role current numeric/chart fixture coverage。
-      incomplete_summary_zh: 尚未完成授權私有來源讀取、confirmed phase-age canonical context、真實 current cache 全覆蓋、actual release accumulation 與最後 renderer rehearsal。
-      next_gap_zh: 把 fixture/cache connectivity 轉成真實 local current cache refresh coverage，讓指標詳情頁的圖表與目前值更接近正式使用情境。
+      phase_impact_zh: Phase73 將 dashboard 指標卡的 method 名稱展開為診斷計算配方，讓景氣階段判讀相關指標能顯示資料需求、頻率處理、視窗、方向判讀、信心下調與計算步驟；不新增 phase selector。
+      current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、latest evidence HTML page、YTD/1Y/5Y chart payload、transition timing replay preview、declared phase-start handoff、37-role numeric/chart coverage，以及 Phase73 dashboard method explanation；仍未啟用 formal current/candidate phase。
+      remaining_gap_zh: 還需要使用者提供並確認 declared boom 精確起始日或區間，將 fixture/cache connectivity 換成真實 local current cache coverage，並補 transition confirmation 條件。
+      completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards、boom-to-recession transition surface、四個合法 transition lane templates、資料新鮮度/發布時點/目前值連續性 surface、24 個 major-group readiness profiles、dashboard drill-down artifact、latest evidence HTML page、診斷方法/圖表 payload、transition timing replay preview、phase-start confirmation/gate handoff、37-role current numeric/chart fixture coverage，以及 dashboard method recipe explanation。
+      incomplete_summary_zh: 尚未完成使用者確認的 declared boom 起始日或起始區間 canonical registry 寫入、formal current/candidate phase gate、授權私有資料讀取、真實 current cache 全覆蓋、transition confirmation 操作規則與正式遷移。
+      next_gap_zh: 將 dashboard method explanation 與 Phase72 fixture coverage 接到真實 local current cache refresh，並把 2 個授權或私有資料缺口維持為 visible risk。
+      decrease_reason_zh:
+    - capability_id: C2_TRANSITION_RISK_DETECTION
+      title_zh: 轉折風險偵測能力
+      previous_progress_percent: 99
+      current_progress_percent: 99
+      phase_delta_percent: 0
+      phase_impacted: true
+      phase_impact_zh: Phase73 讓 transition 相關指標的診斷方法可讀，特別是 turning-point、YoY momentum、moving-average slope 與 percentile 類方法的視窗、確認條件與信心下調邊界。
+      current_status_zh: 已有 boom transition monitor、boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page、transition role chart payload、transition timing replay preview、tmp numeric overlay 驗證、phase-start confirmation panel、37-role current numeric/chart coverage，以及 Phase73 method recipe explanation；仍不自動改寫 declared phase。
+      remaining_gap_zh: 需要使用者確認 phase-age context、turning-point confirmation rules、真實 local current cache/user input，以及將 timing preview 連到更完整的真實 release accumulation。
+      completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view、indicator detail cards、全循環 legal transition templates、freshness/release/value continuity explanation、major-group transition readiness explanation、role-level drill-down、dashboard wiring、YTD/1Y/5Y chart payload contract、37-role chart coverage rehearsal，以及 transition method recipe explanation。
+      incomplete_summary_zh: 尚未完成 governed phase-age canonical context、turning-point confirmation rules、授權私有來源讀取、真實 current cache 全覆蓋與 actual release accumulation。
+      next_gap_zh: 將 method recipe explanation 連到真實 local current cache 與 actual transition accumulation，讓轉折指標從配方說明進一步走到完整證據確認。
+      decrease_reason_zh:
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      title_zh: 解釋能力
+      previous_progress_percent: 99
+      current_progress_percent: 100
+      phase_delta_percent: 1
+      phase_impacted: true
+      phase_impact_zh: Phase73 直接補齊 dashboard「分數怎麼算」的可讀解釋，將 legacy dashboard 與 research latest-evidence 的 method 名稱展開成資料需求、頻率、缺值、視窗、方向、信心與計算步驟。
+      current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition timing replay preview、numeric overlay 驗證、phase-start confirmation panel、registry update gate handoff、37-role numeric/chart coverage，以及 Phase73 method recipe explanation 已能以 dashboard surface 呈現。
+      remaining_gap_zh: 解釋能力本身已達目前 production usability 目標；剩餘缺口主要屬真實資料覆蓋、授權私有來源、confirmed phase-age context 與 production migration rehearsal。
+      completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards、transition lane attribution、freshness/release/value continuity gap explanation、24 個 major-group attribution profiles、dashboard-to-role drill-down、actual HTML wiring、診斷方法透明度、YTD/1Y/5Y chart payload、transition evidence accumulation preview、declared start confirmation explanation panel、registry update gate handoff、37-role current numeric/chart fixture coverage，以及每個 dashboard 指標方法的配方說明。
+      incomplete_summary_zh: 尚未完成授權私有來源讀取、confirmed phase-age canonical context、真實 current cache 全覆蓋、actual release accumulation 與 production migration rehearsal。
+      next_gap_zh: 把 method recipe explanation 與真實 local current cache values/charts 串在同一個指標詳情頁，並準備 dashboard migration gate。
       decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
@@ -79,25 +79,25 @@ product_capability_progress:
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 91
-      current_progress_percent: 92
-      phase_delta_percent: 1
-      phase_impacted: true
-      phase_impact_zh: Phase72 新增 numeric/chart coverage hard gates，要求 fixture 不得標成 live、chart unavailable 不得當零、numeric context 不得升級成 phase support，並維持 no repo output。
-      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates、Phase64 chart/method transparency gates、Phase67 timing preview gates、GitHub Actions efficiency gates、Phase68 test-index/numeric-overlay gates、Phase69 phase-start confirmation gates、Phase70 registry preview gates、Phase71 registry update gate 與 Phase72 numeric/chart coverage gates 持續運作。
-      remaining_gap_zh: 需要把相同 source-risk/forbidden-field 契約套用到真實 local cache refresh、actual release accumulation、最終 renderer、canonical write gate 與 production migration rehearsal。
-      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates、transition completion hard gates、full-cycle template hard gates、continuity hard gates、major-group readiness hard gates、drill-down hard gates、latest evidence dashboard hard gates、chart/method transparency hard gates、timing replay preview hard gates、CI test-efficiency hard gates、測項索引 hard gates、Phase69 start-confirmation hard gates、Phase70 registry-preview hard gates、Phase71 registry-update-gate hard gates 與 Phase72 numeric/chart coverage hard gates。
-      incomplete_summary_zh: 尚未把真實 local current cache、actual release accumulation、final dashboard renderer、canonical write gate 與 production migration rehearsal 統一納入相同 forbidden-field、source-risk、actual-value、continuity、chart payload 與 progress reporting 契約。
-      next_gap_zh: 把 Phase72 的 /tmp fixture cache coverage 轉接到 opt-in local current cache refresh，同時維持 no phase selection、no metric/backtest、no label tuning 與 no public output gates。
-      decrease_reason_zh:
-    - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-      title_zh: 時間完整性與 abstention
       previous_progress_percent: 92
       current_progress_percent: 93
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase72 將圖表資料模式明確標成 fixture_current_cache_connectivity，保留 point-in-time=false、fixture-not-live 與 missing/unavailable abstention 邊界。
-      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification、detail-card freshness context、transition-lane abstention context、全循環 template abstention semantics、continuity gap explanation、major-group abstention explanation、role-level drill-down、latest evidence HTML、chart unavailable policy、numeric overlay data-mode caveat、phase-start confirmation caveat、registry preview false-precision guard、tmp registry update gate 與 Phase72 fixture/current-cache chart mode 已清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
+      phase_impact_zh: Phase73 新增 dashboard method explanation gates，要求配方說明不得改 scoring/resolver、不得把方法升級成產品答案、不得輸出 candidate/current phase，並維持 forbidden-field checks。
+      current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates、chart/method transparency gates、timing preview gates、CI efficiency gates、test-index gates、phase-start confirmation/update gates、numeric/chart coverage gates 與 Phase73 method explanation gates 持續運作。
+      remaining_gap_zh: 需要把相同 source-risk/forbidden-field 契約套用到真實 local cache refresh、actual release accumulation、最終 renderer、canonical write gate 與 production migration rehearsal。
+      completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates、transition completion hard gates、full-cycle template hard gates、continuity hard gates、major-group readiness hard gates、drill-down hard gates、latest evidence dashboard hard gates、chart/method transparency hard gates、timing replay preview hard gates、CI test-efficiency hard gates、測項索引 hard gates、phase-start confirmation/update hard gates、numeric/chart coverage hard gates，以及 dashboard method explanation hard gates。
+      incomplete_summary_zh: 尚未把真實 local current cache、actual release accumulation、final dashboard renderer、canonical write gate 與 production migration rehearsal 統一納入相同 forbidden-field、source-risk、actual-value、continuity、chart payload、method explanation 與 progress reporting 契約。
+      next_gap_zh: 把 method explanation、/tmp fixture cache coverage 與 opt-in local current cache refresh 合併成更接近正式使用的 dashboard renderer rehearsal。
+      decrease_reason_zh:
+    - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      title_zh: 時間完整性與 abstention
+      previous_progress_percent: 93
+      current_progress_percent: 93
+      phase_delta_percent: 0
+      phase_impacted: false
+      phase_impact_zh: 本 Phase 聚焦 dashboard method explanation，未新增 point-in-time 或 release availability 行為。
+      current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification、detail-card freshness context、transition-lane abstention context、全循環 template abstention semantics、continuity gap explanation、major-group abstention explanation、role-level drill-down、latest evidence HTML、chart unavailable policy、numeric overlay data-mode caveat、phase-start confirmation caveat、registry preview false-precision guard、tmp registry update gate 與 fixture/current-cache chart mode 已清楚；latest current research 仍標示 current/revised，不宣稱 PIT。
       remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance、真實 numeric current cache display、使用者確認的 phase-age context、actual transition replay data 與正式 canonical registry write gate。
       completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界、coverage classification、indicator detail freshness context、transition-lane freshness context、全循環 transition template abstention semantics、continuity gap explanation、major-group abstention explanation、role/source/provenance drill-down、HTML 呈現、YTD/1Y/5Y chart payload unavailable policy、phase-start false-precision caveat、registry preview age/range guard、tmp registry update phase-age rehearsal，以及 fixture/current-cache chart mode guard。
       incomplete_summary_zh: 尚未完成完整 exact-vintage cache、PIT backfill、所有 historical scenario 的 vintage availability、authorized private input provenance、真實 numeric current values、actual chart/replay coverage、confirmed phase-age context 與 canonical registry write。
@@ -123,7 +123,7 @@ product_capability_progress:
     capability_with_completed_summary_count: 8
     capability_with_incomplete_summary_count: 8
     capability_with_next_gap_count: 8
-    impacted_capability_count: 5
+    impacted_capability_count: 4
     progress_decrease_count: 0
     progress_decrease_without_reason_count: 0
     progress_percent_out_of_range_count: 0

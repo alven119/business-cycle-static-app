@@ -1,0 +1,77 @@
+dashboard_indicator_method_explanation:
+  contract_id: dashboard_indicator_method_explanation_v1
+  contract_version: "1.0"
+  phase_id: "73"
+  phase_label: dashboard_indicator_method_explanation
+  status: active_research_and_legacy_dashboard_explanation_contract
+  objective_zh: >
+    將 legacy dashboard 與 research latest-evidence role cards 中的
+    indicator method 從單一名稱展開為可讀的診斷計算配方，包含資料需求、
+    頻率處理、缺值處理、lookback/trend/confirmation window、方向判讀、
+    信心下調條件與 pseudo-code 摘要；不修改 scoring、resolver 或 declared
+    state semantics。
+  dependencies:
+    - scoring_methods.yaml
+    - indicator_chart_explanation_payload_v1
+    - indicator_dashboard_explanation_drilldown_v1
+  policy:
+    output_mode: dashboard_indicator_method_explanation
+    research_only_for_new_surface: true
+    legacy_dashboard_wording_update_allowed: true
+    scoring_logic_change_allowed: false
+    resolver_logic_change_allowed: false
+    phase_selection_allowed: false
+    candidate_current_phase_output_allowed: false
+    production_model_behavior_change: false
+    missing_value_treated_as_neutral: false
+  required_method_fields:
+    - method_id
+    - method_purpose_zh
+    - method_inputs_required
+    - frequency_handling_zh
+    - missing_value_handling_zh
+    - trend_window_options
+    - lookback_rule
+    - confirmation_window
+    - min_history
+    - normalization_method
+    - directionality_detail
+    - confidence_reduce_when
+    - pseudo_code_zh
+    - legacy_diagnostic_boundary_zh
+    - why_not_product_answer_zh
+  dashboard_rendering_requirements:
+    legacy_dashboard_indicator_cards:
+      label: 診斷配方
+      detail_element: data-indicator-method-explanation
+      must_explain_not_product_answer: true
+    latest_evidence_role_cards:
+      recipe_marker: data-method-recipe-detail
+      confidence_marker: data-method-confidence-detail
+      pseudo_code_marker: data-method-pseudo-code-detail
+      directionality_marker: data-method-directionality-detail
+  hard_gates:
+    dashboard_indicator_method_explanation_ready: true
+    role_method_explanation_count: 39
+    method_definition_count: 4
+    role_with_method_purpose_count: 39
+    role_with_required_input_count: 39
+    role_with_frequency_handling_count: 39
+    role_with_missing_value_policy_count: 39
+    role_with_window_rule_count: 39
+    role_with_directionality_count: 39
+    role_with_confidence_reducer_count: 39
+    role_with_pseudo_code_count: 39
+    legacy_dashboard_method_detail_renderable_count: 13
+    research_dashboard_method_detail_renderable_count: 39
+    computed_diagnostic_value_present_count: 0
+    method_promoted_to_product_answer_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_model_behavior_change_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

@@ -179,6 +179,16 @@ def test_dashboard_contains_indicator_scores() -> None:
     assert "為什麼重要" in html
     assert "對目前階段的影響" in html
     assert "對下一階段的影響" in html
+    assert "診斷配方" in html
+    assert html.count("data-indicator-method-explanation") == 13
+    assert html.count("data-method-recipe") == 13
+    assert html.count("data-method-confidence") == 13
+    assert html.count("data-method-pseudo-code") == 13
+    assert "資料需求" in html
+    assert "頻率處理" in html
+    assert "信心下調條件" in html
+    assert "計算步驟摘要" in html
+    assert "此區只解釋 legacy 診斷分數的配方" in html
     assert "企業裁員壓力" in html
     assert "失業率" in html
     assert "歷史分位數評分" in html

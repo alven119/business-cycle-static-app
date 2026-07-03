@@ -74,6 +74,14 @@ def test_phase64_chart_payload_uses_tmp_cache_when_supplied(tmp_path: Path) -> N
     assert periods["ytd"]["point_count"] == 2
     assert role_payload["diagnostic_transparency_detail"]["method_recipe_visible"] is True
     assert role_payload["diagnostic_transparency_detail"]["computed_diagnostic_value_present"] is False
+    assert role_payload["diagnostic_transparency_detail"]["frequency_handling_zh"]
+    assert role_payload["diagnostic_transparency_detail"]["missing_value_handling_zh"]
+    assert role_payload["diagnostic_transparency_detail"]["directionality_detail"]
+    assert role_payload["diagnostic_transparency_detail"]["confidence_reduce_when"]
+    assert role_payload["diagnostic_transparency_detail"]["pseudo_code_zh"]
+    assert "未使用歷史答案" in role_payload["diagnostic_transparency_detail"][
+        "method_assignment_basis_zh"
+    ]
 
 
 def test_phase64_chart_payload_view_model_is_research_only() -> None:

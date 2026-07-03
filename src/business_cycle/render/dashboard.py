@@ -8,6 +8,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from business_cycle.render.explanations import (
     get_indicator_explanation,
     get_phase_score_explanation,
@@ -21,6 +23,7 @@ DISCLAIMER_ZH = "本頁僅為總經資料整理與景氣循環判讀輔助，不
 DEFAULT_LABELS_PATH = Path("specs/common/display_labels_zh.yaml")
 DEFAULT_PHASE_EXPLANATIONS_PATH = Path("specs/common/phase_score_explanations_zh.yaml")
 DEFAULT_INDICATOR_EXPLANATIONS_PATH = Path("specs/common/indicator_explanations_zh.yaml")
+DEFAULT_SCORING_METHODS_PATH = Path("specs/common/scoring_methods.yaml")
 INDICATOR_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("employment", ("initial_jobless_claims", "short_term_unemployment", "unemployment_rate")),
     ("consumption", ("real_retail_sales", "real_pce_durable_goods")),
@@ -38,6 +41,7 @@ def build_dashboard(
     snapshot: dict[str, Any],
     phase_explanations: dict[str, dict[str, Any]] | None = None,
     indicator_explanations: dict[str, dict[str, Any]] | None = None,
+    scoring_methods: dict[str, dict[str, Any]] | None = None,
 ) -> str:
     """Build a complete mobile-first HTML document from cycle_snapshot.json data."""
 
@@ -52,6 +56,9 @@ def build_dashboard(
         indicator_explanations
         if indicator_explanations is not None
         else _load_default_indicator_explanations()
+    )
+    scoring_methods = (
+        scoring_methods if scoring_methods is not None else _load_default_scoring_methods()
     )
     phase_scores = sorted(
         _list_of_mappings(snapshot.get("phase_scores")),
@@ -198,7 +205,7 @@ def build_dashboard(
 
   <section>
     <h2>核心指標</h2>
-    {_indicator_groups_html(indicator_scores, labels, indicator_explanations, current_phase_id, candidate_phase_id)}
+    {_indicator_groups_html(indicator_scores, labels, indicator_explanations, scoring_methods, current_phase_id, candidate_phase_id)}
   </section>
 
   <section>
@@ -280,6 +287,7 @@ def _indicator_groups_html(
     indicator_scores: list[dict[str, Any]],
     labels: dict[str, dict[str, str]],
     indicator_explanations: dict[str, dict[str, Any]],
+    scoring_methods: dict[str, dict[str, Any]],
     current_phase_id: str | None,
     candidate_phase_id: str | None,
 ) -> str:
@@ -297,7 +305,7 @@ def _indicator_groups_html(
             f"""<section class="group">
   <h3>{_text(label_for(labels, "indicator_groups", group_id, group_id))}</h3>
   <div class="table-list indicator-grid">
-    {_indicator_cards(group_items, labels, indicator_explanations, current_phase_id, candidate_phase_id)}
+    {_indicator_cards(group_items, labels, indicator_explanations, scoring_methods, current_phase_id, candidate_phase_id)}
   </div>
 </section>"""
         )
@@ -312,7 +320,7 @@ def _indicator_groups_html(
             f"""<section class="group">
   <h3>其他</h3>
   <div class="table-list indicator-grid">
-    {_indicator_cards(ungrouped, labels, indicator_explanations, current_phase_id, candidate_phase_id)}
+    {_indicator_cards(ungrouped, labels, indicator_explanations, scoring_methods, current_phase_id, candidate_phase_id)}
   </div>
 </section>"""
         )
@@ -323,6 +331,7 @@ def _indicator_cards(
     indicator_scores: list[dict[str, Any]],
     labels: dict[str, dict[str, str]],
     indicator_explanations: dict[str, dict[str, Any]],
+    scoring_methods: dict[str, dict[str, Any]],
     current_phase_id: str | None,
     candidate_phase_id: str | None,
 ) -> str:
@@ -333,13 +342,15 @@ def _indicator_cards(
         explanation = get_indicator_explanation(indicator_explanations, indicator_id)
         current_impact = _phase_impact_text(explanation, current_phase_id)
         next_impact = _phase_impact_text(explanation, candidate_phase_id)
+        method_id = _optional_text(indicator.get("method"))
+        method = scoring_methods.get(method_id or "")
         cards.append(
             f"""<article class="card">
   <h3>{_text(label_for(labels, "indicators", indicator_id))}</h3>
   <div class="technical">technical id: {_text(indicator_id)}; selected_series_id: {_text(details.get("selected_series_id"))}</div>
   {_metric("分數", _format_number(indicator.get("score")))}
   {_metric("資料信心", _format_percent(indicator.get("confidence")))}
-  {_metric("評分方法", label_for(labels, "methods", _optional_text(indicator.get("method"))))}
+  {_metric("診斷配方", label_for(labels, "methods", method_id))}
   {_metric("資料日期", indicator.get("as_of"))}
   <p>{_text(indicator.get("reason_zh") or indicator.get("reason"))}</p>
   <p><strong>景氣意義：</strong>{_text(explanation.get("cycle_meaning_zh") or "尚未建立此指標說明。")}</p>
@@ -347,9 +358,117 @@ def _indicator_cards(
   {_metric("指標屬性", _leading_lagging_label(explanation.get("leading_lagging")))}
   <p><strong>對目前階段的影響：</strong>{_text(current_impact)}</p>
   <p><strong>對下一階段的影響：</strong>{_text(next_impact)}</p>
+  {_indicator_method_detail_html(method_id, method)}
 </article>"""
         )
     return "\n".join(cards)
+
+
+def _indicator_method_detail_html(
+    method_id: str | None,
+    method: dict[str, Any] | None,
+) -> str:
+    if not method:
+        return """
+  <details class="method-detail" data-indicator-method-explanation>
+    <summary>診斷配方：未找到治理定義</summary>
+    <p class="muted">此指標缺少 scoring_methods.yaml 對應定義，因此只能顯示既有分數，不能說明計算配方。</p>
+  </details>
+"""
+    inputs = _mapping(method.get("inputs"))
+    parameters = _mapping(method.get("parameters"))
+    confidence = _mapping(method.get("confidence_behavior"))
+    required_fields = _list_text(inputs.get("required_fields"))
+    cleaned = _list_text(inputs.get("cleaned_input"))
+    directionality = _definition_items(_mapping(parameters.get("directionality")))
+    confidence_reducers = _list_items_plain(
+        confidence.get("reduce_when"),
+        "未宣告信心下調條件。",
+    )
+    pseudo_code = _ordered_items(method.get("pseudo_code_zh"))
+    windows = _method_window_text(parameters)
+    return f"""
+  <details class="method-detail" data-indicator-method-explanation data-method-id="{_text(method_id)}">
+    <summary>診斷配方：{_text(method.get("purpose_zh"))}</summary>
+    <div data-method-recipe>
+      <p><strong>資料需求：</strong>{_text(required_fields or "未宣告")}</p>
+      <p><strong>清理後輸入：</strong>{_text(cleaned or "未宣告")}</p>
+      <p><strong>頻率處理：</strong>{_text(inputs.get("frequency_handling") or "未宣告")}</p>
+      <p><strong>缺值處理：</strong>{_text(inputs.get("missing_value_handling") or "未宣告")}</p>
+      <p><strong>視窗設定：</strong>{_text(windows)}</p>
+      <p><strong>正反方向：</strong></p>
+      <dl class="technical">{directionality}</dl>
+      <p><strong>標準化：</strong>{_text(parameters.get("normalization_method") or "未宣告")}</p>
+      <p><strong>不足歷史：</strong>{_text(method.get("insufficient_history_behavior") or "abstain_or_low_confidence_diagnostic")}</p>
+      <div data-method-confidence>
+        <p><strong>信心下調條件：</strong></p>
+        <ul>{confidence_reducers}</ul>
+      </div>
+      <div data-method-pseudo-code>
+        <p><strong>計算步驟摘要：</strong></p>
+        <ol>{pseudo_code}</ol>
+      </div>
+      <p data-method-boundary class="muted">此區只解釋 legacy 診斷分數的配方；它不是 declared current phase、不是 legal transition confirmation，也不會產生交易或配置建議。</p>
+    </div>
+  </details>
+"""
+
+
+def _method_window_text(parameters: dict[str, Any]) -> str:
+    parts = [
+        ("percentile lookback", parameters.get("percentile_lookback")),
+        ("lookback", parameters.get("lookback_window")),
+        ("trend", parameters.get("trend_window") or parameters.get("trend_window_options")),
+        ("moving average", parameters.get("moving_average_window")),
+        ("smoothing", parameters.get("smoothing_window")),
+        ("slope", parameters.get("slope_window")),
+        ("momentum", parameters.get("momentum_window")),
+        ("confirmation", parameters.get("confirmation_window")),
+        ("min history", parameters.get("min_history")),
+    ]
+    visible = [
+        f"{label}: {_compact_value(value)}"
+        for label, value in parts
+        if value not in (None, [], {})
+    ]
+    return "; ".join(visible) if visible else "未宣告"
+
+
+def _compact_value(value: Any) -> str:
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value)
+    if isinstance(value, dict):
+        return ", ".join(f"{key}={item}" for key, item in value.items())
+    return str(value)
+
+
+def _definition_items(mapping: dict[str, Any]) -> str:
+    if not mapping:
+        return "<dt>未宣告</dt><dd>未宣告方向判讀。</dd>"
+    return "".join(
+        f"<dt>{_text(key)}</dt><dd>{_text(value)}</dd>"
+        for key, value in mapping.items()
+    )
+
+
+def _list_text(value: Any) -> str:
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value)
+    if value is None:
+        return ""
+    return str(value)
+
+
+def _list_items_plain(value: Any, empty_text: str) -> str:
+    if not isinstance(value, list) or not value:
+        return f"<li>{_text(empty_text)}</li>"
+    return "".join(f"<li>{_text(item)}</li>" for item in value)
+
+
+def _ordered_items(value: Any) -> str:
+    if not isinstance(value, list) or not value:
+        return "<li>未宣告計算步驟。</li>"
+    return "".join(f"<li>{_text(item)}</li>" for item in value)
 
 
 def _warnings_html(warnings: list[str]) -> str:
@@ -434,6 +553,19 @@ def _load_default_indicator_explanations() -> dict[str, dict[str, Any]]:
         return load_indicator_explanations(DEFAULT_INDICATOR_EXPLANATIONS_PATH)
     except (FileNotFoundError, ValueError):
         return {}
+
+
+def _load_default_scoring_methods() -> dict[str, dict[str, Any]]:
+    try:
+        payload = yaml.safe_load(DEFAULT_SCORING_METHODS_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    methods = payload.get("methods", []) if isinstance(payload, dict) else []
+    return {
+        str(method["method_id"]): method
+        for method in methods
+        if isinstance(method, dict) and method.get("method_id")
+    }
 
 
 def _phase_label(

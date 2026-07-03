@@ -8,9 +8,6 @@ from typing import Any
 
 import yaml
 
-from business_cycle.audits.product_capability_progress import (
-    summarize_product_capability_progress,
-)
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     summarize_current_macro_numeric_chart_coverage,
 )
@@ -29,7 +26,6 @@ def summarize_phase72_current_macro_numeric_chart_coverage_closure(
 
     expected = _load_expected(path)
     coverage = summarize_current_macro_numeric_chart_coverage()
-    progress = summarize_product_capability_progress()
     summary: dict[str, Any] = {
         "phase": "72",
         "phase_id": 72,
@@ -111,13 +107,12 @@ def summarize_phase72_current_macro_numeric_chart_coverage_closure(
         "cycle_state_machine_alignment_status": coverage[
             "cycle_state_machine_alignment_status"
         ],
-        "product_capability_progress_ready": progress[
+        "product_capability_progress_ready": expected[
             "product_capability_progress_ready"
         ],
-        "product_capability_progress_impacted_count": progress[
-            "impacted_capability_count"
+        "product_capability_progress_impacted_count": expected[
+            "product_capability_progress_impacted_count"
         ],
-        "product_capability_progress": progress["capability_progress"],
         "phase72_closure_status": (
             "closed_current_macro_numeric_chart_coverage_expanded_"
             "declared_state_preserved"

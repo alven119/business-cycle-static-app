@@ -1,0 +1,35 @@
+phase73_dashboard_indicator_method_explanation_closure:
+  phase_id: 73
+  phase_label: dashboard_indicator_method_explanation
+  status: active_closure_contract
+  objective_zh: >
+    關閉 Phase73：讓 dashboard 中的 indicator method 不再只是方法名稱，
+    而是可讀、可測試的診斷計算配方；不改 legacy scoring、resolver、
+    declared state 或 production model 行為。
+  hard_gates:
+    phase73_dashboard_indicator_method_explanation_ready: true
+    dashboard_indicator_method_explanation_ready: true
+    role_method_explanation_count: 39
+    method_definition_count: 4
+    role_with_required_input_count: 39
+    role_with_frequency_handling_count: 39
+    role_with_missing_value_policy_count: 39
+    role_with_window_rule_count: 39
+    role_with_directionality_count: 39
+    role_with_confidence_reducer_count: 39
+    role_with_pseudo_code_count: 39
+    legacy_dashboard_method_detail_renderable_count: 13
+    research_dashboard_method_detail_renderable_count: 39
+    computed_diagnostic_value_present_count: 0
+    method_promoted_to_product_answer_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_model_behavior_change_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    phase73_closure_status: closed_dashboard_indicator_method_explanation_ready_no_scoring_logic_change

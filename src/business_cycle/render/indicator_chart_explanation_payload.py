@@ -315,22 +315,51 @@ def _diagnostic_detail(
     method: dict[str, Any],
 ) -> dict[str, Any]:
     parameters = method.get("parameters", {})
+    inputs = method.get("inputs", {})
+    confidence_behavior = method.get("confidence_behavior", {})
     return {
         "diagnostic_transparency_id": f"diagnostic_transparency:{card['role_id']}",
         "method_id": method["method_id"],
         "method_purpose_zh": method["purpose_zh"],
         "method_recipe_visible": True,
+        "method_assignment_basis_zh": (
+            "依 role 語意、資料型態與既有 scoring_methods.yaml 配方選擇；"
+            "未使用歷史答案、NBER 日期或 portfolio 結果調整。"
+        ),
+        "method_suitable_for": method.get("suitable_for", []),
         "method_inputs_required": method.get("inputs", {}).get("required_fields", []),
+        "raw_input_type": inputs.get("raw_input"),
+        "cleaned_input_requirements": inputs.get("cleaned_input", []),
+        "frequency_handling_zh": inputs.get("frequency_handling"),
+        "missing_value_handling_zh": inputs.get("missing_value_handling"),
         "trend_window_options": parameters.get("trend_window_options")
         or [parameters.get("trend_window")],
+        "lookback_rule": (
+            parameters.get("percentile_lookback")
+            or parameters.get("lookback_window")
+            or parameters.get("slope_window")
+            or parameters.get("momentum_window")
+        ),
+        "smoothing_window": parameters.get("smoothing_window")
+        or parameters.get("moving_average_window"),
         "confirmation_window": parameters.get("confirmation_window"),
         "min_history": parameters.get("min_history"),
         "normalization_method": parameters.get("normalization_method"),
-        "confidence_behavior": method.get("confidence_behavior", {}),
+        "directionality_detail": parameters.get("directionality", {}),
+        "confidence_behavior": confidence_behavior,
+        "confidence_reduce_when": confidence_behavior.get("reduce_when", []),
         "insufficient_history_behavior": method.get(
             "insufficient_history_behavior",
             "abstain_or_low_confidence_diagnostic",
         ),
+        "stale_data_behavior": method.get("stale_data_behavior"),
+        "diagnostic_value_range": method.get("output_score_range"),
+        "pseudo_code_zh": method.get("pseudo_code_zh", []),
+        "test_case_names": [
+            str(test_case.get("name"))
+            for test_case in method.get("test_cases", [])
+            if isinstance(test_case, dict)
+        ],
         "computed_diagnostic_value_present": False,
         "legacy_diagnostic_boundary_zh": (
             "此處只揭露可能的診斷計算配方與所需資料，不計算正式分數，"

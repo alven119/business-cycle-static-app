@@ -49,6 +49,10 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
     assert html.count("data-provenance-detail") == 39
     assert html.count("data-abstention-detail") == 39
     assert html.count("data-score-transparency-detail") == 39
+    assert html.count("data-method-recipe-detail") == 39
+    assert html.count("data-method-confidence-detail") == 39
+    assert html.count("data-method-pseudo-code-detail") == 39
+    assert html.count("data-method-directionality-detail") == 39
     assert html.count("data-indicator-chart-payload") == 39
     assert html.count('data-chart-period="ytd"') == 39
     assert html.count('data-chart-period="trailing_1y"') == 39
@@ -56,6 +60,9 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
     assert html.count("data-chart-data-mode") == 39
     assert html.count("data-chart-unavailable-reason") == 39
     assert "diagnostic method recipe visible" in html
+    assert "Diagnostic recipe transparency" in html
+    assert "Confidence reducers" in html
+    assert "Calculation steps" in html
     assert "unavailable charts are not zero" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html

@@ -421,6 +421,28 @@ product_capability_95_roadmap:
         - numeric_context_promoted_to_phase_support_count=0
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 73
+      phase_title: Dashboard indicator method explanation
+      objective_zh: >
+        將 legacy dashboard 與 research latest-evidence 中的 indicator method
+        從單一名稱展開為可讀的診斷配方，顯示資料需求、頻率處理、缺值處理、
+        lookback/trend/confirmation window、方向判讀、信心下調與計算步驟；
+        不修改 scoring、resolver、declared state 或 production model 行為。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - dashboard_indicator_method_explanation_ready=true
+        - legacy_dashboard_method_detail_renderable_count=13
+        - research_dashboard_method_detail_renderable_count=39
+        - method_promoted_to_product_answer_count=0
+        - production_model_behavior_change_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

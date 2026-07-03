@@ -284,6 +284,10 @@ def _verify_rendered_html_pages(
             "data-provenance-detail",
             "data-abstention-detail",
             "data-score-transparency-detail",
+            "data-method-recipe-detail",
+            "data-method-confidence-detail",
+            "data-method-pseudo-code-detail",
+            "data-method-directionality-detail",
             "data-indicator-chart-payload",
             'data-chart-period="ytd"',
             'data-chart-period="trailing_1y"',
@@ -1230,6 +1234,17 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
         "No continuity gap reason reported.",
     )
     chart_payload = _indicator_chart_payload_section(chart)
+    confidence_reducers = _plain_list_items(
+        diagnostic.get("confidence_reduce_when"),
+        "No confidence reducer declared.",
+    )
+    pseudo_code = _ordered_plain_items(diagnostic.get("pseudo_code_zh"))
+    directionality = _definition_list_items(
+        diagnostic.get("directionality_detail", {}),
+    )
+    cleaned_inputs = ", ".join(
+        str(item) for item in diagnostic.get("cleaned_input_requirements", [])
+    )
     return f"""
       <article id="role-{_text(role["role_id"])}" class="role-drilldown-card" data-role-drilldown="{_text(role["role_id"])}" data-search="{_text(search_text)}">
         <div class="section-heading">
@@ -1274,12 +1289,33 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
             <p>{_text(rule["evidence_usability_status"])}</p>
           </section>
           <section data-score-transparency-detail>
-            <h4>Diagnostic method transparency</h4>
+            <h4>Diagnostic recipe transparency</h4>
             <p><strong>{_text(diagnostic["method_id"])}</strong></p>
             <p>{_text(diagnostic["method_purpose_zh"])}</p>
-            <p>Inputs: {_text(", ".join(diagnostic["method_inputs_required"]) or "not declared")}</p>
-            <p>Trend windows: {_text(", ".join(str(item) for item in diagnostic["trend_window_options"] if item) or "not declared")}</p>
-            <p>Confirmation: {_text(diagnostic["confirmation_window"])}</p>
+            <div data-method-recipe-detail>
+              <p>Assignment: {_text(diagnostic["method_assignment_basis_zh"])}</p>
+              <p>Inputs: {_text(", ".join(diagnostic["method_inputs_required"]) or "not declared")}</p>
+              <p>Cleaned input: {_text(cleaned_inputs or "not declared")}</p>
+              <p>Frequency: {_text(diagnostic.get("frequency_handling_zh") or "not declared")}</p>
+              <p>Missing data: {_text(diagnostic.get("missing_value_handling_zh") or "not declared")}</p>
+              <p>Lookback: {_text(diagnostic.get("lookback_rule") or "not declared")}; smoothing {_text(diagnostic.get("smoothing_window") or "not declared")}</p>
+              <p>Trend windows: {_text(", ".join(str(item) for item in diagnostic["trend_window_options"] if item) or "not declared")}</p>
+              <p>Confirmation: {_text(diagnostic["confirmation_window"])}</p>
+              <p>Min history: {_text(diagnostic.get("min_history") or "not declared")}</p>
+              <p>Normalization: {_text(diagnostic.get("normalization_method") or "not declared")}</p>
+            </div>
+            <div data-method-directionality-detail>
+              <p>Directionality:</p>
+              <dl class="mini-grid">{directionality}</dl>
+            </div>
+            <div data-method-confidence-detail>
+              <p>Confidence reducers:</p>
+              <ul>{confidence_reducers}</ul>
+            </div>
+            <div data-method-pseudo-code-detail>
+              <p>Calculation steps:</p>
+              <ol>{pseudo_code}</ol>
+            </div>
             <p>Computed diagnostic value: {_yes_no(diagnostic["computed_diagnostic_value_present"])}</p>
             <p>{_text(diagnostic["legacy_diagnostic_boundary_zh"])}</p>
             <p>{_text(diagnostic["why_not_product_answer_zh"])}</p>
@@ -1317,6 +1353,27 @@ def _indicator_chart_payload_section(chart: dict[str, Any]) -> str:
         '<div class="chart-period-grid">'
         + "".join(_chart_period_card(period) for period in periods)
         + "</div>"
+    )
+
+
+def _plain_list_items(items: Any, empty: str) -> str:
+    if not isinstance(items, list) or not items:
+        return f"<li>{_text(empty)}</li>"
+    return "".join(f"<li>{_text(item)}</li>" for item in items)
+
+
+def _ordered_plain_items(items: Any) -> str:
+    if not isinstance(items, list) or not items:
+        return "<li>No calculation steps declared.</li>"
+    return "".join(f"<li>{_text(item)}</li>" for item in items)
+
+
+def _definition_list_items(mapping: dict[str, Any]) -> str:
+    if not mapping:
+        return "<dt>not_declared</dt><dd>No directionality declared.</dd>"
+    return "".join(
+        f"<dt>{_text(key)}</dt><dd>{_text(value)}</dd>"
+        for key, value in mapping.items()
     )
 
 
