@@ -30,6 +30,7 @@ def main() -> None:
         "phase71_registry_update_gate_enabler_present",
         "phase72_current_macro_numeric_chart_enabler_present",
         "phase73_dashboard_method_explanation_enabler_present",
+        "phase74_80_plan_recorded",
         "all_target_capabilities_reach_95",
         "monotonic_progress_targets",
         "planned_phase_ids",

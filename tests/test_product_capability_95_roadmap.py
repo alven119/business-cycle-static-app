@@ -19,7 +19,7 @@ def test_product_capability_95_roadmap_passes() -> None:
     assert summary["planned_phase_count"] <= summary["max_phase_count"]
     assert summary["planned_phase_count"] == 9
     assert summary["target_phase_id"] == 64
-    assert summary["post_target_enabler_count"] == 9
+    assert summary["post_target_enabler_count"] == 16
     assert summary["post_target_enabler_phase_ids"] == [
         65,
         66,
@@ -30,6 +30,13 @@ def test_product_capability_95_roadmap_passes() -> None:
         71,
         72,
         73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
     ]
     assert summary["phase65_test_suite_reduction_enabler_present"] is True
     assert summary["phase66_archive_shard_enabler_present"] is True
@@ -40,6 +47,7 @@ def test_product_capability_95_roadmap_passes() -> None:
     assert summary["phase71_registry_update_gate_enabler_present"] is True
     assert summary["phase72_current_macro_numeric_chart_enabler_present"] is True
     assert summary["phase73_dashboard_method_explanation_enabler_present"] is True
+    assert summary["phase74_80_plan_recorded"] is True
     assert summary["all_target_capabilities_reach_95"] is True
     assert summary["monotonic_progress_targets"] is True
     assert summary["standalone_classifier_added_count"] == 0
@@ -89,4 +97,5 @@ def test_product_capability_95_roadmap_script() -> None:
         "phase73_dashboard_method_explanation_enabler_present=True"
         in result.stdout
     )
+    assert "phase74_80_plan_recorded=True" in result.stdout
     assert "all_target_capabilities_reach_95=True" in result.stdout

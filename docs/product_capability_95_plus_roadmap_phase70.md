@@ -1,4 +1,4 @@
-# Product Capability 95 Plus Roadmap After Phase 70
+# Product Capability 95 Plus Roadmap Through Phase 80
 
 Phase 70 closes the declared boom start registry update preview without writing
 the declared registry. The next planning horizon should bring the remaining
@@ -12,40 +12,36 @@ validation, investment advice, or a formal current phase decision.
 
 | Capability | Phase 70 | Target By Phase 80 | Main Gap |
 |---|---:|---:|---|
-| C1 景氣階段判讀能力 | 97% | 99% | User-confirmed declared phase start and final dashboard rehearsal |
-| C2 轉折風險偵測能力 | 98% | 99% | Confirmation boundaries and richer release accumulation |
-| C3 解釋能力 | 99% | 100% | Final renderer rehearsal with fuller chart coverage |
-| C4 Portfolio policy research 能力 | 38% | 95% | Research templates, policy replay, cash-flow-aware assumptions |
-| C5 歷史重播與回測能力 | 54% | 95% | Strict replay inputs, timeline replay, research backtest harness |
-| C6 安全輸出治理能力 | 90% | 96% | Migration rehearsal and output safety coverage for new surfaces |
-| F1 時間完整性與 abstention | 91% | 96% | Phase-age confirmation, vintage/release coverage, replay data mode |
-| F2 模型治理與前瞻驗證 | 70% | 95% | Freeze, validation readiness, migration and prospective gates |
+| C1 景氣階段判讀能力 | 100% | 100% | Declared boom start confirmation and final migration rehearsal |
+| C2 轉折風險偵測能力 | 99% | 100% | Release accumulation and confirmation boundaries |
+| C3 解釋能力 | 100% | 100% | Final renderer/mobile rehearsal |
+| C4 Portfolio policy research 能力 | 38% | 38% | Deferred until core-three dashboard reaches product usability |
+| C5 歷史重播與回測能力 | 54% | 54% | Deferred until transition timeline/replay work resumes |
+| C6 安全輸出治理能力 | 94% | 97% | Output safety coverage for local cache, renderer, deploy, and readiness review |
+| F1 時間完整性與 abstention | 94% | 96% | Phase-age confirmation and release accumulation data-mode separation |
+| F2 模型治理與前瞻驗證 | 70% | 70% | Prospective and migration gates remain closed |
 
 ## Planned Phases
 
 | Phase | Primary Outcome | Capabilities Advanced |
 |---|---|---|
-| 71 | Registry update gate rehearsal and phase-age dashboard handoff | C1, C3, C6, F1 |
-| 72 | Current macro numeric coverage expansion and chart data population | C1, C2, C3, F1 |
-| 73 | Boom-to-recession confirmation boundary rehearsal with richer evidence accumulation | C1, C2, C3, C6 |
-| 74 | Portfolio policy research template surface, research-only and no allocation advice | C4, C3, C6 |
-| 75 | Portfolio policy replay dry-run artifacts with no trade output | C4, C5, C6, F2 |
-| 76 | Strict point-in-time replay input expansion and scenario coverage | C5, F1, F2 |
-| 77 | Historical transition replay timeline with evidence attribution | C2, C3, C5, F1 |
-| 78 | Cash-flow-aware portfolio research harness, research-only metrics only | C4, C5, C6 |
-| 79 | Validation, freeze, and prospective-readiness rehearsal for migration gates | F2, C6, C5 |
-| 80 | Production migration rehearsal for declared-state dashboard and research surfaces | C1, C2, C3, C4, C5, C6, F1, F2 |
+| 74 | Local current cache to dashboard bridge | C1, C2, C3, C6, F1 |
+| 75 | Release accumulation and transition evidence timeline | C1, C2, C3, C6, F1 |
+| 76 | Governed declared boom start confirmation | C1, C2, C3, F1 |
+| 77 | Transition confirmation rules completion | C1, C2, C3, C6 |
+| 78 | Dashboard product surface consolidation | C1, C2, C3, C6 |
+| 79 | Static deploy and mobile UX hardening | C3, C6 |
+| 80 | Core-three product readiness review | C1, C2, C3, C6, F1, F2 |
 
-Phase 71 implements the safe rehearsal form of the planned registry update: it
-can apply exact-date or bounded-window inputs to a `/tmp` registry copy and
-render the dashboard handoff. The canonical declared registry still waits for a
-future explicit write gate after the user supplies the actual start date or
-window.
+Phase 74 begins the product-facing bridge from fixture rehearsal to actual local
+current-cache dashboard usage. The cache is still revised/latest local research
+context, not point-in-time evidence and not phase support.
 
-Phase 72 expands the numeric/chart path for current research surfaces. It
-populates fixture/local-cache chart coverage for official-series roles and
-keeps authorized/private gaps visible, so the dashboard can move toward richer
-indicator drill-downs without turning latest values into phase selection.
+Phases 75-80 keep the near-term priority on the three user-prioritized
+capabilities: business-cycle phase assessment, transition risk detection, and
+explainability. Portfolio research and strict replay/backtest remain important
+but are deferred until the core current dashboard surfaces are coherent enough
+for production migration rehearsal.
 
 ## Guardrails
 

@@ -17,6 +17,9 @@ from business_cycle.render.indicator_dashboard_explanation_drilldown import (
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     build_current_macro_numeric_chart_coverage_view_model,
 )
+from business_cycle.render.local_current_cache_dashboard_bridge import (
+    build_local_current_cache_dashboard_bridge_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -57,6 +60,13 @@ def main() -> None:
         action="store_true",
         help="include the Phase72 current macro numeric/chart coverage panel",
     )
+    parser.add_argument(
+        "--current-cache-dir",
+        help=(
+            "Use an explicit local current cache for the numeric/chart panel. "
+            "The path must be under /tmp or data/raw/fred_current_cache."
+        ),
+    )
     args = parser.parse_args()
 
     current_snapshot = _load_current_snapshot(args.include_current_snapshot)
@@ -71,6 +81,7 @@ def main() -> None:
         or args.include_phase_start_confirmation
         or args.include_phase_start_update_gate
         or args.include_current_macro_numeric_chart_coverage
+        or args.current_cache_dir
         else None
     )
     phase_start_confirmation = (
@@ -84,10 +95,11 @@ def main() -> None:
         if args.include_phase_start_update_gate
         else None
     )
-    current_macro_numeric_chart_coverage = (
-        build_current_macro_numeric_chart_coverage_view_model()
-        if args.include_current_macro_numeric_chart_coverage
-        else None
+    current_macro_numeric_chart_coverage = _current_macro_numeric_chart_coverage(
+        include_current_macro_numeric_chart_coverage=(
+            args.include_current_macro_numeric_chart_coverage
+        ),
+        current_cache_dir=args.current_cache_dir,
     )
     bundle = build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
@@ -132,6 +144,14 @@ def main() -> None:
         "current_macro_numeric_chart_coverage_view_ready="
         f"{str(bool(bundle.get('current_macro_numeric_chart_coverage'))).lower()}"
     )
+    if bundle.get("current_macro_numeric_chart_coverage"):
+        coverage = bundle["current_macro_numeric_chart_coverage"]
+        print(f"current_macro_numeric_chart_data_mode={coverage['data_mode']}")
+        print(f"current_macro_numeric_chart_cache_scope={coverage.get('cache_scope')}")
+        print(
+            "phase74_local_current_cache_bridge_ready="
+            f"{str(bool(coverage.get('phase74_local_current_cache_bridge_ready'))).lower()}"
+        )
     for key in (
         "research_dashboard_runtime_ready",
         "local_preview_server_ready",
@@ -154,6 +174,21 @@ def _load_current_snapshot(path: str | None) -> dict[str, object] | None:
     if path is None:
         return None
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _current_macro_numeric_chart_coverage(
+    *,
+    include_current_macro_numeric_chart_coverage: bool,
+    current_cache_dir: str | None,
+) -> dict[str, object] | None:
+    if current_cache_dir:
+        return build_local_current_cache_dashboard_bridge_view_model(
+            cache_dir=current_cache_dir,
+            seed_tmp_cache_when_missing=False,
+        )
+    if include_current_macro_numeric_chart_coverage:
+        return build_current_macro_numeric_chart_coverage_view_model()
+    return None
 
 
 def _bundle_summary(bundle: dict[str, object]) -> dict[str, object]:

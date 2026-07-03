@@ -29,6 +29,9 @@ from business_cycle.render.indicator_dashboard_explanation_drilldown import (
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     build_current_macro_numeric_chart_coverage_view_model,
 )
+from business_cycle.render.local_current_cache_dashboard_bridge import (
+    build_local_current_cache_dashboard_bridge_view_model,
+)
 from business_cycle.render.transition_timing_replay_preview import (
     build_transition_timing_replay_preview_view_model,
 )
@@ -293,6 +296,37 @@ def test_research_dashboard_bundle_accepts_current_macro_numeric_chart_coverage(
             "role_with_numeric_context_count"
         ]
         == 37
+    )
+    assert (
+        bundle["current_macro_numeric_chart_coverage"]["candidate_phase_emitted"]
+        is False
+    )
+    assert (
+        bundle["current_macro_numeric_chart_coverage"]["current_phase_emitted"]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_local_current_cache_bridge() -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_local_current_cache_dashboard_bridge_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert bundle["current_macro_numeric_chart_coverage"]["research_only"] is True
+    assert bundle["current_macro_numeric_chart_coverage"]["data_mode"] == (
+        "revised_tmp_seeded_local_current_cache_rehearsal"
+    )
+    assert (
+        bundle["current_macro_numeric_chart_coverage"][
+            "phase74_local_current_cache_bridge_ready"
+        ]
+        is True
     )
     assert (
         bundle["current_macro_numeric_chart_coverage"]["candidate_phase_emitted"]

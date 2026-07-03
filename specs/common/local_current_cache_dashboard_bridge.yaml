@@ -1,0 +1,76 @@
+local_current_cache_dashboard_bridge:
+  contract_id: local_current_cache_dashboard_bridge_v1
+  contract_version: "1.0"
+  phase_id: 74
+  status: active_research_dashboard_contract
+  objective_zh: >
+    將 Phase72 的 current macro numeric/chart coverage 從 fixture connectivity
+    推進到 explicit local current cache bridge。Dashboard 可在使用者提供
+    ignored local cache 或測試 tmp_path cache 時讀取 revised/latest current
+    observations，渲染 YTD、trailing 1Y、trailing 5Y chart payload 與最新數值
+    context；不得把 local current value 當成 point-in-time evidence、phase
+    support、candidate/current phase 或 production decision。
+  dependencies:
+    - current_data_refresh_contract
+    - current_macro_numeric_chart_coverage_v1
+    - indicator_chart_explanation_payload_v1
+    - dashboard_indicator_method_explanation_v1
+  policy:
+    output_mode: research_only_local_current_cache_dashboard_bridge
+    allowed_cache_roots:
+      - /tmp
+      - data/raw/fred_current_cache
+    default_ci_mode: tmp_seeded_local_current_cache_rehearsal
+    local_cache_mode: explicit_ignored_local_current_cache
+    live_fetch_attempted: false
+    writes_repo_output: false
+    point_in_time_result: false
+    current_phase_inference_enabled: false
+    candidate_phase_selection_enabled: false
+    production_behavior_change: false
+  dashboard_view_model:
+    allowed_uses:
+      - local_research_dashboard
+      - current_numeric_context_review
+      - current_chart_payload_review
+      - source_risk_and_missing_data_explanation
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - phase_score_or_rank_selection
+      - production_decision
+      - portfolio_or_trade_decision
+      - point_in_time_claim
+  hard_gates:
+    local_current_cache_dashboard_bridge_ready: true
+    local_current_cache_input_supported: true
+    tmp_seeded_local_current_cache_rehearsal_ready: true
+    role_count: 39
+    role_with_official_series_count: 37
+    role_without_official_series_count: 2
+    role_with_local_cache_numeric_context_count: 37
+    role_with_available_local_cache_chart_count: 37
+    role_with_ytd_available_local_cache_chart_count: 37
+    role_with_trailing_1y_available_local_cache_chart_count: 37
+    role_with_trailing_5y_available_local_cache_chart_count: 37
+    local_cache_unavailable_role_count: 2
+    local_cache_series_file_found_count_minimum: 1
+    local_cache_chart_point_count_minimum: 1
+    repo_output_written_count: 0
+    local_cache_written_by_bridge_count: 0
+    fixture_mislabeled_as_live_count: 0
+    local_cache_value_mislabeled_as_point_in_time_count: 0
+    numeric_context_promoted_to_phase_support_count: 0
+    missing_value_treated_as_neutral_count: 0
+    unavailable_chart_treated_as_zero_count: 0
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: local_current_cache_bridge_ready_declared_state_preserved

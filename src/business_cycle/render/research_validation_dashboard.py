@@ -1006,6 +1006,13 @@ def _current_macro_numeric_chart_coverage_section(
 ) -> str:
     if coverage is None:
         return ""
+    trust = coverage.get("trust_metadata", {})
+    cache_scope = coverage.get("cache_scope") or trust.get("coverage_scope", "unknown")
+    cache_display_label = trust.get("cache_display_label", "fixture/cache context")
+    value_caveat = trust.get(
+        "value_caveat",
+        "Fixture/cache values are explanation context only and do not infer the declared state.",
+    )
     rows = "".join(
         f"""
         <article class="mini-card" data-current-macro-chart-row="{_text(row["role_id"])}">
@@ -1027,10 +1034,12 @@ def _current_macro_numeric_chart_coverage_section(
         <h2>Current macro numeric and chart coverage</h2>
         <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
       </div>
-      <p class="muted">This section verifies current numeric context and YTD / 1Y / 5Y chart payload connectivity. Fixture/cache values are explanation context only and do not infer the declared state.</p>
+      <p class="muted">This section verifies current numeric context and YTD / 1Y / 5Y chart payload connectivity. Local current-cache values are revised/latest explanation context only and do not infer the declared state.</p>
       <div class="status-strip" data-chart-coverage-boundary>
         <span data-chart-coverage-mode>{_text(coverage["data_mode"])}</span>
-        <span>fixture values are not live</span>
+        <span data-local-current-cache-scope>{_text(cache_scope)}</span>
+        <span data-local-current-cache-label>{_text(cache_display_label)}</span>
+        <span>{_text(value_caveat)}</span>
         <span>not point-in-time evidence</span>
         <span>missing charts are not zero</span>
         <span>numeric context is not phase support</span>

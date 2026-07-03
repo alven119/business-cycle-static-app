@@ -443,6 +443,138 @@ product_capability_95_roadmap:
         - production_model_behavior_change_count=0
         - candidate_phase_emitted=false
         - current_phase_emitted=false
+    - phase_id: 74
+      phase_title: Local current cache to dashboard bridge
+      objective_zh: >
+        將 Phase72 fixture chart coverage 與 Phase73 method explanation 接到
+        explicit local current cache，讓 dashboard 可讀本機 revised/latest
+        current cache 並顯示 YTD/1Y/5Y 圖與最新數值；不把 local current
+        value 當成 phase support 或 point-in-time evidence。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - local_current_cache_dashboard_bridge_ready=true
+        - role_with_available_local_cache_chart_count=37
+        - local_cache_value_mislabeled_as_point_in_time_count=0
+        - numeric_context_promoted_to_phase_support_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
+    - phase_id: 75
+      phase_title: Release accumulation and transition evidence timeline
+      objective_zh: >
+        將 local current cache values/charts 串到 transition evidence timeline，
+        顯示近期 evidence 如何累積、延遲、矛盾或 abstain；不產生 standalone
+        selector output 或自動 phase change。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      key_acceptance_gates:
+        - release_accumulation_timeline_ready=true
+        - watch_confirmation_separation_valid=true
+        - current_data_used_to_infer_declared_phase_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
+    - phase_id: 76
+      phase_title: Governed declared boom start confirmation
+      objective_zh: >
+        將 user-declared exact date 或 bounded date window 的 boom start
+        confirmation 流程治理化，確認前不顯示精確 phase age；正式 canonical
+        registry 寫入仍需 explicit gate。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      key_acceptance_gates:
+        - declared_boom_start_confirmation_ready=true
+        - phase_age_false_precision_count=0
+        - declaration_provenance_complete=true
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
+    - phase_id: 77
+      phase_title: Transition confirmation rules completion
+      objective_zh: >
+        完成 recession confirmation / boom ending confirmation 的必要條件
+        呈現，確保 watch 不等於 confirmation、policy/financial-only evidence
+        不得單獨確認，missing/unavailable 不得當 neutral。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+      key_acceptance_gates:
+        - transition_confirmation_rules_ready=true
+        - watch_confirmation_separation_valid=true
+        - missing_value_treated_as_neutral_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
+    - phase_id: 78
+      phase_title: Dashboard product surface consolidation
+      objective_zh: >
+        將 overview、transition、indicator drilldown、method explanation、
+        chart payload 與 data-risk wording 收斂為一致的 product surface；
+        弱化 legacy score 的產品答案感並保留 declared-state semantics。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - dashboard_product_surface_consolidated=true
+        - legacy_score_not_product_answer=true
+        - prohibited_action_field_count=0
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
+    - phase_id: 79
+      phase_title: Static deploy and mobile UX hardening
+      objective_zh: >
+        驗證 GitHub Pages artifact、iPhone Safari readable layout、latest
+        method explanation/chart payload presence，以及 deploy workflow 的
+        deterministic safety gates；不改模型邏輯。
+      capability_percent_effect: product_surface_increment
+      capabilities_protected:
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - static_dashboard_artifact_ready=true
+        - mobile_layout_smoke_ready=true
+        - pages_artifact_contains_current_surfaces=true
+        - production_behavior_change_count=0
+    - phase_id: 80
+      phase_title: Core-three product readiness review
+      objective_zh: >
+        對景氣階段判讀、轉折風險偵測、解釋能力做產品化收斂審查，
+        確認 dashboard 是否能從總覽一路 drill down 到資料、方法、圖表與
+        風險，並列出下一輪 production migration / portfolio / replay blockers。
+      capability_percent_effect: readiness_review_no_automatic_migration
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+      key_acceptance_gates:
+        - core_three_product_readiness_review_ready=true
+        - remaining_production_blockers_listed=true
+        - explicit_migration_gate_required=true
+        - candidate_phase_emitted=false
+        - current_phase_emitted=false
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

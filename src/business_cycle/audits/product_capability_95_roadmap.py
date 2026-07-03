@@ -123,6 +123,9 @@ def summarize_product_capability_95_roadmap(
             and row.get("capability_percent_effect") == "product_surface_increment"
             for row in post_target_enablers
         ),
+        "phase74_80_plan_recorded": {
+            int(row["phase_id"]) for row in post_target_enablers
+        }.issuperset(set(range(74, 81))),
         "final_targets": {
             row["capability_id"]: int(row["target_percent"]) for row in target_rows
         },

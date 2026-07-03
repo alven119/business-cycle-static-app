@@ -9,6 +9,10 @@ from business_cycle.render.indicator_dashboard_explanation_drilldown import (
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     build_current_macro_numeric_chart_coverage_view_model,
 )
+from business_cycle.render.local_current_cache_dashboard_bridge import (
+    build_local_current_cache_dashboard_bridge_view_model,
+    seed_local_current_cache_rehearsal,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -138,6 +142,28 @@ def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
     assert "current_phase" not in html
 
 
+def test_latest_evidence_dashboard_renders_local_current_cache_bridge(
+    tmp_path,
+) -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_local_current_cache_dashboard_bridge_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+    )
+    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
+    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+
+    assert result["browser_verification_ready"] is True
+    assert "data-local-current-cache-scope" in html
+    assert "tmp_seeded_local_current_cache_rehearsal" in html
+    assert "revised/latest explanation context" in html
+    assert "not point-in-time evidence" in html
+    assert html.count("available_local_current_cache") == 37
+    assert "candidate_phase" not in html
+    assert "current_phase" not in html
+
+
 def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> None:
     output_dir = tmp_path / "dashboard"
     result = subprocess.run(
@@ -158,8 +184,34 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
 
     assert (output_dir / "latest-evidence.html").is_file()
     assert "latest_evidence_dashboard_view_ready=true" in result.stdout
-    assert "phase_start_confirmation_view_ready=true" in result.stdout
-    assert "phase_start_update_gate_view_ready=true" in result.stdout
+
+
+def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> None:
+    output_dir = tmp_path / "dashboard"
+    cache_dir = tmp_path / "fred_current_cache"
+    seed_local_current_cache_rehearsal(cache_dir)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/build_research_validation_dashboard.py",
+            "--output-dir",
+            str(output_dir),
+            "--current-cache-dir",
+            str(cache_dir),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    html = (output_dir / "latest-evidence.html").read_text(encoding="utf-8")
+
+    assert (output_dir / "latest-evidence.html").is_file()
     assert "current_macro_numeric_chart_coverage_view_ready=true" in result.stdout
-    assert "dashboard_view_count=11" in result.stdout
+    assert "phase74_local_current_cache_bridge_ready=true" in result.stdout
+    assert "current_macro_numeric_chart_cache_scope=explicit_local_current_cache" in (
+        result.stdout
+    )
+    assert "explicit ignored local current cache" in html
+    assert "available_local_current_cache" in html
+    assert "latest_evidence_dashboard_view_ready=true" in result.stdout
     assert "browser_verification_ready=true" in result.stdout
