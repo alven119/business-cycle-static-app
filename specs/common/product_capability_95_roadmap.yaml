@@ -273,6 +273,24 @@ product_capability_95_roadmap:
         - archive_regression_tests_not_in_default_ci=true
         - legacy_v1_default_test_count=0
         - closure_archive_test_count_gt_zero=true
+    - phase_id: 66
+      phase_title: Archive regression shards and nightly matrix
+      objective_zh: >
+        將 archive regression 拆成 legacy、closure、historical validation、
+        portfolio、source/provider、book governance、dashboard rendering 與
+        infrastructure shards，讓 nightly 能分段定位舊回歸，同時保留
+        default product-core suite 的速度。
+      capability_percent_effect: no_percent_change_enabler
+      capabilities_protected:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - DASHBOARD_CURRENT_RESEARCH_SURFACES
+      key_acceptance_gates:
+        - archive_shard_count=8
+        - archive_file_coverage_complete=true
+        - nightly_matrix_ready=true
+        - live_optional_excluded_from_shards=true
   universal_guardrails:
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0

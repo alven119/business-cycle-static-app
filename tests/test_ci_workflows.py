@@ -32,6 +32,7 @@ def test_fast_ci_has_required_quality_gates_without_full_pytest() -> None:
         "python scripts/run_ci_safety_scans.py",
         "python scripts/run_qa0_integrity_audit.py",
         "tests/test_test_suite_reduction_plan.py",
+        "tests/test_archive_regression_shards.py",
         "tests/test_declared_cycle_state_registry.py",
         "tests/test_boom_transition_monitor.py",
         "tests/test_indicator_dashboard_explanation_drilldown.py",
@@ -69,7 +70,17 @@ def test_nightly_ci_runs_full_regression_and_extended_closures() -> None:
         "schedule:",
         "cache: pip",
         "cancel-in-progress: true",
-        'env -u FRED_API_KEY python -m pytest -o addopts= -m "not live_optional"',
+        "fail-fast: false",
+        "legacy_v1_compatibility",
+        "phase_closure_history",
+        "historical_validation_replay",
+        "portfolio_policy_research",
+        "source_provider_cache",
+        "book_core_shadow_governance",
+        "dashboard_rendering_archive",
+        "infrastructure_misc_archive",
+        "python scripts/run_archive_regression_shard.py",
+        "--shard ${{ matrix.shard }}",
         "python scripts/run_ci_closure_checks.py --tier nightly",
     ]
     for snippet in required_snippets:
@@ -81,6 +92,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     required_snippets = [
         "show_test_suite_reduction_plan.py",
+        "show_archive_regression_shards.py",
         "show_product_capability_progress.py",
         "show_product_capability_95_roadmap.py",
         "show_qa12_major_group_manual_start_closure.py",

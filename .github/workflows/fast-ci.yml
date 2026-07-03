@@ -47,6 +47,7 @@ jobs:
             tests/test_ci_workflows.py \
             tests/test_github_pages_workflow.py \
             tests/test_test_suite_reduction_plan.py \
+            tests/test_archive_regression_shards.py \
             tests/test_product_doctrine_enforcement.py \
             tests/test_declared_cycle_state_registry.py \
             tests/test_ordered_cycle_state_machine.py \

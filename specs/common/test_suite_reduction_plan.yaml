@@ -16,12 +16,12 @@ test_suite_reduction_plan:
     - tests/test_test_suite_doctrine_quarantine.py
     - tests/test_test_suite_doctrine_markers.py
     - tests/test_test_suite_reduction_plan.py
+    - tests/test_archive_regression_shards.py
     - tests/test_product_capability_progress.py
     - tests/test_product_capability_95_roadmap.py
     - tests/test_declared_cycle_state_registry.py
     - tests/test_ordered_cycle_state_machine.py
     - tests/test_ordered_cycle_state_view_models.py
-    - tests/test_current_data_refresh_contract.py
     - tests/test_current_evidence_readiness.py
     - tests/test_current_freshness_semantics.py
     - tests/test_boom_transition_monitor.py
@@ -62,13 +62,15 @@ test_suite_reduction_plan:
   ci_tiers:
     fast_ci: product_core_subset
     full_ci: default_product_core_suite_and_current_closure_bundle
-    nightly_ci: archive_regression_and_full_historical_closure_bundle
+    nightly_ci: sharded_archive_regression_matrix_and_full_historical_closure_bundle
   phase_plan_integration:
     product_capability_95_roadmap: integrated_as_post_target_enabler
     integrated_phase_id: 65
     capability_percent_policy: >
       Phase65 是交付速度與測試治理 enabler，不提高或降低產品能力百分比。
       後續 Phase 仍以 C1/C2/C3/dashboard 達到 95%-100% 為目標。
+    next_enabler_phase_id: 66
+    next_enabler_phase_label: archive_regression_shards_and_nightly_matrix
   prohibited_changes:
     - remove_product_core_tests_without_replacement
     - classify_legacy_v1_as_mature_product

@@ -1,0 +1,77 @@
+archive_regression_shard_plan:
+  version: "1.0"
+  status: active_archive_regression_shard_contract
+  phase_id: 66
+  phase_label: archive_regression_shards_and_nightly_matrix
+  objective_zh: >
+    將 Phase65 archive regression 套件切成可觀察、可分段執行的 shards，
+    讓 nightly regression 不再是一個單一黑盒 full pytest，同時不刪除 legacy
+    v1、歷史 Phase closure 或治理回歸。
+  source_contract: specs/common/test_suite_reduction_plan.yaml
+  shard_count: 8
+  shards:
+    - shard_id: legacy_v1_compatibility
+      title_zh: Legacy v1 相容性封存
+      selection_policy: tests marked legacy_v1
+      purpose_zh: 保留 production v1/score/resolver/pipeline 的歷史相容性邊界，不作成熟產品方向。
+    - shard_id: phase_closure_history
+      title_zh: 歷史 Phase closure 封條
+      selection_policy: archive test path containing closure or show_phase
+      purpose_zh: 保留過去 Phase hard gates、freeze/lineage、安全輸出與 no-production-change 的歷史封條。
+    - shard_id: historical_validation_replay
+      title_zh: 歷史驗證與 replay/backtest 研究
+      selection_policy: archive paths for historical validation, comparison, predicted labels, metrics, scenarios, replay, or backtest
+      purpose_zh: 保留未來 historical replay/backtest product track 所需的研究回歸。
+    - shard_id: portfolio_policy_research
+      title_zh: Portfolio policy research
+      selection_policy: tests marked portfolio_policy_research or portfolio/backtest safety paths
+      purpose_zh: 保留 portfolio policy 模板、安全 caveat 與 backtest-only 邊界。
+    - shard_id: source_provider_cache
+      title_zh: 資料來源、provider、cache、release 語意
+      selection_policy: archive paths for source identity, adapters, cache, providers, catalog, release, vintage, and point-in-time availability
+      purpose_zh: 保留官方資料與 future PIT/backfill 能力的底層回歸。
+    - shard_id: book_core_shadow_governance
+      title_zh: Book-core / shadow model governance
+      selection_policy: archive paths for book-core, shadow model, evidence rules, prospective, QA, freeze, lineage, and major-group governance
+      purpose_zh: 保留 book-core 語意、shadow governance 與 prospective 隔離的回歸。
+    - shard_id: dashboard_rendering_archive
+      title_zh: Dashboard/rendering 封存回歸
+      selection_policy: archive paths for dashboard, render, generated-site, chart, HTML, view model, and public-output validation
+      purpose_zh: 保留 dashboard rendering 與 public output safety 的非核心舊回歸。
+    - shard_id: infrastructure_misc_archive
+      title_zh: 其他 infrastructure/misc 封存回歸
+      selection_policy: fallback archive paths not assigned above
+      purpose_zh: 收容未歸類 archive regression，確保無測試遺漏。
+  nightly_ci_policy:
+    uses_matrix: true
+    command: python scripts/run_archive_regression_shard.py --shard <shard_id>
+    excludes_live_optional: true
+    keeps_full_historical_closure_bundle: true
+  product_capability_impact:
+    percent_change_policy: no_percent_change_enabler
+    protected_capabilities:
+      - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      - C2_TRANSITION_RISK_DETECTION
+      - C3_EXPLAINABILITY_AND_ATTRIBUTION
+      - DASHBOARD_CURRENT_RESEARCH_SURFACES
+  prohibited_changes:
+    - delete_archive_tests
+    - weaken_safety_scans
+    - run_live_optional_by_default
+    - enable_candidate_or_current_phase
+    - modify_production_behavior
+  hard_gates:
+    archive_regression_shard_plan_ready: true
+    archive_shard_count: 8
+    archive_shard_with_tests_count: 8
+    archive_file_coverage_complete: true
+    archive_unassigned_test_file_count: 0
+    archive_duplicate_assignment_count: 0
+    legacy_v1_shard_test_file_count_gt_zero: true
+    phase_closure_shard_test_file_count_gt_zero: true
+    nightly_matrix_ready: true
+    nightly_shard_count: 8
+    default_product_core_test_file_count: 30
+    live_optional_excluded_from_shards: true
+    semantic_drift_count: 0
+    production_behavior_change_count: 0

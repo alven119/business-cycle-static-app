@@ -9,8 +9,8 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: 65
-  phase_label: default_product_core_suite_and_archive_regression_quarantine
+  phase_id: 66
+  phase_label: archive_regression_shards_and_nightly_matrix
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
@@ -18,7 +18,7 @@ product_capability_progress:
       current_progress_percent: 93
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase65 將預設測試回圈縮減為 30 個產品核心測項，保留 declared state、ordered transition、macro coverage、indicator explanation 與 dashboard bundle 的直接保護；不改景氣判讀邏輯，也不輸出 formal current/candidate phase。
+      phase_impact_zh: Phase66 將 archive regression 切成 nightly shards，讓景氣判讀相關的 product-core gates 保持快速，同時把舊回歸錯誤定位到 source/provider、book governance、dashboard 或 closure 類別；不改景氣判讀邏輯，也不輸出 formal current/candidate phase。
       current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、Phase62 drill-down、Phase63 latest evidence HTML page，以及 Phase64 method/chart payload；仍未啟用 formal current/candidate phase。
       remaining_gap_zh: 還需要 governed declared boom start date、更多 actual numeric cache/user input、真實圖表資料覆蓋率、transition timing replay preview 與 production migration gate。
       completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards、boom-to-recession transition surface、四個合法 transition lane templates、資料新鮮度/發布時點/目前值連續性 surface、24 個 major-group readiness profiles、dashboard drill-down artifact、latest evidence HTML page，以及診斷方法/圖表 payload。
@@ -31,7 +31,7 @@ product_capability_progress:
       current_progress_percent: 95
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase65 保留 transition monitor、boom transition surface、全循環 lane template、composite transition surface 與 freshness continuity 為預設核心測項，讓轉折風險開發不再被舊 V1/歷史 closure 測項拖慢。
+      phase_impact_zh: Phase66 讓 nightly 能分段檢查 transition monitor、historical replay、closure 與 dashboard archives，降低轉折風險開發時定位舊回歸問題的成本；不新增 watch/confirmation 語意。
       current_status_zh: 已有 boom transition monitor、completed boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page，以及 transition role chart payload；仍不自動改寫 declared phase。
       remaining_gap_zh: 需要 governed phase-age context、turning-point confirmation rules、更多 numeric current cache/user input，以及 transition timing replay preview。
       completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view、indicator detail cards、全循環 legal transition templates、freshness/release/value continuity explanation、major-group transition readiness explanation、role-level drill-down、dashboard wiring 與 YTD/1Y/5Y chart payload contract。
@@ -44,7 +44,7 @@ product_capability_progress:
       current_progress_percent: 96
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase65 把 indicator explanation、chart payload、drill-down、dashboard bundle 與 source-risk tests 放入預設核心，並把舊 closure 封存為 archive regression；不改使用者可見解釋語意。
+      phase_impact_zh: Phase66 把 dashboard/rendering、source/provider、book governance 等 archive regression 明確分段，讓解釋能力與 dashboard 後續修改更容易知道是哪個歷史層出問題；不改使用者可見解釋語意。
       current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度與 chart payload 已能以 research surface 呈現。
       remaining_gap_zh: 需要更多 numeric values、授權私有來源讀取、governed phase-age context、真實圖表資料覆蓋率、transition timing replay preview，以及最後 production renderer rehearsal。
       completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards、transition lane attribution、freshness/release/value continuity gap explanation、24 個 major-group attribution profiles、dashboard-to-role drill-down、actual HTML wiring、診斷方法透明度與 YTD/1Y/5Y chart payload。
@@ -79,11 +79,11 @@ product_capability_progress:
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 85
+      previous_progress_percent: 86
       current_progress_percent: 86
-      phase_delta_percent: 1
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase65 建立 default/archive/nightly 測試分層，保留 safety scans、forbidden output、doctrine enforcement 與 product-core gates；不放寬安全掃描、不啟用 candidate/current phase。
+      phase_impact_zh: Phase66 建立 archive shard manifest、runner 與 nightly matrix，讓舊測試封存仍可被追蹤、分段執行與定位；不放寬安全掃描、不啟用 candidate/current phase。
       current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates 與 Phase64 chart/method transparency gates 持續運作。
       remaining_gap_zh: 需要把相同 source-risk/forbidden-field 契約套用到 transition timing replay preview、最終 renderer 與 production migration rehearsal。
       completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates、transition completion hard gates、full-cycle template hard gates、continuity hard gates、major-group readiness hard gates、drill-down hard gates、latest evidence dashboard hard gates 與 chart/method transparency hard gates。

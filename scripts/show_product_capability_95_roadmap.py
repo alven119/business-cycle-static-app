@@ -22,6 +22,7 @@ def main() -> None:
         "post_target_enabler_count",
         "post_target_enabler_phase_ids",
         "phase65_test_suite_reduction_enabler_present",
+        "phase66_archive_shard_enabler_present",
         "all_target_capabilities_reach_95",
         "monotonic_progress_targets",
         "planned_phase_ids",
