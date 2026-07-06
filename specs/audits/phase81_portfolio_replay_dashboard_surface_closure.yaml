@@ -1,0 +1,54 @@
+phase81_portfolio_replay_dashboard_surface_closure:
+  version: 1
+  status: active
+  phase_id: 81
+  objective_zh: >
+    關閉 Phase81 portfolio/replay dashboard surface。此 closure 驗證
+    Phase77 policy schedule、Phase78 cash-flow kernel、Phase79 replay rows
+    與 Phase80 research-only backtest artifacts 已接入 local research
+    dashboard surface，且沒有 metric values、public output、目前配置、
+    交易動作、candidate/current phase 或 production behavior change。
+  hard_gates:
+    phase81_closure_ready: true
+    portfolio_replay_dashboard_surface_ready: true
+    portfolio_replay_dashboard_view_model_ready: true
+    portfolio_replay_dashboard_bundle_integration_ready: true
+    portfolio_replay_dashboard_runtime_preview_ready: true
+    research_only_label_visible: true
+    scenario_count: 5
+    replay_data_mode_count: 2
+    research_backtest_artifact_count: 10
+    dashboard_card_count: 10
+    lineage_drilldown_row_count: 10
+    policy_schedule_reference_count: 10
+    cash_flow_kernel_reference_count: 10
+    metric_formula_reference_family_count: 11
+    metric_value_count: 0
+    risk_metric_value_count: 0
+    backtest_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    public_output_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    dashboard_view_contains_portfolio_replay_count: 1
+    rendered_portfolio_replay_page_count: 1
+    research_dashboard_runtime_ready: true
+    browser_verification_ready: true
+    missing_research_only_label_count: 0
+    prohibited_claim_count: 0
+    browser_missing_required_element_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_portfolio_replay_dashboard_surface_ready
+    portfolio_policy_research_alignment: dashboard_surface_ready_no_current_allocation
+    historical_replay_backtest_alignment: dashboard_surface_ready_research_artifacts_only
+    legal_transition_semantics_preserved: true
+    development_next_phase: 82
+    phase81_closure_status: closed_portfolio_replay_dashboard_surface_ready_research_only

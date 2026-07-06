@@ -42,6 +42,9 @@ from business_cycle.render.current_macro_numeric_chart_coverage import (
 from business_cycle.render.transition_timing_replay_preview import (
     build_transition_timing_replay_preview_view_model,
 )
+from business_cycle.render.portfolio_replay_dashboard_surface import (
+    build_portfolio_replay_dashboard_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -113,6 +116,7 @@ DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID = (
     "declared_phase_start_registry_update_gate"
 )
 CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID = "current_macro_numeric_chart_coverage"
+PORTFOLIO_REPLAY_DASHBOARD_SURFACE_VIEW_ID = "portfolio_replay_dashboard_surface"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -152,6 +156,7 @@ def build_research_dashboard_bundle(
     declared_phase_start_confirmation: dict[str, Any] | None = None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None = None,
     current_macro_numeric_chart_coverage: dict[str, Any] | None = None,
+    portfolio_replay_dashboard_surface: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -191,6 +196,7 @@ def build_research_dashboard_bundle(
             declared_phase_start_registry_update_gate
         ),
         current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
+        portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -210,7 +216,10 @@ def build_research_dashboard_bundle(
             item["scenario_id"] for item in non_comparable
         ],
         "dashboard_view_count": len(view_ids),
-        "views": [{"view_id": view_id, "title": _view_title(view_id)} for view_id in view_ids],
+        "views": [
+            {"view_id": view_id, "title": _view_title(view_id)}
+            for view_id in view_ids
+        ],
         "scenarios": scenarios,
         "evidence_summaries": evidence_rows,
         "comparison_summaries": {
@@ -406,6 +415,13 @@ def build_research_dashboard_bundle(
         bundle["source_runs"]["phase72_current_macro_numeric_chart_coverage"] = (
             current_macro_numeric_chart_coverage["view_id"]
         )
+    if portfolio_replay_dashboard_surface is not None:
+        bundle["portfolio_replay_dashboard_surface"] = (
+            portfolio_replay_dashboard_surface
+        )
+        bundle["source_runs"]["phase81_portfolio_replay_dashboard_surface"] = (
+            portfolio_replay_dashboard_surface["view_id"]
+        )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
         bundle["source_runs"]["phase55_macro_indicator_coverage_readiness"] = (
@@ -495,6 +511,21 @@ def summarize_research_dashboard_bundle() -> dict[str, Any]:
         and bundle["dashboard_view_count"] >= 8,
         "boom_transition_dashboard_artifact_count": int(
             bool(bundle.get("boom_transition_dashboard"))
+        ),
+        "portfolio_replay_dashboard_surface_ready": bool(
+            bundle.get("portfolio_replay_dashboard_surface")
+        ),
+        "research_backtest_artifact_count": (
+            bundle.get("portfolio_replay_dashboard_surface", {}).get(
+                "research_backtest_artifact_count",
+                0,
+            )
+        ),
+        "portfolio_replay_dashboard_card_count": (
+            len(bundle.get("portfolio_replay_dashboard_surface", {}).get(
+                "dashboard_cards",
+                [],
+            ))
         ),
         "bundle": bundle,
     }
@@ -662,6 +693,7 @@ def _view_ids(
     declared_phase_start_confirmation: dict[str, Any] | None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None,
     current_macro_numeric_chart_coverage: dict[str, Any] | None,
+    portfolio_replay_dashboard_surface: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -688,6 +720,8 @@ def _view_ids(
         view_ids.append(DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID)
     if current_macro_numeric_chart_coverage is not None:
         view_ids.append(CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID)
+    if portfolio_replay_dashboard_surface is not None:
+        view_ids.append(PORTFOLIO_REPLAY_DASHBOARD_SURFACE_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -819,7 +853,9 @@ def _contains_prohibited_action_field(value: Any) -> int:
     if isinstance(value, dict):
         if PROHIBITED_ACTION_FIELDS & set(value):
             return 1
-        return int(any(_contains_prohibited_action_field(item) for item in value.values()))
+        return int(
+            any(_contains_prohibited_action_field(item) for item in value.values())
+        )
     if isinstance(value, list):
         return int(any(_contains_prohibited_action_field(item) for item in value))
     return 0
@@ -863,6 +899,7 @@ def _view_title(view_id: str) -> str:
         "current_macro_numeric_chart_coverage": (
             "Current Macro Numeric and Chart Coverage"
         ),
+        "portfolio_replay_dashboard_surface": "Portfolio and Replay Research Surface",
     }[view_id]
 
 
@@ -923,6 +960,16 @@ def build_research_dashboard_bundle_with_transition_timing_replay_preview() -> d
         ),
         transition_timing_replay_preview=(
             build_transition_timing_replay_preview_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_portfolio_replay_surface() -> dict[str, Any]:
+    """Build a bundle including the Phase81 portfolio/replay surface."""
+
+    return build_research_dashboard_bundle(
+        portfolio_replay_dashboard_surface=(
+            build_portfolio_replay_dashboard_surface_view_model()
         ),
     )
 

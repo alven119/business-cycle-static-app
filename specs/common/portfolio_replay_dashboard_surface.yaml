@@ -1,0 +1,107 @@
+portfolio_replay_dashboard_surface:
+  version: 1
+  status: active_research_dashboard_surface_no_public_output
+  phase_id: 81
+  view_id: portfolio_replay_dashboard_surface
+  view_model_version: phase81_portfolio_replay_dashboard_surface_v1
+  objective_zh: >
+    將 Phase77 portfolio policy replay schedule、Phase78 cash-flow-aware
+    kernel、Phase79 historical replay rows 與 Phase80 research-only
+    backtest artifacts 接成 local research dashboard surface。此 surface
+    只顯示研究用途、caveats、artifact drill-down lineage 與未計算指標的
+    明確狀態；不得產生 public output、目前配置、交易動作、candidate/current
+    phase 或任何績效值。
+  dependencies:
+    portfolio_policy_replay_schedule_contract: specs/portfolio/portfolio_policy_replay_schedule_contract.yaml
+    cash_flow_kernel_contract: specs/portfolio/cash_flow_aware_backtest_kernel_contract.yaml
+    historical_replay_runner_contract: specs/common/historical_replay_runner_contract.yaml
+    research_backtest_artifact_contract: specs/portfolio/research_backtest_artifact_contract.yaml
+    research_dashboard_bundle: src/business_cycle/render/research_dashboard_bundle.py
+  dashboard_view_model:
+    output_mode: research_only_dashboard_surface
+    research_only_label: RESEARCH ONLY
+    allowed_uses:
+      - local_research_dashboard
+      - portfolio_policy_research_review
+      - historical_replay_backtest_research_review
+      - lineage_and_caveat_review
+    prohibited_uses:
+      - current_allocation_guidance
+      - trade_instruction
+      - production_decision
+      - public_output
+      - performance_claim
+      - model_tuning
+    required_sections:
+      - research_only_header
+      - artifact_summary_cards
+      - scenario_data_mode_table
+      - policy_kernel_metric_reference_panel
+      - artifact_lineage_drilldown
+      - caveats_panel
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - actual_label
+      - expected_label
+      - correct
+      - incorrect
+      - historical_accuracy
+      - confusion_matrix
+      - precision
+      - recall
+      - hit_rate
+      - phase_rank
+      - phase_score
+      - phase_probability
+      - current_allocation
+      - current_allocation_recommendation
+      - target_weight
+      - target_weights
+      - buy_signal
+      - sell_signal
+      - trade_action
+      - portfolio_return
+      - CAGR
+      - drawdown
+      - Sharpe
+  disabled_runtime_guards:
+    public_output_enabled: false
+    production_integration_enabled: false
+    portfolio_policy_replay_execution_enabled: false
+    backtest_execution_enabled: false
+    metric_computation_enabled: false
+    current_allocation_recommendation_enabled: false
+    trade_signal_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+  hard_gates:
+    portfolio_replay_dashboard_surface_ready: true
+    portfolio_replay_dashboard_view_model_ready: true
+    portfolio_replay_dashboard_bundle_integration_ready: true
+    portfolio_replay_dashboard_runtime_preview_ready: true
+    research_only_label_visible: true
+    scenario_count: 5
+    replay_data_mode_count: 2
+    research_backtest_artifact_count: 10
+    dashboard_card_count: 10
+    lineage_drilldown_row_count: 10
+    policy_schedule_reference_count: 10
+    cash_flow_kernel_reference_count: 10
+    metric_formula_reference_family_count: 11
+    metric_value_count: 0
+    risk_metric_value_count: 0
+    backtest_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    public_output_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

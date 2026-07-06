@@ -35,6 +35,9 @@ from business_cycle.render.local_current_cache_dashboard_bridge import (
 from business_cycle.render.transition_timing_replay_preview import (
     build_transition_timing_replay_preview_view_model,
 )
+from business_cycle.render.portfolio_replay_dashboard_surface import (
+    build_portfolio_replay_dashboard_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -334,6 +337,40 @@ def test_research_dashboard_bundle_accepts_local_current_cache_bridge() -> None:
     )
     assert (
         bundle["current_macro_numeric_chart_coverage"]["current_phase_emitted"]
+        is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_portfolio_replay_surface() -> None:
+    surface = build_portfolio_replay_dashboard_surface_view_model()
+    bundle = build_research_dashboard_bundle(
+        portfolio_replay_dashboard_surface=surface,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "portfolio_replay_dashboard_surface" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["portfolio_replay_dashboard_surface"]["research_only"] is True
+    assert (
+        bundle["portfolio_replay_dashboard_surface"][
+            "research_backtest_artifact_count"
+        ]
+        == 10
+    )
+    assert (
+        len(bundle["portfolio_replay_dashboard_surface"]["dashboard_cards"])
+        == 10
+    )
+    assert bundle["portfolio_replay_dashboard_surface"]["metric_value_count"] == 0
+    assert (
+        bundle["portfolio_replay_dashboard_surface"]["candidate_phase_emitted"]
+        is False
+    )
+    assert (
+        bundle["portfolio_replay_dashboard_surface"]["current_phase_emitted"]
         is False
     )
     assert validation["prohibited_action_field_count"] == 0

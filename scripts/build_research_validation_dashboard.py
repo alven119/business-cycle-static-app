@@ -20,6 +20,9 @@ from business_cycle.render.current_macro_numeric_chart_coverage import (
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
 )
+from business_cycle.render.portfolio_replay_dashboard_surface import (
+    build_portfolio_replay_dashboard_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -59,6 +62,11 @@ def main() -> None:
         "--include-current-macro-numeric-chart-coverage",
         action="store_true",
         help="include the Phase72 current macro numeric/chart coverage panel",
+    )
+    parser.add_argument(
+        "--include-portfolio-replay-surface",
+        action="store_true",
+        help="include the Phase81 portfolio/replay research dashboard surface",
     )
     parser.add_argument(
         "--current-cache-dir",
@@ -101,6 +109,11 @@ def main() -> None:
         ),
         current_cache_dir=args.current_cache_dir,
     )
+    portfolio_replay_dashboard_surface = (
+        build_portfolio_replay_dashboard_surface_view_model()
+        if args.include_portfolio_replay_surface
+        else None
+    )
     bundle = build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
@@ -108,6 +121,7 @@ def main() -> None:
         declared_phase_start_confirmation=phase_start_confirmation,
         declared_phase_start_registry_update_gate=phase_start_update_gate,
         current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
+        portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
     bundle_summary = _bundle_summary(bundle)
@@ -144,6 +158,20 @@ def main() -> None:
         "current_macro_numeric_chart_coverage_view_ready="
         f"{str(bool(bundle.get('current_macro_numeric_chart_coverage'))).lower()}"
     )
+    print(
+        "portfolio_replay_dashboard_surface_ready="
+        f"{str(bool(bundle.get('portfolio_replay_dashboard_surface'))).lower()}"
+    )
+    if bundle.get("portfolio_replay_dashboard_surface"):
+        surface = bundle["portfolio_replay_dashboard_surface"]
+        print(
+            "portfolio_replay_dashboard_card_count="
+            f"{len(surface['dashboard_cards'])}"
+        )
+        print(
+            "research_backtest_artifact_count="
+            f"{surface['research_backtest_artifact_count']}"
+        )
     if bundle.get("current_macro_numeric_chart_coverage"):
         coverage = bundle["current_macro_numeric_chart_coverage"]
         print(f"current_macro_numeric_chart_data_mode={coverage['data_mode']}")

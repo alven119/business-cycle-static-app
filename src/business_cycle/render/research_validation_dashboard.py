@@ -46,6 +46,7 @@ REQUIRED_PAGES = (
 CURRENT_SNAPSHOT_PAGE = "current-snapshot.html"
 BOOM_TRANSITION_PAGE = "boom-transition.html"
 LATEST_EVIDENCE_PAGE = "latest-evidence.html"
+PORTFOLIO_REPLAY_PAGE = "portfolio-replay.html"
 
 
 def build_research_validation_dashboard(
@@ -75,6 +76,8 @@ def build_research_validation_dashboard(
         pages[BOOM_TRANSITION_PAGE] = _boom_transition_page(bundle)
     if "indicator_dashboard_explanation_drilldown" in bundle:
         pages[LATEST_EVIDENCE_PAGE] = _latest_evidence_page(bundle)
+    if "portfolio_replay_dashboard_surface" in bundle:
+        pages[PORTFOLIO_REPLAY_PAGE] = _portfolio_replay_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -181,6 +184,12 @@ def verify_research_validation_dashboard_directory(
             missing += 1
         else:
             pages[LATEST_EVIDENCE_PAGE] = path.read_text(encoding="utf-8")
+    if _bundle_has_portfolio_replay(root):
+        path = root / PORTFOLIO_REPLAY_PAGE
+        if not path.exists():
+            missing += 1
+        else:
+            pages[PORTFOLIO_REPLAY_PAGE] = path.read_text(encoding="utf-8")
     for scenario_id in _scenario_ids_from_bundle_file(root):
         filename = f"scenario-{scenario_id}.html"
         path = root / filename
@@ -345,6 +354,21 @@ def _verify_rendered_html_pages(
             "data-chart-coverage-boundary",
         ):
             required_missing += int(token not in combined)
+    if "portfolio_replay_dashboard_surface" in bundle:
+        required_missing += int(
+            "data-dashboard-view=\"portfolio_replay_dashboard_surface\""
+            not in combined
+        )
+        for token in (
+            "data-portfolio-replay-surface",
+            "data-backtest-artifact-card",
+            "data-backtest-lineage-row",
+            "data-policy-schedule-reference",
+            "data-cash-flow-kernel-reference",
+            "data-metric-formula-reference",
+            "data-backtest-caveat",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -391,6 +415,8 @@ def _preview_pages(bundle: dict[str, Any]) -> dict[str, str]:
         pages[BOOM_TRANSITION_PAGE] = _boom_transition_page(bundle)
     if "indicator_dashboard_explanation_drilldown" in bundle:
         pages[LATEST_EVIDENCE_PAGE] = _latest_evidence_page(bundle)
+    if "portfolio_replay_dashboard_surface" in bundle:
+        pages[PORTFOLIO_REPLAY_PAGE] = _portfolio_replay_page(bundle)
     for scenario in bundle["scenarios"]:
         pages[f"scenario-{scenario['scenario_id']}.html"] = _scenario_detail_page(
             bundle,
@@ -424,6 +450,7 @@ def _overview_page(bundle: dict[str, Any]) -> str:
       {_current_snapshot_entry(bundle)}
       {_boom_transition_entry(bundle)}
       {_latest_evidence_entry(bundle)}
+      {_portfolio_replay_entry(bundle)}
     </section>
     <section class="panel">
       <h2>Scenario access</h2>
@@ -1544,6 +1571,8 @@ def _nav(active_href: str) -> str:
         links.append((BOOM_TRANSITION_PAGE, "Boom transition"))
     if active_href == LATEST_EVIDENCE_PAGE:
         links.append((LATEST_EVIDENCE_PAGE, "Latest evidence"))
+    if active_href == PORTFOLIO_REPLAY_PAGE:
+        links.append((PORTFOLIO_REPLAY_PAGE, "Portfolio replay"))
     items = []
     for href, label in links:
         active = ' class="active"' if href == active_href else ""
@@ -1587,6 +1616,104 @@ def _latest_evidence_entry(bundle: dict[str, Any]) -> str:
         <span>{drilldown["major_group_drilldown_count"]} groups / {drilldown["role_drilldown_count"]} roles</span>
         <a href="{LATEST_EVIDENCE_PAGE}">Open latest evidence</a>
       </div>
+    """
+
+
+def _portfolio_replay_entry(bundle: dict[str, Any]) -> str:
+    if "portfolio_replay_dashboard_surface" not in bundle:
+        return ""
+    surface = bundle["portfolio_replay_dashboard_surface"]
+    return f"""
+      <div class="callout" data-portfolio-replay-entry>
+        <strong>Portfolio / Replay Research Surface</strong>
+        <span>{surface["research_backtest_artifact_count"]} artifacts / {surface["metric_formula_reference_family_count"]} metric formulas referenced only</span>
+        <a href="{PORTFOLIO_REPLAY_PAGE}">Open portfolio replay research</a>
+      </div>
+    """
+
+
+def _portfolio_replay_page(bundle: dict[str, Any]) -> str:
+    surface = bundle["portfolio_replay_dashboard_surface"]
+    cards = "".join(_portfolio_replay_card(row) for row in surface["dashboard_cards"])
+    lineage = "".join(
+        _portfolio_replay_lineage_row(row) for row in surface["lineage_drilldown_rows"]
+    )
+    caveats = "".join(
+        f"<li data-backtest-caveat>{_text(item)}</li>" for item in surface["caveats_zh"]
+    )
+    body = f"""
+    <section class="panel" data-dashboard-view="portfolio_replay_dashboard_surface" data-portfolio-replay-surface>
+      <div class="section-heading">
+        <h1>Portfolio / Replay Research Surface</h1>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This surface connects replay rows, policy schedule references, cash-flow kernel assumptions, and research-only backtest artifacts. It does not compute metric values, recommend current allocation, emit trade instructions, or change the declared phase.</p>
+      <div class="status-strip">
+        <span>metric values not computed</span>
+        <span>backtest execution disabled</span>
+        <span>declared state preserved</span>
+        <span>local research dashboard only</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Artifacts", surface["research_backtest_artifact_count"], "scenario x data mode")}
+        {_metric_card("Scenarios", surface["scenario_count"], "validation manifest")}
+        {_metric_card("Data modes", surface["replay_data_mode_count"], "strict/revised separated")}
+        {_metric_card("Metric formulas", surface["metric_formula_reference_family_count"], "referenced, not computed")}
+      </div>
+      <section class="panel nested" data-policy-schedule-reference data-cash-flow-kernel-reference>
+        <h2>Policy schedule and cash-flow kernel references</h2>
+        <dl class="definition-grid">
+          <dt>Policy schedule</dt><dd><code>{_text(surface["policy_schedule_summary"]["contract_id"])}</code></dd>
+          <dt>Template schedules</dt><dd>{surface["policy_schedule_summary"]["template_with_schedule_count"]}</dd>
+          <dt>Cash-flow kernel</dt><dd><code>{_text(surface["cash_flow_kernel_summary"]["contract_id"])}</code></dd>
+          <dt>Kernel components</dt><dd>{surface["cash_flow_kernel_summary"]["kernel_component_count"]}</dd>
+          <dt>Metric status</dt><dd data-metric-formula-reference>{surface["metric_formula_reference_family_count"]} formulas referenced; values not computed</dd>
+        </dl>
+      </section>
+      <div class="card-grid">{cards}</div>
+      <section class="panel nested">
+        <h2>Artifact lineage drill-down</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Artifact</th><th>Replay row</th><th>Policy</th><th>Kernel</th><th>Metric registry</th><th>Input hash</th></tr></thead>
+            <tbody>{lineage}</tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel nested">
+        <h2>Caveats</h2>
+        <ul>{caveats}</ul>
+      </section>
+    </section>
+    """
+    return _page("Portfolio Replay Research", PORTFOLIO_REPLAY_PAGE, body)
+
+
+def _portfolio_replay_card(row: dict[str, Any]) -> str:
+    return f"""
+      <article class="mini-card" data-backtest-artifact-card="{_text(row["artifact_id"])}">
+        <strong>{_text(row["scenario_id"])}</strong>
+        <dl class="mini-grid">
+          <dt>Data mode</dt><dd>{_text(row["data_mode"])}</dd>
+          <dt>Status</dt><dd>{_status_badge(row["artifact_status"])}</dd>
+          <dt>Formula refs</dt><dd>{row["metric_formula_ref_count"]}</dd>
+          <dt>Metric values</dt><dd>{_text(row["metric_value_status"])}</dd>
+        </dl>
+        <p class="muted"><code>{_text(row["input_hash"])}</code></p>
+      </article>
+    """
+
+
+def _portfolio_replay_lineage_row(row: dict[str, Any]) -> str:
+    return f"""
+      <tr data-backtest-lineage-row="{_text(row["artifact_id"])}">
+        <td><code>{_text(row["artifact_id"])}</code></td>
+        <td><code>{_text(row["source_replay_row_id"])}</code></td>
+        <td><code>{_text(row["source_policy_schedule_contract_id"])}</code></td>
+        <td><code>{_text(row["source_cash_flow_kernel_contract_id"])}</code></td>
+        <td><code>{_text(row["source_metric_formula_registry_id"])}</code></td>
+        <td><code>{_text(row["input_hash"])}</code></td>
+      </tr>
     """
 
 
@@ -1778,6 +1905,17 @@ def _bundle_has_latest_evidence(root: Path) -> bool:
     except json.JSONDecodeError:
         return False
     return "indicator_dashboard_explanation_drilldown" in payload
+
+
+def _bundle_has_portfolio_replay(root: Path) -> bool:
+    bundle_path = root / "data" / "dashboard_bundle.json"
+    if not bundle_path.exists():
+        return False
+    try:
+        payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    return "portfolio_replay_dashboard_surface" in payload
 
 
 def _metric_summary_row(metric: dict[str, Any]) -> str:

@@ -13,6 +13,9 @@ from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
     seed_local_current_cache_rehearsal,
 )
+from business_cycle.render.portfolio_replay_dashboard_surface import (
+    build_portfolio_replay_dashboard_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -214,4 +217,47 @@ def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> 
     assert "explicit ignored local current cache" in html
     assert "available_local_current_cache" in html
     assert "latest_evidence_dashboard_view_ready=true" in result.stdout
+    assert "browser_verification_ready=true" in result.stdout
+
+
+def test_portfolio_replay_dashboard_surface_renders_phase81(tmp_path) -> None:
+    output_dir = tmp_path / "dashboard"
+    surface = build_portfolio_replay_dashboard_surface_view_model()
+    bundle = build_research_dashboard_bundle(
+        portfolio_replay_dashboard_surface=surface,
+    )
+    result = build_research_validation_dashboard(output_dir=output_dir, bundle=bundle)
+    html = (output_dir / "portfolio-replay.html").read_text(encoding="utf-8")
+
+    assert result["browser_verification_ready"] is True
+    assert result["prohibited_action_field_count"] == 0
+    assert (output_dir / "portfolio-replay.html").is_file()
+    assert "Portfolio / Replay Research Surface" in html
+    assert "data-dashboard-view=\"portfolio_replay_dashboard_surface\"" in html
+    assert html.count("data-backtest-artifact-card") == 10
+    assert html.count("data-backtest-lineage-row") == 10
+    assert "metric values not computed" in html
+    assert "candidate_phase" not in html
+    assert "current_phase" not in html
+
+
+def test_build_dashboard_script_accepts_portfolio_replay_surface(tmp_path) -> None:
+    output_dir = tmp_path / "dashboard"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/build_research_validation_dashboard.py",
+            "--output-dir",
+            str(output_dir),
+            "--include-portfolio-replay-surface",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert (output_dir / "portfolio-replay.html").is_file()
+    assert "portfolio_replay_dashboard_surface_ready=true" in result.stdout
+    assert "portfolio_replay_dashboard_card_count=10" in result.stdout
+    assert "research_backtest_artifact_count=10" in result.stdout
     assert "browser_verification_ready=true" in result.stdout
