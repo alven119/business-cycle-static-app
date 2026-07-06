@@ -152,6 +152,14 @@ from business_cycle.portfolio.readiness_gate import (
     summarize_real_backtest_prototype_readiness_gate,
     validate_real_backtest_prototype_readiness_gate,
 )
+from business_cycle.portfolio.research_backtest_artifacts import (
+    ResearchBacktestArtifactContractError,
+    build_research_backtest_artifact_bundle,
+    load_research_backtest_artifact_contract,
+    summarize_research_backtest_artifacts,
+    validate_research_backtest_artifact_contract,
+    write_research_backtest_artifacts,
+)
 from business_cycle.portfolio.safety_closure import (
     PortfolioResearchSafetyClosure,
     PortfolioResearchSafetyClosureError,
@@ -208,10 +216,12 @@ __all__ = [
     "RealBacktestExecutionReadinessClosureError",
     "RealBacktestPrototypeReadinessGate",
     "RealBacktestPrototypeReadinessGateError",
+    "ResearchBacktestArtifactContractError",
     "build_dry_run_output_for_input",
     "build_cash_flow_backtest_kernel_view_model",
     "build_portfolio_policy_research_baseline",
     "build_portfolio_policy_replay_schedule_view_model",
+    "build_research_backtest_artifact_bundle",
     "load_backtest_result_output_contract",
     "load_backtest_metric_formula_registry",
     "load_backtest_output_location_policy",
@@ -234,6 +244,7 @@ __all__ = [
     "load_real_backtest_engine_contract",
     "load_real_backtest_execution_readiness_closure",
     "load_real_backtest_prototype_readiness_gate",
+    "load_research_backtest_artifact_contract",
     "run_portfolio_backtest_structural_dry_run",
     "run_controlled_backtest_case",
     "run_controlled_real_backtest_prototype",
@@ -255,6 +266,7 @@ __all__ = [
     "summarize_real_backtest_engine_contract",
     "summarize_real_backtest_execution_readiness_closure",
     "summarize_real_backtest_prototype_readiness_gate",
+    "summarize_research_backtest_artifacts",
     "validate_portfolio_backtest_input",
     "validate_portfolio_backtest_input_contract",
     "validate_portfolio_backtest_input_fixtures",
@@ -282,4 +294,6 @@ __all__ = [
     "validate_real_backtest_engine_contract",
     "validate_real_backtest_execution_readiness_closure",
     "validate_real_backtest_prototype_readiness_gate",
+    "validate_research_backtest_artifact_contract",
+    "write_research_backtest_artifacts",
 ]

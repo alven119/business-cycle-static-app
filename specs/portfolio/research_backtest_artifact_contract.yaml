@@ -1,0 +1,174 @@
+research_backtest_artifact_contract:
+  version: 1
+  status: active_research_only_backtest_artifact_generation_no_metrics
+  phase_id: 80
+  contract_id: research_backtest_artifact_contract_v1
+  contract_version: "1.0"
+  objective_zh: >
+    將 Phase79 historical replay rows、Phase77 portfolio policy replay
+    schedule、Phase78 cash-flow-aware kernel 與 metric formula registry
+    組成 research-only backtest artifact bundle。此 contract 只產生
+    artifact lineage、caveats、input hashes 與 metric formula references；
+    不計算收益、風險值、準確率或 portfolio performance。
+  dependencies:
+    historical_replay_runner_contract: specs/common/historical_replay_runner_contract.yaml
+    portfolio_policy_replay_schedule_contract: specs/portfolio/portfolio_policy_replay_schedule_contract.yaml
+    cash_flow_kernel_contract: specs/portfolio/cash_flow_aware_backtest_kernel_contract.yaml
+    metric_formula_registry: specs/portfolio/backtest_metric_formula_registry.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  allowed_inputs:
+    - phase79_historical_replay_rows
+    - phase77_portfolio_policy_replay_schedule_contract
+    - phase78_cash_flow_kernel_contract
+    - backtest_metric_formula_ids
+    - source_contract_hashes
+  prohibited_inputs:
+    - historical_labels
+    - expected_labels
+    - actual_labels
+    - nber_dates
+    - portfolio_returns
+    - current_market_data_for_live_allocation
+    - production_phase_output
+    - scenario_answers_for_tuning
+  artifact_contract:
+    artifact_version: "1.0"
+    required_fields:
+      - artifact_id
+      - artifact_version
+      - scenario_id
+      - data_mode
+      - validation_window_start
+      - validation_window_end
+      - output_mode
+      - source_replay_row_id
+      - source_replay_runner_contract_id
+      - source_policy_schedule_contract_id
+      - source_cash_flow_kernel_contract_id
+      - source_metric_formula_registry_id
+      - policy_replay_reference_status
+      - cash_flow_kernel_reference_status
+      - metric_formula_refs
+      - metric_value_count
+      - risk_metric_value_count
+      - input_hash
+      - caveats_zh
+      - allowed_uses
+      - prohibited_uses
+      - trust_metadata
+      - provenance
+      - research_only
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - phase_score
+      - phase_probability
+      - expected_label
+      - actual_label
+      - correct
+      - incorrect
+      - historical_accuracy
+      - confusion_matrix
+      - precision
+      - recall
+      - hit_rate
+      - portfolio_return
+      - CAGR
+      - drawdown
+      - Sharpe
+      - current_allocation
+      - current_allocation_recommendation
+      - target_weight
+      - target_weights
+      - buy_signal
+      - sell_signal
+      - trade_action
+  output_policy:
+    output_mode: research_only_backtest_artifact
+    write_allowed_roots:
+      - /tmp
+    generated_output_under_tmp_only: true
+    repository_output_allowed: false
+    public_output_allowed: false
+    backtest_execution_allowed: false
+    metric_computation_allowed: false
+    economic_performance_metric_allowed: false
+    historical_accuracy_metric_allowed: false
+    current_allocation_recommendation_allowed: false
+    trade_signal_allowed: false
+    live_allocation_allowed: false
+    production_integration_allowed: false
+    allowed_uses:
+      - research_historical_replay_backtest_artifact_review
+      - dashboard_research_surface_input_after_future_gate
+      - provenance_and_caveat_review
+    prohibited_uses:
+      - current_allocation_guidance
+      - trade_signal_generation
+      - production_phase_decision
+      - historical_accuracy_claim
+      - performance_claim
+      - model_tuning
+  metric_policy:
+    metric_formula_references_allowed: true
+    metric_value_computation_allowed: false
+    risk_metric_value_computation_allowed: false
+    economic_performance_metric_computation_allowed: false
+    historical_accuracy_metric_computation_allowed: false
+    caveat_zh: >
+      Artifacts may list future metric formula identifiers so reviewers know
+      which formulas would be used after a later execution gate, but every
+      metric value remains uncomputed in Phase80.
+  disabled_runtime_guards:
+    formal_decision_runtime_execution_enabled: false
+    historical_validation_execution_enabled: false
+    label_comparison_enabled: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    portfolio_policy_replay_execution_enabled: false
+    current_allocation_recommendation_enabled: false
+    live_allocation_enabled: false
+    trade_signal_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    production_integration_enabled: false
+    public_output_enabled: false
+  hard_gates:
+    research_backtest_artifact_contract_ready: true
+    research_backtest_artifact_generator_ready: true
+    historical_replay_runner_ready: true
+    policy_replay_schedule_contract_ready: true
+    cash_flow_kernel_contract_ready: true
+    scenario_count: 5
+    source_replay_row_count: 10
+    research_backtest_artifact_count: 10
+    artifact_with_policy_schedule_ref_count: 10
+    artifact_with_cash_flow_kernel_ref_count: 10
+    artifact_with_metric_formula_refs_count: 10
+    artifact_with_input_hash_count: 10
+    artifact_with_provenance_count: 10
+    metric_formula_reference_family_count: 11
+    metric_value_count: 0
+    risk_metric_value_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_output_field_count: 0
+    repository_output_count: 0
+    public_output_count: 0
+    generated_output_under_tmp_only: true
+    label_used_by_runtime_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

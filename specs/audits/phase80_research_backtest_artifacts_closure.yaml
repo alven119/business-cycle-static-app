@@ -1,0 +1,54 @@
+phase80_research_backtest_artifacts_closure:
+  version: 1
+  status: active
+  phase_id: 80
+  objective_zh: >
+    關閉 Phase80 research-only backtest artifact generation。此 closure
+    驗證 artifacts 只引用 replay rows、policy schedule、cash-flow kernel
+    與 metric formula registry，且不計算 metric、不寫 repo output、不輸出
+    current/candidate phase 或交易相關欄位。
+  hard_gates:
+    phase80_closure_ready: true
+    research_backtest_artifact_contract_ready: true
+    research_backtest_artifact_generator_ready: true
+    historical_replay_runner_ready: true
+    policy_replay_schedule_contract_ready: true
+    cash_flow_kernel_contract_ready: true
+    scenario_count: 5
+    source_replay_row_count: 10
+    research_backtest_artifact_count: 10
+    artifact_with_policy_schedule_ref_count: 10
+    artifact_with_cash_flow_kernel_ref_count: 10
+    artifact_with_metric_formula_refs_count: 10
+    artifact_with_input_hash_count: 10
+    artifact_with_provenance_count: 10
+    metric_formula_reference_family_count: 11
+    metric_value_count: 0
+    risk_metric_value_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_output_field_count: 0
+    repository_output_count: 0
+    public_output_count: 0
+    generated_output_under_tmp_only: true
+    label_used_by_runtime_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_research_backtest_artifacts_ready
+    portfolio_policy_research_alignment: research_backtest_artifacts_generated_no_current_allocation
+    historical_replay_backtest_alignment: research_backtest_artifacts_generated_no_metric_values
+    legal_transition_semantics_preserved: true
+    development_next_phase: 81
+    phase80_closure_status: closed_research_backtest_artifacts_generated_no_public_output_or_metrics
