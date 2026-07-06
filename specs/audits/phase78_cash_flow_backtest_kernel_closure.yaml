@@ -1,0 +1,38 @@
+phase78_cash_flow_backtest_kernel_closure:
+  version: 1
+  phase_id: 78
+  status: active_closure_contract
+  objective_zh: >
+    收斂 Phase78：cash-flow-aware backtest kernel contract 已 preregistered，
+    可銜接 policy replay schedule、cash-flow methodology 與 future backtest input，
+    但不執行回測、不計算績效、不輸出目前配置或交易動作。
+  hard_gates:
+    phase78_closure_ready: true
+    cash_flow_aware_backtest_kernel_contract_ready: true
+    portfolio_policy_replay_schedule_contract_ready: true
+    kernel_component_count: 10
+    required_kernel_component_count: 10
+    structural_fixture_count: 3
+    structural_fixture_validation_pass_count: 3
+    execution_allowed_now_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    generated_output_under_tmp_only: true
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_kernel_output_field_count: 0
+    investment_advice_wording_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_cash_flow_backtest_kernel_contract_ready
+    portfolio_policy_research_alignment: cash_flow_kernel_preregistered_no_current_allocation
+    historical_replay_backtest_alignment: cash_flow_kernel_contract_ready_no_backtest_execution
+    phase78_closure_status: closed_cash_flow_backtest_kernel_contract_ready_no_execution_or_metrics

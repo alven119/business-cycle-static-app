@@ -35,7 +35,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "monotonic by default" in summary["progress_semantics"]
     assert (
         summary["phase_label"]
-        == "portfolio_policy_replay_schedule_and_score_interpretation"
+        == "cash_flow_aware_backtest_kernel_contract_no_execution"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

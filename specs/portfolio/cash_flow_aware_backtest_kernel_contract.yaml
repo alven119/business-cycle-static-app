@@ -1,0 +1,258 @@
+cash_flow_aware_backtest_kernel_contract:
+  version: 1
+  status: preregistered_research_kernel_contract_only
+  phase_id: 78
+  contract_id: cash_flow_aware_backtest_kernel_contract_v1
+  objective_zh: >
+    將 portfolio policy replay schedule、backtest input contract 與 cash-flow
+    methodology 合成 future research backtest kernel 的最小契約。本契約只定義
+    年度投入、現金流時點、再平衡、成本、unitized NAV、drawdown 與 provenance
+    應如何被 future kernel 處理；本 Phase 不執行回測、不計算績效、不輸出目前配置。
+  dependencies:
+    policy_replay_schedule: specs/portfolio/portfolio_policy_replay_schedule_contract.yaml
+    backtest_input_contract: specs/portfolio/portfolio_backtest_input_contract.yaml
+    metric_formula_registry: specs/portfolio/backtest_metric_formula_registry.yaml
+    output_location_policy: specs/portfolio/backtest_output_location_policy.yaml
+    result_safety_validator: specs/portfolio/backtest_result_safety_validator_contract.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  allowed_inputs:
+    - scenario_id
+    - as_of
+    - data_mode
+    - policy_schedule_id
+    - policy_template_id
+    - contribution_schedule
+    - rebalance_calendar
+    - explicit_transaction_cost_assumption
+    - total_return_series_reference_after_backtest_gate
+    - cash_return_series_reference_after_backtest_gate
+    - declared_cycle_state_timeline_after_replay_gate
+    - legal_transition_watch_or_confirmation_after_replay_gate
+  prohibited_inputs:
+    - current_private_holdings
+    - brokerage_account_state
+    - live_market_order
+    - current_allocation_request
+    - historical_label_for_kernel_rule_tuning
+    - nber_label_for_kernel_rule_tuning
+    - portfolio_return_for_kernel_rule_tuning
+    - standalone_current_phase_classifier_output
+    - phase_rank_or_winner
+    - current_phase_output
+  kernel_components:
+    - component_id: contribution_ledger_policy
+      component_family: cash_flow_input
+      purpose_zh: 記錄 future annual contribution 或其他 external cashflow，並與投資收益分離。
+      required_inputs:
+        - dated_external_cashflows
+        - contribution_currency
+      required_guards:
+        - external_cashflows_are_not_return
+        - missing_cashflow_dates_force_abstention
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: cash_flow_timing_policy
+      component_family: cash_flow_input
+      purpose_zh: 定義 external cashflow 在 period start、period end 或 explicit date 的處理規則。
+      required_inputs:
+        - dated_external_cashflows
+        - valuation_calendar
+      required_guards:
+        - no_hidden_cashflow_timing_default
+        - cashflow_timing_must_be_declared
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: unitized_nav_policy
+      component_family: cash_flow_neutralization
+      purpose_zh: future kernel 必須使用 unitized NAV 或等價 cash-flow-neutral series 研究收益路徑。
+      required_inputs:
+        - account_value_series
+        - dated_external_cashflows
+      required_guards:
+        - simple_ending_over_beginning_return_blocked_when_cashflows_exist
+        - unit_count_and_nav_lineage_required
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: rebalancing_policy
+      component_family: policy_application
+      purpose_zh: 描述 annual 或 transition-confirmation research clock 的 future 再平衡規則。
+      required_inputs:
+        - policy_schedule_id
+        - rebalance_calendar
+        - legal_transition_confirmation_after_replay_gate
+      required_guards:
+        - watch_does_not_trigger_rebalance
+        - rebalance_clock_must_be_declared
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: transaction_cost_policy
+      component_family: cost_model
+      purpose_zh: future kernel 必須把 transaction cost/slippage 作為 explicit research assumption。
+      required_inputs:
+        - transaction_cost_bps
+        - slippage_bps
+        - turnover_series_after_backtest_gate
+      required_guards:
+        - hidden_zero_cost_default_blocked
+        - cost_assumption_provenance_required
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: drawdown_policy
+      component_family: risk_path
+      purpose_zh: 若有 external cashflows，drawdown 必須以 unitized NAV 或等價 cash-flow-neutral series 計算。
+      required_inputs:
+        - unitized_nav
+        - rolling_peak
+      required_guards:
+        - drawdown_on_raw_account_value_blocked_when_cashflows_exist
+        - rolling_peak_must_be_causal
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: turnover_policy
+      component_family: policy_application
+      purpose_zh: future kernel 必須追蹤 turnover 供成本與行為研究使用，但不得輸出目前交易動作。
+      required_inputs:
+        - research_weight_series_after_backtest_gate
+        - rebalance_events_after_backtest_gate
+      required_guards:
+        - research_weights_are_not_current_allocation
+        - turnover_does_not_emit_trade_signal
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: false_signal_cost_policy
+      component_family: research_attribution
+      purpose_zh: future kernel 可在 validation gate 後研究 false de-risk/re-risk 成本，但不得用結果調整 phase rules。
+      required_inputs:
+        - comparison_windows_after_validation_gate
+        - policy_return_series_after_backtest_gate
+        - benchmark_return_series_after_backtest_gate
+      required_guards:
+        - no_rule_tuning_from_return_results
+        - no_metric_computation_now
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: missed_recovery_cost_policy
+      component_family: research_attribution
+      purpose_zh: future kernel 可在 validation gate 後研究 missed recovery cost，但不得將其回饋到 runtime decision。
+      required_inputs:
+        - recovery_windows_after_validation_gate
+        - policy_return_series_after_backtest_gate
+        - benchmark_return_series_after_backtest_gate
+      required_guards:
+        - no_runtime_feedback_from_labels_or_returns
+        - no_metric_computation_now
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+    - component_id: provenance_policy
+      component_family: lineage
+      purpose_zh: 每個 future kernel artifact 必須記錄 contract、input、data mode、calendar、cost assumption 與 model freeze lineage。
+      required_inputs:
+        - source_contract_hashes
+        - input_artifact_ids
+        - data_mode
+        - model_freeze_id
+      required_guards:
+        - provenance_required_before_any_result
+        - public_output_blocked_without_migration_gate
+      compute_allowed_now: false
+      output_allowed_now: structural_contract_only
+  structural_fixtures:
+    - fixture_id: annual_contribution_no_rebalance_contract
+      scenario_shape: annual_external_cashflow_no_rebalance
+      expected_component_ids:
+        - contribution_ledger_policy
+        - cash_flow_timing_policy
+        - unitized_nav_policy
+        - provenance_policy
+      expected_status: structurally_valid_no_execution
+      output_path_policy: tmp_only
+      metric_values_allowed: false
+    - fixture_id: annual_contribution_with_rebalance_and_cost_contract
+      scenario_shape: annual_external_cashflow_with_rebalance_costs
+      expected_component_ids:
+        - contribution_ledger_policy
+        - rebalancing_policy
+        - transaction_cost_policy
+        - turnover_policy
+        - provenance_policy
+      expected_status: structurally_valid_no_execution
+      output_path_policy: tmp_only
+      metric_values_allowed: false
+    - fixture_id: missing_total_return_series_abstention_contract
+      scenario_shape: missing_total_return_series
+      expected_component_ids:
+        - unitized_nav_policy
+        - drawdown_policy
+        - provenance_policy
+      expected_status: abstain_missing_required_series_no_execution
+      output_path_policy: tmp_only
+      metric_values_allowed: false
+  output_policy:
+    output_mode: research_kernel_contract_only
+    execution_allowed_now: false
+    metric_computation_allowed_now: false
+    backtest_execution_allowed: false
+    current_allocation_recommendation_allowed: false
+    trade_signal_allowed: false
+    live_allocation_allowed: false
+    public_output_allowed: false
+    generated_output_under_tmp_only: true
+    allowed_fields:
+      - kernel_component_id
+      - component_family
+      - required_inputs
+      - required_guards
+      - output_mode
+      - allowed_uses
+      - prohibited_uses
+      - trust_metadata
+      - provenance_requirements
+    prohibited_fields:
+      - current_allocation
+      - target_weight
+      - target_weights
+      - buy_signal
+      - sell_signal
+      - trade_action
+      - rebalance_now
+      - live_allocation
+      - portfolio_action
+      - current_market_recommendation
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - standalone_phase_score
+      - backtest_performance
+      - accuracy_metric
+      - future_return_guarantee
+  disabled_runtime_guards:
+    cash_flow_backtest_kernel_execution_enabled: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    portfolio_policy_replay_execution_enabled: false
+    current_allocation_recommendation_enabled: false
+    live_allocation_enabled: false
+    trade_signal_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    production_integration_enabled: false
+    public_output_enabled: false
+  hard_gates:
+    cash_flow_aware_backtest_kernel_contract_ready: true
+    kernel_component_count: 10
+    required_kernel_component_count: 10
+    structural_fixture_count: 3
+    structural_fixture_validation_pass_count: 3
+    execution_allowed_now_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    generated_output_under_tmp_only: true
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_kernel_output_field_count: 0
+    investment_advice_wording_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
