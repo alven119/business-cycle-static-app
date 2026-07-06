@@ -1,0 +1,50 @@
+phase79_historical_replay_runner_closure:
+  version: 1
+  phase_id: 79
+  status: active_closure_contract
+  objective_zh: >
+    收斂 Phase79：historical replay runner preview 已能以 scenario × data mode
+    方式呈現 strict/revised 分層、transition timing、policy schedule 與
+    cash-flow kernel readiness，但不執行 validation、formal decision runtime、
+    backtest、績效計算或 current/candidate phase emission。
+  hard_gates:
+    phase79_closure_ready: true
+    historical_replay_runner_ready: true
+    scenario_count: 5
+    replay_data_mode_count: 2
+    replay_row_count: 10
+    strict_point_in_time_replay_row_count: 5
+    revised_diagnostic_replay_row_count: 5
+    scenario_with_replay_rows_count: 5
+    transition_timing_replay_preview_ready: true
+    policy_replay_schedule_contract_ready: true
+    cash_flow_kernel_contract_ready: true
+    data_mode_separation_valid: true
+    revised_mislabeled_as_point_in_time_count: 0
+    point_in_time_result_emitted_count: 0
+    label_used_by_runtime_count: 0
+    model_execution_count: 0
+    historical_validation_executed: false
+    label_comparison_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    generated_output_under_tmp_only: true
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_replay_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_historical_replay_runner_ready
+    portfolio_policy_research_alignment: policy_replay_inputs_ready_no_execution
+    historical_replay_backtest_alignment: historical_replay_runner_ready_no_backtest_execution
+    phase79_closure_status: closed_historical_replay_runner_ready_strict_revised_separated_no_execution

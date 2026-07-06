@@ -1,0 +1,172 @@
+historical_replay_runner_contract:
+  contract_id: historical_replay_runner_contract_v1
+  contract_version: "1.0"
+  phase_id: 79
+  status: active_research_replay_runner_preview_no_execution
+  objective_zh: >
+    將 Phase17 scenario manifest、Phase18 input readiness、Phase67 transition
+    timing replay preview、Phase77 policy replay schedule 與 Phase78 cash-flow
+    kernel contract 組成 governed historical replay runner preview。本契約只產生
+    strict/revised 分層的 replay row metadata，不執行 formal decision runtime、
+    validation、backtest 或績效計算。
+  dependencies:
+    scenario_manifest: specs/audits/historical_validation_scenario_manifest.yaml
+    input_readiness: specs/audits/historical_validation_input_readiness_registry.yaml
+    transition_timing_replay_preview: specs/common/transition_timing_replay_preview.yaml
+    policy_replay_schedule: specs/portfolio/portfolio_policy_replay_schedule_contract.yaml
+    cash_flow_kernel: specs/portfolio/cash_flow_aware_backtest_kernel_contract.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  replay_data_modes:
+    - data_mode: vintage_as_of
+      mode_family: strict_point_in_time_metadata_preview
+      point_in_time_result_allowed: false
+      revised_diagnostic_allowed: false
+      strict_claim_requires_complete_vintage_inputs: true
+      replay_execution_allowed_now: false
+    - data_mode: revised_declared_comparison_only
+      mode_family: revised_diagnostic_comparison_preview
+      point_in_time_result_allowed: false
+      revised_diagnostic_allowed: true
+      strict_claim_requires_complete_vintage_inputs: false
+      replay_execution_allowed_now: false
+  allowed_inputs:
+    - scenario_id
+    - validation_window_start
+    - validation_window_end
+    - data_mode
+    - scenario_input_readiness_row
+    - transition_timing_replay_preview_artifact
+    - portfolio_policy_replay_schedule_contract
+    - cash_flow_kernel_contract
+    - declared_cycle_state_context
+  prohibited_inputs:
+    - historical_validation_label_values
+    - nber_dates_as_runtime_input
+    - expected_label
+    - actual_label
+    - portfolio_returns
+    - backtest_result
+    - formal_decision_runtime_output
+    - current_phase_output
+    - candidate_phase_output
+    - phase_rank_or_winner
+    - standalone_current_phase_classifier_output
+  replay_row_contract:
+    required_fields:
+      - replay_row_id
+      - scenario_id
+      - validation_window_start
+      - validation_window_end
+      - data_mode
+      - data_mode_family
+      - replay_status
+      - point_in_time_result_emitted
+      - revised_diagnostic_label
+      - transition_timing_preview_ready
+      - policy_schedule_ready
+      - cash_flow_kernel_ready
+      - input_readiness_status
+      - abstention_expected
+      - blocked_reason_codes
+      - allowed_uses
+      - prohibited_uses
+      - trust_metadata
+    output_mode: historical_replay_runner_preview_only
+  output_policy:
+    output_mode: historical_replay_runner_preview_only
+    replay_execution_allowed_now: false
+    formal_decision_runtime_execution_allowed: false
+    validation_execution_allowed: false
+    label_comparison_allowed: false
+    metric_computation_allowed: false
+    backtest_execution_allowed: false
+    current_allocation_recommendation_allowed: false
+    trade_signal_allowed: false
+    live_allocation_allowed: false
+    public_output_allowed: false
+    generated_output_under_tmp_only: true
+    allowed_uses:
+      - local_research_replay_planning
+      - data_mode_separation_review
+      - transition_timing_replay_preview_review
+      - policy_replay_input_readiness_review
+    prohibited_uses:
+      - formal_current_phase_decision
+      - candidate_phase_selection
+      - historical_accuracy_metric
+      - economic_performance_metric
+      - portfolio_or_trade_decision
+      - production_decision
+    prohibited_fields:
+      - current_phase
+      - candidate_phase
+      - selected_phase
+      - winning_phase
+      - phase_rank
+      - phase_score
+      - phase_probability
+      - expected_label
+      - actual_label
+      - correct
+      - incorrect
+      - historical_accuracy
+      - confusion_matrix
+      - precision
+      - recall
+      - hit_rate
+      - portfolio_return
+      - CAGR
+      - drawdown
+      - Sharpe
+      - current_allocation
+      - target_weight
+      - target_weights
+      - buy_signal
+      - sell_signal
+      - trade_action
+  disabled_runtime_guards:
+    formal_decision_runtime_execution_enabled: false
+    historical_validation_execution_enabled: false
+    label_comparison_enabled: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    candidate_selection_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    production_integration_enabled: false
+    public_output_enabled: false
+    portfolio_policy_replay_execution_enabled: false
+  hard_gates:
+    historical_replay_runner_ready: true
+    scenario_count: 5
+    replay_data_mode_count: 2
+    replay_row_count: 10
+    strict_point_in_time_replay_row_count: 5
+    revised_diagnostic_replay_row_count: 5
+    scenario_with_replay_rows_count: 5
+    transition_timing_replay_preview_ready: true
+    policy_replay_schedule_contract_ready: true
+    cash_flow_kernel_contract_ready: true
+    data_mode_separation_valid: true
+    revised_mislabeled_as_point_in_time_count: 0
+    point_in_time_result_emitted_count: 0
+    label_used_by_runtime_count: 0
+    model_execution_count: 0
+    historical_validation_executed: false
+    label_comparison_executed: false
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    generated_output_under_tmp_only: true
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    live_allocation_output_count: 0
+    prohibited_replay_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
