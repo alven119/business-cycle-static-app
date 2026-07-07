@@ -370,6 +370,22 @@ def _verify_rendered_html_pages(
             "data-chart-coverage-boundary",
         ):
             required_missing += int(token not in combined)
+    if (
+        "dashboard_decision_explanation" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-dashboard-decision-explanation",
+            "data-declared-state-summary",
+            "data-legal-next-transition-summary",
+            "data-support-contradiction-summary",
+            "data-missing-evidence-summary",
+            "data-why-not-formal-summary",
+            "data-dashboard-trust-caveat",
+            "data-decision-explanation-card",
+            "data-no-standalone-classifier",
+        ):
+            required_missing += int(token not in combined)
     if "portfolio_replay_dashboard_surface" in bundle:
         required_missing += int(
             "data-dashboard-view=\"portfolio_replay_dashboard_surface\""
@@ -883,6 +899,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
     phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
     current_numeric_chart_coverage = bundle.get("current_macro_numeric_chart_coverage")
+    decision_explanation = bundle.get("dashboard_decision_explanation")
     coverage_by_role = _coverage_rows_by_role(current_numeric_chart_coverage)
     group_cards = "".join(
         _latest_major_group_card(group)
@@ -930,6 +947,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
       <div class="metric-grid">{phase_counts}</div>
       <div class="metric-grid">{continuity_counts}</div>
     </section>
+    {_dashboard_decision_explanation_section(decision_explanation)}
     {_declared_phase_start_confirmation_section(phase_start_confirmation)}
     {_declared_phase_start_update_gate_section(phase_start_update_gate)}
     {_current_macro_numeric_chart_coverage_section(current_numeric_chart_coverage)}
@@ -949,6 +967,63 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     </section>
     """
     return _page("Latest Evidence Drilldown", LATEST_EVIDENCE_PAGE, body)
+
+
+def _dashboard_decision_explanation_section(
+    explanation: dict[str, Any] | None,
+) -> str:
+    if explanation is None:
+        return ""
+    cards = "".join(
+        f"""
+        <article class="mini-card" data-decision-explanation-card="{_text(card["card_id"])}">
+          <strong>{_text(card["title_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Status</dt><dd>{_status_badge(card["status_label"])}</dd>
+          </dl>
+          <p>{_text(card["body_zh"])}</p>
+        </article>
+        """
+        for card in explanation["narrative_cards"]
+    )
+    caveats = "".join(
+        f"<li data-dashboard-trust-caveat>{_text(item)}</li>"
+        for item in explanation["trust_caveats"]
+    )
+    why_not = "".join(
+        f"<li>{_text(item)}</li>" for item in explanation["why_not_formal_reasons"]
+    )
+    return f"""
+    <section class="panel" data-dashboard-decision-explanation data-no-standalone-classifier>
+      <div class="section-heading">
+        <h2>Dashboard decision explanation</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This section explains the declared state context, legal next transition, evidence gaps, and why the page remains a research dashboard rather than a formal decision output.</p>
+      <div class="status-strip">
+        <span data-declared-state-summary>declared state: {_text(explanation["declared_current_phase"])}</span>
+        <span data-legal-next-transition-summary>legal next: {_text(explanation["legal_next_phase"])}</span>
+        <span data-support-contradiction-summary>support/contradiction: readiness only</span>
+        <span data-missing-evidence-summary>metadata gaps: {explanation["metadata_ready_value_missing_drilldown_count"]}</span>
+        <span data-why-not-formal-summary>formal gate: closed</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Role explanations", explanation["role_drilldown_count"], "source / method / trend")}
+        {_metric_card("Numeric context", explanation["current_numeric_context_role_count"], "research context only")}
+        {_metric_card("Charts available", explanation["chart_available_role_count"], "YTD / 1Y / 5Y")}
+        {_metric_card("Formal groups", explanation["group_ready_for_formal_phase_count"], "must remain zero now")}
+      </div>
+      <div class="mini-grid">{cards}</div>
+      <section class="panel nested">
+        <h3>Why not formal</h3>
+        <ul>{why_not}</ul>
+      </section>
+      <section class="panel nested">
+        <h3>Trust caveats</h3>
+        <ul>{caveats}</ul>
+      </section>
+    </section>
+    """
 
 
 def _declared_phase_start_confirmation_section(

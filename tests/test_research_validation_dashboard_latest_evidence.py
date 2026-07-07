@@ -9,6 +9,9 @@ from business_cycle.render.indicator_dashboard_explanation_drilldown import (
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     build_current_macro_numeric_chart_coverage_view_model,
 )
+from business_cycle.render.dashboard_decision_explanation import (
+    build_dashboard_decision_explanation_view_model,
+)
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
     seed_local_current_cache_rehearsal,
@@ -157,6 +160,38 @@ def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
     assert "current_phase" not in html
 
 
+def test_latest_evidence_dashboard_renders_decision_explanation(
+    tmp_path,
+) -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_current_macro_numeric_chart_coverage_view_model()
+    explanation = build_dashboard_decision_explanation_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+        dashboard_decision_explanation=explanation,
+    )
+    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
+    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+
+    assert result["browser_verification_ready"] is True
+    assert result["browser_missing_required_element_count"] == 0
+    assert "data-dashboard-decision-explanation" in html
+    assert "data-declared-state-summary" in html
+    assert "data-legal-next-transition-summary" in html
+    assert "data-support-contradiction-summary" in html
+    assert "data-missing-evidence-summary" in html
+    assert "data-why-not-formal-summary" in html
+    assert html.count("data-decision-explanation-card") == 5
+    assert html.count("data-dashboard-trust-caveat") == 5
+    assert "Dashboard decision explanation" in html
+    assert "declared state: boom" in html
+    assert "legal next: recession" in html
+    assert "formal gate: closed" in html
+    assert "candidate_phase" not in html
+    assert "current_phase" not in html
+
+
 def test_latest_evidence_dashboard_renders_local_current_cache_bridge(
     tmp_path,
 ) -> None:
@@ -191,6 +226,7 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
             "--include-phase-start-confirmation",
             "--include-phase-start-update-gate",
             "--include-current-macro-numeric-chart-coverage",
+            "--include-dashboard-decision-explanation",
         ],
         check=True,
         capture_output=True,
@@ -199,6 +235,7 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
 
     assert (output_dir / "latest-evidence.html").is_file()
     assert "latest_evidence_dashboard_view_ready=true" in result.stdout
+    assert "dashboard_decision_explanation_view_ready=true" in result.stdout
 
 
 def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> None:

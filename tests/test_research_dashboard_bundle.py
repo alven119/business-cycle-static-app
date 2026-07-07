@@ -29,6 +29,9 @@ from business_cycle.render.indicator_dashboard_explanation_drilldown import (
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     build_current_macro_numeric_chart_coverage_view_model,
 )
+from business_cycle.render.dashboard_decision_explanation import (
+    build_dashboard_decision_explanation_view_model,
+)
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
 )
@@ -373,6 +376,36 @@ def test_research_dashboard_bundle_accepts_portfolio_replay_surface() -> None:
         bundle["portfolio_replay_dashboard_surface"]["current_phase_emitted"]
         is False
     )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_dashboard_decision_explanation() -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_current_macro_numeric_chart_coverage_view_model()
+    explanation = build_dashboard_decision_explanation_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+        dashboard_decision_explanation=explanation,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "dashboard_decision_explanation" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["dashboard_decision_explanation"]["research_only"] is True
+    assert (
+        bundle["dashboard_decision_explanation"][
+            "dashboard_decision_explanation_ready"
+        ]
+        is True
+    )
+    assert bundle["dashboard_decision_explanation"]["declared_current_phase"] == "boom"
+    assert bundle["dashboard_decision_explanation"]["legal_next_phase"] == "recession"
+    assert bundle["dashboard_decision_explanation"]["narrative_card_count"] == 5
+    assert bundle["dashboard_decision_explanation"]["candidate_phase_emitted"] is False
+    assert bundle["dashboard_decision_explanation"]["current_phase_emitted"] is False
     assert validation["prohibited_action_field_count"] == 0
 
 

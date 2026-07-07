@@ -1,0 +1,59 @@
+phase84_dashboard_decision_explanation_closure:
+  version: 1
+  status: active
+  phase_id: 84
+  objective_zh: >
+    關閉 Phase84 dashboard decision explanation polish。此 closure 驗證
+    latest-evidence dashboard 已呈現 declared state、legal next transition、
+    support/contradiction、missing evidence 與 why-not-formal 的產品敘事，
+    同時保持 research-only、no selector、no phase rank/score/winner、
+    no current allocation、no trade signal、no production behavior change。
+  hard_gates:
+    phase84_closure_ready: true
+    sprint_roadmap_ready: true
+    dashboard_decision_explanation_ready: true
+    latest_evidence_dashboard_page_ready: true
+    declared_state_summary_ready: true
+    legal_next_transition_summary_ready: true
+    support_contradiction_summary_ready: true
+    missing_evidence_summary_ready: true
+    why_not_formal_summary_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    narrative_card_count: 5
+    decision_explanation_card_count: 5
+    dashboard_trust_caveat_count: 5
+    why_not_formal_reason_count: 5
+    role_drilldown_count: 39
+    major_group_drilldown_count: 24
+    current_numeric_context_role_count: 37
+    chart_available_role_count: 37
+    unavailable_chart_role_count: 2
+    metadata_ready_value_missing_drilldown_count: 31
+    source_metadata_incomplete_drilldown_count: 3
+    authorized_input_required_drilldown_count: 2
+    supporting_proxy_drilldown_count: 3
+    group_ready_for_formal_phase_count: 0
+    browser_verification_ready: true
+    browser_missing_required_element_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_dashboard_decision_explanation_polished
+    portfolio_policy_research_alignment: unchanged_no_current_allocation
+    historical_replay_backtest_alignment: unchanged_no_backtest_execution
+    legal_transition_semantics_preserved: true
+    development_next_phase: 85
+    phase84_closure_status: closed_dashboard_decision_explanation_polished_no_phase_output

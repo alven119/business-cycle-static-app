@@ -419,6 +419,14 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase83 closure proves indicator trend drilldown charts stay research-only",
     ),
+    "tests/test_dashboard_decision_explanation.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase84 dashboard decision explanation preserves declared-state semantics",
+    ),
+    "tests/test_phase84_dashboard_decision_explanation_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase84 closure proves decision explanation emits no selector or phase output",
+    ),
     "tests/test_evidence_freshness_release_value_continuity.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase60 continuity view explains freshness and missing values without phase selection",

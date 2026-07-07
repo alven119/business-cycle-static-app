@@ -1,0 +1,80 @@
+dashboard_decision_explanation:
+  contract_id: dashboard_decision_explanation_v1
+  contract_version: "1.0"
+  status: active_research_dashboard_view_model
+  phase_id: 84
+  objective_zh: >
+    將 declared state、legal next transition、support/contradiction、
+    missing evidence 與 why-not-formal 整理成 dashboard 可呈現的產品敘事。
+    本 contract 只說明既有 declared registry 與 evidence readiness，不新增
+    classifier、rank、winner、phase selector、allocation 或 trade output。
+  allowed_inputs:
+    - declared_cycle_state_registry
+    - ordered_cycle_state_machine
+    - indicator_dashboard_explanation_drilldown
+    - current_macro_numeric_chart_coverage
+  prohibited_inputs:
+    - production_resolver_output
+    - legacy_phase_score_winner
+    - standalone_current_classifier
+    - portfolio_return
+    - expected_historical_label
+    - nber_label
+  required_narrative_cards:
+    - declared_state_summary
+    - legal_next_transition_summary
+    - support_contradiction_summary
+    - missing_evidence_summary
+    - why_not_formal_summary
+  output_policy:
+    output_mode: research_only_dashboard_decision_explanation
+    public_output_allowed: false
+    repo_output_allowed: false
+    production_integration_allowed: false
+  prohibited_output_fields:
+    - candidate_phase
+    - current_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - phase_probability
+    - confidence_score
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+    - current_allocation_recommendation
+  hard_gates:
+    dashboard_decision_explanation_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    declared_state_summary_ready: true
+    legal_next_transition_summary_ready: true
+    support_contradiction_summary_ready: true
+    missing_evidence_summary_ready: true
+    why_not_formal_summary_ready: true
+    narrative_card_count: 5
+    role_drilldown_count: 39
+    major_group_drilldown_count: 24
+    current_numeric_context_role_count: 37
+    chart_available_role_count: 37
+    unavailable_chart_role_count: 2
+    metadata_ready_value_missing_drilldown_count: 31
+    source_metadata_incomplete_drilldown_count: 3
+    authorized_input_required_drilldown_count: 2
+    supporting_proxy_drilldown_count: 3
+    group_ready_for_formal_phase_count: 0
+    why_not_formal_reason_count: 5
+    trust_caveat_count: 5
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

@@ -6,7 +6,7 @@ product_capability_completion_sprint:
   target_phase_id: 87
   planned_phase_count: 5
   objective_zh: >
-    以五個 phase 內把使用者優先能力推到可接近 production-ready surface
+    以五個 phase 內把使用者優先能力推到正式 production 遷移前可演練的 surface
     的狀態為目標；優先能力是景氣階段判讀、轉折風險預測、解釋能力與
     dashboard 使用體驗。此 sprint 不開放 standalone classifier、phase
     rank/score/winner、current allocation、trade signal 或 production

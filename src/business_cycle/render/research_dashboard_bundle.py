@@ -116,6 +116,7 @@ DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID = (
     "declared_phase_start_registry_update_gate"
 )
 CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID = "current_macro_numeric_chart_coverage"
+DASHBOARD_DECISION_EXPLANATION_VIEW_ID = "dashboard_decision_explanation"
 PORTFOLIO_REPLAY_DASHBOARD_SURFACE_VIEW_ID = "portfolio_replay_dashboard_surface"
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
@@ -156,6 +157,7 @@ def build_research_dashboard_bundle(
     declared_phase_start_confirmation: dict[str, Any] | None = None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None = None,
     current_macro_numeric_chart_coverage: dict[str, Any] | None = None,
+    dashboard_decision_explanation: dict[str, Any] | None = None,
     portfolio_replay_dashboard_surface: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
@@ -196,6 +198,7 @@ def build_research_dashboard_bundle(
             declared_phase_start_registry_update_gate
         ),
         current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
+        dashboard_decision_explanation=dashboard_decision_explanation,
         portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
@@ -415,6 +418,11 @@ def build_research_dashboard_bundle(
         bundle["source_runs"]["phase72_current_macro_numeric_chart_coverage"] = (
             current_macro_numeric_chart_coverage["view_id"]
         )
+    if dashboard_decision_explanation is not None:
+        bundle["dashboard_decision_explanation"] = dashboard_decision_explanation
+        bundle["source_runs"]["phase84_dashboard_decision_explanation"] = (
+            dashboard_decision_explanation["view_id"]
+        )
     if portfolio_replay_dashboard_surface is not None:
         bundle["portfolio_replay_dashboard_surface"] = (
             portfolio_replay_dashboard_surface
@@ -526,6 +534,15 @@ def summarize_research_dashboard_bundle() -> dict[str, Any]:
                 "dashboard_cards",
                 [],
             ))
+        ),
+        "dashboard_decision_explanation_ready": bool(
+            bundle.get("dashboard_decision_explanation", {}).get(
+                "dashboard_decision_explanation_ready",
+                False,
+            )
+        ),
+        "dashboard_decision_explanation_panel_count": int(
+            bool(bundle.get("dashboard_decision_explanation"))
         ),
         "bundle": bundle,
     }
@@ -693,6 +710,7 @@ def _view_ids(
     declared_phase_start_confirmation: dict[str, Any] | None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None,
     current_macro_numeric_chart_coverage: dict[str, Any] | None,
+    dashboard_decision_explanation: dict[str, Any] | None,
     portfolio_replay_dashboard_surface: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
@@ -720,6 +738,8 @@ def _view_ids(
         view_ids.append(DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID)
     if current_macro_numeric_chart_coverage is not None:
         view_ids.append(CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID)
+    if dashboard_decision_explanation is not None:
+        view_ids.append(DASHBOARD_DECISION_EXPLANATION_VIEW_ID)
     if portfolio_replay_dashboard_surface is not None:
         view_ids.append(PORTFOLIO_REPLAY_DASHBOARD_SURFACE_VIEW_ID)
     if macro_coverage_matrix is not None:
@@ -899,6 +919,7 @@ def _view_title(view_id: str) -> str:
         "current_macro_numeric_chart_coverage": (
             "Current Macro Numeric and Chart Coverage"
         ),
+        "dashboard_decision_explanation": "Dashboard Decision Explanation",
         "portfolio_replay_dashboard_surface": "Portfolio and Replay Research Surface",
     }[view_id]
 

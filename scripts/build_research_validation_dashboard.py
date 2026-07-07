@@ -17,6 +17,9 @@ from business_cycle.render.indicator_dashboard_explanation_drilldown import (
 from business_cycle.render.current_macro_numeric_chart_coverage import (
     build_current_macro_numeric_chart_coverage_view_model,
 )
+from business_cycle.render.dashboard_decision_explanation import (
+    build_dashboard_decision_explanation_view_model,
+)
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
 )
@@ -64,6 +67,11 @@ def main() -> None:
         help="include the Phase72 current macro numeric/chart coverage panel",
     )
     parser.add_argument(
+        "--include-dashboard-decision-explanation",
+        action="store_true",
+        help="include the Phase84 dashboard decision explanation panel",
+    )
+    parser.add_argument(
         "--include-portfolio-replay-surface",
         action="store_true",
         help="include the Phase81 portfolio/replay research dashboard surface",
@@ -89,6 +97,7 @@ def main() -> None:
         or args.include_phase_start_confirmation
         or args.include_phase_start_update_gate
         or args.include_current_macro_numeric_chart_coverage
+        or args.include_dashboard_decision_explanation
         or args.current_cache_dir
         else None
     )
@@ -114,6 +123,11 @@ def main() -> None:
         if args.include_portfolio_replay_surface
         else None
     )
+    dashboard_decision_explanation = (
+        build_dashboard_decision_explanation_view_model()
+        if args.include_dashboard_decision_explanation
+        else None
+    )
     bundle = build_research_dashboard_bundle(
         current_snapshot=current_snapshot,
         boom_transition_surface=boom_transition_surface,
@@ -121,6 +135,7 @@ def main() -> None:
         declared_phase_start_confirmation=phase_start_confirmation,
         declared_phase_start_registry_update_gate=phase_start_update_gate,
         current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
+        dashboard_decision_explanation=dashboard_decision_explanation,
         portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
@@ -157,6 +172,10 @@ def main() -> None:
     print(
         "current_macro_numeric_chart_coverage_view_ready="
         f"{str(bool(bundle.get('current_macro_numeric_chart_coverage'))).lower()}"
+    )
+    print(
+        "dashboard_decision_explanation_view_ready="
+        f"{str(bool(bundle.get('dashboard_decision_explanation'))).lower()}"
     )
     print(
         "portfolio_replay_dashboard_surface_ready="
