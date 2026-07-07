@@ -415,6 +415,7 @@ def _coverage_rows(
                 "latest_numeric_context": latest_context,
                 "chart_available": chart_available,
                 "chart_period_statuses": _period_statuses(chart_detail),
+                "chart_periods": _chart_period_payloads(chart_detail),
                 "chart_point_count": _chart_point_count(chart_detail),
                 "chart_data_mode": "revised_local_current_cache_context",
                 "chart_coverage_status": _chart_coverage_status(
@@ -514,6 +515,48 @@ def _period_statuses(chart_detail: dict[str, Any]) -> dict[str, str]:
             else "unavailable"
         )
     return statuses
+
+
+def _chart_period_payloads(chart_detail: dict[str, Any]) -> list[dict[str, Any]]:
+    periods: list[dict[str, Any]] = []
+    for period_id in ("ytd", "trailing_1y", "trailing_5y"):
+        matching = [
+            period
+            for series in chart_detail["series_charts"]
+            for period in series["periods"]
+            if period["period_id"] == period_id
+        ]
+        if not matching:
+            continue
+        available = [
+            period for period in matching if period["chart_status"] == "available"
+        ]
+        source = available[0] if available else matching[0]
+        points = [
+            point
+            for period in available
+            for point in period["points"]
+        ]
+        reasons = sorted(
+            {
+                period["unavailable_reason"]
+                for period in matching
+                if period["unavailable_reason"]
+            },
+        )
+        periods.append(
+            {
+                "period_id": period_id,
+                "label": source["label"],
+                "start_date": source["start_date"],
+                "end_date": source["end_date"],
+                "chart_status": "available" if available else "unavailable",
+                "point_count": len(points),
+                "points": points,
+                "unavailable_reason": ", ".join(reasons) if reasons else None,
+            },
+        )
+    return periods
 
 
 def _chart_point_count(chart_detail: dict[str, Any]) -> int:

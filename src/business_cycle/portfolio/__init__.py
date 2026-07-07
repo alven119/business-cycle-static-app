@@ -1,5 +1,7 @@
 """Portfolio policy research planning helpers."""
 
+from importlib import import_module
+
 from business_cycle.portfolio.backtest_contract import (
     PortfolioBacktestContractError,
     PortfolioBacktestInputContract,
@@ -152,14 +154,6 @@ from business_cycle.portfolio.readiness_gate import (
     summarize_real_backtest_prototype_readiness_gate,
     validate_real_backtest_prototype_readiness_gate,
 )
-from business_cycle.portfolio.research_backtest_artifacts import (
-    ResearchBacktestArtifactContractError,
-    build_research_backtest_artifact_bundle,
-    load_research_backtest_artifact_contract,
-    summarize_research_backtest_artifacts,
-    validate_research_backtest_artifact_contract,
-    write_research_backtest_artifacts,
-)
 from business_cycle.portfolio.safety_closure import (
     PortfolioResearchSafetyClosure,
     PortfolioResearchSafetyClosureError,
@@ -167,6 +161,27 @@ from business_cycle.portfolio.safety_closure import (
     summarize_portfolio_research_safety_closure,
     validate_portfolio_research_safety_closure,
 )
+
+_RESEARCH_BACKTEST_ARTIFACT_EXPORTS = {
+    "ResearchBacktestArtifactContractError",
+    "build_research_backtest_artifact_bundle",
+    "load_research_backtest_artifact_contract",
+    "summarize_research_backtest_artifacts",
+    "validate_research_backtest_artifact_contract",
+    "write_research_backtest_artifacts",
+}
+
+
+def __getattr__(name: str):
+    """Lazily expose artifact helpers without importing the replay chain eagerly."""
+
+    if name in _RESEARCH_BACKTEST_ARTIFACT_EXPORTS:
+        module = import_module("business_cycle.portfolio.research_backtest_artifacts")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "PortfolioBacktestContractError",

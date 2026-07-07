@@ -61,6 +61,9 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
     assert html.count("data-method-pseudo-code-detail") == 39
     assert html.count("data-method-directionality-detail") == 39
     assert html.count("data-indicator-chart-payload") == 39
+    assert html.count("data-indicator-trend-link") == 39
+    assert html.count("data-role-trend-shortcut") == 39
+    assert html.count("data-indicator-trend-target") == 39
     assert html.count('data-chart-period="ytd"') == 39
     assert html.count('data-chart-period="trailing_1y"') == 39
     assert html.count('data-chart-period="trailing_5y"') == 39
@@ -140,6 +143,15 @@ def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
     assert "data-chart-coverage-mode" in html
     assert "fixture_current_cache_connectivity" in html
     assert html.count("data-current-macro-chart-row=") == 39
+    assert html.count("data-coverage-trend-link") == 39
+    assert html.count("data-indicator-trend-link") == 78
+    assert html.count("data-indicator-trend-target") == 39
+    assert html.count('data-chart-period-svg="ytd"') == 37
+    assert html.count('data-chart-period-svg="trailing_1y"') == 37
+    assert html.count('data-chart-period-svg="trailing_5y"') == 37
+    assert html.count("data-trend-chart-svg") == 111
+    assert html.count("data-trend-chart-empty") == 6
+    assert "查看走勢" in html
     assert "numeric context is not phase support" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html

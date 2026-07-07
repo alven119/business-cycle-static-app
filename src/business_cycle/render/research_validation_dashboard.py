@@ -303,8 +303,24 @@ def _verify_rendered_html_pages(
             'data-chart-period="trailing_5y"',
             "data-chart-data-mode",
             "data-chart-unavailable-reason",
+            "data-indicator-trend-link",
+            "data-indicator-trend-target",
+            "data-role-trend-shortcut",
             "data-score-boundary",
             "data-role-search",
+        ):
+            required_missing += int(token not in combined)
+    if (
+        "current_macro_numeric_chart_coverage" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-coverage-trend-link",
+            "data-trend-chart-svg",
+            "data-chart-period-svg=\"ytd\"",
+            "data-chart-period-svg=\"trailing_1y\"",
+            "data-chart-period-svg=\"trailing_5y\"",
+            "data-trend-caption",
         ):
             required_missing += int(token not in combined)
     if (
@@ -867,12 +883,14 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
     phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
     current_numeric_chart_coverage = bundle.get("current_macro_numeric_chart_coverage")
+    coverage_by_role = _coverage_rows_by_role(current_numeric_chart_coverage)
     group_cards = "".join(
         _latest_major_group_card(group)
         for group in drilldown["major_group_drilldowns"]
     )
     role_cards = "".join(
-        _latest_role_drilldown_card(role) for role in drilldown["role_drilldowns"]
+        _latest_role_drilldown_card(role, coverage_by_role.get(role["role_id"]))
+        for role in drilldown["role_drilldowns"]
     )
     phase_counts = "".join(
         _metric_card(phase, count, "role drilldowns")
@@ -1044,6 +1062,7 @@ def _current_macro_numeric_chart_coverage_section(
         f"""
         <article class="mini-card" data-current-macro-chart-row="{_text(row["role_id"])}">
           <strong>{_text(row["role_id"])}</strong>
+          <p><a class="action-link" data-indicator-trend-link data-coverage-trend-link href="#chart-role-{_text(row["role_id"])}">查看走勢</a></p>
           <dl class="mini-grid">
             <dt>Phase</dt><dd>{_text(row["phase_or_layer"])}</dd>
             <dt>Source risk</dt><dd>{_text(row["data_risk_level"])}</dd>
@@ -1080,6 +1099,17 @@ def _current_macro_numeric_chart_coverage_section(
       <div class="mini-grid">{rows}</div>
     </section>
     """
+
+
+def _coverage_rows_by_role(
+    coverage: dict[str, Any] | None,
+) -> dict[str, dict[str, Any]]:
+    if coverage is None:
+        return {}
+    return {
+        row["role_id"]: row
+        for row in coverage.get("role_chart_coverage_rows", [])
+    }
 
 
 def _boom_lane_card(lane: dict[str, Any]) -> str:
@@ -1229,7 +1259,10 @@ def _latest_major_group_card(group: dict[str, Any]) -> str:
     """
 
 
-def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
+def _latest_role_drilldown_card(
+    role: dict[str, Any],
+    current_chart_row: dict[str, Any] | None = None,
+) -> str:
     source = role["source_detail"]
     release = role["release_timing_detail"]
     freshness = role["freshness_detail"]
@@ -1269,7 +1302,10 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
         abstention["continuity_gap_reason_codes"],
         "No continuity gap reason reported.",
     )
-    chart_payload = _indicator_chart_payload_section(chart)
+    chart_payload = _indicator_chart_payload_section(
+        chart,
+        current_chart_row=current_chart_row,
+    )
     confidence_reducers = _plain_list_items(
         diagnostic.get("confidence_reduce_when"),
         "No confidence reducer declared.",
@@ -1290,6 +1326,7 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
           <h3>{_text(role["phase_label_zh"])} / <code>{_text(role["role_id"])}</code></h3>
           <span>{_status_badge(role["continuity_status"])}</span>
         </div>
+        <p><a class="action-link" data-indicator-trend-link data-role-trend-shortcut href="#chart-role-{_text(role["role_id"])}">查看 YTD / 1Y / 5Y 走勢</a></p>
         <p>{_text(role["dashboard_explanation_zh"])}</p>
         <dl class="mini-grid">
           <dt>Major group</dt><dd>{_text(role["major_group_id"])}</dd>
@@ -1360,11 +1397,12 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
             <p>{_text(diagnostic["legacy_diagnostic_boundary_zh"])}</p>
             <p>{_text(diagnostic["why_not_product_answer_zh"])}</p>
           </section>
-          <section data-indicator-chart-payload>
+          <section id="chart-role-{_text(role["role_id"])}" data-indicator-chart-payload data-indicator-trend-target>
             <h4>Indicator chart payload</h4>
             <p data-chart-data-mode>{_text(chart["chart_data_mode"])}</p>
             <p>Chart available: {_yes_no(chart["chart_available"])}</p>
             <p data-chart-unavailable-reason>{_text(chart["unavailable_reason"] or "available")}</p>
+            <p class="muted">Trend charts use governed local current-cache or fixture/cache context when available. They are explanation context only and do not infer the declared state.</p>
             {chart_payload}
           </section>
           <section data-provenance-detail>
@@ -1387,8 +1425,16 @@ def _latest_role_drilldown_card(role: dict[str, Any]) -> str:
     """
 
 
-def _indicator_chart_payload_section(chart: dict[str, Any]) -> str:
-    periods = _aggregate_chart_periods(chart["series_charts"])
+def _indicator_chart_payload_section(
+    chart: dict[str, Any],
+    *,
+    current_chart_row: dict[str, Any] | None = None,
+) -> str:
+    periods = (
+        current_chart_row["chart_periods"]
+        if current_chart_row and current_chart_row.get("chart_periods")
+        else _aggregate_chart_periods(chart["series_charts"])
+    )
     return (
         '<div class="chart-period-grid">'
         + "".join(_chart_period_card(period) for period in periods)
@@ -1479,6 +1525,7 @@ def _chart_period_card(period: dict[str, Any]) -> str:
     points = period["points"]
     first_value = _value_or_text(points[0]["value"], "none") if points else "none"
     last_value = _value_or_text(points[-1]["value"], "none") if points else "none"
+    sparkline = _trend_sparkline_svg(period)
     point_items = "".join(
         f"<li>{_text(point['date'])}: {_text(point['value'])}</li>"
         for point in points[-6:]
@@ -1491,10 +1538,62 @@ def _chart_period_card(period: dict[str, Any]) -> str:
         <span>{_status_badge(period["chart_status"])}</span>
         <p>{_text(period["start_date"])} to {_text(period["end_date"])}</p>
         <p>Points: {period["point_count"]}; first {first_value}; last {last_value}</p>
-        <p>{_text(period["unavailable_reason"] or "chart data available")}</p>
+        <p data-trend-unavailable-reason>{_text(period["unavailable_reason"] or "chart data available")}</p>
+        {sparkline}
         <ul class="chart-points">{point_items}</ul>
       </div>
     """
+
+
+def _trend_sparkline_svg(period: dict[str, Any]) -> str:
+    points = _numeric_chart_points(period["points"])
+    if len(points) < 2 or period["chart_status"] != "available":
+        return """
+        <div class="trend-chart-empty" data-trend-chart-empty>
+          Trend line unavailable for this period.
+        </div>
+        """
+    width = 220
+    height = 76
+    padding = 8
+    min_value = min(point["value"] for point in points)
+    max_value = max(point["value"] for point in points)
+    value_span = max(max_value - min_value, 1.0)
+    denominator = max(len(points) - 1, 1)
+    coords = []
+    for index, point in enumerate(points):
+        x = padding + ((width - padding * 2) * index / denominator)
+        normalized = (point["value"] - min_value) / value_span
+        y = height - padding - ((height - padding * 2) * normalized)
+        coords.append(f"{x:.1f},{y:.1f}")
+    start = points[0]
+    end = points[-1]
+    return f"""
+      <svg class="trend-sparkline" data-trend-chart-svg data-chart-period-svg="{_text(period["period_id"])}" viewBox="0 0 {width} {height}" role="img" aria-label="{_text(period["label"])} trend">
+        <polyline points="{' '.join(coords)}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+        <circle cx="{coords[0].split(",")[0]}" cy="{coords[0].split(",")[1]}" r="2.5"></circle>
+        <circle cx="{coords[-1].split(",")[0]}" cy="{coords[-1].split(",")[1]}" r="2.5"></circle>
+      </svg>
+      <p class="trend-caption" data-trend-caption>
+        {_text(start["date"])} {_text(start["value"])} -> {_text(end["date"])} {_text(end["value"])}
+      </p>
+    """
+
+
+def _numeric_chart_points(points: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    numeric_points: list[dict[str, Any]] = []
+    for point in points:
+        try:
+            value = float(point["value"])
+        except (TypeError, ValueError):
+            continue
+        numeric_points.append(
+            {
+                "date": point["date"],
+                "value": value,
+            },
+        )
+    return numeric_points
 
 
 def _latest_observation_context_item(item: dict[str, Any]) -> str:
@@ -2172,10 +2271,43 @@ h2 { margin: 0 0 10px; font-size: 1.1rem; }
   padding: 8px;
   background: var(--surface-alt);
 }
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+.action-link:hover { text-decoration: underline; }
 .chart-period-card strong,
 .chart-period-card span {
   display: inline-block;
   margin-right: 6px;
+}
+.trend-sparkline {
+  display: block;
+  width: 100%;
+  height: 78px;
+  margin: 8px 0 4px;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.trend-sparkline circle { fill: currentColor; }
+.trend-caption {
+  margin: 2px 0 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.trend-chart-empty {
+  margin: 8px 0;
+  padding: 8px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--surface);
 }
 .chart-points {
   max-height: 120px;

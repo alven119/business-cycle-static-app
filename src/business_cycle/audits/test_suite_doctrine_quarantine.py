@@ -287,6 +287,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "governance_scaffold"),
         rationale="95 percent roadmap is planning orientation, not readiness promotion",
     ),
+    "tests/test_product_capability_completion_sprint.py": QuarantineEntry(
+        markers=("doctrine_aligned", "governance_scaffold"),
+        rationale="Phase83-87 sprint roadmap is planning orientation, not readiness promotion",
+    ),
     "tests/test_test_suite_reduction_plan.py": QuarantineEntry(
         markers=("doctrine_aligned", "governance_scaffold", "safety"),
         rationale="Phase65 default-suite reduction preserves product-core coverage and archives old regressions",
@@ -410,6 +414,10 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
     "tests/test_phase72_current_macro_numeric_chart_coverage_closure.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase72 closure proves numeric chart coverage preserves declared-state boundaries",
+    ),
+    "tests/test_phase83_indicator_trend_drilldown_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase83 closure proves indicator trend drilldown charts stay research-only",
     ),
     "tests/test_evidence_freshness_release_value_continuity.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),

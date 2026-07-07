@@ -42,6 +42,7 @@ def test_phase72_current_macro_numeric_chart_coverage_passes() -> None:
 def test_phase72_rows_preserve_missing_and_research_only_boundaries() -> None:
     artifact = build_current_macro_numeric_chart_coverage()
     rows = {row["role_id"]: row for row in artifact["role_chart_coverage_rows"]}
+    available_row = next(row for row in rows.values() if row["chart_available"])
 
     assert rows["boom_consumer_confidence"]["chart_available"] is False
     assert rows["growth_adp_employment"]["chart_available"] is False
@@ -58,6 +59,28 @@ def test_phase72_rows_preserve_missing_and_research_only_boundaries() -> None:
     assert all(
         row["current_data_used_to_infer_declared_phase"] is False
         for row in artifact["role_chart_coverage_rows"]
+    )
+    assert [period["period_id"] for period in available_row["chart_periods"]] == [
+        "ytd",
+        "trailing_1y",
+        "trailing_5y",
+    ]
+    assert all(
+        period["chart_status"] == "available"
+        for period in available_row["chart_periods"]
+    )
+    assert all(
+        period["point_count"] > 0
+        for period in available_row["chart_periods"]
+    )
+    assert [period["period_id"] for period in rows["growth_adp_employment"]["chart_periods"]] == [
+        "ytd",
+        "trailing_1y",
+        "trailing_5y",
+    ]
+    assert all(
+        period["chart_status"] == "unavailable"
+        for period in rows["growth_adp_employment"]["chart_periods"]
     )
     assert artifact["prohibited_output_field_count"] == 0
 

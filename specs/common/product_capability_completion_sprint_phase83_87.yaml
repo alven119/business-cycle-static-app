@@ -1,0 +1,109 @@
+product_capability_completion_sprint:
+  version: "1.0"
+  status: active_dashboard_completion_sprint
+  sprint_id: phase83_87_dashboard_core_completion
+  start_phase_id: 83
+  target_phase_id: 87
+  planned_phase_count: 5
+  objective_zh: >
+    以五個 phase 內把使用者優先能力推到可接近 production-ready surface
+    的狀態為目標；優先能力是景氣階段判讀、轉折風險預測、解釋能力與
+    dashboard 使用體驗。此 sprint 不開放 standalone classifier、phase
+    rank/score/winner、current allocation、trade signal 或 production
+    migration。
+  focus_capabilities:
+    - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+    - C2_TRANSITION_RISK_DETECTION
+    - C3_EXPLAINABILITY_AND_ATTRIBUTION
+  dashboard_usability_target_percent: 100
+  target_capability_outcomes:
+    - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      phase83_percent: 100
+      phase87_target_percent: 100
+      target_zh: >
+        declared state、legal next transition、indicator trend context 與
+        explanation drilldown 在 dashboard 上可被使用者直接理解。
+    - capability_id: C2_TRANSITION_RISK_DETECTION
+      phase83_percent: 100
+      phase87_target_percent: 100
+      target_zh: >
+        transition lanes、evidence accumulation、missing/contradictory evidence
+        與 confirmation boundary 都能在 dashboard 中清楚呈現。
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      phase83_percent: 100
+      phase87_target_percent: 100
+      target_zh: >
+        每個指標可從總覽點入 source、method、score interpretation、
+        YTD/1Y/5Y 趨勢圖、provenance 與 abstention reason。
+    - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
+      phase83_percent: 99
+      phase87_target_percent: 100
+      target_zh: >
+        Dashboard、renderer、cache、replay/backtest 與 migration rehearsal
+        全部保留 research-only、no advice、no current phase inference。
+    - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      phase83_percent: 98
+      phase87_target_percent: 100
+      target_zh: >
+        current cache、release freshness、point-in-time caveats、missing chart
+        與 unavailable input 都明確顯示，不做 silent fallback。
+    - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+      phase83_percent: 94
+      phase87_target_percent: 98
+      target_zh: >
+        migration rehearsal、rollback checklist、production boundary drill 與
+        prospective wait-state governance 可在 dashboard/closure 中追溯。
+  planned_phases:
+    - phase_id: 83
+      phase_title: Indicator trend drilldown navigation and YTD/1Y/5Y chart rendering
+      objective_zh: >
+        每個指標提供查看走勢連結，點擊後跳到該 role 的 YTD/1Y/5Y
+        趨勢圖；缺資料角色顯示原因，不畫假圖。
+    - phase_id: 84
+      phase_title: Dashboard decision explanation polish
+      objective_zh: >
+        把 declared phase、legal next transition、support/contradiction、
+        missing evidence 與 why-not-formal 整理成更像產品頁的敘事。
+    - phase_id: 85
+      phase_title: Current data refresh UX hardening
+      objective_zh: >
+        強化 local/live cache 狀態、資料新鮮度、最後更新時間、source
+        risk 與 manual refresh handoff。
+    - phase_id: 86
+      phase_title: Transition risk evidence accumulation view
+      objective_zh: >
+        讓 transition risk 頁呈現 evidence accumulation、watch/confirmation
+        boundary、missing/contradictory evidence 與 next required observations。
+    - phase_id: 87
+      phase_title: Research dashboard production-readiness rehearsal
+      objective_zh: >
+        做 renderer caveats、rollback checklist、production boundary drill 與
+        migration rehearsal，但不真正接入 production resolver/state machine。
+  universal_guardrails:
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+  hard_gates:
+    sprint_roadmap_ready: true
+    planned_phase_count: 5
+    target_phase_id: 87
+    focus_capability_count: 3
+    focus_capabilities_reach_100: true
+    dashboard_usability_target_percent: 100
+    phase83_indicator_trend_drilldown_present: true
+    phase87_migration_rehearsal_present: true
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

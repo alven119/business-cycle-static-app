@@ -1,0 +1,54 @@
+phase83_indicator_trend_drilldown_closure:
+  version: 1
+  status: active
+  phase_id: 83
+  objective_zh: >
+    關閉 Phase83 indicator trend drilldown navigation and YTD/1Y/5Y chart
+    rendering。本 closure 驗證 dashboard 能從指標/coverage 卡跳到該 role 的
+    趨勢圖區塊，並在 role detail 中渲染 YTD、trailing 1Y、trailing 5Y
+    趨勢線。缺資料角色顯示 unavailable reason，不畫假圖；所有輸出保持
+    research-only，不產生 phase selector、current allocation 或 production
+    behavior change。
+  hard_gates:
+    phase83_closure_ready: true
+    sprint_roadmap_ready: true
+    indicator_trend_drilldown_navigation_ready: true
+    indicator_trend_chart_rendering_ready: true
+    latest_evidence_dashboard_page_ready: true
+    role_drilldown_count: 39
+    current_chart_coverage_row_count: 39
+    role_trend_target_count: 39
+    role_trend_shortcut_count: 39
+    coverage_trend_link_count: 39
+    indicator_trend_link_count: 78
+    ytd_trend_period_card_count: 39
+    trailing_1y_trend_period_card_count: 39
+    trailing_5y_trend_period_card_count: 39
+    ytd_trend_svg_count: 37
+    trailing_1y_trend_svg_count: 37
+    trailing_5y_trend_svg_count: 37
+    available_trend_svg_count: 111
+    unavailable_chart_role_count: 2
+    trend_unavailable_empty_state_count: 6
+    browser_verification_ready: true
+    browser_missing_required_element_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_indicator_trend_drilldown_ready
+    portfolio_policy_research_alignment: unchanged_no_current_allocation
+    historical_replay_backtest_alignment: unchanged_no_backtest_execution
+    legal_transition_semantics_preserved: true
+    development_next_phase: 84
+    phase83_closure_status: closed_indicator_trend_drilldown_navigation_and_charts_ready
