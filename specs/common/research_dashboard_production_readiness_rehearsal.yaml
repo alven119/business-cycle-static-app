@@ -1,0 +1,97 @@
+research_dashboard_production_readiness_rehearsal:
+  contract_id: research_dashboard_production_readiness_rehearsal_v1
+  contract_version: "1.0"
+  status: active_research_dashboard_migration_rehearsal_contract
+  phase_id: 87
+  output_mode: research_only_migration_rehearsal
+  objective_zh: >
+    將目前 research dashboard 的 migration rehearsal、renderer caveats、
+    rollback checklist 與 production boundary drill 做成可審查的 dashboard
+    view model。此 contract 不打開 production resolver、state machine、Pages
+    deployment output 或 portfolio allocation 行為。
+  rehearsal_steps:
+    - step_id: dashboard_migration_rehearsal
+      title_zh: Dashboard migration rehearsal
+      status: ready_for_review
+      required_evidence:
+        - latest_evidence_dashboard_page_ready
+        - transition_risk_evidence_accumulation_ready
+        - dashboard_decision_explanation_ready
+    - step_id: renderer_caveat_review
+      title_zh: Renderer caveat review
+      status: ready_for_review
+      required_evidence:
+        - research_only_label_visible
+        - no_phase_selection_copy
+        - no_allocation_copy
+    - step_id: rollback_checklist_review
+      title_zh: Rollback checklist review
+      status: ready_for_review
+      required_evidence:
+        - legacy_v1_boundary_preserved
+        - public_output_not_written_by_rehearsal
+        - renderer_change_reversible
+    - step_id: production_boundary_drill
+      title_zh: Production boundary drill
+      status: ready_for_review
+      required_evidence:
+        - resolver_dependency_count_zero
+        - state_machine_dependency_count_zero
+        - portfolio_policy_output_count_zero
+  renderer_caveats:
+    - caveat_id: research_only_label
+      caveat_zh: Dashboard surface must remain labeled research-only.
+    - caveat_id: declared_state_not_inferred
+      caveat_zh: Declared state is registry input, not inferred from current data.
+    - caveat_id: watch_not_confirmation
+      caveat_zh: Transition watch is not confirmation.
+    - caveat_id: no_phase_rank_score_winner
+      caveat_zh: Renderer must not present phase rank, phase score, or phase winner.
+    - caveat_id: no_current_allocation
+      caveat_zh: Portfolio views must not become current allocation guidance.
+    - caveat_id: missing_data_visible
+      caveat_zh: Missing or stale data remains visible and does not become neutral.
+  rollback_checklist:
+    - checklist_id: keep_legacy_pages_workflow_unchanged
+      required_state: unchanged
+    - checklist_id: keep_legacy_v1_runtime_unchanged
+      required_state: unchanged
+    - checklist_id: keep_public_output_disabled_for_rehearsal
+      required_state: disabled
+    - checklist_id: keep_candidate_current_phase_disabled
+      required_state: disabled
+    - checklist_id: keep_no_advice_policy_active
+      required_state: active
+    - checklist_id: keep_research_dashboard_rebuildable_from_contracts
+      required_state: reproducible
+  production_boundary_checks:
+    - check_id: no_resolver_import
+    - check_id: no_legacy_state_machine_import
+    - check_id: no_pages_workflow_change
+    - check_id: no_public_output_write
+    - check_id: no_portfolio_allocation_output
+    - check_id: no_candidate_phase_output
+    - check_id: no_current_phase_output
+    - check_id: no_broker_order_output
+  hard_gates:
+    research_dashboard_production_readiness_rehearsal_ready: true
+    dashboard_migration_rehearsal_ready: true
+    renderer_caveats_ready: true
+    rollback_checklist_ready: true
+    production_boundary_drill_ready: true
+    migration_rehearsal_step_count: 4
+    renderer_caveat_count: 6
+    rollback_checklist_item_count: 6
+    production_boundary_check_count: 8
+    production_boundary_violation_count: 0
+    public_output_count: 0
+    pages_workflow_change_count: 0
+    resolver_dependency_count: 0
+    state_machine_dependency_count: 0
+    portfolio_policy_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

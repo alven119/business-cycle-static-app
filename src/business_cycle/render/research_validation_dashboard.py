@@ -915,6 +915,9 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     transition_risk_accumulation = bundle.get(
         "transition_risk_evidence_accumulation"
     )
+    production_rehearsal = bundle.get(
+        "research_dashboard_production_readiness_rehearsal"
+    )
     phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
     phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
     current_numeric_chart_coverage = bundle.get("current_macro_numeric_chart_coverage")
@@ -972,6 +975,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     {_declared_phase_start_confirmation_section(phase_start_confirmation)}
     {_declared_phase_start_update_gate_section(phase_start_update_gate)}
     {_current_macro_numeric_chart_coverage_section(current_numeric_chart_coverage)}
+    {_research_dashboard_production_readiness_rehearsal_section(production_rehearsal)}
     {_transition_risk_evidence_accumulation_section(transition_risk_accumulation)}
     {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
@@ -989,6 +993,83 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     </section>
     """
     return _page("Latest Evidence Drilldown", LATEST_EVIDENCE_PAGE, body)
+
+
+def _research_dashboard_production_readiness_rehearsal_section(
+    rehearsal: dict[str, Any] | None,
+) -> str:
+    if rehearsal is None:
+        return ""
+    steps = "".join(
+        f"""
+        <article class="mini-card" data-migration-rehearsal-step="{_text(step["step_id"])}">
+          <strong>{_text(step["title_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Status</dt><dd>{_status_badge(step["status"])}</dd>
+            <dt>Evidence</dt><dd>{len(step["required_evidence"])}</dd>
+          </dl>
+        </article>
+        """
+        for step in rehearsal["migration_rehearsal_steps"]
+    )
+    caveats = "".join(
+        f"""
+        <li data-renderer-caveat="{_text(row["caveat_id"])}">
+          {_text(row["caveat_zh"])}
+        </li>
+        """
+        for row in rehearsal["renderer_caveats"]
+    )
+    rollback = "".join(
+        f"""
+        <li data-rollback-checklist-item="{_text(row["checklist_id"])}">
+          {_text(row["checklist_id"])}: {_text(row["required_state"])}
+        </li>
+        """
+        for row in rehearsal["rollback_checklist_items"]
+    )
+    boundary = "".join(
+        f"""
+        <li data-production-boundary-check="{_text(row["check_id"])}">
+          {_text(row["check_id"])}: {_text(row["status"])}
+        </li>
+        """
+        for row in rehearsal["production_boundary_checks"]
+    )
+    return f"""
+    <section class="panel" data-dashboard-migration-rehearsal data-research-dashboard-production-readiness-rehearsal>
+      <div class="section-heading">
+        <h2>Research dashboard migration rehearsal</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This panel rehearses dashboard migration boundaries, renderer caveats, rollback checks, and production isolation. It does not connect resolver, legacy state machine, portfolio allocation, Pages publication, or current phase inference.</p>
+      <div class="status-strip" data-production-boundary-drill>
+        <span>migration rehearsal only</span>
+        <span>renderer caveats visible</span>
+        <span>rollback checklist ready</span>
+        <span>production boundary violations: {rehearsal["production_boundary_violation_count"]}</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Rehearsal steps", rehearsal["migration_rehearsal_step_count"], "review gates")}
+        {_metric_card("Renderer caveats", rehearsal["renderer_caveat_count"], "visible copy boundaries")}
+        {_metric_card("Rollback checks", rehearsal["rollback_checklist_item_count"], "manual review")}
+        {_metric_card("Boundary checks", rehearsal["production_boundary_check_count"], "all pass")}
+      </div>
+      <div class="mini-grid">{steps}</div>
+      <section class="panel nested">
+        <h3>Renderer caveats</h3>
+        <ul>{caveats}</ul>
+      </section>
+      <section class="panel nested">
+        <h3>Rollback checklist</h3>
+        <ul>{rollback}</ul>
+      </section>
+      <section class="panel nested">
+        <h3>Production boundary drill</h3>
+        <ul>{boundary}</ul>
+      </section>
+    </section>
+    """
 
 
 def _dashboard_decision_explanation_section(

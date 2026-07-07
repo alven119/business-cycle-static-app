@@ -1,0 +1,57 @@
+phase87_research_dashboard_production_readiness_rehearsal_closure:
+  version: 1
+  status: active
+  phase_id: 87
+  objective_zh: >
+    關閉 Phase87 research dashboard migration rehearsal。此 closure 驗證
+    latest-evidence dashboard 已呈現 migration rehearsal、renderer caveats、
+    rollback checklist 與 production boundary drill，同時不接 production
+    resolver/state machine、不輸出 candidate/current phase、不寫 public。
+  hard_gates:
+    phase87_closure_ready: true
+    sprint_roadmap_ready: true
+    product_capability_100_completion_plan_ready: true
+    research_dashboard_production_readiness_rehearsal_ready: true
+    dashboard_migration_rehearsal_ready: true
+    renderer_caveats_ready: true
+    rollback_checklist_ready: true
+    production_boundary_drill_ready: true
+    latest_evidence_dashboard_page_ready: true
+    dashboard_rehearsal_view_ready: true
+    rendered_rehearsal_ready: true
+    migration_rehearsal_step_count: 4
+    html_migration_rehearsal_step_count: 4
+    renderer_caveat_count: 6
+    html_renderer_caveat_count: 6
+    rollback_checklist_item_count: 6
+    html_rollback_checklist_item_count: 6
+    production_boundary_check_count: 8
+    html_production_boundary_check_count: 8
+    production_boundary_violation_count: 0
+    public_output_count: 0
+    pages_workflow_change_count: 0
+    resolver_dependency_count: 0
+    state_machine_dependency_count: 0
+    portfolio_policy_output_count: 0
+    browser_verification_ready: true
+    browser_missing_required_element_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_migration_rehearsal_only
+    portfolio_policy_research_alignment: unchanged_no_current_allocation
+    historical_replay_backtest_alignment: unchanged_no_backtest_execution
+    legal_transition_semantics_preserved: true
+    development_next_phase: 88
+    phase87_closure_status: closed_research_dashboard_migration_rehearsal_ready_no_production_wiring

@@ -45,6 +45,9 @@ from business_cycle.render.transition_timing_replay_preview import (
 from business_cycle.render.transition_risk_evidence_accumulation import (
     build_transition_risk_evidence_accumulation_view_model,
 )
+from business_cycle.render.research_dashboard_production_readiness_rehearsal import (
+    build_research_dashboard_production_readiness_rehearsal_view_model,
+)
 from business_cycle.render.portfolio_replay_dashboard_surface import (
     build_portfolio_replay_dashboard_surface_view_model,
 )
@@ -117,6 +120,9 @@ TRANSITION_TIMING_REPLAY_PREVIEW_VIEW_ID = "transition_timing_replay_preview"
 TRANSITION_RISK_EVIDENCE_ACCUMULATION_VIEW_ID = (
     "transition_risk_evidence_accumulation"
 )
+RESEARCH_DASHBOARD_PRODUCTION_READINESS_REHEARSAL_VIEW_ID = (
+    "research_dashboard_production_readiness_rehearsal"
+)
 DECLARED_PHASE_START_CONFIRMATION_VIEW_ID = "declared_phase_start_confirmation"
 DECLARED_PHASE_START_REGISTRY_UPDATE_GATE_VIEW_ID = (
     "declared_phase_start_registry_update_gate"
@@ -162,6 +168,7 @@ def build_research_dashboard_bundle(
     indicator_dashboard_explanation_drilldown: dict[str, Any] | None = None,
     transition_timing_replay_preview: dict[str, Any] | None = None,
     transition_risk_evidence_accumulation: dict[str, Any] | None = None,
+    research_dashboard_production_readiness_rehearsal: dict[str, Any] | None = None,
     declared_phase_start_confirmation: dict[str, Any] | None = None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None = None,
     current_macro_numeric_chart_coverage: dict[str, Any] | None = None,
@@ -204,6 +211,9 @@ def build_research_dashboard_bundle(
         transition_timing_replay_preview=transition_timing_replay_preview,
         transition_risk_evidence_accumulation=(
             transition_risk_evidence_accumulation
+        ),
+        research_dashboard_production_readiness_rehearsal=(
+            research_dashboard_production_readiness_rehearsal
         ),
         declared_phase_start_confirmation=declared_phase_start_confirmation,
         declared_phase_start_registry_update_gate=(
@@ -417,6 +427,13 @@ def build_research_dashboard_bundle(
         bundle["source_runs"]["phase86_transition_risk_evidence_accumulation"] = (
             transition_risk_evidence_accumulation["view_id"]
         )
+    if research_dashboard_production_readiness_rehearsal is not None:
+        bundle["research_dashboard_production_readiness_rehearsal"] = (
+            research_dashboard_production_readiness_rehearsal
+        )
+        bundle["source_runs"]["phase87_research_dashboard_rehearsal"] = (
+            research_dashboard_production_readiness_rehearsal["view_id"]
+        )
     if declared_phase_start_confirmation is not None:
         bundle["declared_phase_start_confirmation"] = (
             declared_phase_start_confirmation
@@ -586,6 +603,15 @@ def summarize_research_dashboard_bundle() -> dict[str, Any]:
         ),
         "transition_risk_evidence_accumulation_panel_count": int(
             bool(bundle.get("transition_risk_evidence_accumulation"))
+        ),
+        "research_dashboard_production_readiness_rehearsal_ready": bool(
+            bundle.get("research_dashboard_production_readiness_rehearsal", {}).get(
+                "research_dashboard_production_readiness_rehearsal_ready",
+                False,
+            )
+        ),
+        "research_dashboard_rehearsal_panel_count": int(
+            bool(bundle.get("research_dashboard_production_readiness_rehearsal"))
         ),
         "transition_accumulation_lane_card_count": (
             bundle.get("transition_risk_evidence_accumulation", {}).get(
@@ -757,6 +783,7 @@ def _view_ids(
     indicator_dashboard_explanation_drilldown: dict[str, Any] | None,
     transition_timing_replay_preview: dict[str, Any] | None,
     transition_risk_evidence_accumulation: dict[str, Any] | None,
+    research_dashboard_production_readiness_rehearsal: dict[str, Any] | None,
     declared_phase_start_confirmation: dict[str, Any] | None,
     declared_phase_start_registry_update_gate: dict[str, Any] | None,
     current_macro_numeric_chart_coverage: dict[str, Any] | None,
@@ -785,6 +812,8 @@ def _view_ids(
         view_ids.append(TRANSITION_TIMING_REPLAY_PREVIEW_VIEW_ID)
     if transition_risk_evidence_accumulation is not None:
         view_ids.append(TRANSITION_RISK_EVIDENCE_ACCUMULATION_VIEW_ID)
+    if research_dashboard_production_readiness_rehearsal is not None:
+        view_ids.append(RESEARCH_DASHBOARD_PRODUCTION_READINESS_REHEARSAL_VIEW_ID)
     if declared_phase_start_confirmation is not None:
         view_ids.append(DECLARED_PHASE_START_CONFIRMATION_VIEW_ID)
     if declared_phase_start_registry_update_gate is not None:
@@ -970,6 +999,9 @@ def _view_title(view_id: str) -> str:
         "transition_risk_evidence_accumulation": (
             "Transition Risk Evidence Accumulation"
         ),
+        "research_dashboard_production_readiness_rehearsal": (
+            "Research Dashboard Migration Rehearsal"
+        ),
         "declared_phase_start_confirmation": "Declared Phase Start Confirmation",
         "declared_phase_start_registry_update_gate": (
             "Declared Phase Start Registry Update Gate"
@@ -1057,6 +1089,26 @@ def build_research_dashboard_bundle_with_transition_risk_evidence_accumulation()
             build_transition_risk_evidence_accumulation_view_model(
                 transition_timing_replay_preview=transition_preview,
             )
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_production_readiness_rehearsal() -> dict[str, Any]:
+    """Build a bundle including the Phase87 migration rehearsal view."""
+
+    transition_preview = build_transition_timing_replay_preview_view_model()
+    return build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=(
+            build_indicator_dashboard_explanation_drilldown_view_model()
+        ),
+        transition_timing_replay_preview=transition_preview,
+        transition_risk_evidence_accumulation=(
+            build_transition_risk_evidence_accumulation_view_model(
+                transition_timing_replay_preview=transition_preview,
+            )
+        ),
+        research_dashboard_production_readiness_rehearsal=(
+            build_research_dashboard_production_readiness_rehearsal_view_model()
         ),
     )
 
