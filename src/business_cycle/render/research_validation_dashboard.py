@@ -417,6 +417,21 @@ def _verify_rendered_html_pages(
             "data-backtest-caveat",
         ):
             required_missing += int(token not in combined)
+    if "portfolio_policy_replay_research_surface" in bundle:
+        required_missing += int(
+            "data-dashboard-view=\"portfolio_policy_replay_research_surface\""
+            not in combined
+        )
+        for token in (
+            "data-policy-replay-research-surface",
+            "data-policy-template-card",
+            "data-policy-replay-schedule-row",
+            "data-policy-cost-turnover-row",
+            "data-policy-scenario-coverage-row",
+            "data-policy-replay-caveat",
+            "data-no-current-allocation-guidance",
+        ):
+            required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
     scenario_count_rendered = combined.count("data-scenario-detail=\"")
     ready = (
@@ -2105,6 +2120,7 @@ def _portfolio_replay_page(bundle: dict[str, Any]) -> str:
         <ul>{caveats}</ul>
       </section>
     </section>
+    {_portfolio_policy_replay_research_section(bundle.get("portfolio_policy_replay_research_surface"))}
     """
     return _page("Portfolio Replay Research", PORTFOLIO_REPLAY_PAGE, body)
 
@@ -2133,6 +2149,137 @@ def _portfolio_replay_lineage_row(row: dict[str, Any]) -> str:
         <td><code>{_text(row["source_cash_flow_kernel_contract_id"])}</code></td>
         <td><code>{_text(row["source_metric_formula_registry_id"])}</code></td>
         <td><code>{_text(row["input_hash"])}</code></td>
+      </tr>
+    """
+
+
+def _portfolio_policy_replay_research_section(surface: dict[str, Any] | None) -> str:
+    if surface is None:
+        return ""
+    templates = "".join(
+        _policy_template_card(row) for row in surface["template_catalog_rows"]
+    )
+    schedules = "".join(
+        _policy_replay_schedule_row(row)
+        for row in surface["replay_schedule_matrix_rows"]
+    )
+    costs = "".join(
+        _policy_cost_turnover_row(row)
+        for row in surface["cost_turnover_assumption_rows"]
+    )
+    coverage = "".join(
+        _policy_scenario_coverage_row(row)
+        for row in surface["scenario_policy_coverage_rows"]
+    )
+    caveats = "".join(
+        f"<li data-policy-replay-caveat>{_text(item)}</li>"
+        for item in surface["renderer_caveats_zh"]
+    )
+    return f"""
+    <section class="panel" data-dashboard-view="portfolio_policy_replay_research_surface" data-policy-replay-research-surface>
+      <div class="section-heading">
+        <h2>Portfolio Policy Replay Research Surface</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This section explains how governed policy templates would be reviewed in future replay/backtest work. It does not execute a replay, compute performance, or recommend a current portfolio.</p>
+      <div class="status-strip" data-no-current-allocation-guidance>
+        <span>policy replay execution disabled</span>
+        <span>backtest execution disabled</span>
+        <span>metric values not computed</span>
+        <span>no current portfolio guidance</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Templates", surface["policy_template_count"], "research-only")}
+        {_metric_card("Schedules", surface["replay_schedule_row_count"], "pre-registered")}
+        {_metric_card("Scenario coverage", surface["scenario_policy_coverage_row_count"], "scenario x template")}
+        {_metric_card("Caveats", surface["renderer_caveat_count"], "visible guardrails")}
+      </div>
+      <section class="panel nested">
+        <h3>Policy template catalog</h3>
+        <div class="mini-grid">{templates}</div>
+      </section>
+      <section class="panel nested">
+        <h3>Replay schedule matrix</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Template</th><th>Family</th><th>Trigger context</th><th>Required transition inputs</th><th>Data mode</th></tr></thead>
+            <tbody>{schedules}</tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel nested">
+        <h3>Cost and turnover assumptions</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Template</th><th>Cost policy</th><th>Clock policy</th><th>Turnover</th><th>False signal</th><th>Missed recovery</th></tr></thead>
+            <tbody>{costs}</tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel nested">
+        <h3>Scenario policy coverage</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Template</th><th>Status</th><th>Data mode</th></tr></thead>
+            <tbody>{coverage}</tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel nested">
+        <h3>Research-only caveats</h3>
+        <ul>{caveats}</ul>
+      </section>
+    </section>
+    """
+
+
+def _policy_template_card(row: dict[str, Any]) -> str:
+    return f"""
+      <article class="mini-card" data-policy-template-card="{_text(row["template_id"])}">
+        <strong>{_text(row["template_id"])}</strong>
+        <p>{_text(row["template_name_zh"])}</p>
+        <dl class="mini-grid">
+          <dt>Family</dt><dd>{_text(row["template_family"])}</dd>
+          <dt>Schedule</dt><dd>{_text(row["schedule_family"])}</dd>
+          <dt>Execution now</dt><dd>{_text(str(row["execution_allowed_now"]).lower())}</dd>
+        </dl>
+      </article>
+    """
+
+
+def _policy_replay_schedule_row(row: dict[str, Any]) -> str:
+    required = ", ".join(row["required_transition_inputs"]) or "none"
+    return f"""
+      <tr data-policy-replay-schedule-row="{_text(row["schedule_id"])}">
+        <td><code>{_text(row["template_id"])}</code></td>
+        <td>{_text(row["schedule_family"])}</td>
+        <td>{_text(row["research_trigger_context_zh"])}</td>
+        <td>{_text(required)}</td>
+        <td>{_text(row["data_mode_policy"])}</td>
+      </tr>
+    """
+
+
+def _policy_cost_turnover_row(row: dict[str, Any]) -> str:
+    return f"""
+      <tr data-policy-cost-turnover-row="{_text(row["template_id"])}">
+        <td><code>{_text(row["template_id"])}</code></td>
+        <td>{_text(row["cost_assumption_policy"])}</td>
+        <td>{_text(row["rebalance_clock_policy"])}</td>
+        <td>{_text(row["turnover_status"])}</td>
+        <td>{_text(row["false_signal_cost_status"])}</td>
+        <td>{_text(row["missed_recovery_cost_status"])}</td>
+      </tr>
+    """
+
+
+def _policy_scenario_coverage_row(row: dict[str, Any]) -> str:
+    return f"""
+      <tr data-policy-scenario-coverage-row="{_text(row["scenario_id"])}::{_text(row["template_id"])}">
+        <td><code>{_text(row["scenario_id"])}</code></td>
+        <td><code>{_text(row["template_id"])}</code></td>
+        <td>{_status_badge(row["coverage_status"])}</td>
+        <td>{_text(row["data_mode_policy"])}</td>
       </tr>
     """
 

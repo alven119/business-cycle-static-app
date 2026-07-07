@@ -47,6 +47,9 @@ from business_cycle.render.transition_risk_evidence_accumulation import (
 from business_cycle.render.portfolio_replay_dashboard_surface import (
     build_portfolio_replay_dashboard_surface_view_model,
 )
+from business_cycle.render.portfolio_policy_replay_research_surface import (
+    build_portfolio_policy_replay_research_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -266,6 +269,35 @@ def test_research_dashboard_bundle_accepts_indicator_drilldown_view_model() -> N
     assert (
         bundle["indicator_dashboard_explanation_drilldown"]["current_phase_emitted"]
         is False
+    )
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_portfolio_policy_replay_surface() -> None:
+    replay_surface = build_portfolio_replay_dashboard_surface_view_model()
+    policy_surface = build_portfolio_policy_replay_research_surface_view_model()
+    bundle = build_research_dashboard_bundle(
+        portfolio_replay_dashboard_surface=replay_surface,
+        portfolio_policy_replay_research_surface=policy_surface,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "portfolio_policy_replay_research_surface" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["portfolio_policy_replay_research_surface"]["research_only"] is True
+    assert (
+        bundle["portfolio_policy_replay_research_surface"][
+            "portfolio_policy_replay_research_surface_ready"
+        ]
+        is True
+    )
+    assert (
+        bundle["portfolio_policy_replay_research_surface"][
+            "scenario_policy_coverage_row_count"
+        ]
+        == 40
     )
     assert validation["prohibited_action_field_count"] == 0
 

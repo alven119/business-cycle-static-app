@@ -51,6 +51,9 @@ from business_cycle.render.research_dashboard_production_readiness_rehearsal imp
 from business_cycle.render.portfolio_replay_dashboard_surface import (
     build_portfolio_replay_dashboard_surface_view_model,
 )
+from business_cycle.render.portfolio_policy_replay_research_surface import (
+    build_portfolio_policy_replay_research_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -131,6 +134,9 @@ CURRENT_MACRO_NUMERIC_CHART_COVERAGE_VIEW_ID = "current_macro_numeric_chart_cove
 DASHBOARD_DECISION_EXPLANATION_VIEW_ID = "dashboard_decision_explanation"
 CURRENT_DATA_REFRESH_UX_VIEW_ID = "current_data_refresh_ux"
 PORTFOLIO_REPLAY_DASHBOARD_SURFACE_VIEW_ID = "portfolio_replay_dashboard_surface"
+PORTFOLIO_POLICY_REPLAY_RESEARCH_SURFACE_VIEW_ID = (
+    "portfolio_policy_replay_research_surface"
+)
 PROHIBITED_ACTION_FIELDS = {
     "buy_signal",
     "sell_signal",
@@ -175,6 +181,7 @@ def build_research_dashboard_bundle(
     dashboard_decision_explanation: dict[str, Any] | None = None,
     current_data_refresh_ux: dict[str, Any] | None = None,
     portfolio_replay_dashboard_surface: dict[str, Any] | None = None,
+    portfolio_policy_replay_research_surface: dict[str, Any] | None = None,
     macro_coverage_matrix: dict[str, Any] | None = None,
     indicator_detail_cards: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -223,6 +230,9 @@ def build_research_dashboard_bundle(
         dashboard_decision_explanation=dashboard_decision_explanation,
         current_data_refresh_ux=current_data_refresh_ux,
         portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
+        portfolio_policy_replay_research_surface=(
+            portfolio_policy_replay_research_surface
+        ),
         macro_coverage_matrix=macro_coverage_matrix,
         indicator_detail_cards=indicator_detail_cards,
     )
@@ -472,6 +482,13 @@ def build_research_dashboard_bundle(
         bundle["source_runs"]["phase81_portfolio_replay_dashboard_surface"] = (
             portfolio_replay_dashboard_surface["view_id"]
         )
+    if portfolio_policy_replay_research_surface is not None:
+        bundle["portfolio_policy_replay_research_surface"] = (
+            portfolio_policy_replay_research_surface
+        )
+        bundle["source_runs"]["phase88_portfolio_policy_replay_research_surface"] = (
+            portfolio_policy_replay_research_surface["view_id"]
+        )
     if macro_coverage_matrix is not None:
         bundle["macro_indicator_coverage_readiness"] = macro_coverage_matrix
         bundle["source_runs"]["phase55_macro_indicator_coverage_readiness"] = (
@@ -576,6 +593,24 @@ def summarize_research_dashboard_bundle() -> dict[str, Any]:
                 "dashboard_cards",
                 [],
             ))
+        ),
+        "portfolio_policy_replay_research_surface_ready": bool(
+            bundle.get("portfolio_policy_replay_research_surface", {}).get(
+                "portfolio_policy_replay_research_surface_ready",
+                False,
+            )
+        ),
+        "portfolio_policy_template_count": (
+            bundle.get("portfolio_policy_replay_research_surface", {}).get(
+                "policy_template_count",
+                0,
+            )
+        ),
+        "portfolio_policy_scenario_coverage_row_count": (
+            bundle.get("portfolio_policy_replay_research_surface", {}).get(
+                "scenario_policy_coverage_row_count",
+                0,
+            )
         ),
         "dashboard_decision_explanation_ready": bool(
             bundle.get("dashboard_decision_explanation", {}).get(
@@ -790,6 +825,7 @@ def _view_ids(
     dashboard_decision_explanation: dict[str, Any] | None,
     current_data_refresh_ux: dict[str, Any] | None,
     portfolio_replay_dashboard_surface: dict[str, Any] | None,
+    portfolio_policy_replay_research_surface: dict[str, Any] | None,
     macro_coverage_matrix: dict[str, Any] | None,
     indicator_detail_cards: dict[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -826,6 +862,8 @@ def _view_ids(
         view_ids.append(CURRENT_DATA_REFRESH_UX_VIEW_ID)
     if portfolio_replay_dashboard_surface is not None:
         view_ids.append(PORTFOLIO_REPLAY_DASHBOARD_SURFACE_VIEW_ID)
+    if portfolio_policy_replay_research_surface is not None:
+        view_ids.append(PORTFOLIO_POLICY_REPLAY_RESEARCH_SURFACE_VIEW_ID)
     if macro_coverage_matrix is not None:
         view_ids.append(MACRO_COVERAGE_VIEW_ID)
     if indicator_detail_cards is not None:
@@ -1012,6 +1050,9 @@ def _view_title(view_id: str) -> str:
         "dashboard_decision_explanation": "Dashboard Decision Explanation",
         "current_data_refresh_ux": "Current Data Refresh UX",
         "portfolio_replay_dashboard_surface": "Portfolio and Replay Research Surface",
+        "portfolio_policy_replay_research_surface": (
+            "Portfolio Policy Replay Research Surface"
+        ),
     }[view_id]
 
 
@@ -1119,6 +1160,19 @@ def build_research_dashboard_bundle_with_portfolio_replay_surface() -> dict[str,
     return build_research_dashboard_bundle(
         portfolio_replay_dashboard_surface=(
             build_portfolio_replay_dashboard_surface_view_model()
+        ),
+    )
+
+
+def build_research_dashboard_bundle_with_portfolio_policy_replay_research_surface() -> dict[str, Any]:
+    """Build a bundle including the Phase88 portfolio policy surface."""
+
+    return build_research_dashboard_bundle(
+        portfolio_replay_dashboard_surface=(
+            build_portfolio_replay_dashboard_surface_view_model()
+        ),
+        portfolio_policy_replay_research_surface=(
+            build_portfolio_policy_replay_research_surface_view_model()
         ),
     )
 
