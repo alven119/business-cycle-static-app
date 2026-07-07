@@ -7,8 +7,9 @@ portfolio_policy_replay_research_surface:
   objective_zh: >
     將既有 portfolio policy template、policy replay schedule、cash-flow kernel
     與 research-only backtest artifacts 收斂成 dashboard-ready research surface。
-    此 surface 只讓使用者理解各模板如何在未來 replay/backtest 中被研究，
-    不執行 policy replay、不計算績效、不輸出目前配置或交易動作。
+    此 surface 讓使用者理解各研究性配置模板如何在未來 replay/backtest
+    中被研究；允許顯示 research-only allocation template，但不執行 policy
+    replay、不計算績效、不輸出個人化交易指令或 live allocation instruction。
   dependencies:
     portfolio_policy_research_baseline: specs/portfolio/portfolio_policy_research_baseline_contract.yaml
     portfolio_policy_template_schema: specs/portfolio/portfolio_policy_template_schema.yaml
@@ -63,6 +64,8 @@ portfolio_policy_replay_research_surface:
     backtest_execution_allowed: false
     metric_value_computation_allowed: false
     current_allocation_recommendation_allowed: false
+    research_allocation_template_display_allowed: true
+    personalized_trade_instruction_allowed: false
     trade_signal_allowed: false
     live_allocation_allowed: false
     public_output_allowed: false
@@ -72,7 +75,7 @@ portfolio_policy_replay_research_surface:
       - replay_surface_review
       - caveat_review
     prohibited_uses:
-      - current_allocation_guidance
+      - personalized_live_allocation_instruction
       - production_decision
       - trade_instruction
       - performance_claim
@@ -109,7 +112,7 @@ portfolio_policy_replay_research_surface:
     - drawdown
     - CAGR
   renderer_caveats_zh:
-    - Portfolio policy templates 只作為研究假設，不是目前配置建議。
+    - Portfolio policy templates 是研究性配置模板，不是個人化交易指令。
     - Policy replay 尚未執行，成本、turnover 與績效值都未計算。
     - Watch 不等於 confirmation，transition evidence 不會直接觸發配置動作。
     - 所有權重語意只存在於 future backtest-only template，不得作為 live allocation。
@@ -120,6 +123,7 @@ portfolio_policy_replay_research_surface:
     backtest_execution_enabled: false
     metric_value_computation_enabled: false
     current_allocation_recommendation_enabled: false
+    personalized_trade_instruction_enabled: false
     live_allocation_enabled: false
     trade_signal_enabled: false
     candidate_phase_emission_enabled: false
@@ -138,6 +142,8 @@ portfolio_policy_replay_research_surface:
     replay_schedule_row_count: 8
     scenario_count: 5
     scenario_policy_coverage_row_count: 40
+    research_allocation_template_allowed: true
+    research_allocation_template_count: 8
     cost_assumption_visible_count: 8
     turnover_status_visible_count: 8
     renderer_caveat_count: 6
@@ -146,6 +152,7 @@ portfolio_policy_replay_research_surface:
     metric_value_count: 0
     economic_performance_metric_count: 0
     current_allocation_recommendation_count: 0
+    personalized_trade_instruction_count: 0
     trade_signal_output_count: 0
     prohibited_output_field_count: 0
     public_output_count: 0

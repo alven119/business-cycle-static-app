@@ -28,7 +28,8 @@ phase_execution_standing_contract:
     candidate_phase_semantics: legal_transition_candidate_only
     current_phase_semantics: declared_or_governed_state_only
     phase_evidence_profile_semantics: explanation_or_transition_input_not_selector
-    portfolio_policy_semantics: research_template_not_allocation_recommendation
+    portfolio_policy_semantics: research_template_not_personalized_live_instruction
+    research_allocation_templates_allowed_when_labeled: true
     historical_replay_backtest_requirement:
       must_include_transition_timing: true
       must_include_policy_replay: true
@@ -44,7 +45,7 @@ phase_execution_standing_contract:
     no_production_behavior_change_without_explicit_gate: true
     no_investment_advice_wording: true
     no_buy_sell_trade_action: true
-    no_current_allocation_recommendation: true
+    no_personalized_live_allocation_instruction: true
     no_candidate_current_phase_output_without_gate: true
     no_live_network_dependency_in_tests: true
   test_strategy:

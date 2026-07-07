@@ -5,8 +5,9 @@ phase88_portfolio_policy_replay_research_surface_closure:
   objective_zh: >
     關閉 Phase88 portfolio policy replay research surface completion。此 closure
     驗證 policy templates、replay schedule、成本/turnover assumption、scenario
-    coverage 與 no-advice caveats 已接入 research dashboard，但不執行 policy
-    replay、不計算績效、不輸出目前配置、不寫 public。
+    coverage 與 no-advice caveats 已接入 research dashboard；允許研究性
+    配置模板呈現，但不執行 policy replay、不計算績效、不輸出個人化交易
+    指令、不寫 public。
   hard_gates:
     phase88_closure_ready: true
     portfolio_policy_replay_research_surface_ready: true
@@ -26,6 +27,9 @@ phase88_portfolio_policy_replay_research_surface_closure:
     scenario_count: 5
     scenario_policy_coverage_row_count: 40
     html_scenario_policy_coverage_row_count: 40
+    research_allocation_template_allowed: true
+    research_allocation_template_count: 8
+    html_research_allocation_template_count: 8
     cost_assumption_visible_count: 8
     html_cost_assumption_row_count: 8
     turnover_status_visible_count: 8
@@ -36,6 +40,7 @@ phase88_portfolio_policy_replay_research_surface_closure:
     metric_value_count: 0
     economic_performance_metric_count: 0
     current_allocation_recommendation_count: 0
+    personalized_trade_instruction_count: 0
     trade_signal_output_count: 0
     prohibited_output_field_count: 0
     public_output_count: 0
@@ -54,7 +59,7 @@ phase88_portfolio_policy_replay_research_surface_closure:
     product_capability_progress_ready: true
     product_doctrine_alignment_status: aligned
     cycle_state_machine_alignment_status: declared_state_preserved_policy_replay_surface_only
-    portfolio_policy_research_alignment: research_surface_ready_no_current_allocation
+    portfolio_policy_research_alignment: research_allocation_templates_ready_no_personalized_trade_instruction
     historical_replay_backtest_alignment: policy_replay_surface_ready_no_execution_or_metric_values
     legal_transition_semantics_preserved: true
     development_next_phase: 89

@@ -86,7 +86,9 @@ investment_cycle_product_doctrine:
   portfolio_policy_research:
     enabled_as_research_template: true
     may_show_book_template_weights: true
+    may_show_research_allocation_templates: true
     must_not_emit_trade_action: true
+    must_not_emit_personalized_live_allocation_instruction: true
     must_not_claim_investment_advice: true
     templates:
       - passive_all_stock_baseline
@@ -135,7 +137,7 @@ investment_cycle_product_doctrine:
     must_not_imply_formal_current_decision_before_gate: true
   safety_requirements:
     no_trade_action: true
-    no_current_allocation_recommendation: true
+    no_personalized_live_allocation_instruction: true
     no_promised_return: true
     no_hidden_data_gap: true
     no_revised_as_point_in_time: true

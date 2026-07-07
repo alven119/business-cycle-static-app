@@ -408,7 +408,7 @@ implementation:
 3. Are legacy v1 artifacts preserved only as baseline compatibility unless a
    migration gate is explicitly opened?
 4. Are portfolio template weights treated as research assumptions rather than
-   current allocation recommendations?
+   personalized live trading instructions?
 
 ## Phase 11 North Star and Phase-Evidence Gates
 

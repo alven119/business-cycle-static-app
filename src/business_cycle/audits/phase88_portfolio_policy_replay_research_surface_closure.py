@@ -65,6 +65,8 @@ def summarize_phase88_portfolio_policy_replay_research_surface_closure(
                 "safety_caveat_panel_ready",
                 "no_advice_validator_ready",
                 "policy_template_count",
+                "research_allocation_template_allowed",
+                "research_allocation_template_count",
                 "replay_schedule_row_count",
                 "scenario_count",
                 "scenario_policy_coverage_row_count",
@@ -76,6 +78,7 @@ def summarize_phase88_portfolio_policy_replay_research_surface_closure(
                 "metric_value_count",
                 "economic_performance_metric_count",
                 "current_allocation_recommendation_count",
+                "personalized_trade_instruction_count",
                 "trade_signal_output_count",
                 "public_output_count",
                 "standalone_classifier_added_count",
@@ -104,6 +107,9 @@ def summarize_phase88_portfolio_policy_replay_research_surface_closure(
         "html_replay_schedule_row_count": html.count("data-policy-replay-schedule-row"),
         "html_scenario_policy_coverage_row_count": html.count(
             "data-policy-scenario-coverage-row",
+        ),
+        "html_research_allocation_template_count": html.count(
+            "data-research-allocation-template",
         ),
         "html_cost_assumption_row_count": html.count(
             "data-policy-cost-turnover-row",

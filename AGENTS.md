@@ -125,7 +125,9 @@ This repository builds a deterministic, auditable business-cycle diagnostics and
 - Do not classify the current economic phase from a latest snapshot.
 - Do not present phase score, phase rank, or phase winner as the product answer.
 - Candidate phase must mean legal transition candidate, never isolated classifier winner.
-- Portfolio template weights are research assumptions, not current allocation recommendations.
+- Portfolio template weights are research assumptions, not personalized live
+  trading instructions. Research-only allocation templates are allowed when
+  clearly labeled and separated from execution.
 - Do not use manual_review_required.
 - Do not commit generated data, raw cache, public output, pyc, pytest cache, ruff cache, or secrets.
 - Never print, persist, or commit FRED_API_KEY.

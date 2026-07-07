@@ -265,7 +265,7 @@ def _approved_doctrine_context(line: str) -> bool:
         "role-count vote",
         "classifier winner;",
         "phase rank/winner",
-        "current allocation recommendations?",
+        "personalized live trading instructions?",
         "- standalone current phase classifier",
         "- isolated candidate phase classifier",
         "rank/winner, isolated candidate classifier",

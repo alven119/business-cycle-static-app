@@ -119,6 +119,10 @@ def build_portfolio_policy_replay_research_surface_view_model(
         "cost_assumption_visible_count": len(schedule_contract.schedule_rows),
         "turnover_status_visible_count": len(schedule_contract.schedule_rows),
         "renderer_caveat_count": len(contract["renderer_caveats_zh"]),
+        "research_allocation_template_allowed": True,
+        "research_allocation_template_count": baseline[
+            "required_policy_template_count"
+        ],
         "research_backtest_artifact_count": artifacts["research_backtest_artifact_count"],
         "metric_formula_reference_family_count": artifacts[
             "metric_formula_reference_family_count"
@@ -132,6 +136,7 @@ def build_portfolio_policy_replay_research_surface_view_model(
         "metric_value_count": 0,
         "economic_performance_metric_count": 0,
         "current_allocation_recommendation_count": 0,
+        "personalized_trade_instruction_count": 0,
         "trade_signal_output_count": 0,
         "public_output_count": 0,
         "candidate_phase_emitted": False,
@@ -150,6 +155,8 @@ def build_portfolio_policy_replay_research_surface_view_model(
             "backtest_execution_enabled": False,
             "metric_value_computation_enabled": False,
             "current_allocation_recommendation_enabled": False,
+            "research_allocation_template_display_allowed": True,
+            "personalized_trade_instruction_enabled": False,
         },
         "standalone_classifier_added_count": 0,
         "phase_rank_or_score_added_count": 0,
@@ -193,6 +200,12 @@ def summarize_portfolio_policy_replay_research_surface(
         "safety_caveat_panel_ready": len(view_model["renderer_caveats_zh"]) == 6,
         "no_advice_validator_ready": prohibited_count == 0,
         "policy_template_count": view_model["policy_template_count"],
+        "research_allocation_template_allowed": view_model[
+            "research_allocation_template_allowed"
+        ],
+        "research_allocation_template_count": view_model[
+            "research_allocation_template_count"
+        ],
         "replay_schedule_row_count": view_model["replay_schedule_row_count"],
         "scenario_count": view_model["scenario_count"],
         "scenario_policy_coverage_row_count": view_model[
@@ -209,6 +222,9 @@ def summarize_portfolio_policy_replay_research_surface(
         ],
         "current_allocation_recommendation_count": view_model[
             "current_allocation_recommendation_count"
+        ],
+        "personalized_trade_instruction_count": view_model[
+            "personalized_trade_instruction_count"
         ],
         "trade_signal_output_count": view_model["trade_signal_output_count"],
         "prohibited_output_field_count": prohibited_count,
@@ -231,7 +247,7 @@ def summarize_portfolio_policy_replay_research_surface(
             "declared_state_preserved_policy_replay_surface_only"
         ),
         "portfolio_policy_research_alignment": (
-            "research_surface_ready_no_current_allocation"
+            "research_allocation_templates_ready_no_personalized_trade_instruction"
         ),
         "historical_replay_backtest_alignment": (
             "policy_replay_surface_ready_no_execution_or_metric_values"

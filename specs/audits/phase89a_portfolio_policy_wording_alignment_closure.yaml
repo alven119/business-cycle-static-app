@@ -1,0 +1,45 @@
+phase89a_portfolio_policy_wording_alignment_closure:
+  version: 1
+  status: active
+  phase_id: 89A
+  objective_zh: >
+    關閉 Phase89A portfolio policy wording and research allocation template
+    alignment。此 closure 驗證 doctrine、portfolio policy surface 與 dashboard
+    文案已從「不做配置」校正為「允許研究性配置模板，但禁止個人化交易指令、
+    live allocation instruction、policy replay execution 與 backtest execution」。
+  hard_gates:
+    phase89a_closure_ready: true
+    portfolio_policy_wording_alignment_ready: true
+    research_allocation_template_allowed: true
+    research_allocation_template_count: 8
+    dashboard_research_allocation_template_count: 8
+    personalized_trade_instruction_prohibited: true
+    personalized_trade_instruction_count: 0
+    live_allocation_instruction_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    policy_replay_execution_count: 0
+    backtest_execution_count: 0
+    metric_value_count: 0
+    economic_performance_metric_count: 0
+    prohibited_output_field_count: 0
+    browser_verification_ready: true
+    browser_missing_required_element_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_portfolio_wording_aligned
+    portfolio_policy_research_alignment: research_allocation_templates_allowed_no_personalized_trade_instruction
+    historical_replay_backtest_alignment: unchanged_no_backtest_execution
+    legal_transition_semantics_preserved: true
+    development_next_phase: 89
+    phase89a_closure_status: closed_portfolio_policy_wording_aligned_research_templates_allowed_no_personalized_trade_instruction

@@ -60,7 +60,7 @@ Read docs/legacy_production_v1_boundary.md and specs/common/legacy_production_v1
 Treat production v1 phase scoring, resolver, pipeline, and Pages output as legacy baseline compatibility unless the prompt explicitly opens a migration gate.
 Do not present legacy phase scores, ranked outputs, selected phase, or resolver output as the mature product answer.
 Candidate phase must mean legal transition candidate, never isolated classifier winner.
-Portfolio template weights are research assumptions, not current allocation recommendations.
+Portfolio template weights are research assumptions, not personalized live trading instructions. Research-only allocation templates are allowed when clearly labeled and separated from execution.
 Report product_doctrine_alignment_status, cycle_state_machine_alignment_status, standalone_classifier_added_count, phase_rank_or_score_added_count, legal_transition_semantics_preserved, portfolio_policy_research_alignment, historical_replay_backtest_alignment, deviation_cleanup_needed_count, production_behavior_change_count, and semantic_drift_count.
 Every phase must answer whether it advances transition detection, portfolio policy research, replay/backtest, dashboard education, or a documented cleanup/safety blocker.
 For recurring start checks, safety rules, test strategy, and final report fields, cite the standing contract instead of repeating the full boilerplate.

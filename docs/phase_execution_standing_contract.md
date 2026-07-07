@@ -55,7 +55,9 @@ and the local book PDF must never be committed.
 - Candidate phase means legal transition candidate only.
 - Current phase means declared or governed state only.
 - Phase evidence profile is explanation or transition input, not selector.
-- Portfolio policy is a research template, not current allocation guidance.
+- Portfolio policy is a research template layer. Research-only allocation
+  templates are allowed when clearly labeled; personalized live trading
+  instructions are not.
 - Historical replay/backtest must include transition timing and policy replay;
   it must not be only static-label accuracy.
 - Legacy production v1 may remain as compatibility baseline, but must not be
@@ -70,7 +72,7 @@ and the local book PDF must never be committed.
   explicitly allows it and the output policy passes.
 - No production behavior change without an explicit gate.
 - No investment advice wording.
-- No buy/sell/trade action or current allocation recommendation.
+- No buy/sell/trade action or personalized live allocation instruction.
 - No candidate/current phase output unless the prompt explicitly opens that
   gate.
 - No live/FRED network dependency in tests.

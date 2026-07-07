@@ -429,7 +429,8 @@ def _verify_rendered_html_pages(
             "data-policy-cost-turnover-row",
             "data-policy-scenario-coverage-row",
             "data-policy-replay-caveat",
-            "data-no-current-allocation-guidance",
+            "data-research-allocation-template",
+            "data-no-personalized-trade-instruction",
         ):
             required_missing += int(token not in combined)
     undefined_as_zero = int("undefined metric rendered as 0" in lowered)
@@ -2181,12 +2182,13 @@ def _portfolio_policy_replay_research_section(surface: dict[str, Any] | None) ->
         <h2>Portfolio Policy Replay Research Surface</h2>
         <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
       </div>
-      <p class="muted">This section explains how governed policy templates would be reviewed in future replay/backtest work. It does not execute a replay, compute performance, or recommend a current portfolio.</p>
-      <div class="status-strip" data-no-current-allocation-guidance>
+      <p class="muted">This section explains research-only allocation templates and how they would be reviewed in future replay/backtest work. It does not execute a replay, compute performance, or produce a personalized trading instruction.</p>
+      <div class="status-strip" data-no-personalized-trade-instruction>
         <span>policy replay execution disabled</span>
         <span>backtest execution disabled</span>
         <span>metric values not computed</span>
-        <span>no current portfolio guidance</span>
+        <span>research allocation templates allowed</span>
+        <span>no personalized trading instruction</span>
       </div>
       <div class="metric-grid">
         {_metric_card("Templates", surface["policy_template_count"], "research-only")}
@@ -2236,6 +2238,7 @@ def _portfolio_policy_replay_research_section(surface: dict[str, Any] | None) ->
 def _policy_template_card(row: dict[str, Any]) -> str:
     return f"""
       <article class="mini-card" data-policy-template-card="{_text(row["template_id"])}">
+        <span class="badge" data-research-allocation-template>Research allocation template</span>
         <strong>{_text(row["template_id"])}</strong>
         <p>{_text(row["template_name_zh"])}</p>
         <dl class="mini-grid">

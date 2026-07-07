@@ -124,9 +124,10 @@ The mature product must preserve or build:
 ## Portfolio Policy Research
 
 Portfolio policy work is a research template layer until an explicit future
-gate authorizes stronger usage. It may show book template weights and scenario
-replay assumptions, but it must not emit trade actions or current allocation
-recommendations.
+gate authorizes stronger usage. It may show book template weights, research-only
+allocation templates, and scenario replay assumptions, but it must not emit
+personalized trading instructions, brokerage instructions, or live allocation
+instructions.
 
 Required policy templates include:
 
@@ -139,7 +140,8 @@ Required policy templates include:
 - recession and recovery re-risking research templates
 
 Every policy view must preserve caveats: research-only, backtest-only when
-appropriate, no future performance guarantee, and not investment advice.
+appropriate, no future performance guarantee, and not a personalized trading
+instruction.
 
 ## Historical Replay And Backtest
 

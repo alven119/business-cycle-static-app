@@ -108,7 +108,7 @@ and `specs/common/investment_cycle_product_doctrine.yaml`.
 
 ### 2.7 安全輸出
 
-研究工具不得自動輸出買進／賣出訊號、目標持股權重、即時配置建議，或保證、暗示未來績效的文字。回測與 policy 頁面必須標示 backtest-only、非未來績效保證、非投資建議。
+研究工具不得自動輸出買進／賣出訊號、個人化目標持股權重、即時個人化配置指令，或保證、暗示未來績效的文字。Portfolio research 頁面可以呈現書籍或研究用 allocation template，但必須標示 research-only／backtest-only、非未來績效保證、非個人化交易指令。
 
 ## 3. 成熟版本的六大核心能力
 

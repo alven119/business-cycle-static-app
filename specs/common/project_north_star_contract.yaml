@@ -43,10 +43,10 @@ project_north_star_contract:
       related_web_surfaces: [W4_INDICATOR_EXPLORER, W7_DATA_LINEAGE, W12_PRODUCTION_SHADOW_COMPARE]
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
-      objective: Research book benchmark and modern templates without live allocation output.
+      objective: Research book benchmark and modern allocation templates without personalized live allocation instructions.
       required_inputs: [policy_contracts, backtest_contracts]
       required_outputs: [research_templates, caveated_backtest_views]
-      prohibited_outputs: [live_allocation, target_weight, trade_signal]
+      prohibited_outputs: [personalized_live_allocation_instruction, target_weight_as_current_instruction, trade_signal]
       readiness_gates: [portfolio_safety_contract_passed, backtest_gate_passed]
       current_status: contract_only
       related_milestones: [M7, M8, M9]

@@ -8,6 +8,7 @@
 |---|---|---|
 | 87 | Research dashboard production-readiness rehearsal | 已完成 migration rehearsal、renderer caveats、rollback checklist、production boundary drill |
 | 88 | Portfolio policy replay research surface completion | 已完成 policy templates、costs、turnover、research-only caveats、no-advice validators |
+| 89A | Portfolio policy wording and research allocation template alignment | 已完成 research-only allocation template wording、no personalized trading instruction guard、dashboard token 與 closure wiring |
 | 89 | Historical replay execution and attribution completion | strict/revised replay、transition timing attribution、missing-data abstention、scenario traceability |
 | 90 | Research backtest and policy artifact completion | cash-flow-aware research artifacts、policy comparison caveats、dashboard drilldown |
 | 91 | Final research-production migration readiness seal | migration readiness seal、rollback proof、documentation parity、dashboard acceptance bundle |
