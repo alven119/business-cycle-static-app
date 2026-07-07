@@ -119,6 +119,8 @@ def _excluded(path: Path) -> bool:
         in {
             "src/business_cycle/render/research_dashboard_bundle.py",
             "src/business_cycle/render/research_validation_dashboard.py",
+            "src/business_cycle/render/current_macro_numeric_chart_coverage.py",
+            "src/business_cycle/render/local_current_cache_dashboard_bridge.py",
         }
         or text.startswith("src/business_cycle/audits/")
         or text.startswith("src/business_cycle/backtests/")

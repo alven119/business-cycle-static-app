@@ -18,6 +18,17 @@ def test_production_hardcoding_audit_default_scope_is_clean() -> None:
     assert summary["unreviewed_hard_coding_count"] == 0
 
 
+def test_research_only_dashboard_fixture_dates_are_not_production_hardcoding() -> None:
+    findings = scan_production_hardcoding(
+        [
+            Path("src/business_cycle/render/current_macro_numeric_chart_coverage.py"),
+            Path("src/business_cycle/render/local_current_cache_dashboard_bridge.py"),
+        ],
+    )
+
+    assert findings == []
+
+
 def test_production_scenario_hardcoding_is_detected(tmp_path: Path) -> None:
     source = tmp_path / "resolver.py"
     source.write_text(
