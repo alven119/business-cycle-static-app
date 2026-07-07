@@ -41,6 +41,9 @@ from business_cycle.render.local_current_cache_dashboard_bridge import (
 from business_cycle.render.transition_timing_replay_preview import (
     build_transition_timing_replay_preview_view_model,
 )
+from business_cycle.render.transition_risk_evidence_accumulation import (
+    build_transition_risk_evidence_accumulation_view_model,
+)
 from business_cycle.render.portfolio_replay_dashboard_surface import (
     build_portfolio_replay_dashboard_surface_view_model,
 )
@@ -283,6 +286,47 @@ def test_research_dashboard_bundle_accepts_transition_timing_replay_preview() ->
     assert bundle["transition_timing_replay_preview"]["research_only"] is True
     assert bundle["transition_timing_replay_preview"]["candidate_phase_emitted"] is False
     assert bundle["transition_timing_replay_preview"]["current_phase_emitted"] is False
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_transition_risk_accumulation() -> None:
+    preview = build_transition_timing_replay_preview_view_model()
+    accumulation = build_transition_risk_evidence_accumulation_view_model(
+        transition_timing_replay_preview=preview,
+    )
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        transition_timing_replay_preview=preview,
+        transition_risk_evidence_accumulation=accumulation,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "transition_risk_evidence_accumulation" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["transition_risk_evidence_accumulation"]["research_only"] is True
+    assert (
+        bundle["transition_risk_evidence_accumulation"][
+            "transition_risk_evidence_accumulation_ready"
+        ]
+        is True
+    )
+    assert (
+        bundle["transition_risk_evidence_accumulation"][
+            "transition_accumulation_lane_card_count"
+        ]
+        == 13
+    )
+    assert (
+        bundle["transition_risk_evidence_accumulation"]["candidate_phase_emitted"]
+        is False
+    )
+    assert (
+        bundle["transition_risk_evidence_accumulation"]["current_phase_emitted"]
+        is False
+    )
     assert validation["prohibited_action_field_count"] == 0
 
 

@@ -912,6 +912,9 @@ def _boom_transition_page(bundle: dict[str, Any]) -> str:
 def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     drilldown = bundle["indicator_dashboard_explanation_drilldown"]
     replay_preview = bundle.get("transition_timing_replay_preview")
+    transition_risk_accumulation = bundle.get(
+        "transition_risk_evidence_accumulation"
+    )
     phase_start_confirmation = bundle.get("declared_phase_start_confirmation")
     phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
     current_numeric_chart_coverage = bundle.get("current_macro_numeric_chart_coverage")
@@ -969,6 +972,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     {_declared_phase_start_confirmation_section(phase_start_confirmation)}
     {_declared_phase_start_update_gate_section(phase_start_update_gate)}
     {_current_macro_numeric_chart_coverage_section(current_numeric_chart_coverage)}
+    {_transition_risk_evidence_accumulation_section(transition_risk_accumulation)}
     {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
       <h2>Major group drilldowns</h2>
@@ -1105,6 +1109,83 @@ def _current_data_refresh_ux_section(
       <section class="panel nested">
         <h3>Trust caveats</h3>
         <ul>{caveats}</ul>
+      </section>
+    </section>
+    """
+
+
+def _transition_risk_evidence_accumulation_section(
+    accumulation: dict[str, Any] | None,
+) -> str:
+    if accumulation is None:
+        return ""
+    summary = accumulation["transition_risk_summary"]
+    missing = accumulation["missing_evidence_summary"]
+    contradiction = accumulation["contradictory_evidence_summary"]
+    cards = "".join(
+        f"""
+        <article class="mini-card" data-accumulation-lane-card="{_text(card["lane_id"])}">
+          <strong>{_text(card["title_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Transition</dt><dd>{_text(card["transition_id"])}</dd>
+            <dt>Boundary</dt><dd>{_text(card["watch_confirmation_boundary_label"])}</dd>
+            <dt>Status</dt><dd>{_status_badge(card["timing_preview_status"])}</dd>
+            <dt>Events</dt><dd>{card["event_count"]}</dd>
+            <dt>Gaps</dt><dd>{card["missing_evidence_count"]}</dd>
+            <dt>Contradictions</dt><dd>{card["contradictory_evidence_count"]}</dd>
+          </dl>
+          <p>{_text(card["interpretation_zh"])}</p>
+        </article>
+        """
+        for card in accumulation["accumulation_lane_cards"]
+    )
+    next_rows = "".join(
+        f"""
+        <tr data-next-required-observation="{_text(row["lane_id"])}">
+          <td>{_text(row["lane_id"])}</td>
+          <td>{_text(row["lane_category"])}</td>
+          <td>{_text(row["watch_confirmation_boundary_label"])}</td>
+          <td>{row["missing_evidence_count"]}</td>
+          <td>{_text(row["next_required_observation_zh"])}</td>
+        </tr>
+        """
+        for row in accumulation["next_required_observations"]
+    )
+    gap_codes = ", ".join(missing["visible_gap_reason_codes"])
+    return f"""
+    <section class="panel" data-transition-risk-evidence-accumulation data-no-phase-selection>
+      <div class="section-heading">
+        <h2>Transition risk evidence accumulation</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This section turns the governed transition replay preview into a current dashboard surface for evidence accumulation. It shows what is building, what is missing, and what remains blocked without selecting a phase or producing a rank.</p>
+      <div class="status-strip" data-watch-confirmation-boundary-summary>
+        <span>declared state: {_text(summary["declared_current_phase"])}</span>
+        <span>legal next: {_text(summary["legal_next_phase"])}</span>
+        <span>watch is not confirmation</span>
+        <span data-no-role-count-voting>no role-count voting</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Lane cards", accumulation["transition_accumulation_lane_card_count"], "all legal lanes")}
+        {_metric_card("Accumulation events", accumulation["evidence_accumulation_event_count"], "checkpoint x lane")}
+        {_metric_card("Visible missing events", accumulation["missing_evidence_event_count"], "abstention context")}
+        {_metric_card("Contradictory events", accumulation["contradictory_evidence_event_count"], "not averaged away")}
+      </div>
+      <div class="status-strip">
+        <span data-missing-evidence-summary>missing lanes: {missing["lane_with_missing_evidence_count"]}; codes: {_text(gap_codes)}</span>
+        <span data-contradictory-evidence-summary>contradictory lanes: {contradiction["contradictory_evidence_lane_count"]}</span>
+        <span>missing values are not neutral</span>
+        <span>metadata-only is not support</span>
+      </div>
+      <div class="transition-lane-grid">{cards}</div>
+      <section class="panel nested">
+        <h3>Next required observations</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Lane</th><th>Category</th><th>Boundary</th><th>Missing events</th><th>Next observation</th></tr></thead>
+            <tbody>{next_rows}</tbody>
+          </table>
+        </div>
       </section>
     </section>
     """

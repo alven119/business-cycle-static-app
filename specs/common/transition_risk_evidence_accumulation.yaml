@@ -1,0 +1,82 @@
+transition_risk_evidence_accumulation:
+  contract_id: transition_risk_evidence_accumulation_v1
+  contract_version: "1.0"
+  contract_status: active_research_dashboard_transition_risk_accumulation
+  phase_id: 86
+  objective_zh: >
+    將既有 transition timing replay preview 的 lanes 與 evidence accumulation
+    events 整理成 dashboard-ready 的轉折風險累積視圖。此 contract 只呈現
+    watch/confirmation 邊界、缺漏/矛盾證據、abstention 與下一個需要觀察的
+    項目，不選 phase、不計分、不推論 current phase。
+  allowed_inputs:
+    - transition_timing_replay_preview_view_model
+    - ordered_cycle_transition_lane_templates
+    - evidence_freshness_release_value_continuity_view_model
+  prohibited_inputs:
+    - standalone_current_phase_classifier
+    - phase_rank_or_score
+    - role_count_vote
+    - candidate_phase_selector
+    - production_resolver_output
+    - portfolio_live_allocation
+    - trade_signal
+  output_policy:
+    output_mode: research_only_transition_risk_evidence_accumulation
+    dashboard_surface_allowed: true
+    repo_output_allowed: false
+    public_output_allowed: false
+    current_phase_inference_allowed: false
+    candidate_phase_selection_allowed: false
+  required_view_fields:
+    - view_id
+    - view_title
+    - output_mode
+    - research_only
+    - declared_state_context
+    - transition_risk_summary
+    - accumulation_lane_cards
+    - missing_evidence_summary
+    - contradictory_evidence_summary
+    - next_required_observations
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+  disabled_runtime_guards:
+    current_phase_inference_enabled: false
+    candidate_phase_selection_enabled: false
+    phase_rank_or_score_enabled: false
+    role_count_voting_enabled: false
+    production_integration_enabled: false
+    portfolio_action_enabled: false
+  hard_gates:
+    transition_risk_evidence_accumulation_ready: true
+    transition_accumulation_lane_card_count: 13
+    evidence_accumulation_event_count: 39
+    evidence_accumulation_status_family_count: 1
+    continuation_lane_card_count: 4
+    watch_lane_card_count: 5
+    confirmation_lane_card_count: 4
+    watch_confirmation_boundary_count: 13
+    phase_presence_transition_separation_valid: true
+    watch_confirmation_separation_valid: true
+    lane_with_missing_evidence_count: 13
+    missing_evidence_event_count: 39
+    missing_evidence_summary_ready: true
+    contradictory_evidence_summary_ready: true
+    contradictory_evidence_lane_count: 0
+    contradictory_evidence_event_count: 0
+    next_required_observation_count: 13
+    next_required_observation_summary_ready: true
+    missing_value_treated_as_neutral_count: 0
+    metadata_only_promoted_to_phase_support_count: 0
+    contradictory_evidence_promoted_to_confirmation_count: 0
+    watch_promoted_to_confirmation_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    prohibited_output_field_count: 0

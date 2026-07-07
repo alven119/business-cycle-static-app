@@ -435,6 +435,14 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase85 closure proves refresh UX preserves research-only and no-live-refresh boundaries",
     ),
+    "tests/test_transition_risk_evidence_accumulation.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase86 transition risk accumulation view explains evidence buildup without phase selection",
+    ),
+    "tests/test_phase86_transition_risk_evidence_accumulation_closure.py": QuarantineEntry(
+        markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
+        rationale="Phase86 closure proves transition accumulation stays research-only",
+    ),
     "tests/test_evidence_freshness_release_value_continuity.py": QuarantineEntry(
         markers=("doctrine_aligned", "transition_monitor", "governance_scaffold"),
         rationale="Phase60 continuity view explains freshness and missing values without phase selection",

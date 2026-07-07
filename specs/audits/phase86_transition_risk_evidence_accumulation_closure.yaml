@@ -1,0 +1,62 @@
+phase86_transition_risk_evidence_accumulation_closure:
+  version: 1
+  status: active
+  phase_id: 86
+  objective_zh: >
+    關閉 Phase86 transition risk evidence accumulation view。此 closure
+    驗證 latest-evidence dashboard 已呈現轉折風險 evidence accumulation、
+    watch/confirmation 邊界、missing/contradictory evidence summary 與
+    next required observations，同時不選 phase、不產生 score/rank/winner、
+    不執行 replay/backtest、不修改 production。
+  hard_gates:
+    phase86_closure_ready: true
+    sprint_roadmap_ready: true
+    transition_risk_evidence_accumulation_ready: true
+    latest_evidence_dashboard_page_ready: true
+    dashboard_transition_risk_evidence_accumulation_view_ready: true
+    rendered_transition_risk_evidence_accumulation_ready: true
+    transition_accumulation_lane_card_count: 13
+    html_transition_accumulation_lane_card_count: 13
+    evidence_accumulation_event_count: 39
+    continuation_lane_card_count: 4
+    watch_lane_card_count: 5
+    confirmation_lane_card_count: 4
+    watch_confirmation_boundary_count: 13
+    html_watch_confirmation_boundary_summary_count: 1
+    lane_with_missing_evidence_count: 13
+    missing_evidence_event_count: 39
+    html_missing_evidence_summary_count: 1
+    contradictory_evidence_lane_count: 0
+    contradictory_evidence_event_count: 0
+    html_contradictory_evidence_summary_count: 1
+    next_required_observation_count: 13
+    html_next_required_observation_count: 13
+    phase_presence_transition_separation_valid: true
+    watch_confirmation_separation_valid: true
+    missing_value_treated_as_neutral_count: 0
+    metadata_only_promoted_to_phase_support_count: 0
+    contradictory_evidence_promoted_to_confirmation_count: 0
+    watch_promoted_to_confirmation_count: 0
+    browser_verification_ready: true
+    browser_missing_required_element_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_transition_risk_accumulation_visible
+    portfolio_policy_research_alignment: unchanged_no_current_allocation
+    historical_replay_backtest_alignment: unchanged_no_backtest_execution
+    legal_transition_semantics_preserved: true
+    development_next_phase: 87
+    phase86_closure_status: closed_transition_risk_evidence_accumulation_view_ready_no_phase_selection

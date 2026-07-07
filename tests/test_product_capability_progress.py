@@ -35,7 +35,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "monotonic by default" in summary["progress_semantics"]
     assert (
         summary["phase_label"]
-        == "current_data_refresh_ux_hardened"
+        == "transition_risk_evidence_accumulation_view"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

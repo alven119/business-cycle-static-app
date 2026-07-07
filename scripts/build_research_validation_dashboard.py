@@ -23,6 +23,12 @@ from business_cycle.render.dashboard_decision_explanation import (
 from business_cycle.render.current_data_refresh_ux import (
     build_current_data_refresh_ux_view_model,
 )
+from business_cycle.render.transition_risk_evidence_accumulation import (
+    build_transition_risk_evidence_accumulation_view_model,
+)
+from business_cycle.render.transition_timing_replay_preview import (
+    build_transition_timing_replay_preview_view_model,
+)
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
 )
@@ -80,6 +86,11 @@ def main() -> None:
         help="include the Phase85 current data refresh UX panel",
     )
     parser.add_argument(
+        "--include-transition-risk-evidence-accumulation",
+        action="store_true",
+        help="include the Phase86 transition risk evidence accumulation panel",
+    )
+    parser.add_argument(
         "--include-portfolio-replay-surface",
         action="store_true",
         help="include the Phase81 portfolio/replay research dashboard surface",
@@ -107,7 +118,20 @@ def main() -> None:
         or args.include_current_macro_numeric_chart_coverage
         or args.include_dashboard_decision_explanation
         or args.include_current_data_refresh_ux
+        or args.include_transition_risk_evidence_accumulation
         or args.current_cache_dir
+        else None
+    )
+    transition_timing_replay_preview = (
+        build_transition_timing_replay_preview_view_model()
+        if args.include_transition_risk_evidence_accumulation
+        else None
+    )
+    transition_risk_evidence_accumulation = (
+        build_transition_risk_evidence_accumulation_view_model(
+            transition_timing_replay_preview=transition_timing_replay_preview,
+        )
+        if args.include_transition_risk_evidence_accumulation
         else None
     )
     phase_start_confirmation = (
@@ -155,6 +179,10 @@ def main() -> None:
         current_macro_numeric_chart_coverage=current_macro_numeric_chart_coverage,
         dashboard_decision_explanation=dashboard_decision_explanation,
         current_data_refresh_ux=current_data_refresh_ux,
+        transition_timing_replay_preview=transition_timing_replay_preview,
+        transition_risk_evidence_accumulation=(
+            transition_risk_evidence_accumulation
+        ),
         portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
@@ -201,6 +229,10 @@ def main() -> None:
         f"{str(bool(bundle.get('current_data_refresh_ux'))).lower()}"
     )
     print(
+        "transition_risk_evidence_accumulation_view_ready="
+        f"{str(bool(bundle.get('transition_risk_evidence_accumulation'))).lower()}"
+    )
+    print(
         "portfolio_replay_dashboard_surface_ready="
         f"{str(bool(bundle.get('portfolio_replay_dashboard_surface'))).lower()}"
     )
@@ -231,6 +263,20 @@ def main() -> None:
         print(
             "current_data_refresh_ux_handoff_step_count="
             f"{len(refresh_ux['manual_refresh_handoff_steps'])}"
+        )
+    if bundle.get("transition_risk_evidence_accumulation"):
+        accumulation = bundle["transition_risk_evidence_accumulation"]
+        print(
+            "transition_accumulation_lane_card_count="
+            f"{accumulation['transition_accumulation_lane_card_count']}"
+        )
+        print(
+            "next_required_observation_count="
+            f"{accumulation['next_required_observation_count']}"
+        )
+        print(
+            "missing_evidence_event_count="
+            f"{accumulation['missing_evidence_event_count']}"
         )
     for key in (
         "research_dashboard_runtime_ready",
