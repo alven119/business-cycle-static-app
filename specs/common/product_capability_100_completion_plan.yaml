@@ -1,0 +1,117 @@
+product_capability_100_completion_plan:
+  version: "1.0"
+  status: active_completion_planning_contract
+  baseline_phase_id: 86
+  baseline_phase_label: transition_risk_evidence_accumulation_view
+  objective_zh: >
+    在不改變產品 doctrine、不啟用 standalone current phase classifier、不輸出投資建議的前提下，
+    規劃最少工程 phase，將八項產品能力推進到 dashboard/research production 使用所需的
+    100% readiness。若正式 production 定義包含未來前瞻經濟驗證，F2 仍受日曆與 prospective
+    evidence gate 限制，不能用工程 phase 立即跳過。
+  minimum_engineering_phase_count: 5
+  planned_phase_ids:
+    - 87
+    - 88
+    - 89
+    - 90
+    - 91
+  calendar_prospective_validation_gate_required: true
+  calendar_gate_cannot_be_bypassed_by_phase_work: true
+  phase_plan:
+    - phase_id: 87
+      title_zh: Research dashboard production-readiness rehearsal
+      objective_zh: >
+        演練 dashboard migration、renderer caveats、rollback checklist 與 production
+        boundary drill，確認目前 research dashboard 可安全進入 migration review。
+      primary_capabilities:
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+    - phase_id: 88
+      title_zh: Portfolio policy replay research surface completion
+      objective_zh: >
+        將 portfolio policy templates、成本、turnover、再平衡、禁止用途與 replay
+        assumptions 完整接入 research dashboard，不輸出目前配置建議。
+      primary_capabilities:
+        - C4_PORTFOLIO_POLICY_RESEARCH
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+    - phase_id: 89
+      title_zh: Historical replay execution and attribution completion
+      objective_zh: >
+        補齊 strict/revised replay artifact、transition timing attribution、missing-data
+        abstention 與 scenario traceability，讓歷史重播達到可審查研究用途。
+      primary_capabilities:
+        - C5_HISTORICAL_REPLAY_AND_BACKTEST
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+    - phase_id: 90
+      title_zh: Research backtest and policy artifact completion
+      objective_zh: >
+        補齊 cash-flow-aware research backtest artifacts、policy comparison caveats、
+        no-advice validators 與 dashboard drilldown，不轉成 live allocation。
+      primary_capabilities:
+        - C4_PORTFOLIO_POLICY_RESEARCH
+        - C5_HISTORICAL_REPLAY_AND_BACKTEST
+        - C6_SAFE_OUTPUT_GOVERNANCE
+    - phase_id: 91
+      title_zh: Final research-production migration readiness seal
+      objective_zh: >
+        建立最終 migration readiness seal、rollback proof、production boundary
+        review、documentation parity 與 dashboard acceptance bundle。若前瞻驗證尚未
+        滿足，只能標示為 research dashboard production-migration-ready，而非宣稱已完成經濟驗證。
+      primary_capabilities:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+  capability_targets:
+    - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+      current_percent: 100
+      target_percent: 100
+      target_phase_id: 91
+      remaining_gap_zh: preserve declared-state semantics through migration rehearsal
+    - capability_id: C2_TRANSITION_RISK_DETECTION
+      current_percent: 100
+      target_percent: 100
+      target_phase_id: 91
+      remaining_gap_zh: preserve legal transition watch/confirmation semantics through migration rehearsal
+    - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
+      current_percent: 100
+      target_percent: 100
+      target_phase_id: 91
+      remaining_gap_zh: extend explanation parity to portfolio and replay surfaces
+    - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
+      current_percent: 89
+      target_percent: 100
+      target_phase_id: 90
+      remaining_gap_zh: complete research policy replay surface, caveats, costs, turnover, and no-advice validators
+    - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
+      current_percent: 93
+      target_percent: 100
+      target_phase_id: 90
+      remaining_gap_zh: complete replay/backtest artifacts, attribution, and data-mode drilldown for research use
+    - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
+      current_percent: 100
+      target_percent: 100
+      target_phase_id: 91
+      remaining_gap_zh: preserve no-advice, no-current-allocation, and migration boundary gates
+    - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+      current_percent: 100
+      target_percent: 100
+      target_phase_id: 91
+      remaining_gap_zh: preserve freshness, release, revised/PIT, and abstention semantics through replay migration
+    - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+      current_percent: 97
+      target_percent: 100
+      target_phase_id: 91
+      remaining_gap_zh: complete migration rehearsal and rollback readiness; prospective economic validation remains calendar-gated
+  hard_gates:
+    product_capability_100_completion_plan_ready: true
+    minimum_engineering_phase_count: 5
+    planned_phase_count: 5
+    all_target_capabilities_reach_100: true
+    calendar_prospective_validation_gate_required: true
+    calendar_gate_cannot_be_bypassed_by_phase_work: true
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    current_allocation_recommendation_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

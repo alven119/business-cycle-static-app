@@ -10,6 +10,9 @@ import yaml
 from business_cycle.audits.archive_regression_shards import (
     summarize_archive_regression_shards,
 )
+from business_cycle.audits.fast_ci_contract_tests import (
+    summarize_fast_ci_contract_tests,
+)
 from business_cycle.audits.test_suite_reduction_plan import (
     summarize_test_suite_reduction_plan,
 )
@@ -35,7 +38,8 @@ def summarize_github_actions_test_efficiency(
     parseable_count = sum(1 for text in workflow_text.values() if yaml.safe_load(text))
     reduction = summarize_test_suite_reduction_plan()
     shards = summarize_archive_regression_shards()
-    fast_required = list(contract["required_fast_ci_core_tests"])
+    fast_contract = summarize_fast_ci_contract_tests(path)
+    fast_required = list(fast_contract["required_fast_ci_core_tests"])
     nightly_required = list(contract["required_nightly_shards"])
     fast_text = workflow_text["fast_ci"]
     full_text = workflow_text["full_ci"]
@@ -51,11 +55,19 @@ def summarize_github_actions_test_efficiency(
         "concurrency_workflow_count": sum(
             "cancel-in-progress: true" in text for text in workflow_text.values()
         ),
-        "fast_ci_critical_subset_ready": all(
-            test_path in fast_text for test_path in fast_required
-        )
-        and "python -m pytest" in fast_text
-        and "python -m pytest\n" not in fast_text,
+        "fast_ci_critical_subset_ready": fast_contract[
+            "fast_ci_contract_test_runner_ready"
+        ],
+        "fast_ci_uses_contract_test_runner": (
+            "python scripts/run_fast_ci_contract_tests.py" in fast_text
+            and "python -m pytest" not in fast_text
+        ),
+        "required_fast_ci_missing_test_count": fast_contract[
+            "required_fast_ci_missing_test_count"
+        ],
+        "required_fast_ci_duplicate_test_count": fast_contract[
+            "required_fast_ci_duplicate_test_count"
+        ],
         "full_ci_uses_default_product_core_pytest": (
             "Run default product-core pytest without FRED API key" in full_text
             and "env -u FRED_API_KEY python -m pytest" in full_text

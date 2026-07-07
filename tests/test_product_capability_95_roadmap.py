@@ -7,6 +7,9 @@ from business_cycle.audits.product_capability_95_roadmap import (
     TARGET_CAPABILITY_IDS,
     summarize_product_capability_95_roadmap,
 )
+from business_cycle.audits.product_capability_100_completion_plan import (
+    summarize_product_capability_100_completion_plan,
+)
 from business_cycle.audits.phase75_all_capability_roadmap_portfolio_research_closure import (
     summarize_phase75_all_capability_roadmap_portfolio_research_closure,
 )
@@ -134,3 +137,35 @@ def test_phase75_all_capability_roadmap_portfolio_research_closure_script() -> N
     assert "phase75_all_capability_roadmap_portfolio_research_ready=true" in result.stdout
     assert "target_capability_count=8" in result.stdout
     assert "phase75_closure_status=closed_all_capability_95_roadmap_reset_portfolio_research_baseline_ready" in result.stdout
+
+
+def test_product_capability_100_completion_plan_records_minimum_route() -> None:
+    summary = summarize_product_capability_100_completion_plan()
+
+    assert summary["result"] == "passed"
+    assert summary["product_capability_100_completion_plan_ready"] is True
+    assert summary["minimum_engineering_phase_count"] == 5
+    assert summary["planned_phase_count"] == 5
+    assert summary["planned_phase_ids"] == [87, 88, 89, 90, 91]
+    assert summary["all_target_capabilities_reach_100"] is True
+    assert summary["monotonic_progress_targets"] is True
+    assert summary["calendar_prospective_validation_gate_required"] is True
+    assert summary["calendar_gate_cannot_be_bypassed_by_phase_work"] is True
+    assert summary["standalone_classifier_added_count"] == 0
+    assert summary["phase_rank_or_score_added_count"] == 0
+    assert summary["production_behavior_change_count"] == 0
+    assert summary["semantic_drift_count"] == 0
+
+
+def test_product_capability_100_completion_plan_script() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/show_product_capability_100_completion_plan.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "product_capability_100_completion_plan_ready=True" in result.stdout
+    assert "minimum_engineering_phase_count=5" in result.stdout
+    assert "planned_phase_ids=[87, 88, 89, 90, 91]" in result.stdout
+    assert "calendar_prospective_validation_gate_required=True" in result.stdout

@@ -71,7 +71,7 @@ archive_regression_shard_plan:
     phase_closure_shard_test_file_count_gt_zero: true
     nightly_matrix_ready: true
     nightly_shard_count: 8
-    default_product_core_test_file_count: 30
+    default_product_core_test_file_count: 29
     live_optional_excluded_from_shards: true
     semantic_drift_count: 0
     production_behavior_change_count: 0

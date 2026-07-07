@@ -41,21 +41,7 @@ jobs:
         run: python scripts/run_ci_safety_scans.py
 
       - name: Run critical contract subset
-        run: |
-          env -u FRED_API_KEY python -m pytest \
-            tests/test_ci_safety_scans.py \
-            tests/test_ci_workflows.py \
-            tests/test_github_pages_workflow.py \
-            tests/test_test_suite_reduction_plan.py \
-            tests/test_archive_regression_shards.py \
-            tests/test_github_actions_test_efficiency.py \
-            tests/test_product_doctrine_enforcement.py \
-            tests/test_declared_cycle_state_registry.py \
-            tests/test_ordered_cycle_state_machine.py \
-            tests/test_boom_transition_monitor.py \
-            tests/test_transition_timing_replay_preview.py \
-            tests/test_indicator_dashboard_explanation_drilldown.py \
-            tests/test_research_dashboard_bundle.py
+        run: env -u FRED_API_KEY python scripts/run_fast_ci_contract_tests.py
 
       - name: Run QA0 integrity audit
         run: python scripts/run_qa0_integrity_audit.py

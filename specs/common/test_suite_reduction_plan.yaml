@@ -4,7 +4,7 @@ test_suite_reduction_plan:
   phase_id: 65
   phase_label: default_product_core_suite_and_archive_regression_quarantine
   objective_zh: >
-    將預設 pytest/CI 從完整歷史工程回歸縮減為 30 個產品核心測試檔案，
+    將預設 pytest/CI 從完整歷史工程回歸縮減為不超過 30 個產品核心測試檔案，
     同時保留 legacy v1、早期 QA、歷史 Phase closure 與治理回歸於
     archive/nightly 層，避免刪除可追溯性。
   default_product_core_max_file_count: 30
@@ -26,7 +26,6 @@ test_suite_reduction_plan:
     - tests/test_current_freshness_semantics.py
     - tests/test_boom_transition_monitor.py
     - tests/test_boom_transition_view_model.py
-    - tests/test_transition_timing_replay_preview.py
     - tests/test_boom_transition_evidence_wiring.py
     - tests/test_boom_transition_dashboard_surface.py
     - tests/test_indicator_detail_source_risk_value_rendering.py
@@ -79,7 +78,7 @@ test_suite_reduction_plan:
     - modify_production_behavior
   hard_gates:
     test_suite_reduction_plan_ready: true
-    default_product_core_test_file_count: 30
+    default_product_core_test_file_count: 29
     default_product_core_max_file_count: 30
     default_pytest_selected_file_count_within_limit: true
     archive_regression_marker_registered: true

@@ -4,9 +4,10 @@ github_actions_test_efficiency:
   phase_id: 67
   status: active_ci_efficiency_contract
   objective_zh: >
-    驗證 GitHub Actions 已採用 product-core default pytest、fast critical subset、
-    full current closure gates 與 nightly archive shard matrix。此 contract 不刪測試、
-    不放寬 safety scans，目標是確保測試縮減確實反映在 GitHub workflow。
+    驗證 GitHub Actions 已採用 product-core default pytest、contract-driven
+    fast critical subset、full current closure gates 與 nightly archive shard
+    matrix。此 contract 不刪測試、不放寬 safety scans，目標是確保測試縮減
+    確實反映在 GitHub workflow，且 fast-ci 測項不再以 workflow 手寫清單維護。
   workflow_paths:
     fast_ci: .github/workflows/fast-ci.yml
     full_ci: .github/workflows/full-ci.yml
@@ -22,7 +23,7 @@ github_actions_test_efficiency:
     - tests/test_declared_cycle_state_registry.py
     - tests/test_ordered_cycle_state_machine.py
     - tests/test_boom_transition_monitor.py
-    - tests/test_transition_timing_replay_preview.py
+    - tests/test_transition_risk_evidence_accumulation.py
     - tests/test_indicator_dashboard_explanation_drilldown.py
     - tests/test_research_dashboard_bundle.py
   required_nightly_shards:
@@ -40,11 +41,14 @@ github_actions_test_efficiency:
     dependency_cache_workflow_count: 3
     concurrency_workflow_count: 3
     fast_ci_critical_subset_ready: true
+    fast_ci_uses_contract_test_runner: true
+    required_fast_ci_missing_test_count: 0
+    required_fast_ci_duplicate_test_count: 0
     full_ci_uses_default_product_core_pytest: true
     nightly_ci_uses_archive_shard_matrix: true
     nightly_archive_shard_count: 8
     nightly_monolithic_archive_pytest_count: 0
-    default_product_core_test_file_count: 30
+    default_product_core_test_file_count: 29
     archive_shard_count: 8
     workflow_git_mutation_count: 0
     safety_scan_workflow_count: 3

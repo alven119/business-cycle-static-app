@@ -12,8 +12,8 @@ def test_test_suite_index_passes_and_preserves_default_suite_size() -> None:
     assert summary["result"] == "passed"
     assert summary["test_suite_index_ready"] is True
     assert summary["indexed_test_file_count_equals_discovered"] is True
-    assert summary["default_product_core_test_file_count"] == 30
-    assert summary["default_product_core_indexed_count"] == 30
+    assert summary["default_product_core_test_file_count"] == 29
+    assert summary["default_product_core_indexed_count"] == 29
     assert summary["duplicate_test_guard_key_count"] == 0
     assert summary["similar_test_reference_count"] > 0
     assert summary["new_test_preflight_policy_ready"] is True
@@ -29,10 +29,11 @@ def test_test_suite_index_explains_where_to_extend_existing_tests() -> None:
         if item["test_path"] == "tests/test_transition_timing_replay_preview.py"
     )
 
-    assert row["suite_tier"] == "default_product_core"
+    assert row["suite_tier"] == "archive_regression"
     assert row["component_area"] == "ordered_transition_monitoring"
-    assert row["extension_policy"] == (
-        "extend_existing_product_core_test_before_adding_new_file"
+    assert (
+        row["extension_policy"]
+        == "prefer_archive_regression_extension_unless_new_contract_requires_new_file"
     )
     assert row["similar_test_paths"]
 
@@ -46,6 +47,6 @@ def test_show_test_suite_index_script() -> None:
     )
 
     assert "test_suite_index_ready=true" in completed.stdout
-    assert "default_product_core_test_file_count=30" in completed.stdout
+    assert "default_product_core_test_file_count=29" in completed.stdout
     assert "duplicate_test_guard_key_count=0" in completed.stdout
     assert "result=passed" in completed.stdout

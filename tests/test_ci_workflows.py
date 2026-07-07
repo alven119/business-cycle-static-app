@@ -31,19 +31,12 @@ def test_fast_ci_has_required_quality_gates_without_full_pytest() -> None:
         "git diff --check",
         "python scripts/run_ci_safety_scans.py",
         "python scripts/run_qa0_integrity_audit.py",
-        "tests/test_test_suite_reduction_plan.py",
-        "tests/test_archive_regression_shards.py",
-        "tests/test_github_actions_test_efficiency.py",
-        "tests/test_declared_cycle_state_registry.py",
-        "tests/test_boom_transition_monitor.py",
-        "tests/test_transition_timing_replay_preview.py",
-        "tests/test_indicator_dashboard_explanation_drilldown.py",
-        "tests/test_research_dashboard_bundle.py",
+        "python scripts/run_fast_ci_contract_tests.py",
     ]
     for snippet in required_snippets:
         assert snippet in workflow
 
-    assert "python -m pytest\n" not in workflow
+    assert "python -m pytest" not in workflow
 
 
 def test_full_ci_runs_full_pytest_and_key_closures_on_main_or_manual() -> None:
