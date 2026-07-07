@@ -1,0 +1,81 @@
+current_data_refresh_ux:
+  contract_id: current_data_refresh_ux_v1
+  contract_version: "1.0"
+  contract_status: active_research_dashboard_refresh_ux
+  phase_id: 85
+  objective_zh: >
+    將目前 dashboard 的 fixture/current-cache numeric context、最後可見資料日期、
+    source risk、freshness 狀態與手動 refresh handoff 整理成可讀 UX。此 contract
+    不執行 live refresh、不推論目前景氣階段、不產生交易或配置輸出。
+  allowed_inputs:
+    - current_macro_numeric_chart_coverage_view_model
+    - indicator_dashboard_explanation_drilldown_view_model
+    - explicit_local_current_cache_bridge_view_model
+  prohibited_inputs:
+    - production_resolver_output
+    - standalone_current_phase_classifier
+    - candidate_phase_selector
+    - portfolio_live_allocation
+    - trade_signal
+  output_policy:
+    output_mode: research_only_current_data_refresh_ux
+    dashboard_surface_allowed: true
+    live_refresh_execution_allowed: false
+    repo_output_allowed: false
+    public_output_allowed: false
+    point_in_time_claim_allowed: false
+  required_view_fields:
+    - view_id
+    - view_title
+    - output_mode
+    - research_only
+    - snapshot_as_of
+    - data_mode
+    - cache_scope
+    - refresh_mode_summary
+    - last_update_summary
+    - freshness_summary
+    - source_risk_refresh_summary
+    - manual_refresh_handoff_steps
+    - trust_caveats
+    - allowed_uses
+    - prohibited_uses
+    - trust_metadata
+  disabled_runtime_guards:
+    live_refresh_executed: false
+    current_phase_inference_enabled: false
+    candidate_phase_selection_enabled: false
+    production_integration_enabled: false
+    portfolio_action_enabled: false
+  hard_gates:
+    current_data_refresh_ux_ready: true
+    refresh_mode_summary_ready: true
+    last_update_summary_ready: true
+    freshness_summary_ready: true
+    source_risk_refresh_summary_ready: true
+    manual_refresh_handoff_ready: true
+    refresh_ux_card_count: 5
+    manual_refresh_handoff_step_count: 5
+    refresh_trust_caveat_count: 5
+    role_count: 39
+    role_with_numeric_context_count: 37
+    role_with_available_chart_payload_count: 37
+    role_without_official_series_count: 2
+    source_risk_visible_role_count: 39
+    elevated_source_risk_role_count: 21
+    metadata_ready_value_missing_drilldown_count: 31
+    source_metadata_incomplete_drilldown_count: 3
+    authorized_input_required_drilldown_count: 2
+    live_refresh_executed_count: 0
+    live_fetch_attempt_count: 0
+    repository_output_count: 0
+    point_in_time_claim_count: 0
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

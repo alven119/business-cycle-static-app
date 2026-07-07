@@ -12,6 +12,9 @@ from business_cycle.render.current_macro_numeric_chart_coverage import (
 from business_cycle.render.dashboard_decision_explanation import (
     build_dashboard_decision_explanation_view_model,
 )
+from business_cycle.render.current_data_refresh_ux import (
+    build_current_data_refresh_ux_view_model,
+)
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
     seed_local_current_cache_rehearsal,
@@ -192,6 +195,41 @@ def test_latest_evidence_dashboard_renders_decision_explanation(
     assert "current_phase" not in html
 
 
+def test_latest_evidence_dashboard_renders_current_data_refresh_ux(
+    tmp_path,
+) -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_current_macro_numeric_chart_coverage_view_model()
+    refresh_ux = build_current_data_refresh_ux_view_model(
+        current_macro_numeric_chart_coverage=coverage,
+        indicator_dashboard_explanation_drilldown=drilldown,
+    )
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+        current_data_refresh_ux=refresh_ux,
+    )
+    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
+    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+
+    assert result["browser_verification_ready"] is True
+    assert result["browser_missing_required_element_count"] == 0
+    assert "data-current-data-refresh-ux" in html
+    assert "data-refresh-mode-summary" in html
+    assert "data-last-update-summary" in html
+    assert "data-freshness-summary" in html
+    assert "data-source-risk-refresh-summary" in html
+    assert "data-manual-refresh-handoff" in html
+    assert "data-no-live-refresh-execution" in html
+    assert html.count("data-refresh-ux-card") == 5
+    assert html.count("data-manual-refresh-handoff-step") == 5
+    assert html.count("data-refresh-trust-caveat") == 5
+    assert "Current data refresh UX" in html
+    assert "live refresh 未在本 phase 執行" in html
+    assert "candidate_phase" not in html
+    assert "current_phase" not in html
+
+
 def test_latest_evidence_dashboard_renders_local_current_cache_bridge(
     tmp_path,
 ) -> None:
@@ -227,6 +265,7 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
             "--include-phase-start-update-gate",
             "--include-current-macro-numeric-chart-coverage",
             "--include-dashboard-decision-explanation",
+            "--include-current-data-refresh-ux",
         ],
         check=True,
         capture_output=True,
@@ -236,6 +275,9 @@ def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> N
     assert (output_dir / "latest-evidence.html").is_file()
     assert "latest_evidence_dashboard_view_ready=true" in result.stdout
     assert "dashboard_decision_explanation_view_ready=true" in result.stdout
+    assert "current_data_refresh_ux_view_ready=true" in result.stdout
+    assert "current_data_refresh_ux_card_count=5" in result.stdout
+    assert "current_data_refresh_ux_handoff_step_count=5" in result.stdout
 
 
 def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> None:

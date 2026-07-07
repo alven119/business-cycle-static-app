@@ -386,6 +386,22 @@ def _verify_rendered_html_pages(
             "data-no-standalone-classifier",
         ):
             required_missing += int(token not in combined)
+    if (
+        "current_data_refresh_ux" in bundle
+        and "indicator_dashboard_explanation_drilldown" in bundle
+    ):
+        for token in (
+            "data-current-data-refresh-ux",
+            "data-refresh-mode-summary",
+            "data-last-update-summary",
+            "data-freshness-summary",
+            "data-source-risk-refresh-summary",
+            "data-manual-refresh-handoff",
+            "data-refresh-ux-card",
+            "data-refresh-trust-caveat",
+            "data-no-live-refresh-execution",
+        ):
+            required_missing += int(token not in combined)
     if "portfolio_replay_dashboard_surface" in bundle:
         required_missing += int(
             "data-dashboard-view=\"portfolio_replay_dashboard_surface\""
@@ -900,6 +916,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     phase_start_update_gate = bundle.get("declared_phase_start_registry_update_gate")
     current_numeric_chart_coverage = bundle.get("current_macro_numeric_chart_coverage")
     decision_explanation = bundle.get("dashboard_decision_explanation")
+    refresh_ux = bundle.get("current_data_refresh_ux")
     coverage_by_role = _coverage_rows_by_role(current_numeric_chart_coverage)
     group_cards = "".join(
         _latest_major_group_card(group)
@@ -948,6 +965,7 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
       <div class="metric-grid">{continuity_counts}</div>
     </section>
     {_dashboard_decision_explanation_section(decision_explanation)}
+    {_current_data_refresh_ux_section(refresh_ux)}
     {_declared_phase_start_confirmation_section(phase_start_confirmation)}
     {_declared_phase_start_update_gate_section(phase_start_update_gate)}
     {_current_macro_numeric_chart_coverage_section(current_numeric_chart_coverage)}
@@ -1017,6 +1035,72 @@ def _dashboard_decision_explanation_section(
       <section class="panel nested">
         <h3>Why not formal</h3>
         <ul>{why_not}</ul>
+      </section>
+      <section class="panel nested">
+        <h3>Trust caveats</h3>
+        <ul>{caveats}</ul>
+      </section>
+    </section>
+    """
+
+
+def _current_data_refresh_ux_section(
+    refresh_ux: dict[str, Any] | None,
+) -> str:
+    if refresh_ux is None:
+        return ""
+    refresh = refresh_ux["refresh_mode_summary"]
+    last_update = refresh_ux["last_update_summary"]
+    freshness = refresh_ux["freshness_summary"]
+    source_risk = refresh_ux["source_risk_refresh_summary"]
+    cards = "".join(
+        f"""
+        <article class="mini-card" data-refresh-ux-card="{_text(card["card_id"])}">
+          <strong>{_text(card["title_zh"])}</strong>
+          <dl class="mini-grid">
+            <dt>Status</dt><dd>{_status_badge(card["status_label"])}</dd>
+          </dl>
+          <p>{_text(card["summary_zh"])}</p>
+        </article>
+        """
+        for card in refresh_ux["refresh_cards"]
+    )
+    handoff = "".join(
+        f"""
+        <li data-manual-refresh-handoff-step="{_text(step["step_id"])}">
+          {_text(step["label_zh"])}
+        </li>
+        """
+        for step in refresh_ux["manual_refresh_handoff_steps"]
+    )
+    caveats = "".join(
+        f"<li data-refresh-trust-caveat>{_text(item)}</li>"
+        for item in refresh_ux["trust_caveats"]
+    )
+    return f"""
+    <section class="panel" data-current-data-refresh-ux data-no-live-refresh-execution>
+      <div class="section-heading">
+        <h2>Current data refresh UX</h2>
+        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+      </div>
+      <p class="muted">This panel summarizes fixture/local cache visibility, last visible date, freshness, source risk, and manual handoff. It does not run live refresh or infer a formal phase from current data.</p>
+      <div class="status-strip">
+        <span data-refresh-mode-summary>mode: {_text(refresh["data_mode"])}</span>
+        <span data-last-update-summary>last visible date: {_text(last_update.get("latest_visible_observation_date") or "unavailable")}</span>
+        <span data-freshness-summary>available roles: {freshness["available_fixture_or_cache_role_count"]}</span>
+        <span data-source-risk-refresh-summary>elevated risk roles: {source_risk["elevated_source_risk_role_count"]}</span>
+        <span>cache scope: {_text(refresh["cache_scope"])}</span>
+      </div>
+      <div class="metric-grid">
+        {_metric_card("Numeric context", refresh_ux["role_with_numeric_context_count"], "fixture/local cache")}
+        {_metric_card("Available charts", refresh_ux["role_with_available_chart_payload_count"], "YTD / 1Y / 5Y")}
+        {_metric_card("No official series", refresh_ux["role_without_official_series_count"], "visible source gaps")}
+        {_metric_card("Refresh executed", refresh_ux["live_refresh_executed_count"], "must stay zero here")}
+      </div>
+      <div class="mini-grid">{cards}</div>
+      <section class="panel nested" data-manual-refresh-handoff>
+        <h3>Manual refresh handoff</h3>
+        <ol>{handoff}</ol>
       </section>
       <section class="panel nested">
         <h3>Trust caveats</h3>

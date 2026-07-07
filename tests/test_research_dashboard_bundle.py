@@ -32,6 +32,9 @@ from business_cycle.render.current_macro_numeric_chart_coverage import (
 from business_cycle.render.dashboard_decision_explanation import (
     build_dashboard_decision_explanation_view_model,
 )
+from business_cycle.render.current_data_refresh_ux import (
+    build_current_data_refresh_ux_view_model,
+)
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
 )
@@ -406,6 +409,36 @@ def test_research_dashboard_bundle_accepts_dashboard_decision_explanation() -> N
     assert bundle["dashboard_decision_explanation"]["narrative_card_count"] == 5
     assert bundle["dashboard_decision_explanation"]["candidate_phase_emitted"] is False
     assert bundle["dashboard_decision_explanation"]["current_phase_emitted"] is False
+    assert validation["prohibited_action_field_count"] == 0
+
+
+def test_research_dashboard_bundle_accepts_current_data_refresh_ux() -> None:
+    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
+    coverage = build_current_macro_numeric_chart_coverage_view_model()
+    refresh_ux = build_current_data_refresh_ux_view_model(
+        current_macro_numeric_chart_coverage=coverage,
+        indicator_dashboard_explanation_drilldown=drilldown,
+    )
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        current_macro_numeric_chart_coverage=coverage,
+        current_data_refresh_ux=refresh_ux,
+    )
+    validation = validate_research_dashboard_bundle(bundle)
+
+    assert validation["bundle_schema_valid"] is True
+    assert "current_data_refresh_ux" in {
+        view["view_id"] for view in bundle["views"]
+    }
+    assert bundle["current_data_refresh_ux"]["research_only"] is True
+    assert bundle["current_data_refresh_ux"]["current_data_refresh_ux_ready"] is True
+    assert len(bundle["current_data_refresh_ux"]["refresh_cards"]) == 5
+    assert (
+        bundle["current_data_refresh_ux"]["live_refresh_executed_count"]
+        == 0
+    )
+    assert bundle["current_data_refresh_ux"]["candidate_phase_emitted"] is False
+    assert bundle["current_data_refresh_ux"]["current_phase_emitted"] is False
     assert validation["prohibited_action_field_count"] == 0
 
 

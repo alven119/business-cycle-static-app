@@ -99,6 +99,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_95_roadmap.py",
         "show_product_capability_completion_sprint.py",
         "show_github_actions_test_efficiency.py",
+        "show_phase85_current_data_refresh_ux_closure.py",
         "show_phase84_dashboard_decision_explanation_closure.py",
         "show_phase83_indicator_trend_drilldown_closure.py",
         "show_phase82_replay_backtest_lineage_closure.py",

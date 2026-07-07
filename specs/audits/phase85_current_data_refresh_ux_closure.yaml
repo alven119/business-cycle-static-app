@@ -1,0 +1,62 @@
+phase85_current_data_refresh_ux_closure:
+  version: 1
+  status: active
+  phase_id: 85
+  objective_zh: >
+    關閉 Phase85 current data refresh UX hardening。此 closure 驗證
+    latest-evidence dashboard 已呈現 refresh mode、最後可見資料日期、
+    freshness、source risk 與 manual refresh handoff，同時不執行 live
+    refresh、不使用 current data 推論 phase、不輸出 selector、rank/score、
+    目前配置或交易訊號。
+  hard_gates:
+    phase85_closure_ready: true
+    sprint_roadmap_ready: true
+    current_data_refresh_ux_ready: true
+    latest_evidence_dashboard_page_ready: true
+    refresh_mode_summary_ready: true
+    last_update_summary_ready: true
+    freshness_summary_ready: true
+    source_risk_refresh_summary_ready: true
+    manual_refresh_handoff_ready: true
+    refresh_ux_card_count: 5
+    html_refresh_ux_card_count: 5
+    manual_refresh_handoff_step_count: 5
+    html_manual_refresh_handoff_step_count: 5
+    refresh_trust_caveat_count: 5
+    html_refresh_trust_caveat_count: 5
+    role_count: 39
+    role_with_numeric_context_count: 37
+    role_with_available_chart_payload_count: 37
+    role_without_official_series_count: 2
+    source_risk_visible_role_count: 39
+    elevated_source_risk_role_count: 21
+    metadata_ready_value_missing_drilldown_count: 31
+    source_metadata_incomplete_drilldown_count: 3
+    authorized_input_required_drilldown_count: 2
+    live_refresh_executed_count: 0
+    live_fetch_attempt_count: 0
+    repository_output_count: 0
+    point_in_time_claim_count: 0
+    browser_verification_ready: true
+    browser_missing_required_element_count: 0
+    prohibited_claim_count: 0
+    prohibited_action_field_count: 0
+    prohibited_output_field_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_current_data_refresh_ux_hardened
+    portfolio_policy_research_alignment: unchanged_no_current_allocation
+    historical_replay_backtest_alignment: unchanged_no_backtest_execution
+    legal_transition_semantics_preserved: true
+    development_next_phase: 86
+    phase85_closure_status: closed_current_data_refresh_ux_hardened_no_live_execution
