@@ -26,6 +26,7 @@ def summarize_legacy_v1_boundary() -> dict[str, Any]:
 
     boundary = load_legacy_v1_boundary()
     inventory = boundary["inventory"]
+    migrated = boundary.get("migrated_artifacts", [])
     missing_paths = [
         item["path"]
         for item in inventory
@@ -49,6 +50,12 @@ def summarize_legacy_v1_boundary() -> dict[str, Any]:
         "legacy_inventory_missing_path_count": len(missing_paths),
         "legacy_cleanup_behavior_change_allowed_count": len(cleanup_behavior_changes),
         "legacy_mature_product_answer_count": len(mature_answer_paths),
+        "migrated_artifact_count": len(migrated),
+        "pages_workflow_migrated_to_research_dashboard": any(
+            item.get("path") == ".github/workflows/pages.yml"
+            and item.get("migration_authorized_by_user") is True
+            for item in migrated
+        ),
         "production_v1_behavior_change_count": 0,
         "missing_paths": missing_paths,
     }
@@ -59,9 +66,10 @@ def summarize_legacy_v1_boundary() -> dict[str, Any]:
 def _passed(summary: dict[str, Any]) -> bool:
     return (
         summary["legacy_v1_boundary_ready"] is True
-        and summary["legacy_inventory_path_count"] == 7
+        and summary["legacy_inventory_path_count"] == 6
         and summary["legacy_inventory_missing_path_count"] == 0
         and summary["legacy_cleanup_behavior_change_allowed_count"] == 0
         and summary["legacy_mature_product_answer_count"] == 0
+        and summary["pages_workflow_migrated_to_research_dashboard"] is True
         and summary["production_v1_behavior_change_count"] == 0
     )

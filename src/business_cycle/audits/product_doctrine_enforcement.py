@@ -41,7 +41,6 @@ PRODUCTION_V1_PATHS = {
     "src/business_cycle/phases/data_only_resolver.py",
     "scripts/run_cycle_pipeline.py",
     "scripts/build_cycle_snapshot.py",
-    ".github/workflows/pages.yml",
 }
 
 

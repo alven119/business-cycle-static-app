@@ -53,9 +53,13 @@ def build_research_validation_dashboard(
     *,
     output_dir: str | Path,
     bundle: dict[str, Any] | None = None,
+    allow_repo_output: bool = False,
 ) -> dict[str, Any]:
     bundle = bundle or build_research_dashboard_bundle()
-    output_root = _validated_output_dir(output_dir)
+    output_root = _validated_output_dir(
+        output_dir,
+        allow_repo_output=allow_repo_output,
+    )
     output_root.mkdir(parents=True, exist_ok=True)
     assets_dir = output_root / "assets"
     data_dir = output_root / "data"
@@ -2550,9 +2554,15 @@ def _text(value: Any) -> str:
     return escape(str(value))
 
 
-def _validated_output_dir(output_dir: str | Path) -> Path:
+def _validated_output_dir(
+    output_dir: str | Path,
+    *,
+    allow_repo_output: bool = False,
+) -> Path:
     path = Path(output_dir)
     resolved = path.resolve()
+    if allow_repo_output and resolved == (Path.cwd() / "public").resolve():
+        return resolved
     if not resolved.is_relative_to(ALLOWED_OUTPUT_ROOT.resolve()):
         raise ValueError(f"Phase 38 dashboard output must be under /tmp: {output_dir}")
     cwd = Path.cwd().resolve()

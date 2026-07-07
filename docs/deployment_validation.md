@@ -1,67 +1,73 @@
 # Deployment Validation
 
-Phase 5E 用於 GitHub Pages 部署後驗證與手機 QA。這份 checklist 只確認 generated site 是否可穩定使用，不改 scoring、不改 resolver，也不提供投資建議。
+This checklist validates the GitHub Pages research dashboard after deployment.
+It checks generated-site usability and doctrine boundaries. It does not change
+legacy scoring, resolver behavior, portfolio policy logic, or source provider
+behavior.
 
-## GitHub Actions 檢查
+## GitHub Actions Checks
 
-- `workflow_dispatch` 是否成功啟動。
-- `pytest` 是否通過。
-- `ruff check .` 是否通過。
-- `update_catalog_data.py --force-refresh` 是否成功。
-- `run_cycle_pipeline.py` 是否成功，且 stdout 顯示 `previous_phase id=boom source=cycle_context`。
-- `build_site.py` 是否成功產生 `public/index.html` 與 `public/data/cycle_snapshot.json`。
-- `validate_generated_site.py` 是否通過。
-- `actions/upload-pages-artifact` 是否成功。
-- `actions/deploy-pages` 是否成功。
-- GitHub Pages URL 是否產生。
+- `workflow_dispatch` starts successfully.
+- `pytest` passes without `FRED_API_KEY`.
+- `ruff check .` passes.
+- `scripts/build_github_pages_research_dashboard.py --output-dir public` passes.
+- `scripts/validate_github_pages_research_dashboard.py --site-dir public` passes.
+- `public/index.html` exists.
+- `public/latest-evidence.html` exists.
+- `public/portfolio-replay.html` exists.
+- `public/data/dashboard_bundle.json` exists.
+- `actions/upload-pages-artifact` succeeds.
+- `actions/deploy-pages` succeeds.
+- GitHub Pages URL is produced.
 
-## GitHub Pages 頁面檢查
+## Page Checks
 
-- 頁面可開啟。
-- Browser title 為「景氣循環儀表板」。
-- 目前判讀階段顯示「榮景期」。
-- 基準情境顯示「榮景期第一年剛結束」。
-- 下一階段觀察顯示「衰退期」。
-- 四階段卡片順序為復甦期、成長期、榮景期、衰退期。
-- 榮景期卡片有 `目前階段` badge。
-- 有「分數最高不等於目前階段」提示。
-- 指標依就業、消費、投資、進出口、利率與金融條件、原物料分組。
-- 頁面顯示「不構成投資建議」。
-- 英文 technical id 可以存在，但不應是主要標題。
+- The homepage opens.
+- The page is labeled as a research dashboard.
+- The page does not present a standalone phase winner, phase score answer, or
+  live current phase classifier.
+- Declared cycle state and legal next transition context are visible.
+- `latest-evidence.html` opens.
+- Indicator cards show source, method, freshness, provenance, and explanation.
+- Indicator cards expose trend drilldown targets.
+- YTD, trailing 1Y, and trailing 5Y chart controls or payload markers are
+  present.
+- Transition risk evidence accumulation is visible and separates watch from
+  confirmation.
+- `portfolio-replay.html` opens.
+- Portfolio policy templates are labeled as research templates.
+- Portfolio replay/backtest surfaces do not provide personalized trade
+  instructions.
+- The page states that research templates are not live allocation advice.
 
-## 手機 QA
+## iPhone Safari QA
 
-- iPhone Safari 可開啟。
-- 加入主畫面後可正常開啟。
-- Hero 不會爆版。
-- 四階段卡片可讀。
-- 指標卡片不會橫向溢出。
-- 字體大小可讀。
-- Footer 可讀。
-- 深色模式若未支援，至少不能不可讀。
+- Homepage opens on iPhone Safari.
+- `latest-evidence.html` and `portfolio-replay.html` are reachable.
+- Cards do not overflow horizontally.
+- Chart controls are tappable.
+- Text remains readable in narrow viewport.
+- Trust metadata and caveats are visible.
 
-## 常見問題
+## Common Issues
 
 `Pages 404`
 
-確認 repository Pages source 設為 GitHub Actions，並確認 deploy job 成功完成。若剛部署完成，等待 GitHub Pages 快取更新後再重整。
+Confirm repository Pages source is `GitHub Actions`, and confirm the deploy job
+completed. Pages may need a short cache refresh window after deployment.
 
-`workflow 成功但頁面仍是舊版`
+`workflow passed but the page still looks old`
 
-確認瀏覽器沒有快取舊頁面。可用無痕視窗、強制重新整理，或直接開 GitHub Actions deployment 輸出的 Pages URL。
+Open the deployment URL in a private window or hard refresh. Confirm the
+deployed commit includes `scripts/build_github_pages_research_dashboard.py` in
+`.github/workflows/pages.yml`.
 
-`FRED_API_KEY missing`
+`latest-evidence.html is missing`
 
-確認 repository secret 名稱為 `FRED_API_KEY`，並且 workflow 在原 repository 執行。
+The workflow may still be using the legacy site builder. The Pages build step
+must call `scripts/build_github_pages_research_dashboard.py`.
 
-`FRED API 下載失敗`
+`Deploy failed, try again later`
 
-檢查 FRED API key 是否有效、FRED 服務是否暫時失敗、GitHub Actions 是否遇到網路問題。可重新手動觸發 workflow。
-
-`public/index.html 未產生`
-
-檢查 `run_cycle_pipeline.py` 是否成功產生 `data/derived/cycle_snapshot.json`，再看 `build_site.py` 與 `validate_generated_site.py` 的錯誤訊息。
-
-`mobile cache 顯示舊頁面`
-
-iPhone Safari 可嘗試關閉分頁後重開、清除網站資料，或移除主畫面捷徑後重新加入。
+GitHub Pages sometimes fails after artifact creation. Re-run the workflow once.
+If the failure repeats, inspect repository Pages settings and deploy job logs.

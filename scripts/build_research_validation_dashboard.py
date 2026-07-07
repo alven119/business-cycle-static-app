@@ -35,6 +35,9 @@ from business_cycle.render.local_current_cache_dashboard_bridge import (
 from business_cycle.render.portfolio_replay_dashboard_surface import (
     build_portfolio_replay_dashboard_surface_view_model,
 )
+from business_cycle.render.portfolio_policy_replay_research_surface import (
+    build_portfolio_policy_replay_research_surface_view_model,
+)
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
@@ -96,6 +99,11 @@ def main() -> None:
         help="include the Phase81 portfolio/replay research dashboard surface",
     )
     parser.add_argument(
+        "--include-portfolio-policy-replay-research-surface",
+        action="store_true",
+        help="include the Phase88/89A portfolio policy template research surface",
+    )
+    parser.add_argument(
         "--current-cache-dir",
         help=(
             "Use an explicit local current cache for the numeric/chart panel. "
@@ -155,6 +163,12 @@ def main() -> None:
     portfolio_replay_dashboard_surface = (
         build_portfolio_replay_dashboard_surface_view_model()
         if args.include_portfolio_replay_surface
+        or args.include_portfolio_policy_replay_research_surface
+        else None
+    )
+    portfolio_policy_replay_research_surface = (
+        build_portfolio_policy_replay_research_surface_view_model()
+        if args.include_portfolio_policy_replay_research_surface
         else None
     )
     dashboard_decision_explanation = (
@@ -184,6 +198,9 @@ def main() -> None:
             transition_risk_evidence_accumulation
         ),
         portfolio_replay_dashboard_surface=portfolio_replay_dashboard_surface,
+        portfolio_policy_replay_research_surface=(
+            portfolio_policy_replay_research_surface
+        ),
     )
     result = build_research_validation_dashboard(output_dir=args.output_dir, bundle=bundle)
     bundle_summary = _bundle_summary(bundle)
@@ -235,6 +252,10 @@ def main() -> None:
     print(
         "portfolio_replay_dashboard_surface_ready="
         f"{str(bool(bundle.get('portfolio_replay_dashboard_surface'))).lower()}"
+    )
+    print(
+        "portfolio_policy_replay_research_surface_ready="
+        f"{str(bool(bundle.get('portfolio_policy_replay_research_surface'))).lower()}"
     )
     if bundle.get("portfolio_replay_dashboard_surface"):
         surface = bundle["portfolio_replay_dashboard_surface"]

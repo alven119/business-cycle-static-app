@@ -2,7 +2,12 @@
 
 Python-first static dashboard for business-cycle investing.
 
-This repository now supports deterministic indicator scoring, phase scoring, current-phase resolution, and a generated static dashboard deployable to GitHub Pages.
+This repository now supports a doctrine-aligned research dashboard for GitHub
+Pages. The mature path uses a declared cycle state, legal ordered transition
+monitoring, indicator-level explanations, research-only portfolio policy
+templates, and historical replay/backtest research surfaces. Legacy scoring and
+snapshot tools remain available as compatibility baselines, but they are not the
+GitHub Pages product answer.
 
 ## Current structure
 
@@ -10,14 +15,16 @@ This repository now supports deterministic indicator scoring, phase scoring, cur
 - `data_sources` package: data providers for public macro data providers such as FRED.
 - `src/business_cycle/storage/`: filesystem helpers for raw, normalized, and public outputs.
 - `src/business_cycle/indicators/`: indicator catalog loading and trend-aware scoring.
-- `src/business_cycle/phases/`: phase scoring, state-machine resolution, and cycle context loading.
-- `src/business_cycle/render/`: Traditional Chinese static dashboard rendering.
+- `src/business_cycle/phases/`: legacy phase scoring, resolver compatibility, and cycle context loading.
+- `src/business_cycle/cycle_state/`: declared cycle state and ordered legal transition state.
+- `src/business_cycle/render/`: Traditional Chinese research dashboard rendering.
 - `specs/indicator_catalog.yaml`: indicator metadata and FRED candidate series.
 - `specs/phases/`: four phase specs for recovery, growth, boom, and recession.
 - `specs/common/current_cycle_context.yaml`: current external baseline context; default is `榮景期第一年剛結束`.
 - `scripts/update_data.py`: CLI for updating raw FRED CSV cache.
 - `scripts/score_today.py`: CLI skeleton for scoring.
-- `scripts/build_site.py`: CLI skeleton for static site generation.
+- `scripts/build_github_pages_research_dashboard.py`: GitHub Pages research dashboard builder.
+- `scripts/build_site.py`: legacy static site generation helper retained for compatibility.
 - `tests/test_project_imports.py`: package import smoke test.
 
 ## Design constraints
@@ -1418,7 +1425,11 @@ The workflow requires implementation, tests, domain command execution, JSON/stdo
 
 ## Phase 5B GitHub Pages deployment
 
-Phase 5B adds the GitHub Actions workflow at `.github/workflows/pages.yml`. The repository must define the `FRED_API_KEY` repository secret for scheduled or manual dashboard deployment. Local generated output under `public/` remains ignored and is not committed; GitHub Pages is deployed from the CI-generated `public` artifact.
+Phase 5B originally added the GitHub Actions workflow at
+`.github/workflows/pages.yml`. The workflow now deploys the doctrine-aligned
+research dashboard, not the legacy `cycle_snapshot` homepage. Local generated
+output under `public/` remains ignored and is not committed; GitHub Pages is
+deployed from the CI-generated `public` artifact.
 
 See `docs/github_pages_deployment.md` for setup and troubleshooting.
 

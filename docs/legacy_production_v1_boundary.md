@@ -11,10 +11,10 @@ Production v1 remains a preserved baseline for historical compatibility and
 static-site continuity. It is not the mature product doctrine described by
 `docs/project_north_star.md` and `docs/investment_cycle_product_doctrine.md`.
 
-This boundary does not delete, rename, or change runtime behavior. It records
+This boundary does not delete or rename legacy v1 runtime artifacts. It records
 how future phases must treat the existing v1 phase scoring, resolver, pipeline,
-snapshot, and Pages workflow until an explicit migration gate replaces or wraps
-them.
+and snapshot after the GitHub Pages workflow has migrated to the doctrine-aligned
+research dashboard.
 
 ## Legacy Inventory
 
@@ -26,7 +26,7 @@ them.
 | `src/business_cycle/phases/data_only_resolver.py` | legacy data-only resolver | Not a standalone current phase classifier for future product work |
 | `scripts/run_cycle_pipeline.py` | legacy production v1 pipeline entry | Keep behavior unchanged until explicit migration |
 | `scripts/build_cycle_snapshot.py` | legacy snapshot builder | Keep output semantics quarantined as v1 baseline |
-| `.github/workflows/pages.yml` | legacy Pages deployment workflow | Do not modify without explicit workflow authorization |
+| `.github/workflows/pages.yml` | migrated research dashboard deployment workflow | No longer a legacy v1 output path after explicit user authorization |
 
 ## Boundary Rules
 
@@ -60,6 +60,7 @@ must explicitly document:
 - data lineage preservation
 - dashboard and Pages deployment changes
 
-Until that gate is opened, legacy v1 remains quarantined as a compatibility
-baseline and production behavior change count must remain zero for cleanup
-phases.
+The Pages deployment migration gate is now open for research-dashboard output.
+Legacy v1 scoring, resolver, pipeline, and snapshot artifacts remain
+quarantined as compatibility baselines and must not be promoted into the mature
+product answer.

@@ -9,9 +9,11 @@ legacy_production_v1_boundary:
     - specs/common/investment_cycle_product_doctrine.yaml
   boundary_statement: >
     Production v1 phase scoring, resolver, pipeline, snapshot generation, and
-    Pages workflow are preserved as a legacy baseline for compatibility. They
-    are not the mature doctrine path and must not be presented as the product
-    answer without an explicit migration gate.
+    snapshot generation are preserved as a legacy baseline for compatibility.
+    The Pages workflow has migrated to the doctrine-aligned research dashboard
+    after explicit user authorization. Legacy v1 artifacts are not the mature
+    doctrine path and must not be presented as the product answer without an
+    explicit migration gate.
   inventory:
     - path: src/business_cycle/phases/scoring.py
       classification: legacy_phase_score_diagnostic
@@ -37,10 +39,11 @@ legacy_production_v1_boundary:
       classification: legacy_snapshot_builder
       behavior_change_allowed_in_cleanup: false
       mature_product_answer: false
+  migrated_artifacts:
     - path: .github/workflows/pages.yml
-      classification: legacy_pages_deployment_workflow
-      behavior_change_allowed_in_cleanup: false
-      mature_product_answer: false
+      classification: doctrine_aligned_research_dashboard_deployment_workflow
+      migration_authorized_by_user: true
+      mature_product_answer: true
   prohibited_promotions:
     - legacy_phase_score_as_product_answer
     - legacy_rank_or_winner_as_product_answer
@@ -79,5 +82,6 @@ legacy_production_v1_boundary:
   hard_gates:
     legacy_v1_boundary_ready: true
     production_v1_behavior_change_count: 0
-    legacy_inventory_path_count: 7
+    legacy_inventory_path_count: 6
     legacy_inventory_missing_path_count: 0
+    pages_workflow_migrated_to_research_dashboard: true
