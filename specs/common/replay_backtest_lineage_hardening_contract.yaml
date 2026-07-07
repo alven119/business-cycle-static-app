@@ -1,0 +1,123 @@
+replay_backtest_lineage_hardening_contract:
+  version: 1
+  status: active_research_lineage_hardening_no_execution
+  phase_id: 82
+  contract_id: replay_backtest_lineage_hardening_contract_v1
+  contract_version: "1.0"
+  objective_zh: >
+    強化 Phase79 replay rows、Phase80 research-only backtest artifacts 與
+    Phase81 dashboard surface 之間的 reproducibility / provenance hard gates。
+    本契約重新驗證 source contract hashes、artifact input hashes、replay row
+    linkage、strict/revised data-mode separation、abstention/no-silent-fallback
+    semantics 與 forbidden output boundaries；不執行 backtest、不計算 metric、
+    不輸出 current/candidate phase。
+  dependencies:
+    historical_replay_runner_contract: specs/common/historical_replay_runner_contract.yaml
+    research_backtest_artifact_contract: specs/portfolio/research_backtest_artifact_contract.yaml
+    portfolio_policy_replay_schedule_contract: specs/portfolio/portfolio_policy_replay_schedule_contract.yaml
+    cash_flow_kernel_contract: specs/portfolio/cash_flow_aware_backtest_kernel_contract.yaml
+    metric_formula_registry: specs/portfolio/backtest_metric_formula_registry.yaml
+    portfolio_replay_dashboard_surface: specs/common/portfolio_replay_dashboard_surface.yaml
+    product_doctrine: specs/common/investment_cycle_product_doctrine.yaml
+  required_source_hash_dependencies:
+    - historical_replay_runner_contract
+    - portfolio_policy_replay_schedule_contract
+    - cash_flow_kernel_contract
+    - metric_formula_registry
+  lineage_policy:
+    source_contract_hashes_required: true
+    input_hash_recomputation_required: true
+    replay_row_to_artifact_one_to_one_required: true
+    strict_revised_data_mode_separation_required: true
+    missing_input_requires_abstention_or_blocked_reason: true
+    silent_fallback_allowed: false
+    generated_repo_output_allowed: false
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - phase_probability
+    - expected_label
+    - actual_label
+    - correct
+    - incorrect
+    - historical_accuracy
+    - confusion_matrix
+    - precision
+    - recall
+    - hit_rate
+    - portfolio_return
+    - CAGR
+    - drawdown
+    - Sharpe
+    - current_allocation
+    - current_allocation_recommendation
+    - target_weight
+    - target_weights
+    - buy_signal
+    - sell_signal
+    - trade_action
+  disabled_runtime_guards:
+    formal_decision_runtime_execution_enabled: false
+    historical_validation_execution_enabled: false
+    label_comparison_enabled: false
+    metric_computation_enabled: false
+    backtest_execution_enabled: false
+    portfolio_policy_replay_execution_enabled: false
+    current_allocation_recommendation_enabled: false
+    live_allocation_enabled: false
+    trade_signal_enabled: false
+    candidate_phase_emission_enabled: false
+    current_phase_emission_enabled: false
+    production_integration_enabled: false
+    public_output_enabled: false
+  hard_gates:
+    replay_backtest_lineage_ready: true
+    replay_backtest_lineage_contract_ready: true
+    replay_backtest_lineage_audit_ready: true
+    scenario_count: 5
+    replay_row_count: 10
+    research_backtest_artifact_count: 10
+    artifact_replay_row_link_count: 10
+    replay_row_missing_artifact_count: 0
+    artifact_without_replay_row_count: 0
+    source_contract_hash_family_count: 4
+    source_contract_hash_coverage_complete: true
+    source_contract_hash_mismatch_count: 0
+    artifact_with_complete_source_contract_hashes_count: 10
+    input_hash_coverage_complete: true
+    artifact_with_verified_input_hash_count: 10
+    deterministic_input_hash_count: 10
+    input_hash_mismatch_count: 0
+    unique_input_hash_count: 10
+    artifact_lineage_mismatch_count: 0
+    data_mode_separation_valid: true
+    strict_replay_row_count: 5
+    revised_replay_row_count: 5
+    silent_fallback_count: 0
+    missing_input_without_abstention_count: 0
+    abstention_without_reason_count: 0
+    revised_mislabeled_as_point_in_time_count: 0
+    metric_value_count: 0
+    risk_metric_value_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    public_output_count: 0
+    repository_output_count: 0
+    generated_output_under_tmp_only: true
+    prohibited_output_field_count: 0
+    label_used_by_runtime_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

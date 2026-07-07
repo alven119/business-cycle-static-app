@@ -463,6 +463,14 @@ TEST_FILE_MARKER_MAP: dict[str, QuarantineEntry] = {
         markers=("historical_replay_backtest", "governance_scaffold"),
         rationale="historical validation closure remains replay-support diagnostics",
     ),
+    "tests/test_replay_backtest_lineage_hardening.py": QuarantineEntry(
+        markers=("historical_replay_backtest", "governance_scaffold"),
+        rationale="Phase82 hardens replay/backtest lineage without execution or metrics",
+    ),
+    "tests/test_phase82_replay_backtest_lineage_closure.py": QuarantineEntry(
+        markers=("historical_replay_backtest", "governance_scaffold"),
+        rationale="Phase82 closure proves replay/backtest lineage hardening gates",
+    ),
     "tests/test_backtest_scenarios.py": QuarantineEntry(
         markers=("historical_replay_backtest",),
         rationale="scenario catalog for future replay/backtest",

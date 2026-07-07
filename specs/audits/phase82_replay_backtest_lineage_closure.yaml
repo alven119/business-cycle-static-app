@@ -1,0 +1,67 @@
+phase82_replay_backtest_lineage_closure:
+  version: 1
+  status: active
+  phase_id: 82
+  objective_zh: >
+    關閉 Phase82 replay/backtest reproducibility and provenance hardening。
+    此 closure 驗證 Phase79 replay rows 與 Phase80 research-only backtest
+    artifacts 的 source contract hash、input hash、replay row linkage、
+    strict/revised data-mode separation 與 no-silent-fallback gates 已完整，
+    且仍不執行 backtest、不計算 metric、不輸出 current/candidate phase、
+    不產生 public 或 repository output。
+  hard_gates:
+    phase82_closure_ready: true
+    replay_backtest_lineage_ready: true
+    replay_backtest_lineage_contract_ready: true
+    replay_backtest_lineage_audit_ready: true
+    scenario_count: 5
+    replay_row_count: 10
+    research_backtest_artifact_count: 10
+    artifact_replay_row_link_count: 10
+    replay_row_missing_artifact_count: 0
+    artifact_without_replay_row_count: 0
+    source_contract_hash_family_count: 4
+    source_contract_hash_coverage_complete: true
+    source_contract_hash_mismatch_count: 0
+    artifact_with_complete_source_contract_hashes_count: 10
+    input_hash_coverage_complete: true
+    artifact_with_verified_input_hash_count: 10
+    deterministic_input_hash_count: 10
+    input_hash_mismatch_count: 0
+    unique_input_hash_count: 10
+    artifact_lineage_mismatch_count: 0
+    data_mode_separation_valid: true
+    strict_replay_row_count: 5
+    revised_replay_row_count: 5
+    silent_fallback_count: 0
+    missing_input_without_abstention_count: 0
+    abstention_without_reason_count: 0
+    revised_mislabeled_as_point_in_time_count: 0
+    metric_value_count: 0
+    risk_metric_value_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    metric_computation_enabled: false
+    backtest_execution_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    public_output_count: 0
+    repository_output_count: 0
+    generated_output_under_tmp_only: true
+    prohibited_output_field_count: 0
+    label_used_by_runtime_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    product_capability_progress_ready: true
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_replay_backtest_lineage_hardened
+    portfolio_policy_research_alignment: lineage_hardened_no_current_allocation
+    historical_replay_backtest_alignment: replay_backtest_lineage_hardened_no_silent_fallback
+    legal_transition_semantics_preserved: true
+    development_next_phase: 83
+    phase82_closure_status: closed_replay_backtest_lineage_hardened_no_silent_fallback
