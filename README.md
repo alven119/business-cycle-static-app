@@ -64,6 +64,11 @@ NAS migration, but it is no longer the user-facing deployment target.
   into the NAS, install packages, import Container Manager bundles, start
   containers, connect to Postgres, migrate schema, fetch live data, or write
   repository outputs.
+- Phase 103 adds DS925+ private LAN endpoint registration for `192.168.1.116`
+  and an explicit-flag-only unauthenticated TCP reachability smoke. CI remains
+  no-network preview only. The live probe does not log into DSM or SSH, install
+  packages, import Container Manager bundles, start containers, connect to
+  Postgres, migrate schema, fetch live data, or write repository outputs.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
@@ -1500,6 +1505,13 @@ command previews, and rollback checklist for the future NAS handoff. It does not
 log into the NAS, install packages, log into Tailscale, import Container Manager
 bundles, start containers, connect to Postgres, run migrations, fetch live data,
 or write repository outputs.
+
+Phase 103 adds DS925+ private LAN endpoint registration and connectivity smoke
+for `192.168.1.116`. The default contract path is no-network preview so CI never
+depends on the user's LAN. The optional live probe requires `--execute-live` and
+only attempts unauthenticated TCP connections to governed ports. It does not log
+in, install packages, start containers, connect to Postgres, run migrations,
+fetch live data, or write repository outputs.
 
 ## Next steps
 

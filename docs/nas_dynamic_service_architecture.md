@@ -1,7 +1,7 @@
 ---
-version: "2.2"
+version: "2.3"
 status: active
-phase_id: 102
+phase_id: 103
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -129,6 +129,13 @@ Revised data completeness and vintage backfill are separate work:
   DS925+ handoff. It still performs no NAS login, package install, Tailscale
   login, Container Manager import, container start, live database read/write,
   schema migration, live data fetch, or repository output.
+- Phase 103: DS925+ private LAN endpoint registration and connectivity smoke.
+  This phase records the user-provided NAS IP `192.168.1.116` and adds an
+  explicit-flag-only unauthenticated TCP reachability smoke for DSM/reverse
+  proxy ports. CI remains no-network preview only. The live probe does not log
+  into DSM or SSH, install packages, import Container Manager bundles, start
+  containers, connect to Postgres, run migrations, fetch live data, or write
+  repository output.
 
 ## DS925+ Deployment Package Assessment
 
@@ -151,8 +158,10 @@ Estimated deployment sequence:
   readiness-probe precheck.
 - Phase 102: guided DS925+ install and NAS-side read-only smoke runbook. The
   live install remains operator-assisted and requires explicit confirmation.
-- Phase 103: import revised macro data into NAS Postgres and rehearse backup.
-- Phase 104: private phone browsing, auth, health check, and rollback
+- Phase 103: register the DS925+ private LAN endpoint and run an optional
+  no-login TCP reachability smoke with explicit operator confirmation.
+- Phase 104: import revised macro data into NAS Postgres and rehearse backup.
+- Phase 105: private phone browsing, auth, health check, and rollback
   acceptance.
 
 ## GitHub Pages Retirement
@@ -184,7 +193,7 @@ Backups must cover:
 ## Deferred Gaps
 
 - Actual FastAPI/ASGI service startup behind private local access.
-- Executed DS925+ package install and live NAS-side read-only smoke.
+- Executed DS925+ package install and NAS-side database read-only smoke.
 - Executed Postgres migrations and live DB smoke test.
 - Actual Container Manager import and service startup.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
