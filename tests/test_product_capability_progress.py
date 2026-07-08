@@ -35,7 +35,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "monotonic by default" in summary["progress_semantics"]
     assert (
         summary["phase_label"]
-        == "nas_private_local_service_startup_smoke"
+        == "nas_guided_ds925_install_and_readonly_smoke_plan"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

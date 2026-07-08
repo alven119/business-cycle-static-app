@@ -58,6 +58,12 @@ NAS migration, but it is no longer the user-facing deployment target.
   It can be mounted by a future FastAPI/ASGI service, but this phase still
   starts no uvicorn server, binds no network port, connects to no database, and
   writes no public output.
+- Phase 102 adds a guided DS925+ install and NAS-side read-only smoke plan. It
+  records the package checklist, operator inputs, read-only smoke command
+  previews, and rollback checklist for the future NAS handoff, but does not log
+  into the NAS, install packages, import Container Manager bundles, start
+  containers, connect to Postgres, migrate schema, fetch live data, or write
+  repository outputs.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
@@ -1485,6 +1491,13 @@ Phase 101 adds a private local service startup smoke precheck. It validates the
 ASGI app factory, startup command preview, five readiness probes, environment
 placeholder coverage, and rollback sequence for a private local runner. It does
 not run uvicorn, bind a port, start a live server, import Container Manager
+bundles, start containers, connect to Postgres, run migrations, fetch live data,
+or write repository outputs.
+
+Phase 102 adds a guided DS925+ install and NAS-side read-only smoke plan. It
+records the package checklist, operator inputs, install runbook, read-only smoke
+command previews, and rollback checklist for the future NAS handoff. It does not
+log into the NAS, install packages, log into Tailscale, import Container Manager
 bundles, start containers, connect to Postgres, run migrations, fetch live data,
 or write repository outputs.
 

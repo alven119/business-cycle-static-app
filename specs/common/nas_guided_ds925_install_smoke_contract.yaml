@@ -1,0 +1,150 @@
+nas_guided_ds925_install_smoke_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 102
+  phase_label: nas_guided_ds925_install_and_readonly_smoke_plan
+  depends_on:
+    - specs/audits/nas_ds925_deployment_package_assessment.yaml
+    - specs/common/nas_container_manager_bundle_contract.yaml
+    - specs/common/nas_private_local_startup_smoke_contract.yaml
+    - specs/common/nas_postgres_readonly_smoke_contract.yaml
+    - docs/nas_dynamic_service_architecture.md
+  install_scope:
+    target_device: Synology DS925+
+    target_runtime: private_nas_dynamic_service
+    guided_install_runbook_allowed: true
+    nas_side_readonly_smoke_plan_allowed: true
+    operator_assisted_execution_required: true
+    actual_nas_connection_allowed_now: false
+    package_install_allowed_now: false
+    tailscale_login_allowed_now: false
+    container_manager_import_allowed_now: false
+    docker_compose_execution_allowed_now: false
+    container_image_pull_allowed_now: false
+    container_start_allowed_now: false
+    live_server_start_allowed_now: false
+    live_db_connection_allowed_now: false
+    postgres_read_allowed_now: false
+    postgres_write_allowed_now: false
+    schema_migration_allowed_now: false
+    live_fetch_allowed_now: false
+    public_output_allowed_now: false
+    repo_output_allowed_now: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+  guided_install:
+    package_checklist:
+      - synology_container_manager
+      - tailscale
+      - postgres_container_image
+      - hyper_backup_or_snapshot_replication
+    operator_inputs_required:
+      - ds925_dsm_admin_access
+      - tailscale_account_or_tailnet
+      - container_manager_ui_access
+      - local_secret_values_entered_in_dsm_only
+      - postgres_volume_backup_location
+    install_steps:
+      - verify_dsm_updated_and_admin_access
+      - install_or_verify_container_manager
+      - install_or_verify_tailscale
+      - create_named_volumes
+      - enter_secrets_in_container_manager_ui
+      - review_compose_bundle_without_importing
+      - prepare_readonly_db_smoke_command
+      - verify_rollback_plan_before_execution
+    readonly_smoke_command_preview:
+      - python scripts/show_nas_postgres_readonly_smoke.py
+      - python scripts/show_nas_private_local_startup_smoke.py
+    rollback_steps:
+      - do_not_delete_existing_nas_data
+      - stop_unhealthy_container_if_later_started
+      - keep_container_manager_bundle_source_in_git
+      - preserve_postgres_volume_backup
+      - revert_to_phase101_private_startup_smoke
+      - keep_public_internet_exposure_disabled
+  allowed_uses:
+    - ds925_guided_install_preparation
+    - nas_side_readonly_smoke_command_review
+    - operator_checklist_review
+    - future_manual_ds925_install_handoff
+    - rollback_rehearsal_planning
+  prohibited_uses:
+    - actual_nas_login
+    - package_install_execution
+    - tailscale_login_execution
+    - container_manager_import
+    - docker_compose_up
+    - image_pull
+    - container_start
+    - live_postgres_read
+    - live_postgres_write
+    - schema_migration_execution
+    - live_macro_fetch
+    - public_hosted_dashboard
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    nas_guided_ds925_install_smoke_contract_ready: true
+    nas_guided_ds925_install_smoke_ready: true
+    package_assessment_dependency_ready: true
+    phase101_startup_smoke_dependency_ready: true
+    phase100_bundle_dependency_ready: true
+    phase99_readonly_smoke_dependency_ready: true
+    guided_install_runbook_ready: true
+    nas_side_readonly_smoke_plan_ready: true
+    package_checklist_count: 4
+    recommended_package_count: 4
+    operator_input_required_count: 5
+    install_step_count: 8
+    readonly_smoke_command_preview_count: 2
+    readonly_smoke_command_executed_count: 0
+    rollback_step_count: 6
+    public_internet_exposure_default: false
+    tailscale_private_access_plan_ready: true
+    container_manager_import_plan_ready: true
+    postgres_volume_plan_ready: true
+    app_container_plan_ready: true
+    backup_plan_ready: true
+    actual_nas_connection_attempt_count: 0
+    package_install_attempt_count: 0
+    tailscale_login_attempt_count: 0
+    container_manager_import_attempt_count: 0
+    docker_compose_execution_count: 0
+    container_image_pull_attempt_count: 0
+    container_start_attempt_count: 0
+    live_server_start_attempt_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_read_attempt_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    secret_value_literal_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 103
