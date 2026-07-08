@@ -43,6 +43,9 @@ NAS migration, but it is no longer the user-facing deployment target.
   revised import manifest. It records which roles and series have a governed
   future vintage backfill plan, which derived outputs still need explicit
   lineage, and keeps `observation_vintage` unwritten.
+- Phase 94 materializes those revised rows and PIT availability fields into a
+  private-NAS server-side indicator snapshot/view-model. It is an API/service
+  rehearsal only: no live DB connection, no Postgres write, no public output.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

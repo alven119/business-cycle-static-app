@@ -1,7 +1,7 @@
 ---
-version: "1.3"
+version: "1.4"
 status: active
-phase_id: 93
+phase_id: 94
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -79,6 +79,11 @@ Revised data completeness and vintage backfill are separate work:
   This phase keeps the import no-write: it plans 24 direct vintage requests and
   one derived same-as-of PIT plan, records missing derived-lineage blockers, and
   writes no `observation_vintage` rows.
+- Phase 94: NAS indicator snapshot materialization. This phase joins revised
+  rows, source artifacts, and PIT availability accounting into a server-side
+  indicator snapshot/view-model for the private NAS service. It does not create
+  API endpoints, connect to Postgres, write `public/`, or emit current/candidate
+  phase decisions.
 
 ## GitHub Pages Retirement
 
@@ -110,6 +115,7 @@ Backups must cover:
 
 - FastAPI service skeleton.
 - Executed Postgres migrations and live DB smoke test.
+- FastAPI route and HTML rendering for the Phase 94 server-side snapshot.
 - Data refresh worker.
 - Executed revised data import into the NAS Postgres instance.
 - Executed vintage/PIT backfill into `observation_vintage`.
