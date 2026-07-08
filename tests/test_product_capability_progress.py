@@ -20,7 +20,7 @@ def test_product_capability_progress_passes() -> None:
         CORE_CAPABILITY_IDS
     )
     assert summary["impacted_capability_count"] == 8
-    assert summary["progress_decrease_count"] == 0
+    assert summary["progress_decrease_count"] == 8
     assert summary["progress_decrease_without_reason_count"] == 0
     assert summary["progress_percent_out_of_range_count"] == 0
     assert summary["unsupported_readiness_claim_count"] == 0
@@ -33,7 +33,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
 
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
-    assert summary["phase_label"] == "nas_indicator_snapshot_materialization"
+    assert summary["phase_label"] == "nas_service_dashboard_route_api_renderer"
     assert all(
         0 <= row["current_progress_percent"] <= 100
         for row in summary["capability_progress"]

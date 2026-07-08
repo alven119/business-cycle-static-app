@@ -46,6 +46,10 @@ NAS migration, but it is no longer the user-facing deployment target.
 - Phase 94 materializes those revised rows and PIT availability fields into a
   private-NAS server-side indicator snapshot/view-model. It is an API/service
   rehearsal only: no live DB connection, no Postgres write, no public output.
+- Phase 95 connects that snapshot to a private-NAS route/API/HTML renderer
+  rehearsal with Traditional Chinese pages and JSON payloads. It still does not
+  start a live server, connect to Postgres, fetch live data, or write public
+  output.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

@@ -1,0 +1,115 @@
+nas_service_dashboard_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 95
+  phase_label: nas_service_dashboard_route_api_renderer
+  depends_on:
+    - specs/common/nas_indicator_snapshot_contract.yaml
+    - specs/common/product_capability_progress.yaml
+    - docs/nas_dynamic_service_architecture.md
+  service_scope:
+    target_runtime: private_nas_dynamic_service
+    route_contract_allowed: true
+    api_payload_allowed: true
+    html_renderer_allowed: true
+    live_server_start_allowed_now: false
+    live_db_connection_allowed_now: false
+    postgres_write_allowed_now: false
+    live_fetch_allowed_now: false
+    public_output_allowed_now: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+  route_policy:
+    route_count: 4
+    routes:
+      - route_id: nas_dashboard_overview
+        path: /
+        method: GET
+        output_kind: html
+        title_zh: NAS 私有研究儀表板
+      - route_id: nas_indicator_index
+        path: /indicators
+        method: GET
+        output_kind: html
+        title_zh: 指標總覽
+      - route_id: nas_indicator_snapshot_api
+        path: /api/indicator-snapshot.json
+        method: GET
+        output_kind: json
+        title_zh: 指標快照 API
+      - route_id: nas_service_status_api
+        path: /api/service-status.json
+        method: GET
+        output_kind: json
+        title_zh: 服務狀態 API
+  renderer_policy:
+    language: zh-TW
+    mobile_first: true
+    source_snapshot: phase94_nas_indicator_snapshot_materialization
+    dry_run_output_under_tmp_only: true
+    research_only_label_required: true
+    revised_diagnostic_label_required: true
+    pit_accounting_label_required: true
+    prohibited_frontend_db_access: true
+    prohibited_frontend_api_key: true
+  allowed_uses:
+    - private_nas_service_route_rehearsal
+    - server_side_dashboard_renderer_rehearsal
+    - indicator_snapshot_api_contract_review
+    - mobile_research_dashboard_review
+  prohibited_uses:
+    - public_hosted_dashboard
+    - live_postgres_write
+    - live_macro_fetch
+    - strict_point_in_time_result
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    nas_service_dashboard_contract_ready: true
+    nas_service_route_manifest_ready: true
+    nas_service_api_payload_ready: true
+    nas_service_html_renderer_ready: true
+    private_nas_service_target_ready: true
+    phase94_snapshot_dependency_ready: true
+    product_capability_rebaseline_recorded: true
+    route_count: 4
+    api_payload_count: 3
+    html_page_count: 2
+    role_card_count: 39
+    indicator_snapshot_api_role_count: 39
+    html_role_card_count: 39
+    html_revised_snapshot_role_count: 37
+    html_blocked_role_count: 2
+    mobile_trust_caveat_count: 6
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    live_server_start_attempt_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_write_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 96

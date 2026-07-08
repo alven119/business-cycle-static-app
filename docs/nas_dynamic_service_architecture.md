@@ -1,7 +1,7 @@
 ---
-version: "1.4"
+version: "1.5"
 status: active
-phase_id: 94
+phase_id: 95
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -84,6 +84,11 @@ Revised data completeness and vintage backfill are separate work:
   indicator snapshot/view-model for the private NAS service. It does not create
   API endpoints, connect to Postgres, write `public/`, or emit current/candidate
   phase decisions.
+- Phase 95: NAS service dashboard route/API/HTML rehearsal. This phase defines
+  four private route shapes and renders two Traditional Chinese HTML pages plus
+  three JSON payloads from the Phase 94 snapshot. It writes only to `/tmp` when
+  explicitly requested, starts no live server, reads no live Postgres instance,
+  and keeps browser-to-database/API-key access prohibited.
 
 ## GitHub Pages Retirement
 
@@ -115,7 +120,8 @@ Backups must cover:
 
 - FastAPI service skeleton.
 - Executed Postgres migrations and live DB smoke test.
-- FastAPI route and HTML rendering for the Phase 94 server-side snapshot.
+- Live FastAPI route mounting for the Phase 95 renderer.
+- Auth/session boundary for private mobile use.
 - Data refresh worker.
 - Executed revised data import into the NAS Postgres instance.
 - Executed vintage/PIT backfill into `observation_vintage`.
