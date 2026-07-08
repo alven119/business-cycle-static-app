@@ -28,7 +28,7 @@ def test_github_actions_test_efficiency_passes() -> None:
     assert summary["nightly_ci_uses_archive_shard_matrix"] is True
     assert summary["nightly_archive_shard_count"] == 8
     assert summary["nightly_monolithic_archive_pytest_count"] == 0
-    assert summary["default_product_core_test_file_count"] == 29
+    assert summary["default_product_core_test_file_count"] == 30
     assert summary["archive_shard_count"] == 8
     assert summary["workflow_git_mutation_count"] == 0
     assert summary["safety_scan_workflow_count"] == 3

@@ -20,7 +20,7 @@ def test_phase67_transition_timing_replay_preview_closure_passes() -> None:
     assert summary["transition_replay_checkpoint_count"] == 3
     assert summary["transition_lane_timing_preview_count"] == 13
     assert summary["evidence_accumulation_event_count"] == 39
-    assert summary["default_product_core_test_file_count"] == 29
+    assert summary["default_product_core_test_file_count"] == 30
     assert summary["nightly_archive_shard_count"] == 8
     assert summary["nightly_monolithic_archive_pytest_count"] == 0
     assert summary["candidate_phase_emitted"] is False

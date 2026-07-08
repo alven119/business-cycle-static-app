@@ -28,8 +28,8 @@ test_suite_index:
   hard_gates:
     test_suite_index_ready: true
     indexed_test_file_count_equals_discovered: true
-    default_product_core_test_file_count: 29
-    default_product_core_indexed_count: 29
+    default_product_core_test_file_count: 30
+    default_product_core_indexed_count: 30
     duplicate_test_guard_key_count: 0
     new_test_preflight_policy_ready: true
     similar_test_extension_policy_ready: true

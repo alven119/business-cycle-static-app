@@ -10,10 +10,10 @@ legacy_production_v1_boundary:
   boundary_statement: >
     Production v1 phase scoring, resolver, pipeline, snapshot generation, and
     snapshot generation are preserved as a legacy baseline for compatibility.
-    The Pages workflow has migrated to the doctrine-aligned research dashboard
-    after explicit user authorization. Legacy v1 artifacts are not the mature
-    doctrine path and must not be presented as the product answer without an
-    explicit migration gate.
+    The Pages workflow has been retired after explicit user authorization to
+    move the product toward a private NAS dynamic service. Legacy v1 artifacts
+    are not the mature doctrine path and must not be presented as the product
+    answer without an explicit migration gate.
   inventory:
     - path: src/business_cycle/phases/scoring.py
       classification: legacy_phase_score_diagnostic
@@ -39,11 +39,11 @@ legacy_production_v1_boundary:
       classification: legacy_snapshot_builder
       behavior_change_allowed_in_cleanup: false
       mature_product_answer: false
-  migrated_artifacts:
+  retired_artifacts:
     - path: .github/workflows/pages.yml
-      classification: doctrine_aligned_research_dashboard_deployment_workflow
-      migration_authorized_by_user: true
-      mature_product_answer: true
+      classification: retired_github_pages_deployment_workflow
+      retirement_authorized_by_user: true
+      must_remain_absent: true
   prohibited_promotions:
     - legacy_phase_score_as_product_answer
     - legacy_rank_or_winner_as_product_answer
@@ -57,7 +57,7 @@ legacy_production_v1_boundary:
     production_behavior_impact_documented: true
     candidate_current_phase_output_gates_documented: true
     data_lineage_preserved: true
-    dashboard_pages_changes_documented: true
+    dashboard_deployment_target_changes_documented: true
   future_phase_boundaries:
     phase44:
       scope:
@@ -84,4 +84,4 @@ legacy_production_v1_boundary:
     production_v1_behavior_change_count: 0
     legacy_inventory_path_count: 6
     legacy_inventory_missing_path_count: 0
-    pages_workflow_migrated_to_research_dashboard: true
+    pages_workflow_retired: true

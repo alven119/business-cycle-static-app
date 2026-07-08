@@ -22,7 +22,7 @@ def test_phase68_phase_start_numeric_test_index_closure_passes() -> None:
     assert summary["actual_numeric_cache_fixture_role_count"] > 0
     assert summary["lane_with_actual_numeric_context_fixture_count"] > 0
     assert summary["test_suite_index_ready"] is True
-    assert summary["default_product_core_test_file_count"] == 29
+    assert summary["default_product_core_test_file_count"] == 30
     assert summary["duplicate_test_guard_key_count"] == 0
     assert summary["candidate_phase_emitted"] is False
     assert summary["current_phase_emitted"] is False
@@ -44,5 +44,5 @@ def test_show_phase68_phase_start_numeric_test_index_closure_script() -> None:
     assert "phase68_phase_start_numeric_test_index_ready=true" in completed.stdout
     assert "numeric_cache_overlay_supported=true" in completed.stdout
     assert "test_suite_index_ready=true" in completed.stdout
-    assert "default_product_core_test_file_count=29" in completed.stdout
+    assert "default_product_core_test_file_count=30" in completed.stdout
     assert "result=passed" in completed.stdout

@@ -1,0 +1,53 @@
+---
+name: grill-me
+description: Stress-test a plan, design, architecture, or implementation idea through structured questioning before execution. Use when the user asks to be grilled, challenged, stress-tested, or wants a robust plan before coding.
+---
+
+# Grill Me
+
+Use this skill to interview the user before implementation when a plan, design,
+architecture, or execution prompt needs to be stress-tested.
+
+## Operating Rules
+
+- If a question can be answered by inspecting the codebase or available files,
+  inspect them instead of asking.
+- Ask only 1-2 focused questions per turn.
+- For each question, provide a recommended answer and reasoning, then ask
+  whether the user agrees or has a different view.
+- Track open decision branches and mark each branch resolved when enough
+  information is gathered.
+- Cover scope, constraints, architecture, data flow, dependencies, failure
+  modes, testing, rollout, and maintenance when relevant.
+- Do not implement until the plan is clear enough to produce a concrete
+  execution prompt or implementation plan.
+
+## Interview Flow
+
+1. Inspect available project context first.
+2. Summarize the current plan or uncertainty in one short paragraph.
+3. Ask the highest-leverage unresolved question first.
+4. Include:
+   - the question
+   - recommended answer
+   - why that answer is likely best
+   - what changes if the user disagrees
+5. Maintain a short decision log:
+   - `resolved`
+   - `open`
+   - `blocked`
+6. Stop grilling when remaining uncertainty is low enough to write a concrete
+   execution prompt or implementation plan.
+
+## Output Shape
+
+Prefer concise Traditional Chinese by default in this project:
+
+- `目前判斷`
+- `問題`
+- `我建議的答案`
+- `理由`
+- `決策狀態`
+
+Keep the tone direct but collaborative. The goal is to make the plan stronger,
+not to win an argument.

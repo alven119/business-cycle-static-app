@@ -15,7 +15,8 @@ github_actions_test_efficiency:
   required_fast_ci_core_tests:
     - tests/test_ci_safety_scans.py
     - tests/test_ci_workflows.py
-    - tests/test_github_pages_workflow.py
+    - tests/test_github_pages_retirement.py
+    - tests/test_phase90_nas_dynamic_service_architecture_closure.py
     - tests/test_test_suite_reduction_plan.py
     - tests/test_archive_regression_shards.py
     - tests/test_github_actions_test_efficiency.py
@@ -48,7 +49,7 @@ github_actions_test_efficiency:
     nightly_ci_uses_archive_shard_matrix: true
     nightly_archive_shard_count: 8
     nightly_monolithic_archive_pytest_count: 0
-    default_product_core_test_file_count: 29
+    default_product_core_test_file_count: 30
     archive_shard_count: 8
     workflow_git_mutation_count: 0
     safety_scan_workflow_count: 3

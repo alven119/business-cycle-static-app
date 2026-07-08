@@ -73,7 +73,7 @@ Soft warning 是可接受的診斷訊號，但必須明確解釋。例如 diagno
 - 不得修改 resolver / state machine live decision logic，除非明確要求。
 - 不得修改 FRED provider 行為，除非明確要求。
 - 不得把 experimental candidate indicators 接入 live dashboard，除非明確要求。
-- 不得修改 GitHub Pages workflow，除非明確要求。
+- 不得重新引入 GitHub Pages workflow，除非明確要求。
 - 不得新增 LLM decision、database、chart、dashboard history page。
 - 不得使用 `manual_review_required`。
 - 不得產生投資建議或買賣建議。
@@ -367,7 +367,7 @@ Future phases must preserve the Phase 43A doctrine amendment:
 Phase 43B adds doctrine-enforcement cleanup. Future phases must also preserve
 `docs/legacy_production_v1_boundary.md` and
 `specs/common/legacy_production_v1_boundary.yaml`: production v1 scoring,
-resolver, pipeline, Pages workflow, and snapshot scripts are legacy baseline artifacts
+resolver, pipeline, retired Pages workflow, and snapshot scripts are legacy baseline artifacts
 until an explicit migration gate. They may be maintained for
 compatibility, but their phase scores, ranked outputs, and resolver decisions
 must not be described as the mature product answer.

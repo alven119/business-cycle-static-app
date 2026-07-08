@@ -14,7 +14,7 @@ def test_test_suite_reduction_plan_passes() -> None:
 
     assert summary["result"] == "passed"
     assert summary["test_suite_reduction_plan_ready"] is True
-    assert summary["default_product_core_test_file_count"] == 29
+    assert summary["default_product_core_test_file_count"] == 30
     assert summary["default_product_core_max_file_count"] == 30
     assert summary["default_pytest_selected_file_count_within_limit"] is True
     assert summary["archive_regression_marker_registered"] is True
@@ -87,7 +87,7 @@ def test_test_suite_reduction_plan_script() -> None:
     )
 
     assert "test_suite_reduction_plan_ready=true" in completed.stdout
-    assert "default_product_core_test_file_count=29" in completed.stdout
+    assert "default_product_core_test_file_count=30" in completed.stdout
     assert "legacy_v1_default_test_count=0" in completed.stdout
     assert "result=passed" in completed.stdout
 

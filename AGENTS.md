@@ -2,7 +2,9 @@
 
 ## Project identity
 
-This repository implements a Python-first static web app for business-cycle investing.
+This repository implements a Python-first business-cycle investing research
+service. The current product direction is a private NAS-hosted dynamic service,
+not a GitHub Pages static-site product.
 
 The mature product is an ordered-cycle investing assistant, not a standalone
 four-way classifier. It tracks a declared cycle state, monitors legal
@@ -16,7 +18,10 @@ The legal business-cycle order is:
 3. growth
 4. boom
 
-The output is a static dashboard deployable to GitHub Pages and readable on iPhone Safari.
+The primary user-facing output is a private mobile-readable research dashboard
+served from the user's NAS over a private access path such as Tailscale or VPN.
+GitHub Pages deployment is retired and must not be reintroduced without an
+explicit future migration gate.
 
 ## Core principle
 
@@ -50,8 +55,8 @@ Prefer:
 - deterministic evidence computations
 - YAML specs for indicator, transition, and legacy phase definitions
 - CSV/Parquet for raw and normalized data
-- JSON for public static-site output
-- Jinja2 or simple static HTML rendering
+- JSON for governed dashboard/API payloads
+- Jinja2, HTMX, or simple server-rendered HTML for the NAS dashboard
 - pytest tests for evidence behavior and legacy scoring compatibility
 
 Avoid:
@@ -59,7 +64,7 @@ Avoid:
 - hidden LLM-based phase decisions
 - opaque scoring
 - hardcoded latest-value threshold-only classification
-- database dependency in the MVP
+- direct frontend database access or frontend API keys
 - frontend API keys
 - private investment data in public GitHub Pages output
 
@@ -69,7 +74,9 @@ FRED API key must never be committed.
 
 Use environment variables locally and GitHub Actions secrets in CI.
 
-Public files under public/ must not include secrets, personal holdings, personal notes, or raw copyrighted book content.
+Generated files under `public/` remain local generated output only. They must
+not include secrets, personal holdings, personal notes, raw copyrighted book
+content, or be committed.
 
 ## Indicator Evidence And Transition Contracts
 
@@ -91,8 +98,9 @@ must define:
 - relation to declared phase, legal next transition, or portfolio research template
 - explicit prohibited outputs when the artifact is research-only or legacy-only
 
-Legacy production v1 scoring, resolver, pipeline, and GitHub Pages deployment
-remain historical compatibility baselines until an explicit migration phase.
+Legacy production v1 scoring, resolver, pipeline, and old static dashboard
+helpers remain historical compatibility baselines until an explicit migration
+phase. GitHub Pages deployment itself is retired.
 They must not be presented as the mature product direction. Future work must
 not convert legacy phase scores, ranks, winners, or selected outputs into the
 product answer without a doctrine-aligned migration gate.
@@ -120,7 +128,7 @@ This repository builds a deterministic, auditable business-cycle diagnostics and
 - Do not modify resolver / state machine live decision logic unless explicitly requested.
 - Do not modify FRED provider behavior unless explicitly requested.
 - Do not wire experimental candidate indicators into the live dashboard unless explicitly requested.
-- Do not modify GitHub Pages workflow unless explicitly requested.
+- Do not reintroduce a GitHub Pages workflow unless explicitly requested.
 - Do not create investment advice or direct buy/sell recommendations.
 - Do not classify the current economic phase from a latest snapshot.
 - Do not present phase score, phase rank, or phase winner as the product answer.

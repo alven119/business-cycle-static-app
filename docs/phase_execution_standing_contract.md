@@ -23,7 +23,7 @@ Before planning or implementing any phase, read:
 - `specs/common/phase_execution_standing_contract.yaml`
 
 If a phase touches production v1 scoring, resolver, state machine, pipeline,
-snapshot, Pages workflow, dashboard output, or phase wording, also read:
+snapshot, retired Pages workflow state, dashboard output, or phase wording, also read:
 
 - `docs/legacy_production_v1_boundary.md`
 - `specs/common/legacy_production_v1_boundary.yaml`

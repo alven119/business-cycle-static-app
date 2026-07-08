@@ -33,7 +33,7 @@ Blocked report must include:
 * why further repair is unsafe
 ```
 
-This suffix does not authorize changes to formal scoring, resolver logic, FRED provider behavior, dashboard integration, GitHub Pages workflow, generated data, public output, secrets, or investment advice unless the main prompt explicitly requests them.
+This suffix does not authorize changes to formal scoring, resolver logic, FRED provider behavior, dashboard integration, GitHub Pages workflow retirement state, generated data, public output, secrets, or investment advice unless the main prompt explicitly requests them.
 
 ## North Star Phase Addendum
 
@@ -56,8 +56,8 @@ Read docs/investment_cycle_product_doctrine.md and specs/common/investment_cycle
 Read docs/phase_execution_standing_contract.md and specs/common/phase_execution_standing_contract.yaml.
 Treat the mature product as current_declared_cycle_phase + ordered cycle state machine + phase-specific transition monitor + evidence explanation + portfolio policy research template + historical replay/backtest.
 Do not add standalone current phase classifier, phase rank/winner, role-count voting selector, arbitrary phase score, or isolated candidate phase classifier.
-Read docs/legacy_production_v1_boundary.md and specs/common/legacy_production_v1_boundary.yaml when touching phase scoring, resolver, state-machine, pipeline, snapshot, Pages workflow, or dashboard output.
-Treat production v1 phase scoring, resolver, pipeline, and Pages output as legacy baseline compatibility unless the prompt explicitly opens a migration gate.
+Read docs/legacy_production_v1_boundary.md and specs/common/legacy_production_v1_boundary.yaml when touching phase scoring, resolver, state-machine, pipeline, snapshot, retired Pages workflow state, or dashboard output.
+Treat production v1 phase scoring, resolver, pipeline, and old static output as legacy baseline compatibility unless the prompt explicitly opens a migration gate.
 Do not present legacy phase scores, ranked outputs, selected phase, or resolver output as the mature product answer.
 Candidate phase must mean legal transition candidate, never isolated classifier winner.
 Portfolio template weights are research assumptions, not personalized live trading instructions. Research-only allocation templates are allowed when clearly labeled and separated from execution.

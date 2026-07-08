@@ -962,7 +962,7 @@ def _lineage_page(bundle: dict[str, Any]) -> str:
         <li>階段證據輸出與研究判讀 artifacts</li>
         <li>離線驗證標籤分組與比較 artifacts</li>
         <li>歷史研究 metric registry rows</li>
-        <li>GitHub Pages research dashboard bundle</li>
+        <li>NAS dynamic research dashboard bundle</li>
       </ol>
     </section>
     <section class="panel two-column">
@@ -1318,7 +1318,7 @@ def _research_dashboard_production_readiness_rehearsal_section(
         <h2>Research dashboard migration 演練</h2>
         <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">本面板演練 dashboard migration 邊界、renderer caveat、rollback checklist 與 production 隔離；不接 resolver、legacy state machine、portfolio allocation、Pages 發布或目前階段推論。</p>
+      <p class="muted">本面板演練 dashboard migration 邊界、renderer caveat、rollback checklist 與 production 隔離；不接 resolver、legacy state machine、portfolio allocation、公開發布或目前階段推論。</p>
       <div class="status-strip" data-production-boundary-drill>
         <span>僅 migration 演練</span>
         <span>renderer caveats 可見</span>
@@ -2348,7 +2348,7 @@ def _portfolio_replay_page(bundle: dict[str, Any]) -> str:
         <span>尚未計算 metric 值</span>
         <span>回測執行停用</span>
         <span>保留已宣告階段</span>
-        <span>僅本機/Pages 研究 dashboard</span>
+        <span>僅本機/NAS 研究 dashboard</span>
       </div>
       <div class="metric-grid">
         {_metric_card("Artifacts", surface["research_backtest_artifact_count"], "scenario x data mode")}

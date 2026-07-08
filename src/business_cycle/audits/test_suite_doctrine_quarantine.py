@@ -32,7 +32,8 @@ DEFAULT_PRODUCT_CORE_TEST_FILES = frozenset(
     (
         "tests/test_ci_safety_scans.py",
         "tests/test_ci_workflows.py",
-        "tests/test_github_pages_workflow.py",
+        "tests/test_github_pages_retirement.py",
+        "tests/test_phase90_nas_dynamic_service_architecture_closure.py",
         "tests/test_product_doctrine_enforcement.py",
         "tests/test_test_suite_doctrine_quarantine.py",
         "tests/test_test_suite_reduction_plan.py",

@@ -35,7 +35,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "monotonic by default" in summary["progress_semantics"]
     assert (
         summary["phase_label"]
-        == "github_pages_research_dashboard_migration"
+        == "nas_dynamic_service_architecture_pages_retired"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

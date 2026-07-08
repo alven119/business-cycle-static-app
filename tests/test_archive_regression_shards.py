@@ -27,7 +27,7 @@ def test_archive_regression_shard_plan_passes() -> None:
     assert summary["phase_closure_shard_test_file_count"] > 0
     assert summary["nightly_matrix_ready"] is True
     assert summary["nightly_shard_count"] == 8
-    assert summary["default_product_core_test_file_count"] == 29
+    assert summary["default_product_core_test_file_count"] == 30
     assert summary["live_optional_excluded_from_shards"] is True
     assert summary["semantic_drift_count"] == 0
     assert summary["production_behavior_change_count"] == 0

@@ -1,0 +1,119 @@
+nas_dynamic_service_contract:
+  version: "1.0"
+  status: active
+  phase_id: 90
+  phase_label: nas_dynamic_service_architecture_pages_retired
+  service_target:
+    platform: synology_ds925_plus
+    deployment_shape: private_dynamic_research_service
+    primary_user_access: private_mobile_access
+    external_access_model: tailscale_or_vpn_first
+    public_internet_exposure_default: false
+  runtime_stack:
+    web_service:
+      planned_framework: fastapi
+      renderer: jinja_or_htmx_first
+      frontend_database_access_allowed: false
+      frontend_api_key_allowed: false
+      current_phase_classifier_allowed: false
+    database:
+      engine: postgres
+      pit_schema_required_from_start: true
+      revised_data_backfill_priority: complete_first
+      vintage_data_backfill_priority: incremental_after_revised
+      direct_dashboard_db_reads_allowed: true
+      schema_migration_required_before_runtime_writes: true
+    refresh_worker:
+      language: python
+      scheduled_refresh_allowed_after_explicit_gate: true
+      default_mode_before_gate: manual_or_dry_run
+      credentials_source: environment_or_container_secret
+      credentials_committed_allowed: false
+    reverse_proxy:
+      preferred: synology_reverse_proxy_or_container_proxy
+      tls_required_for_non_vpn_access: true
+      public_access_requires_future_gate: true
+  data_warehouse_policy:
+    tables_planned:
+      - series_registry
+      - observation_revised
+      - observation_vintage
+      - release_calendar
+      - source_artifact
+      - indicator_value_snapshot
+      - evidence_snapshot
+      - dashboard_snapshot
+      - backtest_run
+      - backtest_result
+      - portfolio_policy_run
+    pit_support_policy:
+      point_in_time_columns_required: true
+      vintage_interval_columns_required: true
+      release_timestamp_required: true
+      source_artifact_hash_required: true
+      no_revised_as_point_in_time_claim: true
+    backfill_plan:
+      revised_complete_first: true
+      vintage_incremental_followup_required: true
+      missing_vintage_must_abstain_or_label_revised_diagnostic: true
+      future_phase_for_revised_backfill: 92
+      future_phase_for_vintage_backfill: 93
+  github_pages_retirement_policy:
+    github_pages_deployment_enabled: false
+    pages_workflow_required_absent: true
+    pages_actions_required_absent_from_ci: true
+    github_repository_retained_for_code_and_ci: true
+    public_directory_remains_generated_output_only: true
+    legacy_static_renderers_may_be_reused_as_nas_ui_sources: true
+    github_pages_docs_required_retired: true
+  dashboard_product_policy:
+    primary_dashboard_target: nas_dynamic_service
+    dashboard_must_show_declared_state: true
+    dashboard_must_show_legal_next_transition: true
+    indicator_detail_ytd_1y_5y_required_future_phase: true
+    historical_replay_first_before_portfolio_backtest_ux: true
+    no_phase_score_rank_winner_product_answer: true
+    no_candidate_or_current_phase_emission: true
+  safety_policy:
+    no_trade_action: true
+    no_personalized_live_allocation_instruction: true
+    no_secrets_in_repo: true
+    no_public_raw_data: true
+    no_data_backtests_write_in_tests: true
+    no_data_prospective_write_in_tests: true
+    no_fred_network_dependency_in_tests: true
+  product_capabilities_advanced:
+    - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+    - C2_TRANSITION_RISK_DETECTION
+    - C3_EXPLAINABILITY_AND_ATTRIBUTION
+    - C4_PORTFOLIO_POLICY_RESEARCH
+    - C5_HISTORICAL_REPLAY_AND_BACKTEST
+    - C6_SAFE_OUTPUT_GOVERNANCE
+    - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+    - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+  web_surfaces_advanced:
+    - W1_OVERVIEW
+    - W3_TRANSITION_RISK
+    - W4_INDICATOR_EXPLORER
+    - W6_HISTORICAL_REPLAY
+    - W8_BACKTEST_RESEARCH
+    - W9_PORTFOLIO_POLICY_RESEARCH
+    - W15_SYSTEM_OPERATIONS
+  hard_gates:
+    nas_dynamic_service_contract_ready: true
+    github_pages_deployment_retired: true
+    pages_workflow_present: false
+    pages_action_reference_count: 0
+    dynamic_service_runtime_planned: true
+    private_mobile_access_model: tailscale_or_vpn_first
+    postgres_pit_schema_planned: true
+    revised_first_backfill_policy_present: true
+    vintage_backfill_plan_present: true
+    public_internet_exposure_default: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 91

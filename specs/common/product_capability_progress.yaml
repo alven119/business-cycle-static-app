@@ -9,8 +9,8 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: "89B"
-  phase_label: github_pages_research_dashboard_migration
+  phase_id: "90"
+  phase_label: nas_dynamic_service_architecture_pages_retired
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
@@ -18,12 +18,12 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase89B 將 GitHub Pages 部署入口從 legacy dashboard 切到 declared-state research dashboard，讓 declared phase、legal next transition、latest evidence 與 trend drilldown 可在部署頁面呈現；不新增 standalone classifier。
+      phase_impact_zh: Phase90 將 NAS dynamic service 部署入口從 legacy dashboard 切到 declared-state research dashboard，讓 declared phase、legal next transition、latest evidence 與 trend drilldown 可在動態服務介面呈現；不新增 standalone classifier。
       current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、latest evidence HTML page、YTD/1Y/5Y chart payload、transition timing replay preview、transition risk evidence accumulation view、declared phase-start handoff、37-role numeric/chart coverage、dashboard method explanation、local current cache bridge、Phase77 policy replay schedule contract、Phase78 cash-flow kernel contract、Phase79 strict/revised replay runner preview、Phase80 research-only backtest artifacts、Phase81 portfolio/replay dashboard surface、Phase82 replay/backtest lineage hardening、Phase83 indicator trend drilldown navigation、Phase84 dashboard decision explanation，以及 Phase85 current data refresh UX。
       remaining_gap_zh: 還需要使用者提供並確認 declared boom 精確起始日或區間，補 transition confirmation 條件，並把 local cache refresh 操作流程與後續 portfolio/replay surfaces 完整化。
       completed_summary_zh: 已完成 declared cycle state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、39-role indicator detail cards、boom-to-recession transition surface、四個合法 transition lane templates、資料新鮮度/發布時點/目前值連續性 surface、24 個 major-group readiness profiles、dashboard drill-down artifact、latest evidence HTML page、診斷方法/圖表 payload、transition timing replay preview、transition risk evidence accumulation view、phase-start confirmation/gate handoff、37-role current numeric/chart coverage、dashboard method recipe explanation、每個指標高低分解讀、explicit local current cache bridge、research backtest kernel 對 declared state 的使用邊界、strict/revised replay row 對 declared state 的隔離、backtest artifacts 對 declared-state provenance 的隔離、dashboard research surface 對 artifacts 的展示邊界、可從指標卡點入 YTD/1Y/5Y 趨勢圖、dashboard decision explanation 敘事面板，以及 current data refresh UX。
       incomplete_summary_zh: 尚未完成使用者確認的 declared boom 起始日或起始區間 canonical registry 寫入、formal current/candidate phase gate、授權私有資料讀取、transition confirmation 操作規則與正式遷移。
-      next_gap_zh: Phase89 補 historical replay execution 與 transition attribution，並確認 Pages artifact 持續呈現 declared-state 語意。
+      next_gap_zh: Phase91 補 historical replay execution 與 transition attribution，並確認 NAS service UI 持續呈現 declared-state 語意。
       decrease_reason_zh:
     - capability_id: C2_TRANSITION_RISK_DETECTION
       title_zh: 轉折風險偵測能力
@@ -31,12 +31,12 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase89B 將 transition risk evidence accumulation 與 watch/confirmation 分離的研究頁面納入 GitHub Pages artifact，讓部署頁面能看見轉折風險脈絡。
+      phase_impact_zh: Phase90 將 transition risk evidence accumulation 與 watch/confirmation 分離的研究頁面納入 NAS dynamic service artifact，讓動態服務介面能看見轉折風險脈絡。
       current_status_zh: 已有 boom transition monitor、boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page、transition role chart payload、transition timing replay preview、transition risk evidence accumulation view、tmp numeric overlay 驗證、phase-start confirmation panel、37-role current numeric/chart coverage、method recipe explanation、local current cache bridge、Phase77 transition-aware policy replay schedule、Phase78 cash-flow kernel 契約、Phase79 historical replay runner preview、Phase80 research-only backtest artifacts、Phase81 portfolio/replay dashboard surface、Phase82 replay/backtest lineage hardening、Phase83 role-level trend drilldown、Phase84 decision explanation polish，以及 Phase85 refresh UX。
       remaining_gap_zh: 需要使用者確認 phase-age context、turning-point confirmation rules、授權私有來源讀取，以及將 local cache values/charts 連到更完整的 release accumulation timeline。
       completed_summary_zh: 已完成 legal next transition surface、boom transition monitor、boom-to-recession 四 lane completion、data-risk labeling、官方來源定位、value/context wiring、coverage burn-down view、indicator detail cards、全循環 legal transition templates、freshness/release/value continuity explanation、major-group transition readiness explanation、role-level drill-down、dashboard wiring、YTD/1Y/5Y chart payload contract、37-role chart coverage rehearsal、transition method recipe explanation、local cache bridge、transition-aware policy replay schedule、cash-flow kernel 的 transition input 邊界、historical replay runner 的 transition timing dependency、backtest artifact 的 transition provenance、dashboard surface 中的 replay/backtest lineage drill-down、role-level trend target navigation，以及 transition risk evidence accumulation view。
       incomplete_summary_zh: 尚未完成 governed phase-age canonical context、turning-point confirmation rules、授權私有來源讀取與 actual release accumulation。
-      next_gap_zh: Phase89 補 transition timing attribution 的 strict/revised replay drilldown，並延伸到 Pages 可見的 scenario traceability。
+      next_gap_zh: Phase91 補 transition timing attribution 的 strict/revised replay drilldown，並延伸到 NAS service 可見的 scenario traceability。
       decrease_reason_zh:
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
       title_zh: 解釋能力
@@ -44,12 +44,12 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase89B 將 indicator drilldown、方法解釋、YTD/1Y/5Y chart payload、portfolio replay surface 與 caveats 接到 GitHub Pages，使解釋能力從本地 artifact 變成部署可見。
+      phase_impact_zh: Phase90 將 indicator drilldown、方法解釋、YTD/1Y/5Y chart payload、portfolio replay surface 與 caveats 接到 NAS dynamic service，使解釋能力從本地 artifact 變成部署可見。
       current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition timing replay preview、transition risk evidence accumulation view、numeric overlay 驗證、phase-start confirmation panel、registry update gate handoff、37-role numeric/chart coverage、method recipe explanation、每個指標分數高低解讀、local current cache bridge、policy replay schedule、cash-flow kernel contract、historical replay runner rows、research-only backtest artifacts、portfolio/replay dashboard surface、replay/backtest lineage hardening、Phase83 trend chart drilldown、Phase84 decision explanation 與 Phase85 refresh UX 已能形成 research surface 說明鏈。
       remaining_gap_zh: 解釋能力本身已達目前 production usability 目標；剩餘缺口主要屬 dashboard narrative polish、授權私有來源、confirmed phase-age context、actual release accumulation 與 migration rehearsal。
       completed_summary_zh: 已完成指標意涵、來源身份、替代程度、data-risk labels、why-not-formal、lineage、value/freshness/release context、39-role detail cards、transition lane attribution、freshness/release/value continuity gap explanation、24 個 major-group attribution profiles、dashboard-to-role drill-down、actual HTML wiring、診斷方法透明度、YTD/1Y/5Y chart payload、transition evidence accumulation preview、transition risk accumulation dashboard section、declared start confirmation explanation panel、registry update gate handoff、37-role current numeric/chart coverage、每個 dashboard 指標方法的配方與高低分說明、local current cache bridge、cash-flow kernel 假設/禁止輸出/lineage 說明、replay row data-mode/abstention/lineage 說明、backtest artifact input hash/provenance/caveat 說明、dashboard portfolio/replay surface 的 artifact drill-down，以及指標卡到趨勢圖的直接導覽。
       incomplete_summary_zh: 尚未完成授權私有來源讀取、confirmed phase-age canonical context、actual release accumulation、portfolio/replay surface 完整化與正式 migration gate。
-      next_gap_zh: Phase89 補 historical replay execution 與 attribution 的資料模式 drilldown，並維持 Pages 文案一致。
+      next_gap_zh: Phase91 補 historical replay execution 與 attribution 的資料模式 drilldown，並維持 NAS service 文案一致。
       decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
@@ -57,12 +57,12 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase89B 將 portfolio replay 與 portfolio policy research surface 納入 GitHub Pages artifact，讓 8 個研究性 allocation templates 可在部署頁面檢視；仍禁止個人化 live trading instruction。
+      phase_impact_zh: Phase90 將 portfolio replay 與 portfolio policy research surface 納入 NAS dynamic service artifact，讓 8 個研究性 allocation templates 可在動態服務介面檢視；仍禁止個人化 live trading instruction。
       current_status_zh: 已有 portfolio research 安全邊界、非投資建議定位、8-template baseline contract、八個合法 template fixtures、非法 fixture regression、禁止個人化目前配置/交易行動/live allocation 的 validator、八個 template 對應的 replay schedule contract、cash-flow-aware backtest kernel contract、historical replay runner dependency rows、10 個 research-only backtest artifacts、Phase81 portfolio/replay research dashboard surface、Phase82 lineage hardening、Phase88 portfolio policy replay research surface，以及 Phase89A research allocation template wording alignment；policy research surface 已達目前正式產品研究頁所需。
       remaining_gap_zh: Portfolio policy research 能力本身已達目前 production usability 目標；actual total-return backtest、computed performance values 與 comparison attribution 歸屬 C5 historical replay/backtest 後續能力。
       completed_summary_zh: 已完成 portfolio policy research 的基本安全邊界、非投資建議定位、Phase75 8-template baseline、Phase76 可驗證 template fixtures/validator、Phase77 replay schedule contract、Phase78 cash-flow-aware kernel contract、Phase79 replay runner policy/kernel dependency、Phase80 research-only backtest artifact bundle、Phase81 dashboard research surface 呈現、Phase82 replay/backtest lineage hardening、Phase88 dashboard-visible template catalog / replay matrix / cost-turnover / scenario coverage / caveat panel，以及 Phase89A research allocation template wording alignment。
       incomplete_summary_zh: Portfolio policy research surface 已完成；尚未完成的 actual total-return backtest、computed values 與 attribution 轉列為 C5 historical replay/backtest 缺口。
-      next_gap_zh: Phase89/90 補 C5 historical replay/backtest execution、attribution 與 computed research artifact；C4 在 Pages 上維持 no-personalized-live-instruction gate。
+      next_gap_zh: Phase91/92 補 C5 historical replay/backtest execution、attribution 與 computed research artifact；C4 在 NAS service 上維持 no-personalized-live-instruction gate。
       decrease_reason_zh:
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
       title_zh: 歷史重播與回測能力
@@ -70,12 +70,12 @@ product_capability_progress:
       current_progress_percent: 95
       phase_delta_percent: 2
       phase_impacted: true
-      phase_impact_zh: Phase89B 將 replay/backtest research surface 與 portfolio replay page 接入 GitHub Pages artifact；仍不執行新的 replay/backtest，也不計算績效值。
+      phase_impact_zh: Phase90 將 replay/backtest research surface 與 portfolio replay page 接入 NAS dynamic service artifact；仍不執行新的 replay/backtest，也不計算績效值。
       current_status_zh: 歷史 validation/research artifacts 已有，Phase67 補上 transition timing replay preview，Phase68 補上 explicit numeric overlay 路徑；Phase75-82 已完成 template fixture、replay schedule contract、cash-flow-aware kernel contract、strict/revised replay runner preview、research-only backtest artifact bundle、dashboard replay/backtest surface 與 replay/backtest lineage hardening。
       remaining_gap_zh: 需要 actual total-return input mapping、computed research result values、strict PIT replay execution、migration rehearsal 與 renderer caveat hardening。
       completed_summary_zh: 已完成 research-only validation artifact chain、label comparison、coverage/accuracy research artifacts、safety gates、policy template fixtures、policy replay schedule contract、cash-flow-aware kernel contract、strict/revised historical replay runner preview、research-only backtest artifacts、dashboard replay/backtest surface，以及 replay/backtest source/input hash hardening。
       incomplete_summary_zh: 尚未完成 strict point-in-time replay execution、actual transition timing replay data、total-return computed artifacts、portfolio performance research 與 migration rehearsal。
-      next_gap_zh: Phase89 補 historical replay execution、transition attribution、strict/revised drilldown 與 computed research artifact。
+      next_gap_zh: Phase91 補 historical replay execution、transition attribution、strict/revised drilldown 與 computed research artifact。
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
@@ -83,12 +83,12 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase89B 新增 Pages research dashboard validator，檢查 GitHub Pages artifact 必須含 latest-evidence、portfolio-replay、chart controls、research allocation templates，且不能含 forbidden action fields。
+      phase_impact_zh: Phase90 新增 NAS dynamic service architecture gate，檢查 NAS dynamic service artifact 必須含 latest-evidence、portfolio-replay、chart controls、research allocation templates，且不能含 forbidden action fields。
       current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates、chart/method transparency gates、timing preview gates、transition risk accumulation gates、CI efficiency gates、test-index gates、phase-start confirmation/update gates、numeric/chart coverage gates、method explanation gates、local current cache bridge gates、portfolio baseline/template forbidden-output gates、policy replay schedule gates、cash-flow kernel gates、historical replay runner gates、research-only backtest artifact gates、Phase81 dashboard surface gates、Phase82 replay/backtest lineage gates、Phase83 trend drilldown gates、Phase84 decision explanation gates 與 Phase85 refresh UX gates 持續運作。
       remaining_gap_zh: 需要把相同 forbidden-field 契約套用到 canonical write gate、actual transition accumulation、portfolio replay surface 與後續 computed replay/backtest artifacts。
       completed_summary_zh: 已完成 safety scans、closure checks、forbidden output policy、production isolation、no-silent-substitution gates、產品進度 monotonic rule、coverage matrix、indicator detail hard gates、transition completion hard gates、full-cycle template hard gates、continuity hard gates、major-group readiness hard gates、drill-down hard gates、latest evidence dashboard hard gates、chart/method transparency hard gates、timing replay preview hard gates、transition risk accumulation hard gates、CI test-efficiency hard gates、測項索引 hard gates、phase-start confirmation/update hard gates、numeric/chart coverage hard gates、dashboard method explanation hard gates、score interpretation hard gate、local current cache bridge hard gates、policy replay schedule forbidden-output gates、cash-flow kernel forbidden-output gates、historical replay runner forbidden-output gates、research-only backtest artifact forbidden-output gates、portfolio/replay dashboard forbidden-output gates、replay/backtest lineage/no-silent-fallback gates，以及 dashboard decision explanation forbidden-output gates。
       incomplete_summary_zh: 尚未把 actual release accumulation、canonical write gate、computed replay/backtest values 與 portfolio replay surface 統一納入相同 forbidden-field、source-risk、actual-value、continuity、chart payload、method explanation、lineage hardening 與 progress reporting 契約。
-      next_gap_zh: Phase89/90 將相同 forbidden-field 與 no-advice gates 套到 replay/backtest execution、computed research artifacts 與 Pages drilldown。
+      next_gap_zh: Phase91/92 將相同 forbidden-field 與 no-advice gates 套到 replay/backtest execution、computed research artifacts 與 NAS service drilldown。
       decrease_reason_zh:
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       title_zh: 時間完整性與 abstention
@@ -96,12 +96,12 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase89B 讓 GitHub Pages artifact 顯示 data-mode、freshness、chart availability 與 missing/execution abstention caveats；不以部署頁面填補缺失資料。
+      phase_impact_zh: Phase90 讓 NAS dynamic service artifact 顯示 data-mode、freshness、chart availability 與 missing/execution abstention caveats；不以動態服務介面填補缺失資料。
       current_status_zh: release metadata、value context、alignment status、revised/PIT 分層、缺口 abstention 邊界、coverage gap classification、detail-card freshness context、transition-lane abstention context、全循環 template abstention semantics、continuity gap explanation、major-group abstention explanation、role-level drill-down、latest evidence HTML、chart unavailable policy、numeric overlay data-mode caveat、phase-start confirmation caveat、registry preview false-precision guard、tmp registry update gate、fixture/current-cache chart mode、explicit local current cache bridge、replay/backtest data-mode 路線、policy replay schedule、cash-flow timing policy、strict/revised replay rows、backtest artifact abstention metadata、dashboard replay/backtest caveats、Phase82 no-silent-fallback lineage gates、Phase84 missing-evidence explanation 與 Phase85 refresh UX 已清楚。
       remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance、真實 numeric current cache display、使用者確認的 phase-age context、actual transition replay/backtest data、migration rehearsal 與正式 canonical registry write gate。
       completed_summary_zh: 已完成 release metadata、data mode caveat、revised/current 與 point-in-time 區分、missing/stale abstention、value context、alignment visibility、proxy abstention 邊界、coverage classification、indicator detail freshness context、transition-lane freshness context、全循環 transition template abstention semantics、continuity gap explanation、major-group abstention explanation、role/source/provenance drill-down、HTML 呈現、YTD/1Y/5Y chart payload unavailable policy、phase-start false-precision caveat、registry preview age/range guard、tmp registry update phase-age rehearsal、fixture/current-cache chart mode guard、cash-flow timing/missing-series abstention contract、strict/revised replay runner data-mode separation、backtest artifact abstention metadata、dashboard surface 中的 caveat 呈現、replay/backtest no-silent-fallback hardening、dashboard decision explanation 的 missing-evidence/why-not-formal panel，以及 Phase85 current data refresh UX。
       incomplete_summary_zh: 尚未完成完整 exact-vintage cache、PIT backfill、所有 historical scenario 的 vintage availability、authorized private input provenance、actual release accumulation、confirmed phase-age context 與 canonical registry write。
-      next_gap_zh: Phase89 補 historical replay execution 的 PIT/revised drilldown，並在 Pages 上清楚標示 data-mode。
+      next_gap_zh: Phase91 補 historical replay execution 的 PIT/revised drilldown，並在 NAS service 上清楚標示 data-mode。
       decrease_reason_zh:
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       title_zh: 模型治理與前瞻驗證
@@ -109,12 +109,12 @@ product_capability_progress:
       current_progress_percent: 99
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase89B 將 GitHub Pages deployment workflow 從 legacy v1 inventory 移到已授權 research dashboard migration path，並用 validator/legacy-boundary tests 保持 prospective registry、candidate/current phase 與 legacy v1 邊界隔離。
+      phase_impact_zh: Phase90 將 NAS dynamic service deployment workflow 從 legacy v1 inventory 移到已授權 research dashboard migration path，並用 validator/legacy-boundary tests 保持 prospective registry、candidate/current phase 與 legacy v1 邊界隔離。
       current_status_zh: freeze/closure/prospective governance 持續隔離，prospective registry 未啟動；Phase75-88 已把 portfolio template fixtures、replay schedule、cash-flow kernel、historical replay runner、research-only backtest artifacts、dashboard surface、replay/backtest lineage hardening、indicator trend drilldown、dashboard decision explanation、current data refresh UX、transition risk evidence accumulation view、migration rehearsal 與 portfolio policy replay research surface 納入 closure。
       remaining_gap_zh: 未來仍需前瞻驗證資料累積、explicit migration gate、computed replay/backtest artifact lineage、historical replay production migration review 與 book-fidelity migration。
       completed_summary_zh: 已完成 freeze lineage、closure gates、prospective registry isolation、no-result-peeking governance、portfolio template fixture closure、policy replay schedule closure、cash-flow kernel closure、historical replay runner closure、research-only backtest artifact closure、portfolio/replay dashboard closure、replay/backtest lineage hardening closure、indicator trend drilldown closure、dashboard decision explanation closure、current data refresh UX closure、transition risk evidence accumulation closure、research dashboard migration rehearsal closure 與 portfolio policy replay research surface closure。
       incomplete_summary_zh: 尚未完成前瞻資料累積、economic validation、holdout/migration gate、computed replay/backtest artifact lineage 與 book-fidelity migration。
-      next_gap_zh: Phase89 依 100% 路線補 historical replay execution and attribution completion，並保留 rollback/documentation parity。
+      next_gap_zh: Phase91 依 100% 路線補 historical replay execution and attribution completion，並保留 rollback/documentation parity。
       decrease_reason_zh:
   hard_gates:
     product_capability_progress_ready: true

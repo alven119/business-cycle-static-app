@@ -4,15 +4,26 @@
 
 重要限制：若正式 production 定義包含未來前瞻經濟驗證，該 gate 仍受日曆與 prospective evidence 限制，不能用工程 phase 繞過。
 
+## Phase 90 supersession note
+
+Phase 90 之後，GitHub Pages 不再是 product deployment target。下表保留
+Phase 87-89A 的能力收斂紀錄，但 Phase 89B 之後的部署路線已由
+`docs/nas_dynamic_service_architecture.md` 與
+`specs/common/nas_dynamic_service_contract.yaml` 接手。新的後續重點是：
+
+- Phase 91：PIT-ready Postgres schema。
+- Phase 92：revised macro data completeness。
+- Phase 93：vintage/PIT backfill。
+- Phase 94+：NAS dynamic dashboard runtime。
+
 | Phase | 主題 | 主要補齊能力 |
 |---|---|---|
 | 87 | Research dashboard production-readiness rehearsal | 已完成 migration rehearsal、renderer caveats、rollback checklist、production boundary drill |
 | 88 | Portfolio policy replay research surface completion | 已完成 policy templates、costs、turnover、research-only caveats、no-advice validators |
 | 89A | Portfolio policy wording and research allocation template alignment | 已完成 research-only allocation template wording、no personalized trading instruction guard、dashboard token 與 closure wiring |
-| 89B | GitHub Pages research dashboard migration | 已完成 Pages workflow 從 legacy dashboard 切到 research dashboard builder/validator，部署 artifact 包含 latest evidence、trend drilldown 與 portfolio replay pages |
-| 89 | Historical replay execution and attribution completion | strict/revised replay、transition timing attribution、missing-data abstention、scenario traceability |
-| 90 | Research backtest and policy artifact completion | cash-flow-aware research artifacts、policy comparison caveats、dashboard drilldown |
-| 91 | Final research-production migration readiness seal | migration readiness seal、rollback proof、documentation parity、dashboard acceptance bundle |
+| 89B | Research dashboard migration record | 已完成 research dashboard artifact migration；Phase 90 已改以 NAS dynamic service 取代 Pages 作為部署方向 |
+| 90 | NAS dynamic service architecture and Pages retirement | Pages workflow 退場、FastAPI/Postgres/Tailscale-first 架構立約、revised-first/vintage-followup 資料路線入檔 |
+| 91 | PIT-ready Postgres warehouse | 建立 schema 與 migration scaffolding，不要求 default test 連線真實 DB |
 
 能力目標：
 

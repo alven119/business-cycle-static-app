@@ -1,0 +1,33 @@
+phase90_nas_dynamic_service_architecture_closure:
+  phase_id: 90
+  phase_label: nas_dynamic_service_architecture_pages_retired
+  closure_status: closed_pages_retired_nas_dynamic_service_architecture_ready
+  hard_gates:
+    phase90_closure_ready: true
+    nas_dynamic_service_contract_ready: true
+    github_pages_deployment_retired: true
+    pages_workflow_present: false
+    pages_action_reference_count: 0
+    github_repo_retained_for_code_and_ci: true
+    dynamic_service_runtime_planned: true
+    planned_web_framework: fastapi
+    private_mobile_access_model: tailscale_or_vpn_first
+    postgres_pit_schema_planned: true
+    revised_first_backfill_policy_present: true
+    vintage_backfill_plan_present: true
+    public_internet_exposure_default: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    raw_book_pdf_tracked_count: 0
+    tracked_data_raw_file_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_nas_service_architecture_only
+    portfolio_policy_research_alignment: research_templates_preserved_no_live_instruction
+    historical_replay_backtest_alignment: historical_replay_first_before_portfolio_backtest_ux
+    development_next_phase: 91

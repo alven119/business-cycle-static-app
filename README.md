@@ -1,13 +1,13 @@
-# Business Cycle Static App
+# Business Cycle Research Service
 
-Python-first static dashboard for business-cycle investing.
+Python-first research service for business-cycle investing.
 
-This repository now supports a doctrine-aligned research dashboard for GitHub
-Pages. The mature path uses a declared cycle state, legal ordered transition
-monitoring, indicator-level explanations, research-only portfolio policy
-templates, and historical replay/backtest research surfaces. Legacy scoring and
-snapshot tools remain available as compatibility baselines, but they are not the
-GitHub Pages product answer.
+The product direction is now a private NAS-hosted dynamic research service. The
+mature path uses a declared cycle state, legal ordered transition monitoring,
+indicator-level explanations, research-only portfolio policy templates, and
+historical replay/backtest research surfaces. GitHub Pages deployment has been
+retired; the GitHub repository may remain as source control and CI during the
+NAS migration, but it is no longer the user-facing deployment target.
 
 ## Current structure
 
@@ -23,14 +23,17 @@ GitHub Pages product answer.
 - `specs/common/current_cycle_context.yaml`: current external baseline context; default is `榮景期第一年剛結束`.
 - `scripts/update_data.py`: CLI for updating raw FRED CSV cache.
 - `scripts/score_today.py`: CLI skeleton for scoring.
-- `scripts/build_github_pages_research_dashboard.py`: GitHub Pages research dashboard builder.
+- `scripts/serve_research_validation_dashboard.py`: local research dashboard preview helper.
 - `scripts/build_site.py`: legacy static site generation helper retained for compatibility.
 - `tests/test_project_imports.py`: package import smoke test.
 
 ## Design constraints
 
-- No database in the MVP skeleton.
-- No frontend framework in Phase 0A.
+- First NAS service target: FastAPI-style Python web service, Postgres, and a
+  private mobile access path such as Tailscale or VPN.
+- Postgres schema planning must support point-in-time/vintage data from the
+  start, even if the first data-completeness sprint fills revised data first.
+- Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
 - Future scoring must use trend, momentum, reversal, percentile, persistence, coverage, and confidence rules.
@@ -234,7 +237,8 @@ python scripts/build_site.py
 python scripts/validate_generated_site.py
 ```
 
-For GitHub Pages deployment checks and iPhone Safari QA, see `docs/deployment_validation.md`.
+GitHub Pages deployment has been retired. Future mobile QA should target the
+private NAS dynamic service over the governed private access path.
 
 ## Phase 6A backtest scenario specs
 
@@ -1423,15 +1427,15 @@ docs/prompt_templates.md
 
 The workflow requires implementation, tests, domain command execution, JSON/stdout inspection, hard-gate comparison, repair, and rerun until all hard gates pass or a real blocker is reached. It does not change formal scoring, resolver logic, FRED provider behavior, dashboard output, or GitHub Pages workflow.
 
-## Phase 5B GitHub Pages deployment
+## Retired GitHub Pages deployment
 
-Phase 5B originally added the GitHub Actions workflow at
-`.github/workflows/pages.yml`. The workflow now deploys the doctrine-aligned
-research dashboard, not the legacy `cycle_snapshot` homepage. Local generated
-output under `public/` remains ignored and is not committed; GitHub Pages is
-deployed from the CI-generated `public` artifact.
+GitHub Pages deployment is retired as of Phase 90. The repository keeps CI and
+source-control workflows, but no workflow may configure, upload, or deploy
+GitHub Pages artifacts. Local generated output under `public/` remains ignored
+and must not be committed.
 
-See `docs/github_pages_deployment.md` for setup and troubleshooting.
+The new deployment path is a private NAS dynamic service with Postgres-backed
+data and a private mobile access model.
 
 ## Next steps
 
