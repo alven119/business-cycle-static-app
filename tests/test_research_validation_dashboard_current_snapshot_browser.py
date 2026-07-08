@@ -33,17 +33,17 @@ def test_current_snapshot_dashboard_view_renders_without_forbidden_outputs(tmp_p
     assert result["prohibited_action_field_count"] == 0
     assert bundle["dashboard_view_count"] >= 8
     assert 'data-dashboard-view="current_research_snapshot"' in html
-    assert "RESEARCH ONLY" in html
-    assert "Fresh enough" in html
-    assert "Data Refresh / Source Freshness" in html
-    assert "Current Phase Evidence Profile" in html
+    assert "研究用途" in html
+    assert "新鮮度足夠" in html
+    assert "資料更新與來源新鮮度" in html
+    assert "目前階段證據剖面" in html
     assert 'data-phase-profile-card="recovery"' in html
     assert 'data-phase-profile-card="growth"' in html
     assert 'data-phase-profile-card="boom"' in html
     assert 'data-phase-profile-card="recession"' in html
-    assert "Why not formal" in html
-    assert "watch != confirmation" in html
-    assert "Decision readiness blockers" in html
+    assert "為什麼尚非正式判讀" in html
+    assert "watch 不等於 confirmation" in html
+    assert "判讀 readiness blockers" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 
@@ -93,6 +93,6 @@ def test_current_snapshot_dashboard_view_shows_phase40_refresh_metadata(tmp_path
     assert "data-refresh-mode" in html
     assert "live_fetch_disabled_by_cli" in html
     assert manifest["manifest_hash"] in html
-    assert "Source mode" in html
+    assert "來源模式" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html

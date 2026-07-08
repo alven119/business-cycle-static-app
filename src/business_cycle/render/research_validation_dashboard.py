@@ -35,6 +35,262 @@ PROHIBITED_ACTION_FIELDS = (
     "current_allocation_recommendation",
     "guaranteed_return",
 )
+PHASE_LABEL_ZH = {
+    "recession": "衰退期",
+    "recovery": "復甦期",
+    "growth": "成長期",
+    "boom": "榮景期",
+}
+DISPLAY_TEXT_ZH = {
+    "Research Validation Dashboard": "景氣循環研究儀表板",
+    "Research Overview": "研究總覽",
+    "Historical Scenarios": "歷史情境",
+    "Validation Results": "驗證結果",
+    "Evidence Explorer": "證據總覽",
+    "Data Lineage / Governance": "資料血緣與治理",
+    "PIT Gap View": "Point-in-time 缺口",
+    "Current Research Snapshot": "目前研究快照",
+    "Declared Boom Transition Monitor": "已宣告榮景期轉折監測",
+    "Latest Evidence / Indicator Drilldown": "最新證據與指標細節",
+    "Latest Evidence Drilldown": "最新證據與指標細節",
+    "Portfolio / Replay Research Surface": "Portfolio policy 與歷史重播研究",
+    "Portfolio Replay Research": "Portfolio policy 與歷史重播研究",
+    "Portfolio Policy Replay Research Surface": "Portfolio policy replay 研究",
+    "RESEARCH ONLY": "研究用途",
+    "research-only": "研究用途",
+    "validation-only": "驗證用途",
+    "not production": "非正式 production",
+    "not investment advice": "不構成投資建議",
+    "candidate/current outputs disabled": "不輸出候選階段或目前階段",
+    "candidate output disabled": "不輸出候選階段",
+    "current output disabled": "不輸出目前階段",
+    "economic performance not computed": "尚未計算經濟績效",
+    "Candidate output disabled": "不輸出候選階段",
+    "Current output disabled": "不輸出目前階段",
+    "Economic performance not computed": "尚未計算經濟績效",
+    "Scenario access": "情境檢視",
+    "Lineage snapshot": "血緣快照",
+    "Scenario": "情境",
+    "Scenarios": "情境數",
+    "Period": "期間",
+    "Status": "狀態",
+    "Decision state": "研究判讀狀態",
+    "Detail": "詳細",
+    "Family": "類型",
+    "Research decision": "研究判讀",
+    "Validation label bucket": "驗證標籤分組",
+    "Comparison": "比較狀態",
+    "Comparable": "可比較",
+    "Not comparable": "不可比較",
+    "PIT gaps": "PIT 缺口",
+    "Metric states": "指標狀態",
+    "Metric": "指標",
+    "Value": "數值",
+    "Numerator": "分子",
+    "Denominator": "分母",
+    "Interpretation": "解讀",
+    "Phase evidence and role provenance": "階段證據與角色血緣",
+    "Layer": "層級",
+    "Major group": "主要群組",
+    "Role": "角色",
+    "Evidence state": "證據狀態",
+    "Gap": "缺口",
+    "Sources": "來源",
+    "PIT and rule gaps": "PIT 與規則缺口",
+    "Required window": "必要觀察期間",
+    "Gap class": "缺口類型",
+    "Evidence": "證據",
+    "Provenance chain": "血緣鏈",
+    "Search": "搜尋",
+    "All": "全部",
+    "Open gaps": "未解缺口",
+    "Resolved by PIT cache": "已由 PIT cache 補齊",
+    "Classification": "分類",
+    "Model freeze": "模型 freeze",
+    "Parent freeze": "父 freeze",
+    "Parent hash": "父 freeze hash",
+    "Output label": "輸出標籤",
+    "Validation status": "驗證狀態",
+    "QA12 unchanged": "QA12 未變更",
+    "Prospective registry records": "前瞻 registry 筆數",
+    "Production behavior changes": "Production 行為變更",
+    "Source to dashboard lineage": "來源到 dashboard 血緣",
+    "Allowed uses": "允許用途",
+    "Prohibited uses": "禁止用途",
+    "Pre PIT role gaps": "修補前 PIT 角色缺口",
+    "Post PIT role gaps": "修補後 PIT 角色缺口",
+    "Cache-remediated": "cache 已補齊",
+    "Rule unresolved": "規則未解",
+    "Official history insufficient": "官方歷史資料不足",
+    "Genuine source unavailable": "真實來源不可得",
+    "As-of": "As-of 日期",
+    "Fresh enough": "新鮮度足夠",
+    "Missing series": "缺少 series",
+    "Stale series": "過期 series",
+    "Unavailable series": "不可用 series",
+    "Data Refresh / Source Freshness": "資料更新與來源新鮮度",
+    "Refresh mode": "更新模式",
+    "Skipped reason": "略過原因",
+    "Blocked reason": "受阻原因",
+    "Provider error": "Provider 錯誤",
+    "Stale before / after": "過期數量：更新前 / 更新後",
+    "Fetched / failed": "下載成功 / 失敗",
+    "Refreshed series": "已更新 series",
+    "Refresh manifest": "更新 manifest",
+    "Current Phase Evidence Profile": "目前階段證據剖面",
+    "Phase lanes": "階段 lanes",
+    "Fresh enough series": "新鮮度足夠 series",
+    "Still stale": "仍過期",
+    "Rule/data blockers": "規則/資料 blocker",
+    "Transition Risk Lane Summary": "轉折風險 lane 摘要",
+    "Boom ending watch": "榮景結束觀察",
+    "Recession confirmation watch": "衰退確認觀察",
+    "Trough / recovery watch": "落底 / 復甦觀察",
+    "Decision readiness blockers": "判讀 readiness blockers",
+    "Readiness label": "Readiness 標籤",
+    "Evaluated layers": "已評估層級",
+    "Source unavailable": "來源不可用",
+    "Phase evidence and major groups": "階段證據與主要群組",
+    "Phase profiles": "階段剖面",
+    "Major groups": "主要群組",
+    "Watch separation": "watch/confirmation 分離",
+    "Production integration": "Production 接線",
+    "Source availability": "來源可用性",
+    "Series": "Series",
+    "Source": "來源",
+    "Frequency": "頻率",
+    "Source mode": "來源模式",
+    "Latest observation": "最新觀察值日期",
+    "Latest verified": "最新驗證日期",
+    "Stale": "過期",
+    "Lineage": "血緣",
+    "Freeze": "Freeze",
+    "Parent": "父 freeze",
+    "Output mode": "輸出模式",
+    "Declared state": "已宣告階段",
+    "Legal next": "合法下一階段",
+    "Monitor as-of": "監測 as-of",
+    "Priority roles": "優先角色",
+    "Transition lanes": "轉折 lanes",
+    "Indicator meanings and current status": "指標意涵與目前狀況",
+    "Why this is not a formal transition": "為什麼還不是正式轉折",
+    "Current blockers": "目前 blockers",
+    "Role drilldowns": "角色細節",
+    "Numeric values loaded": "已載入數值",
+    "Metadata-ready gaps": "metadata 已就緒但數值缺口",
+    "Chart payloads": "圖表 payload",
+    "Method recipes": "方法配方",
+    "Phase and continuity coverage": "階段與連續性覆蓋",
+    "Major group drilldowns": "主要群組細節",
+    "Role-level evidence explanations": "角色層級證據解釋",
+    "Dashboard decision explanation": "Dashboard 判讀說明",
+    "Why not formal": "為什麼尚非正式判讀",
+    "Trust caveats": "信任註記",
+    "Current data refresh UX": "目前資料更新體驗",
+    "Manual refresh handoff": "手動更新交接",
+    "Transition risk evidence accumulation": "轉折風險證據累積",
+    "Next required observations": "下一個必要觀察",
+    "Declared boom start confirmation": "已宣告榮景起始確認",
+    "Declared phase start registry update gate": "已宣告階段起始 registry 更新 gate",
+    "Current macro numeric and chart coverage": "目前總經數值與圖表覆蓋",
+    "Source detail": "來源細節",
+    "Release timing": "發布時點",
+    "Freshness": "新鮮度",
+    "Transformation": "轉換",
+    "Rule usability": "規則可用性",
+    "Diagnostic recipe transparency": "診斷方法透明度",
+    "Directionality:": "方向性：",
+    "Confidence reducers:": "信心折減條件：",
+    "Calculation steps:": "計算步驟：",
+    "Indicator chart payload": "指標走勢圖",
+    "Chart available": "圖表可用",
+    "Provenance": "血緣",
+    "Abstention / next gap": "Abstain 與下一缺口",
+    "Policy schedule and cash-flow kernel references": "Policy schedule 與現金流 kernel 參照",
+    "Template schedules": "Template schedules",
+    "Cash-flow kernel": "現金流 kernel",
+    "Kernel components": "Kernel 元件",
+    "Metric status": "指標狀態",
+    "Artifact lineage drill-down": "Artifact 血緣細節",
+    "Caveats": "限制與註記",
+    "Policy template catalog": "Policy template 目錄",
+    "Replay schedule matrix": "重播 schedule matrix",
+    "Cost and turnover assumptions": "成本與 turnover 假設",
+    "Scenario policy coverage": "情境 policy 覆蓋",
+    "Research-only caveats": "研究用途註記",
+    "Template": "Template",
+    "Trigger context": "觸發脈絡",
+    "Required transition inputs": "必要轉折輸入",
+    "Data mode": "資料模式",
+    "Cost policy": "成本政策",
+    "Clock policy": "時鐘政策",
+    "Turnover": "Turnover",
+    "False signal": "False signal",
+    "Missed recovery": "Missed recovery",
+    "Transition timing replay preview": "轉折時點重播預覽",
+    "Checkpoint": "檢查點",
+    "Transition": "轉折",
+    "Lane": "Lane",
+    "Abstention": "Abstain",
+    "Research allocation template": "研究性配置模板",
+    "Open detail": "查看細節",
+    "Open latest evidence": "查看最新證據",
+    "Open portfolio replay research": "查看 portfolio replay 研究",
+    "Open current snapshot": "查看目前研究快照",
+    "Open transition monitor": "查看轉折監測",
+    "to": "至",
+    "yes": "是",
+    "no": "否",
+    "true": "是",
+    "false": "否",
+    "none": "無",
+    "undefined": "未定義",
+    "unavailable": "不可用",
+    "available": "可用",
+    "not declared": "未宣告",
+    "chart data available": "圖表資料可用",
+    "No calculation steps declared.": "尚未宣告計算步驟。",
+    "No directionality declared.": "尚未宣告方向性。",
+    "Score interpretation not declared.": "尚未宣告分數解讀。",
+    "No numeric points available for this period.": "此期間沒有可用數值點。",
+    "Trend line unavailable for this period.": "此期間無法繪製趨勢線。",
+}
+STATUS_TEXT_ZH = {
+    "comparable": "可比較",
+    "not_comparable": "不可比較",
+    "blocked": "受阻",
+    "abstained": "已 abstain",
+    "available": "可用",
+    "unavailable": "不可用",
+    "resolved": "已補齊",
+    "open": "未解",
+    "ready": "就緒",
+    "passed": "通過",
+    "active": "啟用",
+    "closed": "已關閉",
+    "disabled": "停用",
+    "enabled": "啟用",
+    "complete": "完整",
+    "incomplete": "不完整",
+    "partial": "部分",
+    "missing": "缺漏",
+    "raw_observation_only": "僅 raw observation",
+    "temporal_abstention": "時間完整性 abstain",
+    "rule_unresolved": "規則未解",
+    "current_numeric_value_available": "目前數值可用",
+    "metadata_ready_value_missing": "metadata 已就緒但數值缺口",
+    "source_metadata_incomplete": "來源 metadata 不完整",
+    "authorized_input_required": "需要授權或人工輸入",
+    "chart_available": "圖表可用",
+    "chart_unavailable": "圖表不可用",
+    "fixture_current_cache_connectivity": "fixture/current-cache 連線驗證",
+    "tmp_seeded_local_current_cache_rehearsal": "tmp seeded local cache 演練",
+    "explicit_local_current_cache": "明確指定 local current cache",
+    "available_local_current_cache": "local current cache 可用",
+    "research_historical_validation_only": "歷史驗證研究用途",
+    "research_only": "研究用途",
+    "validation_only": "驗證用途",
+}
 REQUIRED_PAGES = (
     "index.html",
     "scenarios.html",
@@ -500,20 +756,20 @@ def _overview_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="research_overview">
       <div class="section-heading">
-        <h1>Research Validation Dashboard</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>景氣循環研究儀表板</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Scenarios", bundle["scenario_count"], "historical validation manifest")}
-        {_metric_card("Comparable", bundle["comparable_scenario_count"], "strict research comparison subset")}
-        {_metric_card("Not comparable", bundle["non_comparable_scenario_count"], "abstained or blocked")}
-        {_metric_card("PIT gaps", pit["post_insufficient_point_in_time_role_gap_count"], "remaining strict input role gaps")}
+        {_metric_card("歷史情境", bundle["scenario_count"], "historical validation manifest")}
+        {_metric_card("可比較情境", bundle["comparable_scenario_count"], "strict research comparison subset")}
+        {_metric_card("不可比較情境", bundle["non_comparable_scenario_count"], "abstained or blocked")}
+        {_metric_card("PIT 缺口", pit["post_insufficient_point_in_time_role_gap_count"], "remaining strict input role gaps")}
       </div>
       <div class="status-strip">
-        <span>Candidate output disabled</span>
-        <span>Current output disabled</span>
-        <span>Economic performance not computed</span>
-        <span>Production isolation count {lineage["production_behavior_change_count"]}</span>
+        <span>不輸出候選階段</span>
+        <span>不輸出目前階段</span>
+        <span>尚未計算經濟績效</span>
+        <span>Production 隔離變更數 {lineage["production_behavior_change_count"]}</span>
       </div>
       {_current_snapshot_entry(bundle)}
       {_boom_transition_entry(bundle)}
@@ -521,22 +777,22 @@ def _overview_page(bundle: dict[str, Any]) -> str:
       {_portfolio_replay_entry(bundle)}
     </section>
     <section class="panel">
-      <h2>Scenario access</h2>
-      <p class="muted">Open any scenario detail directly from this table. Comparable scenarios are shown separately from not-comparable scenarios without treating abstention as an error.</p>
+      <h2>情境檢視</h2>
+      <p class="muted">可從表格直接開啟各歷史情境。可比較與不可比較情境分開呈現，abstain 代表證據不足，不會被當成模型錯誤。</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Scenario</th><th>Period</th><th>Status</th><th>Decision state</th><th>Detail</th></tr></thead>
+          <thead><tr><th>情境</th><th>期間</th><th>狀態</th><th>研究判讀狀態</th><th>詳細</th></tr></thead>
           <tbody>{scenario_rows}</tbody>
         </table>
       </div>
     </section>
     <section class="panel">
-      <h2>Lineage snapshot</h2>
+      <h2>血緣快照</h2>
       <dl class="definition-grid">
         <dt>Freeze</dt><dd>{_text(bundle["freeze_id"])}</dd>
-        <dt>Parent</dt><dd>{_text(bundle["parent_freeze_id"])}</dd>
-        <dt>Parent hash</dt><dd><code>{_text(lineage["parent_freeze_hash"])}</code></dd>
-        <dt>QA12</dt><dd>{_yes_no(lineage["qa12_freeze_unchanged"])} unchanged; next action {_text(lineage["qa12_recommended_next_action"])}</dd>
+        <dt>父 freeze</dt><dd>{_text(bundle["parent_freeze_id"])}</dd>
+        <dt>父 freeze hash</dt><dd><code>{_text(lineage["parent_freeze_hash"])}</code></dd>
+        <dt>QA12</dt><dd>{_yes_no(lineage["qa12_freeze_unchanged"])}，下一動作 {_text(lineage["qa12_recommended_next_action"])}</dd>
       </dl>
     </section>
     """
@@ -548,22 +804,22 @@ def _scenarios_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="historical_scenarios">
       <div class="section-heading">
-        <h1>Historical Scenarios</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>歷史情境</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
       <div class="toolbar">
-        <label>Search <input id="scenario-search" type="search" placeholder="scenario, family, blocker"></label>
-        <label>Status
+        <label>搜尋 <input id="scenario-search" type="search" placeholder="情境、類型、blocker"></label>
+        <label>狀態
           <select id="scenario-filter">
-            <option value="all">All</option>
-            <option value="comparable">Comparable</option>
-            <option value="not_comparable">Not comparable</option>
+            <option value="all">全部</option>
+            <option value="comparable">可比較</option>
+            <option value="not_comparable">不可比較</option>
           </select>
         </label>
       </div>
       <div class="table-wrap">
         <table id="scenario-table">
-          <thead><tr><th>Scenario</th><th>Family</th><th>Research decision</th><th>Validation label bucket</th><th>Comparison</th><th>PIT gaps</th><th>Detail</th></tr></thead>
+          <thead><tr><th>情境</th><th>類型</th><th>研究判讀</th><th>驗證標籤分組</th><th>比較狀態</th><th>PIT 缺口</th><th>詳細</th></tr></thead>
           <tbody>{rows}</tbody>
         </table>
       </div>
@@ -584,42 +840,42 @@ def _scenario_detail_page(bundle: dict[str, Any], scenario: dict[str, Any]) -> s
     <section class="panel" data-dashboard-view="scenario_detail" data-scenario-detail="{_text(scenario["scenario_id"])}">
       <div class="section-heading">
         <h1>{_text(scenario["scenario_name"])}</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
       <dl class="definition-grid">
         <dt>Scenario ID</dt><dd><code>{_text(scenario["scenario_id"])}</code></dd>
-        <dt>Period</dt><dd>{_text(scenario["window_start"])} to {_text(scenario["window_end"])}</dd>
-        <dt>As-of / mode</dt><dd>{_text(scenario["as_of"])} / {_text(scenario["data_mode"])}</dd>
-        <dt>Reference family</dt><dd>{_text(scenario["reference_family"])}</dd>
-        <dt>Research decision state</dt><dd>{_text(scenario["research_decision_state"])}</dd>
-        <dt>Validation label bucket</dt><dd>{_text(scenario["predicted_label"])}</dd>
-        <dt>Comparison status</dt><dd>{_status_badge(scenario["comparison_status"])}</dd>
-        <dt>Comparable</dt><dd>{_yes_no(scenario["comparable"])}</dd>
-        <dt>Abstention</dt><dd>{_text(scenario["abstention_state"])}</dd>
-        <dt>Reason</dt><dd>{_text(scenario["comparison_status_reason"])}</dd>
+        <dt>期間</dt><dd>{_text(scenario["window_start"])} 至 {_text(scenario["window_end"])}</dd>
+        <dt>As-of / 資料模式</dt><dd>{_text(scenario["as_of"])} / {_display(scenario["data_mode"])}</dd>
+        <dt>參考類型</dt><dd>{_text(scenario["reference_family"])}</dd>
+        <dt>研究判讀狀態</dt><dd>{_display(scenario["research_decision_state"])}</dd>
+        <dt>驗證標籤分組</dt><dd>{_display(scenario["predicted_label"])}</dd>
+        <dt>比較狀態</dt><dd>{_status_badge(scenario["comparison_status"])}</dd>
+        <dt>可比較</dt><dd>{_yes_no(scenario["comparable"])}</dd>
+        <dt>Abstain</dt><dd>{_display(scenario["abstention_state"])}</dd>
+        <dt>原因</dt><dd>{_text(scenario["comparison_status_reason"])}</dd>
       </dl>
-      <p class="muted">Historical labels stay outside runtime, rules, and evaluators. Not-comparable scenarios remain excluded from match-style metrics.</p>
+      <p class="muted">歷史標籤只供離線驗證，不會回灌 runtime、規則或 evaluator。不可比較情境不會被硬算成命中或錯誤。</p>
     </section>
     <section class="panel">
-      <h2>Metric states</h2>
+      <h2>指標狀態</h2>
       <div class="table-wrap">
-        <table><thead><tr><th>Metric</th><th>Status</th></tr></thead><tbody>{metrics}</tbody></table>
+        <table><thead><tr><th>指標</th><th>狀態</th></tr></thead><tbody>{metrics}</tbody></table>
       </div>
     </section>
     <section class="panel">
-      <h2>Phase evidence and role provenance</h2>
+      <h2>階段證據與角色血緣</h2>
       <div class="table-wrap">
-        <table><thead><tr><th>Layer</th><th>Major group</th><th>Role</th><th>Evidence state</th><th>Gap</th><th>Sources</th></tr></thead><tbody>{evidence_rows}</tbody></table>
+        <table><thead><tr><th>層級</th><th>主要群組</th><th>角色</th><th>證據狀態</th><th>缺口</th><th>來源</th></tr></thead><tbody>{evidence_rows}</tbody></table>
       </div>
     </section>
     <section class="panel">
-      <h2>PIT and rule gaps</h2>
+      <h2>PIT 與規則缺口</h2>
       <div class="table-wrap">
-        <table><thead><tr><th>Role</th><th>Source</th><th>Required window</th><th>Gap class</th><th>Evidence</th></tr></thead><tbody>{pit_rows or _empty_row(5, "No remaining PIT or rule gaps for this scenario.")}</tbody></table>
+        <table><thead><tr><th>角色</th><th>來源</th><th>必要觀察期間</th><th>缺口類型</th><th>證據</th></tr></thead><tbody>{pit_rows or _empty_row(5, "此情境沒有剩餘 PIT 或規則缺口。")}</tbody></table>
       </div>
     </section>
     <section class="panel">
-      <h2>Provenance chain</h2>
+      <h2>血緣鏈</h2>
       <ol class="provenance-list">{''.join(f'<li><code>{_text(item)}</code></li>' for item in scenario["provenance_chain"])}</ol>
     </section>
     """
@@ -631,13 +887,13 @@ def _validation_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="validation_results">
       <div class="section-heading">
-        <h1>Validation Results</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>驗證結果</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This view displays preregistered historical metric artifacts. Undefined metrics remain explicitly undefined; blocked or abstained scenarios are not converted into wrong predictions.</p>
+      <p class="muted">本頁顯示已預註冊的歷史研究 metric artifacts。未定義的 metric 會維持未定義；受阻或 abstain 的情境不會被硬轉成錯誤預測。</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Metric</th><th>Status</th><th>Value</th><th>Numerator</th><th>Denominator</th><th>Interpretation</th></tr></thead>
+          <thead><tr><th>指標</th><th>狀態</th><th>數值</th><th>分子</th><th>分母</th><th>解讀</th></tr></thead>
           <tbody>{metrics}</tbody>
         </table>
       </div>
@@ -651,22 +907,22 @@ def _evidence_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="evidence_explorer">
       <div class="section-heading">
-        <h1>Evidence Explorer</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>證據總覽</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
       <div class="toolbar">
-        <label>Search <input id="evidence-search" type="search" placeholder="role, group, series"></label>
-        <label>Gap
+        <label>搜尋 <input id="evidence-search" type="search" placeholder="角色、群組、series"></label>
+        <label>缺口
           <select id="evidence-filter">
-            <option value="all">All</option>
-            <option value="open">Open gaps</option>
-            <option value="resolved">Resolved by PIT cache</option>
+            <option value="all">全部</option>
+            <option value="open">未解缺口</option>
+            <option value="resolved">已由 PIT cache 補齊</option>
           </select>
         </label>
       </div>
       <div class="table-wrap">
         <table id="evidence-table">
-          <thead><tr><th>Scenario</th><th>Layer</th><th>Major group</th><th>Role</th><th>Sources</th><th>Evidence state</th><th>Gap</th><th>Classification</th></tr></thead>
+          <thead><tr><th>情境</th><th>層級</th><th>主要群組</th><th>角色</th><th>來源</th><th>證據狀態</th><th>缺口</th><th>分類</th></tr></thead>
           <tbody>{rows}</tbody>
         </table>
       </div>
@@ -683,39 +939,39 @@ def _lineage_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="data_lineage_governance">
       <div class="section-heading">
-        <h1>Data Lineage / Governance</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>資料血緣與治理</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
       <dl class="definition-grid">
         <dt>Model freeze</dt><dd>{_text(bundle["freeze_id"])}</dd>
-        <dt>Parent freeze</dt><dd>{_text(bundle["parent_freeze_id"])}</dd>
-        <dt>Parent hash</dt><dd><code>{_text(lineage["parent_freeze_hash"])}</code></dd>
-        <dt>Output label</dt><dd>{_text(trust["output_label"])}</dd>
-        <dt>Validation status</dt><dd>{_text(trust["validation_status"])}</dd>
+        <dt>父 freeze</dt><dd>{_text(bundle["parent_freeze_id"])}</dd>
+        <dt>父 freeze hash</dt><dd><code>{_text(lineage["parent_freeze_hash"])}</code></dd>
+        <dt>輸出標籤</dt><dd>{_display(trust["output_label"])}</dd>
+        <dt>驗證狀態</dt><dd>{_display(trust["validation_status"])}</dd>
         <dt>QA12 unchanged</dt><dd>{_yes_no(lineage["qa12_freeze_unchanged"])}</dd>
-        <dt>Prospective registry records</dt><dd>{lineage["prospective_registry_record_count"]}</dd>
-        <dt>Production behavior changes</dt><dd>{lineage["production_behavior_change_count"]}</dd>
+        <dt>前瞻 registry 筆數</dt><dd>{lineage["prospective_registry_record_count"]}</dd>
+        <dt>Production 行為變更</dt><dd>{lineage["production_behavior_change_count"]}</dd>
       </dl>
     </section>
     <section class="panel">
-      <h2>Source to dashboard lineage</h2>
+      <h2>來源到 dashboard 血緣</h2>
       <ol class="provenance-list">
-        <li>official source contracts</li>
-        <li>point-in-time cache selectors</li>
-        <li>book-core transformation and evidence rules</li>
-        <li>phase evidence output and research decision artifacts</li>
-        <li>offline validation label buckets and comparison artifacts</li>
-        <li>historical metric registry rows</li>
-        <li>Phase 38 local research dashboard bundle</li>
+        <li>官方來源契約</li>
+        <li>Point-in-time cache selector</li>
+        <li>Book-core 轉換與證據規則</li>
+        <li>階段證據輸出與研究判讀 artifacts</li>
+        <li>離線驗證標籤分組與比較 artifacts</li>
+        <li>歷史研究 metric registry rows</li>
+        <li>GitHub Pages research dashboard bundle</li>
       </ol>
     </section>
     <section class="panel two-column">
       <div>
-        <h2>Allowed uses</h2>
+        <h2>允許用途</h2>
         <ul>{uses}</ul>
       </div>
       <div>
-        <h2>Prohibited uses</h2>
+        <h2>禁止用途</h2>
         <ul>{prohibited}</ul>
       </div>
     </section>
@@ -729,23 +985,23 @@ def _pit_gap_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="pit_gap_view">
       <div class="section-heading">
-        <h1>PIT Gap View</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>Point-in-time 缺口</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Pre PIT role gaps", pit["pre_insufficient_point_in_time_role_gap_count"], "Phase 36R baseline")}
-        {_metric_card("Post PIT role gaps", pit["post_insufficient_point_in_time_role_gap_count"], "after Phase 37")}
-        {_metric_card("Cache-remediated", pit["cache_remediated_pit_role_gap_count"], "strict observations selected")}
-        {_metric_card("Rule unresolved", pit["rule_unresolved_gap_count"], "not fixable through data")}
+        {_metric_card("修補前 PIT 角色缺口", pit["pre_insufficient_point_in_time_role_gap_count"], "Phase 36R baseline")}
+        {_metric_card("修補後 PIT 角色缺口", pit["post_insufficient_point_in_time_role_gap_count"], "after Phase 37")}
+        {_metric_card("cache 已補齊", pit["cache_remediated_pit_role_gap_count"], "strict observations selected")}
+        {_metric_card("規則未解", pit["rule_unresolved_gap_count"], "not fixable through data")}
       </div>
       <div class="metric-grid">
-        {_metric_card("Official history insufficient", pit["official_history_insufficient_gap_count"], "strict vintage history not enough")}
-        {_metric_card("Genuine source unavailable", pit["genuine_source_unavailable_gap_count"], "no local strict cache or live credential")}
+        {_metric_card("官方歷史資料不足", pit["official_history_insufficient_gap_count"], "strict vintage history not enough")}
+        {_metric_card("真實來源不可得", pit["genuine_source_unavailable_gap_count"], "no local strict cache or live credential")}
       </div>
-      <p class="muted">Open gaps remain explicitly unresolved; this view does not imply completion.</p>
+      <p class="muted">未解缺口會明確保留；本頁不代表 point-in-time 能力已完整。</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Scenario</th><th>Role</th><th>Source</th><th>Required window</th><th>Gap class</th><th>Evidence</th></tr></thead>
+          <thead><tr><th>情境</th><th>角色</th><th>來源</th><th>必要觀察期間</th><th>缺口類型</th><th>證據</th></tr></thead>
           <tbody>{rows}</tbody>
         </table>
       </div>
@@ -776,100 +1032,100 @@ def _current_snapshot_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="current_research_snapshot">
       <div class="section-heading">
-        <h1>Current Research Snapshot</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>目前研究快照</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">Latest available observation snapshot for local research review. This is not a production phase decision; candidate/current outputs remain disabled.</p>
+      <p class="muted">本頁呈現目前可取得的最新觀察資料，供本機研究檢視。這不是正式景氣階段判定，也不輸出候選階段或目前階段。</p>
       <div class="metric-grid">
         {_metric_card("As-of", snapshot["snapshot_as_of"], snapshot["data_mode"])}
-        {_metric_card("Fresh enough", freshness["fresh_enough_series_count"], "frequency-aware current research")}
-        {_metric_card("Missing series", source["missing_series_count"], "metadata incomplete")}
-        {_metric_card("Stale series", source["stale_series_count"], "release/frequency-aware")}
-        {_metric_card("Unavailable series", source["unavailable_series_count"], "not eligible for this snapshot")}
+        {_metric_card("新鮮度足夠", freshness["fresh_enough_series_count"], "frequency-aware current research")}
+        {_metric_card("缺少 series", source["missing_series_count"], "metadata incomplete")}
+        {_metric_card("過期 series", source["stale_series_count"], "release/frequency-aware")}
+        {_metric_card("不可用 series", source["unavailable_series_count"], "not eligible for this snapshot")}
       </div>
       <div class="status-strip">
-        <span>data mode: {_text(snapshot["data_mode"])}</span>
-        <span>refresh mode: {_text(refresh.get("refresh_mode", "fixture"))}</span>
-        <span>freshness mode: frequency/release-lag aware</span>
+        <span>資料模式：{_display(snapshot["data_mode"])}</span>
+        <span>更新模式：{_display(refresh.get("refresh_mode", "fixture"))}</span>
+        <span>新鮮度判讀：依頻率與發布落後期</span>
         <span>freeze: {_text(current_evidence["freeze_id"])}</span>
-        <span>live fetch attempted: {_yes_no(source["live_fetch_attempted"])}</span>
-        <span>live fetch succeeded: {_yes_no(source["live_fetch_succeeded"])}</span>
-        <span>research-only</span>
-        <span>no candidate/current output</span>
+        <span>嘗試 live fetch：{_yes_no(source["live_fetch_attempted"])}</span>
+        <span>live fetch 成功：{_yes_no(source["live_fetch_succeeded"])}</span>
+        <span>研究用途</span>
+        <span>不輸出候選/目前階段</span>
       </div>
     </section>
     <section class="panel" data-refresh-panel>
-      <h2>Data Refresh / Source Freshness</h2>
+      <h2>資料更新與來源新鮮度</h2>
       <dl class="definition-grid">
-        <dt>Refresh mode</dt><dd data-refresh-mode>{_text(refresh.get("refresh_mode", "fixture"))}</dd>
-        <dt>Skipped reason</dt><dd>{_text(refresh.get("live_fetch_skipped_reason") or "none")}</dd>
-        <dt>Blocked reason</dt><dd data-live-blocked-reason>{_text(refresh.get("live_fetch_blocked_reason") or "none")}</dd>
-        <dt>Provider error</dt><dd>{_text(refresh.get("provider_error_class") or "none")}</dd>
-        <dt>Status</dt><dd>{_text(refresh.get("phase41_live_refresh_status") or "not_phase41_refresh")}</dd>
-        <dt>Stale before / after</dt><dd data-stale-before-after>{refresh.get("stale_series_count_before", source["stale_series_count"])} / {refresh.get("stale_series_count_after", source["stale_series_count"])}</dd>
-        <dt>Fetched / failed</dt><dd>{refresh.get("fetched_series_count", 0)} / {refresh.get("failed_series_count", 0)}</dd>
-        <dt>Refreshed series</dt><dd>{refresh.get("refreshed_series_count", 0)}</dd>
-        <dt>Refresh manifest</dt><dd><code>{_text(refresh.get("refresh_manifest_hash") or "not supplied")}</code></dd>
+        <dt>更新模式</dt><dd data-refresh-mode>{_display(refresh.get("refresh_mode", "fixture"))}</dd>
+        <dt>略過原因</dt><dd>{_display(refresh.get("live_fetch_skipped_reason") or "none")}</dd>
+        <dt>受阻原因</dt><dd data-live-blocked-reason>{_display(refresh.get("live_fetch_blocked_reason") or "none")}</dd>
+        <dt>Provider 錯誤</dt><dd>{_display(refresh.get("provider_error_class") or "none")}</dd>
+        <dt>狀態</dt><dd>{_display(refresh.get("phase41_live_refresh_status") or "not_phase41_refresh")}</dd>
+        <dt>過期數：更新前 / 更新後</dt><dd data-stale-before-after>{refresh.get("stale_series_count_before", source["stale_series_count"])} / {refresh.get("stale_series_count_after", source["stale_series_count"])}</dd>
+        <dt>下載成功 / 失敗</dt><dd>{refresh.get("fetched_series_count", 0)} / {refresh.get("failed_series_count", 0)}</dd>
+        <dt>已更新 series</dt><dd>{refresh.get("refreshed_series_count", 0)}</dd>
+        <dt>更新 manifest</dt><dd><code>{_text(refresh.get("refresh_manifest_hash") or "not supplied")}</code></dd>
       </dl>
-      <p class="muted">Latest revised data is labeled separately from point-in-time evidence. Fixture or cache mode is explicit when live refresh is unavailable.</p>
+      <p class="muted">最新 revised 資料會與 point-in-time 證據分開標示；若無法 live refresh，fixture 或 cache mode 會明確顯示。</p>
     </section>
     <section class="panel" data-current-phase-evidence-profile>
       <div class="section-heading">
-        <h2>Current Phase Evidence Profile</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>目前階段證據剖面</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This section shows current research evidence readiness by phase lane. It is not a formal current phase decision and it does not emit a candidate phase.</p>
+      <p class="muted">本區依四個階段 lane 呈現目前研究證據的 readiness。它不是正式目前階段判斷，也不輸出候選階段。</p>
       <div class="metric-grid">
-        {_metric_card("Phase lanes", current_evidence["phase_profile_count"], "recovery / growth / boom / recession")}
-        {_metric_card("Fresh enough series", freshness["fresh_enough_series_count"], "latest revised current data")}
-        {_metric_card("Still stale", freshness["stale_series_count_after"], "defensible release/frequency reason")}
-        {_metric_card("Rule/data blockers", len(current_evidence["global_blockers"]["top_blockers"]), "top current blockers")}
+        {_metric_card("階段 lanes", current_evidence["phase_profile_count"], "復甦期 / 成長期 / 榮景期 / 衰退期")}
+        {_metric_card("新鮮度足夠 series", freshness["fresh_enough_series_count"], "latest revised current data")}
+        {_metric_card("仍過期", freshness["stale_series_count_after"], "defensible release/frequency reason")}
+        {_metric_card("規則/資料 blockers", len(current_evidence["global_blockers"]["top_blockers"]), "top current blockers")}
       </div>
       <div class="phase-card-grid">{phase_cards}</div>
     </section>
     <section class="panel" data-transition-watch-caveat>
-      <h2>Transition Risk Lane Summary</h2>
+      <h2>轉折風險 lane 摘要</h2>
       <div class="metric-grid">
-        {_metric_card("Boom ending watch", current_evidence["phase_profiles"]["boom"]["transition_watch_count"], "watch evidence only")}
-        {_metric_card("Recession confirmation watch", current_evidence["phase_profiles"]["recession"]["transition_watch_count"], "confirmation lane remains separate")}
-        {_metric_card("Trough / recovery watch", current_evidence["phase_profiles"]["recession"]["abstention_count"], "abstentions stay visible")}
+        {_metric_card("榮景結束觀察", current_evidence["phase_profiles"]["boom"]["transition_watch_count"], "watch evidence only")}
+        {_metric_card("衰退確認觀察", current_evidence["phase_profiles"]["recession"]["transition_watch_count"], "confirmation lane remains separate")}
+        {_metric_card("落底 / 復甦觀察", current_evidence["phase_profiles"]["recession"]["abstention_count"], "abstentions stay visible")}
       </div>
-      <p class="muted">watch != confirmation; evidence profile != formal phase; no portfolio action is produced.</p>
+      <p class="muted">watch 不等於 confirmation；證據剖面不等於正式階段；本頁不產生 portfolio action。</p>
     </section>
     <section class="panel">
-      <h2>Decision readiness blockers</h2>
+      <h2>判讀 readiness blockers</h2>
       <dl class="definition-grid">
-        <dt>Readiness label</dt><dd>{_text(decision["readiness_label"])}</dd>
-        <dt>Evaluated layers</dt><dd>{decision["evaluated_phase_or_layer_count"]}</dd>
-        <dt>Source unavailable</dt><dd>{blockers["source_unavailable_series_count"]}</dd>
-        <dt>Stale series</dt><dd>{blockers["stale_series_count"]}</dd>
+        <dt>Readiness 標籤</dt><dd>{_display(decision["readiness_label"])}</dd>
+        <dt>已評估層級</dt><dd>{decision["evaluated_phase_or_layer_count"]}</dd>
+        <dt>來源不可用</dt><dd>{blockers["source_unavailable_series_count"]}</dd>
+        <dt>過期 series</dt><dd>{blockers["stale_series_count"]}</dd>
       </dl>
-      <ul class="provenance-list">{blocker_items or "<li>No blockers reported.</li>"}</ul>
+      <ul class="provenance-list">{blocker_items or "<li>未回報 blockers。</li>"}</ul>
     </section>
     <section class="panel">
-      <h2>Phase evidence and major groups</h2>
+      <h2>階段證據與主要群組</h2>
       <dl class="definition-grid">
-        <dt>Phase profiles</dt><dd>{snapshot["phase_evidence_summary"]["profile_count"]}</dd>
-        <dt>Major groups</dt><dd>{snapshot["major_group_evidence_summary"]["major_group_count"]}</dd>
-        <dt>Watch separation</dt><dd>{_yes_no(snapshot["transition_risk_summary"]["watch_confirmation_separated"])}</dd>
-        <dt>Production integration</dt><dd>{_yes_no(snapshot["production_integration_enabled"])}</dd>
+        <dt>階段剖面</dt><dd>{snapshot["phase_evidence_summary"]["profile_count"]}</dd>
+        <dt>主要群組</dt><dd>{snapshot["major_group_evidence_summary"]["major_group_count"]}</dd>
+        <dt>Watch/confirmation 分離</dt><dd>{_yes_no(snapshot["transition_risk_summary"]["watch_confirmation_separated"])}</dd>
+        <dt>Production 接線</dt><dd>{_yes_no(snapshot["production_integration_enabled"])}</dd>
       </dl>
     </section>
     <section class="panel">
-      <h2>Source availability</h2>
+      <h2>來源可用性</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Series</th><th>Source</th><th>Frequency</th><th>Status</th><th>Source mode</th><th>Latest observation</th><th>Latest verified</th><th>Stale</th></tr></thead>
+          <thead><tr><th>Series</th><th>來源</th><th>頻率</th><th>狀態</th><th>來源模式</th><th>最新觀察值日期</th><th>最新驗證日期</th><th>過期</th></tr></thead>
           <tbody>{rows}</tbody>
         </table>
       </div>
     </section>
     <section class="panel">
-      <h2>Lineage</h2>
+      <h2>血緣</h2>
       <dl class="definition-grid">
         <dt>Freeze</dt><dd>{_text(snapshot["freeze_id"])}</dd>
-        <dt>Parent</dt><dd>{_text(snapshot["parent_freeze_id"])}</dd>
-        <dt>Output mode</dt><dd>{_text(snapshot["output_mode"])}</dd>
+        <dt>父 freeze</dt><dd>{_text(snapshot["parent_freeze_id"])}</dd>
+        <dt>輸出模式</dt><dd>{_display(snapshot["output_mode"])}</dd>
         <dt>QA12 unchanged</dt><dd>{_yes_no(snapshot["lineage"]["qa12_freeze_unchanged"])}</dd>
       </dl>
     </section>
@@ -893,37 +1149,37 @@ def _boom_transition_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="declared_boom_transition_monitor" data-declared-transition-surface>
       <div class="section-heading">
-        <h1>Declared Boom Transition Monitor</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>已宣告榮景期轉折監測</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted" data-declared-state-disclaimer>This surface starts from the declared boom state and monitors only the legal next transition to recession. It does not infer or select a formal phase from current data.</p>
+      <p class="muted" data-declared-state-disclaimer>本頁以「已宣告榮景期」為起點，只監測合法下一轉折「衰退期」。它不會用目前資料推論或選出正式景氣階段。</p>
       <div class="metric-grid">
-        {_metric_card("Declared state", surface["declared_current_phase"], "governed registry input")}
-        {_metric_card("Legal next", surface["legal_next_phase"], "ordered cycle transition")}
-        {_metric_card("Monitor as-of", surface["monitor_as_of"], surface["data_mode"])}
-        {_metric_card("Priority roles", surface["surface_validation"]["indicator_status_present_count"], "all display statuses visible")}
+        {_metric_card("已宣告階段", surface["declared_current_phase"], "governed registry input")}
+        {_metric_card("合法下一階段", surface["legal_next_phase"], "ordered cycle transition")}
+        {_metric_card("監測 as-of", surface["monitor_as_of"], surface["data_mode"])}
+        {_metric_card("優先角色", surface["surface_validation"]["indicator_status_present_count"], "all display statuses visible")}
       </div>
       <div class="status-strip" data-watch-confirmation-boundary>
-        <span>watch is not confirmation</span>
-        <span>missing evidence abstains</span>
-        <span>no phase score or rank</span>
-        <span>no portfolio action</span>
+        <span>watch 不是 confirmation</span>
+        <span>證據缺失時 abstain</span>
+        <span>不輸出階段分數或排名</span>
+        <span>不產生 portfolio action</span>
       </div>
     </section>
     <section class="panel">
-      <h2>Transition lanes</h2>
+      <h2>轉折 lanes</h2>
       <div class="transition-lane-grid">{lanes}</div>
     </section>
     <section class="panel">
-      <h2>Indicator meanings and current status</h2>
-      <p class="muted">Each indicator card shows why the role matters, what lane it supports, and why missing inputs remain visible instead of being treated as neutral.</p>
+      <h2>指標意涵與目前狀況</h2>
+      <p class="muted">每張指標卡說明該角色為什麼重要、支援哪條 lane，以及為什麼缺漏資料要保留為可見缺口，而不是當作中性。</p>
       <div class="transition-indicator-grid">{indicators}</div>
     </section>
     <section class="panel">
-      <h2>Why this is not a formal transition</h2>
+      <h2>為什麼還不是正式轉折</h2>
       <ul class="provenance-list">{why_not}</ul>
-      <h2>Current blockers</h2>
-      <ul class="provenance-list">{blockers or "<li>No transition blockers reported.</li>"}</ul>
+      <h2>目前 blockers</h2>
+      <ul class="provenance-list">{blockers or "<li>未回報轉折 blockers。</li>"}</ul>
     </section>
     """
     return _page("Declared Boom Transition Monitor", BOOM_TRANSITION_PAGE, body)
@@ -963,30 +1219,30 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="indicator_dashboard_explanation_drilldown" data-latest-evidence-drilldown>
       <div class="section-heading">
-        <h1>Latest Evidence / Indicator Drilldown</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>最新證據與指標細節</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This page wires the latest governed indicator explanations into the local research dashboard. It shows source, release timing, freshness, transformation, rule usability, provenance, data mode, and abstention context without selecting a current phase.</p>
+      <p class="muted">本頁把最新受治理的指標說明接到 dashboard：包含來源、發布時點、新鮮度、轉換方式、規則可用性、血緣、資料模式與 abstain 脈絡；但不選出目前景氣階段。</p>
       <div class="metric-grid">
-        {_metric_card("Major groups", drilldown["major_group_drilldown_count"], "dashboard groups")}
-        {_metric_card("Role drilldowns", drilldown["role_drilldown_count"], "indicator cards")}
-        {_metric_card("Numeric values loaded", drilldown["continuity_status_counts"].get("current_numeric_value_available", 0), "current cache only")}
-        {_metric_card("Metadata-ready gaps", drilldown["continuity_status_counts"].get("metadata_ready_value_missing", 0), "explicit abstention")}
-        {_metric_card("Chart payloads", drilldown.get("role_with_chart_payload_count", 0), "YTD / 1Y / 5Y")}
-        {_metric_card("Method recipes", drilldown.get("role_with_diagnostic_transparency_count", 0), "diagnostic transparency")}
+        {_metric_card("主要群組", drilldown["major_group_drilldown_count"], "dashboard groups")}
+        {_metric_card("角色細節", drilldown["role_drilldown_count"], "indicator cards")}
+        {_metric_card("已載入數值", drilldown["continuity_status_counts"].get("current_numeric_value_available", 0), "current cache only")}
+        {_metric_card("metadata 已就緒但數值缺口", drilldown["continuity_status_counts"].get("metadata_ready_value_missing", 0), "explicit abstention")}
+        {_metric_card("圖表 payload", drilldown.get("role_with_chart_payload_count", 0), "YTD / 1Y / 5Y")}
+        {_metric_card("方法配方", drilldown.get("role_with_diagnostic_transparency_count", 0), "diagnostic transparency")}
       </div>
       <div class="status-strip" data-score-boundary>
-        <span>declared state preserved</span>
-        <span>phase score is not the product answer</span>
-        <span>diagnostic method recipe visible</span>
-        <span>missing values are not neutral</span>
-        <span>proxy inputs do not replace book-core roles</span>
-        <span>unavailable charts are not zero</span>
-        <span>no candidate/current output</span>
+        <span>保留已宣告階段，不由最新資料改寫</span>
+        <span>階段分數不是產品答案</span>
+        <span>診斷方法配方可見</span>
+        <span>缺漏值不視為中性</span>
+        <span>替代資料不可靜默取代 book-core 角色</span>
+        <span>不可用圖表不補零</span>
+        <span>不輸出候選/目前階段</span>
       </div>
     </section>
     <section class="panel">
-      <h2>Phase and continuity coverage</h2>
+      <h2>階段與連續性覆蓋</h2>
       <div class="metric-grid">{phase_counts}</div>
       <div class="metric-grid">{continuity_counts}</div>
     </section>
@@ -999,16 +1255,16 @@ def _latest_evidence_page(bundle: dict[str, Any]) -> str:
     {_transition_risk_evidence_accumulation_section(transition_risk_accumulation)}
     {_transition_timing_replay_preview_section(replay_preview)}
     <section class="panel">
-      <h2>Major group drilldowns</h2>
-      <p class="muted">Each group links to the underlying role cards. A group can be explainable while still not ready for a formal phase decision.</p>
+      <h2>主要群組細節</h2>
+      <p class="muted">每個群組都可連到下方角色卡。群組可以已經具備解釋性，但仍未達正式階段判斷所需條件。</p>
       <div class="toolbar">
-        <label>Search <input id="latest-role-search" data-role-search type="search" placeholder="role, group, source, freshness"></label>
+        <label>搜尋 <input id="latest-role-search" data-role-search type="search" placeholder="角色、群組、來源、新鮮度"></label>
       </div>
       <div class="major-group-drilldown-grid">{group_cards}</div>
     </section>
     <section class="panel">
-      <h2>Role-level evidence explanations</h2>
-      <p class="muted">Role cards disclose current source and rule context. Metadata-only cards remain abstained until a governed numeric value and rule path are available.</p>
+      <h2>角色層級證據解釋</h2>
+      <p class="muted">角色卡揭露目前來源與規則脈絡。只有 metadata、缺少治理後數值或規則路徑的項目，會維持 abstain。</p>
       <div class="role-drilldown-grid" id="latest-role-grid">{role_cards}</div>
     </section>
     """
@@ -1025,8 +1281,8 @@ def _research_dashboard_production_readiness_rehearsal_section(
         <article class="mini-card" data-migration-rehearsal-step="{_text(step["step_id"])}">
           <strong>{_text(step["title_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Status</dt><dd>{_status_badge(step["status"])}</dd>
-            <dt>Evidence</dt><dd>{len(step["required_evidence"])}</dd>
+            <dt>狀態</dt><dd>{_status_badge(step["status"])}</dd>
+            <dt>必要證據</dt><dd>{len(step["required_evidence"])}</dd>
           </dl>
         </article>
         """
@@ -1059,21 +1315,21 @@ def _research_dashboard_production_readiness_rehearsal_section(
     return f"""
     <section class="panel" data-dashboard-migration-rehearsal data-research-dashboard-production-readiness-rehearsal>
       <div class="section-heading">
-        <h2>Research dashboard migration rehearsal</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>Research dashboard migration 演練</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This panel rehearses dashboard migration boundaries, renderer caveats, rollback checks, and production isolation. It does not connect resolver, legacy state machine, portfolio allocation, Pages publication, or current phase inference.</p>
+      <p class="muted">本面板演練 dashboard migration 邊界、renderer caveat、rollback checklist 與 production 隔離；不接 resolver、legacy state machine、portfolio allocation、Pages 發布或目前階段推論。</p>
       <div class="status-strip" data-production-boundary-drill>
-        <span>migration rehearsal only</span>
-        <span>renderer caveats visible</span>
+        <span>僅 migration 演練</span>
+        <span>renderer caveats 可見</span>
         <span>rollback checklist ready</span>
-        <span>production boundary violations: {rehearsal["production_boundary_violation_count"]}</span>
+        <span>production 邊界違規：{rehearsal["production_boundary_violation_count"]}</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Rehearsal steps", rehearsal["migration_rehearsal_step_count"], "review gates")}
+        {_metric_card("演練步驟", rehearsal["migration_rehearsal_step_count"], "review gates")}
         {_metric_card("Renderer caveats", rehearsal["renderer_caveat_count"], "visible copy boundaries")}
         {_metric_card("Rollback checks", rehearsal["rollback_checklist_item_count"], "manual review")}
-        {_metric_card("Boundary checks", rehearsal["production_boundary_check_count"], "all pass")}
+        {_metric_card("邊界檢查", rehearsal["production_boundary_check_count"], "all pass")}
       </div>
       <div class="mini-grid">{steps}</div>
       <section class="panel nested">
@@ -1102,7 +1358,7 @@ def _dashboard_decision_explanation_section(
         <article class="mini-card" data-decision-explanation-card="{_text(card["card_id"])}">
           <strong>{_text(card["title_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Status</dt><dd>{_status_badge(card["status_label"])}</dd>
+            <dt>狀態</dt><dd>{_status_badge(card["status_label"])}</dd>
           </dl>
           <p>{_text(card["body_zh"])}</p>
         </article>
@@ -1119,30 +1375,30 @@ def _dashboard_decision_explanation_section(
     return f"""
     <section class="panel" data-dashboard-decision-explanation data-no-standalone-classifier>
       <div class="section-heading">
-        <h2>Dashboard decision explanation</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>Dashboard 判讀說明</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This section explains the declared state context, legal next transition, evidence gaps, and why the page remains a research dashboard rather than a formal decision output.</p>
+      <p class="muted">本區說明已宣告階段、合法下一轉折、證據缺口，以及為什麼此頁仍是研究 dashboard，而不是正式判讀輸出。</p>
       <div class="status-strip">
-        <span data-declared-state-summary>declared state: {_text(explanation["declared_current_phase"])}</span>
-        <span data-legal-next-transition-summary>legal next: {_text(explanation["legal_next_phase"])}</span>
-        <span data-support-contradiction-summary>support/contradiction: readiness only</span>
-        <span data-missing-evidence-summary>metadata gaps: {explanation["metadata_ready_value_missing_drilldown_count"]}</span>
-        <span data-why-not-formal-summary>formal gate: closed</span>
+        <span data-declared-state-summary>已宣告階段：{_display(explanation["declared_current_phase"])}</span>
+        <span data-legal-next-transition-summary>合法下一階段：{_display(explanation["legal_next_phase"])}</span>
+        <span data-support-contradiction-summary>支持/矛盾：僅 readiness</span>
+        <span data-missing-evidence-summary>metadata 缺口：{explanation["metadata_ready_value_missing_drilldown_count"]}</span>
+        <span data-why-not-formal-summary>正式 gate：已關閉</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Role explanations", explanation["role_drilldown_count"], "source / method / trend")}
-        {_metric_card("Numeric context", explanation["current_numeric_context_role_count"], "research context only")}
-        {_metric_card("Charts available", explanation["chart_available_role_count"], "YTD / 1Y / 5Y")}
-        {_metric_card("Formal groups", explanation["group_ready_for_formal_phase_count"], "must remain zero now")}
+        {_metric_card("角色說明", explanation["role_drilldown_count"], "source / method / trend")}
+        {_metric_card("數值脈絡", explanation["current_numeric_context_role_count"], "research context only")}
+        {_metric_card("可用圖表", explanation["chart_available_role_count"], "YTD / 1Y / 5Y")}
+        {_metric_card("正式群組", explanation["group_ready_for_formal_phase_count"], "must remain zero now")}
       </div>
       <div class="mini-grid">{cards}</div>
       <section class="panel nested">
-        <h3>Why not formal</h3>
+        <h3>為什麼尚非正式判讀</h3>
         <ul>{why_not}</ul>
       </section>
       <section class="panel nested">
-        <h3>Trust caveats</h3>
+        <h3>信任註記</h3>
         <ul>{caveats}</ul>
       </section>
     </section>
@@ -1163,7 +1419,7 @@ def _current_data_refresh_ux_section(
         <article class="mini-card" data-refresh-ux-card="{_text(card["card_id"])}">
           <strong>{_text(card["title_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Status</dt><dd>{_status_badge(card["status_label"])}</dd>
+            <dt>狀態</dt><dd>{_status_badge(card["status_label"])}</dd>
           </dl>
           <p>{_text(card["summary_zh"])}</p>
         </article>
@@ -1185,30 +1441,30 @@ def _current_data_refresh_ux_section(
     return f"""
     <section class="panel" data-current-data-refresh-ux data-no-live-refresh-execution>
       <div class="section-heading">
-        <h2>Current data refresh UX</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>目前資料更新體驗</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This panel summarizes fixture/local cache visibility, last visible date, freshness, source risk, and manual handoff. It does not run live refresh or infer a formal phase from current data.</p>
+      <p class="muted">本面板彙整 fixture/local cache 可見性、最後可見日期、新鮮度、來源風險與手動交接；不執行 live refresh，也不從目前資料推論正式階段。</p>
       <div class="status-strip">
-        <span data-refresh-mode-summary>mode: {_text(refresh["data_mode"])}</span>
-        <span data-last-update-summary>last visible date: {_text(last_update.get("latest_visible_observation_date") or "unavailable")}</span>
-        <span data-freshness-summary>available roles: {freshness["available_fixture_or_cache_role_count"]}</span>
-        <span data-source-risk-refresh-summary>elevated risk roles: {source_risk["elevated_source_risk_role_count"]}</span>
-        <span>cache scope: {_text(refresh["cache_scope"])}</span>
+        <span data-refresh-mode-summary>模式：{_display(refresh["data_mode"])}</span>
+        <span data-last-update-summary>最後可見日期：{_display(last_update.get("latest_visible_observation_date") or "unavailable")}</span>
+        <span data-freshness-summary>可用角色：{freshness["available_fixture_or_cache_role_count"]}</span>
+        <span data-source-risk-refresh-summary>高資料風險角色：{source_risk["elevated_source_risk_role_count"]}</span>
+        <span>cache 範圍：{_display(refresh["cache_scope"])}</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Numeric context", refresh_ux["role_with_numeric_context_count"], "fixture/local cache")}
-        {_metric_card("Available charts", refresh_ux["role_with_available_chart_payload_count"], "YTD / 1Y / 5Y")}
-        {_metric_card("No official series", refresh_ux["role_without_official_series_count"], "visible source gaps")}
-        {_metric_card("Refresh executed", refresh_ux["live_refresh_executed_count"], "must stay zero here")}
+        {_metric_card("數值脈絡", refresh_ux["role_with_numeric_context_count"], "fixture/local cache")}
+        {_metric_card("可用圖表", refresh_ux["role_with_available_chart_payload_count"], "YTD / 1Y / 5Y")}
+        {_metric_card("無官方 series", refresh_ux["role_without_official_series_count"], "visible source gaps")}
+        {_metric_card("已執行 refresh", refresh_ux["live_refresh_executed_count"], "must stay zero here")}
       </div>
       <div class="mini-grid">{cards}</div>
       <section class="panel nested" data-manual-refresh-handoff>
-        <h3>Manual refresh handoff</h3>
+        <h3>手動更新交接</h3>
         <ol>{handoff}</ol>
       </section>
       <section class="panel nested">
-        <h3>Trust caveats</h3>
+        <h3>信任註記</h3>
         <ul>{caveats}</ul>
       </section>
     </section>
@@ -1228,12 +1484,12 @@ def _transition_risk_evidence_accumulation_section(
         <article class="mini-card" data-accumulation-lane-card="{_text(card["lane_id"])}">
           <strong>{_text(card["title_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Transition</dt><dd>{_text(card["transition_id"])}</dd>
-            <dt>Boundary</dt><dd>{_text(card["watch_confirmation_boundary_label"])}</dd>
-            <dt>Status</dt><dd>{_status_badge(card["timing_preview_status"])}</dd>
-            <dt>Events</dt><dd>{card["event_count"]}</dd>
-            <dt>Gaps</dt><dd>{card["missing_evidence_count"]}</dd>
-            <dt>Contradictions</dt><dd>{card["contradictory_evidence_count"]}</dd>
+            <dt>轉折</dt><dd>{_text(card["transition_id"])}</dd>
+            <dt>邊界</dt><dd>{_text(card["watch_confirmation_boundary_label"])}</dd>
+            <dt>狀態</dt><dd>{_status_badge(card["timing_preview_status"])}</dd>
+            <dt>事件</dt><dd>{card["event_count"]}</dd>
+            <dt>缺口</dt><dd>{card["missing_evidence_count"]}</dd>
+            <dt>矛盾</dt><dd>{card["contradictory_evidence_count"]}</dd>
           </dl>
           <p>{_text(card["interpretation_zh"])}</p>
         </article>
@@ -1256,34 +1512,34 @@ def _transition_risk_evidence_accumulation_section(
     return f"""
     <section class="panel" data-transition-risk-evidence-accumulation data-no-phase-selection>
       <div class="section-heading">
-        <h2>Transition risk evidence accumulation</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>轉折風險證據累積</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This section turns the governed transition replay preview into a current dashboard surface for evidence accumulation. It shows what is building, what is missing, and what remains blocked without selecting a phase or producing a rank.</p>
+      <p class="muted">本區把受治理的轉折 replay preview 轉成目前 dashboard 的證據累積視圖：顯示正在累積什麼、缺什麼、哪些仍受阻；不選階段，也不產生排名。</p>
       <div class="status-strip" data-watch-confirmation-boundary-summary>
-        <span>declared state: {_text(summary["declared_current_phase"])}</span>
-        <span>legal next: {_text(summary["legal_next_phase"])}</span>
-        <span>watch is not confirmation</span>
-        <span data-no-role-count-voting>no role-count voting</span>
+        <span>已宣告階段：{_display(summary["declared_current_phase"])}</span>
+        <span>合法下一階段：{_display(summary["legal_next_phase"])}</span>
+        <span>watch 不是 confirmation</span>
+        <span data-no-role-count-voting>不使用角色數投票</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Lane cards", accumulation["transition_accumulation_lane_card_count"], "all legal lanes")}
-        {_metric_card("Accumulation events", accumulation["evidence_accumulation_event_count"], "checkpoint x lane")}
-        {_metric_card("Visible missing events", accumulation["missing_evidence_event_count"], "abstention context")}
-        {_metric_card("Contradictory events", accumulation["contradictory_evidence_event_count"], "not averaged away")}
+        {_metric_card("Lane 卡片", accumulation["transition_accumulation_lane_card_count"], "all legal lanes")}
+        {_metric_card("累積事件", accumulation["evidence_accumulation_event_count"], "checkpoint x lane")}
+        {_metric_card("可見缺漏事件", accumulation["missing_evidence_event_count"], "abstention context")}
+        {_metric_card("矛盾事件", accumulation["contradictory_evidence_event_count"], "not averaged away")}
       </div>
       <div class="status-strip">
-        <span data-missing-evidence-summary>missing lanes: {missing["lane_with_missing_evidence_count"]}; codes: {_text(gap_codes)}</span>
-        <span data-contradictory-evidence-summary>contradictory lanes: {contradiction["contradictory_evidence_lane_count"]}</span>
-        <span>missing values are not neutral</span>
-        <span>metadata-only is not support</span>
+        <span data-missing-evidence-summary>缺漏 lanes：{missing["lane_with_missing_evidence_count"]}；代碼：{_text(gap_codes)}</span>
+        <span data-contradictory-evidence-summary>矛盾 lanes：{contradiction["contradictory_evidence_lane_count"]}</span>
+        <span>缺漏值不視為中性</span>
+        <span>metadata-only 不等於支持證據</span>
       </div>
       <div class="transition-lane-grid">{cards}</div>
       <section class="panel nested">
-        <h3>Next required observations</h3>
+        <h3>下一個必要觀察</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Lane</th><th>Category</th><th>Boundary</th><th>Missing events</th><th>Next observation</th></tr></thead>
+            <thead><tr><th>Lane</th><th>類別</th><th>邊界</th><th>缺漏事件</th><th>下一個觀察</th></tr></thead>
             <tbody>{next_rows}</tbody>
           </table>
         </div>
@@ -1302,11 +1558,11 @@ def _declared_phase_start_confirmation_section(
         <article class="mini-card" data-phase-start-window="{_text(row["window_id"])}">
           <strong>{_text(row["window_label_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Source</dt><dd>{_text(row["window_source"])}</dd>
-            <dt>Window</dt><dd>{_text(row.get("start_date") or "open")} to {_text(row.get("end_date") or "open")}</dd>
-            <dt>Status</dt><dd>{_status_badge(row["confirmation_status"])}</dd>
-            <dt>Risk</dt><dd>{_text(row["data_risk_label"])}</dd>
-            <dt>Exact age</dt><dd>{_text(str(row["can_compute_exact_phase_age"]).lower())}</dd>
+            <dt>來源</dt><dd>{_text(row["window_source"])}</dd>
+            <dt>區間</dt><dd>{_text(row.get("start_date") or "open")} 至 {_text(row.get("end_date") or "open")}</dd>
+            <dt>狀態</dt><dd>{_status_badge(row["confirmation_status"])}</dd>
+            <dt>風險</dt><dd>{_text(row["data_risk_label"])}</dd>
+            <dt>精確 age</dt><dd>{_display(str(row["can_compute_exact_phase_age"]).lower())}</dd>
           </dl>
           <p class="muted">{_text(row["required_user_action"])}</p>
         </article>
@@ -1316,26 +1572,26 @@ def _declared_phase_start_confirmation_section(
     return f"""
     <section class="panel" data-declared-phase-start-confirmation>
       <div class="section-heading">
-        <h2>Declared boom start confirmation</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>已宣告榮景期起始確認</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This panel shows governed start-date context for the declared boom state. It preserves the declared registry, keeps exact phase age unavailable until user confirmation, and does not infer the declared state from latest data.</p>
+      <p class="muted">本面板呈現已宣告榮景期的受治理起始日脈絡。它保留 declared registry，不在使用者確認前產生精確 phase age，也不從最新資料推論 declared state。</p>
       <div class="status-strip" data-phase-age-boundary>
-        <span>declared state: {_text(confirmation["declared_current_phase"])}</span>
-        <span>legal next: {_text(confirmation["legal_next_phase"])}</span>
-        <span>exact start confirmed: {_text(str(confirmation["exact_start_date_confirmed"]).lower())}</span>
-        <span>phase age precision: {_text(str(confirmation["phase_age_precision_allowed"]).lower())}</span>
-        <span data-declared-registry-boundary>registry write allowed: {_text(str(confirmation["registry_write_allowed"]).lower())}</span>
+        <span>已宣告階段：{_display(confirmation["declared_current_phase"])}</span>
+        <span>合法下一階段：{_display(confirmation["legal_next_phase"])}</span>
+        <span>精確起始日已確認：{_display(str(confirmation["exact_start_date_confirmed"]).lower())}</span>
+        <span>允許精確 phase age：{_display(str(confirmation["phase_age_precision_allowed"]).lower())}</span>
+        <span data-declared-registry-boundary>允許 registry 寫入：{_display(str(confirmation["registry_write_allowed"]).lower())}</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Candidate windows", confirmation["candidate_start_window_count"], "confirmation package")}
-        {_metric_card("User prior visible", str(confirmation["user_prior_window_visible"]).lower(), "rough window")}
-        {_metric_card("Evidence window", "abstain" if confirmation["evidence_based_window_abstains"] else "available", "book evidence")}
+        {_metric_card("候選起始區間", confirmation["candidate_start_window_count"], "confirmation package")}
+        {_metric_card("使用者先驗可見", str(confirmation["user_prior_window_visible"]).lower(), "rough window")}
+        {_metric_card("證據區間", "abstain" if confirmation["evidence_based_window_abstains"] else "available", "book evidence")}
         {_metric_card("Phase age", confirmation["phase_age_status_current_value"], confirmation["phase_age_display_policy"])}
       </div>
       <div class="mini-grid">{windows}</div>
       <div class="callout" data-phase-start-next-action>
-        <strong>Next governed action</strong>
+        <strong>下一個受治理動作</strong>
         <span>{_text(confirmation["operator_next_action"])}</span>
       </div>
     </section>
@@ -1352,8 +1608,8 @@ def _declared_phase_start_update_gate_section(
         <article class="mini-card" data-phase-start-update-row="{_text(row["handoff_id"])}">
           <strong>{_text(row["label_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Display policy</dt><dd>{_text(row["display_policy"])}</dd>
-            <dt>Canonical write now</dt><dd>{_text(str(row["canonical_write_in_this_phase"]).lower())}</dd>
+            <dt>顯示政策</dt><dd>{_text(row["display_policy"])}</dd>
+            <dt>本階段 canonical 寫入</dt><dd>{_display(str(row["canonical_write_in_this_phase"]).lower())}</dd>
           </dl>
         </article>
         """
@@ -1362,25 +1618,25 @@ def _declared_phase_start_update_gate_section(
     return f"""
     <section class="panel" data-declared-phase-start-update-gate>
       <div class="section-heading">
-        <h2>Declared phase start registry update gate</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>已宣告階段起始 registry 更新 gate</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This handoff verifies how a user-confirmed declared boom start date or bounded window would update a temporary registry copy. The canonical declared registry is unchanged until a future explicit write gate.</p>
+      <p class="muted">本 handoff 驗證使用者確認的榮景起始日或 bounded window 未來如何更新 temporary registry copy。Canonical declared registry 在未來明確寫入 gate 前不變。</p>
       <div class="status-strip" data-phase-start-update-handoff>
-        <span>declared state: {_text(update_gate["declared_current_phase"])}</span>
-        <span>legal next: {_text(update_gate["legal_next_phase"])}</span>
-        <span>update gate ready: {_text(str(update_gate["update_gate_ready"]).lower())}</span>
-        <span data-canonical-registry-write-boundary>canonical write allowed: {_text(str(update_gate["canonical_registry_write_allowed"]).lower())}</span>
-        <span>bounded-window exact age: {_text(str(update_gate["bounded_window_exact_age_allowed"]).lower())}</span>
+        <span>已宣告階段：{_display(update_gate["declared_current_phase"])}</span>
+        <span>合法下一階段：{_display(update_gate["legal_next_phase"])}</span>
+        <span>更新 gate ready：{_display(str(update_gate["update_gate_ready"]).lower())}</span>
+        <span data-canonical-registry-write-boundary>允許 canonical 寫入：{_display(str(update_gate["canonical_registry_write_allowed"]).lower())}</span>
+        <span>bounded-window 精確 age：{_display(str(update_gate["bounded_window_exact_age_allowed"]).lower())}</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Exact-date age example", update_gate["exact_date_phase_age_example_days"], "dry-run days")}
+        {_metric_card("精確日期 age 範例", update_gate["exact_date_phase_age_example_days"], "dry-run days")}
         {_metric_card("False precision", update_gate["phase_age_false_precision_count"], "must stay zero")}
         {_metric_card("Canonical registry", "unchanged", "future gate required")}
       </div>
       <div class="mini-grid">{rows}</div>
       <div class="callout" data-phase-start-update-next-action>
-        <strong>Next governed action</strong>
+        <strong>下一個受治理動作</strong>
         <span>{_text(update_gate["operator_next_action"])}</span>
       </div>
     </section>
@@ -1397,7 +1653,7 @@ def _current_macro_numeric_chart_coverage_section(
     cache_display_label = trust.get("cache_display_label", "fixture/cache context")
     value_caveat = trust.get(
         "value_caveat",
-        "Fixture/cache values are explanation context only and do not infer the declared state.",
+        "Fixture/cache 數值只作解釋脈絡，不推論 declared state。",
     )
     rows = "".join(
         f"""
@@ -1405,11 +1661,11 @@ def _current_macro_numeric_chart_coverage_section(
           <strong>{_text(row["role_id"])}</strong>
           <p><a class="action-link" data-indicator-trend-link data-coverage-trend-link href="#chart-role-{_text(row["role_id"])}">查看走勢</a></p>
           <dl class="mini-grid">
-            <dt>Phase</dt><dd>{_text(row["phase_or_layer"])}</dd>
-            <dt>Source risk</dt><dd>{_text(row["data_risk_level"])}</dd>
-            <dt>Chart status</dt><dd>{_status_badge(row["chart_coverage_status"])}</dd>
+            <dt>階段/層級</dt><dd>{_display(row["phase_or_layer"])}</dd>
+            <dt>來源風險</dt><dd>{_text(row["data_risk_level"])}</dd>
+            <dt>圖表狀態</dt><dd>{_status_badge(row["chart_coverage_status"])}</dd>
             <dt>Series</dt><dd>{len(row["official_series_ids"])}</dd>
-            <dt>Points</dt><dd>{row["chart_point_count"]}</dd>
+            <dt>資料點</dt><dd>{row["chart_point_count"]}</dd>
           </dl>
         </article>
         """
@@ -1418,24 +1674,24 @@ def _current_macro_numeric_chart_coverage_section(
     return f"""
     <section class="panel" data-current-macro-numeric-chart-coverage>
       <div class="section-heading">
-        <h2>Current macro numeric and chart coverage</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>目前總經數值與圖表覆蓋</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This section verifies current numeric context and YTD / 1Y / 5Y chart payload connectivity. Local current-cache values are revised/latest explanation context only and do not infer the declared state.</p>
+      <p class="muted">本區驗證目前數值脈絡與今年 / 過去一年 / 過去五年圖表 payload 是否可串接。Local current-cache 數值只作 revised/latest 解釋脈絡，不推論 declared state。</p>
       <div class="status-strip" data-chart-coverage-boundary>
-        <span data-chart-coverage-mode>{_text(coverage["data_mode"])}</span>
-        <span data-local-current-cache-scope>{_text(cache_scope)}</span>
-        <span data-local-current-cache-label>{_text(cache_display_label)}</span>
+        <span data-chart-coverage-mode>{_display(coverage["data_mode"])}</span>
+        <span data-local-current-cache-scope>{_display(cache_scope)}</span>
+        <span data-local-current-cache-label>{_display(cache_display_label)}</span>
         <span>{_text(value_caveat)}</span>
-        <span>not point-in-time evidence</span>
-        <span>missing charts are not zero</span>
-        <span>numeric context is not phase support</span>
+        <span>不是 point-in-time 證據</span>
+        <span>缺漏圖表不補零</span>
+        <span>數值脈絡不等於階段支持</span>
       </div>
       <div class="metric-grid">
-        {_metric_card("Official-series roles", coverage["role_count"] - coverage["role_without_official_series_count"], "chart capable")}
-        {_metric_card("Numeric context", coverage["role_with_numeric_context_count"], "fixture/cache")}
-        {_metric_card("Available charts", coverage["role_with_available_chart_payload_count"], "YTD / 1Y / 5Y")}
-        {_metric_card("Unavailable roles", coverage["role_without_official_series_count"], "authorized/private gaps")}
+        {_metric_card("具官方 series 角色", coverage["role_count"] - coverage["role_without_official_series_count"], "chart capable")}
+        {_metric_card("數值脈絡", coverage["role_with_numeric_context_count"], "fixture/cache")}
+        {_metric_card("可用圖表", coverage["role_with_available_chart_payload_count"], "YTD / 1Y / 5Y")}
+        {_metric_card("不可用角色", coverage["role_without_official_series_count"], "authorized/private gaps")}
       </div>
       <div class="mini-grid">{rows}</div>
     </section>
@@ -1459,11 +1715,11 @@ def _boom_lane_card(lane: dict[str, Any]) -> str:
         <h3>{_text(lane["title_zh"])}</h3>
         <p class="muted">{_text(lane["purpose_zh"])}</p>
         <dl class="mini-grid">
-          <dt>Status</dt><dd>{_status_badge(lane["lane_status"])}</dd>
-          <dt>Wired roles</dt><dd>{lane["wired_evidence_count"]}</dd>
-          <dt>Evaluable roles</dt><dd>{lane["evaluable_evidence_count"]}</dd>
-          <dt>Explicit abstentions</dt><dd>{lane["explicit_abstention_count"]}</dd>
-          <dt>Boundary</dt><dd>{_text(lane["watch_confirmation_boundary_zh"])}</dd>
+          <dt>狀態</dt><dd>{_status_badge(lane["lane_status"])}</dd>
+          <dt>已接線角色</dt><dd>{lane["wired_evidence_count"]}</dd>
+          <dt>可評估角色</dt><dd>{lane["evaluable_evidence_count"]}</dd>
+          <dt>明確 abstain</dt><dd>{lane["explicit_abstention_count"]}</dd>
+          <dt>邊界</dt><dd>{_text(lane["watch_confirmation_boundary_zh"])}</dd>
         </dl>
         <p>{_text(lane["book_logic_summary"])}</p>
       </article>
@@ -1493,24 +1749,24 @@ def _boom_indicator_card(card: dict[str, Any]) -> str:
       <article class="transition-indicator-card" data-transition-indicator-card="{_text(card["role_id"])}">
         <h3>{_text(card["title_zh"])}</h3>
         <dl class="mini-grid">
-          <dt>Role</dt><dd><code>{_text(card["role_id"])}</code></dd>
+          <dt>角色</dt><dd><code>{_text(card["role_id"])}</code></dd>
           <dt>Lanes</dt><dd>{_text(lanes)}</dd>
-          <dt>Status</dt><dd>{_status_badge(card["status_label_zh"])}</dd>
-          <dt>Sources</dt><dd>{_text(sources)}</dd>
-          <dt>Context</dt><dd>{_text(context)}</dd>
-          <dt>Data mode</dt><dd>{_text(card["data_mode"])}</dd>
-          <dt>Data risk</dt><dd>{_status_badge(card["data_risk_level"])}</dd>
+          <dt>狀態</dt><dd>{_status_badge(card["status_label_zh"])}</dd>
+          <dt>來源</dt><dd>{_text(sources)}</dd>
+          <dt>脈絡</dt><dd>{_text(context)}</dd>
+          <dt>資料模式</dt><dd>{_display(card["data_mode"])}</dd>
+          <dt>資料風險</dt><dd>{_status_badge(card["data_risk_level"])}</dd>
         </dl>
         <div class="phase-profile-detail">
-          <h4>指標意涵 / Meaning</h4>
+          <h4>指標意涵</h4>
           <p>{_text(card["meaning_zh"])}</p>
         </div>
         <div class="phase-profile-detail">
-          <h4>為什麼重要 / Why it matters</h4>
+          <h4>為什麼重要</h4>
           <p>{_text(card["why_it_matters_zh"])}</p>
         </div>
         <div class="phase-profile-detail">
-          <h4>目前狀況 / Current status</h4>
+          <h4>目前狀況</h4>
           <p>{_text(card["abstention_or_blocker_reason_zh"])}</p>
           <ul>{lane_states}</ul>
         </div>
@@ -1527,32 +1783,32 @@ def _boom_indicator_card(card: dict[str, Any]) -> str:
 
 
 def _phase_profile_card(phase: str, profile: dict[str, Any]) -> str:
-    supportive = _list_items(profile["top_supportive_roles"], "No current supportive role output.")
-    blockers = _list_items(profile["top_blockers"], "No current blocker reported.")
-    why_not = _list_items(profile["why_not_formal_phase"], "Formal gate remains closed.")
+    supportive = _list_items(profile["top_supportive_roles"], "目前沒有支持性角色輸出。")
+    blockers = _list_items(profile["top_blockers"], "目前沒有 blocker。")
+    why_not = _list_items(profile["why_not_formal_phase"], "正式 gate 仍關閉。")
     return f"""
       <article class="phase-profile-card" data-phase-profile-card="{_text(phase)}">
-        <h3>{_text(profile["display_label"])}</h3>
+        <h3>{_display(profile["display_label"])}</h3>
         <dl class="mini-grid">
-          <dt>Evidence readiness</dt><dd>{_text(profile["profile_kind"])}</dd>
-          <dt>Major groups</dt><dd>{profile["major_group_ready_count"]} ready / {profile["major_group_partial_count"]} partial / {profile["major_group_missing_count"]} missing</dd>
-          <dt>Supportive</dt><dd>{profile["supportive_evidence_count"]}</dd>
-          <dt>Contradictory</dt><dd>{profile["contradictory_evidence_count"]}</dd>
-          <dt>Mixed</dt><dd>{profile["mixed_evidence_count"]}</dd>
-          <dt>Unavailable</dt><dd>{profile["unavailable_evidence_count"]}</dd>
-          <dt>Abstained</dt><dd>{profile["abstention_count"]}</dd>
-          <dt>Observation only</dt><dd>{profile["observation_only_count"]}</dd>
+          <dt>證據 readiness</dt><dd>{_display(profile["profile_kind"])}</dd>
+          <dt>主要群組</dt><dd>{profile["major_group_ready_count"]} ready / {profile["major_group_partial_count"]} partial / {profile["major_group_missing_count"]} missing</dd>
+          <dt>支持</dt><dd>{profile["supportive_evidence_count"]}</dd>
+          <dt>矛盾</dt><dd>{profile["contradictory_evidence_count"]}</dd>
+          <dt>混合</dt><dd>{profile["mixed_evidence_count"]}</dd>
+          <dt>不可用</dt><dd>{profile["unavailable_evidence_count"]}</dd>
+          <dt>Abstain</dt><dd>{profile["abstention_count"]}</dd>
+          <dt>僅 observation</dt><dd>{profile["observation_only_count"]}</dd>
         </dl>
         <div class="phase-profile-detail">
-          <h4>Top supportive evidence</h4>
+          <h4>主要支持證據</h4>
           <ul>{supportive}</ul>
         </div>
         <div class="phase-profile-detail" data-top-blockers>
-          <h4>Top blockers</h4>
+          <h4>主要 blockers</h4>
           <ul>{blockers}</ul>
         </div>
         <div class="phase-profile-detail" data-why-not-formal>
-          <h4>Why not formal</h4>
+          <h4>為什麼尚非正式判讀</h4>
           <ul>{why_not}</ul>
         </div>
       </article>
@@ -1583,17 +1839,17 @@ def _latest_major_group_card(group: dict[str, Any]) -> str:
         <h3>{_text(group["phase_label_zh"])} / {_text(group["major_group_id"])}</h3>
         <dl class="mini-grid">
           <dt>Readiness</dt><dd>{_status_badge(group["readiness_status"])}</dd>
-          <dt>Role links</dt><dd>{group["role_drilldown_count"]}</dd>
-          <dt>Formal-ready</dt><dd>{_yes_no(group["group_ready_for_formal_phase"])}</dd>
-          <dt>Candidate eligible</dt><dd>{_yes_no(group["candidate_selection_eligible"])}</dd>
+          <dt>角色連結</dt><dd>{group["role_drilldown_count"]}</dd>
+          <dt>正式判讀 ready</dt><dd>{_yes_no(group["group_ready_for_formal_phase"])}</dd>
+          <dt>候選 eligibility</dt><dd>{_yes_no(group["candidate_selection_eligible"])}</dd>
         </dl>
         <p>{_text(group["readiness_explanation_zh"])}</p>
         <div class="phase-profile-detail">
-          <h4>Role links</h4>
+          <h4>角色連結</h4>
           <ul>{role_links}</ul>
         </div>
         <div class="phase-profile-detail">
-          <h4>Missing / excluded context</h4>
+          <h4>缺漏 / 排除脈絡</h4>
           <ul>{missing}{excluded}</ul>
         </div>
       </article>
@@ -1670,92 +1926,92 @@ def _latest_role_drilldown_card(
         <p><a class="action-link" data-indicator-trend-link data-role-trend-shortcut href="#chart-role-{_text(role["role_id"])}">查看 YTD / 1Y / 5Y 走勢</a></p>
         <p>{_text(role["dashboard_explanation_zh"])}</p>
         <dl class="mini-grid">
-          <dt>Major group</dt><dd>{_text(role["major_group_id"])}</dd>
-          <dt>Source family</dt><dd>{_text(source["source_family"])}</dd>
-          <dt>Data risk</dt><dd>{_status_badge(source["data_risk_level"])}</dd>
-          <dt>Coverage tier</dt><dd>{_text(source["source_coverage_tier"])}</dd>
-          <dt>Replacement allowed</dt><dd>{_yes_no(rule["book_core_replacement_allowed"])}</dd>
-          <dt>Proxy replaces core</dt><dd>{_yes_no(rule["supporting_proxy_can_replace_book_core"])}</dd>
-          <dt>Numeric values</dt><dd>{data_mode["numeric_value_loaded_count"]}</dd>
-          <dt>Point-in-time result</dt><dd>{_yes_no(data_mode["point_in_time_result"])}</dd>
+          <dt>主要群組</dt><dd>{_text(role["major_group_id"])}</dd>
+          <dt>來源 family</dt><dd>{_text(source["source_family"])}</dd>
+          <dt>資料風險</dt><dd>{_status_badge(source["data_risk_level"])}</dd>
+          <dt>覆蓋 tier</dt><dd>{_text(source["source_coverage_tier"])}</dd>
+          <dt>允許替代</dt><dd>{_yes_no(rule["book_core_replacement_allowed"])}</dd>
+          <dt>Proxy 可取代 core</dt><dd>{_yes_no(rule["supporting_proxy_can_replace_book_core"])}</dd>
+          <dt>數值載入</dt><dd>{data_mode["numeric_value_loaded_count"]}</dd>
+          <dt>Point-in-time 結果</dt><dd>{_yes_no(data_mode["point_in_time_result"])}</dd>
         </dl>
         <div class="drilldown-detail-grid">
           <section data-source-detail>
-            <h4>Source detail</h4>
+            <h4>來源細節</h4>
             <p>{_text(source["source_risk_label_zh"])}</p>
-            <p>Series: {_text(", ".join(source["official_series_ids"]) or "none")}</p>
+            <p>Series：{_text(", ".join(source["official_series_ids"]) or "none")}</p>
             <ul>{latest_context}</ul>
           </section>
           <section data-release-timing-detail>
-            <h4>Release timing</h4>
+            <h4>發布時點</h4>
             <ul>{release_rows}</ul>
           </section>
           <section data-freshness-detail>
-            <h4>Freshness</h4>
+            <h4>新鮮度</h4>
             <p>{_text(freshness_counts or "no freshness status")}</p>
-            <p>Fresh enough: {freshness["fresh_enough_series_count"]}; stale/missing: {freshness["stale_or_missing_series_count"]}</p>
+            <p>新鮮度足夠：{freshness["fresh_enough_series_count"]}；過期/缺漏：{freshness["stale_or_missing_series_count"]}</p>
           </section>
           <section data-transformation-detail>
-            <h4>Transformation</h4>
+            <h4>轉換方式</h4>
             <p>{_text(transform["transformation_semantics_status"])}</p>
           </section>
           <section data-rule-usability-detail>
-            <h4>Rule usability</h4>
+            <h4>規則可用性</h4>
             <p>{_text(rule["coverage_status"])}</p>
             <p>{_text(rule["dashboard_display_status"])}</p>
             <p>{_text(rule["evidence_usability_status"])}</p>
           </section>
           <section data-score-transparency-detail>
-            <h4>Diagnostic recipe transparency</h4>
+            <h4>診斷方法透明度</h4>
             <p><strong>{_text(diagnostic["method_id"])}</strong></p>
             <p>{_text(diagnostic["method_purpose_zh"])}</p>
             {score_interpretation}
             <div data-method-recipe-detail>
-              <p>Assignment: {_text(diagnostic["method_assignment_basis_zh"])}</p>
-              <p>Inputs: {_text(", ".join(diagnostic["method_inputs_required"]) or "not declared")}</p>
-              <p>Cleaned input: {_text(cleaned_inputs or "not declared")}</p>
-              <p>Frequency: {_text(diagnostic.get("frequency_handling_zh") or "not declared")}</p>
-              <p>Missing data: {_text(diagnostic.get("missing_value_handling_zh") or "not declared")}</p>
-              <p>Lookback: {_text(diagnostic.get("lookback_rule") or "not declared")}; smoothing {_text(diagnostic.get("smoothing_window") or "not declared")}</p>
-              <p>Trend windows: {_text(", ".join(str(item) for item in diagnostic["trend_window_options"] if item) or "not declared")}</p>
-              <p>Confirmation: {_text(diagnostic["confirmation_window"])}</p>
-              <p>Min history: {_text(diagnostic.get("min_history") or "not declared")}</p>
-              <p>Normalization: {_text(diagnostic.get("normalization_method") or "not declared")}</p>
+              <p>方法歸屬：{_text(diagnostic["method_assignment_basis_zh"])}</p>
+              <p>必要輸入：{_text(", ".join(diagnostic["method_inputs_required"]) or "not declared")}</p>
+              <p>清理後輸入：{_text(cleaned_inputs or "not declared")}</p>
+              <p>頻率處理：{_text(diagnostic.get("frequency_handling_zh") or "not declared")}</p>
+              <p>缺漏資料：{_text(diagnostic.get("missing_value_handling_zh") or "not declared")}</p>
+              <p>Lookback：{_text(diagnostic.get("lookback_rule") or "not declared")}；smoothing {_text(diagnostic.get("smoothing_window") or "not declared")}</p>
+              <p>趨勢視窗：{_text(", ".join(str(item) for item in diagnostic["trend_window_options"] if item) or "not declared")}</p>
+              <p>確認視窗：{_text(diagnostic["confirmation_window"])}</p>
+              <p>最低歷史資料：{_text(diagnostic.get("min_history") or "not declared")}</p>
+              <p>標準化方式：{_text(diagnostic.get("normalization_method") or "not declared")}</p>
             </div>
             <div data-method-directionality-detail>
-              <p>Directionality:</p>
+              <p>方向性：</p>
               <dl class="mini-grid">{directionality}</dl>
             </div>
             <div data-method-confidence-detail>
-              <p>Confidence reducers:</p>
+              <p>信心折減條件：</p>
               <ul>{confidence_reducers}</ul>
             </div>
             <div data-method-pseudo-code-detail>
-              <p>Calculation steps:</p>
+              <p>計算步驟：</p>
               <ol>{pseudo_code}</ol>
             </div>
-            <p>Computed diagnostic value: {_yes_no(diagnostic["computed_diagnostic_value_present"])}</p>
+            <p>已計算診斷值：{_yes_no(diagnostic["computed_diagnostic_value_present"])}</p>
             <p>{_text(diagnostic["legacy_diagnostic_boundary_zh"])}</p>
             <p>{_text(diagnostic["why_not_product_answer_zh"])}</p>
           </section>
           <section id="chart-role-{_text(role["role_id"])}" data-indicator-chart-payload data-indicator-trend-target>
-            <h4>Indicator chart payload</h4>
-            <p data-chart-data-mode>{_text(chart["chart_data_mode"])}</p>
-            <p>Chart available: {_yes_no(chart["chart_available"])}</p>
+            <h4>指標走勢圖</h4>
+            <p data-chart-data-mode>{_display(chart["chart_data_mode"])}</p>
+            <p>圖表可用：{_yes_no(chart["chart_available"])}</p>
             <p data-chart-unavailable-reason>{_text(chart["unavailable_reason"] or "available")}</p>
-            <p class="muted">Trend charts use governed local current-cache or fixture/cache context when available. They are explanation context only and do not infer the declared state.</p>
+            <p class="muted">走勢圖在可用時使用受治理的 local current-cache 或 fixture/cache 脈絡。它只作解釋用途，不推論 declared state。</p>
             {chart_payload}
           </section>
           <section data-provenance-detail>
-            <h4>Provenance</h4>
+            <h4>血緣</h4>
             <p>{_text(provenance["source_indicator_detail_contract"])}</p>
             <p>{_text(provenance["source_continuity_contract"])}</p>
             <p>{_text(provenance["source_major_group_profile_contract"])}</p>
             <p>{_text(provenance["source_chart_payload_contract"])}</p>
-            <p>Data mode: {_text(data_mode["display_data_mode"])}</p>
+            <p>資料模式：{_display(data_mode["display_data_mode"])}</p>
           </section>
           <section data-abstention-detail>
-            <h4>Abstention / next gap</h4>
+            <h4>Abstain / 下一缺口</h4>
             <p>{_text(abstention["why_not_evidence_zh"])}</p>
             <p>{_text(abstention["stale_or_missing_explanation_zh"])}</p>
             <p>{_text(role["next_gap_zh"])}</p>
@@ -1791,13 +2047,13 @@ def _plain_list_items(items: Any, empty: str) -> str:
 
 def _ordered_plain_items(items: Any) -> str:
     if not isinstance(items, list) or not items:
-        return "<li>No calculation steps declared.</li>"
+        return "<li>尚未宣告計算步驟。</li>"
     return "".join(f"<li>{_text(item)}</li>" for item in items)
 
 
 def _definition_list_items(mapping: dict[str, Any]) -> str:
     if not mapping:
-        return "<dt>not_declared</dt><dd>No directionality declared.</dd>"
+        return "<dt>not_declared</dt><dd>尚未宣告方向性。</dd>"
     return "".join(
         f"<dt>{_text(key)}</dt><dd>{_text(value)}</dd>"
         for key, value in mapping.items()
@@ -1808,7 +2064,7 @@ def _score_interpretation_html(interpretation: dict[str, Any]) -> str:
     if not interpretation:
         return """
             <div data-score-interpretation-detail>
-              <p>Score interpretation not declared.</p>
+              <p>尚未宣告分數解讀。</p>
             </div>
         """
     return f"""
@@ -1872,13 +2128,13 @@ def _chart_period_card(period: dict[str, Any]) -> str:
         for point in points[-6:]
     )
     if not point_items:
-        point_items = "<li>No numeric points available for this period.</li>"
+        point_items = "<li>此期間沒有可用數值點。</li>"
     return f"""
       <div class="chart-period-card" data-chart-period="{_text(period["period_id"])}">
         <strong>{_text(period["label"])}</strong>
         <span>{_status_badge(period["chart_status"])}</span>
-        <p>{_text(period["start_date"])} to {_text(period["end_date"])}</p>
-        <p>Points: {period["point_count"]}; first {first_value}; last {last_value}</p>
+        <p>{_text(period["start_date"])} 至 {_text(period["end_date"])}</p>
+        <p>資料點：{period["point_count"]}；第一筆 {first_value}；最後一筆 {last_value}</p>
         <p data-trend-unavailable-reason>{_text(period["unavailable_reason"] or "chart data available")}</p>
         {sparkline}
         <ul class="chart-points">{point_items}</ul>
@@ -1891,7 +2147,7 @@ def _trend_sparkline_svg(period: dict[str, Any]) -> str:
     if len(points) < 2 or period["chart_status"] != "available":
         return """
         <div class="trend-chart-empty" data-trend-chart-empty>
-          Trend line unavailable for this period.
+          此期間無法繪製趨勢線。
         </div>
         """
     width = 220
@@ -1941,10 +2197,10 @@ def _latest_observation_context_item(item: dict[str, Any]) -> str:
     return f"""
       <li>
         <code>{_text(item["series_id"])}</code>
-        <span>{_text(item["source_mode"])}</span>
+        <span>{_display(item["source_mode"])}</span>
         <span>{_text(item["frequency"])}</span>
-        <span>latest {_text(item["latest_observation_date"])}</span>
-        <span>value {_text(_value_or_text(item.get("latest_value"), "not loaded"))}</span>
+        <span>最新 {_text(item["latest_observation_date"])}</span>
+        <span>數值 {_text(_value_or_text(item.get("latest_value"), "not loaded"))}</span>
       </li>
     """
 
@@ -1955,8 +2211,8 @@ def _release_context_item(item: dict[str, Any]) -> str:
         <code>{_text(item["series_id"])}</code>
         <span>{_text(item["release_family"])}</span>
         <span>{_text(item["frequency"])}</span>
-        <span>expected {_text(item["expected_reference_period"])}</span>
-        <span>observed {_text(item["observed_reference_period"])}</span>
+        <span>預期 {_text(item["expected_reference_period"])}</span>
+        <span>觀察 {_text(item["observed_reference_period"])}</span>
       </li>
     """
 
@@ -1964,28 +2220,28 @@ def _release_context_item(item: dict[str, Any]) -> str:
 def _page(title: str, active_href: str, body: str) -> str:
     nav = _nav(active_href)
     return f"""<!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{_text(title)} - Research Validation Dashboard</title>
+  <title>{_display(title)} - 景氣循環研究儀表板</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="assets/dashboard.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html">Research Validation</a>
-    <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+    <a class="brand" href="index.html">景氣循環研究儀表板</a>
+    <span class="badge badge-research" data-research-only-label>研究用途</span>
   </header>
   <div class="shell">
-    <nav class="sidebar" aria-label="Research dashboard navigation">{nav}</nav>
+    <nav class="sidebar" aria-label="研究儀表板導覽">{nav}</nav>
     <main>
       <div class="trust-ribbon">
-        <span>research-only</span>
-        <span>validation-only</span>
-        <span>not production</span>
-        <span>not investment advice</span>
-        <span>candidate/current outputs disabled</span>
+        <span>研究用途</span>
+        <span>驗證用途</span>
+        <span>非正式 production</span>
+        <span>不構成投資建議</span>
+        <span>不輸出候選階段或目前階段</span>
       </div>
       {body}
     </main>
@@ -1998,21 +2254,21 @@ def _page(title: str, active_href: str, body: str) -> str:
 
 def _nav(active_href: str) -> str:
     links = [
-        ("index.html", "Overview"),
-        ("scenarios.html", "Scenarios"),
-        ("validation.html", "Validation"),
-        ("evidence.html", "Evidence"),
-        ("lineage.html", "Lineage"),
-        ("pit-gaps.html", "PIT gaps"),
+        ("index.html", "總覽"),
+        ("scenarios.html", "歷史情境"),
+        ("validation.html", "驗證結果"),
+        ("evidence.html", "證據總覽"),
+        ("lineage.html", "資料血緣"),
+        ("pit-gaps.html", "PIT 缺口"),
     ]
     if active_href == CURRENT_SNAPSHOT_PAGE:
-        links.append((CURRENT_SNAPSHOT_PAGE, "Current snapshot"))
+        links.append((CURRENT_SNAPSHOT_PAGE, "目前研究快照"))
     if active_href == BOOM_TRANSITION_PAGE:
-        links.append((BOOM_TRANSITION_PAGE, "Boom transition"))
+        links.append((BOOM_TRANSITION_PAGE, "榮景轉折"))
     if active_href == LATEST_EVIDENCE_PAGE:
-        links.append((LATEST_EVIDENCE_PAGE, "Latest evidence"))
+        links.append((LATEST_EVIDENCE_PAGE, "最新證據"))
     if active_href == PORTFOLIO_REPLAY_PAGE:
-        links.append((PORTFOLIO_REPLAY_PAGE, "Portfolio replay"))
+        links.append((PORTFOLIO_REPLAY_PAGE, "Portfolio 研究"))
     items = []
     for href, label in links:
         active = ' class="active"' if href == active_href else ""
@@ -2026,9 +2282,9 @@ def _current_snapshot_entry(bundle: dict[str, Any]) -> str:
     snapshot = bundle["current_snapshot"]
     return f"""
       <div class="callout" data-current-snapshot-entry>
-        <strong>Current Research Snapshot</strong>
-        <span>{_text(snapshot["snapshot_as_of"])} / {_text(snapshot["data_mode"])}</span>
-        <a href="{CURRENT_SNAPSHOT_PAGE}">Open current snapshot</a>
+        <strong>目前研究快照</strong>
+        <span>{_text(snapshot["snapshot_as_of"])} / {_display(snapshot["data_mode"])}</span>
+        <a href="{CURRENT_SNAPSHOT_PAGE}">查看目前研究快照</a>
       </div>
     """
 
@@ -2039,9 +2295,9 @@ def _boom_transition_entry(bundle: dict[str, Any]) -> str:
     surface = bundle["boom_transition_dashboard"]
     return f"""
       <div class="callout" data-boom-transition-entry>
-        <strong>Declared Boom Transition Monitor</strong>
-        <span>{_text(surface["monitor_as_of"])} / legal next {_text(surface["legal_next_phase"])}</span>
-        <a href="{BOOM_TRANSITION_PAGE}">Open transition monitor</a>
+        <strong>已宣告榮景期轉折監測</strong>
+        <span>{_text(surface["monitor_as_of"])} / 合法下一階段 {_display(surface["legal_next_phase"])}</span>
+        <a href="{BOOM_TRANSITION_PAGE}">查看轉折監測</a>
       </div>
     """
 
@@ -2052,9 +2308,9 @@ def _latest_evidence_entry(bundle: dict[str, Any]) -> str:
     drilldown = bundle["indicator_dashboard_explanation_drilldown"]
     return f"""
       <div class="callout" data-latest-evidence-entry>
-        <strong>Latest Evidence / Indicator Drilldown</strong>
-        <span>{drilldown["major_group_drilldown_count"]} groups / {drilldown["role_drilldown_count"]} roles</span>
-        <a href="{LATEST_EVIDENCE_PAGE}">Open latest evidence</a>
+        <strong>最新證據與指標細節</strong>
+        <span>{drilldown["major_group_drilldown_count"]} 個群組 / {drilldown["role_drilldown_count"]} 個角色</span>
+        <a href="{LATEST_EVIDENCE_PAGE}">查看最新證據</a>
       </div>
     """
 
@@ -2065,9 +2321,9 @@ def _portfolio_replay_entry(bundle: dict[str, Any]) -> str:
     surface = bundle["portfolio_replay_dashboard_surface"]
     return f"""
       <div class="callout" data-portfolio-replay-entry>
-        <strong>Portfolio / Replay Research Surface</strong>
-        <span>{surface["research_backtest_artifact_count"]} artifacts / {surface["metric_formula_reference_family_count"]} metric formulas referenced only</span>
-        <a href="{PORTFOLIO_REPLAY_PAGE}">Open portfolio replay research</a>
+        <strong>Portfolio policy 與歷史重播研究</strong>
+        <span>{surface["research_backtest_artifact_count"]} 個 artifacts / {surface["metric_formula_reference_family_count"]} 個 metric formulas 僅參照</span>
+        <a href="{PORTFOLIO_REPLAY_PAGE}">查看 portfolio replay 研究</a>
       </div>
     """
 
@@ -2084,35 +2340,35 @@ def _portfolio_replay_page(bundle: dict[str, Any]) -> str:
     body = f"""
     <section class="panel" data-dashboard-view="portfolio_replay_dashboard_surface" data-portfolio-replay-surface>
       <div class="section-heading">
-        <h1>Portfolio / Replay Research Surface</h1>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h1>Portfolio policy 與歷史重播研究</h1>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This surface connects replay rows, policy schedule references, cash-flow kernel assumptions, and research-only backtest artifacts. It does not compute metric values, recommend current allocation, emit trade instructions, or change the declared phase.</p>
+      <p class="muted">本頁串接 replay rows、policy schedule 參照、cash-flow kernel 假設與 research-only backtest artifacts。它不計算 metric 值、不建議目前配置、不輸出交易指令，也不改變 declared phase。</p>
       <div class="status-strip">
-        <span>metric values not computed</span>
-        <span>backtest execution disabled</span>
-        <span>declared state preserved</span>
-        <span>local research dashboard only</span>
+        <span>尚未計算 metric 值</span>
+        <span>回測執行停用</span>
+        <span>保留已宣告階段</span>
+        <span>僅本機/Pages 研究 dashboard</span>
       </div>
       <div class="metric-grid">
         {_metric_card("Artifacts", surface["research_backtest_artifact_count"], "scenario x data mode")}
-        {_metric_card("Scenarios", surface["scenario_count"], "validation manifest")}
-        {_metric_card("Data modes", surface["replay_data_mode_count"], "strict/revised separated")}
-        {_metric_card("Metric formulas", surface["metric_formula_reference_family_count"], "referenced, not computed")}
+        {_metric_card("情境", surface["scenario_count"], "validation manifest")}
+        {_metric_card("資料模式", surface["replay_data_mode_count"], "strict/revised separated")}
+        {_metric_card("Metric formulas", surface["metric_formula_reference_family_count"], "僅參照，未計算")}
       </div>
       <section class="panel nested" data-policy-schedule-reference data-cash-flow-kernel-reference>
-        <h2>Policy schedule and cash-flow kernel references</h2>
+        <h2>Policy schedule 與現金流 kernel 參照</h2>
         <dl class="definition-grid">
           <dt>Policy schedule</dt><dd><code>{_text(surface["policy_schedule_summary"]["contract_id"])}</code></dd>
           <dt>Template schedules</dt><dd>{surface["policy_schedule_summary"]["template_with_schedule_count"]}</dd>
-          <dt>Cash-flow kernel</dt><dd><code>{_text(surface["cash_flow_kernel_summary"]["contract_id"])}</code></dd>
-          <dt>Kernel components</dt><dd>{surface["cash_flow_kernel_summary"]["kernel_component_count"]}</dd>
-          <dt>Metric status</dt><dd data-metric-formula-reference>{surface["metric_formula_reference_family_count"]} formulas referenced; values not computed</dd>
+          <dt>現金流 kernel</dt><dd><code>{_text(surface["cash_flow_kernel_summary"]["contract_id"])}</code></dd>
+          <dt>Kernel 元件</dt><dd>{surface["cash_flow_kernel_summary"]["kernel_component_count"]}</dd>
+          <dt>Metric 狀態</dt><dd data-metric-formula-reference>{surface["metric_formula_reference_family_count"]} 個公式僅參照；未計算數值</dd>
         </dl>
       </section>
       <div class="card-grid">{cards}</div>
       <section class="panel nested">
-        <h2>Artifact lineage drill-down</h2>
+        <h2>Artifact 血緣細節</h2>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Artifact</th><th>Replay row</th><th>Policy</th><th>Kernel</th><th>Metric registry</th><th>Input hash</th></tr></thead>
@@ -2121,7 +2377,7 @@ def _portfolio_replay_page(bundle: dict[str, Any]) -> str:
         </div>
       </section>
       <section class="panel nested">
-        <h2>Caveats</h2>
+        <h2>限制與註記</h2>
         <ul>{caveats}</ul>
       </section>
     </section>
@@ -2135,10 +2391,10 @@ def _portfolio_replay_card(row: dict[str, Any]) -> str:
       <article class="mini-card" data-backtest-artifact-card="{_text(row["artifact_id"])}">
         <strong>{_text(row["scenario_id"])}</strong>
         <dl class="mini-grid">
-          <dt>Data mode</dt><dd>{_text(row["data_mode"])}</dd>
-          <dt>Status</dt><dd>{_status_badge(row["artifact_status"])}</dd>
+          <dt>資料模式</dt><dd>{_display(row["data_mode"])}</dd>
+          <dt>狀態</dt><dd>{_status_badge(row["artifact_status"])}</dd>
           <dt>Formula refs</dt><dd>{row["metric_formula_ref_count"]}</dd>
-          <dt>Metric values</dt><dd>{_text(row["metric_value_status"])}</dd>
+          <dt>Metric 值</dt><dd>{_display(row["metric_value_status"])}</dd>
         </dl>
         <p class="muted"><code>{_text(row["input_hash"])}</code></p>
       </article>
@@ -2183,56 +2439,56 @@ def _portfolio_policy_replay_research_section(surface: dict[str, Any] | None) ->
     return f"""
     <section class="panel" data-dashboard-view="portfolio_policy_replay_research_surface" data-policy-replay-research-surface>
       <div class="section-heading">
-        <h2>Portfolio Policy Replay Research Surface</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>Portfolio policy replay 研究</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This section explains research-only allocation templates and how they would be reviewed in future replay/backtest work. It does not execute a replay, compute performance, or produce a personalized trading instruction.</p>
+      <p class="muted">本區說明研究性配置模板，以及未來如何在 replay/backtest 中檢視。它不執行 replay、不計算績效，也不產生個人化交易指令。</p>
       <div class="status-strip" data-no-personalized-trade-instruction>
         <span>policy replay execution disabled</span>
-        <span>backtest execution disabled</span>
-        <span>metric values not computed</span>
-        <span>research allocation templates allowed</span>
-        <span>no personalized trading instruction</span>
+        <span>回測執行停用</span>
+        <span>尚未計算 metric 值</span>
+        <span>允許研究性配置模板</span>
+        <span>不產生個人化交易指令</span>
       </div>
       <div class="metric-grid">
         {_metric_card("Templates", surface["policy_template_count"], "research-only")}
         {_metric_card("Schedules", surface["replay_schedule_row_count"], "pre-registered")}
-        {_metric_card("Scenario coverage", surface["scenario_policy_coverage_row_count"], "scenario x template")}
-        {_metric_card("Caveats", surface["renderer_caveat_count"], "visible guardrails")}
+        {_metric_card("情境覆蓋", surface["scenario_policy_coverage_row_count"], "scenario x template")}
+        {_metric_card("註記", surface["renderer_caveat_count"], "visible guardrails")}
       </div>
       <section class="panel nested">
-        <h3>Policy template catalog</h3>
+        <h3>Policy template 目錄</h3>
         <div class="mini-grid">{templates}</div>
       </section>
       <section class="panel nested">
         <h3>Replay schedule matrix</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Template</th><th>Family</th><th>Trigger context</th><th>Required transition inputs</th><th>Data mode</th></tr></thead>
+            <thead><tr><th>Template</th><th>類型</th><th>觸發脈絡</th><th>必要轉折輸入</th><th>資料模式</th></tr></thead>
             <tbody>{schedules}</tbody>
           </table>
         </div>
       </section>
       <section class="panel nested">
-        <h3>Cost and turnover assumptions</h3>
+        <h3>成本與 turnover 假設</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Template</th><th>Cost policy</th><th>Clock policy</th><th>Turnover</th><th>False signal</th><th>Missed recovery</th></tr></thead>
+            <thead><tr><th>Template</th><th>成本政策</th><th>時鐘政策</th><th>Turnover</th><th>False signal</th><th>Missed recovery</th></tr></thead>
             <tbody>{costs}</tbody>
           </table>
         </div>
       </section>
       <section class="panel nested">
-        <h3>Scenario policy coverage</h3>
+        <h3>情境 policy 覆蓋</h3>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Scenario</th><th>Template</th><th>Status</th><th>Data mode</th></tr></thead>
+            <thead><tr><th>情境</th><th>Template</th><th>狀態</th><th>資料模式</th></tr></thead>
             <tbody>{coverage}</tbody>
           </table>
         </div>
       </section>
       <section class="panel nested">
-        <h3>Research-only caveats</h3>
+        <h3>研究用途註記</h3>
         <ul>{caveats}</ul>
       </section>
     </section>
@@ -2242,13 +2498,13 @@ def _portfolio_policy_replay_research_section(surface: dict[str, Any] | None) ->
 def _policy_template_card(row: dict[str, Any]) -> str:
     return f"""
       <article class="mini-card" data-policy-template-card="{_text(row["template_id"])}">
-        <span class="badge" data-research-allocation-template>Research allocation template</span>
+        <span class="badge" data-research-allocation-template>研究性配置模板</span>
         <strong>{_text(row["template_id"])}</strong>
         <p>{_text(row["template_name_zh"])}</p>
         <dl class="mini-grid">
-          <dt>Family</dt><dd>{_text(row["template_family"])}</dd>
+          <dt>類型</dt><dd>{_text(row["template_family"])}</dd>
           <dt>Schedule</dt><dd>{_text(row["schedule_family"])}</dd>
-          <dt>Execution now</dt><dd>{_text(str(row["execution_allowed_now"]).lower())}</dd>
+          <dt>現在可執行</dt><dd>{_display(str(row["execution_allowed_now"]).lower())}</dd>
         </dl>
       </article>
     """
@@ -2262,7 +2518,7 @@ def _policy_replay_schedule_row(row: dict[str, Any]) -> str:
         <td>{_text(row["schedule_family"])}</td>
         <td>{_text(row["research_trigger_context_zh"])}</td>
         <td>{_text(required)}</td>
-        <td>{_text(row["data_mode_policy"])}</td>
+        <td>{_display(row["data_mode_policy"])}</td>
       </tr>
     """
 
@@ -2286,7 +2542,7 @@ def _policy_scenario_coverage_row(row: dict[str, Any]) -> str:
         <td><code>{_text(row["scenario_id"])}</code></td>
         <td><code>{_text(row["template_id"])}</code></td>
         <td>{_status_badge(row["coverage_status"])}</td>
-        <td>{_text(row["data_mode_policy"])}</td>
+        <td>{_display(row["data_mode_policy"])}</td>
       </tr>
     """
 
@@ -2308,11 +2564,11 @@ def _transition_timing_replay_preview_section(preview: dict[str, Any] | None) ->
         <article class="mini-card" data-transition-lane-timing-preview="{_text(row["lane_id"])}">
           <strong>{_text(row["title_zh"])}</strong>
           <dl class="mini-grid">
-            <dt>Transition</dt><dd>{_text(row["transition_id"])}</dd>
+            <dt>轉折</dt><dd>{_text(row["transition_id"])}</dd>
             <dt>Lane</dt><dd>{_text(row["lane_category"])}</dd>
-            <dt>Status</dt><dd>{_status_badge(row["timing_preview_status"])}</dd>
-            <dt>Groups</dt><dd>{len(row["major_group_profile_refs"])}</dd>
-            <dt>Roles</dt><dd>{len(row["continuity_role_refs"])}</dd>
+            <dt>狀態</dt><dd>{_status_badge(row["timing_preview_status"])}</dd>
+            <dt>群組</dt><dd>{len(row["major_group_profile_refs"])}</dd>
+            <dt>角色</dt><dd>{len(row["continuity_role_refs"])}</dd>
           </dl>
           <p>{_text(row["accumulation_interpretation_zh"])}</p>
         </article>
@@ -2334,26 +2590,26 @@ def _transition_timing_replay_preview_section(preview: dict[str, Any] | None) ->
     return f"""
     <section class="panel" data-transition-timing-replay-preview>
       <div class="section-heading">
-        <h2>Transition timing replay preview</h2>
-        <span class="badge badge-research" data-research-only-label>RESEARCH ONLY</span>
+        <h2>轉折時點重播預覽</h2>
+        <span class="badge badge-research" data-research-only-label>研究用途</span>
       </div>
-      <p class="muted">This preview shows how transition evidence would be accumulated across governed checkpoints. It does not run historical validation, compute accuracy, select a candidate phase, or infer the current phase.</p>
+      <p class="muted">本預覽顯示轉折證據如何在受治理 checkpoint 間累積。它不執行歷史驗證、不計算 accuracy、不選候選階段，也不推論目前階段。</p>
       <div class="status-strip" data-transition-replay-boundary>
-        <span>declared state preserved</span>
-        <span>watch is not confirmation</span>
-        <span>missing values abstain</span>
-        <span>no phase score or rank</span>
+        <span>保留已宣告階段</span>
+        <span>watch 不是 confirmation</span>
+        <span>缺漏值導致 abstain</span>
+        <span>不輸出階段分數或排名</span>
       </div>
       <div class="metric-grid">
         {_metric_card("Checkpoints", preview["transition_replay_checkpoint_count"], "replay preview")}
         {_metric_card("Lane previews", preview["transition_lane_timing_preview_count"], "legal transitions")}
-        {_metric_card("Accumulation events", preview["evidence_accumulation_event_count"], "research-only")}
+        {_metric_card("累積事件", preview["evidence_accumulation_event_count"], "research-only")}
       </div>
       <div class="mini-grid">{checkpoints}</div>
       <div class="transition-lane-grid">{lanes}</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Checkpoint</th><th>Transition</th><th>Lane</th><th>Status</th><th>Abstention</th></tr></thead>
+          <thead><tr><th>Checkpoint</th><th>轉折</th><th>Lane</th><th>狀態</th><th>Abstain</th></tr></thead>
           <tbody>{events}</tbody>
         </table>
       </div>
@@ -2365,10 +2621,10 @@ def _overview_scenario_row(scenario: dict[str, Any]) -> str:
     return (
         "<tr>"
         f"<td>{_text(scenario['scenario_name'])}</td>"
-        f"<td>{_text(scenario['window_start'])} to {_text(scenario['window_end'])}</td>"
+        f"<td>{_text(scenario['window_start'])} 至 {_text(scenario['window_end'])}</td>"
         f"<td>{_status_badge(scenario['comparability_label'])}</td>"
-        f"<td>{_text(scenario['research_decision_state'])}</td>"
-        f"<td><a href=\"{_text(scenario['detail_href'])}\">Open detail</a></td>"
+        f"<td>{_display(scenario['research_decision_state'])}</td>"
+        f"<td><a href=\"{_text(scenario['detail_href'])}\">查看細節</a></td>"
         "</tr>"
     )
 
@@ -2386,11 +2642,11 @@ def _scenario_table_row(scenario: dict[str, Any]) -> str:
     return f"""<tr data-status="{_text(scenario['comparability_label'])}" data-search="{_text(search_text).lower()}">
       <td>{_text(scenario["scenario_name"])}<br><code>{_text(scenario["scenario_id"])}</code></td>
       <td>{_text(scenario["scenario_family"])}</td>
-      <td>{_text(scenario["research_decision_state"])}</td>
-      <td>{_text(scenario["predicted_label"])}</td>
+      <td>{_display(scenario["research_decision_state"])}</td>
+      <td>{_display(scenario["predicted_label"])}</td>
       <td>{_status_badge(scenario["comparison_status"])}</td>
       <td>{scenario["pit_gap_count"]}</td>
-      <td><a href="{_text(scenario["detail_href"])}">Open detail</a></td>
+      <td><a href="{_text(scenario["detail_href"])}">查看細節</a></td>
     </tr>"""
 
 
@@ -2408,13 +2664,13 @@ def _evidence_table_row(row: dict[str, Any]) -> str:
     )
     return f"""<tr data-gap="{status}" data-search="{_text(search).lower()}">
       <td>{_text(row["scenario_id"])}</td>
-      <td>{_text(row["phase_or_layer"])}</td>
+      <td>{_display(row["phase_or_layer"])}</td>
       <td>{_text(row["major_group_id"])}</td>
       <td><code>{_text(row["role_id"])}</code></td>
       <td>{_text(", ".join(row["required_series_ids"]))}</td>
       <td>{_status_badge(row["evidence_state"])}</td>
-      <td>{_text(row["post_gap_class"])}</td>
-      <td>{_text(row["classification"])}</td>
+      <td>{_display(row["post_gap_class"])}</td>
+      <td>{_display(row["classification"])}</td>
     </tr>"""
 
 
@@ -2435,7 +2691,7 @@ def _source_availability_row(row: dict[str, Any]) -> str:
       <td>{_text(row["source"])}</td>
       <td>{_text(row["frequency"])}</td>
       <td>{_status_badge(row["availability_status"])}</td>
-      <td>{_text(row.get("source_mode", "fixture"))}<br><span class="muted">{_text(row.get("freshness_status", "legacy"))}</span></td>
+      <td>{_display(row.get("source_mode", "fixture"))}<br><span class="muted">{_display(row.get("freshness_status", "legacy"))}</span></td>
       <td>{_text(row.get("latest_observation_date", "unknown"))}</td>
       <td>{_text(row["latest_verified_vintage_date"])}</td>
       <td>{_yes_no(row["stale"])}</td>
@@ -2503,7 +2759,7 @@ def _metric_summary_row(metric: dict[str, Any]) -> str:
       <td>{value}</td>
       <td>{_text(numerator)}</td>
       <td>{_text(denominator)}</td>
-      <td>{_text(interpretation)}</td>
+      <td>{_display(interpretation)}</td>
     </tr>"""
 
 
@@ -2518,16 +2774,16 @@ def _metric_state_row(metric: dict[str, Any]) -> str:
 
 def _metric_value(metric: dict[str, Any]) -> str:
     if metric.get("value") is None:
-        return '<span class="muted">undefined by preregistered prerequisite</span>'
+        return '<span class="muted">依預註冊前置條件尚未定義</span>'
     return _text(metric["value"])
 
 
 def _metric_card(label: str, value: Any, note: str) -> str:
     return (
         '<div class="metric-card">'
-        f"<span>{_text(label)}</span>"
-        f"<strong>{_text(value)}</strong>"
-        f"<em>{_text(note)}</em>"
+        f"<span>{_display(label)}</span>"
+        f"<strong>{_display(value)}</strong>"
+        f"<em>{_display(note)}</em>"
         "</div>"
     )
 
@@ -2535,11 +2791,11 @@ def _metric_card(label: str, value: Any, note: str) -> str:
 def _status_badge(value: Any) -> str:
     text = _text(value)
     slug = "".join(ch if ch.isalnum() else "-" for ch in text.lower()).strip("-")
-    return f'<span class="status status-{slug}">{text}</span>'
+    return f'<span class="status status-{slug}">{_display(value)}</span>'
 
 
 def _yes_no(value: bool) -> str:
-    return "yes" if value else "no"
+    return "是" if value else "否"
 
 
 def _value_or_text(value: Any, fallback: str) -> str:
@@ -2547,7 +2803,30 @@ def _value_or_text(value: Any, fallback: str) -> str:
 
 
 def _empty_row(colspan: int, message: str) -> str:
-    return f'<tr><td colspan="{colspan}" class="muted">{_text(message)}</td></tr>'
+    return f'<tr><td colspan="{colspan}" class="muted">{_display(message)}</td></tr>'
+
+
+def _display(value: Any) -> str:
+    """Escape user-visible dashboard text with a Traditional Chinese label map."""
+
+    raw = str(value)
+    mapped = _display_raw(raw)
+    return escape(mapped)
+
+
+def _display_raw(raw: str) -> str:
+    lowered = raw.lower()
+    if raw in DISPLAY_TEXT_ZH:
+        return DISPLAY_TEXT_ZH[raw]
+    if raw in STATUS_TEXT_ZH:
+        return STATUS_TEXT_ZH[raw]
+    if lowered in PHASE_LABEL_ZH:
+        return PHASE_LABEL_ZH[lowered]
+    if lowered in DISPLAY_TEXT_ZH:
+        return DISPLAY_TEXT_ZH[lowered]
+    if lowered in STATUS_TEXT_ZH:
+        return STATUS_TEXT_ZH[lowered]
+    return raw
 
 
 def _text(value: Any) -> str:

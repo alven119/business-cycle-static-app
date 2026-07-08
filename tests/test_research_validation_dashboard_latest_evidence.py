@@ -56,8 +56,8 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
     assert result["prohibited_action_field_count"] == 0
     assert (tmp_path / "data" / "dashboard_bundle.json").is_file()
     assert 'data-dashboard-view="indicator_dashboard_explanation_drilldown"' in html
-    assert "Latest Evidence / Indicator Drilldown" in html
-    assert "phase score is not the product answer" in html
+    assert "最新證據與指標細節" in html
+    assert "階段分數不是產品答案" in html
     assert html.count("data-major-group-drilldown=") == 24
     assert html.count("data-role-drilldown=") == 39
     assert html.count("data-source-detail") == 39
@@ -81,11 +81,11 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
     assert html.count('data-chart-period="trailing_5y"') == 39
     assert html.count("data-chart-data-mode") == 39
     assert html.count("data-chart-unavailable-reason") == 39
-    assert "diagnostic method recipe visible" in html
-    assert "Diagnostic recipe transparency" in html
-    assert "Confidence reducers" in html
-    assert "Calculation steps" in html
-    assert "unavailable charts are not zero" in html
+    assert "診斷方法配方可見" in html
+    assert "診斷方法透明度" in html
+    assert "信心折減條件" in html
+    assert "計算步驟" in html
+    assert "不可用圖表不補零" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 
@@ -107,8 +107,8 @@ def test_latest_evidence_dashboard_renders_phase69_start_confirmation(
     assert "data-declared-phase-start-confirmation" in html
     assert html.count("data-phase-start-window=") == 3
     assert "使用者粗略假設" in html
-    assert "registry write allowed: false" in html
-    assert "phase age precision: false" in html
+    assert "允許 registry 寫入：否" in html
+    assert "允許精確 phase age：否" in html
     assert "CONFIRM_DECLARED_BOOM_START_DATE_OR_WINDOW" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
@@ -131,7 +131,7 @@ def test_latest_evidence_dashboard_renders_phase71_update_gate(tmp_path) -> None
     assert "data-declared-phase-start-update-gate" in html
     assert "data-phase-start-update-handoff" in html
     assert html.count("data-phase-start-update-row=") == 3
-    assert "canonical write allowed: false" in html
+    assert "允許 canonical 寫入：否" in html
     assert "SUPPLY_EXPLICIT_START_DATE_OR_WINDOW" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
@@ -153,7 +153,7 @@ def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
     assert result["browser_missing_required_element_count"] == 0
     assert "data-current-macro-numeric-chart-coverage" in html
     assert "data-chart-coverage-mode" in html
-    assert "fixture_current_cache_connectivity" in html
+    assert "fixture/current-cache 連線驗證" in html
     assert html.count("data-current-macro-chart-row=") == 39
     assert html.count("data-coverage-trend-link") == 39
     assert html.count("data-indicator-trend-link") == 78
@@ -164,7 +164,7 @@ def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
     assert html.count("data-trend-chart-svg") == 111
     assert html.count("data-trend-chart-empty") == 6
     assert "查看走勢" in html
-    assert "numeric context is not phase support" in html
+    assert "數值脈絡不等於階段支持" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 
@@ -193,10 +193,10 @@ def test_latest_evidence_dashboard_renders_decision_explanation(
     assert "data-why-not-formal-summary" in html
     assert html.count("data-decision-explanation-card") == 5
     assert html.count("data-dashboard-trust-caveat") == 5
-    assert "Dashboard decision explanation" in html
-    assert "declared state: boom" in html
-    assert "legal next: recession" in html
-    assert "formal gate: closed" in html
+    assert "Dashboard 判讀說明" in html
+    assert "已宣告階段：榮景期" in html
+    assert "合法下一階段：衰退期" in html
+    assert "正式 gate：已關閉" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 
@@ -230,7 +230,7 @@ def test_latest_evidence_dashboard_renders_current_data_refresh_ux(
     assert html.count("data-refresh-ux-card") == 5
     assert html.count("data-manual-refresh-handoff-step") == 5
     assert html.count("data-refresh-trust-caveat") == 5
-    assert "Current data refresh UX" in html
+    assert "目前資料更新體驗" in html
     assert "live refresh 未在本 phase 執行" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
@@ -262,9 +262,9 @@ def test_latest_evidence_dashboard_renders_transition_risk_accumulation(
     assert "data-no-role-count-voting" in html
     assert html.count("data-accumulation-lane-card") == 13
     assert html.count("data-next-required-observation") == 13
-    assert "Transition risk evidence accumulation" in html
-    assert "watch is not confirmation" in html
-    assert "missing values are not neutral" in html
+    assert "轉折風險證據累積" in html
+    assert "watch 不是 confirmation" in html
+    assert "缺漏值不視為中性" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 
@@ -284,9 +284,9 @@ def test_latest_evidence_dashboard_renders_local_current_cache_bridge(
     assert result["browser_verification_ready"] is True
     assert "data-local-current-cache-scope" in html
     assert "tmp_seeded_local_current_cache_rehearsal" in html
-    assert "revised/latest explanation context" in html
-    assert "not point-in-time evidence" in html
-    assert html.count("available_local_current_cache") == 37
+    assert "revised/latest 解釋脈絡" in html
+    assert "不是 point-in-time 證據" in html
+    assert html.count("local current cache 可用") == 37
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 
@@ -349,7 +349,7 @@ def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> 
         result.stdout
     )
     assert "explicit ignored local current cache" in html
-    assert "available_local_current_cache" in html
+    assert "local current cache 可用" in html
     assert "latest_evidence_dashboard_view_ready=true" in result.stdout
     assert "browser_verification_ready=true" in result.stdout
 
@@ -366,11 +366,11 @@ def test_portfolio_replay_dashboard_surface_renders_phase81(tmp_path) -> None:
     assert result["browser_verification_ready"] is True
     assert result["prohibited_action_field_count"] == 0
     assert (output_dir / "portfolio-replay.html").is_file()
-    assert "Portfolio / Replay Research Surface" in html
+    assert "Portfolio policy 與歷史重播研究" in html
     assert "data-dashboard-view=\"portfolio_replay_dashboard_surface\"" in html
     assert html.count("data-backtest-artifact-card") == 10
     assert html.count("data-backtest-lineage-row") == 10
-    assert "metric values not computed" in html
+    assert "尚未計算 metric 值" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
 

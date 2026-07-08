@@ -20,6 +20,14 @@ REQUIRED_FILES = (
     "assets/dashboard.js",
 )
 REQUIRED_HTML_TOKENS = (
+    "景氣循環研究儀表板",
+    "最新證據與指標細節",
+    "Portfolio policy 與歷史重播研究",
+    "研究用途",
+    "不構成投資建議",
+    "不輸出候選階段或目前階段",
+    "階段分數不是產品答案",
+    "指標走勢圖",
     "data-dashboard-view=\"indicator_dashboard_explanation_drilldown\"",
     "data-current-macro-numeric-chart-coverage",
     "data-indicator-trend-target",
