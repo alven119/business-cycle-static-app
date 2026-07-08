@@ -1,7 +1,7 @@
 ---
-version: "2.3"
+version: "2.4"
 status: active
-phase_id: 103
+phase_id: 104
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -136,6 +136,12 @@ Revised data completeness and vintage backfill are separate work:
   into DSM or SSH, install packages, import Container Manager bundles, start
   containers, connect to Postgres, run migrations, fetch live data, or write
   repository output.
+- Phase 104: NAS Postgres revised import and backup rehearsal. This phase
+  converts the Phase 92 revised macro import manifest into a DS925+ handoff
+  plan: table row counts, deterministic SQL preview comments, backup
+  prerequisites, and restore-verification queries. It still does not connect to
+  Postgres, execute schema migration, run backup or restore commands, import
+  Container Manager bundles, fetch live data, or write repository output.
 
 ## DS925+ Deployment Package Assessment
 
@@ -160,9 +166,10 @@ Estimated deployment sequence:
   live install remains operator-assisted and requires explicit confirmation.
 - Phase 103: register the DS925+ private LAN endpoint and run an optional
   no-login TCP reachability smoke with explicit operator confirmation.
-- Phase 104: import revised macro data into NAS Postgres and rehearse backup.
-- Phase 105: private phone browsing, auth, health check, and rollback
-  acceptance.
+- Phase 104: rehearse revised macro data import into NAS Postgres and backup
+  verification without live DB writes.
+- Phase 105: operator-approved live NAS deployment handoff: Container Manager
+  import, private auth, health check, and rollback acceptance.
 
 ## GitHub Pages Retirement
 

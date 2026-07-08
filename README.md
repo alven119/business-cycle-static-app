@@ -69,6 +69,11 @@ NAS migration, but it is no longer the user-facing deployment target.
   no-network preview only. The live probe does not log into DSM or SSH, install
   packages, import Container Manager bundles, start containers, connect to
   Postgres, migrate schema, fetch live data, or write repository outputs.
+- Phase 104 adds a DS925+ Postgres revised macro import and backup rehearsal.
+  It prepares table row counts, deterministic SQL preview comments, backup
+  prerequisites, and restore-verification queries, but still does not connect
+  to Postgres, execute migrations, run backup/restore commands, or write live
+  data.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
