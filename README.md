@@ -1481,6 +1481,13 @@ bundle, run Docker/Container Manager, pull images, start containers, bind ports,
 connect to Postgres, run migrations, fetch live data, or write repository
 outputs.
 
+Phase 101 adds a private local service startup smoke precheck. It validates the
+ASGI app factory, startup command preview, five readiness probes, environment
+placeholder coverage, and rollback sequence for a private local runner. It does
+not run uvicorn, bind a port, start a live server, import Container Manager
+bundles, start containers, connect to Postgres, run migrations, fetch live data,
+or write repository outputs.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

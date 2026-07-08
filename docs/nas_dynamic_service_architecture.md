@@ -1,7 +1,7 @@
 ---
-version: "2.0"
+version: "2.1"
 status: active
-phase_id: 100
+phase_id: 101
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -117,6 +117,12 @@ Revised data completeness and vintage backfill are separate work:
   the bundle, run Docker/Container Manager, pull images, start containers, bind
   ports, connect to Postgres, migrate schema, fetch live data, or write repo
   outputs.
+- Phase 101: private local service startup smoke. This phase validates the
+  side-effect-free ASGI factory, startup command preview, readiness probes,
+  environment placeholders, and rollback sequence for a private local runner.
+  It does not run uvicorn, bind a port, start a live service, import Container
+  Manager bundles, start containers, connect to Postgres, migrate schema, fetch
+  live data, or write repo outputs.
 
 ## DS925+ Deployment Package Assessment
 
@@ -135,7 +141,8 @@ Recommended package path:
 Estimated deployment sequence:
 
 - Phase 100: generate a Container Manager compose/service bundle dry-run.
-- Phase 101: private local service startup smoke.
+- Phase 101: private local service startup smoke, command preview, and
+  readiness-probe precheck.
 - Phase 102: guided DS925+ install and first read-only smoke on the NAS.
 - Phase 103: import revised macro data into NAS Postgres and rehearse backup.
 - Phase 104: private phone browsing, auth, health check, and rollback
@@ -169,7 +176,7 @@ Backups must cover:
 
 ## Deferred Gaps
 
-- Actual FastAPI service startup behind private local access.
+- Actual FastAPI/ASGI service startup behind private local access.
 - Executed Postgres migrations and live DB smoke test.
 - Actual Container Manager import and service startup.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the

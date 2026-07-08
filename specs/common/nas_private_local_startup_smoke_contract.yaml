@@ -1,0 +1,145 @@
+nas_private_local_startup_smoke_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 101
+  phase_label: nas_private_local_service_startup_smoke
+  depends_on:
+    - specs/common/nas_container_manager_bundle_contract.yaml
+    - specs/common/nas_service_lifecycle_contract.yaml
+    - specs/common/nas_asgi_adapter_contract.yaml
+    - docs/nas_dynamic_service_architecture.md
+  startup_scope:
+    target_device: Synology DS925+
+    target_runtime: private_nas_dynamic_service
+    private_local_startup_smoke_allowed: true
+    startup_command_preview_allowed: true
+    asgi_factory_validation_allowed: true
+    in_process_readiness_probe_allowed: true
+    local_loopback_host: 127.0.0.1
+    local_loopback_port: 8000
+    private_access_mode: loopback_or_tailscale_only
+    uvicorn_run_allowed_now: false
+    network_bind_allowed_now: false
+    live_server_start_allowed_now: false
+    container_manager_import_allowed_now: false
+    docker_compose_execution_allowed_now: false
+    container_image_pull_allowed_now: false
+    container_start_allowed_now: false
+    live_db_connection_allowed_now: false
+    postgres_read_allowed_now: false
+    postgres_write_allowed_now: false
+    schema_migration_allowed_now: false
+    live_fetch_allowed_now: false
+    public_output_allowed_now: false
+    repo_output_allowed_now: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+  startup_plan:
+    startup_command_preview:
+      - python -m uvicorn business_cycle.service.nas_private_asgi_app:create_app --factory --host 127.0.0.1 --port 8000
+    required_environment_placeholders:
+      - MACRO_POSTGRES_DB
+      - MACRO_POSTGRES_USER
+      - MACRO_POSTGRES_PASSWORD
+      - BUSINESS_CYCLE_APP_SESSION_SECRET
+      - FRED_API_KEY
+    readiness_probe_paths:
+      - /
+      - /indicators
+      - /api/indicator-snapshot.json
+      - /api/service-status.json
+      - /api/indicator-index.json
+    rollback_steps:
+      - stop_local_startup_attempt
+      - keep_container_manager_bundle_unimported
+      - return_to_phase98_in_process_lifecycle_rehearsal
+      - preserve_no_db_write_policy
+      - preserve_no_public_output_policy
+  allowed_uses:
+    - private_local_startup_smoke_planning
+    - ds925_guided_install_precheck
+    - asgi_entrypoint_factory_review
+    - readiness_probe_shape_review
+    - rollback_checklist_review
+  prohibited_uses:
+    - public_hosted_dashboard
+    - uvicorn_run
+    - live_server_start
+    - network_bind
+    - container_manager_import
+    - docker_compose_up
+    - image_pull
+    - container_start
+    - live_postgres_read
+    - live_postgres_write
+    - schema_migration_execution
+    - live_macro_fetch
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    nas_private_local_startup_smoke_contract_ready: true
+    nas_private_local_startup_smoke_ready: true
+    phase100_bundle_dependency_ready: true
+    phase98_lifecycle_dependency_ready: true
+    phase97_asgi_dependency_ready: true
+    asgi_entrypoint_factory_ready: true
+    startup_plan_ready: true
+    startup_command_preview_ready: true
+    startup_command_preview_count: 1
+    startup_command_executed_count: 0
+    readiness_probe_count: 5
+    readiness_probe_pass_count: 5
+    authenticated_probe_pass_count: 5
+    unauthenticated_probe_rejected_count: 5
+    local_loopback_or_tailnet_only: true
+    bind_host_public_count: 0
+    env_placeholder_count: 5
+    env_placeholder_missing_count: 0
+    secret_value_literal_count: 0
+    rollback_step_count: 5
+    compose_service_count: 3
+    host_port_publish_count: 0
+    privileged_service_count: 0
+    host_bind_mount_count: 0
+    container_manager_import_attempt_count: 0
+    docker_compose_execution_count: 0
+    container_image_pull_attempt_count: 0
+    container_start_attempt_count: 0
+    uvicorn_run_attempt_count: 0
+    network_bind_attempt_count: 0
+    live_server_start_attempt_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_read_attempt_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    point_in_time_claim_count: 0
+    revised_mislabeled_as_pit_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 102
