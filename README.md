@@ -74,6 +74,12 @@ NAS migration, but it is no longer the user-facing deployment target.
   prerequisites, and restore-verification queries, but still does not connect
   to Postgres, execute migrations, run backup/restore commands, or write live
   data.
+- Phase 105 adds an operator-approved NAS deployment handoff package for
+  DS925+ Container Manager. It records preflight checks, import handoff steps,
+  private auth acceptance checks, health checks, backup/rollback acceptance,
+  and go/no-go gates. It still does not log into DSM, install packages, import
+  Container Manager bundles, start containers, connect to Postgres, run
+  migrations, fetch live data, or write repository outputs.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
@@ -1518,10 +1524,26 @@ only attempts unauthenticated TCP connections to governed ports. It does not log
 in, install packages, start containers, connect to Postgres, run migrations,
 fetch live data, or write repository outputs.
 
+Phase 104 adds a DS925+ Postgres revised macro import and backup rehearsal. It
+turns the revised macro import manifest into planned table counts, SQL preview
+comments, backup prerequisites, and restore-verification queries. It still does
+not connect to Postgres, execute migrations, run backup/restore commands, fetch
+live data, or write repository outputs.
+
+Phase 105 adds an operator-approved NAS deployment handoff package. It records
+the preflight checklist, Container Manager import handoff, private auth
+acceptance checks, health checks, backup/rollback acceptance, and go/no-go
+gates needed for a future live DS925+ session. It still does not log into DSM,
+install packages, import Container Manager bundles, start containers, connect
+to Postgres, run migrations, fetch live data, or write repository outputs.
+
 ## Next steps
 
-1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
-2. Validate FRED metadata and cache freshness for catalog series.
-3. Implement trend-aware indicator scoring with tests for rising, falling, flat, spike, missing, stale, and insufficient-history cases.
-4. Implement the phase transition engine with persistence, coverage, confidence, and static snapshot state.
-5. Generate public JSON and a simple static HTML dashboard.
+1. Run an explicitly approved DS925+ live deployment session from the Phase105
+   handoff package.
+2. Import revised macro rows into the NAS Postgres instance after backup and
+   rollback gates pass.
+3. Verify private auth/session behavior and read-only dashboard health checks.
+4. Gradually backfill vintage/PIT data while preserving revised/PIT labels.
+5. Connect historical replay and portfolio policy research to the private NAS
+   service without emitting investment instructions.

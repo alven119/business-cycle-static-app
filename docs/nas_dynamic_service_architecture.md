@@ -1,7 +1,7 @@
 ---
-version: "2.4"
+version: "2.5"
 status: active
-phase_id: 104
+phase_id: 105
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -142,6 +142,13 @@ Revised data completeness and vintage backfill are separate work:
   prerequisites, and restore-verification queries. It still does not connect to
   Postgres, execute schema migration, run backup or restore commands, import
   Container Manager bundles, fetch live data, or write repository output.
+- Phase 105: NAS operator deployment handoff. This phase turns the Phase
+  100-104 rehearsals into an operator preflight checklist, Container Manager
+  import handoff, private auth acceptance checks, health checks,
+  backup/rollback acceptance checks, and go/no-go gates. It still performs no
+  DSM login, package install, tailnet login, Container Manager import,
+  container start, live server start, Postgres read/write, schema migration,
+  backup/restore execution, live fetch, or repository output.
 
 ## DS925+ Deployment Package Assessment
 
@@ -169,7 +176,10 @@ Estimated deployment sequence:
 - Phase 104: rehearse revised macro data import into NAS Postgres and backup
   verification without live DB writes.
 - Phase 105: operator-approved live NAS deployment handoff: Container Manager
-  import, private auth, health check, and rollback acceptance.
+  import, private auth, health check, and rollback acceptance, still emitted as
+  a no-live-execution handoff package.
+- Phase 106: operator-guided live deployment session can execute only after
+  explicit approval, using the Phase 105 handoff package as the checklist.
 
 ## GitHub Pages Retirement
 
@@ -203,6 +213,7 @@ Backups must cover:
 - Executed DS925+ package install and NAS-side database read-only smoke.
 - Executed Postgres migrations and live DB smoke test.
 - Actual Container Manager import and service startup.
+- Executed operator-approved private auth and health-check acceptance.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
 - Production-grade auth/session boundary for private mobile use.
