@@ -1,7 +1,7 @@
 ---
-version: "1.9"
+version: "2.0"
 status: active
-phase_id: 99
+phase_id: 100
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -111,6 +111,12 @@ Revised data completeness and vintage backfill are separate work:
   for later volume protection. It still performs no live database connection,
   no Postgres read/write, no schema migration, no network bind, and no public
   output.
+- Phase 100: Container Manager compose/service bundle dry-run. This phase
+  generates a governed compose preview, environment template, runbook, and
+  rollback checklist for DS925+ Container Manager review. It does not import
+  the bundle, run Docker/Container Manager, pull images, start containers, bind
+  ports, connect to Postgres, migrate schema, fetch live data, or write repo
+  outputs.
 
 ## DS925+ Deployment Package Assessment
 
@@ -165,7 +171,7 @@ Backups must cover:
 
 - Actual FastAPI service startup behind private local access.
 - Executed Postgres migrations and live DB smoke test.
-- Container Manager compose/service bundle dry-run.
+- Actual Container Manager import and service startup.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
 - Production-grade auth/session boundary for private mobile use.

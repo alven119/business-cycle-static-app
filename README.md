@@ -1474,6 +1474,13 @@ container + Tailscale as the preferred private NAS deployment path. It still
 does not connect to a live database, execute schema migrations, fetch live data,
 write public output, or change production behavior.
 
+Phase 100 adds a Container Manager compose/service bundle dry-run for the NAS
+migration. It generates a governed compose preview, environment template,
+runbook, and rollback checklist for DS925+ review, but does not import the
+bundle, run Docker/Container Manager, pull images, start containers, bind ports,
+connect to Postgres, run migrations, fetch live data, or write repository
+outputs.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

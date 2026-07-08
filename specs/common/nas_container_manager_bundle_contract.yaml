@@ -1,0 +1,160 @@
+nas_container_manager_bundle_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 100
+  phase_label: nas_container_manager_compose_service_bundle_dry_run
+  depends_on:
+    - specs/audits/nas_ds925_deployment_package_assessment.yaml
+    - specs/common/nas_postgres_readonly_smoke_contract.yaml
+    - specs/common/nas_service_lifecycle_contract.yaml
+    - docs/nas_dynamic_service_architecture.md
+  bundle_scope:
+    target_device: Synology DS925+
+    target_runtime: private_nas_dynamic_service
+    package_runtime: synology_container_manager
+    compose_bundle_dry_run_allowed: true
+    compose_yaml_generation_allowed: true
+    compose_yaml_write_allowed_under_tmp_only: true
+    container_manager_import_allowed_now: false
+    docker_compose_execution_allowed_now: false
+    container_image_pull_allowed_now: false
+    container_start_allowed_now: false
+    network_bind_allowed_now: false
+    live_server_start_allowed_now: false
+    live_db_connection_allowed_now: false
+    postgres_read_allowed_now: false
+    postgres_write_allowed_now: false
+    schema_migration_allowed_now: false
+    live_fetch_allowed_now: false
+    public_output_allowed_now: false
+    repo_output_allowed_now: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+  service_bundle:
+    services:
+      - service_id: macro_postgres
+        role: postgres_macro_warehouse
+        image: postgres:16-alpine
+        required: true
+        healthcheck_required: true
+        host_port_publish_allowed: false
+      - service_id: business_cycle_app
+        role: python_asgi_dashboard_service
+        image: local/business-cycle-nas-app:dry-run
+        required: true
+        healthcheck_required: true
+        host_port_publish_allowed: false
+      - service_id: macro_refresh_worker
+        role: disabled_future_refresh_worker
+        image: local/business-cycle-nas-app:dry-run
+        required: true
+        healthcheck_required: true
+        host_port_publish_allowed: false
+    named_volumes:
+      - macro_postgres_data
+      - business_cycle_app_config
+      - macro_source_artifacts
+    internal_networks:
+      - business_cycle_private
+    required_environment_placeholders:
+      - MACRO_POSTGRES_DB
+      - MACRO_POSTGRES_USER
+      - MACRO_POSTGRES_PASSWORD
+      - BUSINESS_CYCLE_APP_SESSION_SECRET
+      - FRED_API_KEY
+    required_bundle_artifacts:
+      - container-manager-compose.yaml
+      - container-manager-env.template
+      - service-bundle-runbook.json
+      - rollback-checklist.json
+  security_policy:
+    no_host_ports_in_dry_run: true
+    no_privileged_containers: true
+    no_host_bind_mounts: true
+    no_secret_values_in_bundle: true
+    no_frontend_database_access: true
+    no_frontend_api_keys: true
+    no_public_internet_exposure: true
+    refresh_worker_disabled_until_gate: true
+    app_database_role_readonly_until_gate: true
+  allowed_uses:
+    - ds925_container_manager_compose_review
+    - private_nas_deployment_runbook_preparation
+    - service_bundle_diff_review
+    - future_guided_ds925_install_input
+  prohibited_uses:
+    - live_container_import
+    - docker_compose_up
+    - image_pull
+    - container_start
+    - live_postgres_read
+    - live_postgres_write
+    - schema_migration_execution
+    - live_macro_fetch
+    - public_hosted_dashboard
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+  hard_gates:
+    nas_container_manager_bundle_contract_ready: true
+    nas_container_manager_bundle_ready: true
+    ds925_package_assessment_dependency_ready: true
+    phase99_readonly_smoke_dependency_ready: true
+    phase98_lifecycle_dependency_ready: true
+    compose_yaml_generation_ready: true
+    compose_yaml_valid: true
+    compose_service_count: 3
+    required_service_count: 3
+    app_service_present: true
+    postgres_service_present: true
+    refresh_worker_service_present: true
+    healthcheck_service_count: 3
+    named_volume_count: 3
+    internal_network_count: 1
+    required_environment_placeholder_count: 5
+    bundle_artifact_count: 4
+    host_port_publish_count: 0
+    privileged_service_count: 0
+    host_bind_mount_count: 0
+    secret_value_literal_count: 0
+    container_manager_import_attempt_count: 0
+    docker_compose_execution_count: 0
+    container_image_pull_attempt_count: 0
+    container_start_attempt_count: 0
+    network_bind_attempt_count: 0
+    live_server_start_attempt_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_read_attempt_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    refresh_worker_enabled: false
+    point_in_time_claim_count: 0
+    revised_mislabeled_as_pit_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 101
