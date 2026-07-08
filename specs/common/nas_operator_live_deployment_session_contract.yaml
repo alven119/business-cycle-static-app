@@ -1,0 +1,200 @@
+nas_operator_live_deployment_session_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 106
+  phase_label: nas_operator_live_deployment_session
+  depends_on:
+    - specs/common/nas_operator_deployment_handoff_contract.yaml
+    - specs/audits/phase105_nas_operator_deployment_handoff_closure.yaml
+    - docs/nas_dynamic_service_architecture.md
+  target_endpoint:
+    nas_private_ip: 192.168.1.116
+    ip_source: user_provided_phase103
+    private_lan_only: true
+    target_device: synology_ds925_plus
+    package_runtime: container_manager
+    access_model: private_lan_or_tailnet_operator_guided
+    public_internet_exposure_allowed_now: false
+  session_scope:
+    default_mode: operator_guided_live_session_protocol
+    operator_must_execute_live_steps_out_of_band: true
+    automatic_live_execution_allowed_now: false
+    dsm_login_by_codex_allowed_now: false
+    package_install_by_codex_allowed_now: false
+    tailnet_login_by_codex_allowed_now: false
+    container_manager_import_by_codex_allowed_now: false
+    docker_compose_execution_by_codex_allowed_now: false
+    container_start_by_codex_allowed_now: false
+    live_server_start_by_codex_allowed_now: false
+    live_db_connection_by_codex_allowed_now: false
+    postgres_read_by_codex_allowed_now: false
+    postgres_write_by_codex_allowed_now: false
+    schema_migration_by_codex_allowed_now: false
+    backup_command_by_codex_allowed_now: false
+    restore_command_by_codex_allowed_now: false
+    live_fetch_by_codex_allowed_now: false
+    repo_output_allowed_now: false
+    public_output_allowed_now: false
+    tests_network_dependency_allowed: false
+  session_stages:
+    - stage_id: operator_preflight
+      required_action_ids:
+        - confirm_ds925_power_network_and_storage_health
+        - confirm_private_lan_or_tailnet_access_path
+        - confirm_container_manager_package_available
+        - confirm_postgres_volume_location_outside_repo
+        - confirm_app_volume_location_outside_repo
+        - confirm_backup_destination_outside_repo
+        - confirm_operator_credentials_available_out_of_band
+        - confirm_no_public_port_exposure_without_future_gate
+    - stage_id: container_manager_import
+      required_action_ids:
+        - review_phase100_compose_preview
+        - create_project_folder_outside_repo
+        - create_postgres_named_volume
+        - create_app_named_volume
+        - enter_operator_supplied_environment_values
+        - import_compose_bundle_in_container_manager
+        - keep_services_stopped_until_backup_and_auth_checks_pass
+        - record_container_manager_project_name_in_private_notes
+    - stage_id: private_auth_acceptance
+      required_action_ids:
+        - unauthenticated_dashboard_request_rejected
+        - authenticated_dashboard_request_allowed
+        - browser_does_not_hold_database_credentials
+        - private_access_path_required_for_mobile
+        - logout_or_session_expiry_path_documented
+    - stage_id: health_checks
+      required_action_ids:
+        - app_health_endpoint_returns_ok
+        - app_ready_endpoint_returns_ready_after_dependencies
+        - postgres_container_healthcheck_reports_healthy
+        - read_only_db_smoke_returns_expected_schema
+        - dashboard_snapshot_route_renders_traditional_chinese
+        - indicator_drilldown_route_returns_ytd_1y_5y_payload
+    - stage_id: backup_rollback_acceptance
+      required_action_ids:
+        - backup_before_import_confirmed
+        - backup_checksum_recorded_outside_repo
+        - restore_verification_query_plan_reviewed
+        - rollback_to_previous_container_image_documented
+        - rollback_to_previous_postgres_volume_documented
+        - rollback_stop_sequence_documented
+    - stage_id: go_no_go
+      required_action_ids:
+        - operator_approval_recorded_before_any_live_action
+        - private_access_verified_before_import
+        - backup_ready_before_import
+        - compose_bundle_reviewed_before_import
+        - no_public_exposure_confirmed
+        - read_only_db_smoke_ready_before_dashboard_use
+        - rollback_path_reviewed_before_start
+        - post_deploy_health_checks_all_pass_before_daily_use
+  report_schema:
+    required_top_level_fields:
+      - session_id
+      - report_mode
+      - nas_private_ip
+      - operator_attested
+      - stage_results
+      - prohibited_live_outputs_absent
+    allowed_action_statuses:
+      - passed
+      - failed
+      - skipped_with_reason
+      - not_run
+    passed_status: passed
+    report_mode: operator_attested_live_session
+    repo_storage_allowed: false
+  acceptance_policy:
+    all_required_actions_must_pass_for_live_acceptance: true
+    failed_or_missing_action_blocks_acceptance: true
+    skipped_action_blocks_acceptance_unless_future_contract_allows: true
+    operator_report_required_for_live_acceptance: true
+    report_must_not_contain_secret_values: true
+    report_must_not_contain_trade_or_allocation_outputs: true
+  allowed_uses:
+    - ds925_operator_guided_live_session_protocol
+    - live_session_report_template_generation
+    - private_auth_acceptance_recording
+    - health_check_acceptance_recording
+    - backup_rollback_acceptance_recording
+  prohibited_uses:
+    - automated_dsm_login_by_codex
+    - automated_package_install_by_codex
+    - automated_tailnet_login_by_codex
+    - automated_container_manager_import_by_codex
+    - automated_container_start_by_codex
+    - automated_postgres_read_write_by_codex
+    - schema_migration_execution_by_codex
+    - backup_restore_command_execution_by_codex
+    - point_in_time_evidence
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - secret_value
+    - password
+    - token
+  hard_gates:
+    nas_operator_live_session_contract_ready: true
+    nas_operator_live_session_protocol_ready: true
+    phase105_handoff_dependency_ready: true
+    nas_private_ip: 192.168.1.116
+    nas_private_ip_private_lan: true
+    operator_must_execute_live_steps_out_of_band: true
+    automatic_live_execution_allowed_now: false
+    session_stage_count: 6
+    required_operator_action_count: 41
+    operator_action_with_manual_owner_count: 41
+    operator_action_auto_execution_count: 0
+    operator_report_schema_ready: true
+    operator_report_template_ready: true
+    sample_operator_report_valid: true
+    live_acceptance_requires_operator_report: true
+    live_deployment_acceptance_status: operator_report_required
+    live_deployment_complete: false
+    session_artifact_count: 7
+    dsm_login_attempt_count: 0
+    package_install_attempt_count: 0
+    tailnet_login_attempt_count: 0
+    container_manager_import_attempt_count: 0
+    docker_compose_execution_count: 0
+    container_start_attempt_count: 0
+    live_server_start_attempt_count: 0
+    network_bind_attempt_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_read_attempt_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    backup_command_execution_count: 0
+    restore_command_execution_count: 0
+    live_fetch_attempt_count: 0
+    tests_network_dependency_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    secret_value_literal_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 107

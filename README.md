@@ -80,6 +80,13 @@ NAS migration, but it is no longer the user-facing deployment target.
   and go/no-go gates. It still does not log into DSM, install packages, import
   Container Manager bundles, start containers, connect to Postgres, run
   migrations, fetch live data, or write repository outputs.
+- Phase 106 adds an operator-guided live deployment session protocol. It turns
+  the Phase105 handoff into 41 operator-owned actions, a report template,
+  sample report validation, and acceptance artifacts. The repository still does
+  not perform DSM login, package install, Container Manager import, container
+  start, Postgres read/write, migrations, backup/restore execution, live fetch,
+  or repository output. Deployment acceptance requires a future operator
+  report.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
@@ -1539,11 +1546,13 @@ to Postgres, run migrations, fetch live data, or write repository outputs.
 
 ## Next steps
 
-1. Run an explicitly approved DS925+ live deployment session from the Phase105
-   handoff package.
-2. Import revised macro rows into the NAS Postgres instance after backup and
+1. Run the DS925+ live deployment steps out of band from the Phase106 session
+   protocol and produce an operator report.
+2. Ingest and validate that operator report before accepting the private NAS
+   service.
+3. Import revised macro rows into the NAS Postgres instance after backup and
    rollback gates pass.
-3. Verify private auth/session behavior and read-only dashboard health checks.
-4. Gradually backfill vintage/PIT data while preserving revised/PIT labels.
-5. Connect historical replay and portfolio policy research to the private NAS
+4. Verify private auth/session behavior and read-only dashboard health checks.
+5. Gradually backfill vintage/PIT data while preserving revised/PIT labels.
+6. Connect historical replay and portfolio policy research to the private NAS
    service without emitting investment instructions.

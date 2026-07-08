@@ -1,7 +1,7 @@
 ---
-version: "2.5"
+version: "2.6"
 status: active
-phase_id: 105
+phase_id: 106
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -149,6 +149,12 @@ Revised data completeness and vintage backfill are separate work:
   DSM login, package install, tailnet login, Container Manager import,
   container start, live server start, Postgres read/write, schema migration,
   backup/restore execution, live fetch, or repository output.
+- Phase 106: NAS operator live deployment session protocol. This phase expands
+  the Phase105 handoff into 41 operator-owned actions, a live-session report
+  template, a sample report validator, and acceptance artifacts. It still does
+  not execute DSM login, package install, tailnet login, Container Manager
+  import, container start, live server start, Postgres read/write, schema
+  migration, backup/restore execution, live fetch, or repository output.
 
 ## DS925+ Deployment Package Assessment
 
@@ -180,6 +186,11 @@ Estimated deployment sequence:
   a no-live-execution handoff package.
 - Phase 106: operator-guided live deployment session can execute only after
   explicit approval, using the Phase 105 handoff package as the checklist.
+  Phase 106 records the protocol and report template; live acceptance remains
+  blocked until an operator-supplied report is validated.
+- Phase 107: ingest the real operator report from the completed DS925+ session
+  and promote the private NAS service from protocol-ready to accepted, if every
+  live acceptance gate passes.
 
 ## GitHub Pages Retirement
 
@@ -214,6 +225,7 @@ Backups must cover:
 - Executed Postgres migrations and live DB smoke test.
 - Actual Container Manager import and service startup.
 - Executed operator-approved private auth and health-check acceptance.
+- Real operator report ingestion for the DS925+ live deployment session.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
 - Production-grade auth/session boundary for private mobile use.
