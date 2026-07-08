@@ -50,6 +50,10 @@ NAS migration, but it is no longer the user-facing deployment target.
   rehearsal with Traditional Chinese pages and JSON payloads. It still does not
   start a live server, connect to Postgres, fetch live data, or write public
   output.
+- Phase 96 adds an in-process NAS app shell and local service smoke. It checks
+  route dispatch, a local session boundary, service health, and rollback steps
+  without binding a network port, connecting to Postgres, or exposing public
+  output.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

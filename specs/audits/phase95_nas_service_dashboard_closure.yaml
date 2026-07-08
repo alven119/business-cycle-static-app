@@ -39,7 +39,7 @@ phase95_nas_service_dashboard_closure:
     production_behavior_change_count: 0
     semantic_drift_count: 0
     product_capability_progress_ready: true
-    progress_decrease_count: 8
+    progress_decrease_count: 0
     progress_decrease_without_reason_count: 0
     raw_book_pdf_tracked_count: 0
     tracked_data_raw_file_count: 0

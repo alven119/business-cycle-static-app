@@ -20,7 +20,7 @@ def test_phase95_nas_service_dashboard_closure_passes() -> None:
     assert summary["nas_service_dashboard_contract_ready"] is True
     assert summary["nas_service_html_renderer_ready"] is True
     assert summary["product_capability_rebaseline_recorded"] is True
-    assert summary["progress_decrease_count"] == 8
+    assert summary["progress_decrease_count"] == 0
     assert summary["progress_decrease_without_reason_count"] == 0
     assert summary["live_server_start_attempt_count"] == 0
     assert summary["live_db_connection_attempt_count"] == 0
@@ -43,5 +43,5 @@ def test_show_phase95_nas_service_dashboard_closure_script() -> None:
 
     assert "phase95_closure_ready=true" in result.stdout
     assert "nas_service_html_renderer_ready=true" in result.stdout
-    assert "progress_decrease_count=8" in result.stdout
+    assert "progress_decrease_count=0" in result.stdout
     assert "result=passed" in result.stdout

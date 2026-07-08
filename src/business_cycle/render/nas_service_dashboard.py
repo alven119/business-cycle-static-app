@@ -85,10 +85,7 @@ def build_nas_service_dashboard_bundle(
         ),
         "phase94_snapshot_dependency_ready": _phase94_dependency_ready(),
         "product_capability_rebaseline_recorded": (
-            progress["phase_id"] == "95"
-            and progress["phase_label"] == contract["phase_label"]
-            and progress["progress_decrease_count"] > 0
-            and progress["progress_decrease_without_reason_count"] == 0
+            _product_capability_rebaseline_recorded(progress, contract)
         ),
         "route_count": len(routes),
         "api_payload_count": len(api_payloads),
@@ -253,6 +250,26 @@ def _contract_ready(contract: dict[str, Any]) -> bool:
         and renderer["research_only_label_required"] is True
         and renderer["revised_diagnostic_label_required"] is True
         and renderer["pit_accounting_label_required"] is True
+    )
+
+
+def _product_capability_rebaseline_recorded(
+    progress: dict[str, Any],
+    contract: dict[str, Any],
+) -> bool:
+    """Keep Phase95 replayable after later phases advance the progress table."""
+
+    phase_id = int(progress["phase_id"])
+    if phase_id == 95:
+        return (
+            progress["phase_label"] == contract["phase_label"]
+            and progress["progress_decrease_count"] > 0
+            and progress["progress_decrease_without_reason_count"] == 0
+        )
+    return (
+        phase_id > 95
+        and progress["product_capability_progress_ready"] is True
+        and progress["progress_decrease_without_reason_count"] == 0
     )
 
 
