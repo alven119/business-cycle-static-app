@@ -1,0 +1,108 @@
+nas_ds925_deployment_package_assessment:
+  version: "1.0"
+  status: active_research_assessment
+  phase_id: 99
+  phase_label: nas_postgres_readonly_smoke_and_ds925_package_assessment
+  assessment_scope:
+    target_device: Synology DS925+
+    target_runtime: private_nas_dynamic_service
+    deployment_readiness_stage: pre_deployment_planning
+    public_internet_exposure_default: false
+    private_mobile_access_preferred: tailscale_or_vpn
+  hardware_assessment:
+    cpu_model: AMD Ryzen V1500B
+    cpu_architecture: 64-bit
+    memory_baseline_gb: 4
+    memory_recommended_for_service_gb: 8
+    memory_preferred_for_postgres_and_app_gb: 16
+    assessment_status: suitable_for_private_python_postgres_service
+    notes_zh: DS925+ 的 CPU 與可擴充記憶體足以承載私人研究用 Python service + Postgres；若同機跑資料庫、app、refresh worker，建議至少 8GB，偏好 16GB。
+  package_options:
+    - package_id: synology_container_manager
+      title: Synology Container Manager
+      role: primary_deployment_runtime
+      confidence: high
+      recommended: true
+      install_source: Synology Package Center
+      use_for:
+        - app_container
+        - postgres_container
+        - future_refresh_worker_container
+      rationale_zh: 最適合本專案，因為可以用 compose-like 多容器方式隔離 FastAPI app、Postgres、refresh worker 與 volume。
+      limitations_zh: 需要在 DS925+ Package Center 確認可安裝版本；正式部署前要建立 volume、backup 與 secrets policy。
+    - package_id: tailscale
+      title: Tailscale
+      role: private_mobile_access
+      confidence: high
+      recommended: true
+      install_source: Synology Package Center or Tailscale package
+      use_for:
+        - private_phone_access
+        - no_public_port_access
+        - admin_ssh_over_tailnet_optional
+      rationale_zh: 最符合使用者「私人服務、外面手機可看」的需求，可避免直接把 NAS 開到公開網路。
+      limitations_zh: DSM7 可能需要額外 TUN/開機任務設定；正式部署時需手把手完成。
+    - package_id: synology_web_station_or_reverse_proxy
+      title: Web Station / DSM reverse proxy
+      role: optional_local_reverse_proxy
+      confidence: medium
+      recommended: false
+      install_source: Synology Package Center / DSM Control Panel
+      use_for:
+        - local_reverse_proxy
+        - https_termination_if_not_using_container_proxy
+      rationale_zh: 可作為 NAS 內建代理或 HTTPS 入口，但如果採 Container Manager + Tailscale，初期可先用 container proxy 或直接 private port。
+      limitations_zh: 對 Python ASGI app 不是必要；正式公開網路前才需要更完整 TLS/reverse-proxy hardening。
+    - package_id: postgres_container_image
+      title: Official PostgreSQL container image
+      role: preferred_database_runtime
+      confidence: high
+      recommended: true
+      install_source: Container registry via Container Manager
+      use_for:
+        - macro_warehouse
+        - revised_observations
+        - future_vintage_observations
+      rationale_zh: 比尋找 Synology 原生 PostgreSQL 套件更可控，版本、volume、backup、restore、migration 都能用標準容器流程治理。
+      limitations_zh: 需要 compose、volume、backup 與 read-only app role 設定；Phase99 只做 fixture-backed smoke，不連真 DB。
+    - package_id: synology_hyper_backup_snapshot_replication
+      title: Hyper Backup / Snapshot Replication
+      role: backup_and_rollback_support
+      confidence: medium
+      recommended: true
+      install_source: Synology Package Center
+      use_for:
+        - postgres_volume_backup
+        - app_config_backup
+        - rollback_rehearsal
+      rationale_zh: 適合後續正式部署前補資料庫 volume 和 app config 備份/回復演練。
+      limitations_zh: 真正備份策略需要等 DB volume 實際建立後才能驗證。
+  deployment_phase_estimate:
+    earliest_private_alpha_phase: 101
+    recommended_guided_ds925_deploy_phase: 102
+    full_private_nas_use_phase: 104
+    phase_plan:
+      - phase_id: 100
+        scope_zh: 產生 Container Manager compose/service bundle dry-run，不連真 NAS。
+      - phase_id: 101
+        scope_zh: private local service startup smoke，可在開發機或 NAS shell 模擬，不公開網路。
+      - phase_id: 102
+        scope_zh: 手把手 DS925+ 安裝 Container Manager、Tailscale、Postgres/app containers，先跑 read-only smoke。
+      - phase_id: 103
+        scope_zh: 匯入 revised macro data 到 NAS Postgres，建立 backup/restore rehearsal。
+      - phase_id: 104
+        scope_zh: 私人手機瀏覽、權限、health check、rollback checklist 完整驗收。
+  hard_gates:
+    nas_ds925_package_assessment_ready: true
+    assessed_package_count: 5
+    recommended_package_count: 4
+    primary_runtime_recommended: synology_container_manager
+    private_mobile_access_recommended: tailscale
+    database_runtime_recommended: postgres_container_image
+    public_internet_exposure_default: false
+    deployment_phase_estimate_ready: true
+    earliest_private_alpha_phase: 101
+    recommended_guided_ds925_deploy_phase: 102
+    full_private_nas_use_phase: 104
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

@@ -1,0 +1,141 @@
+nas_postgres_readonly_smoke_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 99
+  phase_label: nas_postgres_readonly_smoke_fixture_rehearsal
+  depends_on:
+    - specs/common/postgres_macro_warehouse_contract.yaml
+    - specs/common/revised_macro_data_import_contract.yaml
+    - specs/common/nas_service_lifecycle_contract.yaml
+    - specs/audits/nas_ds925_deployment_package_assessment.yaml
+  smoke_scope:
+    target_runtime: private_nas_dynamic_service
+    fixture_backed_rehearsal_only: true
+    live_db_connection_allowed_now: false
+    read_only_query_shape_allowed: true
+    postgres_write_allowed_now: false
+    schema_migration_allowed_now: false
+    network_bind_allowed_now: false
+    live_server_start_allowed_now: false
+    live_fetch_allowed_now: false
+    public_output_allowed_now: false
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    runtime_dependency_added_now: false
+  readonly_policy:
+    allowed_statement_prefix: SELECT
+    prohibited_statement_prefixes:
+      - INSERT
+      - UPDATE
+      - DELETE
+      - UPSERT
+      - MERGE
+      - CREATE
+      - ALTER
+      - DROP
+      - TRUNCATE
+      - COPY
+      - GRANT
+      - REVOKE
+    allowed_schema: macro
+    allowed_tables:
+      - series_registry
+      - source_artifact
+      - observation_revised
+      - dashboard_snapshot
+    required_query_ids:
+      - series_registry_sample
+      - source_artifact_sample
+      - observation_revised_sample
+      - dashboard_snapshot_sample
+    max_rows_per_query: 5
+    query_timeout_seconds: 5
+  query_contracts:
+    - query_id: series_registry_sample
+      table: series_registry
+      sql: SELECT series_key, source_family, source_series_id FROM macro.series_registry ORDER BY series_key LIMIT 5
+      required_columns:
+        - series_key
+        - source_family
+        - source_series_id
+    - query_id: source_artifact_sample
+      table: source_artifact
+      sql: SELECT artifact_id, content_hash, no_secret FROM macro.source_artifact ORDER BY artifact_id LIMIT 5
+      required_columns:
+        - artifact_id
+        - content_hash
+        - no_secret
+    - query_id: observation_revised_sample
+      table: observation_revised
+      sql: SELECT series_key, observation_date, value_numeric, data_mode FROM macro.observation_revised ORDER BY series_key, observation_date LIMIT 5
+      required_columns:
+        - series_key
+        - observation_date
+        - value_numeric
+        - data_mode
+    - query_id: dashboard_snapshot_sample
+      table: dashboard_snapshot
+      sql: SELECT dashboard_snapshot_id, data_mode, research_only FROM macro.dashboard_snapshot ORDER BY dashboard_snapshot_id LIMIT 1
+      required_columns:
+        - dashboard_snapshot_id
+        - data_mode
+        - research_only
+  fixture_policy:
+    source: phase92_revised_macro_data_import_manifest
+    dashboard_snapshot_fixture_allowed: true
+    fixture_mislabeled_as_live_count: 0
+    no_network_required: true
+    no_fred_api_required: true
+  allowed_uses:
+    - postgres_readonly_query_shape_rehearsal
+    - nas_service_data_layer_contract_review
+    - fixture_backed_db_driver_protocol_test
+    - ds925_deployment_planning
+  prohibited_uses:
+    - live_postgres_read
+    - live_postgres_write
+    - schema_migration_execution
+    - live_macro_fetch
+    - point_in_time_result
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  hard_gates:
+    nas_postgres_readonly_smoke_contract_ready: true
+    nas_postgres_readonly_smoke_ready: true
+    postgres_macro_warehouse_dependency_ready: true
+    phase92_revised_import_dependency_ready: true
+    phase98_lifecycle_dependency_ready: true
+    fixture_driver_ready: true
+    readonly_query_contract_count: 4
+    readonly_query_pass_count: 4
+    readonly_result_set_count: 4
+    readonly_result_row_count: 16
+    readonly_required_column_missing_count: 0
+    forbidden_sql_rejected_count: 12
+    forbidden_sql_accepted_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_read_attempt_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    runtime_dependency_added_count: 0
+    network_bind_attempt_count: 0
+    live_server_start_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    fixture_mislabeled_as_live_count: 0
+    point_in_time_claim_count: 0
+    revised_mislabeled_as_pit_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 100

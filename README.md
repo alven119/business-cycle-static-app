@@ -1467,6 +1467,13 @@ adapter. It verifies startup, readiness probes, shutdown, and rollback entirely
 in-process. It does not start uvicorn, bind a port, connect to Postgres, fetch
 live data, write public output, or change production behavior.
 
+Phase 99 adds a fixture-backed NAS Postgres read-only smoke and DS925+ package
+assessment. It validates read-only SQL shape and forbidden SQL rejection against
+warehouse-shaped fixture rows, and records Container Manager + PostgreSQL
+container + Tailscale as the preferred private NAS deployment path. It still
+does not connect to a live database, execute schema migrations, fetch live data,
+write public output, or change production behavior.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.

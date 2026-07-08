@@ -1,7 +1,7 @@
 ---
-version: "1.8"
+version: "1.9"
 status: active
-phase_id: 98
+phase_id: 99
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -103,6 +103,37 @@ Revised data completeness and vintage backfill are separate work:
   readiness probes, shutdown, and rollback around the Phase 97 ASGI adapter.
   It still runs entirely in-process: no uvicorn, no network bind, no live
   server, no Postgres read/write, no live fetch, and no public output.
+- Phase 99: fixture-backed Postgres read-only smoke and DS925+ package
+  assessment. This phase validates read-only SQL shape, result row schema, and
+  forbidden SQL rejection against Phase 92 warehouse-shaped fixture rows. It
+  also records the preferred DS925+ package path: Container Manager for app and
+  Postgres containers, Tailscale for private mobile access, and backup packages
+  for later volume protection. It still performs no live database connection,
+  no Postgres read/write, no schema migration, no network bind, and no public
+  output.
+
+## DS925+ Deployment Package Assessment
+
+Phase 99 records the current deployment recommendation in
+`specs/audits/nas_ds925_deployment_package_assessment.yaml`.
+
+Recommended package path:
+
+- Container Manager as the primary deployment runtime.
+- Official PostgreSQL container image as the preferred database runtime.
+- Application container for the Python ASGI service.
+- Tailscale for private phone access without exposing the NAS directly to the
+  public internet.
+- Hyper Backup / Snapshot Replication as later backup and rollback support.
+
+Estimated deployment sequence:
+
+- Phase 100: generate a Container Manager compose/service bundle dry-run.
+- Phase 101: private local service startup smoke.
+- Phase 102: guided DS925+ install and first read-only smoke on the NAS.
+- Phase 103: import revised macro data into NAS Postgres and rehearse backup.
+- Phase 104: private phone browsing, auth, health check, and rollback
+  acceptance.
 
 ## GitHub Pages Retirement
 
@@ -134,6 +165,7 @@ Backups must cover:
 
 - Actual FastAPI service startup behind private local access.
 - Executed Postgres migrations and live DB smoke test.
+- Container Manager compose/service bundle dry-run.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
 - Production-grade auth/session boundary for private mobile use.
