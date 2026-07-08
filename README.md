@@ -1462,6 +1462,11 @@ and must not be committed.
 The new deployment path is a private NAS dynamic service with Postgres-backed
 data and a private mobile access model.
 
+Phase 98 adds a local NAS service lifecycle rehearsal around the Phase 97 ASGI
+adapter. It verifies startup, readiness probes, shutdown, and rollback entirely
+in-process. It does not start uvicorn, bind a port, connect to Postgres, fetch
+live data, write public output, or change production behavior.
+
 ## Next steps
 
 1. Add YAML loading and validation for `specs/indicator_catalog.yaml`.
