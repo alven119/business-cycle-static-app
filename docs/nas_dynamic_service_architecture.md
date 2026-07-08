@@ -1,7 +1,7 @@
 ---
-version: "1.2"
+version: "1.3"
 status: active
-phase_id: 92
+phase_id: 93
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -76,6 +76,9 @@ Revised data completeness and vintage backfill are separate work:
   `series_registry`, `source_artifact`, and `observation_revised` rows without
   connecting to a live database or writing repository outputs.
 - Phase 93: vintage/PIT backfill and availability accounting.
+  This phase keeps the import no-write: it plans 24 direct vintage requests and
+  one derived same-as-of PIT plan, records missing derived-lineage blockers, and
+  writes no `observation_vintage` rows.
 
 ## GitHub Pages Retirement
 
@@ -109,6 +112,6 @@ Backups must cover:
 - Executed Postgres migrations and live DB smoke test.
 - Data refresh worker.
 - Executed revised data import into the NAS Postgres instance.
-- Vintage/PIT backfill.
+- Executed vintage/PIT backfill into `observation_vintage`.
 - NAS smoke test.
 - Mobile dashboard browser verification over private access.

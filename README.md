@@ -39,6 +39,10 @@ NAS migration, but it is no longer the user-facing deployment target.
 - Phase 92 adds a revised macro data import dry-run that maps current
   official/accepted macro series into warehouse-shaped revised rows without
   live DB writes or live network fetches.
+- Phase 93 adds vintage/PIT backfill availability accounting on top of that
+  revised import manifest. It records which roles and series have a governed
+  future vintage backfill plan, which derived outputs still need explicit
+  lineage, and keeps `observation_vintage` unwritten.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

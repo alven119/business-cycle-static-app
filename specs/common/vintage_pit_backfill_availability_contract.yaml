@@ -1,0 +1,85 @@
+vintage_pit_backfill_availability_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 93
+  phase_label: vintage_pit_backfill_availability_accounting
+  depends_on:
+    - specs/common/revised_macro_data_import_contract.yaml
+    - specs/common/postgres_macro_warehouse_contract.yaml
+    - specs/common/series_release_lag_registry.yaml
+  scope:
+    live_fetch_allowed_now: false
+    live_db_connection_allowed_now: false
+    postgres_write_allowed_now: false
+    repo_output_allowed: false
+    strict_pit_result_allowed_now: false
+    local_vintage_cache_verification_allowed_now: false
+    use_phase92_revised_import_manifest: true
+    derived_series_require_explicit_lineage: true
+  targeted_warehouse_tables:
+    - observation_vintage
+    - source_artifact
+  excluded_outputs:
+    - strict_point_in_time_result
+    - candidate_phase
+    - current_phase
+    - phase_score
+    - phase_rank
+    - portfolio_or_trade_decision
+  data_mode_policy:
+    revised_rows_remain_revised: true
+    vintage_rows_planned_not_written: true
+    revised_data_may_not_be_labeled_point_in_time: true
+    derived_pit_requires_all_inputs_same_as_of: true
+    missing_derived_lineage_blocks_backfill_plan: true
+  artifact_policy:
+    generated_at_utc_is_deterministic_for_tests: true
+    cli_output_must_be_under_tmp: true
+    planned_requests_have_no_live_side_effects: true
+    blockers_remain_visible: true
+  allowed_uses:
+    - vintage_pit_backfill_planning
+    - nas_dynamic_service_data_foundation
+    - strict_replay_readiness_accounting
+    - dashboard_data_mode_explanation
+  prohibited_uses:
+    - strict_point_in_time_evidence
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - production_decision
+    - portfolio_or_trade_decision
+  hard_gates:
+    vintage_pit_backfill_availability_contract_ready: true
+    vintage_pit_backfill_accounting_ready: true
+    phase92_revised_import_dependency_ready: true
+    postgres_macro_warehouse_dependency_ready: true
+    role_count: 39
+    revised_import_ready_role_count: 37
+    revised_import_blocked_role_count: 2
+    role_with_pit_backfill_plan_count: 34
+    role_blocked_from_pit_backfill_count: 5
+    blocked_role_with_reason_count: 5
+    unique_series_count: 28
+    backfill_availability_row_count: 28
+    series_registry_metadata_covered_count: 25
+    series_missing_release_lag_registry_count: 3
+    pit_eligible_series_count: 25
+    vintage_query_supported_series_count: 24
+    derived_pit_plan_series_count: 1
+    planned_vintage_backfill_series_count: 25
+    planned_vintage_request_row_count: 24
+    observation_vintage_row_count: 0
+    strict_pit_result_emitted_count: 0
+    local_vintage_cache_verification_attempt_count: 0
+    local_vintage_cache_write_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_write_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    point_in_time_claim_count: 0
+    revised_mislabeled_as_pit_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 94
