@@ -1,0 +1,173 @@
+nas_app_container_runtime_bundle_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 107
+  phase_label: nas_app_container_runtime_bundle
+  depends_on:
+    - specs/common/nas_operator_live_deployment_session_contract.yaml
+    - specs/audits/phase106_nas_operator_live_deployment_session_closure.yaml
+    - specs/common/nas_container_manager_bundle_contract.yaml
+    - docs/nas_dynamic_service_architecture.md
+  target_endpoint:
+    nas_private_ip: 192.168.1.116
+    target_device: synology_ds925_plus
+    package_runtime: container_manager
+    access_model: private_lan_or_tailnet_with_loopback_reverse_proxy
+    public_internet_exposure_allowed_now: false
+  runtime_scope:
+    app_container_runtime_bundle_allowed: true
+    dockerfile_generation_allowed: true
+    compose_build_bundle_generation_allowed: true
+    container_manager_import_by_codex_allowed_now: false
+    docker_build_by_codex_allowed_now: false
+    docker_compose_execution_by_codex_allowed_now: false
+    container_start_by_codex_allowed_now: false
+    live_server_start_by_codex_allowed_now: false
+    live_db_connection_by_codex_allowed_now: false
+    postgres_read_by_codex_allowed_now: false
+    postgres_write_by_codex_allowed_now: false
+    schema_migration_by_codex_allowed_now: false
+    live_fetch_by_codex_allowed_now: false
+    repo_output_allowed_now: false
+    public_output_allowed_now: false
+    tests_network_dependency_allowed: false
+  image_bundle:
+    dockerfile_path: Dockerfile.nas
+    dockerignore_path: .dockerignore
+    image_name: business-cycle-nas-app
+    image_tag: phase107
+    runtime_entrypoint: python -m business_cycle.service.nas_runtime_server --host 0.0.0.0 --port 8000
+    healthcheck_entrypoint: python -m business_cycle.service.healthcheck
+    disabled_refresh_worker_entrypoint: python -m business_cycle.service.refresh_worker_disabled_until_gate
+    required_build_context_paths:
+      - pyproject.toml
+      - README.md
+      - src
+      - specs
+      - docs/project_north_star.md
+      - docs/investment_cycle_product_doctrine.md
+      - docs/phase_execution_standing_contract.md
+      - docs/nas_dynamic_service_architecture.md
+    prohibited_build_context_paths:
+      - .git
+      - .venv
+      - data/raw
+      - data/backtests
+      - data/prospective
+      - public
+      - docs/景氣循環投資.pdf
+      - .env
+  compose_policy:
+    service_count: 3
+    app_service_id: business_cycle_app
+    postgres_service_id: macro_postgres
+    refresh_worker_service_id: macro_refresh_worker
+    app_image_reference: business-cycle-nas-app:phase107
+    app_build_context: .
+    app_dockerfile: Dockerfile.nas
+    loopback_host_port_allowed: true
+    loopback_host_port: 127.0.0.1:18080:8000
+    public_host_port_allowed: false
+    internal_network_required: true
+    refresh_worker_disabled_until_gate: true
+  required_environment_placeholders:
+    - MACRO_POSTGRES_DB
+    - MACRO_POSTGRES_USER
+    - MACRO_POSTGRES_PASSWORD
+    - BUSINESS_CYCLE_DATABASE_URL
+    - BUSINESS_CYCLE_APP_SESSION_SECRET
+    - BUSINESS_CYCLE_APP_SESSION_HEADER
+    - BUSINESS_CYCLE_APP_LOOPBACK_PORT
+    - FRED_API_KEY
+  required_bundle_artifacts:
+    - Dockerfile.nas
+    - .dockerignore
+    - container-manager-compose.yaml
+    - container-manager-env.template
+    - nas-app-runtime-runbook.json
+    - rollback-checklist.json
+    - operator-next-steps.md
+  allowed_uses:
+    - ds925_app_container_build_context_preparation
+    - container_manager_project_import_review
+    - private_loopback_reverse_proxy_handoff
+    - nas_app_runtime_healthcheck_review
+  prohibited_uses:
+    - automated_container_manager_import_by_codex
+    - automated_docker_build_by_codex
+    - automated_container_start_by_codex
+    - public_hosted_dashboard
+    - live_postgres_write
+    - schema_migration_execution_by_codex
+    - live_macro_fetch
+    - strict_point_in_time_result
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - secret_value
+    - password
+    - token
+  hard_gates:
+    nas_app_container_runtime_bundle_contract_ready: true
+    nas_app_container_runtime_bundle_ready: true
+    phase106_operator_preflight_dependency_ready: true
+    phase100_bundle_dependency_ready: true
+    dockerfile_present: true
+    dockerignore_present: true
+    runtime_server_module_ready: true
+    healthcheck_module_ready: true
+    refresh_worker_disabled_module_ready: true
+    compose_yaml_valid: true
+    compose_service_count: 3
+    app_service_build_ready: true
+    app_image_reference: business-cycle-nas-app:phase107
+    dry_run_image_reference_count: 0
+    loopback_host_port_publish_count: 1
+    public_host_port_publish_count: 0
+    privileged_service_count: 0
+    host_bind_mount_count: 0
+    secret_value_literal_count: 0
+    required_environment_placeholder_count: 8
+    bundle_artifact_count: 7
+    docker_build_attempt_count: 0
+    docker_compose_execution_count: 0
+    container_manager_import_attempt_count: 0
+    container_start_attempt_count: 0
+    live_server_start_attempt_count: 0
+    live_db_connection_attempt_count: 0
+    postgres_read_attempt_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    refresh_worker_enabled: false
+    runtime_healthcheck_import_ready: true
+    runtime_auth_secret_embedded: false
+    point_in_time_claim_count: 0
+    revised_mislabeled_as_pit_count: 0
+    prohibited_output_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 108

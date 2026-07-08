@@ -87,6 +87,13 @@ NAS migration, but it is no longer the user-facing deployment target.
   start, Postgres read/write, migrations, backup/restore execution, live fetch,
   or repository output. Deployment acceptance requires a future operator
   report.
+- Phase 107 adds the buildable NAS app container runtime bundle. It introduces
+  `Dockerfile.nas`, a Docker ignore policy, a standard-library private runtime
+  HTTP server, container healthcheck, disabled refresh-worker entrypoint, and a
+  Container Manager compose bundle that builds `business-cycle-nas-app:phase107`.
+  It still does not run Docker, import Container Manager projects, start
+  containers, connect to Postgres, run migrations, fetch live data, or expose a
+  public dashboard.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

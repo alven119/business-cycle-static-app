@@ -1,7 +1,7 @@
 ---
-version: "2.6"
+version: "2.7"
 status: active
-phase_id: 106
+phase_id: 107
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -155,6 +155,12 @@ Revised data completeness and vintage backfill are separate work:
   not execute DSM login, package install, tailnet login, Container Manager
   import, container start, live server start, Postgres read/write, schema
   migration, backup/restore execution, live fetch, or repository output.
+- Phase 107: NAS app container runtime bundle. This phase adds `Dockerfile.nas`,
+  a Docker ignore policy, a standard-library private runtime HTTP server,
+  container healthcheck, disabled refresh-worker entrypoint, and a buildable
+  Container Manager compose bundle for `business-cycle-nas-app:phase107`. It
+  still does not execute Docker build, Container Manager import, container
+  start, live DB read/write, schema migration, live fetch, or public output.
 
 ## DS925+ Deployment Package Assessment
 
@@ -188,9 +194,11 @@ Estimated deployment sequence:
   explicit approval, using the Phase 105 handoff package as the checklist.
   Phase 106 records the protocol and report template; live acceptance remains
   blocked until an operator-supplied report is validated.
-- Phase 107: ingest the real operator report from the completed DS925+ session
-  and promote the private NAS service from protocol-ready to accepted, if every
-  live acceptance gate passes.
+- Phase 107: add the buildable NAS app image/runtime bundle and compose package
+  so the DS925+ has an actual app container target instead of a dry-run image.
+- Phase 108: operator imports/builds the Phase107 bundle in Container Manager,
+  starts the private service, and returns the live health/auth/rollback report
+  for validation.
 
 ## GitHub Pages Retirement
 
@@ -226,6 +234,7 @@ Backups must cover:
 - Actual Container Manager import and service startup.
 - Executed operator-approved private auth and health-check acceptance.
 - Real operator report ingestion for the DS925+ live deployment session.
+- Actual DS925+ Docker image build and Container Manager project import.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
 - Production-grade auth/session boundary for private mobile use.
