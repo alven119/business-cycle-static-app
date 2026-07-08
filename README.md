@@ -54,6 +54,10 @@ NAS migration, but it is no longer the user-facing deployment target.
   route dispatch, a local session boundary, service health, and rollback steps
   without binding a network port, connecting to Postgres, or exposing public
   output.
+- Phase 97 adds an ASGI-compatible adapter skeleton around the Phase 96 shell.
+  It can be mounted by a future FastAPI/ASGI service, but this phase still
+  starts no uvicorn server, binds no network port, connects to no database, and
+  writes no public output.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

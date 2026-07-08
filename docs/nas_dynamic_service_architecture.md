@@ -1,7 +1,7 @@
 ---
-version: "1.6"
+version: "1.7"
 status: active
-phase_id: 96
+phase_id: 97
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -93,6 +93,12 @@ Revised data completeness and vintage backfill are separate work:
   routes in an in-process Python dispatcher, verifies a local session boundary,
   service-health payload, and rollback checklist, and still avoids network
   binding, live Postgres reads, live fetches, and public output.
+- Phase 97: ASGI adapter skeleton. This phase wraps the Phase 96 shell in a
+  pure-Python ASGI callable that can be mounted by a later FastAPI/ASGI service.
+  It verifies ASGI scope translation, authenticated and unauthenticated request
+  handling, unsupported-method rejection, and unknown-route rejection without
+  starting uvicorn, binding a port, reading Postgres, fetching live data, or
+  writing public output.
 
 ## GitHub Pages Retirement
 
@@ -124,7 +130,7 @@ Backups must cover:
 
 - FastAPI service skeleton.
 - Executed Postgres migrations and live DB smoke test.
-- Live FastAPI/ASGI route mounting for the Phase 96 app shell.
+- Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter.
 - Production-grade auth/session boundary for private mobile use.
 - Local Postgres read smoke with read-only credentials.
 - Data refresh worker.

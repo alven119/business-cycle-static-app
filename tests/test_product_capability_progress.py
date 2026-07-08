@@ -33,7 +33,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
 
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
-    assert summary["phase_label"] == "nas_app_shell_local_service_smoke"
+    assert summary["phase_label"] == "nas_asgi_adapter_skeleton_no_live_server"
     assert all(
         0 <= row["current_progress_percent"] <= 100
         for row in summary["capability_progress"]
