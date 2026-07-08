@@ -1,0 +1,35 @@
+phase91_postgres_macro_warehouse_closure:
+  phase_id: 91
+  phase_label: postgres_macro_warehouse_pit_schema_ready
+  closure_status: closed_postgres_macro_warehouse_pit_schema_ready_no_live_db_dependency
+  hard_gates:
+    phase91_closure_ready: true
+    postgres_macro_warehouse_contract_ready: true
+    nas_dynamic_service_dependency_ready: true
+    schema_table_count: 11
+    required_table_count: 11
+    missing_required_table_count: 0
+    table_with_primary_key_count: 11
+    table_without_primary_key_count: 0
+    pit_ready_schema: true
+    revised_vintage_separation_ready: true
+    vintage_required_column_missing_count: 0
+    revised_first_backfill_policy_present: true
+    vintage_backfill_plan_present: true
+    schema_sql_generated: true
+    schema_requires_live_db: false
+    live_db_connection_attempt_count: 0
+    runtime_dependency_added_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    raw_book_pdf_tracked_count: 0
+    tracked_data_raw_file_count: 0
+    product_doctrine_alignment_status: aligned
+    cycle_state_machine_alignment_status: declared_state_preserved_schema_only
+    portfolio_policy_research_alignment: research_templates_preserved_no_live_instruction
+    historical_replay_backtest_alignment: pit_ready_schema_preregistered_no_execution
+    development_next_phase: 92

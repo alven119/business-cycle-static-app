@@ -1,7 +1,7 @@
 ---
-version: "1.0"
+version: "1.1"
 status: active
-phase_id: 90
+phase_id: 91
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -48,8 +48,11 @@ candidate transition, and current declared state.
 ## Data Warehouse Direction
 
 The Postgres schema must support point-in-time and vintage semantics from the
-start. The first data-completeness sprint may fill revised data first, but the
-schema and contracts must not force a later rewrite to support vintage data.
+start. Phase 91 records the schema contract in
+`specs/common/postgres_macro_warehouse_contract.yaml` and provides a
+deterministic DDL preview through `scripts/show_postgres_macro_warehouse_contract.py`.
+The first data-completeness sprint may fill revised data first, but the schema
+and contracts must not force a later rewrite to support vintage data.
 
 Planned table families:
 
@@ -67,7 +70,7 @@ Planned table families:
 
 Revised data completeness and vintage backfill are separate work:
 
-- Phase 91: PIT-ready Postgres schema.
+- Phase 91: PIT-ready Postgres schema contract and DDL preview.
 - Phase 92: revised macro data completeness sprint.
 - Phase 93: vintage/PIT backfill and availability accounting.
 
@@ -100,7 +103,7 @@ Backups must cover:
 ## Deferred Gaps
 
 - FastAPI service skeleton.
-- Postgres schema and migrations.
+- Executed Postgres migrations and live DB smoke test.
 - Data refresh worker.
 - Revised data completeness import.
 - Vintage/PIT backfill.

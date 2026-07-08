@@ -1,0 +1,260 @@
+postgres_macro_warehouse_contract:
+  version: "1.0"
+  status: active
+  phase_id: 91
+  phase_label: postgres_macro_warehouse_pit_schema_ready
+  depends_on:
+    - specs/common/nas_dynamic_service_contract.yaml
+  database:
+    engine: postgres
+    schema_name: macro
+    default_tests_require_database: false
+    live_connection_required_now: false
+    runtime_dependency_added_now: false
+    migration_execution_allowed_now: false
+  design_principles:
+    pit_schema_required_from_start: true
+    revised_and_vintage_separated: true
+    revised_data_complete_first: true
+    vintage_backfill_incremental: true
+    missing_vintage_abstains_or_labels_revised_diagnostic: true
+    source_artifact_hash_required: true
+    frontend_direct_db_access_allowed: false
+    frontend_api_key_allowed: false
+    no_revised_as_point_in_time_claim: true
+  required_table_names:
+    - series_registry
+    - observation_revised
+    - observation_vintage
+    - release_calendar
+    - source_artifact
+    - indicator_value_snapshot
+    - evidence_snapshot
+    - dashboard_snapshot
+    - backtest_run
+    - backtest_result
+    - portfolio_policy_run
+  table_contracts:
+    series_registry:
+      purpose: Canonical source-series identity and economic metadata.
+      primary_key: [series_key]
+      columns:
+        - {name: series_key, sql_type: text, nullable: false}
+        - {name: source_family, sql_type: text, nullable: false}
+        - {name: source_series_id, sql_type: text, nullable: false}
+        - {name: source_title, sql_type: text, nullable: false}
+        - {name: units, sql_type: text, nullable: false}
+        - {name: frequency, sql_type: text, nullable: false}
+        - {name: seasonal_adjustment, sql_type: text, nullable: false}
+        - {name: geographic_scope, sql_type: text, nullable: false}
+        - {name: source_url_without_secret, sql_type: text, nullable: false}
+        - {name: source_identity_status, sql_type: text, nullable: false}
+        - {name: created_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: updated_at_utc, sql_type: timestamptz, nullable: false}
+      constraints:
+        - UNIQUE (source_family, source_series_id)
+    source_artifact:
+      purpose: Immutable fetched artifact metadata and parser provenance.
+      primary_key: [artifact_id]
+      columns:
+        - {name: artifact_id, sql_type: text, nullable: false}
+        - {name: source_family, sql_type: text, nullable: false}
+        - {name: source_url_without_secret, sql_type: text, nullable: false}
+        - {name: source_series_or_release_id, sql_type: text, nullable: false}
+        - {name: fetched_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: content_hash, sql_type: text, nullable: false}
+        - {name: content_type, sql_type: text, nullable: false}
+        - {name: adapter_id, sql_type: text, nullable: false}
+        - {name: parser_version, sql_type: text, nullable: false}
+        - {name: no_secret, sql_type: boolean, nullable: false}
+        - {name: validation_status, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (no_secret IS TRUE)
+        - UNIQUE (content_hash)
+    observation_revised:
+      purpose: Latest revised observation values, never point-in-time evidence by itself.
+      primary_key: [series_key, observation_date]
+      columns:
+        - {name: series_key, sql_type: text, nullable: false}
+        - {name: observation_date, sql_type: date, nullable: false}
+        - {name: value_numeric, sql_type: numeric, nullable: true}
+        - {name: value_text, sql_type: text, nullable: true}
+        - {name: unit, sql_type: text, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: source_artifact_id, sql_type: text, nullable: false}
+        - {name: fetched_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (data_mode = 'revised')
+    observation_vintage:
+      purpose: Point-in-time vintage observations and realtime intervals.
+      primary_key: [series_key, observation_date, realtime_start]
+      columns:
+        - {name: series_key, sql_type: text, nullable: false}
+        - {name: observation_date, sql_type: date, nullable: false}
+        - {name: realtime_start, sql_type: date, nullable: false}
+        - {name: realtime_end, sql_type: date, nullable: true}
+        - {name: vintage_as_of, sql_type: date, nullable: false}
+        - {name: release_timestamp_utc, sql_type: timestamptz, nullable: false}
+        - {name: value_numeric, sql_type: numeric, nullable: true}
+        - {name: value_text, sql_type: text, nullable: true}
+        - {name: unit, sql_type: text, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: source_artifact_id, sql_type: text, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (data_mode = 'vintage_as_of')
+    release_calendar:
+      purpose: Expected and observed release timing for source availability.
+      primary_key: [series_key, reference_period_start, release_family]
+      columns:
+        - {name: series_key, sql_type: text, nullable: false}
+        - {name: release_family, sql_type: text, nullable: false}
+        - {name: reference_period_start, sql_type: date, nullable: false}
+        - {name: reference_period_end, sql_type: date, nullable: false}
+        - {name: expected_release_at_utc, sql_type: timestamptz, nullable: true}
+        - {name: actual_release_at_utc, sql_type: timestamptz, nullable: true}
+        - {name: release_status, sql_type: text, nullable: false}
+        - {name: source_artifact_id, sql_type: text, nullable: true}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+    indicator_value_snapshot:
+      purpose: Derived indicator values with source observation lineage.
+      primary_key: [snapshot_id]
+      columns:
+        - {name: snapshot_id, sql_type: text, nullable: false}
+        - {name: role_id, sql_type: text, nullable: false}
+        - {name: series_key, sql_type: text, nullable: false}
+        - {name: as_of, sql_type: date, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: transformation_id, sql_type: text, nullable: false}
+        - {name: observation_date, sql_type: date, nullable: false}
+        - {name: value_numeric, sql_type: numeric, nullable: true}
+        - {name: value_text, sql_type: text, nullable: true}
+        - {name: source_artifact_id, sql_type: text, nullable: false}
+        - {name: generated_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (data_mode IN ('revised', 'vintage_as_of'))
+    evidence_snapshot:
+      purpose: Research-only evidence states for declared-state and transition explanation.
+      primary_key: [evidence_snapshot_id]
+      columns:
+        - {name: evidence_snapshot_id, sql_type: text, nullable: false}
+        - {name: role_id, sql_type: text, nullable: false}
+        - {name: major_group_id, sql_type: text, nullable: false}
+        - {name: phase_or_layer, sql_type: text, nullable: false}
+        - {name: transition_lane_id, sql_type: text, nullable: true}
+        - {name: as_of, sql_type: date, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: evidence_state, sql_type: text, nullable: false}
+        - {name: abstention_reason, sql_type: text, nullable: true}
+        - {name: source_snapshot_id, sql_type: text, nullable: false}
+        - {name: generated_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (data_mode IN ('revised', 'vintage_as_of'))
+    dashboard_snapshot:
+      purpose: NAS dashboard payload lineage without formal current phase inference.
+      primary_key: [dashboard_snapshot_id]
+      columns:
+        - {name: dashboard_snapshot_id, sql_type: text, nullable: false}
+        - {name: as_of, sql_type: date, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: declared_current_phase, sql_type: text, nullable: false}
+        - {name: declared_phase_start_date, sql_type: date, nullable: true}
+        - {name: phase_age_status, sql_type: text, nullable: false}
+        - {name: legal_next_phase, sql_type: text, nullable: false}
+        - {name: research_only, sql_type: boolean, nullable: false}
+        - {name: generated_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: source_evidence_hash, sql_type: text, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (research_only IS TRUE)
+    backtest_run:
+      purpose: Research replay/backtest run metadata without automatic execution.
+      primary_key: [backtest_run_id]
+      columns:
+        - {name: backtest_run_id, sql_type: text, nullable: false}
+        - {name: scenario_id, sql_type: text, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: run_status, sql_type: text, nullable: false}
+        - {name: execution_allowed_by_gate, sql_type: boolean, nullable: false}
+        - {name: created_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: input_manifest_hash, sql_type: text, nullable: false}
+        - {name: prohibited_uses, sql_type: jsonb, nullable: false}
+      constraints:
+        - CHECK (execution_allowed_by_gate IS FALSE)
+    backtest_result:
+      purpose: Future research-only result metadata; no live allocation output.
+      primary_key: [backtest_result_id]
+      columns:
+        - {name: backtest_result_id, sql_type: text, nullable: false}
+        - {name: backtest_run_id, sql_type: text, nullable: false}
+        - {name: result_scope, sql_type: text, nullable: false}
+        - {name: metric_family, sql_type: text, nullable: true}
+        - {name: metric_payload, sql_type: jsonb, nullable: true}
+        - {name: generated_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: research_only, sql_type: boolean, nullable: false}
+        - {name: no_trade_signal, sql_type: boolean, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (research_only IS TRUE)
+        - CHECK (no_trade_signal IS TRUE)
+    portfolio_policy_run:
+      purpose: Portfolio policy research template run metadata.
+      primary_key: [portfolio_policy_run_id]
+      columns:
+        - {name: portfolio_policy_run_id, sql_type: text, nullable: false}
+        - {name: policy_template_id, sql_type: text, nullable: false}
+        - {name: scenario_id, sql_type: text, nullable: false}
+        - {name: data_mode, sql_type: text, nullable: false}
+        - {name: research_only, sql_type: boolean, nullable: false}
+        - {name: personalized_instruction_allowed, sql_type: boolean, nullable: false}
+        - {name: created_at_utc, sql_type: timestamptz, nullable: false}
+        - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - CHECK (research_only IS TRUE)
+        - CHECK (personalized_instruction_allowed IS FALSE)
+  relationship_policy:
+    foreign_keys_planned: true
+    migration_order:
+      - series_registry
+      - source_artifact
+      - observation_revised
+      - observation_vintage
+      - release_calendar
+      - indicator_value_snapshot
+      - evidence_snapshot
+      - dashboard_snapshot
+      - backtest_run
+      - backtest_result
+      - portfolio_policy_run
+  output_restrictions:
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    trade_signal_allowed: false
+    personalized_live_allocation_allowed: false
+    public_output_allowed: false
+    data_backtests_write_allowed_in_tests: false
+    data_prospective_write_allowed_in_tests: false
+  hard_gates:
+    postgres_macro_warehouse_contract_ready: true
+    schema_table_count: 11
+    required_table_count: 11
+    missing_required_table_count: 0
+    table_with_primary_key_count: 11
+    table_without_primary_key_count: 0
+    pit_ready_schema: true
+    revised_vintage_separation_ready: true
+    vintage_required_column_missing_count: 0
+    source_artifact_hash_required: true
+    schema_sql_generated: true
+    schema_requires_live_db: false
+    runtime_dependency_added_count: 0
+    frontend_database_access_allowed: false
+    frontend_api_key_allowed: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 92

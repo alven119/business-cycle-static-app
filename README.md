@@ -13,7 +13,8 @@ NAS migration, but it is no longer the user-facing deployment target.
 
 - `src/business_cycle/`: Python package root.
 - `data_sources` package: data providers for public macro data providers such as FRED.
-- `src/business_cycle/storage/`: filesystem helpers for raw, normalized, and public outputs.
+- `src/business_cycle/storage/`: filesystem helpers plus the Phase 91
+  PIT-ready Postgres macro warehouse schema contract helper.
 - `src/business_cycle/indicators/`: indicator catalog loading and trend-aware scoring.
 - `src/business_cycle/phases/`: legacy phase scoring, resolver compatibility, and cycle context loading.
 - `src/business_cycle/cycle_state/`: declared cycle state and ordered legal transition state.
@@ -33,6 +34,8 @@ NAS migration, but it is no longer the user-facing deployment target.
   private mobile access path such as Tailscale or VPN.
 - Postgres schema planning must support point-in-time/vintage data from the
   start, even if the first data-completeness sprint fills revised data first.
+- Phase 91 adds `specs/common/postgres_macro_warehouse_contract.yaml` and a
+  deterministic DDL preview helper; tests still do not require a live database.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.
