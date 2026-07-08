@@ -92,6 +92,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_95_roadmap.py",
         "show_product_capability_completion_sprint.py",
         "show_github_actions_test_efficiency.py",
+        "show_phase92_revised_macro_data_import_closure.py",
         "show_phase91_postgres_macro_warehouse_closure.py",
         "show_phase90_nas_dynamic_service_architecture_closure.py",
         "show_phase89a_portfolio_policy_wording_alignment_closure.py",

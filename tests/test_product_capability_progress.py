@@ -33,7 +33,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
 
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
-    assert summary["phase_label"] == "postgres_macro_warehouse_pit_schema_ready"
+    assert summary["phase_label"] == "revised_macro_data_completeness_import"
     assert all(
         0 <= row["current_progress_percent"] <= 100
         for row in summary["capability_progress"]

@@ -1,0 +1,81 @@
+revised_macro_data_import_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 92
+  phase_label: revised_macro_data_completeness_import
+  depends_on:
+    - specs/common/postgres_macro_warehouse_contract.yaml
+    - specs/common/local_current_cache_dashboard_bridge.yaml
+    - specs/common/official_macro_source_adapter_wiring.yaml
+  import_scope:
+    source_mode: revised_local_cache_or_tmp_seeded_rehearsal
+    live_fetch_allowed_now: false
+    live_db_connection_allowed_now: false
+    postgres_write_allowed_now: false
+    repo_output_allowed: false
+    vintage_import_allowed_now: false
+    include_roles_with_official_series: true
+    blocked_roles_remain_visible: true
+  targeted_warehouse_tables:
+    - series_registry
+    - source_artifact
+    - observation_revised
+  excluded_warehouse_tables:
+    - observation_vintage
+    - release_calendar
+    - indicator_value_snapshot
+    - evidence_snapshot
+    - dashboard_snapshot
+    - backtest_run
+    - backtest_result
+    - portfolio_policy_run
+  data_mode_policy:
+    imported_data_mode: revised
+    revised_data_may_not_be_labeled_point_in_time: true
+    revised_data_may_not_emit_phase_evidence: true
+    revised_data_may_not_emit_candidate_or_current_phase: true
+  artifact_policy:
+    generated_at_utc_is_deterministic_for_tests: true
+    source_artifact_hash_required: true
+    provenance_hash_required: true
+    tests_use_tmp_cache: true
+    cli_output_must_be_under_tmp: true
+  allowed_uses:
+    - revised_macro_warehouse_import_rehearsal
+    - nas_dynamic_service_data_foundation
+    - dashboard_source_lineage_preparation
+  prohibited_uses:
+    - point_in_time_evidence
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - production_decision
+    - portfolio_or_trade_decision
+  hard_gates:
+    revised_macro_data_import_contract_ready: true
+    revised_macro_data_import_dry_run_ready: true
+    postgres_macro_warehouse_dependency_ready: true
+    role_count: 39
+    revised_import_ready_role_count: 37
+    revised_import_blocked_role_count: 2
+    role_without_import_status_count: 0
+    blocked_role_with_reason_count: 2
+    unique_series_count: 28
+    series_registry_row_count: 28
+    source_artifact_row_count: 28
+    observation_revised_row_count: 112
+    observation_vintage_row_count: 0
+    warehouse_row_schema_valid: true
+    source_artifact_hash_complete: true
+    provenance_hash_complete: true
+    dry_run_output_under_tmp_only: true
+    live_db_connection_attempt_count: 0
+    postgres_write_attempt_count: 0
+    live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    point_in_time_claim_count: 0
+    revised_mislabeled_as_pit_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 93

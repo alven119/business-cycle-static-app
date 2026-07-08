@@ -36,6 +36,9 @@ NAS migration, but it is no longer the user-facing deployment target.
   start, even if the first data-completeness sprint fills revised data first.
 - Phase 91 adds `specs/common/postgres_macro_warehouse_contract.yaml` and a
   deterministic DDL preview helper; tests still do not require a live database.
+- Phase 92 adds a revised macro data import dry-run that maps current
+  official/accepted macro series into warehouse-shaped revised rows without
+  live DB writes or live network fetches.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

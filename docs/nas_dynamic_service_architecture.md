@@ -1,7 +1,7 @@
 ---
-version: "1.1"
+version: "1.2"
 status: active
-phase_id: 91
+phase_id: 92
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -71,7 +71,10 @@ Planned table families:
 Revised data completeness and vintage backfill are separate work:
 
 - Phase 91: PIT-ready Postgres schema contract and DDL preview.
-- Phase 92: revised macro data completeness sprint.
+- Phase 92: revised macro data completeness import dry-run. This phase maps the
+  current official/accepted macro source set into warehouse-shaped
+  `series_registry`, `source_artifact`, and `observation_revised` rows without
+  connecting to a live database or writing repository outputs.
 - Phase 93: vintage/PIT backfill and availability accounting.
 
 ## GitHub Pages Retirement
@@ -105,7 +108,7 @@ Backups must cover:
 - FastAPI service skeleton.
 - Executed Postgres migrations and live DB smoke test.
 - Data refresh worker.
-- Revised data completeness import.
+- Executed revised data import into the NAS Postgres instance.
 - Vintage/PIT backfill.
 - NAS smoke test.
 - Mobile dashboard browser verification over private access.
