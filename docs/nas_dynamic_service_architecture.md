@@ -1,7 +1,7 @@
 ---
-version: "2.7"
+version: "2.8"
 status: active
-phase_id: 107
+phase_id: 108
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -161,6 +161,12 @@ Revised data completeness and vintage backfill are separate work:
   Container Manager compose bundle for `business-cycle-nas-app:phase107`. It
   still does not execute Docker build, Container Manager import, container
   start, live DB read/write, schema migration, live fetch, or public output.
+- Phase 108: NAS Container Manager live-start package. This phase prepares the
+  operator-owned import/build/start checklist, redacted live-start report
+  template, private health/auth smoke checks, rollback drill, and validator for
+  the Phase107 bundle. It still does not execute DSM login, Container Manager
+  import, Docker build, container start, live DB read/write, schema migration,
+  live fetch, or public output.
 
 ## DS925+ Deployment Package Assessment
 
@@ -198,7 +204,11 @@ Estimated deployment sequence:
   so the DS925+ has an actual app container target instead of a dry-run image.
 - Phase 108: operator imports/builds the Phase107 bundle in Container Manager,
   starts the private service, and returns the live health/auth/rollback report
-  for validation.
+  for validation. The repository now provides the checklist, report template,
+  sample validator fixture, and rollback drill; live acceptance remains blocked
+  until the operator report is supplied.
+- Phase 109: validate the operator-supplied live-start report and, if accepted,
+  move to the first read-only NAS service smoke with private auth retained.
 
 ## GitHub Pages Retirement
 
@@ -235,6 +245,7 @@ Backups must cover:
 - Executed operator-approved private auth and health-check acceptance.
 - Real operator report ingestion for the DS925+ live deployment session.
 - Actual DS925+ Docker image build and Container Manager project import.
+- Operator-supplied Phase108 live-start report ingestion and acceptance.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
 - Production-grade auth/session boundary for private mobile use.

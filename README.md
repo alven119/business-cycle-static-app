@@ -94,6 +94,12 @@ NAS migration, but it is no longer the user-facing deployment target.
   It still does not run Docker, import Container Manager projects, start
   containers, connect to Postgres, run migrations, fetch live data, or expose a
   public dashboard.
+- Phase 108 adds the NAS Container Manager live-start package. It provides the
+  operator import/build/start checklist, redacted report template, private
+  health/auth smoke checks, rollback drill, and validator for the Phase107
+  image. It still does not perform DSM login, Container Manager import, image
+  build, container start, Postgres read/write, migration, live fetch, or
+  repository output. Live acceptance waits for an operator-supplied report.
 - Frontend code must not connect directly to Postgres or carry API keys.
 - No API keys in source code or public output.
 - No business-cycle phase decision from a single latest value.

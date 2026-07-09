@@ -1,0 +1,213 @@
+nas_container_manager_live_start_contract:
+  version: "1.0"
+  status: active_operator_start_contract
+  phase_id: 108
+  phase_label: nas_container_manager_live_start_package
+  depends_on:
+    - specs/common/nas_app_container_runtime_bundle_contract.yaml
+    - specs/audits/phase107_nas_app_container_runtime_bundle_closure.yaml
+    - specs/common/nas_operator_live_deployment_session_contract.yaml
+    - docs/nas_dynamic_service_architecture.md
+  target_endpoint:
+    nas_private_ip: 192.168.1.116
+    ip_source: user_provided_phase103
+    target_device: synology_ds925_plus
+    package_runtime: container_manager
+    access_model: private_lan_or_tailnet_operator_guided
+    public_internet_exposure_allowed_now: false
+  live_start_scope:
+    operator_owned_container_manager_import_allowed: true
+    operator_owned_docker_build_allowed: true
+    operator_owned_container_start_allowed: true
+    operator_owned_health_auth_smoke_allowed: true
+    operator_report_required_for_live_acceptance: true
+    codex_dsm_login_allowed_now: false
+    codex_package_install_allowed_now: false
+    codex_container_manager_import_allowed_now: false
+    codex_docker_build_allowed_now: false
+    codex_container_start_allowed_now: false
+    codex_live_server_start_allowed_now: false
+    codex_live_db_connection_allowed_now: false
+    codex_postgres_read_allowed_now: false
+    codex_postgres_write_allowed_now: false
+    codex_schema_migration_allowed_now: false
+    codex_live_fetch_allowed_now: false
+    repo_output_allowed_now: false
+    public_output_allowed_now: false
+    tests_network_dependency_allowed: false
+  required_bundle:
+    app_image_reference: business-cycle-nas-app:phase107
+    compose_bundle_source_phase: 107
+    expected_project_name: business-cycle-research
+    expected_app_service_id: business_cycle_app
+    expected_postgres_service_id: macro_postgres
+    expected_refresh_worker_service_id: macro_refresh_worker
+    expected_app_loopback_port: 127.0.0.1:18080:8000
+    public_host_port_allowed: false
+    refresh_worker_must_remain_disabled: true
+  operator_stages:
+    - stage_id: source_bundle_preparation
+      required_action_ids:
+        - confirm_clean_source_release_or_archive
+        - upload_build_context_to_docker_business_cycle_app
+        - copy_phase107_compose_bundle_to_project_folder
+        - confirm_env_values_prepared_out_of_band
+        - confirm_no_secret_stored_in_git_or_bundle
+    - stage_id: container_manager_project_import
+      required_action_ids:
+        - create_container_manager_project_business_cycle_research
+        - import_phase107_compose_yaml
+        - enter_environment_values_in_container_manager
+        - keep_public_port_mapping_absent
+        - confirm_private_loopback_or_reverse_proxy_boundary
+        - record_project_name_outside_repo
+    - stage_id: image_build_and_container_start
+      required_action_ids:
+        - build_business_cycle_nas_app_image
+        - verify_app_image_tag_phase107
+        - start_macro_postgres_container
+        - wait_for_postgres_healthcheck
+        - start_business_cycle_app_container
+        - confirm_refresh_worker_profile_not_running
+    - stage_id: private_health_auth_smoke
+      required_action_ids:
+        - healthz_returns_ok
+        - readyz_returns_ready
+        - unauthenticated_dashboard_request_rejected
+        - authenticated_dashboard_request_allowed
+        - browser_contains_no_database_credentials
+        - phone_access_requires_tailnet_or_private_path
+        - traditional_chinese_dashboard_shell_visible
+    - stage_id: backup_rollback_acceptance
+      required_action_ids:
+        - backup_snapshot_before_import_confirmed
+        - postgres_volume_preserved
+        - rollback_stop_sequence_verified
+        - rollback_previous_image_or_project_documented
+        - no_volume_delete_during_rollback
+    - stage_id: operator_report_closeout
+      required_action_ids:
+        - operator_report_completed_without_secrets
+        - no_candidate_current_phase_output_seen
+        - no_trade_or_allocation_instruction_seen
+        - no_public_internet_exposure_confirmed
+        - next_live_db_import_smoke_blocked_until_future_phase
+  operator_report_schema:
+    report_mode: operator_attested_container_manager_live_start
+    required_top_level_fields:
+      - session_id
+      - report_mode
+      - nas_private_ip
+      - app_image_reference
+      - operator_attested
+      - stage_results
+      - health_auth_summary
+      - rollback_summary
+      - prohibited_live_outputs_absent
+    allowed_action_statuses:
+      - passed
+      - failed
+      - skipped_with_reason
+      - not_run
+    passed_status: passed
+    accepted_live_start_status: accepted
+    missing_report_status: operator_report_required
+    repo_storage_allowed: false
+  acceptance_policy:
+    all_required_actions_must_pass_for_live_acceptance: true
+    failed_missing_or_skipped_action_blocks_acceptance: true
+    healthz_must_return_ok: true
+    readyz_must_return_ready: true
+    unauthenticated_dashboard_must_be_rejected: true
+    authenticated_dashboard_must_be_allowed: true
+    rollback_summary_required: true
+    operator_report_must_not_contain_secret_values: true
+    report_must_not_contain_trade_or_allocation_outputs: true
+    historical_replay_or_backtest_execution_allowed_now: false
+  required_package_artifacts:
+    - container-manager-live-start-checklist.md
+    - operator-live-start-report-template.json
+    - sample-accepted-live-start-report.json
+    - private-health-auth-smoke-checklist.md
+    - rollback-drill-checklist.md
+    - phase108-operator-next-steps.md
+    - container-manager-project-import-notes.md
+  allowed_uses:
+    - ds925_container_manager_import_build_start_handoff
+    - operator_live_start_report_validation
+    - private_health_auth_smoke_acceptance
+    - rollback_drill_acceptance
+  prohibited_uses:
+    - automated_dsm_login_by_codex
+    - automated_container_manager_import_by_codex
+    - automated_docker_build_by_codex
+    - automated_container_start_by_codex
+    - automated_postgres_read_write_by_codex
+    - automated_schema_migration_by_codex
+    - automated_live_macro_fetch_by_codex
+    - public_internet_dashboard_exposure
+    - formal_current_phase_decision
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+  prohibited_fields:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_rank
+    - phase_score
+    - target_weight
+    - allocation_recommendation
+    - buy_signal
+    - sell_signal
+    - trade_action
+    - secret_value
+    - password
+    - token
+  hard_gates:
+    nas_container_manager_live_start_contract_ready: true
+    nas_container_manager_live_start_package_ready: true
+    phase107_runtime_bundle_dependency_ready: true
+    phase106_operator_session_dependency_ready: true
+    target_nas_private_ip: 192.168.1.116
+    app_image_reference: business-cycle-nas-app:phase107
+    expected_project_name: business-cycle-research
+    operator_stage_count: 6
+    required_operator_action_count: 34
+    operator_action_with_manual_owner_count: 34
+    operator_action_auto_execution_count: 0
+    operator_report_schema_ready: true
+    operator_report_template_ready: true
+    sample_operator_live_start_report_valid: true
+    live_acceptance_requires_operator_report: true
+    live_start_acceptance_status: operator_report_required
+    live_deployment_complete: false
+    live_start_package_artifact_count: 7
+    package_output_under_tmp_only: true
+    codex_dsm_login_attempt_count: 0
+    codex_container_manager_import_attempt_count: 0
+    codex_docker_build_attempt_count: 0
+    codex_container_start_attempt_count: 0
+    codex_live_server_start_attempt_count: 0
+    codex_live_db_connection_attempt_count: 0
+    codex_postgres_read_attempt_count: 0
+    codex_postgres_write_attempt_count: 0
+    codex_schema_migration_attempt_count: 0
+    codex_live_fetch_attempt_count: 0
+    repo_output_written_count: 0
+    public_output_count: 0
+    tests_network_dependency_count: 0
+    private_access_required: true
+    public_host_port_publish_count: 0
+    refresh_worker_enabled: false
+    label_used_by_runtime_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    current_data_used_to_infer_declared_phase_count: 0
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 109

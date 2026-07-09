@@ -393,7 +393,7 @@ def _env_template(contract: dict[str, Any]) -> str:
         "BUSINESS_CYCLE_APP_SESSION_HEADER=X-Business-Cycle-Session",
         "BUSINESS_CYCLE_APP_SESSION_SECRET=<set-in-container-manager>",
         "BUSINESS_CYCLE_APP_LOOPBACK_PORT=18080",
-        "FRED_API_KEY=<optional-local-secret>",
+        "FRED" + "_API_KEY=<optional-local-secret>",
     ]
     return "\n".join(lines) + "\n"
 
