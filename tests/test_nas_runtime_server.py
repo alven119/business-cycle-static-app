@@ -38,6 +38,47 @@ def test_runtime_protected_routes_require_secret() -> None:
     assert authenticated.content_type.startswith("text/html")
 
 
+def test_runtime_browser_login_sets_private_session_cookie() -> None:
+    login_page = build_runtime_response(path="/login", method="GET")
+    bad_login = build_runtime_response(
+        path="/login",
+        method="POST",
+        session_secret="expected-secret",
+        body="session_secret=wrong",
+    )
+    good_login = build_runtime_response(
+        path="/login",
+        method="POST",
+        session_secret="expected-secret",
+        body="session_secret=expected-secret",
+    )
+    cookie = good_login.headers["Set-Cookie"].split(";", maxsplit=1)[0]
+    authenticated = build_runtime_response(
+        path="/",
+        session_secret="expected-secret",
+        headers={"Cookie": cookie},
+    )
+
+    assert login_page.status_code == 200
+    assert "景氣循環研究服務" in login_page.body
+    assert bad_login.status_code == 401
+    assert good_login.status_code == 303
+    assert good_login.headers["Location"] == "/"
+    assert "expected-secret" not in good_login.headers["Set-Cookie"]
+    assert authenticated.status_code == 200
+
+
+def test_runtime_browser_without_session_redirects_to_login() -> None:
+    response = build_runtime_response(
+        path="/",
+        session_secret="expected-secret",
+        headers={"Accept": "text/html"},
+    )
+
+    assert response.status_code == 303
+    assert response.headers["Location"] == "/login"
+
+
 def test_runtime_rejects_unsupported_method() -> None:
     response = build_runtime_response(
         path="/",

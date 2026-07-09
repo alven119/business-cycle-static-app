@@ -17,6 +17,12 @@ COPY docs/project_north_star.md docs/investment_cycle_product_doctrine.md \
     docs/phase_execution_standing_contract.md docs/nas_dynamic_service_architecture.md \
     ./docs/
 
+RUN mkdir -p /usr/local/lib/python3.10/specs /usr/local/lib/python3.10/docs \
+    && cp -a /app/specs/. /usr/local/lib/python3.10/specs/ \
+    && cp -a /app/docs/. /usr/local/lib/python3.10/docs/ \
+    && cp /app/pyproject.toml /usr/local/lib/python3.10/pyproject.toml \
+    && cp /app/README.md /usr/local/lib/python3.10/README.md
+
 RUN python -m pip install --no-cache-dir --upgrade pip \
     && python -m pip install --no-cache-dir .
 

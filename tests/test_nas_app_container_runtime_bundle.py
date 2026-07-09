@@ -47,6 +47,11 @@ def test_nas_app_container_runtime_compose_is_buildable_shape() -> None:
     assert "docs/景氣循環投資.pdf" in bundle["dockerignore"]
     assert "data/raw" in bundle["dockerignore"]
     assert "BUSINESS_CYCLE_APP_SESSION_SECRET" in bundle["env_template"]
+    assert "/usr/local/lib/python3.10/specs" in bundle["dockerfile"]
+    assert "cp -a /app/specs/." in bundle["dockerfile"]
+    assert "cp -a /app/docs/." in bundle["dockerfile"]
+    assert "cp /app/pyproject.toml" in bundle["dockerfile"]
+    assert "cp /app/README.md" in bundle["dockerfile"]
 
 
 def test_nas_app_container_runtime_bundle_writes_only_tmp(tmp_path: Path) -> None:

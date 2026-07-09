@@ -8,12 +8,15 @@ dashboard without adding a new web-framework dependency in this phase.
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import hashlib
+import hmac
+import html
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from business_cycle.service.nas_app_shell import (
     NasAppRequest,
@@ -22,6 +25,7 @@ from business_cycle.service.nas_app_shell import (
 )
 
 DEFAULT_SESSION_HEADER = "X-Business-Cycle-Session"
+SESSION_COOKIE_NAME = "business_cycle_private_session"
 LOCAL_HEALTH_PATHS = {"/healthz", "/readyz"}
 
 
@@ -33,6 +37,7 @@ class RuntimeResponse:
     content_type: str
     body: str
     route_id: str | None = None
+    headers: dict[str, str] = field(default_factory=dict)
 
 
 def build_runtime_response(
@@ -42,11 +47,24 @@ def build_runtime_response(
     headers: dict[str, str] | None = None,
     session_secret: str | None = None,
     shell: dict[str, Any] | None = None,
+    body: str = "",
 ) -> RuntimeResponse:
     """Return a private NAS runtime response without binding a network port."""
 
     normalized_path = urlparse(path).path or "/"
     headers = _normalize_headers(headers or {})
+    if normalized_path == "/login":
+        return _login_response(method=method, body=body, session_secret=session_secret)
+    if normalized_path == "/logout":
+        return _redirect_response(
+            "/login",
+            extra_headers={
+                "Set-Cookie": (
+                    f"{SESSION_COOKIE_NAME}=; Path=/; Max-Age=0; "
+                    "HttpOnly; SameSite=Strict"
+                ),
+            },
+        )
     if normalized_path == "/healthz":
         return _json_response(
             200,
@@ -82,6 +100,8 @@ def build_runtime_response(
             },
         )
     if not _authorized(headers, secret):
+        if _prefers_html(headers):
+            return _redirect_response("/login")
         return _json_response(
             401,
             {
@@ -147,10 +167,12 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         self._send_runtime_response(response)
 
     def do_POST(self) -> None:  # noqa: N802
+        body = self.rfile.read(_content_length(self.headers)).decode("utf-8")
         response = build_runtime_response(
             path=self.path,
             method="POST",
             headers={key: value for key, value in self.headers.items()},
+            body=body,
         )
         self._send_runtime_response(response)
 
@@ -164,6 +186,8 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         self.send_response(response.status_code)
         self.send_header("content-type", response.content_type)
         self.send_header("cache-control", "no-store")
+        for key, value in response.headers.items():
+            self.send_header(key, value)
         self.send_header("content-length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -175,6 +199,142 @@ def _json_response(status_code: int, payload: dict[str, Any]) -> RuntimeResponse
         content_type="application/json",
         body=json.dumps(payload, sort_keys=True),
     )
+
+
+def _html_response(
+    status_code: int,
+    body: str,
+    *,
+    headers: dict[str, str] | None = None,
+) -> RuntimeResponse:
+    return RuntimeResponse(
+        status_code=status_code,
+        content_type="text/html; charset=utf-8",
+        body=body,
+        headers=headers or {},
+    )
+
+
+def _redirect_response(
+    location: str,
+    *,
+    extra_headers: dict[str, str] | None = None,
+) -> RuntimeResponse:
+    headers = {"Location": location}
+    headers.update(extra_headers or {})
+    return RuntimeResponse(
+        status_code=303,
+        content_type="text/plain; charset=utf-8",
+        body="redirect",
+        headers=headers,
+    )
+
+
+def _login_response(
+    *,
+    method: str,
+    body: str,
+    session_secret: str | None,
+) -> RuntimeResponse:
+    secret = session_secret if session_secret is not None else _session_secret()
+    if method.upper() == "GET":
+        return _html_response(200, _login_page())
+    if method.upper() != "POST":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+    if not secret:
+        return _json_response(
+            503,
+            {
+                "error": "session_secret_not_configured",
+                "research_only": True,
+                "private_nas_only": True,
+            },
+        )
+    submitted = parse_qs(body, keep_blank_values=True).get("session_secret", [""])[0]
+    if not hmac.compare_digest(submitted, secret):
+        return _html_response(401, _login_page(error="登入密碼不正確，請再試一次。"))
+    token = _session_token(secret)
+    return _redirect_response(
+        "/",
+        extra_headers={
+            "Set-Cookie": (
+                f"{SESSION_COOKIE_NAME}={token}; Path=/; Max-Age=604800; "
+                "HttpOnly; SameSite=Strict"
+            ),
+        },
+    )
+
+
+def _login_page(error: str = "") -> str:
+    error_html = (
+        f'<p class="error">{html.escape(error)}</p>'
+        if error
+        else ""
+    )
+    return f"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>景氣循環研究服務登入</title>
+  <style>
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      color: #172033;
+    }}
+    main {{
+      width: min(92vw, 420px);
+      padding: 28px;
+      border: 1px solid #d9e0ea;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(23, 32, 51, .08);
+    }}
+    h1 {{ margin: 0 0 8px; font-size: 24px; }}
+    p {{ margin: 0 0 18px; line-height: 1.55; color: #536070; }}
+    label {{ display: block; margin-bottom: 8px; font-weight: 650; }}
+    input {{
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #b9c4d0;
+      border-radius: 6px;
+      font-size: 16px;
+    }}
+    button {{
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      border: 0;
+      border-radius: 6px;
+      background: #1d4ed8;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+    }}
+    .error {{ color: #b42318; font-weight: 650; }}
+    .caveat {{ margin-top: 18px; font-size: 13px; color: #667085; }}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>景氣循環研究服務</h1>
+    <p>這是私人 NAS 研究儀表板。請輸入你在 Container Manager 設定的服務密碼。</p>
+    {error_html}
+    <form method="post" action="/login">
+      <label for="session_secret">服務密碼</label>
+      <input id="session_secret" name="session_secret" type="password" autocomplete="current-password" required>
+      <button type="submit">進入研究儀表板</button>
+    </form>
+    <p class="caveat">研究用途；不提供個人化交易指令、買賣訊號或保證績效。</p>
+  </main>
+</body>
+</html>"""
 
 
 def _session_secret() -> str:
@@ -197,7 +357,38 @@ def _authorized(headers: dict[str, str], secret: str) -> bool:
     return (
         headers.get(header_name) == secret
         or headers.get(header_name.lower()) == secret
+        or _cookie_value(headers, SESSION_COOKIE_NAME) == _session_token(secret)
     )
+
+
+def _session_token(secret: str) -> str:
+    return hmac.new(
+        secret.encode("utf-8"),
+        b"business_cycle_private_nas_session_v1",
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _cookie_value(headers: dict[str, str], name: str) -> str | None:
+    cookie = headers.get("cookie") or headers.get("Cookie") or ""
+    for part in cookie.split(";"):
+        key, _, value = part.strip().partition("=")
+        if key == name:
+            return value
+    return None
+
+
+def _prefers_html(headers: dict[str, str]) -> bool:
+    accept = headers.get("accept") or headers.get("Accept") or ""
+    return "text/html" in accept
+
+
+def _content_length(headers: Any) -> int:
+    value = headers.get("Content-Length", "0")
+    try:
+        return max(0, int(value))
+    except ValueError:
+        return 0
 
 
 if __name__ == "__main__":
