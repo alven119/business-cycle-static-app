@@ -10,7 +10,7 @@ data/raw
 data/backtests
 data/prospective
 public
-docs/景氣循環投資.pdf
+*.pdf
 .env
 *.env
 *.sqlite

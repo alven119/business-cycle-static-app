@@ -44,7 +44,7 @@ def test_nas_app_container_runtime_compose_is_buildable_shape() -> None:
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert compose["networks"]["business_cycle_private"]["internal"] is True
     assert "dry-run" not in bundle["compose_yaml"]
-    assert "docs/景氣循環投資.pdf" in bundle["dockerignore"]
+    assert "*.pdf" in bundle["dockerignore"]
     assert "data/raw" in bundle["dockerignore"]
     assert "BUSINESS_CYCLE_APP_SESSION_SECRET" in bundle["env_template"]
     assert "/usr/local/lib/python3.10/specs" in bundle["dockerfile"]
