@@ -145,7 +145,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    # The governed dashboard bundle is deterministic but relatively expensive to
+    # assemble on the NAS. Build it once so browser requests only dispatch routes.
+    shell = build_nas_app_shell()
     server = ThreadingHTTPServer((args.host, args.port), _RuntimeHandler)
+    server.nas_app_shell = shell  # type: ignore[attr-defined]
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -163,6 +167,7 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             path=self.path,
             method="GET",
             headers={key: value for key, value in self.headers.items()},
+            shell=getattr(self.server, "nas_app_shell", None),
         )
         self._send_runtime_response(response)
 
@@ -317,6 +322,7 @@ def _login_page(error: str = "") -> str:
       font-size: 16px;
       font-weight: 700;
     }}
+    button:disabled {{ opacity: .7; cursor: wait; }}
     .error {{ color: #b42318; font-weight: 650; }}
     .caveat {{ margin-top: 18px; font-size: 13px; color: #667085; }}
   </style>
@@ -329,10 +335,17 @@ def _login_page(error: str = "") -> str:
     <form method="post" action="/login">
       <label for="session_secret">服務密碼</label>
       <input id="session_secret" name="session_secret" type="password" autocomplete="current-password" required>
-      <button type="submit">進入研究儀表板</button>
+      <button id="login-submit" type="submit">進入研究儀表板</button>
     </form>
     <p class="caveat">研究用途；不提供個人化交易指令、買賣訊號或保證績效。</p>
   </main>
+  <script>
+    document.querySelector("form").addEventListener("submit", () => {{
+      const button = document.getElementById("login-submit");
+      button.disabled = true;
+      button.textContent = "登入中...";
+    }});
+  </script>
 </body>
 </html>"""
 

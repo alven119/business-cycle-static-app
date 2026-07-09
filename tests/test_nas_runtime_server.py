@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from business_cycle.service import nas_runtime_server
 from business_cycle.service.healthcheck import build_healthcheck_summary
 from business_cycle.service.nas_runtime_server import build_runtime_response
 from business_cycle.service.refresh_worker_disabled_until_gate import main as refresh_main
@@ -77,6 +78,33 @@ def test_runtime_browser_without_session_redirects_to_login() -> None:
 
     assert response.status_code == 303
     assert response.headers["Location"] == "/login"
+
+
+def test_runtime_main_prebuilds_dashboard_shell_once(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    shell = {"route_count": 5}
+    events: list[str] = []
+
+    class FakeServer:
+        nas_app_shell: dict[str, object]
+
+        def __init__(self, address: tuple[str, int], handler: object) -> None:
+            assert address == ("127.0.0.1", 8000)
+            assert handler is nas_runtime_server._RuntimeHandler  # noqa: SLF001
+
+        def serve_forever(self) -> None:
+            assert self.nas_app_shell is shell
+            events.append("served")
+
+        def server_close(self) -> None:
+            events.append("closed")
+
+    monkeypatch.setattr(nas_runtime_server, "build_nas_app_shell", lambda: shell)
+    monkeypatch.setattr(nas_runtime_server, "ThreadingHTTPServer", FakeServer)
+
+    assert nas_runtime_server.main([]) == 0
+    assert events == ["served", "closed"]
 
 
 def test_runtime_rejects_unsupported_method() -> None:
