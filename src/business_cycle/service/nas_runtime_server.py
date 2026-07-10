@@ -367,12 +367,15 @@ def _build_startup_shell() -> dict[str, Any]:
             source_operations_status_path=os.environ.get(
                 "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH"
             ),
+            release_aware_schedule_status_path=os.environ.get(
+                "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH"
+            ),
         )["nas_app_shell"]
     return build_nas_app_shell()
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase115"
+    server_version = "BusinessCycleNAS/phase116"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

@@ -357,6 +357,7 @@ def run_private_backup_restore_drill(
                 status["error_reason_code"] = "staging_database_cleanup_failed"
                 if original_error is None:
                     original_error = cleanup_error
+        _atomic_json_write(run_root / "drill-status.json", status)
         _atomic_json_write(status_path, status)
     if original_error is not None:
         raise original_error

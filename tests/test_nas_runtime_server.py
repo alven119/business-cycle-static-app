@@ -369,6 +369,9 @@ def test_phase115_source_operations_routes_are_private_and_traditional_chinese()
     assert "不會冒充官方延遲" in page.body
     assert "受治理重試與備份還原" in page.body
     assert "私有 NAS 備份還原演練" in page.body
+    assert "固定時間與官方發布補抓" in page.body
+    assert "03:30" in page.body
+    assert "私人備份保留預覽" in page.body
     assert api.status_code == 200
     assert api.route_id == "nas_source_operations_api"
     assert '"release_family_count": 12' in api.body

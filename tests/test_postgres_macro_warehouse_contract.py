@@ -24,11 +24,22 @@ from business_cycle.audits.phase114_nas_official_release_operations_closure impo
 from business_cycle.audits.phase115_nas_source_retry_restore_closure import (
     summarize_phase115_nas_source_retry_restore_closure,
 )
+from business_cycle.audits.phase116_nas_release_aware_refresh_closure import (
+    summarize_phase116_nas_release_aware_refresh_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
 from business_cycle.service.nas_official_release_calendar import (
     build_nas_official_release_diagnostics,
     summarize_nas_official_release_calendar_contract,
+)
+from business_cycle.service.nas_release_aware_refresh import (
+    ReleaseAwareRefreshError,
+    build_backup_retention_preview,
+    build_release_aware_schedule_preview,
+    load_release_aware_schedule_status,
+    serve_release_aware_schedule,
+    summarize_nas_release_aware_refresh_contract,
 )
 from business_cycle.service.nas_scheduled_revised_refresh import (
     _exclusive_refresh_lock,
@@ -341,12 +352,13 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase115-source-retry-restore"
+    assert app["image"] == "business-cycle-nas-app:phase116-release-aware-refresh"
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
     assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
+    assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
     assert artifact_init["restart"] == "no"
@@ -361,8 +373,9 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert worker["volumes"] == [
         "macro_source_artifacts:/var/lib/business-cycle/source-artifacts"
     ]
-    assert "business_cycle.service.nas_scheduled_revised_refresh" in worker["command"]
+    assert "business_cycle.service.nas_release_aware_refresh" in worker["command"]
     assert "--serve" in worker["command"]
+    assert "--interval-seconds" not in worker["command"]
     assert "healthcheck" in worker
     assert worker["depends_on"]["macro_source_artifact_init"]["condition"] == (
         "service_completed_successfully"
@@ -944,7 +957,144 @@ def test_phase115_backup_restore_drill_verifies_db_and_source_artifacts(
         (source_root / "phase115" / "operations-status.json").read_text()
     )
     assert persisted == status
+    assert json.loads(
+        (
+            source_root
+            / "phase115"
+            / "runs"
+            / status["run_id"]
+            / "drill-status.json"
+        ).read_text()
+    ) == status
     assert "private-value" not in json.dumps(status)
+
+
+def test_phase116_fixed_daily_and_release_aware_schedule_are_deterministic(
+    tmp_path: Path,
+) -> None:
+    summary = summarize_nas_release_aware_refresh_contract()
+    daily = build_release_aware_schedule_preview(
+        now=datetime(2026, 7, 11, 0, tzinfo=timezone.utc),
+    )
+    release = build_release_aware_schedule_preview(
+        now=datetime(2026, 7, 14, 13, tzinfo=timezone.utc),
+    )
+
+    assert summary["result"] == "passed"
+    assert daily["next_job"]["trigger_kind"] == "fixed_daily_full_refresh"
+    assert daily["next_job"]["scheduled_at_local"].startswith(
+        "2026-07-12T03:30:00+08:00"
+    )
+    assert daily["next_job"]["series_count"] == 26
+    assert release["next_job"]["trigger_kind"] == "official_release_followup"
+    assert release["next_job"]["release_family_id"] == (
+        "bls_consumer_price_index"
+    )
+    assert release["next_job"]["series_ids"] == ["CPILFESL"]
+    assert release["release_followup_availability_claim_count"] == 0
+    assert release["cadence_or_reference_release_trigger_count"] == 0
+    assert release["minimum_exact_calendar_horizon"] == "2026-08-06"
+    with pytest.raises(ReleaseAwareRefreshError, match="timezone-aware"):
+        build_release_aware_schedule_preview(now=datetime(2026, 7, 11))
+
+    calls: list[dict[str, object]] = []
+
+    def fake_refresh(**kwargs: object) -> dict[str, object]:
+        calls.append(kwargs)
+        return {"refresh_state": "succeeded"}
+
+    now_values = iter(
+        [
+            datetime(2026, 7, 11, 0, tzinfo=timezone.utc),
+            datetime(2026, 7, 11, 19, 31, tzinfo=timezone.utc),
+        ]
+    )
+    sleeps: list[float] = []
+    assert (
+        serve_release_aware_schedule(
+            artifact_root=tmp_path / "phase116",
+            refresh_root=tmp_path / "phase112",
+            operator_confirmation=CONFIRMATION,
+            sleep=sleeps.append,
+            now=lambda: next(now_values),
+            refresh_runner=fake_refresh,
+            max_runs=1,
+        )
+        == 0
+    )
+    assert sleeps == [70200.0]
+    assert len(calls) == 1
+    assert len(calls[0]["series_ids"]) == 26
+    status = load_release_aware_schedule_status(
+        tmp_path / "phase116" / "schedule-status.json"
+    )
+    assert status["scheduler_state"] == "succeeded"
+    assert status["last_trigger_kind"] == "fixed_daily_full_refresh"
+    assert status["candidate_phase_emitted"] is False
+    assert status["current_phase_emitted"] is False
+
+
+def test_phase116_backup_retention_is_preview_only_and_preserves_unknown(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "phase115"
+    runs = root / "runs"
+    runs.mkdir(parents=True)
+    for index in range(9):
+        run = runs / f"202607{index + 1:02d}T000000000000Z"
+        run.mkdir()
+        (run / "drill-status.json").write_text(
+            json.dumps({"backup_restore_state": "succeeded"}), encoding="utf-8"
+        )
+    for index in range(5):
+        run = runs / f"202606{index + 1:02d}T000000000000Z"
+        run.mkdir()
+        (run / "drill-status.json").write_text(
+            json.dumps({"backup_restore_state": "failed"}), encoding="utf-8"
+        )
+    (runs / "legacy_unknown_run").mkdir()
+
+    preview = build_backup_retention_preview(root)
+
+    assert preview["successful_run_count"] == 9
+    assert preview["failed_run_count"] == 5
+    assert preview["unknown_run_count"] == 1
+    assert preview["retention_candidate_count"] == 4
+    assert preview["automatic_deletion_enabled"] is False
+    assert preview["delete_execution_count"] == 0
+    assert (runs / "legacy_unknown_run").is_dir()
+
+
+def test_phase116_release_aware_refresh_closure_and_script_pass() -> None:
+    summary = summarize_phase116_nas_release_aware_refresh_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase116_closure_ready"] is True
+    assert summary["fixed_daily_time_zone"] == "Asia/Taipei"
+    assert summary["fixed_daily_local_time"] == "03:30"
+    assert summary["next_trigger_kind"] == "fixed_daily_full_refresh"
+    assert summary["next_series_count"] == 26
+    assert summary["release_aware_job_execution_count"] == 1
+    assert summary["revised_direct_source_scope_complete"] is True
+    assert summary["observation_revised_row_count"] == 22131
+    assert summary["observation_vintage_row_count"] == 0
+    assert summary["release_calendar_row_count"] == 0
+    assert summary["macro_history_all_modes_complete"] is False
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase116_nas_release_aware_refresh_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase116_closure_ready=true" in completed.stdout
+    assert "fixed_daily_local_time=03:30" in completed.stdout
+    assert "macro_history_all_modes_complete=false" in completed.stdout
+    assert "result=passed" in completed.stdout
 
 
 def test_phase115_source_retry_restore_closure_and_script_pass() -> None:

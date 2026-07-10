@@ -14,6 +14,12 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     )
     retry = diagnostics.get("source_retry_preview", _default_retry_preview())
     backup = diagnostics.get("backup_restore_status", _default_backup_status())
+    schedule = diagnostics.get(
+        "release_aware_schedule_status", _default_release_aware_schedule_status()
+    )
+    retention = diagnostics.get(
+        "backup_retention_preview", _default_backup_retention_preview()
+    )
     retry_rows = "".join(
         f"<li><code>{escape(str(row['series_id']))}</code>："
         f"{escape(_retry_reason_zh(str(row['reason_code'])))}</li>"
@@ -69,6 +75,17 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
   <h2>受治理重試與備份還原</h2>
   <section class="operations">
     <article class="operation">
+      <h3>固定時間與官方發布補抓</h3>
+      <dl>
+        <dt>每日更新</dt><dd>{escape(str(schedule['fixed_daily_local_time']))}（{escape(str(schedule['fixed_daily_time_zone']))}）</dd>
+        <dt>下次觸發</dt><dd>{escape(str(schedule.get('next_scheduled_at_local') or '排程啟動後計算'))}</dd>
+        <dt>觸發類型</dt><dd>{escape(_trigger_kind_zh(str(schedule.get('next_trigger_kind') or 'not_started')))}</dd>
+        <dt>限定序列</dt><dd>{int(schedule.get('next_series_count', 0))} 個</dd>
+        <dt>精確日曆 horizon</dt><dd>{escape(str(schedule.get('minimum_exact_calendar_horizon') or '尚未計算'))}</dd>
+      </dl>
+      <p class="meta">只有 verified exact schedule 會建立發布後補抓；180 分鐘是 FRED 入庫觀察緩衝，不是官方 availability 承諾。</p>
+    </article>
+    <article class="operation">
       <h3>失敗來源重試預覽</h3>
       <p>只有最近 refresh 明確失敗或因前一項失敗而未執行的官方序列會列入；成功來源不重跑。</p>
       <ul>{retry_rows}</ul>
@@ -84,6 +101,16 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
         <dt>資料表摘要</dt><dd>{escape(backup_counts)}</dd>
       </dl>
       <p class="meta">演練只在隔離 staging database 與暫存目錄驗證，不覆寫正式資料。</p>
+    </article>
+    <article class="operation">
+      <h3>私人備份保留預覽</h3>
+      <dl>
+        <dt>成功備份</dt><dd>{int(retention.get('successful_run_count', 0))} 份（保留 {int(retention.get('successful_run_keep_count', 7))}）</dd>
+        <dt>失敗備份</dt><dd>{int(retention.get('failed_run_count', 0))} 份（保留 {int(retention.get('failed_run_keep_count', 3))}）</dd>
+        <dt>未知舊格式</dt><dd>{int(retention.get('unknown_run_count', 0))} 份，全部保留</dd>
+        <dt>候選清理</dt><dd>{int(retention.get('retention_candidate_count', 0))} 份</dd>
+      </dl>
+      <p class="meta">Phase 116 只提供 retention preview，不會自動刪除任何備份。</p>
     </article>
   </section>
   <h2>每個官方發布來源</h2>
@@ -165,6 +192,28 @@ def _default_backup_status() -> dict[str, Any]:
     }
 
 
+def _default_release_aware_schedule_status() -> dict[str, Any]:
+    return {
+        "fixed_daily_local_time": "03:30",
+        "fixed_daily_time_zone": "Asia/Taipei",
+        "next_scheduled_at_local": None,
+        "next_trigger_kind": None,
+        "next_series_count": 0,
+        "minimum_exact_calendar_horizon": None,
+    }
+
+
+def _default_backup_retention_preview() -> dict[str, Any]:
+    return {
+        "successful_run_count": 0,
+        "successful_run_keep_count": 7,
+        "failed_run_count": 0,
+        "failed_run_keep_count": 3,
+        "unknown_run_count": 0,
+        "retention_candidate_count": 0,
+    }
+
+
 def _retry_reason_zh(reason: str) -> str:
     return {
         "source_fetch_failed": "上次官方來源擷取失敗",
@@ -179,6 +228,15 @@ def _backup_state_zh(state: str) -> str:
         "succeeded": "驗證成功",
         "failed": "驗證失敗",
     }.get(state, state)
+
+
+def _trigger_kind_zh(kind: str) -> str:
+    return {
+        "fixed_daily_full_refresh": "每日全量 revised 更新",
+        "official_release_followup": "精確官方發布後限定補抓",
+        "official_release_catchup": "啟動後補做近期官方發布",
+        "not_started": "尚未啟動",
+    }.get(kind, kind)
 
 
 def _row_count_summary(status: dict[str, Any]) -> str:

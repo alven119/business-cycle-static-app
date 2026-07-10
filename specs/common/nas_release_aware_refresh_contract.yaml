@@ -1,0 +1,84 @@
+nas_release_aware_refresh_contract:
+  version: "1.0"
+  status: active_private_nas_release_aware_scheduler
+  phase_id: 116
+  phase_label: fixed_time_release_aware_refresh_and_backup_retention
+  depends_on:
+    - specs/common/nas_scheduled_revised_refresh_contract.yaml
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/common/nas_source_retry_restore_contract.yaml
+  fixed_daily_schedule:
+    time_zone: Asia/Taipei
+    local_time: "03:30"
+    full_canonical_series_refresh: true
+    restart_recomputes_next_wall_clock_run: true
+    interval_seconds_schedule_replaced: true
+  release_aware_schedule:
+    exact_schedule_only: true
+    release_followup_delay_minutes: 180
+    release_followup_delay_is_official_availability_claim: false
+    catchup_window_hours: 24
+    canonical_subset_only: true
+    cadence_only_uses_daily_fallback: true
+    reference_only_uses_daily_fallback: true
+    failed_job_automatic_tight_loop_retry: false
+    completed_job_ledger_limit: 256
+  status_policy:
+    artifact_root: /var/lib/business-cycle/source-artifacts/phase116
+    status_path: /var/lib/business-cycle/source-artifacts/phase116/schedule-status.json
+    atomic_write_required: true
+    source_refresh_status_remains_phase112: true
+    redacted_status_only: true
+  backup_retention_policy:
+    successful_run_keep_count: 7
+    failed_run_keep_count: 3
+    unknown_run_preserved: true
+    latest_success_preserved: true
+    preview_token_required: true
+    automatic_deletion_enabled: false
+    operator_delete_gate_deferred: true
+  completeness_policy:
+    direct_revised_series_count: 26
+    direct_revised_history_loaded: true
+    derived_roles_materialized_on_read: true
+    vintage_history_loaded: false
+    release_calendar_rows_loaded: false
+    all_macro_history_complete: false
+    source_blocked_roles_remain_visible: true
+  dashboard_policy:
+    fixed_daily_time_visible: true
+    next_trigger_visible: true
+    next_trigger_series_count_visible: true
+    exact_calendar_horizon_visible: true
+    backup_retention_preview_visible: true
+    frontend_refresh_execution_enabled: false
+    frontend_backup_deletion_enabled: false
+  prohibited_uses:
+    - official_availability_claim_from_operational_buffer
+    - cadence_only_release_trigger
+    - reference_only_release_trigger
+    - automatic_backup_deletion
+    - point_in_time_claim
+    - candidate_phase_selection
+    - current_phase_inference
+    - portfolio_instruction
+    - public_output
+  hard_gates:
+    nas_release_aware_refresh_contract_ready: true
+    fixed_daily_wall_clock_schedule_ready: true
+    fixed_daily_time_zone: Asia/Taipei
+    fixed_daily_local_time: "03:30"
+    exact_schedule_release_followup_ready: true
+    release_followup_delay_minutes: 180
+    release_followup_availability_claim_count: 0
+    cadence_or_reference_release_trigger_count: 0
+    canonical_subset_enforced: true
+    backup_retention_preview_ready: true
+    backup_retention_automatic_delete_count: 0
+    direct_revised_series_count: 26
+    macro_history_all_modes_complete: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 117

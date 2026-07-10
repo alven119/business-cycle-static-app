@@ -255,6 +255,12 @@ Estimated deployment sequence:
   source-operations page displays only redacted verification status.
   The NAS image pins a PostgreSQL 16 client and refuses the drill when client
   and server major versions differ.
+- Phase 116: replace elapsed 86,400-second scheduling with a fixed 03:30
+  Asia/Taipei daily refresh. Exact official release events can schedule a
+  canonical source-family subset follow-up after a governed ingestion buffer;
+  cadence/reference-only sources retain the daily fallback. A private backup
+  retention preview keeps seven successes and three failures while preserving
+  unknown legacy runs; automatic deletion remains disabled.
 
 ## GitHub Pages Retirement
 
@@ -286,7 +292,7 @@ Backups must cover:
 
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Automated official-calendar synchronization and private backup retention.
+- Exact-vintage/PIT backfill and normalized Postgres release-calendar rows.
 - User confirmation of the declared boom exact start date or bounded window;
   until then, the dashboard displays an explicit unknown phase age.
 - Dedicated least-privilege dashboard database role and credential rotation.
