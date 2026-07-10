@@ -372,6 +372,8 @@ def test_phase115_source_operations_routes_are_private_and_traditional_chinese()
     assert "固定時間與官方發布補抓" in page.body
     assert "03:30" in page.body
     assert "私人備份保留預覽" in page.body
+    assert "歷史資料模式完整度" in page.body
+    assert "PIT 只代表 ALFRED realtime interval 已保存" in page.body
     assert api.status_code == 200
     assert api.route_id == "nas_source_operations_api"
     assert '"release_family_count": 12' in api.body

@@ -1,0 +1,100 @@
+nas_transition_pit_backfill_contract:
+  version: "1.0"
+  status: active_operator_authorized_transition_pit_backfill
+  phase_id: 117
+  phase_label: transition_critical_alfred_pit_backfill_and_normalized_release_calendar
+  depends_on:
+    - specs/common/postgres_macro_warehouse_contract.yaml
+    - specs/common/vintage_pit_backfill_availability_contract.yaml
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/common/nas_postgres_live_revised_import_contract.yaml
+  transition_scope:
+    purpose: >-
+      Backfill official realtime intervals needed by boom-to-recession and
+      recession-to-recovery research evidence before broader PIT expansion.
+    observation_start: "1998-01-01"
+    realtime_start: "1998-01-01"
+    realtime_end_policy: execution_date
+    alfred_output_type: 1
+    transition_series_ids:
+      - AAA
+      - BAA
+      - CCSA
+      - DGORDER
+      - EXPGS
+      - FPIC1
+      - ICSA
+      - IMPGS
+      - INDPRO
+      - PCEC96
+      - PCEDGC96
+      - RRSFS
+      - UEMPLT5
+    role_input_map:
+      recession_confirmation_breadth: [INDPRO]
+      recession_consumption_confirmation: [PCEC96]
+      recession_credit_financial_confirmation: [BAA, AAA]
+      recession_employment_confirmation: [CCSA]
+      recession_investment_or_industrial_confirmation: [INDPRO]
+      recovery_durable_goods_new_orders: [DGORDER]
+      recovery_exports: [EXPGS]
+      recovery_imports: [IMPGS]
+      recovery_initial_jobless_claims: [ICSA]
+      recovery_private_nonresidential_fixed_investment: [FPIC1]
+      recovery_real_pce_durable_goods: [PCEDGC96]
+      recovery_real_retail_sales: [RRSFS]
+      recovery_short_term_unemployment: [UEMPLT5]
+      recovery_weekly_claim_noise_filter: [ICSA]
+  temporal_policy:
+    same_series_identity_required: true
+    realtime_interval_preserved: true
+    revised_rows_may_not_enter_vintage_table: true
+    alfred_realtime_start_is_date_precision_availability: true
+    conservative_release_timestamp_rule: realtime_start_end_of_day_utc
+    conservative_timestamp_is_not_official_release_time: true
+    missing_value_preserved_not_zero: true
+    strict_pit_claim_requires_row_coverage_audit: true
+  release_calendar_normalization:
+    source_contract: specs/common/nas_official_release_calendar_contract.yaml
+    exact_schedule_only: true
+    accepted_reference_period_formats: [YYYY-MM, YYYY-MM-suffix, YYYY-QN-suffix]
+    weekly_without_reference_date_policy: blocked_unresolved_reference_period
+    duplicate_primary_key_policy: retain_earliest_registered_event_and_defer_revisions
+    actual_release_at_utc_policy: null_until_verified
+    observation_date_as_release_date_allowed: false
+  execution_policy:
+    explicit_operator_confirmation_required: true
+    checkpoint_after_each_series: true
+    partial_success_preserved: true
+    atomic_artifact_writes: true
+    idempotent_upsert: true
+    source_artifact_checksum_required: true
+    tests_require_network: false
+    tests_require_postgres: false
+    repository_output_allowed: false
+  output_restrictions:
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_phase_classifier_allowed: false
+    phase_rank_or_score_allowed: false
+    portfolio_output_allowed: false
+    backtest_execution_allowed: false
+    prospective_registry_write_allowed: false
+  hard_gates:
+    nas_transition_pit_backfill_contract_ready: true
+    transition_series_count: 13
+    transition_role_count: 14
+    alfred_output_type: 1
+    conservative_release_timestamp_ready: true
+    normalized_release_calendar_plan_ready: true
+    exact_schedule_family_count: 9
+    source_release_event_series_row_count: 85
+    normalized_release_calendar_row_count: 59
+    unresolved_weekly_reference_row_count: 12
+    deferred_revision_event_row_count: 14
+    observation_date_assumed_release_date_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 118

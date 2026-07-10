@@ -261,6 +261,13 @@ Estimated deployment sequence:
   cadence/reference-only sources retain the daily fallback. A private backup
   retention preview keeps seven successes and three failures while preserving
   unknown legacy runs; automatic deletion remains disabled.
+- Phase 117: restore explicit private LAN access while preserving the loopback
+  Tailscale Serve target, then write 42,957 ALFRED realtime intervals for 13
+  transition-critical series and 59 safely normalized expected release rows to
+  NAS Postgres. Revised and vintage tables remain separate. Date-only ALFRED
+  availability uses a conservative end-of-day timestamp; weekly reference
+  periods and revision events that the current calendar key cannot represent
+  remain explicit gaps.
 
 ## GitHub Pages Retirement
 
@@ -292,9 +299,9 @@ Backups must cover:
 
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Exact-vintage/PIT backfill and normalized Postgres release-calendar rows.
+- Broader exact-vintage/PIT backfill beyond the 13 transition-critical series.
 - User confirmation of the declared boom exact start date or bounded window;
   until then, the dashboard displays an explicit unknown phase age.
 - Dedicated least-privilege dashboard database role and credential rotation.
-- Executed vintage/PIT backfill into `observation_vintage`.
+- Revision-event-capable release calendar schema and verified actual releases.
 - Backup restore rehearsal for Postgres and source artifacts.

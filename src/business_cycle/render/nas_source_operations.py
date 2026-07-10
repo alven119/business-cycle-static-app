@@ -20,6 +20,10 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     retention = diagnostics.get(
         "backup_retention_preview", _default_backup_retention_preview()
     )
+    pit = diagnostics.get("pit_backfill_status", _default_pit_backfill_status())
+    warehouse = diagnostics.get(
+        "warehouse_mode_counts", _default_warehouse_mode_counts()
+    )
     retry_rows = "".join(
         f"<li><code>{escape(str(row['series_id']))}</code>："
         f"{escape(_retry_reason_zh(str(row['reason_code'])))}</li>"
@@ -111,6 +115,17 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
         <dt>候選清理</dt><dd>{int(retention.get('retention_candidate_count', 0))} 份</dd>
       </dl>
       <p class="meta">Phase 116 只提供 retention preview，不會自動刪除任何備份。</p>
+    </article>
+    <article class="operation">
+      <h3>歷史資料模式完整度</h3>
+      <dl>
+        <dt>revised 觀察值</dt><dd>{int(warehouse.get('observation_revised', 0))} 筆</dd>
+        <dt>vintage / PIT</dt><dd>{int(warehouse.get('observation_vintage', 0))} 筆</dd>
+        <dt>發布日曆</dt><dd>{int(warehouse.get('release_calendar', 0))} 筆</dd>
+        <dt>轉折關鍵序列</dt><dd>{int(pit.get('completed_series_count', 0))} / {int(pit.get('transition_series_count', 13))} 已補齊</dd>
+        <dt>執行狀態</dt><dd>{escape(_pit_status_zh(str(pit.get('result', 'not_started'))))}</dd>
+      </dl>
+      <p class="meta">PIT 只代表 ALFRED realtime interval 已保存；目前仍不宣稱所有序列、所有年代或正式回測已具 point-in-time 完整性。</p>
     </article>
   </section>
   <h2>每個官方發布來源</h2>
@@ -214,6 +229,23 @@ def _default_backup_retention_preview() -> dict[str, Any]:
     }
 
 
+def _default_pit_backfill_status() -> dict[str, Any]:
+    return {
+        "transition_series_count": 13,
+        "completed_series_count": 0,
+        "failed_series_count": 0,
+        "result": "not_started",
+    }
+
+
+def _default_warehouse_mode_counts() -> dict[str, int]:
+    return {
+        "observation_revised": 0,
+        "observation_vintage": 0,
+        "release_calendar": 0,
+    }
+
+
 def _retry_reason_zh(reason: str) -> str:
     return {
         "source_fetch_failed": "上次官方來源擷取失敗",
@@ -237,6 +269,14 @@ def _trigger_kind_zh(kind: str) -> str:
         "official_release_catchup": "啟動後補做近期官方發布",
         "not_started": "尚未啟動",
     }.get(kind, kind)
+
+
+def _pit_status_zh(status: str) -> str:
+    return {
+        "passed": "轉折關鍵 PIT 補齊成功",
+        "blocked": "部分序列補齊失敗，已保留成功資料",
+        "not_started": "尚未執行",
+    }.get(status, status)
 
 
 def _row_count_summary(status: dict[str, Any]) -> str:

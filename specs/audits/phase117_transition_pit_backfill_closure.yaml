@@ -1,0 +1,59 @@
+phase117_transition_pit_backfill_closure:
+  version: "1.0"
+  status: closed_live_accepted
+  observed_live_acceptance:
+    accepted_at_utc: "2026-07-10T15:50:00Z"
+    app_image_reference: business-cycle-nas-app:phase117-transition-pit-backfill
+    app_container_healthy: true
+    worker_container_healthy: true
+    postgres_container_healthy: true
+    lan_health_endpoint_passed: true
+    lan_bind_ip: 192.168.1.116
+    tailscale_https_serve_configured: true
+    tailscale_serve_target: http://127.0.0.1:18080
+    secure_cookie_enabled: true
+    public_exposure_enabled: false
+    transition_series_count: 13
+    completed_series_count: 13
+    failed_series_count: 0
+    series_registry_row_count: 26
+    source_artifact_row_count: 40
+    observation_revised_row_count: 22131
+    observation_vintage_row_count: 42957
+    release_calendar_row_count: 59
+    full_all_series_pit_history_complete: false
+    source_history_limitations:
+      - CCSA ALFRED realtime intervals begin in 2009 despite older observation dates.
+      - ICSA ALFRED realtime intervals begin in 2009.
+      - DGORDER ALFRED realtime intervals begin in 1999.
+      - RRSFS ALFRED realtime intervals begin in 2001.
+    secret_value_recorded: false
+    prospective_registry_write_count: 0
+  hard_gates:
+    phase117_closure_ready: true
+    nas_transition_pit_backfill_contract_ready: true
+    normalized_release_calendar_plan_ready: true
+    transition_series_count: 13
+    completed_series_count: 13
+    failed_series_count: 0
+    observation_vintage_row_count_positive: true
+    release_calendar_row_count: 59
+    unresolved_weekly_reference_row_count: 12
+    deferred_revision_event_row_count: 14
+    observation_date_assumed_release_date_count: 0
+    lan_health_endpoint_passed: true
+    lan_and_tailscale_loopback_bindings_ready: true
+    app_container_healthy: true
+    worker_container_healthy: true
+    postgres_container_healthy: true
+    secure_cookie_enabled: true
+    public_exposure_enabled: false
+    full_all_series_pit_history_complete: false
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    secret_value_recorded: false
+    prospective_registry_write_count: 0
+    development_next_phase: 118
+    phase117_closure_status: closed_transition_critical_pit_and_normalized_release_calendar_live_broader_pit_incomplete

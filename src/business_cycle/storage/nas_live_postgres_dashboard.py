@@ -101,7 +101,9 @@ SELECT json_build_object(
   'observation_revised_total_count',
     (SELECT COUNT(*) FROM macro.observation_revised),
   'observation_vintage_total_count',
-    (SELECT COUNT(*) FROM macro.observation_vintage)
+    (SELECT COUNT(*) FROM macro.observation_vintage),
+  'release_calendar_total_count',
+    (SELECT COUNT(*) FROM macro.release_calendar)
 )::text;
 """.strip()
 
@@ -353,6 +355,9 @@ def build_nas_live_postgres_dashboard_snapshot(
         "observation_vintage_row_count": int(
             payload["observation_vintage_total_count"],
         ),
+        "release_calendar_row_count": int(
+            payload["release_calendar_total_count"],
+        ),
         "chart_available_role_count": len(chart_roles),
         "chart_unavailable_role_count": len(role_snapshots) - len(chart_roles),
         "refresh_status": resolved_refresh_status,
@@ -381,6 +386,12 @@ def build_nas_live_postgres_dashboard_snapshot(
             "revised_diagnostic_only": True,
             "strict_point_in_time_result": False,
             "observation_vintage_read_count": 0,
+            "observation_vintage_available_count": int(
+                payload["observation_vintage_total_count"],
+            ),
+            "normalized_release_calendar_row_count": int(
+                payload["release_calendar_total_count"],
+            ),
             "postgres_write_attempted": False,
             "live_fetch_attempted": False,
             "candidate_phase_selection_enabled": False,

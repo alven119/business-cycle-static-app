@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import subprocess
@@ -27,7 +27,11 @@ from business_cycle.audits.phase115_nas_source_retry_restore_closure import (
 from business_cycle.audits.phase116_nas_release_aware_refresh_closure import (
     summarize_phase116_nas_release_aware_refresh_closure,
 )
+from business_cycle.audits.phase117_transition_pit_backfill_closure import (
+    summarize_phase117_transition_pit_backfill_closure,
+)
 from business_cycle.data_sources import SeriesObservation
+from business_cycle.data_sources.alfred_provider import AlfredObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
 from business_cycle.service.nas_official_release_calendar import (
     build_nas_official_release_diagnostics,
@@ -74,6 +78,12 @@ from business_cycle.storage.postgres_macro_warehouse import (
     load_postgres_macro_warehouse_contract,
     summarize_postgres_macro_warehouse_contract,
     table_contracts,
+)
+from business_cycle.storage.nas_transition_pit_backfill import (
+    CONFIRMATION as PIT_CONFIRMATION,
+    build_normalized_release_calendar_plan,
+    run_transition_pit_backfill,
+    summarize_nas_transition_pit_backfill_contract,
 )
 
 
@@ -352,13 +362,17 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase116-release-aware-refresh"
-    assert app["ports"] == ["127.0.0.1:18080:8000"]
+    assert app["image"] == "business-cycle-nas-app:phase117-transition-pit-backfill"
+    assert app["ports"] == [
+        "127.0.0.1:18080:8000",
+        "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
+    ]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
     assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
+    assert "BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
     assert artifact_init["restart"] == "no"
@@ -381,6 +395,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
         "service_completed_successfully"
     )
     assert "FRED_API_KEY" in worker["environment"]
+    assert "BUSINESS_CYCLE_PIT_BACKFILL_OPERATOR_CONFIRMATION" in worker["environment"]
     assert "tailscale funnel" not in Path("deploy/nas/compose.yaml").read_text(
         encoding="utf-8"
     ).lower()
@@ -577,6 +592,7 @@ def _live_dashboard_fixture_payload() -> dict[str, object]:
         "observation_rows": observation_rows,
         "observation_revised_total_count": 22131,
         "observation_vintage_total_count": 0,
+        "release_calendar_total_count": 0,
     }
 
 
@@ -1094,6 +1110,124 @@ def test_phase116_release_aware_refresh_closure_and_script_pass() -> None:
     assert "phase116_closure_ready=true" in completed.stdout
     assert "fixed_daily_local_time=03:30" in completed.stdout
     assert "macro_history_all_modes_complete=false" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+class _FakeTransitionVintageProvider:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str | None, str | None, int]] = []
+
+    def fetch_observations(
+        self,
+        series_id: str,
+        *,
+        observation_start: str | None = None,
+        observation_end: str | None = None,
+        realtime_start: str | None = None,
+        realtime_end: str | None = None,
+        output_type: int = 1,
+    ) -> list[AlfredObservation]:
+        assert observation_start == "1998-01-01"
+        assert observation_end is None
+        assert realtime_start == "1998-01-01"
+        assert realtime_end == "2026-07-10"
+        assert output_type == 1
+        self.calls.append((series_id, realtime_start, realtime_end, output_type))
+        return [
+            AlfredObservation(
+                series_id=series_id,
+                observation_date="2026-05-01",
+                value="100.0",
+                realtime_start="2026-06-01",
+                realtime_end="2026-06-30",
+            ),
+            AlfredObservation(
+                series_id=series_id,
+                observation_date="2026-05-01",
+                value="101.0",
+                realtime_start="2026-07-01",
+                realtime_end="9999-12-31",
+            ),
+        ]
+
+
+def test_phase117_transition_pit_contract_calendar_and_live_import_are_safe(
+    tmp_path: Path,
+) -> None:
+    summary = summarize_nas_transition_pit_backfill_contract()
+    plan = build_normalized_release_calendar_plan()
+    provider = _FakeTransitionVintageProvider()
+    executor = _FakeSqlExecutor()
+
+    assert summary["result"] == "passed"
+    assert summary["transition_series_count"] == 13
+    assert summary["transition_role_count"] == 14
+    assert summary["alfred_output_type"] == 1
+    assert plan["source_release_event_series_row_count"] == 85
+    assert plan["normalized_release_calendar_row_count"] == 59
+    assert plan["unresolved_weekly_reference_row_count"] == 12
+    assert plan["deferred_revision_event_row_count"] == 14
+    assert plan["observation_date_assumed_release_date_count"] == 0
+    assert all(row["actual_release_at_utc"] is None for row in plan["normalized_release_calendar_rows"])
+
+    with pytest.raises(ValueError, match="operator confirmation"):
+        run_transition_pit_backfill(
+            execute_live=False,
+            operator_confirmation=None,
+            artifact_dir=tmp_path / "rejected",
+            provider=provider,
+            executor=executor,
+        )
+    report = run_transition_pit_backfill(
+        execute_live=True,
+        operator_confirmation=PIT_CONFIRMATION,
+        artifact_dir=tmp_path / "phase117",
+        provider=provider,
+        executor=executor,
+        execution_date=date(2026, 7, 10),
+    )
+
+    assert report["result"] == "passed"
+    assert report["completed_series_count"] == 13
+    assert report["failed_series_count"] == 0
+    assert report["observation_vintage_row_count_planned"] == 26
+    assert report["normalized_release_calendar_row_count_planned"] == 59
+    assert report["full_all_series_pit_history_complete"] is False
+    assert report["candidate_phase_emitted"] is False
+    assert report["current_phase_emitted"] is False
+    assert len(provider.calls) == 13
+    assert len(executor.statements) == 15
+    pit_sql = "\n".join(executor.statements)
+    assert "INSERT INTO macro.observation_vintage" in pit_sql
+    assert "INSERT INTO macro.release_calendar" in pit_sql
+    assert "23:59:59Z" in next(
+        (tmp_path / "phase117" / "alfred").glob("*.csv")
+    ).read_text(encoding="utf-8")
+    assert not (Path("data/backtests") / "phase117").exists()
+    closure = summarize_phase117_transition_pit_backfill_closure()
+    assert closure["result"] == "passed"
+    assert closure["phase117_closure_ready"] is True
+    assert closure["completed_series_count"] == 13
+    assert closure["failed_series_count"] == 0
+    assert closure["observation_revised_row_count"] == 22131
+    assert closure["observation_vintage_row_count"] == 42957
+    assert closure["release_calendar_row_count"] == 59
+    assert closure["lan_and_tailscale_loopback_bindings_ready"] is True
+    assert closure["full_all_series_pit_history_complete"] is False
+    assert closure["candidate_phase_emitted"] is False
+    assert closure["current_phase_emitted"] is False
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase117_transition_pit_backfill_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase117_closure_ready=true" in completed.stdout
+    assert "observation_vintage_row_count=42957" in completed.stdout
+    assert "full_all_series_pit_history_complete=false" in completed.stdout
     assert "result=passed" in completed.stdout
 
 
