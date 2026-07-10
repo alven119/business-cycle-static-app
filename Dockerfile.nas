@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.10-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -12,7 +12,15 @@ WORKDIR /app
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
-    && apt-get install --no-install-recommends --yes postgresql-client \
+    && apt-get install --no-install-recommends --yes ca-certificates curl \
+    && install -d /usr/share/postgresql-common/pgdg \
+    && curl --fail --silent --show-error \
+        --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+        https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+        > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
+    && apt-get install --no-install-recommends --yes postgresql-client-16 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md ./

@@ -79,8 +79,8 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "114" if runtime_live_mode else "95",
-        "phase_id": 114 if runtime_live_mode else 95,
+        "phase": "115" if runtime_live_mode else "95",
+        "phase_id": 115 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": "phase95_nas_service_dashboard_renderer",
         "artifact_version": contract["version"],

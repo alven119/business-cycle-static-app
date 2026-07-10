@@ -155,6 +155,7 @@ def run_nas_postgres_live_revised_import(
     retry_count: int = 3,
     retry_sleep: Callable[[float], None] = time.sleep,
     resume: bool = True,
+    series_ids: list[str] | None = None,
 ) -> dict[str, Any]:
     """Migrate and import revised history after explicit operator confirmation."""
 
@@ -170,7 +171,10 @@ def run_nas_postgres_live_revised_import(
         database_url or os.environ.get("BUSINESS_CYCLE_DATABASE_URL", "")
     )
     registry = _load_registry(registry_path)
-    series_ids = list(contract["source_policy"]["direct_series_ids"])
+    series_ids = _validated_requested_series_ids(
+        requested=series_ids,
+        allowed=list(contract["source_policy"]["direct_series_ids"]),
+    )
     started_at = _utc_now()
     sql.execute(generate_postgres_schema_sql())
     results: list[SeriesImportResult] = []
@@ -255,6 +259,24 @@ def run_nas_postgres_live_revised_import(
     )
     _atomic_json_write(artifact_root / "latest-import-report.json", report)
     return report
+
+
+def _validated_requested_series_ids(
+    *,
+    requested: list[str] | None,
+    allowed: list[str],
+) -> list[str]:
+    if requested is None:
+        return list(allowed)
+    normalized = [str(value).strip().upper() for value in requested]
+    if not normalized:
+        raise ValueError("at least one retry series is required")
+    if len(normalized) != len(set(normalized)):
+        raise ValueError("retry series IDs must be unique")
+    unknown = sorted(set(normalized) - set(allowed))
+    if unknown:
+        raise ValueError(f"retry series outside canonical source scope: {unknown}")
+    return [series_id for series_id in allowed if series_id in set(normalized)]
 
 
 def _fetch_with_retry(

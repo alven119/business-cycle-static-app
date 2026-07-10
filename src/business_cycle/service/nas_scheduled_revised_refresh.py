@@ -94,6 +94,7 @@ def run_scheduled_refresh_once(
     operator_confirmation: str | None,
     import_runner: Callable[..., dict[str, Any]] = run_nas_postgres_live_revised_import,
     now: Callable[[], datetime] | None = None,
+    series_ids: list[str] | None = None,
 ) -> dict[str, Any]:
     """Run one mutually exclusive refresh and preserve a redacted latest status."""
 
@@ -121,6 +122,7 @@ def run_scheduled_refresh_once(
                 artifact_dir=run_root,
                 retry_count=3,
                 resume=False,
+                series_ids=series_ids,
             )
             completed = clock()
             succeeded = report.get("result") == "passed" and int(

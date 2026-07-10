@@ -12,6 +12,14 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     series_rows = "".join(
         _series_row(row) for row in diagnostics["series_refresh_diagnostics"]
     )
+    retry = diagnostics.get("source_retry_preview", _default_retry_preview())
+    backup = diagnostics.get("backup_restore_status", _default_backup_status())
+    retry_rows = "".join(
+        f"<li><code>{escape(str(row['series_id']))}</code>："
+        f"{escape(_retry_reason_zh(str(row['reason_code'])))}</li>"
+        for row in retry.get("retry_candidates", [])
+    ) or "<li>目前沒有符合受治理重試條件的失敗來源。</li>"
+    backup_counts = _row_count_summary(backup)
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -32,6 +40,10 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     dd {{ margin: 0; overflow-wrap: anywhere; }}
     .status {{ font-weight: 700; color: #174f7a; }}
     .warning {{ color: #8b3f18; }}
+    .operations {{ display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }}
+    .operation {{ background: white; border-left: 4px solid #28794b; padding: 14px; }}
+    .operation h3 {{ margin: 0 0 8px; }}
+    ul {{ padding-left: 20px; }}
     details {{ background: white; border: 1px solid #d8dee5; border-radius: 8px; padding: 12px; }}
     summary {{ cursor: pointer; color: #0b5cab; font-weight: 700; }}
     table {{ border-collapse: collapse; width: 100%; margin-top: 12px; font-size: .84rem; }}
@@ -50,8 +62,30 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     <article><strong>{int(diagnostics['series_diagnostic_count'])}</strong><span>監看序列</span></article>
     <article><strong>{int(diagnostics['family_due_or_missing_refresh_count'])}</strong><span>待更新／需查核</span></article>
     <article><strong>{int(diagnostics['series_with_failure_reason_count'])}</strong><span>有失敗原因序列</span></article>
+    <article><strong>{int(retry['retry_candidate_count'])}</strong><span>受治理重試候選</span></article>
+    <article><strong>{escape(_backup_state_zh(str(backup['backup_restore_state'])))}</strong><span>最近備份還原演練</span></article>
   </section>
   <p><a href="/">返回總覽</a> · <a href="/api/source-operations.json">查看 JSON</a></p>
+  <h2>受治理重試與備份還原</h2>
+  <section class="operations">
+    <article class="operation">
+      <h3>失敗來源重試預覽</h3>
+      <p>只有最近 refresh 明確失敗或因前一項失敗而未執行的官方序列會列入；成功來源不重跑。</p>
+      <ul>{retry_rows}</ul>
+      <p class="meta">候選 {int(retry['retry_candidate_count'])} 個；本頁唯讀，實際執行仍需 worker 端確認 token。</p>
+    </article>
+    <article class="operation">
+      <h3>私有 NAS 備份還原演練</h3>
+      <dl>
+        <dt>狀態</dt><dd>{escape(_backup_state_zh(str(backup['backup_restore_state'])))}</dd>
+        <dt>資料列比對</dt><dd>{'一致' if backup.get('row_count_match') else '尚未完成'}</dd>
+        <dt>暫存資料庫</dt><dd>{'已刪除' if backup.get('staging_database_dropped') else '尚未驗證'}</dd>
+        <dt>來源檔案</dt><dd>{int(backup.get('restored_source_artifact_file_count', 0))} / {int(backup.get('source_artifact_file_count', 0))} 個驗證</dd>
+        <dt>資料表摘要</dt><dd>{escape(backup_counts)}</dd>
+      </dl>
+      <p class="meta">演練只在隔離 staging database 與暫存目錄驗證，不覆寫正式資料。</p>
+    </article>
+  </section>
   <h2>每個官方發布來源</h2>
   <section class="families">{families}</section>
   <h2>逐序列 refresh drilldown</h2>
@@ -114,3 +148,52 @@ def _release_display(value: Any, fallback: str) -> str:
         f"{value['release_date']} {value.get('release_time', '')} "
         f"ET（參考期 {value.get('reference_period', '未標示')}）"
     ).strip()
+
+
+def _default_retry_preview() -> dict[str, Any]:
+    return {"retry_candidate_count": 0, "retry_candidates": []}
+
+
+def _default_backup_status() -> dict[str, Any]:
+    return {
+        "backup_restore_state": "not_started",
+        "row_count_match": False,
+        "staging_database_dropped": False,
+        "source_artifact_file_count": 0,
+        "restored_source_artifact_file_count": 0,
+        "live_row_counts": {},
+    }
+
+
+def _retry_reason_zh(reason: str) -> str:
+    return {
+        "source_fetch_failed": "上次官方來源擷取失敗",
+        "not_attempted_after_prior_failure": "前序失敗後尚未執行",
+    }.get(reason, "受治理重試候選")
+
+
+def _backup_state_zh(state: str) -> str:
+    return {
+        "not_started": "尚未執行",
+        "running": "執行中",
+        "succeeded": "驗證成功",
+        "failed": "驗證失敗",
+    }.get(state, state)
+
+
+def _row_count_summary(status: dict[str, Any]) -> str:
+    labels = {
+        "series_registry": "序列",
+        "source_artifact": "來源檔",
+        "observation_revised": "revised 觀察值",
+        "observation_vintage": "vintage 觀察值",
+        "release_calendar": "發布日曆",
+    }
+    counts = status.get("live_row_counts", {})
+    if not isinstance(counts, dict) or not counts:
+        return "尚無驗證結果"
+    return "、".join(
+        f"{labels[key]} {int(counts[key])}"
+        for key in labels
+        if key in counts
+    )

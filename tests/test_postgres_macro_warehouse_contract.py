@@ -21,6 +21,9 @@ from business_cycle.audits.phase112_nas_scheduled_revised_refresh_closure import
 from business_cycle.audits.phase114_nas_official_release_operations_closure import (
     summarize_phase114_nas_official_release_operations_closure,
 )
+from business_cycle.audits.phase115_nas_source_retry_restore_closure import (
+    summarize_phase115_nas_source_retry_restore_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
 from business_cycle.service.nas_official_release_calendar import (
@@ -32,6 +35,15 @@ from business_cycle.service.nas_scheduled_revised_refresh import (
     run_scheduled_refresh_once,
     serve_refresh_schedule,
     summarize_nas_scheduled_revised_refresh_contract,
+)
+from business_cycle.service.nas_source_retry_restore import (
+    BACKUP_RESTORE_CONFIRMATION,
+    RETRY_CONFIRMATION,
+    SourceRetryRestoreError,
+    build_source_retry_preview,
+    execute_governed_source_retry,
+    run_private_backup_restore_drill,
+    summarize_nas_source_retry_restore_contract,
 )
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DASHBOARD_READ_SQL,
@@ -239,6 +251,33 @@ def test_phase110_live_import_resumes_without_refetching(tmp_path: Path) -> None
     assert {row["status"] for row in report["results"]} == {"resumed_existing"}
 
 
+def test_phase115_subset_retry_scope_is_validated_before_fetch(tmp_path: Path) -> None:
+    provider = _FakeFullHistoryProvider()
+    executor = _FakeSqlExecutor()
+    report = run_nas_postgres_live_revised_import(
+        execute_live=True,
+        operator_confirmation=CONFIRMATION,
+        artifact_dir=tmp_path / "subset",
+        provider=provider,
+        executor=executor,
+        retry_sleep=lambda _: None,
+        resume=False,
+        series_ids=["BAA", "AAA"],
+    )
+
+    assert report["requested_series_count"] == 2
+    assert provider.calls == ["AAA", "BAA"]
+    with pytest.raises(ValueError, match="outside canonical source scope"):
+        run_nas_postgres_live_revised_import(
+            execute_live=True,
+            operator_confirmation=CONFIRMATION,
+            artifact_dir=tmp_path / "invalid",
+            provider=provider,
+            executor=executor,
+            series_ids=["NOT_A_CANONICAL_SERIES"],
+        )
+
+
 def test_phase110_psql_executor_keeps_password_out_of_arguments() -> None:
     executor = PsqlSubprocessExecutor(
         "postgresql://business_cycle_app:private-value@macro_postgres:5432/business_cycle"
@@ -300,12 +339,14 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     app = compose["services"]["business_cycle_app"]
     artifact_init = compose["services"]["macro_source_artifact_init"]
     worker = compose["services"]["macro_refresh_worker"]
+    dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase114-source-operations"
+    assert app["image"] == "business-cycle-nas-app:phase115-source-retry-restore"
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
     assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
+    assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
     assert artifact_init["restart"] == "no"
@@ -330,6 +371,9 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "tailscale funnel" not in Path("deploy/nas/compose.yaml").read_text(
         encoding="utf-8"
     ).lower()
+    assert "FROM python:3.10-slim-bookworm" in dockerfile
+    assert "postgresql-client-16" in dockerfile
+    assert "postgresql-client " not in dockerfile
 
 
 def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
@@ -766,6 +810,167 @@ def test_phase114_source_operations_closure_and_script_pass() -> None:
     )
     assert "phase114_closure_ready=true" in completed.stdout
     assert "phase114_closure_status=" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+def test_phase115_retry_preview_token_and_worker_subset_gate(tmp_path: Path) -> None:
+    summary = summarize_nas_source_retry_restore_contract()
+    series_ids = load_nas_postgres_live_revised_import_contract()[
+        "source_policy"
+    ]["direct_series_ids"]
+    refresh_status = {
+        "status_version": "phase114_refresh_status_v2",
+        "run_id": "failed-run",
+        "last_run_state": "failed",
+        "last_completed_at_utc": "2026-07-10T00:00:00Z",
+        "series_refresh_results": [
+            {"series_id": "AAA", "status": "imported"},
+            {"series_id": "BAA", "status": "failed", "error_class": "TimeoutError"},
+        ],
+    }
+    refresh_root = tmp_path / "refresh"
+    refresh_root.mkdir()
+    (refresh_root / "refresh-status.json").write_text(
+        json.dumps(refresh_status), encoding="utf-8"
+    )
+    preview = build_source_retry_preview(refresh_status)
+    calls: list[dict[str, object]] = []
+
+    def fake_refresh(**kwargs: object) -> dict[str, object]:
+        calls.append(kwargs)
+        return {"refresh_state": "succeeded"}
+
+    assert summary["result"] == "passed"
+    assert preview["retry_eligible"] is True
+    assert preview["retry_candidate_count"] == len(series_ids) - 1
+    assert preview["retry_series_ids"][0] == "BAA"
+    with pytest.raises(SourceRetryRestoreError, match="stale or mismatched"):
+        execute_governed_source_retry(
+            preview_token="stale",
+            confirmation=RETRY_CONFIRMATION,
+            refresh_root=refresh_root,
+            refresh_runner=fake_refresh,
+        )
+    result = execute_governed_source_retry(
+        preview_token=preview["retry_preview_token"],
+        confirmation=RETRY_CONFIRMATION,
+        refresh_root=refresh_root,
+        refresh_runner=fake_refresh,
+    )
+    assert result["retry_executed"] is True
+    assert calls[0]["series_ids"] == preview["retry_series_ids"]
+    assert result["candidate_phase_emitted"] is False
+    assert result["current_phase_emitted"] is False
+
+
+class _FakeBackupRestoreExecutor:
+    def __init__(self) -> None:
+        self.commands: list[list[str]] = []
+
+    def run(self, command: list[str], *, environment: dict[str, str]) -> str:
+        self.commands.append(command)
+        assert environment["PGPASSWORD"] == "private-value"
+        if command[:2] == ["pg_dump", "--version"]:
+            return "pg_dump (PostgreSQL) 16.14"
+        if command[0] == "pg_dump":
+            output = next(
+                value.split("=", 1)[1]
+                for value in command
+                if value.startswith("--file=")
+            )
+            Path(output).write_bytes(b"phase115-test-dump")
+        if command[0] == "psql":
+            if "SHOW server_version_num;" in command:
+                return "160014"
+            return json.dumps(
+                {
+                    "series_registry": 26,
+                    "source_artifact": 26,
+                    "observation_revised": 22131,
+                    "observation_vintage": 0,
+                    "release_calendar": 0,
+                }
+            )
+        return ""
+
+
+def test_phase115_backup_restore_drill_verifies_db_and_source_artifacts(
+    tmp_path: Path,
+) -> None:
+    source_root = tmp_path / "source-artifacts"
+    source_root.mkdir()
+    (source_root / "phase110").mkdir()
+    (source_root / "phase110" / "AAA.csv").write_text("date,value\n", encoding="utf-8")
+    executor = _FakeBackupRestoreExecutor()
+
+    with pytest.raises(SourceRetryRestoreError, match="explicit backup restore"):
+        run_private_backup_restore_drill(
+            confirmation=None,
+            operations_root=tmp_path / "phase115-rejected",
+            source_artifact_root=source_root,
+            executor=executor,
+        )
+    status = run_private_backup_restore_drill(
+        confirmation=BACKUP_RESTORE_CONFIRMATION,
+        database_url=(
+            "postgresql://business_cycle_app:private-value@macro_postgres:5432/"
+            "business_cycle"
+        ),
+        operations_root=source_root / "phase115",
+        source_artifact_root=source_root,
+        executor=executor,
+        now=lambda: datetime(2026, 7, 10, tzinfo=timezone.utc),
+    )
+
+    assert status["backup_restore_state"] == "succeeded"
+    assert status["row_count_match"] is True
+    assert status["postgres_client_major"] == 16
+    assert status["postgres_server_major"] == 16
+    assert status["source_artifact_file_count"] == 1
+    assert status["restored_source_artifact_file_count"] == 1
+    assert status["staging_database_dropped"] is True
+    assert status["secret_value_recorded"] is False
+    assert [command[0] for command in executor.commands] == [
+        "pg_dump",
+        "psql",
+        "psql",
+        "pg_dump",
+        "createdb",
+        "pg_restore",
+        "psql",
+        "dropdb",
+    ]
+    persisted = json.loads(
+        (source_root / "phase115" / "operations-status.json").read_text()
+    )
+    assert persisted == status
+    assert "private-value" not in json.dumps(status)
+
+
+def test_phase115_source_retry_restore_closure_and_script_pass() -> None:
+    summary = summarize_phase115_nas_source_retry_restore_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase115_closure_ready"] is True
+    assert summary["live_retry_candidate_count"] == 0
+    assert summary["live_retry_execution_count"] == 0
+    assert summary["backup_restore_state"] == "succeeded"
+    assert summary["database_row_count_match"] is True
+    assert summary["source_artifact_restore_count_match"] is True
+    assert summary["staging_database_dropped"] is True
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase115_nas_source_retry_restore_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase115_closure_ready=true" in completed.stdout
+    assert "backup_restore_state=succeeded" in completed.stdout
     assert "result=passed" in completed.stdout
 
 

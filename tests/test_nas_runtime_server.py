@@ -320,7 +320,7 @@ def test_runtime_rejects_unsupported_method() -> None:
     assert response.status_code == 405
 
 
-def test_phase114_source_operations_routes_are_private_and_traditional_chinese() -> None:
+def test_phase115_source_operations_routes_are_private_and_traditional_chinese() -> None:
     series_ids = load_nas_postgres_live_revised_import_contract()[
         "source_policy"
     ]["direct_series_ids"]
@@ -367,6 +367,8 @@ def test_phase114_source_operations_routes_are_private_and_traditional_chinese()
     assert "官方資料發布與更新維運" in page.body
     assert "逐序列 refresh drilldown" in page.body
     assert "不會冒充官方延遲" in page.body
+    assert "受治理重試與備份還原" in page.body
+    assert "私有 NAS 備份還原演練" in page.body
     assert api.status_code == 200
     assert api.route_id == "nas_source_operations_api"
     assert '"release_family_count": 12' in api.body

@@ -21,6 +21,10 @@ from business_cycle.storage.nas_indicator_snapshots import (
 from business_cycle.service.nas_official_release_calendar import (
     build_nas_official_release_diagnostics,
 )
+from business_cycle.service.nas_source_retry_restore import (
+    build_source_retry_preview,
+    default_source_operations_status,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_live_postgres_dashboard_contract.yaml"
@@ -230,6 +234,7 @@ def build_nas_live_postgres_dashboard_snapshot(
     snapshot_as_of: str | None = None,
     refresh_status: dict[str, Any] | None = None,
     declared_cycle_state: dict[str, Any] | None = None,
+    source_operations_status: dict[str, Any] | None = None,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
 ) -> dict[str, Any]:
     """Build 39 role snapshots from a read-only live Postgres query."""
@@ -310,6 +315,15 @@ def build_nas_live_postgres_dashboard_snapshot(
         series_inputs=series_release_inputs,
         refresh_status=resolved_refresh_status,
     )
+    resolved_source_operations_status = (
+        source_operations_status or default_source_operations_status()
+    )
+    source_release_diagnostics["source_retry_preview"] = build_source_retry_preview(
+        resolved_refresh_status
+    )
+    source_release_diagnostics["backup_restore_status"] = (
+        resolved_source_operations_status
+    )
     snapshot: dict[str, Any] = {
         "artifact_id": "phase111_nas_live_postgres_dashboard_snapshot",
         "artifact_version": contract["version"],
@@ -381,6 +395,12 @@ def build_nas_live_postgres_dashboard_snapshot(
             ],
             "release_family_count": source_release_diagnostics[
                 "release_family_count"
+            ],
+            "retry_candidate_count": source_release_diagnostics[
+                "source_retry_preview"
+            ]["retry_candidate_count"],
+            "backup_restore_state": resolved_source_operations_status[
+                "backup_restore_state"
             ],
             "declared_state_source": resolved_declared_cycle_state[
                 "active_registry_source"

@@ -1,0 +1,86 @@
+nas_source_retry_restore_contract:
+  version: "1.0"
+  status: active_private_nas_operator_contract
+  phase_id: 115
+  phase_label: governed_source_retry_and_backup_restore_drill
+  depends_on:
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/common/nas_scheduled_revised_refresh_contract.yaml
+    - specs/common/nas_postgres_live_revised_import_contract.yaml
+    - specs/common/nas_postgres_revised_import_rehearsal_contract.yaml
+  retry_policy:
+    candidate_statuses: [failed, not_attempted_after_prior_failure]
+    preview_required: true
+    preview_token_binds_refresh_status_hash: true
+    confirmation_phrase: I_CONFIRM_RETRY_FAILED_OFFICIAL_SOURCES
+    canonical_series_scope_required: true
+    subset_import_only: true
+    execute_through_existing_worker_only: true
+    no_failure_means_no_retry: true
+    tests_network_allowed: false
+  backup_restore_policy:
+    confirmation_phrase: I_CONFIRM_PRIVATE_NAS_BACKUP_RESTORE_DRILL
+    artifact_root: /var/lib/business-cycle/source-artifacts/phase115
+    postgres_backup_format: custom
+    postgres_server_major: 16
+    postgres_client_major: 16
+    postgres_client_server_major_match_required: true
+    postgres_backup_checksum_required: true
+    source_artifact_snapshot_required: true
+    source_artifact_snapshot_checksum_required: true
+    source_artifact_snapshot_excludes_phase115: true
+    restore_database_prefix: phase115_restore_verify_
+    restore_database_isolation_required: true
+    restore_row_count_match_required: true
+    restore_database_drop_required: true
+    source_artifact_temporary_restore_required: true
+    source_artifact_member_path_validation_required: true
+    status_atomic_write_required: true
+    tests_command_execution_allowed: false
+  database_verification_tables:
+    - macro.series_registry
+    - macro.source_artifact
+    - macro.observation_revised
+    - macro.observation_vintage
+    - macro.release_calendar
+  dashboard_policy:
+    source_operations_page_path: /source-operations
+    source_operations_api_path: /api/source-operations.json
+    retry_preview_visible: true
+    backup_restore_status_visible: true
+    raw_command_visible: false
+    database_url_visible: false
+    secret_visible: false
+  allowed_uses:
+    - private_nas_failed_source_retry_preview
+    - operator_confirmed_subset_refresh
+    - private_nas_postgres_backup_restore_verification
+    - private_nas_source_artifact_restore_verification
+  prohibited_uses:
+    - automatic_retry_without_failure
+    - frontend_database_command
+    - public_output
+    - candidate_phase_selection
+    - current_phase_inference
+    - portfolio_instruction
+    - backtest_execution
+  hard_gates:
+    nas_source_retry_restore_contract_ready: true
+    retry_preview_ready: true
+    retry_preview_token_bound_to_status: true
+    retry_subset_scope_enforced: true
+    worker_only_retry_execution_ready: true
+    backup_restore_runtime_ready: true
+    postgres_client_server_major_match_ready: true
+    database_verification_table_count: 5
+    source_artifact_restore_verification_ready: true
+    staging_database_isolation_ready: true
+    status_atomic_write_ready: true
+    tests_network_dependency_count: 0
+    tests_backup_command_execution_count: 0
+    tests_restore_command_execution_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 116

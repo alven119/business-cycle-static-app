@@ -97,6 +97,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_95_roadmap.py",
         "show_product_capability_completion_sprint.py",
         "show_github_actions_test_efficiency.py",
+        "show_phase115_nas_source_retry_restore_closure.py",
         "show_phase111_nas_live_postgres_dashboard_closure.py",
         "show_phase110_nas_postgres_live_revised_import_closure.py",
         "show_phase109_nas_tailscale_private_https_closure.py",
@@ -198,8 +199,11 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase114_nas_official_release_operations_closure.py" in (
+    assert "scripts/show_phase115_nas_source_retry_restore_closure.py" in (
         FULL_CLOSURE_SCRIPTS
+    )
+    assert "scripts/show_phase114_nas_official_release_operations_closure.py" in (
+        NIGHTLY_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase113_nas_declared_phase_start_governance_closure.py" in (
         NIGHTLY_CLOSURE_SCRIPTS

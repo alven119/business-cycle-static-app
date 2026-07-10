@@ -247,6 +247,14 @@ Estimated deployment sequence:
   operator can distinguish a source fetch failure, a downstream series not
   attempted after an earlier failure, and an official release merely waiting
   for the next refresh.
+- Phase 115: add a token-bound failed-source retry preview and subset execution
+  gate on the existing worker. A private custom-format Postgres backup is
+  restored to an isolated staging database and verified against five table
+  counts; source artifacts are restored to a temporary directory and checked by
+  hash. The staging database is dropped after the drill, and the authenticated
+  source-operations page displays only redacted verification status.
+  The NAS image pins a PostgreSQL 16 client and refuses the drill when client
+  and server major versions differ.
 
 ## GitHub Pages Retirement
 
@@ -278,7 +286,7 @@ Backups must cover:
 
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Governed operator retry and backup-restore drill after a source failure.
+- Automated official-calendar synchronization and private backup retention.
 - User confirmation of the declared boom exact start date or bounded window;
   until then, the dashboard displays an explicit unknown phase age.
 - Dedicated least-privilege dashboard database role and credential rotation.

@@ -17,6 +17,10 @@ from business_cycle.service.nas_scheduled_revised_refresh import (
     DEFAULT_STATUS_PATH,
     load_refresh_status,
 )
+from business_cycle.service.nas_source_retry_restore import (
+    DEFAULT_OPERATIONS_STATUS_PATH,
+    load_source_operations_status,
+)
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DashboardReadExecutor,
     build_nas_live_postgres_dashboard_snapshot,
@@ -30,6 +34,7 @@ def build_nas_live_dashboard_runtime(
     snapshot_as_of: str | None = None,
     refresh_status_path: str | None = None,
     declared_registry_path: str | None = None,
+    source_operations_status_path: str | None = None,
 ) -> dict[str, Any]:
     """Build the live runtime; configured DB failures must not silently fall back."""
 
@@ -41,21 +46,25 @@ def build_nas_live_dashboard_runtime(
         active_registry_path=declared_registry_path or DEFAULT_ACTIVE_REGISTRY_PATH,
         as_of=snapshot_as_of,
     )
+    source_operations_status = load_source_operations_status(
+        source_operations_status_path or DEFAULT_OPERATIONS_STATUS_PATH
+    )
     snapshot = build_nas_live_postgres_dashboard_snapshot(
         database_url=resolved_url,
         executor=executor,
         snapshot_as_of=snapshot_as_of,
         refresh_status=refresh_status,
         declared_cycle_state=declared_cycle_state,
+        source_operations_status=source_operations_status,
     )
     dashboard = build_nas_service_dashboard_bundle(
         snapshot_manifest=snapshot,
         runtime_live_mode=True,
     )
     shell = build_nas_app_shell(dashboard_bundle=dashboard)
-    shell["phase"] = "114"
-    shell["phase_id"] = 114
-    shell["artifact_id"] = "phase114_nas_source_operations_runtime"
+    shell["phase"] = "115"
+    shell["phase_id"] = 115
+    shell["artifact_id"] = "phase115_nas_source_retry_restore_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -79,6 +88,10 @@ def build_nas_live_dashboard_runtime(
         "release_family_count": snapshot["source_release_diagnostics"][
             "release_family_count"
         ],
+        "retry_candidate_count": snapshot["source_release_diagnostics"][
+            "source_retry_preview"
+        ]["retry_candidate_count"],
+        "backup_restore_state": source_operations_status["backup_restore_state"],
         "declared_phase_start_context_status": declared_cycle_state[
             "declared_phase_start_context_status"
         ],
@@ -101,13 +114,17 @@ def build_nas_live_dashboard_runtime(
         "release_family_count": snapshot["source_release_diagnostics"][
             "release_family_count"
         ],
+        "retry_candidate_count": snapshot["source_release_diagnostics"][
+            "source_retry_preview"
+        ]["retry_candidate_count"],
+        "backup_restore_state": source_operations_status["backup_restore_state"],
         "declared_phase_start_context_status": declared_cycle_state[
             "declared_phase_start_context_status"
         ],
     }
     runtime: dict[str, Any] = {
-        "phase": 114,
-        "artifact_id": "phase114_nas_source_operations_runtime",
+        "phase": 115,
+        "artifact_id": "phase115_nas_source_retry_restore_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -138,7 +155,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 115,
+        "development_next_phase": 116,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True
