@@ -10,12 +10,23 @@ import yaml
 from business_cycle.audits.phase110_nas_postgres_live_revised_import_closure import (
     summarize_phase110_nas_postgres_live_revised_import_closure,
 )
+from business_cycle.audits.phase111_nas_live_postgres_dashboard_closure import (
+    summarize_phase111_nas_live_postgres_dashboard_closure,
+)
 from business_cycle.data_sources import SeriesObservation
+from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
+from business_cycle.storage.nas_live_postgres_dashboard import (
+    DASHBOARD_READ_SQL,
+    PsqlReadOnlyExecutor,
+    build_nas_live_postgres_dashboard_snapshot,
+    summarize_nas_live_postgres_dashboard_contract,
+)
 from business_cycle.storage.nas_postgres_live_revised_import import (
     CONFIRMATION,
     PsqlSubprocessExecutor,
     run_nas_postgres_live_revised_import,
     summarize_nas_postgres_live_revised_import_contract,
+    load_nas_postgres_live_revised_import_contract,
 )
 from business_cycle.storage.postgres_macro_warehouse import (
     generate_postgres_schema_sql,
@@ -266,14 +277,15 @@ def test_show_phase110_live_revised_import_closure_script() -> None:
     assert "result=passed" in completed.stdout
 
 
-def test_phase110_nas_compose_keeps_worker_manual_and_https_private() -> None:
+def test_nas_compose_keeps_worker_manual_https_private_and_live_dashboard() -> None:
     compose = yaml.safe_load(Path("deploy/nas/compose.yaml").read_text(encoding="utf-8"))
     app = compose["services"]["business_cycle_app"]
     worker = compose["services"]["macro_refresh_worker"]
 
-    assert app["image"] == "business-cycle-nas-app:phase110-revised-import"
+    assert app["image"] == "business-cycle-nas-app:phase111-live-dashboard"
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
+    assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert worker["profiles"] == ["manual-revised-import"]
     assert worker["restart"] == "no"
     assert worker["volumes"] == [
@@ -284,3 +296,202 @@ def test_phase110_nas_compose_keeps_worker_manual_and_https_private() -> None:
     assert "tailscale funnel" not in Path("deploy/nas/compose.yaml").read_text(
         encoding="utf-8"
     ).lower()
+
+
+class _FakeDashboardReadExecutor:
+    def __init__(self) -> None:
+        self.queries: list[str] = []
+
+    def query_json(self, sql: str) -> dict[str, object]:
+        self.queries.append(sql)
+        return _live_dashboard_fixture_payload()
+
+
+def _live_dashboard_fixture_payload() -> dict[str, object]:
+    direct_series = load_nas_postgres_live_revised_import_contract()[
+        "source_policy"
+    ]["direct_series_ids"]
+    quarterly = {
+        "BUSINV",
+        "CBIC1",
+        "DRBLACBS",
+        "DRCLACBS",
+        "FPIC1",
+        "PRFIC1",
+        "SLCEC1",
+        "W006RC1Q027SBEA",
+    }
+    weekly = {"CCSA", "ICSA"}
+    daily = {"AAA", "BAA", "FEDFUNDS"}
+    series_rows = []
+    artifact_rows = []
+    observation_rows = []
+    for index, series_id in enumerate(direct_series):
+        frequency = (
+            "quarterly"
+            if series_id in quarterly
+            else "weekly"
+            if series_id in weekly
+            else "daily"
+            if series_id in daily
+            else "monthly"
+        )
+        artifact_id = f"artifact::{series_id}"
+        series_rows.append(
+            {
+                "series_key": series_id,
+                "source_family": "FRED/ALFRED",
+                "source_series_id": series_id,
+                "source_title": f"Official {series_id}",
+                "units": "Percent" if series_id in {"AAA", "BAA"} else "Index",
+                "frequency": frequency,
+                "seasonal_adjustment": "unknown",
+                "geographic_scope": "United States",
+                "source_url_without_secret": f"https://fred.stlouisfed.org/series/{series_id}",
+                "source_identity_status": "verified",
+                "updated_at_utc": "2026-07-10T00:00:00Z",
+            },
+        )
+        artifact_rows.append(
+            {
+                "artifact_id": artifact_id,
+                "source_family": "FRED/ALFRED",
+                "source_url_without_secret": f"https://fred.stlouisfed.org/series/{series_id}",
+                "source_series_or_release_id": series_id,
+                "fetched_at_utc": "2026-07-10T00:00:00Z",
+                "content_hash": f"hash-{series_id}",
+                "adapter_id": "fred_revised_csv_phase110",
+                "parser_version": "1.0",
+                "validation_status": "validated",
+            },
+        )
+        base = 4 if series_id == "AAA" else 6 if series_id == "BAA" else 100 + index
+        for offset, observation_date in enumerate(
+            ("2025-01-01", "2025-08-01", "2026-01-01", "2026-07-01"),
+        ):
+            observation_rows.append(
+                {
+                    "series_key": series_id,
+                    "observation_date": observation_date,
+                    "value_numeric": str(base + offset),
+                    "value_text": None,
+                    "unit": "Percent" if series_id in {"AAA", "BAA"} else "Index",
+                    "data_mode": "revised",
+                    "source_artifact_id": artifact_id,
+                    "provenance_hash": f"provenance-{series_id}-{offset}",
+                },
+            )
+    return {
+        "transaction_read_only": "on",
+        "database_latest_observation_date": "2026-07-04",
+        "series_registry_rows": series_rows,
+        "source_artifact_rows": artifact_rows,
+        "observation_rows": observation_rows,
+        "observation_revised_total_count": 22131,
+        "observation_vintage_total_count": 0,
+    }
+
+
+def test_phase111_live_postgres_dashboard_contract_and_read_only_executor() -> None:
+    summary = summarize_nas_live_postgres_dashboard_contract()
+    executor = PsqlReadOnlyExecutor(
+        "postgresql://business_cycle_app:private-value@macro_postgres:5432/business_cycle",
+    )
+
+    assert summary["result"] == "passed"
+    assert summary["nas_live_postgres_dashboard_contract_ready"] is True
+    assert summary["role_count"] == 39
+    assert summary["derived_display_role_count"] == 4
+    assert "default_transaction_read_only=on" in executor.environment["PGOPTIONS"]
+    assert executor.environment["PGPASSWORD"] == "private-value"
+    assert "private-value" not in executor.executable
+    with pytest.raises(ValueError, match="SELECT/WITH"):
+        executor.query_json("DELETE FROM macro.observation_revised")
+
+
+def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage() -> None:
+    executor = _FakeDashboardReadExecutor()
+    snapshot = build_nas_live_postgres_dashboard_snapshot(
+        executor=executor,
+        snapshot_as_of="2026-07-10",
+    )
+    roles = {row["role_id"]: row for row in snapshot["role_snapshots"]}
+    spread = roles["recession_credit_financial_confirmation"]
+
+    assert executor.queries == [DASHBOARD_READ_SQL]
+    assert snapshot["role_snapshot_count"] == 39
+    assert snapshot["role_with_revised_snapshot_count"] == 37
+    assert snapshot["role_without_revised_snapshot_count"] == 2
+    assert snapshot["chart_available_role_count"] == 37
+    assert snapshot["series_snapshot_count"] == 26
+    assert snapshot["source_artifact_snapshot_count"] == 26
+    assert snapshot["observation_revised_total_count"] == 22131
+    assert snapshot["observation_vintage_row_count"] == 0
+    assert snapshot["trust_metadata"]["transaction_read_only"] is True
+    assert spread["latest_revised_observations"][0]["value_numeric"] == "2"
+    assert spread["source_lineage"][0]["component_series_ids"] == ["BAA", "AAA"]
+    assert spread["chart_payload_detail"]["chart_available"] is True
+    assert roles["boom_consumer_confidence"]["snapshot_status"] == "blocked"
+    assert roles["growth_adp_employment"]["snapshot_status"] == "blocked"
+
+
+def test_phase111_live_runtime_renders_private_chinese_chart_surface() -> None:
+    runtime = build_nas_live_dashboard_runtime(
+        executor=_FakeDashboardReadExecutor(),
+        snapshot_as_of="2026-07-10",
+    )
+    bundle = runtime["dashboard_bundle"]
+    html = next(
+        page["html"] for page in bundle["html_pages"] if page["path"] == "/indicators"
+    )
+    status = bundle["api_payloads"]["service_status"]
+
+    assert runtime["result"] == "passed"
+    assert runtime["nas_live_postgres_dashboard_runtime_ready"] is True
+    assert runtime["live_data_role_count"] == 37
+    assert runtime["chart_available_role_count"] == 37
+    assert status["dashboard_data_source"] == "live_postgres_read_only"
+    assert status["live_db_connected"] is True
+    assert html.count("<details>") == 37
+    assert "查看今年／過去 1 年／過去 5 年走勢" in html
+    assert "初領失業救濟金 U 型走勢" in html
+    assert "目前數值使用 revised diagnostic snapshot" in html
+    assert runtime["candidate_phase_emitted"] is False
+    assert runtime["current_phase_emitted"] is False
+
+
+def test_phase111_live_postgres_dashboard_closure_passes() -> None:
+    summary = summarize_phase111_nas_live_postgres_dashboard_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["live_deployment_accepted"] is True
+    assert summary["app_container_healthy"] is True
+    assert summary["live_db_connected"] is True
+    assert summary["transaction_read_only_enforced"] is True
+    assert summary["role_count"] == 39
+    assert summary["live_data_role_count"] == 37
+    assert summary["source_blocked_role_count"] == 2
+    assert summary["chart_available_role_count"] == 37
+    assert summary["live_html_trend_details_count"] == 37
+    assert summary["traditional_chinese_role_label_count"] == 39
+    assert summary["observation_revised_row_count"] == 22131
+    assert summary["observation_vintage_row_count"] == 0
+    assert summary["production_behavior_change_count"] == 0
+
+
+def test_show_phase111_live_postgres_dashboard_closure_script() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase111_nas_live_postgres_dashboard_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "phase111_closure_ready=true" in completed.stdout
+    assert "live_db_connected=true" in completed.stdout
+    assert "role_count=39" in completed.stdout
+    assert "phase111_closure_status=" in completed.stdout
+    assert "result=passed" in completed.stdout

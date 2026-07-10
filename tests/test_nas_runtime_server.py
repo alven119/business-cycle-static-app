@@ -22,6 +22,21 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
     assert ready.status_code == 200
     assert "route_count" in ready.body
 
+    live_ready = build_runtime_response(
+        path="/readyz",
+        shell={
+            "route_count": 5,
+            "trust_metadata": {
+                "dashboard_data_source": "live_postgres_read_only",
+                "live_db_connected": True,
+                "snapshot_as_of": "2026-07-10",
+                "database_latest_observation_date": "2026-07-04",
+            },
+        },
+    )
+    assert '"live_db_connected": true' in live_ready.body
+    assert '"dashboard_data_source": "live_postgres_read_only"' in live_ready.body
+
 
 def test_runtime_protected_routes_require_secret() -> None:
     missing_secret = build_runtime_response(path="/", session_secret="")
@@ -107,9 +122,27 @@ def test_runtime_main_prebuilds_dashboard_shell_once(
 
     monkeypatch.setattr(nas_runtime_server, "build_nas_app_shell", lambda: shell)
     monkeypatch.setattr(nas_runtime_server, "ThreadingHTTPServer", FakeServer)
+    monkeypatch.delenv("BUSINESS_CYCLE_DATABASE_URL", raising=False)
 
     assert nas_runtime_server.main([]) == 0
     assert events == ["served", "closed"]
+
+
+def test_runtime_uses_live_postgres_when_database_is_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    shell = {"route_count": 5, "trust_metadata": {"live_db_connected": True}}
+    monkeypatch.setenv(
+        "BUSINESS_CYCLE_DATABASE_URL",
+        "postgresql://app:secret@macro_postgres:5432/business_cycle",
+    )
+    monkeypatch.setattr(
+        nas_runtime_server,
+        "build_nas_live_dashboard_runtime",
+        lambda: {"nas_app_shell": shell},
+    )
+
+    assert nas_runtime_server._build_startup_shell() is shell  # noqa: SLF001
 
 
 def test_runtime_secure_cookie_and_security_headers_follow_https_gate(

@@ -217,8 +217,13 @@ Estimated deployment sequence:
   tables, 26 official source-series registry rows, 26 checksummed source
   artifacts, and 22,131 revised observations spanning 1919-01-01 through
   2026-07-04. The import is resumable and idempotent. `observation_vintage`
-  remains empty, the dashboard still uses its bundled snapshot, and no revised
-  row may be described as point-in-time evidence.
+  remains empty, and no revised row may be described as point-in-time evidence.
+- Phase 111: replace the active private NAS dashboard's bundled indicator values
+  with a server-side, read-only Postgres materialization. The dashboard now
+  exposes 37 available book-core role values, two explicit source-blocked roles,
+  source lineage, freshness, and expandable YTD/1Y/5Y revised charts. A
+  configured database failure blocks startup instead of silently falling back
+  to fixtures. This read surface does not infer a current or candidate phase.
 
 ## GitHub Pages Retirement
 
@@ -250,8 +255,7 @@ Backups must cover:
 
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
-  Phase 98 lifecycle rehearsal.
 - Data refresh worker.
+- Dedicated least-privilege dashboard database role and credential rotation.
 - Executed vintage/PIT backfill into `observation_vintage`.
-- Dashboard live Postgres read path and YTD/1Y/5Y query integration.
+- Backup restore rehearsal for Postgres and source artifacts.

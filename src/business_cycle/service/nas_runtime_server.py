@@ -26,6 +26,7 @@ from business_cycle.service.nas_app_shell import (
     build_nas_app_shell,
     dispatch_nas_app_request,
 )
+from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
 
 DEFAULT_SESSION_HEADER = "X-Business-Cycle-Session"
 SESSION_COOKIE_NAME = "business_cycle_private_session"
@@ -154,11 +155,21 @@ def build_runtime_response(
         )
     if normalized_path == "/readyz":
         shell = shell or build_nas_app_shell()
+        trust = shell.get("trust_metadata", {})
         return _json_response(
             200,
             {
                 "status": "ready",
                 "route_count": shell["route_count"],
+                "dashboard_data_source": trust.get(
+                    "dashboard_data_source",
+                    "bundled_rehearsal_snapshot",
+                ),
+                "live_db_connected": bool(trust.get("live_db_connected", False)),
+                "snapshot_as_of": trust.get("snapshot_as_of"),
+                "database_latest_observation_date": trust.get(
+                    "database_latest_observation_date",
+                ),
                 "research_only": True,
                 "public_exposure": False,
             },
@@ -224,7 +235,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # The governed dashboard bundle is deterministic but relatively expensive to
     # assemble on the NAS. Build it once so browser requests only dispatch routes.
-    shell = build_nas_app_shell()
+    shell = _build_startup_shell()
     server = ThreadingHTTPServer((args.host, args.port), _RuntimeHandler)
     server.nas_app_shell = shell  # type: ignore[attr-defined]
     server.login_attempt_limiter = LoginAttemptLimiter.from_environment()  # type: ignore[attr-defined]
@@ -237,8 +248,16 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def _build_startup_shell() -> dict[str, Any]:
+    """Use live Postgres when configured; never silently hide a configured failure."""
+
+    if os.environ.get("BUSINESS_CYCLE_DATABASE_URL"):
+        return build_nas_live_dashboard_runtime()["nas_app_shell"]
+    return build_nas_app_shell()
+
+
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase107"
+    server_version = "BusinessCycleNAS/phase111"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

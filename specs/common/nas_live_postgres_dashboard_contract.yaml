@@ -1,0 +1,102 @@
+nas_live_postgres_dashboard_contract:
+  version: "1.0"
+  status: active_private_nas_runtime_contract
+  phase_id: 111
+  phase_label: nas_dashboard_live_postgres_read_path
+  depends_on:
+    - specs/common/nas_postgres_live_revised_import_contract.yaml
+    - specs/common/nas_service_dashboard_contract.yaml
+    - specs/common/book_core_role_display_labels_zh.yaml
+    - specs/common/postgres_macro_warehouse_contract.yaml
+  database_read_policy:
+    database_url_env: BUSINESS_CYCLE_DATABASE_URL
+    psql_client_required: true
+    transaction_read_only_required: true
+    pgoptions_default_transaction_read_only_required: true
+    statement_timeout_milliseconds: 15000
+    frontend_database_access_allowed: false
+    postgres_write_allowed: false
+    schema_migration_allowed: false
+    live_fetch_allowed: false
+    silent_fixture_fallback_when_database_configured: false
+  data_policy:
+    data_mode: revised_diagnostic
+    source_table: macro.observation_revised
+    vintage_table_read_count: 0
+    chart_history_years: 5
+    chart_periods:
+      - {period_id: ytd, label_zh: 今年以來}
+      - {period_id: trailing_1y, label_zh: 過去 1 年}
+      - {period_id: trailing_5y, label_zh: 過去 5 年}
+    max_rendered_svg_points: 240
+    missing_value_treated_as_neutral: false
+    unavailable_chart_treated_as_zero: false
+    revised_may_not_be_labeled_point_in_time: true
+    revised_may_not_emit_phase_evidence_by_itself: true
+  freshness_windows_days:
+    daily: 10
+    weekly: 21
+    monthly: 75
+    quarterly: 180
+    annual: 550
+  derived_display_series:
+    credit_spread_baa_aaa:
+      component_series_ids: [BAA, AAA]
+      operation: subtract_second_from_first
+      unit: percentage_points
+      phase_support_allowed: false
+    initial_jobless_claims_peak_reversal:
+      component_series_ids: [ICSA]
+      operation: passthrough_observation_context
+      unit: persons
+      phase_support_allowed: false
+    short_term_unemployment_peak_reversal:
+      component_series_ids: [UEMPLT5]
+      operation: passthrough_observation_context
+      unit: thousands_of_persons
+      phase_support_allowed: false
+    industrial_production_bottoming:
+      component_series_ids: [INDPRO]
+      operation: passthrough_observation_context
+      unit: index
+      phase_support_allowed: false
+  allowed_uses:
+    - private_nas_live_revised_dashboard
+    - latest_observation_display
+    - ytd_1y_5y_indicator_chart
+    - source_lineage_and_freshness_review
+  prohibited_uses:
+    - point_in_time_claim
+    - formal_current_phase_inference
+    - standalone_current_phase_classifier
+    - candidate_phase_selection
+    - phase_score_or_rank_selection
+    - personalized_portfolio_instruction
+    - trade_action
+    - public_output
+  hard_gates:
+    nas_live_postgres_dashboard_contract_ready: true
+    postgres_read_only_executor_ready: true
+    live_snapshot_materializer_ready: true
+    live_runtime_wiring_ready: true
+    role_count: 39
+    source_blocked_role_count: 2
+    derived_display_role_count: 4
+    chart_period_count: 3
+    transaction_read_only_enforced: true
+    silent_fixture_fallback_count: 0
+    postgres_write_attempt_count: 0
+    schema_migration_attempt_count: 0
+    live_fetch_attempt_count: 0
+    observation_vintage_read_count: 0
+    revised_mislabeled_as_pit_count: 0
+    missing_value_treated_as_neutral_count: 0
+    unavailable_chart_treated_as_zero_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    role_count_voting_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 112

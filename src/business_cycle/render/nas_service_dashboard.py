@@ -24,6 +24,7 @@ DEFAULT_ROLE_LABELS_PATH = (
     ROOT / "specs/common/book_core_role_display_labels_zh.yaml"
 )
 TMP_ROOT = Path("/tmp")
+MAX_RENDERED_SVG_POINTS = 240
 
 PROHIBITED_FIELDS = {
     "current_phase",
@@ -53,6 +54,7 @@ def build_nas_service_dashboard_bundle(
     *,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
     snapshot_manifest: dict[str, Any] | None = None,
+    runtime_live_mode: bool = False,
 ) -> dict[str, Any]:
     """Build route, API, and HTML view-models without starting a service."""
 
@@ -66,21 +68,27 @@ def build_nas_service_dashboard_bundle(
         contract=contract,
         routes=routes,
         role_labels=role_labels,
+        runtime_live_mode=runtime_live_mode,
     )
     html_pages = _html_pages(
         snapshot=snapshot,
         contract=contract,
         routes=routes,
         role_labels=role_labels,
+        runtime_live_mode=runtime_live_mode,
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "95",
-        "phase_id": 95,
+        "phase": "111" if runtime_live_mode else "95",
+        "phase_id": 111 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": "phase95_nas_service_dashboard_renderer",
         "artifact_version": contract["version"],
-        "output_mode": "research_only_private_nas_dashboard_rehearsal",
+        "output_mode": (
+            "research_only_private_nas_live_postgres_dashboard"
+            if runtime_live_mode
+            else "research_only_private_nas_dashboard_rehearsal"
+        ),
         "service_target": contract["service_scope"]["target_runtime"],
         "research_only": True,
         "snapshot_manifest_hash": snapshot["snapshot_manifest_hash"],
@@ -123,7 +131,7 @@ def build_nas_service_dashboard_bundle(
         "frontend_database_access_allowed": False,
         "frontend_api_key_allowed": False,
         "live_server_start_attempt_count": 0,
-        "live_db_connection_attempt_count": 0,
+        "live_db_connection_attempt_count": 1 if runtime_live_mode else 0,
         "postgres_write_attempt_count": 0,
         "live_fetch_attempt_count": 0,
         "repo_output_written_count": 0,
@@ -150,7 +158,11 @@ def build_nas_service_dashboard_bundle(
             ],
         },
     )
-    bundle["nas_service_dashboard_ready"] = _passes(bundle, contract["hard_gates"])
+    bundle["nas_service_dashboard_ready"] = (
+        _live_runtime_bundle_ready(bundle)
+        if runtime_live_mode
+        else _passes(bundle, contract["hard_gates"])
+    )
     bundle["result"] = "passed" if bundle["nas_service_dashboard_ready"] else "blocked"
     return bundle
 
@@ -325,6 +337,7 @@ def _api_payloads(
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
     role_labels: dict[str, str],
+    runtime_live_mode: bool,
 ) -> dict[str, Any]:
     roles = [
         _role_api_row(row, display_name_zh=role_labels[row["role_id"]])
@@ -336,7 +349,11 @@ def _api_payloads(
             "path": "/api/indicator-snapshot.json",
             "output_mode": "research_only_private_nas_api",
             "snapshot_manifest_hash": snapshot["snapshot_manifest_hash"],
-            "data_mode": "revised_diagnostic_with_pit_availability_accounting",
+            "data_mode": (
+                "live_postgres_revised_diagnostic"
+                if runtime_live_mode
+                else "revised_diagnostic_with_pit_availability_accounting"
+            ),
             "role_count": len(roles),
             "roles": roles,
             "allowed_uses": contract["allowed_uses"],
@@ -348,7 +365,17 @@ def _api_payloads(
             "path": "/api/service-status.json",
             "service_target": contract["service_scope"]["target_runtime"],
             "route_count": len(routes),
-            "live_db_connection_attempted": False,
+            "live_db_connection_attempted": runtime_live_mode,
+            "live_db_connected": runtime_live_mode,
+            "dashboard_data_source": (
+                "live_postgres_read_only"
+                if runtime_live_mode
+                else "bundled_rehearsal_snapshot"
+            ),
+            "snapshot_as_of": snapshot.get("snapshot_as_of"),
+            "database_latest_observation_date": snapshot.get(
+                "database_latest_observation_date",
+            ),
             "postgres_write_attempted": False,
             "live_fetch_attempted": False,
             "frontend_database_access_allowed": False,
@@ -370,6 +397,11 @@ def _api_payloads(
                     "major_group_id": row["major_group_id"],
                     "snapshot_status": row["snapshot_status"],
                     "pit_backfill_status": row["pit_backfill_status"],
+                    "freshness_status": row.get("freshness_status", "unavailable"),
+                    "chart_available": row.get("chart_payload_detail", {}).get(
+                        "chart_available",
+                        False,
+                    ),
                     "detail_anchor": f"#role-{row['role_id']}",
                 }
                 for row in roles
@@ -385,6 +417,9 @@ def _role_api_row(
 ) -> dict[str, Any]:
     latest = row["latest_revised_observations"]
     latest_display = latest[0] if latest else {}
+    latest_value = latest_display.get("value_numeric")
+    if latest_value is None:
+        latest_value = latest_display.get("value_text")
     return {
         "role_id": row["role_id"],
         "display_name_zh": display_name_zh,
@@ -395,7 +430,13 @@ def _role_api_row(
         "data_mode": row["data_mode"],
         "latest_revised_observation_count": len(latest),
         "latest_observation_date": latest_display.get("observation_date"),
+        "latest_value": latest_value,
         "latest_value_text": latest_display.get("value_text"),
+        "latest_unit": latest_display.get("unit"),
+        "freshness_status": row.get("freshness_status", "unavailable"),
+        "source_mode": row.get("source_mode", "bundled_rehearsal_snapshot"),
+        "source_lineage": row.get("source_lineage", []),
+        "chart_payload_detail": row.get("chart_payload_detail", {}),
         "pit_backfill_status": row["pit_backfill_status"],
         "blocked_reason_codes": row["blocked_reason_codes"],
         "strict_point_in_time_result": False,
@@ -410,6 +451,7 @@ def _html_pages(
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
     role_labels: dict[str, str],
+    runtime_live_mode: bool,
 ) -> list[dict[str, Any]]:
     return [
         {
@@ -421,6 +463,7 @@ def _html_pages(
                 contract=contract,
                 routes=routes,
                 role_labels=role_labels,
+                runtime_live_mode=runtime_live_mode,
             ),
         },
         {
@@ -431,6 +474,7 @@ def _html_pages(
                 snapshot=snapshot,
                 contract=contract,
                 role_labels=role_labels,
+                runtime_live_mode=runtime_live_mode,
             ),
         },
     ]
@@ -442,6 +486,7 @@ def _overview_html(
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
     role_labels: dict[str, str],
+    runtime_live_mode: bool,
 ) -> str:
     samples = "\n".join(
         _role_sample(row, display_name_zh=role_labels[row["role_id"]])
@@ -459,10 +504,9 @@ def _overview_html(
         title="NAS 私有研究儀表板",
         body=f"""
         <section class="hero">
-          <p class="eyebrow">Phase95 / private NAS dynamic service rehearsal</p>
-          <h1>NAS 私有研究儀表板資料路由</h1>
-          <p>此頁使用 Phase94 指標快照建立 server-side HTML 與 JSON API rehearsal。
-          它是研究用 revised diagnostic surface，不是正式目前景氣判斷，也不是投資建議。</p>
+          <p class="eyebrow">{escape(_dashboard_eyebrow(runtime_live_mode))}</p>
+          <h1>{escape(_dashboard_heading(runtime_live_mode))}</h1>
+          <p>{escape(_dashboard_intro(runtime_live_mode))}</p>
         </section>
         <section class="summary-grid">
           <article><strong>{snapshot['role_snapshot_count']}</strong><span>指標角色快照</span></article>
@@ -492,6 +536,7 @@ def _indicator_index_html(
     snapshot: dict[str, Any],
     contract: dict[str, Any],
     role_labels: dict[str, str],
+    runtime_live_mode: bool,
 ) -> str:
     cards = "\n".join(
         _role_card(row, display_name_zh=role_labels[row["role_id"]])
@@ -504,9 +549,10 @@ def _indicator_index_html(
         title="指標總覽",
         body=f"""
         <section class="hero">
-          <p class="eyebrow">research-only / revised diagnostic</p>
+          <p class="eyebrow">research-only / {escape(_dashboard_data_source_label(runtime_live_mode))}</p>
           <h1>總經指標快照</h1>
-          <p>每個卡片顯示 role、major group、latest revised context、PIT 補齊狀態與資料缺口。
+          <p>每個卡片顯示繁中名稱、最新 revised 數值、資料新鮮度、來源血緣、
+          PIT 補齊狀態與資料缺口。可展開查看今年以來、過去 1 年與過去 5 年走勢；
           blocked 不會被當作 neutral，也不會被補零。</p>
         </section>
         <section>
@@ -523,8 +569,13 @@ def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
     latest = row["latest_revised_observations"]
     latest_display = latest[0] if latest else {}
     observation_date = latest_display.get("observation_date") or "尚無數值"
-    value_text = latest_display.get("value_text") or "unavailable"
+    value_text = latest_display.get("value_numeric")
+    if value_text is None:
+        value_text = latest_display.get("value_text") or "unavailable"
+    unit = latest_display.get("unit") or "未提供"
     blocked = ", ".join(row["blocked_reason_codes"]) or "none"
+    freshness = _freshness_label_zh(row.get("freshness_status", "unavailable"))
+    chart_html = _chart_details_html(row.get("chart_payload_detail", {}))
     return f"""
     <article id="role-{escape(row['role_id'])}" class="role-card"
       data-role-card="true" data-snapshot-status="{escape(status)}">
@@ -535,9 +586,12 @@ def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
         <dt>快照狀態</dt><dd>{escape(status)}</dd>
         <dt>最新 revised 日期</dt><dd>{escape(str(observation_date))}</dd>
         <dt>最新 revised 值</dt><dd>{escape(str(value_text))}</dd>
+        <dt>單位</dt><dd>{escape(str(unit))}</dd>
+        <dt>資料新鮮度</dt><dd>{escape(freshness)}</dd>
         <dt>PIT 補齊</dt><dd>{escape(row['pit_backfill_status'])}</dd>
         <dt>缺口</dt><dd>{escape(blocked)}</dd>
       </dl>
+      {chart_html}
     </article>
     """
 
@@ -547,6 +601,119 @@ def _role_sample(row: dict[str, Any], *, display_name_zh: str) -> str:
         f"<li><a href=\"/indicators#role-{escape(row['role_id'])}\">"
         f"{escape(display_name_zh)}</a> - {escape(row['snapshot_status'])}</li>"
     )
+
+
+def _dashboard_eyebrow(runtime_live_mode: bool) -> str:
+    if runtime_live_mode:
+        return "私人 NAS / PostgreSQL revised research data"
+    return "Phase95 / private NAS dynamic service rehearsal"
+
+
+def _dashboard_heading(runtime_live_mode: bool) -> str:
+    if runtime_live_mode:
+        return "景氣循環私人研究儀表板"
+    return "NAS 私有研究儀表板資料路由"
+
+
+def _dashboard_intro(runtime_live_mode: bool) -> str:
+    if runtime_live_mode:
+        return (
+            "此頁由 NAS PostgreSQL 以唯讀模式提供最新 revised 歷史資料。"
+            "它是研究用 diagnostic surface，不是正式目前景氣判斷，也不是投資建議。"
+        )
+    return (
+        "此頁使用 Phase94 指標快照建立 server-side HTML 與 JSON API rehearsal。"
+        "它是研究用 revised diagnostic surface，不是正式目前景氣判斷，也不是投資建議。"
+    )
+
+
+def _dashboard_data_source_label(runtime_live_mode: bool) -> str:
+    return "PostgreSQL revised diagnostic" if runtime_live_mode else "revised diagnostic"
+
+
+def _freshness_label_zh(status: str) -> str:
+    return {
+        "fresh": "在新鮮度期限內",
+        "stale": "已超過新鮮度期限",
+        "mixed": "部分序列已過期或頻率不同",
+        "unknown_frequency": "頻率未識別，無法判定",
+        "unavailable": "無可用資料",
+    }.get(status, status)
+
+
+def _chart_details_html(chart: dict[str, Any]) -> str:
+    series_charts = list(chart.get("series_charts", []))
+    if not chart.get("chart_available") or not series_charts:
+        return "<p class=\"chart-meta\">目前沒有可繪製的 revised 歷史數值。</p>"
+    panels = "".join(
+        _chart_period_panel(series, period)
+        for series in series_charts
+        for period in series.get("periods", [])
+    )
+    return (
+        "<details><summary>查看今年／過去 1 年／過去 5 年走勢</summary>"
+        f"<div class=\"chart-grid\">{panels}</div></details>"
+    )
+
+
+def _chart_period_panel(series: dict[str, Any], period: dict[str, Any]) -> str:
+    title = f"{series.get('series_id', 'series')} · {period.get('label', '')}"
+    points = list(period.get("points", []))
+    if period.get("chart_status") != "available" or not points:
+        return (
+            "<section class=\"chart-panel\">"
+            f"<h4>{escape(title)}</h4>"
+            "<p class=\"chart-meta\">此期間沒有可用數值。</p>"
+            "</section>"
+        )
+    svg, rendered_count = _sparkline_svg(points)
+    first = points[0]
+    last = points[-1]
+    return (
+        "<section class=\"chart-panel\">"
+        f"<h4>{escape(title)}</h4>{svg}"
+        f"<p class=\"chart-meta\">{escape(str(first['date']))}："
+        f"{escape(str(first['value']))} → {escape(str(last['date']))}："
+        f"{escape(str(last['value']))}；資料點 {len(points)}，繪圖點 {rendered_count}</p>"
+        "</section>"
+    )
+
+
+def _sparkline_svg(points: list[dict[str, Any]]) -> tuple[str, int]:
+    rendered = _downsample_points(points, MAX_RENDERED_SVG_POINTS)
+    values = [float(point["value"]) for point in rendered]
+    minimum = min(values)
+    maximum = max(values)
+    span = maximum - minimum
+    width = 300.0
+    height = 80.0
+    padding = 5.0
+    coordinates: list[str] = []
+    for index, value in enumerate(values):
+        x = padding if len(values) == 1 else padding + (width - 2 * padding) * index / (len(values) - 1)
+        normalized = 0.5 if span == 0 else (value - minimum) / span
+        y = height - padding - (height - 2 * padding) * normalized
+        coordinates.append(f"{x:.2f},{y:.2f}")
+    svg = (
+        '<svg viewBox="0 0 300 80" role="img" aria-label="指標歷史走勢">'
+        '<line class="chart-axis" x1="5" y1="75" x2="295" y2="75"></line>'
+        f'<polyline class="chart-line" points="{" ".join(coordinates)}"></polyline>'
+        "</svg>"
+    )
+    return svg, len(rendered)
+
+
+def _downsample_points(
+    points: list[dict[str, Any]],
+    limit: int,
+) -> list[dict[str, Any]]:
+    if len(points) <= limit:
+        return points
+    indexes = {
+        round(index * (len(points) - 1) / (limit - 1))
+        for index in range(limit)
+    }
+    return [points[index] for index in sorted(indexes)]
 
 
 def _html_document(*, title: str, body: str) -> str:
@@ -568,10 +735,22 @@ def _html_document(*, title: str, body: str) -> str:
     .summary-grid strong {{ display: block; font-size: 1.8rem; }}
     .summary-grid span, .meta, .technical-id, dt {{ color: #5b6674; }}
     .technical-id {{ margin: -2px 0 8px; font-size: 0.82rem; }}
+    details {{ margin-top: 12px; border-top: 1px solid #e1e5ea; padding-top: 10px; }}
+    summary {{ color: #0b5cab; cursor: pointer; font-weight: 650; }}
+    .chart-grid {{ display: grid; gap: 10px; margin-top: 10px; }}
+    .chart-panel {{ border: 1px solid #e1e5ea; border-radius: 6px; padding: 8px; }}
+    .chart-panel h4 {{ margin: 0 0 6px; font-size: 0.88rem; }}
+    .chart-panel svg {{ display: block; width: 100%; height: 92px; }}
+    .chart-axis {{ stroke: #c6cdd5; stroke-width: 1; }}
+    .chart-line {{ fill: none; stroke: #0b5cab; stroke-width: 2; vector-effect: non-scaling-stroke; }}
+    .chart-meta {{ color: #5b6674; font-size: 0.78rem; margin: 4px 0 0; }}
     dl {{ display: grid; grid-template-columns: minmax(92px, auto) 1fr; gap: 6px 10px; margin: 0; }}
     dd {{ margin: 0; overflow-wrap: anywhere; }}
     code {{ background: #e9edf2; border-radius: 4px; padding: 2px 4px; }}
     a {{ color: #0b5cab; }}
+    @media (min-width: 720px) {{
+      .chart-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+    }}
   </style>
 </head>
 <body>
@@ -621,11 +800,13 @@ def _validate_role_label_coverage(
 
 
 def _api_payloads_ready(api_payloads: dict[str, Any], snapshot: dict[str, Any]) -> bool:
+    expected_live_db = bool(snapshot["trust_metadata"].get("live_db_connected"))
     return (
         len(api_payloads) == 3
         and api_payloads["indicator_snapshot"]["role_count"]
         == snapshot["role_snapshot_count"]
-        and api_payloads["service_status"]["live_db_connection_attempted"] is False
+        and api_payloads["service_status"]["live_db_connection_attempted"]
+        is expected_live_db
         and api_payloads["service_status"]["postgres_write_attempted"] is False
         and api_payloads["service_status"]["live_fetch_attempted"] is False
         and api_payloads["service_status"]["frontend_database_access_allowed"] is False
@@ -647,9 +828,14 @@ def _html_pages_ready(html_pages: list[dict[str, Any]], snapshot: dict[str, Any]
 
 
 def _trust_metadata(contract: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, Any]:
+    live_db_connected = bool(snapshot["trust_metadata"].get("live_db_connected"))
     return {
         "service_target": contract["service_scope"]["target_runtime"],
-        "nas_migration_surface": "route_api_html_renderer_rehearsal",
+        "nas_migration_surface": (
+            "live_postgres_route_api_html_renderer"
+            if live_db_connected
+            else "route_api_html_renderer_rehearsal"
+        ),
         "source_snapshot_artifact_id": snapshot["artifact_id"],
         "source_snapshot_hash": snapshot["snapshot_manifest_hash"],
         "research_only": True,
@@ -658,12 +844,29 @@ def _trust_metadata(contract: dict[str, Any], snapshot: dict[str, Any]) -> dict[
         "strict_point_in_time_result": False,
         "frontend_database_access_allowed": False,
         "frontend_api_key_allowed": False,
-        "live_db_connection_attempted": False,
+        "live_db_connection_attempted": live_db_connected,
+        "live_db_connected": live_db_connected,
         "postgres_write_attempted": False,
         "live_fetch_attempted": False,
         "candidate_phase_selection_enabled": False,
         "current_phase_inference_enabled": False,
     }
+
+
+def _live_runtime_bundle_ready(bundle: dict[str, Any]) -> bool:
+    return (
+        bundle["nas_service_dashboard_contract_ready"] is True
+        and bundle["nas_service_route_manifest_ready"] is True
+        and bundle["nas_service_api_payload_ready"] is True
+        and bundle["nas_service_html_renderer_ready"] is True
+        and bundle["role_card_count"] == 39
+        and bundle["traditional_chinese_role_label_count"] == 39
+        and bundle["live_db_connection_attempt_count"] == 1
+        and bundle["postgres_write_attempt_count"] == 0
+        and bundle["candidate_phase_emitted"] is False
+        and bundle["current_phase_emitted"] is False
+        and bundle["prohibited_output_field_count"] == 0
+    )
 
 
 def _mobile_trust_caveats() -> list[str]:
