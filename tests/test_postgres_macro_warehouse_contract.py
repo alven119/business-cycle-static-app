@@ -454,6 +454,13 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface() -> None:
     assert status["live_db_connected"] is True
     assert html.count("<details>") == 37
     assert "查看今年／過去 1 年／過去 5 年走勢" in html
+    assert 'class="interactive-chart"' in html
+    assert "data-chart-points=" in html
+    assert 'class="chart-tooltip"' in html
+    assert "日期與數值" in html
+    assert "pointermove" in html
+    assert "ArrowLeft" in html
+    assert "2026-07-01" in html
     assert "初領失業救濟金 U 型走勢" in html
     assert "目前數值使用 revised diagnostic snapshot" in html
     assert runtime["candidate_phase_emitted"] is False
@@ -468,6 +475,7 @@ def test_phase111_live_postgres_dashboard_closure_passes() -> None:
     assert summary["app_container_healthy"] is True
     assert summary["live_db_connected"] is True
     assert summary["transaction_read_only_enforced"] is True
+    assert summary["interactive_chart_tooltip_ready"] is True
     assert summary["role_count"] == 39
     assert summary["live_data_role_count"] == 37
     assert summary["source_blocked_role_count"] == 2

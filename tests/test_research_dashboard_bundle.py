@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from functools import lru_cache
+
+import pytest
+
+import business_cycle.render.research_dashboard_bundle as dashboard_bundle_module
 from business_cycle.render.research_dashboard_bundle import (
     build_research_dashboard_bundle,
     summarize_research_dashboard_bundle,
@@ -53,6 +58,22 @@ from business_cycle.render.portfolio_policy_replay_research_surface import (
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
+
+
+@pytest.fixture(scope="module", autouse=True)
+def cache_dashboard_base_dependencies() -> None:
+    """Keep every assertion while avoiding repeated immutable governance builds."""
+
+    patcher = pytest.MonkeyPatch()
+    for name in (
+        "build_post_pit_remediation_validation_rerun",
+        "summarize_recession_recovery_pit_gap_matrix",
+        "summarize_qa12_major_group_manual_start_closure",
+    ):
+        original = getattr(dashboard_bundle_module, name)
+        patcher.setattr(dashboard_bundle_module, name, lru_cache(maxsize=1)(original))
+    yield
+    patcher.undo()
 
 
 def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:

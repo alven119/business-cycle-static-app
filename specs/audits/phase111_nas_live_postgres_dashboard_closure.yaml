@@ -31,6 +31,7 @@ phase111_nas_live_postgres_dashboard_closure:
     postgres_read_only_executor_ready: true
     live_snapshot_materializer_ready: true
     live_runtime_wiring_ready: true
+    interactive_chart_tooltip_ready: true
     live_deployment_accepted: true
     app_container_healthy: true
     live_db_connected: true

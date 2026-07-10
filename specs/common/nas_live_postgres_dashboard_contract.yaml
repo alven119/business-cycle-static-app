@@ -1,5 +1,5 @@
 nas_live_postgres_dashboard_contract:
-  version: "1.0"
+  version: "1.1"
   status: active_private_nas_runtime_contract
   phase_id: 111
   phase_label: nas_dashboard_live_postgres_read_path
@@ -33,6 +33,13 @@ nas_live_postgres_dashboard_contract:
     unavailable_chart_treated_as_zero: false
     revised_may_not_be_labeled_point_in_time: true
     revised_may_not_emit_phase_evidence_by_itself: true
+  chart_interaction_policy:
+    hover_date_value_tooltip_required: true
+    touch_pointer_support_required: true
+    keyboard_arrow_navigation_required: true
+    crosshair_and_point_marker_required: true
+    external_chart_library_required: false
+    raw_value_mutation_allowed: false
   freshness_windows_days:
     daily: 10
     weekly: 21
@@ -83,6 +90,7 @@ nas_live_postgres_dashboard_contract:
     source_blocked_role_count: 2
     derived_display_role_count: 4
     chart_period_count: 3
+    interactive_chart_tooltip_ready: true
     transaction_read_only_enforced: true
     silent_fixture_fallback_count: 0
     postgres_write_attempt_count: 0

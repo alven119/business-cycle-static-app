@@ -49,6 +49,12 @@ phase_execution_standing_contract:
     no_candidate_current_phase_output_without_gate: true
     no_live_network_dependency_in_tests: true
   test_strategy:
+    inspect_test_suite_index_before_adding_tests: true
+    search_existing_similar_tests_first: true
+    extend_or_parameterize_existing_tests_first: true
+    new_test_file_requires_documented_capability_gap: true
+    expensive_deterministic_builders_use_scoped_fixtures: true
+    redundant_cli_smokes_belong_in_archive_or_nightly: true
     targeted_tests_during_implementation: true
     full_pytest_only_when_runtime_changes_or_required: true
     full_ruff_only_when_broad_python_changes_require_it: true
@@ -56,6 +62,11 @@ phase_execution_standing_contract:
     always_run_git_diff_check: true
     run_safety_scans_when_wording_or_output_policy_changes: true
     live_optional_tests_not_in_default_ci: true
+    phase_test_change_report_fields:
+      - test_file_count_before_after
+      - default_selected_test_count_before_after
+      - measured_default_pytest_duration_seconds
+      - expected_ci_runtime_impact
   final_report_fields:
     - product_doctrine_alignment_status
     - cycle_state_machine_alignment_status

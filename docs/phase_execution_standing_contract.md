@@ -79,6 +79,16 @@ and the local book PDF must never be committed.
 
 ## Universal Test Strategy
 
+- Before adding a test, run or inspect `scripts/show_test_suite_index.py` and
+  search existing tests for the same contract, renderer, CLI, or closure
+  behavior.
+- Extend, parameterize, or consolidate an existing test before creating a new
+  test file. A new file requires a documented product-capability coverage gap.
+- Reuse module/session-scoped fixtures for expensive deterministic builders.
+  Do not rebuild the same dashboard, closure, or fixture graph per assertion.
+- Keep one direct product-core integration path. Put redundant CLI
+  compatibility and historical acceptance smokes in archive/nightly instead of
+  default CI.
 - Use targeted tests while implementing.
 - Run full pytest only when runtime behavior changes or the final gate requires
   it.
@@ -89,6 +99,9 @@ and the local book PDF must never be committed.
 - Run safety scans when docs, scripts, output policy, or wording changes.
 - Live optional tests must be marked `live_optional` and must not run in
   default CI.
+- Every phase that changes tests must report test-file count before/after,
+  selected default test count before/after, measured default pytest duration,
+  and expected CI time impact.
 
 ## Universal Final Report Fields
 

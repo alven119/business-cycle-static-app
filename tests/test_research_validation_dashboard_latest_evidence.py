@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import subprocess
-import sys
+from pathlib import Path
+
+import pytest
 
 from business_cycle.render.indicator_dashboard_explanation_drilldown import (
     build_indicator_dashboard_explanation_drilldown_view_model,
@@ -23,7 +24,6 @@ from business_cycle.render.transition_timing_replay_preview import (
 )
 from business_cycle.render.local_current_cache_dashboard_bridge import (
     build_local_current_cache_dashboard_bridge_view_model,
-    seed_local_current_cache_rehearsal,
 )
 from business_cycle.render.portfolio_replay_dashboard_surface import (
     build_portfolio_replay_dashboard_surface_view_model,
@@ -42,19 +42,71 @@ from business_cycle.render.research_validation_dashboard import (
 )
 
 
-def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> None:
+@pytest.fixture(scope="module")
+def integrated_dashboard_render(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> dict[str, object]:
+    """Render the full product-core dashboard once for all surface assertions."""
+
+    output_dir = tmp_path_factory.mktemp("integrated-dashboard")
     drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    bundle = build_research_dashboard_bundle(
+    confirmation = build_declared_phase_start_confirmation_view_model()
+    update_gate = build_declared_phase_start_registry_update_gate_view_model()
+    coverage = build_current_macro_numeric_chart_coverage_view_model()
+    explanation = build_dashboard_decision_explanation_view_model()
+    refresh_ux = build_current_data_refresh_ux_view_model(
+        current_macro_numeric_chart_coverage=coverage,
         indicator_dashboard_explanation_drilldown=drilldown,
     )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+    preview = build_transition_timing_replay_preview_view_model()
+    accumulation = build_transition_risk_evidence_accumulation_view_model(
+        transition_timing_replay_preview=preview,
+    )
+    portfolio = build_portfolio_replay_dashboard_surface_view_model()
+    bundle = build_research_dashboard_bundle(
+        indicator_dashboard_explanation_drilldown=drilldown,
+        declared_phase_start_confirmation=confirmation,
+        declared_phase_start_registry_update_gate=update_gate,
+        current_macro_numeric_chart_coverage=coverage,
+        dashboard_decision_explanation=explanation,
+        current_data_refresh_ux=refresh_ux,
+        transition_timing_replay_preview=preview,
+        transition_risk_evidence_accumulation=accumulation,
+        portfolio_replay_dashboard_surface=portfolio,
+    )
+    result = build_research_validation_dashboard(output_dir=output_dir, bundle=bundle)
+    return {
+        "result": result,
+        "output_dir": output_dir,
+        "latest_html": (output_dir / "latest-evidence.html").read_text(
+            encoding="utf-8",
+        ),
+        "portfolio_html": (output_dir / "portfolio-replay.html").read_text(
+            encoding="utf-8",
+        ),
+    }
+
+
+def _rendered(
+    fixture: dict[str, object],
+) -> tuple[dict[str, object], str, Path]:
+    return (
+        fixture["result"],
+        fixture["latest_html"],
+        fixture["output_dir"],
+    )
+
+
+def test_latest_evidence_dashboard_view_renders_phase62_drilldown(
+    integrated_dashboard_render: dict[str, object],
+) -> None:
+    result, html, output_dir = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
     assert result["prohibited_claim_count"] == 0
     assert result["prohibited_action_field_count"] == 0
-    assert (tmp_path / "data" / "dashboard_bundle.json").is_file()
+    assert (output_dir / "data" / "dashboard_bundle.json").is_file()
     assert 'data-dashboard-view="indicator_dashboard_explanation_drilldown"' in html
     assert "最新證據與指標細節" in html
     assert "階段分數不是產品答案" in html
@@ -73,7 +125,7 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
     assert html.count("data-method-pseudo-code-detail") == 39
     assert html.count("data-method-directionality-detail") == 39
     assert html.count("data-indicator-chart-payload") == 39
-    assert html.count("data-indicator-trend-link") == 39
+    assert html.count("data-indicator-trend-link") == 78
     assert html.count("data-role-trend-shortcut") == 39
     assert html.count("data-indicator-trend-target") == 39
     assert html.count('data-chart-period="ytd"') == 39
@@ -91,16 +143,9 @@ def test_latest_evidence_dashboard_view_renders_phase62_drilldown(tmp_path) -> N
 
 
 def test_latest_evidence_dashboard_renders_phase69_start_confirmation(
-    tmp_path,
+    integrated_dashboard_render: dict[str, object],
 ) -> None:
-    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    confirmation = build_declared_phase_start_confirmation_view_model()
-    bundle = build_research_dashboard_bundle(
-        indicator_dashboard_explanation_drilldown=drilldown,
-        declared_phase_start_confirmation=confirmation,
-    )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+    result, html, _ = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
@@ -114,17 +159,10 @@ def test_latest_evidence_dashboard_renders_phase69_start_confirmation(
     assert "current_phase" not in html
 
 
-def test_latest_evidence_dashboard_renders_phase71_update_gate(tmp_path) -> None:
-    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    confirmation = build_declared_phase_start_confirmation_view_model()
-    update_gate = build_declared_phase_start_registry_update_gate_view_model()
-    bundle = build_research_dashboard_bundle(
-        indicator_dashboard_explanation_drilldown=drilldown,
-        declared_phase_start_confirmation=confirmation,
-        declared_phase_start_registry_update_gate=update_gate,
-    )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+def test_latest_evidence_dashboard_renders_phase71_update_gate(
+    integrated_dashboard_render: dict[str, object],
+) -> None:
+    result, html, _ = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
@@ -138,16 +176,9 @@ def test_latest_evidence_dashboard_renders_phase71_update_gate(tmp_path) -> None
 
 
 def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
-    tmp_path,
+    integrated_dashboard_render: dict[str, object],
 ) -> None:
-    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    coverage = build_current_macro_numeric_chart_coverage_view_model()
-    bundle = build_research_dashboard_bundle(
-        indicator_dashboard_explanation_drilldown=drilldown,
-        current_macro_numeric_chart_coverage=coverage,
-    )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+    result, html, _ = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
@@ -170,18 +201,9 @@ def test_latest_evidence_dashboard_renders_current_macro_numeric_chart_coverage(
 
 
 def test_latest_evidence_dashboard_renders_decision_explanation(
-    tmp_path,
+    integrated_dashboard_render: dict[str, object],
 ) -> None:
-    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    coverage = build_current_macro_numeric_chart_coverage_view_model()
-    explanation = build_dashboard_decision_explanation_view_model()
-    bundle = build_research_dashboard_bundle(
-        indicator_dashboard_explanation_drilldown=drilldown,
-        current_macro_numeric_chart_coverage=coverage,
-        dashboard_decision_explanation=explanation,
-    )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+    result, html, _ = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
@@ -202,21 +224,9 @@ def test_latest_evidence_dashboard_renders_decision_explanation(
 
 
 def test_latest_evidence_dashboard_renders_current_data_refresh_ux(
-    tmp_path,
+    integrated_dashboard_render: dict[str, object],
 ) -> None:
-    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    coverage = build_current_macro_numeric_chart_coverage_view_model()
-    refresh_ux = build_current_data_refresh_ux_view_model(
-        current_macro_numeric_chart_coverage=coverage,
-        indicator_dashboard_explanation_drilldown=drilldown,
-    )
-    bundle = build_research_dashboard_bundle(
-        indicator_dashboard_explanation_drilldown=drilldown,
-        current_macro_numeric_chart_coverage=coverage,
-        current_data_refresh_ux=refresh_ux,
-    )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+    result, html, _ = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
@@ -237,20 +247,9 @@ def test_latest_evidence_dashboard_renders_current_data_refresh_ux(
 
 
 def test_latest_evidence_dashboard_renders_transition_risk_accumulation(
-    tmp_path,
+    integrated_dashboard_render: dict[str, object],
 ) -> None:
-    drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
-    preview = build_transition_timing_replay_preview_view_model()
-    accumulation = build_transition_risk_evidence_accumulation_view_model(
-        transition_timing_replay_preview=preview,
-    )
-    bundle = build_research_dashboard_bundle(
-        indicator_dashboard_explanation_drilldown=drilldown,
-        transition_timing_replay_preview=preview,
-        transition_risk_evidence_accumulation=accumulation,
-    )
-    result = build_research_validation_dashboard(output_dir=tmp_path, bundle=bundle)
-    html = (tmp_path / "latest-evidence.html").read_text(encoding="utf-8")
+    result, html, _ = _rendered(integrated_dashboard_render)
 
     assert result["browser_verification_ready"] is True
     assert result["browser_missing_required_element_count"] == 0
@@ -270,7 +269,7 @@ def test_latest_evidence_dashboard_renders_transition_risk_accumulation(
 
 
 def test_latest_evidence_dashboard_renders_local_current_cache_bridge(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     drilldown = build_indicator_dashboard_explanation_drilldown_view_model()
     coverage = build_local_current_cache_dashboard_bridge_view_model()
@@ -291,77 +290,12 @@ def test_latest_evidence_dashboard_renders_local_current_cache_bridge(
     assert "current_phase" not in html
 
 
-def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> None:
-    output_dir = tmp_path / "dashboard"
-    result = subprocess.run(
-        [
-            sys.executable,
-            "scripts/build_research_validation_dashboard.py",
-            "--output-dir",
-            str(output_dir),
-            "--include-latest-evidence-drilldown",
-            "--include-phase-start-confirmation",
-            "--include-phase-start-update-gate",
-            "--include-current-macro-numeric-chart-coverage",
-            "--include-dashboard-decision-explanation",
-            "--include-current-data-refresh-ux",
-            "--include-transition-risk-evidence-accumulation",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-
-    assert (output_dir / "latest-evidence.html").is_file()
-    assert "latest_evidence_dashboard_view_ready=true" in result.stdout
-    assert "dashboard_decision_explanation_view_ready=true" in result.stdout
-    assert "current_data_refresh_ux_view_ready=true" in result.stdout
-    assert "current_data_refresh_ux_card_count=5" in result.stdout
-    assert "current_data_refresh_ux_handoff_step_count=5" in result.stdout
-    assert "transition_risk_evidence_accumulation_view_ready=true" in result.stdout
-    assert "transition_accumulation_lane_card_count=13" in result.stdout
-    assert "next_required_observation_count=13" in result.stdout
-
-
-def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> None:
-    output_dir = tmp_path / "dashboard"
-    cache_dir = tmp_path / "fred_current_cache"
-    seed_local_current_cache_rehearsal(cache_dir)
-    result = subprocess.run(
-        [
-            sys.executable,
-            "scripts/build_research_validation_dashboard.py",
-            "--output-dir",
-            str(output_dir),
-            "--current-cache-dir",
-            str(cache_dir),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    html = (output_dir / "latest-evidence.html").read_text(encoding="utf-8")
-
-    assert (output_dir / "latest-evidence.html").is_file()
-    assert "current_macro_numeric_chart_coverage_view_ready=true" in result.stdout
-    assert "phase74_local_current_cache_bridge_ready=true" in result.stdout
-    assert "current_macro_numeric_chart_cache_scope=explicit_local_current_cache" in (
-        result.stdout
-    )
-    assert "explicit ignored local current cache" in html
-    assert "local current cache 可用" in html
-    assert "latest_evidence_dashboard_view_ready=true" in result.stdout
-    assert "browser_verification_ready=true" in result.stdout
-
-
-def test_portfolio_replay_dashboard_surface_renders_phase81(tmp_path) -> None:
-    output_dir = tmp_path / "dashboard"
-    surface = build_portfolio_replay_dashboard_surface_view_model()
-    bundle = build_research_dashboard_bundle(
-        portfolio_replay_dashboard_surface=surface,
-    )
-    result = build_research_validation_dashboard(output_dir=output_dir, bundle=bundle)
-    html = (output_dir / "portfolio-replay.html").read_text(encoding="utf-8")
+def test_portfolio_replay_dashboard_surface_renders_phase81(
+    integrated_dashboard_render: dict[str, object],
+) -> None:
+    result = integrated_dashboard_render["result"]
+    html = integrated_dashboard_render["portfolio_html"]
+    output_dir = integrated_dashboard_render["output_dir"]
 
     assert result["browser_verification_ready"] is True
     assert result["prohibited_action_field_count"] == 0
@@ -373,25 +307,3 @@ def test_portfolio_replay_dashboard_surface_renders_phase81(tmp_path) -> None:
     assert "尚未計算 metric 值" in html
     assert "candidate_phase" not in html
     assert "current_phase" not in html
-
-
-def test_build_dashboard_script_accepts_portfolio_replay_surface(tmp_path) -> None:
-    output_dir = tmp_path / "dashboard"
-    result = subprocess.run(
-        [
-            sys.executable,
-            "scripts/build_research_validation_dashboard.py",
-            "--output-dir",
-            str(output_dir),
-            "--include-portfolio-replay-surface",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-
-    assert (output_dir / "portfolio-replay.html").is_file()
-    assert "portfolio_replay_dashboard_surface_ready=true" in result.stdout
-    assert "portfolio_replay_dashboard_card_count=10" in result.stdout
-    assert "research_backtest_artifact_count=10" in result.stdout
-    assert "browser_verification_ready=true" in result.stdout

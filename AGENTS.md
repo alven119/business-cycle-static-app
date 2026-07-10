@@ -109,6 +109,18 @@ product answer without a doctrine-aligned migration gate.
 
 When changing scoring logic, add or update tests.
 
+Before adding any test, inspect the governed test-suite index and search for
+the same behavior in existing tests. Extend or parameterize an existing test
+whenever possible. A new test file requires an explicit capability gap and
+must not duplicate an existing contract, renderer, CLI, or closure assertion.
+Expensive deterministic builders should be shared through scoped fixtures;
+CLI compatibility smokes belong in archive/nightly when direct product-core
+integration coverage already exists.
+
+Every phase that adds or expands tests must report the test-file delta, selected
+default test-count delta, measured default pytest duration, and expected CI
+runtime impact.
+
 At minimum run:
 
 ```bash

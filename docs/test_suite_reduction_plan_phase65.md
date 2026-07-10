@@ -45,6 +45,19 @@ archive regression and excluded from default pytest.
   closure checks.
 - nightly-ci: archive regression pytest and the full historical closure bundle.
 
+## Ongoing Rule For Every Phase
+
+Before a phase adds tests, it must inspect the governed test index and search
+for equivalent coverage. Extend or parameterize an existing test first. New
+test files require a documented capability gap. Expensive deterministic
+dashboard or closure builders must be reused through scoped fixtures, while
+redundant CLI compatibility smokes belong in archive regression or nightly CI.
+
+Any phase that changes tests reports the test-file delta, default selected test
+delta, measured default pytest duration, and expected CI runtime impact. Full CI
+runs the current critical closure chain; historical acceptance seals remain in
+nightly CI.
+
 ## Integration With The Capability Roadmap
 
 This phase is a delivery-speed enabler for the existing 95 percent capability

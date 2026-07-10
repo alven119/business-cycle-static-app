@@ -59,6 +59,14 @@ test_suite_reduction_plan:
     Phase closure tests 是歷史 Phase 的驗收封條，用來證明當時的 hard gates、
     freeze/lineage、安全輸出與 no-production-change 條件；它們保留於 archive
     或 nightly，而非每次預設開發回圈全部執行。
+  ongoing_test_addition_policy:
+    inspect_test_suite_index_first: true
+    search_for_similar_or_duplicate_test_first: true
+    extend_existing_test_preferred: true
+    new_test_file_requires_capability_gap: true
+    expensive_builder_fixture_reuse_required: true
+    redundant_cli_smoke_tier: archive_or_nightly
+    phase_report_must_include_test_delta_and_duration: true
   ci_tiers:
     fast_ci: product_core_subset
     full_ci: default_product_core_suite_and_current_closure_bundle
@@ -94,5 +102,6 @@ test_suite_reduction_plan:
     c3_core_tests_present: true
     dashboard_core_tests_present: true
     live_optional_tests_not_in_default_ci: true
+    ongoing_test_addition_policy_ready: true
     semantic_drift_count: 0
     production_behavior_change_count: 0

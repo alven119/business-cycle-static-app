@@ -671,7 +671,12 @@ def _chart_period_panel(series: dict[str, Any], period: dict[str, Any]) -> str:
     last = points[-1]
     return (
         "<section class=\"chart-panel\">"
-        f"<h4>{escape(title)}</h4>{svg}"
+        f"<h4>{escape(title)}</h4>"
+        '<div class="chart-interactive-wrap">'
+        f"{svg}"
+        '<output class="chart-tooltip" aria-live="polite" hidden></output>'
+        "</div>"
+        '<p class="chart-hint">移動游標或觸碰走勢線，可查看日期與數值；鍵盤可用左右方向鍵。</p>'
         f"<p class=\"chart-meta\">{escape(str(first['date']))}："
         f"{escape(str(first['value']))} → {escape(str(last['date']))}："
         f"{escape(str(last['value']))}；資料點 {len(points)}，繪圖點 {rendered_count}</p>"
@@ -689,15 +694,42 @@ def _sparkline_svg(points: list[dict[str, Any]]) -> tuple[str, int]:
     height = 80.0
     padding = 5.0
     coordinates: list[str] = []
+    interactive_points: list[dict[str, Any]] = []
     for index, value in enumerate(values):
-        x = padding if len(values) == 1 else padding + (width - 2 * padding) * index / (len(values) - 1)
+        x = (
+            padding
+            if len(values) == 1
+            else padding + (width - 2 * padding) * index / (len(values) - 1)
+        )
         normalized = 0.5 if span == 0 else (value - minimum) / span
         y = height - padding - (height - 2 * padding) * normalized
         coordinates.append(f"{x:.2f},{y:.2f}")
+        interactive_points.append(
+            {
+                "date": rendered[index]["date"],
+                "value": value,
+                "x": round(x, 2),
+                "y": round(y, 2),
+            },
+        )
+    encoded_points = escape(
+        json.dumps(
+            interactive_points,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        quote=True,
+    )
     svg = (
-        '<svg viewBox="0 0 300 80" role="img" aria-label="指標歷史走勢">'
+        '<svg class="interactive-chart" viewBox="0 0 300 80" role="img" '
+        'aria-label="指標歷史走勢；可查看日期與數值" tabindex="0" '
+        f'data-chart-points="{encoded_points}">'
         '<line class="chart-axis" x1="5" y1="75" x2="295" y2="75"></line>'
         f'<polyline class="chart-line" points="{" ".join(coordinates)}"></polyline>'
+        '<line class="chart-crosshair" x1="0" y1="5" x2="0" y2="75" '
+        'visibility="hidden"></line>'
+        '<circle class="chart-marker" cx="0" cy="0" r="3.5" '
+        'visibility="hidden"></circle>'
         "</svg>"
     )
     return svg, len(rendered)
@@ -740,9 +772,15 @@ def _html_document(*, title: str, body: str) -> str:
     .chart-grid {{ display: grid; gap: 10px; margin-top: 10px; }}
     .chart-panel {{ border: 1px solid #e1e5ea; border-radius: 6px; padding: 8px; }}
     .chart-panel h4 {{ margin: 0 0 6px; font-size: 0.88rem; }}
-    .chart-panel svg {{ display: block; width: 100%; height: 92px; }}
+    .chart-interactive-wrap {{ position: relative; }}
+    .chart-panel svg {{ display: block; width: 100%; height: 92px; touch-action: pan-y; outline: none; }}
+    .chart-panel svg:focus-visible {{ outline: 2px solid #0b5cab; outline-offset: 2px; }}
     .chart-axis {{ stroke: #c6cdd5; stroke-width: 1; }}
     .chart-line {{ fill: none; stroke: #0b5cab; stroke-width: 2; vector-effect: non-scaling-stroke; }}
+    .chart-crosshair {{ stroke: #59697c; stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }}
+    .chart-marker {{ fill: #fff; stroke: #0b5cab; stroke-width: 2; vector-effect: non-scaling-stroke; }}
+    .chart-tooltip {{ position: absolute; top: 2px; z-index: 2; transform: translateX(-50%); background: #1c2430; color: #fff; border-radius: 4px; padding: 5px 7px; font-size: 0.75rem; white-space: nowrap; pointer-events: none; }}
+    .chart-hint {{ color: #5b6674; font-size: 0.72rem; margin: 2px 0 5px; }}
     .chart-meta {{ color: #5b6674; font-size: 0.78rem; margin: 4px 0 0; }}
     dl {{ display: grid; grid-template-columns: minmax(92px, auto) 1fr; gap: 6px 10px; margin: 0; }}
     dd {{ margin: 0; overflow-wrap: anywhere; }}
@@ -755,9 +793,62 @@ def _html_document(*, title: str, body: str) -> str:
 </head>
 <body>
   <main>{body}</main>
+  {_chart_interaction_script()}
 </body>
 </html>
 """
+
+
+def _chart_interaction_script() -> str:
+    return """<script>
+(() => {
+  const formatter = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 4 });
+  document.querySelectorAll("svg.interactive-chart").forEach((svg) => {
+    const points = JSON.parse(svg.dataset.chartPoints || "[]");
+    const wrap = svg.closest(".chart-interactive-wrap");
+    const tooltip = wrap?.querySelector(".chart-tooltip");
+    const crosshair = svg.querySelector(".chart-crosshair");
+    const marker = svg.querySelector(".chart-marker");
+    if (!points.length || !tooltip || !crosshair || !marker) return;
+    let activeIndex = points.length - 1;
+    const showPoint = (index) => {
+      activeIndex = Math.max(0, Math.min(points.length - 1, index));
+      const point = points[activeIndex];
+      crosshair.setAttribute("x1", point.x);
+      crosshair.setAttribute("x2", point.x);
+      crosshair.setAttribute("visibility", "visible");
+      marker.setAttribute("cx", point.x);
+      marker.setAttribute("cy", point.y);
+      marker.setAttribute("visibility", "visible");
+      tooltip.textContent = `${point.date}｜數值 ${formatter.format(point.value)}`;
+      tooltip.style.left = `${Math.max(8, Math.min(92, point.x / 3))}%`;
+      tooltip.hidden = false;
+    };
+    const hidePoint = () => {
+      crosshair.setAttribute("visibility", "hidden");
+      marker.setAttribute("visibility", "hidden");
+      tooltip.hidden = true;
+    };
+    const showFromPointer = (event) => {
+      const bounds = svg.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+      showPoint(Math.round(ratio * (points.length - 1)));
+    };
+    svg.addEventListener("pointermove", showFromPointer);
+    svg.addEventListener("pointerdown", showFromPointer);
+    svg.addEventListener("pointerleave", (event) => {
+      if (event.pointerType === "mouse") hidePoint();
+    });
+    svg.addEventListener("focus", () => showPoint(activeIndex));
+    svg.addEventListener("blur", hidePoint);
+    svg.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      showPoint(activeIndex + (event.key === "ArrowRight" ? 1 : -1));
+    });
+  });
+})();
+</script>"""
 
 
 def _routes_ready(routes: list[dict[str, Any]], contract: dict[str, Any]) -> bool:

@@ -40,6 +40,9 @@ def summarize_phase111_nas_live_postgres_dashboard_closure(
             "live_snapshot_materializer_ready"
         ],
         "live_runtime_wiring_ready": implementation["live_runtime_wiring_ready"],
+        "interactive_chart_tooltip_ready": implementation[
+            "interactive_chart_tooltip_ready"
+        ],
         "live_deployment_accepted": observed["app_container_healthy"]
         and observed["live_db_connected"],
         "app_container_healthy": observed["app_container_healthy"],

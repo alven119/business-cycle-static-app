@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -8,6 +10,9 @@ from business_cycle.render.research_validation_dashboard import (
     build_research_validation_dashboard,
     summarize_research_validation_dashboard_runtime,
     verify_research_validation_dashboard_directory,
+)
+from business_cycle.render.local_current_cache_dashboard_bridge import (
+    seed_local_current_cache_rehearsal,
 )
 
 
@@ -59,3 +64,86 @@ def test_research_validation_dashboard_directory_verification_fails_closed(
 
     assert verification["browser_verification_ready"] is False
     assert verification["browser_missing_required_element_count"] > 0
+
+
+def test_build_dashboard_script_accepts_latest_evidence_drilldown(tmp_path) -> None:
+    output_dir = tmp_path / "dashboard"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/build_research_validation_dashboard.py",
+            "--output-dir",
+            str(output_dir),
+            "--include-latest-evidence-drilldown",
+            "--include-phase-start-confirmation",
+            "--include-phase-start-update-gate",
+            "--include-current-macro-numeric-chart-coverage",
+            "--include-dashboard-decision-explanation",
+            "--include-current-data-refresh-ux",
+            "--include-transition-risk-evidence-accumulation",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert (output_dir / "latest-evidence.html").is_file()
+    assert "latest_evidence_dashboard_view_ready=true" in result.stdout
+    assert "dashboard_decision_explanation_view_ready=true" in result.stdout
+    assert "current_data_refresh_ux_view_ready=true" in result.stdout
+    assert "current_data_refresh_ux_card_count=5" in result.stdout
+    assert "current_data_refresh_ux_handoff_step_count=5" in result.stdout
+    assert "transition_risk_evidence_accumulation_view_ready=true" in result.stdout
+    assert "transition_accumulation_lane_card_count=13" in result.stdout
+    assert "next_required_observation_count=13" in result.stdout
+
+
+def test_build_dashboard_script_accepts_explicit_current_cache_dir(tmp_path) -> None:
+    output_dir = tmp_path / "dashboard"
+    cache_dir = tmp_path / "fred_current_cache"
+    seed_local_current_cache_rehearsal(cache_dir)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/build_research_validation_dashboard.py",
+            "--output-dir",
+            str(output_dir),
+            "--current-cache-dir",
+            str(cache_dir),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    html = (output_dir / "latest-evidence.html").read_text(encoding="utf-8")
+
+    assert "current_macro_numeric_chart_coverage_view_ready=true" in result.stdout
+    assert "phase74_local_current_cache_bridge_ready=true" in result.stdout
+    assert "current_macro_numeric_chart_cache_scope=explicit_local_current_cache" in (
+        result.stdout
+    )
+    assert "explicit ignored local current cache" in html
+    assert "local current cache 可用" in html
+    assert "browser_verification_ready=true" in result.stdout
+
+
+def test_build_dashboard_script_accepts_portfolio_replay_surface(tmp_path) -> None:
+    output_dir = tmp_path / "dashboard"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/build_research_validation_dashboard.py",
+            "--output-dir",
+            str(output_dir),
+            "--include-portfolio-replay-surface",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert (output_dir / "portfolio-replay.html").is_file()
+    assert "portfolio_replay_dashboard_surface_ready=true" in result.stdout
+    assert "portfolio_replay_dashboard_card_count=10" in result.stdout
+    assert "research_backtest_artifact_count=10" in result.stdout
+    assert "browser_verification_ready=true" in result.stdout

@@ -27,6 +27,7 @@ def test_test_suite_reduction_plan_passes() -> None:
     assert summary["c2_core_tests_present"] is True
     assert summary["c3_core_tests_present"] is True
     assert summary["dashboard_core_tests_present"] is True
+    assert summary["ongoing_test_addition_policy_ready"] is True
     assert summary["semantic_drift_count"] == 0
     assert summary["production_behavior_change_count"] == 0
 
@@ -100,3 +101,16 @@ def test_phase_closure_tests_are_documented_as_archive_seals() -> None:
     assert "Phase closure tests" in doc
     assert "historical acceptance seals" in doc
     assert "archive regression" in doc
+
+
+def test_future_phases_must_consolidate_tests_before_adding_files() -> None:
+    agents = Path("AGENTS.md").read_text(encoding="utf-8")
+    standing = Path("docs/phase_execution_standing_contract.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "inspect the governed test-suite index" in agents
+    assert "Extend or parameterize an existing test" in agents
+    assert "test-file delta" in agents
+    assert "Reuse module/session-scoped fixtures" in standing
+    assert "measured default pytest duration" in standing

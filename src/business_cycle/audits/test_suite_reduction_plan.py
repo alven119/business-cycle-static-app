@@ -34,6 +34,7 @@ def summarize_test_suite_reduction_plan(
 
     plan = build_test_suite_reduction_plan(path)
     quarantine = summarize_test_suite_doctrine_quarantine()
+    ongoing = plan["ongoing_test_addition_policy"]
     plan_default_files = set(plan["default_product_core_test_files"])
     code_default_files = set(DEFAULT_PRODUCT_CORE_TEST_FILES)
     expected = dict(plan["hard_gates"])
@@ -79,6 +80,17 @@ def summarize_test_suite_reduction_plan(
         "live_optional_tests_not_in_default_ci": quarantine[
             "live_optional_tests_not_in_default_ci"
         ],
+        "ongoing_test_addition_policy_ready": all(
+            (
+                ongoing["inspect_test_suite_index_first"],
+                ongoing["search_for_similar_or_duplicate_test_first"],
+                ongoing["extend_existing_test_preferred"],
+                ongoing["new_test_file_requires_capability_gap"],
+                ongoing["expensive_builder_fixture_reuse_required"],
+                ongoing["phase_report_must_include_test_delta_and_duration"],
+                ongoing["redundant_cli_smoke_tier"] == "archive_or_nightly",
+            ),
+        ),
         "product_capabilities_protected": plan["product_capabilities_protected"],
         "phase_plan_integration": plan["phase_plan_integration"],
         "semantic_drift_count": 0,

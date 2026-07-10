@@ -2,6 +2,11 @@ from pathlib import Path
 
 import yaml
 
+from scripts.run_ci_closure_checks import (
+    FULL_CLOSURE_SCRIPTS,
+    NIGHTLY_CLOSURE_SCRIPTS,
+)
+
 
 WORKFLOW_DIR = Path(".github/workflows")
 FAST_CI = WORKFLOW_DIR / "fast-ci.yml"
@@ -190,6 +195,15 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
     ]
     for snippet in nightly_only_snippets:
         assert snippet in helper
+
+    assert len(FULL_CLOSURE_SCRIPTS) <= 12
+    assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
+    assert "scripts/show_phase111_nas_live_postgres_dashboard_closure.py" in (
+        FULL_CLOSURE_SCRIPTS
+    )
+    assert "scripts/show_phase88_portfolio_policy_replay_research_surface_closure.py" in (
+        NIGHTLY_CLOSURE_SCRIPTS
+    )
 
 
 def test_ci_safety_scan_helper_uses_tracked_text_claim_scan() -> None:

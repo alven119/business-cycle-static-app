@@ -187,6 +187,15 @@ def summarize_nas_live_postgres_dashboard_contract(
         "source_blocked_role_count": baseline["role_without_revised_snapshot_count"],
         "derived_display_role_count": len(derived),
         "chart_period_count": len(contract["data_policy"]["chart_periods"]),
+        "interactive_chart_tooltip_ready": all(
+            contract["chart_interaction_policy"][key] is True
+            for key in (
+                "hover_date_value_tooltip_required",
+                "touch_pointer_support_required",
+                "keyboard_arrow_navigation_required",
+                "crosshair_and_point_marker_required",
+            )
+        ),
         "transaction_read_only_enforced": True,
         "silent_fixture_fallback_count": 0,
         "postgres_write_attempt_count": 0,
