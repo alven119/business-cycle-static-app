@@ -1,0 +1,62 @@
+nas_scheduled_revised_refresh_contract:
+  version: "1.0"
+  status: active_private_nas_refresh_contract
+  phase_id: 112
+  phase_label: governed_revised_refresh_and_source_health
+  depends_on:
+    - specs/common/nas_postgres_live_revised_import_contract.yaml
+    - specs/common/nas_live_postgres_dashboard_contract.yaml
+  schedule_policy:
+    default_interval_seconds: 86400
+    default_initial_delay_seconds: 86400
+    single_process_lock_required: true
+    bounded_retry_count: 3
+    run_artifact_directory_per_execution: true
+    latest_status_atomic_write_required: true
+  execution_policy:
+    operator_confirmation_required: true
+    source_provider_family: FRED/ALFRED
+    data_mode: revised
+    full_history_idempotent_upsert: true
+    resume_within_run_supported: true
+    resume_across_runs_prohibited: true
+    source_artifact_volume: /var/lib/business-cycle/source-artifacts
+    refresh_status_relative_path: phase112/refresh-status.json
+    network_allowed_in_tests: false
+    postgres_write_allowed_only_in_worker: true
+    dashboard_database_access: read_only
+  dashboard_policy:
+    shell_cache_ttl_seconds: 900
+    last_good_snapshot_may_be_served_after_refresh_error: true
+    stale_after_refresh_error_must_be_visible: true
+    refresh_state_visible: true
+    last_completed_at_visible: true
+    next_scheduled_at_visible: true
+    completed_failed_source_counts_visible: true
+  allowed_uses:
+    - private_nas_revised_refresh
+    - source_health_monitoring
+    - dashboard_refresh_status
+    - operator_retry_and_rollback
+  prohibited_uses:
+    - point_in_time_claim
+    - phase_inference
+    - candidate_phase_selection
+    - portfolio_instruction
+    - public_output
+  hard_gates:
+    nas_scheduled_revised_refresh_contract_ready: true
+    scheduled_refresh_runner_ready: true
+    source_health_status_ready: true
+    dashboard_shell_ttl_cache_ready: true
+    direct_series_count: 26
+    default_interval_seconds: 86400
+    bounded_retry_count: 3
+    concurrent_refresh_rejected: true
+    status_atomic_write_ready: true
+    tests_network_dependency_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 113

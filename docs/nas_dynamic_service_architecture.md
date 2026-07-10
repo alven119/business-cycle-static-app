@@ -224,6 +224,14 @@ Estimated deployment sequence:
   source lineage, freshness, and expandable YTD/1Y/5Y revised charts. A
   configured database failure blocks startup instead of silently falling back
   to fixtures. This read surface does not infer a current or candidate phase.
+- Phase 112: run the existing revised-history importer as a governed daily NAS
+  worker. Each execution requires the deployment confirmation, takes a
+  single-process lock, uses three bounded source retries, writes per-run source
+  artifacts, and atomically updates a redacted status file. The private
+  dashboard reads that status, shows source health and last/next refresh times,
+  and rematerializes its read-only Postgres snapshot on a 15-minute TTL. A
+  refresh-read failure retains the last good snapshot with an explicit stale
+  marker. This does not create point-in-time data or infer a phase.
 
 ## GitHub Pages Retirement
 
@@ -255,7 +263,7 @@ Backups must cover:
 
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Data refresh worker.
+- Per-source release-calendar scheduling beyond the daily revised refresh.
 - Dedicated least-privilege dashboard database role and credential rotation.
 - Executed vintage/PIT backfill into `observation_vintage`.
 - Backup restore rehearsal for Postgres and source artifacts.

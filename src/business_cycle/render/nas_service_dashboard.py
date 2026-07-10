@@ -376,6 +376,11 @@ def _api_payloads(
             "database_latest_observation_date": snapshot.get(
                 "database_latest_observation_date",
             ),
+            "refresh_status": snapshot.get("refresh_status", {}),
+            "source_refresh_health_status": snapshot.get(
+                "source_refresh_health_status",
+                "not_configured",
+            ),
             "postgres_write_attempted": False,
             "live_fetch_attempted": False,
             "frontend_database_access_allowed": False,
@@ -500,6 +505,7 @@ def _overview_html(
         f"{escape(route['title_zh'])}</li>"
         for route in routes
     )
+    refresh_html = _refresh_status_html(snapshot) if runtime_live_mode else ""
     return _html_document(
         title="NAS 私有研究儀表板",
         body=f"""
@@ -514,6 +520,7 @@ def _overview_html(
           <article><strong>{snapshot['role_without_revised_snapshot_count']}</strong><span>資料 blocked</span></article>
           <article><strong>{snapshot['series_snapshot_count']}</strong><span>序列快照</span></article>
         </section>
+        {refresh_html}
         <section>
           <h2>私有服務路由</h2>
           <ul>{routes_html}</ul>
@@ -629,6 +636,37 @@ def _dashboard_intro(runtime_live_mode: bool) -> str:
 
 def _dashboard_data_source_label(runtime_live_mode: bool) -> str:
     return "PostgreSQL revised diagnostic" if runtime_live_mode else "revised diagnostic"
+
+
+def _refresh_status_html(snapshot: dict[str, Any]) -> str:
+    status = snapshot.get("refresh_status", {})
+    state_labels = {
+        "not_started": "尚未開始定期更新",
+        "scheduled": "已排程",
+        "running": "更新執行中",
+        "succeeded": "最近更新成功",
+        "failed": "最近更新失敗",
+    }
+    health_labels = {
+        "healthy": "正常",
+        "degraded": "最近更新失敗，沿用既有資料",
+        "baseline_loaded_waiting_for_scheduled_refresh": "已有基準資料，等待排程更新",
+        "unavailable": "無可用來源資料",
+    }
+    state = str(status.get("refresh_state", "not_started"))
+    health = str(snapshot.get("source_refresh_health_status", "unknown"))
+    return f"""
+    <section aria-labelledby="refresh-status-heading">
+      <h2 id="refresh-status-heading">官方資料更新狀態</h2>
+      <div class="summary-grid" data-source-refresh-status="{escape(state)}">
+        <article><strong>{escape(state_labels.get(state, state))}</strong><span>排程狀態</span></article>
+        <article><strong>{escape(str(status.get('last_completed_at_utc') or '尚無'))}</strong><span>上次完成</span></article>
+        <article><strong>{escape(str(status.get('next_scheduled_at_utc') or '尚未排程'))}</strong><span>下次預定</span></article>
+        <article><strong>{int(status.get('completed_series_count', 0))}/{int(status.get('requested_series_count', 0))}</strong><span>完成來源</span></article>
+      </div>
+      <p class="meta">來源健康：{escape(health_labels.get(health, health))}；此更新只代表 revised 資料同步，不代表景氣階段確認。</p>
+    </section>
+    """
 
 
 def _freshness_label_zh(status: str) -> str:
@@ -937,6 +975,14 @@ def _trust_metadata(contract: dict[str, Any], snapshot: dict[str, Any]) -> dict[
         "frontend_api_key_allowed": False,
         "live_db_connection_attempted": live_db_connected,
         "live_db_connected": live_db_connected,
+        "refresh_state": snapshot.get("refresh_status", {}).get(
+            "refresh_state",
+            "not_configured",
+        ),
+        "source_refresh_health_status": snapshot.get(
+            "source_refresh_health_status",
+            "not_configured",
+        ),
         "postgres_write_attempted": False,
         "live_fetch_attempted": False,
         "candidate_phase_selection_enabled": False,

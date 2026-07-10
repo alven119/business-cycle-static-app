@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase111-live-dashboard
+    image: business-cycle-nas-app:phase112-scheduled-refresh
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -39,10 +39,14 @@ services:
       BUSINESS_CYCLE_LOGIN_WINDOW_SECONDS: "300"
       BUSINESS_CYCLE_PUBLIC_EXPOSURE: "false"
       BUSINESS_CYCLE_HEALTHCHECK_URL: http://127.0.0.1:8000/healthz
+      BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS: "900"
+      BUSINESS_CYCLE_REFRESH_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase112/refresh-status.json
     ports:
       - "127.0.0.1:18080:8000"
     networks:
       - business_cycle_private
+    volumes:
+      - macro_source_artifacts:/var/lib/business-cycle/source-artifacts:ro
     healthcheck:
       test:
         - CMD
@@ -53,31 +57,57 @@ services:
       timeout: 5s
       retries: 5
 
+  macro_source_artifact_init:
+    image: postgres:16-alpine
+    user: "0:0"
+    restart: "no"
+    entrypoint:
+      - sh
+      - -c
+    command:
+      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts
+    volumes:
+      - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
+    network_mode: none
+
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase111-live-dashboard
+    image: business-cycle-nas-app:phase112-scheduled-refresh
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
-    restart: "no"
-    profiles:
-      - manual-revised-import
+    restart: unless-stopped
     depends_on:
       macro_postgres:
         condition: service_healthy
+      macro_source_artifact_init:
+        condition: service_completed_successfully
     environment:
       BUSINESS_CYCLE_DATABASE_URL: ${BUSINESS_CYCLE_DATABASE_URL}
+      BUSINESS_CYCLE_REFRESH_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_FRED_AND_WRITES_NAS_POSTGRES
       FRED_API_KEY: ${FRED_API_KEY}
     command:
       - python
       - -m
-      - business_cycle.service.nas_revised_import_worker
-      - --execute-live
-      - --operator-confirmation
-      - I_UNDERSTAND_THIS_FETCHES_FRED_AND_WRITES_NAS_POSTGRES
+      - business_cycle.service.nas_scheduled_revised_refresh
+      - --serve
+      - --interval-seconds
+      - "86400"
+      - --initial-delay-seconds
+      - "86400"
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
     networks:
       - business_cycle_private
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -m
+        - business_cycle.service.nas_scheduled_revised_refresh
+        - --healthcheck
+      interval: 60s
+      timeout: 5s
+      retries: 3
 
 volumes:
   macro_postgres_data: {}

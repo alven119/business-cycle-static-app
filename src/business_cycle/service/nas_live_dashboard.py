@@ -9,6 +9,10 @@ from business_cycle.render.nas_service_dashboard import (
     build_nas_service_dashboard_bundle,
 )
 from business_cycle.service.nas_app_shell import build_nas_app_shell
+from business_cycle.service.nas_scheduled_revised_refresh import (
+    DEFAULT_STATUS_PATH,
+    load_refresh_status,
+)
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DashboardReadExecutor,
     build_nas_live_postgres_dashboard_snapshot,
@@ -20,16 +24,19 @@ def build_nas_live_dashboard_runtime(
     database_url: str | None = None,
     executor: DashboardReadExecutor | None = None,
     snapshot_as_of: str | None = None,
+    refresh_status_path: str | None = None,
 ) -> dict[str, Any]:
     """Build the live runtime; configured DB failures must not silently fall back."""
 
     resolved_url = database_url or os.environ.get("BUSINESS_CYCLE_DATABASE_URL", "")
     if executor is None and not resolved_url:
         raise RuntimeError("BUSINESS_CYCLE_DATABASE_URL is required for live dashboard")
+    refresh_status = load_refresh_status(refresh_status_path or DEFAULT_STATUS_PATH)
     snapshot = build_nas_live_postgres_dashboard_snapshot(
         database_url=resolved_url,
         executor=executor,
         snapshot_as_of=snapshot_as_of,
+        refresh_status=refresh_status,
     )
     dashboard = build_nas_service_dashboard_bundle(
         snapshot_manifest=snapshot,
@@ -53,6 +60,8 @@ def build_nas_live_dashboard_runtime(
         "database_latest_observation_date": snapshot[
             "database_latest_observation_date"
         ],
+        "refresh_state": refresh_status["refresh_state"],
+        "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -64,9 +73,11 @@ def build_nas_live_dashboard_runtime(
         "database_latest_observation_date": snapshot[
             "database_latest_observation_date"
         ],
+        "refresh_state": refresh_status["refresh_state"],
+        "source_refresh_health_status": snapshot["source_refresh_health_status"],
     }
     runtime: dict[str, Any] = {
-        "phase": 111,
+        "phase": 112,
         "artifact_id": "phase111_nas_live_postgres_dashboard_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
@@ -82,6 +93,8 @@ def build_nas_live_dashboard_runtime(
             "observation_revised_total_count"
         ],
         "observation_vintage_row_count": snapshot["observation_vintage_row_count"],
+        "refresh_state": refresh_status["refresh_state"],
+        "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "transaction_read_only_enforced": True,
         "silent_fixture_fallback_count": 0,
         "postgres_write_attempt_count": 0,

@@ -34,6 +34,7 @@ LOCAL_HEALTH_PATHS = {"/healthz", "/readyz"}
 MAX_LOGIN_BODY_BYTES = 4096
 DEFAULT_LOGIN_MAX_FAILURES = 5
 DEFAULT_LOGIN_WINDOW_SECONDS = 300
+DEFAULT_DASHBOARD_SHELL_TTL_SECONDS = 900
 
 
 class LoginAttemptLimiter:
@@ -110,6 +111,50 @@ class LoginAttemptLimiter:
         return failures
 
 
+class NasAppShellTtlCache:
+    """Cache expensive live Postgres materialization and refresh it safely."""
+
+    def __init__(
+        self,
+        builder: Callable[[], dict[str, Any]],
+        *,
+        ttl_seconds: int = DEFAULT_DASHBOARD_SHELL_TTL_SECONDS,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        if ttl_seconds < 1:
+            raise ValueError("dashboard shell TTL must be positive")
+        self._builder = builder
+        self._ttl_seconds = ttl_seconds
+        self._clock = clock
+        self._lock = Lock()
+        self._shell = builder()
+        self._built_at = clock()
+        self.refresh_count = 1
+        self.refresh_error_count = 0
+
+    def get(self) -> dict[str, Any]:
+        if self._clock() - self._built_at < self._ttl_seconds:
+            return self._shell
+        with self._lock:
+            if self._clock() - self._built_at < self._ttl_seconds:
+                return self._shell
+            try:
+                self._shell = self._builder()
+                self._built_at = self._clock()
+                self.refresh_count += 1
+                return self._shell
+            except Exception:  # noqa: BLE001 - retain last good private snapshot
+                self.refresh_error_count += 1
+                self._built_at = self._clock()
+                stale = dict(self._shell)
+                stale["trust_metadata"] = dict(stale.get("trust_metadata", {})) | {
+                    "dashboard_snapshot_status": "stale_after_refresh_error",
+                    "dashboard_shell_refresh_error_count": self.refresh_error_count,
+                }
+                self._shell = stale
+                return self._shell
+
+
 @dataclass(frozen=True)
 class RuntimeResponse:
     """Small response object shared by tests and the HTTP handler."""
@@ -169,6 +214,15 @@ def build_runtime_response(
                 "snapshot_as_of": trust.get("snapshot_as_of"),
                 "database_latest_observation_date": trust.get(
                     "database_latest_observation_date",
+                ),
+                "refresh_state": trust.get("refresh_state", "not_configured"),
+                "source_refresh_health_status": trust.get(
+                    "source_refresh_health_status",
+                    "not_configured",
+                ),
+                "dashboard_snapshot_status": trust.get(
+                    "dashboard_snapshot_status",
+                    "current_cached_snapshot",
                 ),
                 "research_only": True,
                 "public_exposure": False,
@@ -233,11 +287,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    # The governed dashboard bundle is deterministic but relatively expensive to
-    # assemble on the NAS. Build it once so browser requests only dispatch routes.
-    shell = _build_startup_shell()
+    cache = NasAppShellTtlCache(
+        _build_startup_shell,
+        ttl_seconds=_positive_env_int(
+            "BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS",
+            DEFAULT_DASHBOARD_SHELL_TTL_SECONDS,
+        ),
+    )
     server = ThreadingHTTPServer((args.host, args.port), _RuntimeHandler)
-    server.nas_app_shell = shell  # type: ignore[attr-defined]
+    server.nas_app_shell = cache.get()  # type: ignore[attr-defined]
+    server.nas_app_shell_cache = cache  # type: ignore[attr-defined]
     server.login_attempt_limiter = LoginAttemptLimiter.from_environment()  # type: ignore[attr-defined]
     try:
         server.serve_forever()
@@ -252,19 +311,21 @@ def _build_startup_shell() -> dict[str, Any]:
     """Use live Postgres when configured; never silently hide a configured failure."""
 
     if os.environ.get("BUSINESS_CYCLE_DATABASE_URL"):
-        return build_nas_live_dashboard_runtime()["nas_app_shell"]
+        return build_nas_live_dashboard_runtime(
+            refresh_status_path=os.environ.get("BUSINESS_CYCLE_REFRESH_STATUS_PATH"),
+        )["nas_app_shell"]
     return build_nas_app_shell()
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase111"
+    server_version = "BusinessCycleNAS/phase112"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
             path=self.path,
             method="GET",
             headers={key: value for key, value in self.headers.items()},
-            shell=getattr(self.server, "nas_app_shell", None),
+            shell=_server_shell(self.server),
         )
         self._send_runtime_response(response)
 
@@ -319,6 +380,13 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         self.send_header("content-length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+
+def _server_shell(server: Any) -> dict[str, Any] | None:
+    cache = getattr(server, "nas_app_shell_cache", None)
+    if isinstance(cache, NasAppShellTtlCache):
+        return cache.get()
+    return getattr(server, "nas_app_shell", None)
 
 
 def _json_response(status_code: int, payload: dict[str, Any]) -> RuntimeResponse:

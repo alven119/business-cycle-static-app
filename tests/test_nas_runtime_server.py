@@ -6,6 +6,7 @@ from business_cycle.service import nas_runtime_server
 from business_cycle.service.healthcheck import build_healthcheck_summary
 from business_cycle.service.nas_runtime_server import (
     LoginAttemptLimiter,
+    NasAppShellTtlCache,
     build_runtime_response,
 )
 from business_cycle.service.refresh_worker_disabled_until_gate import main as refresh_main
@@ -139,10 +140,37 @@ def test_runtime_uses_live_postgres_when_database_is_configured(
     monkeypatch.setattr(
         nas_runtime_server,
         "build_nas_live_dashboard_runtime",
-        lambda: {"nas_app_shell": shell},
+        lambda **_: {"nas_app_shell": shell},
     )
 
     assert nas_runtime_server._build_startup_shell() is shell  # noqa: SLF001
+
+
+def test_runtime_ttl_cache_refreshes_and_retains_visible_last_good_snapshot() -> None:
+    now = [100.0]
+    builds = [
+        {"route_count": 5, "trust_metadata": {"refresh_state": "scheduled"}},
+        {"route_count": 5, "trust_metadata": {"refresh_state": "succeeded"}},
+    ]
+
+    def builder() -> dict[str, object]:
+        if builds:
+            return builds.pop(0)
+        raise RuntimeError("database temporarily unavailable")
+
+    cache = NasAppShellTtlCache(builder, ttl_seconds=10, clock=lambda: now[0])
+    assert cache.get()["trust_metadata"]["refresh_state"] == "scheduled"
+    now[0] = 111.0
+    assert cache.get()["trust_metadata"]["refresh_state"] == "succeeded"
+    assert cache.refresh_count == 2
+
+    now[0] = 122.0
+    stale = cache.get()
+    assert stale["trust_metadata"]["dashboard_snapshot_status"] == (
+        "stale_after_refresh_error"
+    )
+    assert cache.refresh_error_count == 1
+    assert "database temporarily unavailable" not in str(stale)
 
 
 def test_runtime_secure_cookie_and_security_headers_follow_https_gate(

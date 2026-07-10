@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -13,8 +15,17 @@ from business_cycle.audits.phase110_nas_postgres_live_revised_import_closure imp
 from business_cycle.audits.phase111_nas_live_postgres_dashboard_closure import (
     summarize_phase111_nas_live_postgres_dashboard_closure,
 )
+from business_cycle.audits.phase112_nas_scheduled_revised_refresh_closure import (
+    summarize_phase112_nas_scheduled_revised_refresh_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
+from business_cycle.service.nas_scheduled_revised_refresh import (
+    _exclusive_refresh_lock,
+    run_scheduled_refresh_once,
+    serve_refresh_schedule,
+    summarize_nas_scheduled_revised_refresh_contract,
+)
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DASHBOARD_READ_SQL,
     PsqlReadOnlyExecutor,
@@ -277,25 +288,121 @@ def test_show_phase110_live_revised_import_closure_script() -> None:
     assert "result=passed" in completed.stdout
 
 
-def test_nas_compose_keeps_worker_manual_https_private_and_live_dashboard() -> None:
+def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> None:
     compose = yaml.safe_load(Path("deploy/nas/compose.yaml").read_text(encoding="utf-8"))
     app = compose["services"]["business_cycle_app"]
+    artifact_init = compose["services"]["macro_source_artifact_init"]
     worker = compose["services"]["macro_refresh_worker"]
 
-    assert app["image"] == "business-cycle-nas-app:phase111-live-dashboard"
+    assert app["image"] == "business-cycle-nas-app:phase112-scheduled-refresh"
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
+    assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
-    assert worker["profiles"] == ["manual-revised-import"]
-    assert worker["restart"] == "no"
+    assert artifact_init["user"] == "0:0"
+    assert artifact_init["restart"] == "no"
+    assert artifact_init["network_mode"] == "none"
+    assert "chown -R 1000:1000" in artifact_init["command"][0]
+    assert worker["restart"] == "unless-stopped"
+    assert "profiles" not in worker
     assert worker["volumes"] == [
         "macro_source_artifacts:/var/lib/business-cycle/source-artifacts"
     ]
-    assert "business_cycle.service.nas_revised_import_worker" in worker["command"]
+    assert "business_cycle.service.nas_scheduled_revised_refresh" in worker["command"]
+    assert "--serve" in worker["command"]
+    assert "healthcheck" in worker
+    assert worker["depends_on"]["macro_source_artifact_init"]["condition"] == (
+        "service_completed_successfully"
+    )
     assert "FRED_API_KEY" in worker["environment"]
     assert "tailscale funnel" not in Path("deploy/nas/compose.yaml").read_text(
         encoding="utf-8"
     ).lower()
+
+
+def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
+    tmp_path: Path,
+) -> None:
+    summary = summarize_nas_scheduled_revised_refresh_contract()
+    calls: list[dict[str, object]] = []
+
+    def successful_import(**kwargs: object) -> dict[str, object]:
+        calls.append(kwargs)
+        return {
+            "result": "passed",
+            "requested_series_count": 26,
+            "completed_series_count": 26,
+            "failed_series_count": 0,
+            "source_artifact_count": 26,
+        }
+
+    status = run_scheduled_refresh_once(
+        artifact_root=tmp_path,
+        operator_confirmation=CONFIRMATION,
+        import_runner=successful_import,
+        now=lambda: datetime(2026, 7, 10, tzinfo=timezone.utc),
+    )
+
+    assert summary["result"] == "passed"
+    assert summary["direct_series_count"] == 26
+    assert status["refresh_state"] == "succeeded"
+    assert status["completed_series_count"] == 26
+    assert status["candidate_phase_emitted"] is False
+    assert status["current_phase_emitted"] is False
+    assert json.loads((tmp_path / "refresh-status.json").read_text()) == status
+    assert calls[0]["retry_count"] == 3
+    assert calls[0]["resume"] is False
+
+    schedule_root = tmp_path / "schedule"
+    schedule_root.mkdir()
+    (schedule_root / "refresh-status.json").write_text(
+        json.dumps(status),
+        encoding="utf-8",
+    )
+    sleeps: list[float] = []
+    scheduled_runs: list[dict[str, object]] = []
+
+    def scheduled_runner(**kwargs: object) -> dict[str, object]:
+        scheduled_runs.append(kwargs)
+        return status
+
+    assert (
+        serve_refresh_schedule(
+            artifact_root=schedule_root,
+            operator_confirmation=CONFIRMATION,
+            interval_seconds=86400,
+            initial_delay_seconds=86400,
+            sleep=sleeps.append,
+            max_runs=1,
+            refresh_runner=scheduled_runner,
+            now=lambda: datetime(2026, 7, 10, 12, tzinfo=timezone.utc),
+        )
+        == 0
+    )
+    assert sleeps == [43200.0]
+    assert len(scheduled_runs) == 1
+
+    def failed_import(**_: object) -> dict[str, object]:
+        raise RuntimeError("private database details")
+
+    failed = run_scheduled_refresh_once(
+        artifact_root=tmp_path,
+        operator_confirmation=CONFIRMATION,
+        import_runner=failed_import,
+        now=lambda: datetime(2026, 7, 11, tzinfo=timezone.utc),
+    )
+    assert failed["refresh_state"] == "failed"
+    assert failed["error_class"] == "RuntimeError"
+    assert failed["error_message_redacted"] == "refresh_execution_failed"
+    assert "private database details" not in json.dumps(failed)
+
+    with _exclusive_refresh_lock(tmp_path / "refresh.lock"):
+        with pytest.raises(RuntimeError, match="already running"):
+            run_scheduled_refresh_once(
+                artifact_root=tmp_path,
+                operator_confirmation=CONFIRMATION,
+                import_runner=successful_import,
+            )
 
 
 class _FakeDashboardReadExecutor:
@@ -435,16 +542,36 @@ def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage(
     assert roles["growth_adp_employment"]["snapshot_status"] == "blocked"
 
 
-def test_phase111_live_runtime_renders_private_chinese_chart_surface() -> None:
+def test_phase111_live_runtime_renders_private_chinese_chart_surface(
+    tmp_path: Path,
+) -> None:
+    refresh_status_path = tmp_path / "refresh-status.json"
+    refresh_status_path.write_text(
+        json.dumps(
+            {
+                "refresh_state": "succeeded",
+                "last_completed_at_utc": "2026-07-10T01:00:00Z",
+                "next_scheduled_at_utc": "2026-07-11T01:00:00Z",
+                "requested_series_count": 26,
+                "completed_series_count": 26,
+                "failed_series_count": 0,
+            },
+        ),
+        encoding="utf-8",
+    )
     runtime = build_nas_live_dashboard_runtime(
         executor=_FakeDashboardReadExecutor(),
         snapshot_as_of="2026-07-10",
+        refresh_status_path=refresh_status_path,
     )
     bundle = runtime["dashboard_bundle"]
     html = next(
         page["html"] for page in bundle["html_pages"] if page["path"] == "/indicators"
     )
     status = bundle["api_payloads"]["service_status"]
+    overview = next(
+        page["html"] for page in bundle["html_pages"] if page["path"] == "/"
+    )
 
     assert runtime["result"] == "passed"
     assert runtime["nas_live_postgres_dashboard_runtime_ready"] is True
@@ -452,6 +579,10 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface() -> None:
     assert runtime["chart_available_role_count"] == 37
     assert status["dashboard_data_source"] == "live_postgres_read_only"
     assert status["live_db_connected"] is True
+    assert status["refresh_status"]["refresh_state"] == "succeeded"
+    assert status["source_refresh_health_status"] == "healthy"
+    assert "官方資料更新狀態" in overview
+    assert "最近更新成功" in overview
     assert html.count("<details>") == 37
     assert "查看今年／過去 1 年／過去 5 年走勢" in html
     assert 'class="interactive-chart"' in html
@@ -502,4 +633,29 @@ def test_show_phase111_live_postgres_dashboard_closure_script() -> None:
     assert "live_db_connected=true" in completed.stdout
     assert "role_count=39" in completed.stdout
     assert "phase111_closure_status=" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+def test_phase112_scheduled_refresh_closure_and_script_pass() -> None:
+    summary = summarize_phase112_nas_scheduled_revised_refresh_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase112_closure_ready"] is True
+    assert summary["refresh_state"] == "scheduled"
+    assert summary["last_run_state"] == "succeeded"
+    assert summary["completed_series_count"] == 26
+    assert summary["source_refresh_health_status"] == "healthy"
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase112_nas_scheduled_revised_refresh_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase112_closure_ready=true" in completed.stdout
+    assert "phase112_closure_status=" in completed.stdout
     assert "result=passed" in completed.stdout

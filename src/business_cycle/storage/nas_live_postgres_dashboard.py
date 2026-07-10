@@ -225,6 +225,7 @@ def build_nas_live_postgres_dashboard_snapshot(
     database_url: str | None = None,
     executor: DashboardReadExecutor | None = None,
     snapshot_as_of: str | None = None,
+    refresh_status: dict[str, Any] | None = None,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
 ) -> dict[str, Any]:
     """Build 39 role snapshots from a read-only live Postgres query."""
@@ -273,6 +274,14 @@ def build_nas_live_postgres_dashboard_snapshot(
     chart_roles = [
         row for row in role_snapshots if row["chart_payload_detail"]["chart_available"]
     ]
+    resolved_refresh_status = refresh_status or {
+        "refresh_state": "not_started",
+        "last_completed_at_utc": None,
+        "next_scheduled_at_utc": None,
+        "requested_series_count": 0,
+        "completed_series_count": 0,
+        "failed_series_count": 0,
+    }
     snapshot: dict[str, Any] = {
         "artifact_id": "phase111_nas_live_postgres_dashboard_snapshot",
         "artifact_version": contract["version"],
@@ -304,6 +313,11 @@ def build_nas_live_postgres_dashboard_snapshot(
         ),
         "chart_available_role_count": len(chart_roles),
         "chart_unavailable_role_count": len(role_snapshots) - len(chart_roles),
+        "refresh_status": resolved_refresh_status,
+        "source_refresh_health_status": _source_refresh_health_status(
+            resolved_refresh_status,
+            available_series_count=len(series_rows),
+        ),
         "live_db_connection_attempt_count": 1,
         "postgres_write_attempt_count": 0,
         "schema_migration_attempt_count": 0,
@@ -327,6 +341,11 @@ def build_nas_live_postgres_dashboard_snapshot(
             "live_fetch_attempted": False,
             "candidate_phase_selection_enabled": False,
             "current_phase_inference_enabled": False,
+            "refresh_state": resolved_refresh_status["refresh_state"],
+            "source_refresh_health_status": _source_refresh_health_status(
+                resolved_refresh_status,
+                available_series_count=len(series_rows),
+            ),
         },
         "allowed_uses": contract["allowed_uses"],
         "prohibited_uses": contract["prohibited_uses"],
@@ -660,6 +679,24 @@ def _rows_by(rows: Any, key: str) -> dict[str, dict[str, Any]]:
         str(row[key]): dict(row)
         for row in rows
     }
+
+
+def _source_refresh_health_status(
+    refresh_status: dict[str, Any],
+    *,
+    available_series_count: int,
+) -> str:
+    state = refresh_status.get("refresh_state")
+    last_run_state = refresh_status.get("last_run_state")
+    if (
+        state == "succeeded" or last_run_state == "succeeded"
+    ) and int(refresh_status.get("failed_series_count", 0)) == 0:
+        return "healthy"
+    if state == "failed" or last_run_state == "failed":
+        return "degraded"
+    if available_series_count > 0:
+        return "baseline_loaded_waiting_for_scheduled_refresh"
+    return "unavailable"
 
 
 def _period_start(period_id: str, as_of: date) -> date:

@@ -198,7 +198,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase111_nas_live_postgres_dashboard_closure.py" in (
+    assert "scripts/show_phase112_nas_scheduled_revised_refresh_closure.py" in (
         FULL_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase88_portfolio_policy_replay_research_surface_closure.py" in (
