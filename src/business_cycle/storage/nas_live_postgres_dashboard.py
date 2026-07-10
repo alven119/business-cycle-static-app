@@ -18,6 +18,9 @@ import yaml
 from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
 )
+from business_cycle.service.nas_official_release_calendar import (
+    build_nas_official_release_diagnostics,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_live_postgres_dashboard_contract.yaml"
@@ -296,6 +299,17 @@ def build_nas_live_postgres_dashboard_snapshot(
         "active_registry_override_present": False,
         "current_data_used_to_infer_declared_phase_count": 0,
     }
+    series_release_inputs = _series_release_inputs(
+        series_rows=series_rows,
+        observations_by_series=observations_by_series,
+        as_of=date.fromisoformat(resolved_as_of),
+        freshness_windows=contract["freshness_windows_days"],
+    )
+    source_release_diagnostics = build_nas_official_release_diagnostics(
+        as_of=resolved_as_of,
+        series_inputs=series_release_inputs,
+        refresh_status=resolved_refresh_status,
+    )
     snapshot: dict[str, Any] = {
         "artifact_id": "phase111_nas_live_postgres_dashboard_snapshot",
         "artifact_version": contract["version"],
@@ -332,6 +346,7 @@ def build_nas_live_postgres_dashboard_snapshot(
             resolved_refresh_status,
             available_series_count=len(series_rows),
         ),
+        "source_release_diagnostics": source_release_diagnostics,
         "declared_cycle_state": resolved_declared_cycle_state,
         "live_db_connection_attempt_count": 1,
         "postgres_write_attempt_count": 0,
@@ -361,6 +376,12 @@ def build_nas_live_postgres_dashboard_snapshot(
                 resolved_refresh_status,
                 available_series_count=len(series_rows),
             ),
+            "release_calendar_runtime_ready": source_release_diagnostics[
+                "release_calendar_runtime_ready"
+            ],
+            "release_family_count": source_release_diagnostics[
+                "release_family_count"
+            ],
             "declared_state_source": resolved_declared_cycle_state[
                 "active_registry_source"
             ],
@@ -380,10 +401,43 @@ def build_nas_live_postgres_dashboard_snapshot(
                 "observation_revised_total_count"
             ],
             "declared_cycle_state": resolved_declared_cycle_state,
+            "source_release_diagnostics": source_release_diagnostics,
         },
     )
     snapshot["result"] = "passed"
     return snapshot
+
+
+def _series_release_inputs(
+    *,
+    series_rows: dict[str, dict[str, Any]],
+    observations_by_series: dict[str, list[dict[str, Any]]],
+    as_of: date,
+    freshness_windows: dict[str, Any],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for series_id in sorted(series_rows):
+        observations = observations_by_series.get(series_id, [])
+        latest = date.fromisoformat(observations[-1]["observation_date"]) if observations else None
+        freshness = (
+            _freshness(
+                latest_date=latest,
+                as_of=as_of,
+                frequency=str(series_rows[series_id].get("frequency", "")),
+                windows=freshness_windows,
+            )
+            if latest is not None
+            else {"freshness_status": "unavailable"}
+        )
+        rows.append(
+            {
+                "series_id": series_id,
+                "frequency": series_rows[series_id].get("frequency"),
+                "latest_observation_date": latest.isoformat() if latest else None,
+                "freshness_status": freshness["freshness_status"],
+            }
+        )
+    return rows
 
 
 def _live_role_snapshot(

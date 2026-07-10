@@ -79,8 +79,8 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "113" if runtime_live_mode else "95",
-        "phase_id": 113 if runtime_live_mode else 95,
+        "phase": "114" if runtime_live_mode else "95",
+        "phase_id": 114 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": "phase95_nas_service_dashboard_renderer",
         "artifact_version": contract["version"],
@@ -643,6 +643,7 @@ def _dashboard_data_source_label(runtime_live_mode: bool) -> str:
 
 def _refresh_status_html(snapshot: dict[str, Any]) -> str:
     status = snapshot.get("refresh_status", {})
+    release = snapshot.get("source_release_diagnostics", {})
     state_labels = {
         "not_started": "尚未開始定期更新",
         "scheduled": "已排程",
@@ -668,6 +669,10 @@ def _refresh_status_html(snapshot: dict[str, Any]) -> str:
         <article><strong>{int(status.get('completed_series_count', 0))}/{int(status.get('requested_series_count', 0))}</strong><span>完成來源</span></article>
       </div>
       <p class="meta">來源健康：{escape(health_labels.get(health, health))}；此更新只代表 revised 資料同步，不代表景氣階段確認。</p>
+      <p class="meta">官方發布家族：{int(release.get('release_family_count', 0))}；
+      待更新或需查核：{int(release.get('family_due_or_missing_refresh_count', 0))}；
+      有失敗原因的序列：{int(release.get('series_with_failure_reason_count', 0))}。</p>
+      <p><a href="/source-operations">查看官方發布日曆與更新失敗明細</a></p>
     </section>
     """
 

@@ -1,0 +1,193 @@
+nas_official_release_calendar_contract:
+  version: "1.0"
+  status: active_private_nas_operations_contract
+  phase_id: 114
+  phase_label: per_source_official_release_calendar_and_refresh_failure_drilldown
+  verified_at: "2026-07-10"
+  depends_on:
+    - specs/common/series_release_lag_registry.yaml
+    - specs/common/nas_postgres_live_revised_import_contract.yaml
+    - specs/common/nas_scheduled_revised_refresh_contract.yaml
+  semantics:
+    exact_schedule_may_determine_due_state: true
+    cadence_only_may_not_claim_official_delay: true
+    reference_only_may_not_claim_official_delay: true
+    observation_date_may_not_equal_release_date: true
+    refresh_failure_must_be_separate_from_source_delay: true
+    missing_series_result_must_not_equal_success: true
+    revised_data_only: true
+  failure_reason_taxonomy:
+    - refresh_execution_failed
+    - source_fetch_failed
+    - not_attempted_after_prior_failure
+    - refresh_due_after_official_release
+    - refreshed_after_release_but_series_stale
+    - calendar_precision_insufficient_for_delay_claim
+  release_families:
+    - release_family_id: moody_corporate_yields_via_fred
+      title_zh: Moody 公司債殖利率（經 FRED）
+      agency_zh: Moody／聖路易聯準銀行 FRED
+      series_ids: [AAA, BAA]
+      calendar_precision: cadence_only
+      publication_time_zone: America/New_York
+      official_calendar_url: https://fred.stlouisfed.org/
+      cadence_rule: 美國營業日更新；精確 FRED 入庫時間不作官方發布日承諾
+      scheduled_releases: []
+    - release_family_id: census_manufacturing_trade_inventories_sales
+      title_zh: 製造與商業存貨及銷售
+      agency_zh: 美國普查局
+      series_ids: [BUSINV]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.census.gov/economic-indicators/calendar-listview.html
+      scheduled_releases:
+        - {release_date: "2026-06-17", reference_period: "2026-04", release_time: "10:00"}
+        - {release_date: "2026-07-16", reference_period: "2026-05", release_time: "10:00"}
+        - {release_date: "2026-08-14", reference_period: "2026-06", release_time: "10:00"}
+        - {release_date: "2026-09-16", reference_period: "2026-07", release_time: "10:00"}
+    - release_family_id: bea_nipa_gdp
+      title_zh: BEA 國民所得與生產帳 GDP
+      agency_zh: 美國經濟分析局
+      series_ids: [CBIC1, EXPGS, FPIC1, IMPGS, PRFIC1, SLCEC1, W006RC1Q027SBEA]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.bea.gov/news/schedule/
+      scheduled_releases:
+        - {release_date: "2026-06-25", reference_period: "2026-Q1-third", release_time: "08:30"}
+        - {release_date: "2026-07-30", reference_period: "2026-Q2-advance", release_time: "08:30"}
+        - {release_date: "2026-08-26", reference_period: "2026-Q2-second", release_time: "08:30"}
+        - {release_date: "2026-09-30", reference_period: "2026-Q2-third", release_time: "08:30"}
+    - release_family_id: dol_weekly_unemployment_claims
+      title_zh: 每週失業保險申請
+      agency_zh: 美國勞工部
+      series_ids: [CCSA, ICSA]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.dol.gov/ui/data.pdf
+      scheduled_releases:
+        - {release_date: "2026-07-02", reference_period: "weekly", release_time: "08:30"}
+        - {release_date: "2026-07-09", reference_period: "weekly", release_time: "08:30"}
+        - {release_date: "2026-07-16", reference_period: "weekly", release_time: "08:30"}
+        - {release_date: "2026-07-23", reference_period: "weekly", release_time: "08:30"}
+        - {release_date: "2026-07-30", reference_period: "weekly", release_time: "08:30"}
+        - {release_date: "2026-08-06", reference_period: "weekly", release_time: "08:30"}
+    - release_family_id: bls_consumer_price_index
+      title_zh: 消費者物價指數
+      agency_zh: 美國勞工統計局
+      series_ids: [CPILFESL]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.bls.gov/schedule/2026/home.htm
+      scheduled_releases:
+        - {release_date: "2026-06-10", reference_period: "2026-05", release_time: "08:30"}
+        - {release_date: "2026-07-14", reference_period: "2026-06", release_time: "08:30"}
+        - {release_date: "2026-08-12", reference_period: "2026-07", release_time: "08:30"}
+    - release_family_id: census_manufacturers_orders
+      title_zh: 製造業出貨、存貨與訂單
+      agency_zh: 美國普查局
+      series_ids: [DGORDER]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.census.gov/economic-indicators/calendar-listview.html
+      scheduled_releases:
+        - {release_date: "2026-06-25", reference_period: "2026-05-advance", release_time: "08:30"}
+        - {release_date: "2026-07-27", reference_period: "2026-06-advance", release_time: "08:30"}
+        - {release_date: "2026-08-26", reference_period: "2026-07-advance", release_time: "08:30"}
+        - {release_date: "2026-09-25", reference_period: "2026-08-advance", release_time: "08:30"}
+    - release_family_id: federal_reserve_chargeoff_delinquency
+      title_zh: 商業銀行逾期與沖銷率
+      agency_zh: 美國聯邦準備理事會
+      series_ids: [DRBLACBS, DRCLACBS]
+      calendar_precision: reference_only
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.federalreserve.gov/releases/chargeoff/default.htm
+      cadence_rule: 季資料；官方頁面提供最近更新但未提供可安全自動化的完整未來日期表
+      scheduled_releases: []
+    - release_family_id: bea_personal_income_outlays
+      title_zh: 個人所得與支出
+      agency_zh: 美國經濟分析局
+      series_ids: [DSPIC96, PCEC96, PCEDGC96, PCEPILFE, PSAVERT]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.bea.gov/news/schedule/
+      scheduled_releases:
+        - {release_date: "2026-06-25", reference_period: "2026-05", release_time: "08:30"}
+        - {release_date: "2026-07-30", reference_period: "2026-06", release_time: "08:30"}
+        - {release_date: "2026-08-28", reference_period: "2026-07", release_time: "08:30"}
+        - {release_date: "2026-09-30", reference_period: "2026-08", release_time: "08:30"}
+    - release_family_id: federal_reserve_h15_monthly_average
+      title_zh: 聯準會 H.15 利率月平均
+      agency_zh: 美國聯邦準備理事會
+      series_ids: [FEDFUNDS]
+      calendar_precision: cadence_only
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.federalreserve.gov/releases/h15/default.htm
+      cadence_rule: H.15 週一至週五 16:15 發布；月平均序列的 FRED 入庫日不作精確承諾
+      scheduled_releases: []
+    - release_family_id: federal_reserve_g17_industrial_production
+      title_zh: 工業生產與產能利用率 G.17
+      agency_zh: 美國聯邦準備理事會
+      series_ids: [INDPRO]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.federalreserve.gov/releases/G17/release_dates.htm
+      scheduled_releases:
+        - {release_date: "2026-06-15", reference_period: "2026-05", release_time: "09:15"}
+        - {release_date: "2026-07-17", reference_period: "2026-06", release_time: "09:15"}
+        - {release_date: "2026-08-18", reference_period: "2026-07", release_time: "09:15"}
+        - {release_date: "2026-09-18", reference_period: "2026-08", release_time: "09:15"}
+    - release_family_id: bls_employment_situation
+      title_zh: 就業情勢報告
+      agency_zh: 美國勞工統計局
+      series_ids: [PAYEMS, UEMPLT5]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.bls.gov/schedule/2026/home.htm
+      scheduled_releases:
+        - {release_date: "2026-07-02", reference_period: "2026-06", release_time: "08:30"}
+        - {release_date: "2026-08-07", reference_period: "2026-07", release_time: "08:30"}
+        - {release_date: "2026-09-04", reference_period: "2026-08", release_time: "08:30"}
+    - release_family_id: census_advance_monthly_retail_trade
+      title_zh: 零售與餐飲服務銷售
+      agency_zh: 美國普查局
+      series_ids: [RRSFS]
+      calendar_precision: exact_schedule
+      publication_time_zone: America/New_York
+      official_calendar_url: https://www.census.gov/retail/release_schedule.html
+      scheduled_releases:
+        - {release_date: "2026-06-17", reference_period: "2026-05", release_time: "08:30"}
+        - {release_date: "2026-07-16", reference_period: "2026-06", release_time: "08:30"}
+        - {release_date: "2026-08-14", reference_period: "2026-07", release_time: "08:30"}
+        - {release_date: "2026-09-16", reference_period: "2026-08", release_time: "08:30"}
+  operations_policy:
+    release_refresh_grace_days: 2
+    route_path: /source-operations
+    api_path: /api/source-operations.json
+    authentication_required: true
+    frontend_database_access_allowed: false
+    manual_retry_button_enabled: false
+  prohibited_outputs:
+    - candidate_phase
+    - current_phase
+    - phase_score
+    - phase_rank
+    - allocation_recommendation
+    - trade_action
+  hard_gates:
+    nas_official_release_calendar_contract_ready: true
+    direct_series_count: 26
+    release_family_count: 12
+    exact_schedule_family_count: 9
+    cadence_only_family_count: 2
+    reference_only_family_count: 1
+    series_without_release_family_count: 0
+    duplicate_series_mapping_count: 0
+    observation_date_assumed_release_date_count: 0
+    official_delay_claim_without_exact_schedule_count: 0
+    refresh_failure_reason_count: 6
+    private_source_operations_route_count: 2
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 115

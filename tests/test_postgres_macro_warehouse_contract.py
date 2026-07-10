@@ -18,8 +18,15 @@ from business_cycle.audits.phase111_nas_live_postgres_dashboard_closure import (
 from business_cycle.audits.phase112_nas_scheduled_revised_refresh_closure import (
     summarize_phase112_nas_scheduled_revised_refresh_closure,
 )
+from business_cycle.audits.phase114_nas_official_release_operations_closure import (
+    summarize_phase114_nas_official_release_operations_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
+from business_cycle.service.nas_official_release_calendar import (
+    build_nas_official_release_diagnostics,
+    summarize_nas_official_release_calendar_contract,
+)
 from business_cycle.service.nas_scheduled_revised_refresh import (
     _exclusive_refresh_lock,
     run_scheduled_refresh_once,
@@ -294,9 +301,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     artifact_init = compose["services"]["macro_source_artifact_init"]
     worker = compose["services"]["macro_refresh_worker"]
 
-    assert app["image"] == (
-        "business-cycle-nas-app:phase113-declared-start-governance"
-    )
+    assert app["image"] == "business-cycle-nas-app:phase114-source-operations"
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
@@ -335,12 +340,23 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
 
     def successful_import(**kwargs: object) -> dict[str, object]:
         calls.append(kwargs)
+        series_ids = load_nas_postgres_live_revised_import_contract()[
+            "source_policy"
+        ]["direct_series_ids"]
         return {
             "result": "passed",
             "requested_series_count": 26,
             "completed_series_count": 26,
             "failed_series_count": 0,
             "source_artifact_count": 26,
+            "results": [
+                {
+                    "series_id": series_id,
+                    "status": "imported",
+                    "observation_count": 10,
+                }
+                for series_id in series_ids
+            ],
         }
 
     status = run_scheduled_refresh_once(
@@ -354,6 +370,7 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
     assert summary["direct_series_count"] == 26
     assert status["refresh_state"] == "succeeded"
     assert status["completed_series_count"] == 26
+    assert len(status["series_refresh_results"]) == 26
     assert status["candidate_phase_emitted"] is False
     assert status["current_phase_emitted"] is False
     assert json.loads((tmp_path / "refresh-status.json").read_text()) == status
@@ -644,6 +661,111 @@ def test_show_phase111_live_postgres_dashboard_closure_script() -> None:
     assert "live_db_connected=true" in completed.stdout
     assert "role_count=39" in completed.stdout
     assert "phase111_closure_status=" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+def test_phase114_release_calendar_and_failure_drilldown_are_source_specific() -> None:
+    summary = summarize_nas_official_release_calendar_contract()
+    series_ids = load_nas_postgres_live_revised_import_contract()[
+        "source_policy"
+    ]["direct_series_ids"]
+    inputs = [
+        {
+            "series_id": series_id,
+            "frequency": "monthly",
+            "latest_observation_date": "2026-07-01",
+            "freshness_status": "fresh",
+        }
+        for series_id in series_ids
+    ]
+    success_status = {
+        "refresh_state": "succeeded",
+        "last_run_state": "succeeded",
+        "last_completed_at_utc": "2026-07-10T12:00:00Z",
+        "series_refresh_results": [
+            {
+                "series_id": series_id,
+                "status": "imported",
+                "observation_count": 10,
+                "error_class": None,
+            }
+            for series_id in series_ids
+        ],
+    }
+    diagnostics = build_nas_official_release_diagnostics(
+        as_of="2026-07-10",
+        series_inputs=inputs,
+        refresh_status=success_status,
+    )
+
+    assert summary["result"] == "passed"
+    assert summary["release_family_count"] == 12
+    assert summary["exact_schedule_family_count"] == 9
+    assert diagnostics["release_calendar_runtime_ready"] is True
+    assert diagnostics["series_diagnostic_count"] == 26
+    assert diagnostics["official_source_delay_confirmed_count"] == 0
+    assert diagnostics["observation_date_assumed_release_date_count"] == 0
+    cadence = next(
+        row
+        for row in diagnostics["release_families"]
+        if row["release_family_id"] == "moody_corporate_yields_via_fred"
+    )
+    assert cadence["release_monitor_status"] == "cadence_only_monitoring"
+    assert cadence["official_source_delay_confirmed"] is False
+
+    failed_status = {
+        "refresh_state": "failed",
+        "last_run_state": "failed",
+        "last_completed_at_utc": "2026-07-10T12:00:00Z",
+        "series_refresh_results": [
+            {
+                "series_id": "AAA",
+                "status": "failed",
+                "observation_count": 0,
+                "error_class": "TimeoutError",
+            }
+        ],
+    }
+    failed = build_nas_official_release_diagnostics(
+        as_of="2026-07-10",
+        series_inputs=inputs,
+        refresh_status=failed_status,
+    )
+    aaa = next(
+        row for row in failed["series_refresh_diagnostics"] if row["series_id"] == "AAA"
+    )
+    baa = next(
+        row for row in failed["series_refresh_diagnostics"] if row["series_id"] == "BAA"
+    )
+    assert aaa["failure_reason_codes"] == ["source_fetch_failed"]
+    assert aaa["error_class"] == "TimeoutError"
+    assert baa["failure_reason_codes"] == ["not_attempted_after_prior_failure"]
+    assert failed["series_with_failure_reason_count"] == 26
+    assert failed["refresh_failure_separated_from_source_delay"] is True
+
+
+def test_phase114_source_operations_closure_and_script_pass() -> None:
+    summary = summarize_phase114_nas_official_release_operations_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase114_closure_ready"] is True
+    assert summary["release_family_count"] == 12
+    assert summary["series_diagnostic_count"] == 26
+    assert summary["source_operations_page_authenticated_access"] is True
+    assert summary["source_operations_api_authenticated_access"] is True
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase114_nas_official_release_operations_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase114_closure_ready=true" in completed.stdout
+    assert "phase114_closure_status=" in completed.stdout
     assert "result=passed" in completed.stdout
 
 

@@ -198,8 +198,11 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase113_nas_declared_phase_start_governance_closure.py" in (
+    assert "scripts/show_phase114_nas_official_release_operations_closure.py" in (
         FULL_CLOSURE_SCRIPTS
+    )
+    assert "scripts/show_phase113_nas_declared_phase_start_governance_closure.py" in (
+        NIGHTLY_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase88_portfolio_policy_replay_research_surface_closure.py" in (
         NIGHTLY_CLOSURE_SCRIPTS

@@ -32,6 +32,10 @@ from business_cycle.cycle_state.nas_declared_phase_start_registry import (
 from business_cycle.render.nas_declared_phase_start import (
     render_nas_declared_phase_start_page,
 )
+from business_cycle.render.nas_source_operations import (
+    build_nas_source_operations_api,
+    render_nas_source_operations_page,
+)
 from business_cycle.service.nas_app_shell import (
     NasAppRequest,
     build_nas_app_shell,
@@ -243,6 +247,8 @@ def build_runtime_response(
                     "current_cached_snapshot",
                 ),
                 "governed_cycle_state_operator_route_count": 5,
+                "source_operations_route_count": 2,
+                "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
             },
@@ -285,6 +291,13 @@ def build_runtime_response(
     )
     if cycle_state_response is not None:
         return cycle_state_response
+    source_operations_response = _source_operations_response(
+        path=normalized_path,
+        method=normalized_method,
+        shell=shell,
+    )
+    if source_operations_response is not None:
+        return source_operations_response
     if normalized_method != "GET":
         return _json_response(405, {"error": "method_not_allowed", "research_only": True})
 
@@ -356,7 +369,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase113"
+    server_version = "BusinessCycleNAS/phase114"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -541,6 +554,41 @@ def _cycle_state_response(
             ),
             route_id="nas_declared_phase_start_error",
         )
+
+
+def _source_operations_response(
+    *,
+    path: str,
+    method: str,
+    shell: dict[str, Any] | None,
+) -> RuntimeResponse | None:
+    if path not in {"/source-operations", "/api/source-operations.json"}:
+        return None
+    if method != "GET":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+    diagnostics = (shell or {}).get("source_release_diagnostics")
+    if not isinstance(diagnostics, dict):
+        return _json_response(
+            503,
+            {
+                "error": "source_operations_not_available",
+                "research_only": True,
+                "private_nas_only": True,
+            },
+        )
+    if path == "/source-operations":
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            render_nas_source_operations_page(diagnostics),
+            route_id="nas_source_operations_page",
+        )
+    return RuntimeResponse(
+        200,
+        "application/json",
+        build_nas_source_operations_api(diagnostics),
+        route_id="nas_source_operations_api",
+    )
 
 
 def _form_value(form: dict[str, list[str]], key: str) -> str:

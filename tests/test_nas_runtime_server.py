@@ -12,7 +12,13 @@ from business_cycle.service.nas_runtime_server import (
     NasAppShellTtlCache,
     build_runtime_response,
 )
+from business_cycle.service.nas_official_release_calendar import (
+    build_nas_official_release_diagnostics,
+)
 from business_cycle.service.refresh_worker_disabled_until_gate import main as refresh_main
+from business_cycle.storage.nas_postgres_live_revised_import import (
+    load_nas_postgres_live_revised_import_contract,
+)
 
 pytestmark = pytest.mark.archive_regression
 
@@ -35,11 +41,14 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
                 "live_db_connected": True,
                 "snapshot_as_of": "2026-07-10",
                 "database_latest_observation_date": "2026-07-04",
+                "release_family_count": 12,
             },
         },
     )
     assert '"live_db_connected": true' in live_ready.body
     assert '"dashboard_data_source": "live_postgres_read_only"' in live_ready.body
+    assert '"source_operations_route_count": 2' in live_ready.body
+    assert '"release_family_count": 12' in live_ready.body
 
 
 def test_runtime_protected_routes_require_secret() -> None:
@@ -309,6 +318,59 @@ def test_runtime_rejects_unsupported_method() -> None:
     )
 
     assert response.status_code == 405
+
+
+def test_phase114_source_operations_routes_are_private_and_traditional_chinese() -> None:
+    series_ids = load_nas_postgres_live_revised_import_contract()[
+        "source_policy"
+    ]["direct_series_ids"]
+    diagnostics = build_nas_official_release_diagnostics(
+        as_of="2026-07-10",
+        series_inputs=[
+            {
+                "series_id": series_id,
+                "frequency": "monthly",
+                "latest_observation_date": "2026-07-01",
+                "freshness_status": "fresh",
+            }
+            for series_id in series_ids
+        ],
+        refresh_status={
+            "refresh_state": "succeeded",
+            "last_run_state": "succeeded",
+            "last_completed_at_utc": "2026-07-10T12:00:00Z",
+            "series_refresh_results": [],
+        },
+    )
+    shell = {"source_release_diagnostics": diagnostics}
+    unauthorized = build_runtime_response(
+        path="/source-operations",
+        session_secret="expected-secret",
+        shell=shell,
+    )
+    page = build_runtime_response(
+        path="/source-operations",
+        session_secret="expected-secret",
+        headers={"X-Business-Cycle-Session": "expected-secret"},
+        shell=shell,
+    )
+    api = build_runtime_response(
+        path="/api/source-operations.json",
+        session_secret="expected-secret",
+        headers={"X-Business-Cycle-Session": "expected-secret"},
+        shell=shell,
+    )
+
+    assert unauthorized.status_code == 401
+    assert page.status_code == 200
+    assert page.route_id == "nas_source_operations_page"
+    assert "官方資料發布與更新維運" in page.body
+    assert "逐序列 refresh drilldown" in page.body
+    assert "不會冒充官方延遲" in page.body
+    assert api.status_code == 200
+    assert api.route_id == "nas_source_operations_api"
+    assert '"release_family_count": 12' in api.body
+    assert '"candidate_phase_emitted": false' in api.body
 
 
 def test_healthcheck_import_mode_passes() -> None:

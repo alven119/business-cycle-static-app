@@ -239,6 +239,14 @@ Estimated deployment sequence:
   update retains a prior-registry backup and a hash-only event record; rollback
   requires a second explicit confirmation. The repository canonical registry
   remains the read-only default, and no macro data is used to infer the start.
+- Phase 114: add `/source-operations` and
+  `/api/source-operations.json`. The surface maps 26 direct series to 12
+  official release families, shows exact official dates only where verified,
+  and keeps cadence/reference-only sources from being mislabeled as delayed.
+  Scheduled refresh status now preserves a redacted per-series trail so an
+  operator can distinguish a source fetch failure, a downstream series not
+  attempted after an earlier failure, and an official release merely waiting
+  for the next refresh.
 
 ## GitHub Pages Retirement
 
@@ -270,7 +278,7 @@ Backups must cover:
 
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Per-source release-calendar scheduling beyond the daily revised refresh.
+- Governed operator retry and backup-restore drill after a source failure.
 - User confirmation of the declared boom exact start date or bounded window;
   until then, the dashboard displays an explicit unknown phase age.
 - Dedicated least-privilege dashboard database role and credential rotation.

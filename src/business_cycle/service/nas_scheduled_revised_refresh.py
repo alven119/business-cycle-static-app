@@ -147,6 +147,7 @@ def run_scheduled_refresh_once(
                 "error_message_redacted": None
                 if succeeded
                 else "one_or_more_sources_failed",
+                "series_refresh_results": _redacted_series_refresh_results(report),
             }
         except Exception as exc:  # noqa: BLE001 - status must survive failure
             completed = clock()
@@ -234,7 +235,7 @@ def _exclusive_refresh_lock(path: Path) -> Iterator[None]:
 
 def _base_status(state: str) -> dict[str, Any]:
     return {
-        "status_version": "phase112_refresh_status_v1",
+        "status_version": "phase114_refresh_status_v2",
         "refresh_state": state,
         "last_run_state": None,
         "data_mode": "revised",
@@ -249,10 +250,39 @@ def _base_status(state: str) -> dict[str, Any]:
         "report_path": None,
         "error_class": None,
         "error_message_redacted": None,
+        "series_refresh_results": [],
         "candidate_phase_emitted": False,
         "current_phase_emitted": False,
         "secret_value_recorded": False,
     }
+
+
+def _redacted_series_refresh_results(report: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = report.get("results", [])
+    if not isinstance(rows, list):
+        return []
+    allowed_statuses = {"imported", "resumed_existing", "failed"}
+    results: list[dict[str, Any]] = []
+    for raw in rows:
+        if not isinstance(raw, dict) or not raw.get("series_id"):
+            continue
+        status = str(raw.get("status", "unknown"))
+        results.append(
+            {
+                "series_id": str(raw["series_id"]),
+                "status": status if status in allowed_statuses else "unknown",
+                "observation_count": int(raw.get("observation_count", 0)),
+                "error_class": (
+                    str(raw["error_class"])
+                    if status == "failed" and raw.get("error_class")
+                    else None
+                ),
+                "error_reason_code": (
+                    "source_fetch_failed" if status == "failed" else None
+                ),
+            }
+        )
+    return results
 
 
 def _atomic_json_write(path: Path, payload: dict[str, Any]) -> None:
