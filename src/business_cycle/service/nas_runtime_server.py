@@ -8,6 +8,7 @@ dashboard without adding a new web-framework dependency in this phase.
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from collections import deque
 from dataclasses import dataclass, field
 import hashlib
 import hmac
@@ -15,7 +16,9 @@ import html
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
-from typing import Any
+from threading import Lock
+import time
+from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
 from business_cycle.service.nas_app_shell import (
@@ -27,6 +30,83 @@ from business_cycle.service.nas_app_shell import (
 DEFAULT_SESSION_HEADER = "X-Business-Cycle-Session"
 SESSION_COOKIE_NAME = "business_cycle_private_session"
 LOCAL_HEALTH_PATHS = {"/healthz", "/readyz"}
+MAX_LOGIN_BODY_BYTES = 4096
+DEFAULT_LOGIN_MAX_FAILURES = 5
+DEFAULT_LOGIN_WINDOW_SECONDS = 300
+
+
+class LoginAttemptLimiter:
+    """Small in-memory failed-login limiter for the private NAS entry point."""
+
+    def __init__(
+        self,
+        *,
+        max_failures: int = DEFAULT_LOGIN_MAX_FAILURES,
+        window_seconds: int = DEFAULT_LOGIN_WINDOW_SECONDS,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        if max_failures < 1 or window_seconds < 1:
+            raise ValueError("login limiter values must be positive")
+        self.max_failures = max_failures
+        self.window_seconds = window_seconds
+        self._clock = clock
+        self._failures: dict[str, deque[float]] = {}
+        self._lock = Lock()
+
+    @classmethod
+    def from_environment(cls) -> LoginAttemptLimiter:
+        """Build the limiter from optional deployment environment values."""
+
+        return cls(
+            max_failures=_positive_env_int(
+                "BUSINESS_CYCLE_LOGIN_MAX_FAILURES",
+                DEFAULT_LOGIN_MAX_FAILURES,
+            ),
+            window_seconds=_positive_env_int(
+                "BUSINESS_CYCLE_LOGIN_WINDOW_SECONDS",
+                DEFAULT_LOGIN_WINDOW_SECONDS,
+            ),
+        )
+
+    def is_blocked(self, client_key: str) -> bool:
+        """Return whether the client exhausted its failed-login allowance."""
+
+        with self._lock:
+            failures = self._active_failures(client_key)
+            return len(failures) >= self.max_failures
+
+    def record_failure(self, client_key: str) -> None:
+        """Record one failed login for a client without storing submitted data."""
+
+        with self._lock:
+            failures = self._active_failures(client_key)
+            failures.append(self._clock())
+
+    def clear(self, client_key: str) -> None:
+        """Clear failed attempts after a successful login."""
+
+        with self._lock:
+            self._failures.pop(client_key, None)
+
+    def retry_after_seconds(self, client_key: str) -> int:
+        """Return a conservative retry delay for a blocked client."""
+
+        with self._lock:
+            failures = self._active_failures(client_key)
+            if len(failures) < self.max_failures:
+                return 0
+            elapsed = self._clock() - failures[0]
+            return max(1, int(self.window_seconds - elapsed) + 1)
+
+    def _active_failures(self, client_key: str) -> deque[float]:
+        now = self._clock()
+        cutoff = now - self.window_seconds
+        failures = self._failures.setdefault(client_key, deque())
+        while failures and failures[0] <= cutoff:
+            failures.popleft()
+        if not failures:
+            self._failures[client_key] = failures
+        return failures
 
 
 @dataclass(frozen=True)
@@ -59,10 +139,7 @@ def build_runtime_response(
         return _redirect_response(
             "/login",
             extra_headers={
-                "Set-Cookie": (
-                    f"{SESSION_COOKIE_NAME}=; Path=/; Max-Age=0; "
-                    "HttpOnly; SameSite=Strict"
-                ),
+                "Set-Cookie": _session_cookie("", max_age=0),
             },
         )
     if normalized_path == "/healthz":
@@ -150,6 +227,7 @@ def main(argv: list[str] | None = None) -> int:
     shell = build_nas_app_shell()
     server = ThreadingHTTPServer((args.host, args.port), _RuntimeHandler)
     server.nas_app_shell = shell  # type: ignore[attr-defined]
+    server.login_attempt_limiter = LoginAttemptLimiter.from_environment()  # type: ignore[attr-defined]
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -172,13 +250,37 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         self._send_runtime_response(response)
 
     def do_POST(self) -> None:  # noqa: N802
-        body = self.rfile.read(_content_length(self.headers)).decode("utf-8")
+        normalized_path = urlparse(self.path).path or "/"
+        limiter = getattr(self.server, "login_attempt_limiter", None)
+        if not isinstance(limiter, LoginAttemptLimiter):
+            limiter = LoginAttemptLimiter.from_environment()
+        client_key = str(self.client_address[0])
+        if normalized_path == "/login" and limiter.is_blocked(client_key):
+            self._send_runtime_response(
+                _login_rate_limited_response(limiter.retry_after_seconds(client_key)),
+            )
+            return
+        content_length = _content_length(self.headers)
+        if content_length > MAX_LOGIN_BODY_BYTES:
+            self._send_runtime_response(
+                _html_response(
+                    413,
+                    _login_page(error="登入請求過大，請重新整理後再試一次。"),
+                ),
+            )
+            return
+        body = self.rfile.read(content_length).decode("utf-8")
         response = build_runtime_response(
             path=self.path,
             method="POST",
             headers={key: value for key, value in self.headers.items()},
             body=body,
         )
+        if normalized_path == "/login":
+            if response.status_code == 401:
+                limiter.record_failure(client_key)
+            elif response.status_code == 303:
+                limiter.clear(client_key)
         self._send_runtime_response(response)
 
     def log_message(self, format: str, *args: object) -> None:
@@ -191,6 +293,8 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         self.send_response(response.status_code)
         self.send_header("content-type", response.content_type)
         self.send_header("cache-control", "no-store")
+        for key, value in _response_security_headers().items():
+            self.send_header(key, value)
         for key, value in response.headers.items():
             self.send_header(key, value)
         self.send_header("content-length", str(len(body)))
@@ -235,6 +339,14 @@ def _redirect_response(
     )
 
 
+def _login_rate_limited_response(retry_after_seconds: int) -> RuntimeResponse:
+    return _html_response(
+        429,
+        _login_page(error="登入嘗試過多，請稍後再試。"),
+        headers={"Retry-After": str(retry_after_seconds)},
+    )
+
+
 def _login_response(
     *,
     method: str,
@@ -262,10 +374,7 @@ def _login_response(
     return _redirect_response(
         "/",
         extra_headers={
-            "Set-Cookie": (
-                f"{SESSION_COOKIE_NAME}={token}; Path=/; Max-Age=604800; "
-                "HttpOnly; SameSite=Strict"
-            ),
+            "Set-Cookie": _session_cookie(token, max_age=604800),
         },
     )
 
@@ -358,6 +467,39 @@ def _session_header_name() -> str:
     return os.environ.get("BUSINESS_CYCLE_APP_SESSION_HEADER", DEFAULT_SESSION_HEADER)
 
 
+def _session_cookie(value: str, *, max_age: int) -> str:
+    attributes = [
+        f"{SESSION_COOKIE_NAME}={value}",
+        "Path=/",
+        f"Max-Age={max_age}",
+        "HttpOnly",
+        "SameSite=Strict",
+    ]
+    if _secure_cookie_enabled():
+        attributes.append("Secure")
+    return "; ".join(attributes)
+
+
+def _secure_cookie_enabled() -> bool:
+    return _env_flag("BUSINESS_CYCLE_APP_SECURE_COOKIE", default=False)
+
+
+def _response_security_headers() -> dict[str, str]:
+    headers = {
+        "Content-Security-Policy": (
+            "default-src 'self'; base-uri 'none'; form-action 'self'; "
+            "frame-ancestors 'none'; style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline'"
+        ),
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+    }
+    if _secure_cookie_enabled():
+        headers["Strict-Transport-Security"] = "max-age=31536000"
+    return headers
+
+
 def _normalize_headers(headers: dict[str, str]) -> dict[str, str]:
     normalized = dict(headers)
     for key, value in headers.items():
@@ -402,6 +544,22 @@ def _content_length(headers: Any) -> int:
         return max(0, int(value))
     except ValueError:
         return 0
+
+
+def _positive_env_int(name: str, default: int) -> int:
+    value = os.environ.get(name, "")
+    try:
+        parsed = int(value) if value else default
+    except ValueError:
+        return default
+    return parsed if parsed > 0 else default
+
+
+def _env_flag(name: str, *, default: bool) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 if __name__ == "__main__":

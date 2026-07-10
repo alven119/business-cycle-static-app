@@ -46,6 +46,9 @@ def build_product_capability_progress(
         "phase_id": payload["phase_id"],
         "phase_label": payload["phase_label"],
         "progress_semantics": payload["progress_semantics"],
+        "production_readiness_rebaseline": payload[
+            "production_readiness_rebaseline"
+        ],
         "capability_progress": rows,
     }
 
@@ -71,6 +74,7 @@ def summarize_product_capability_progress(
         or not (0 <= int(row["previous_progress_percent"]) <= 100)
     ]
     unsupported_claims = _unsupported_claim_count(progress)
+    rebaseline = progress["production_readiness_rebaseline"]
     expected = _load_expected(path)
     completed_summary_count = _field_present_count(rows, "completed_summary_zh")
     incomplete_summary_count = _field_present_count(rows, "incomplete_summary_zh")
@@ -106,6 +110,12 @@ def summarize_product_capability_progress(
         "progress_decrease_without_reason_count": decrease_without_reason_count,
         "progress_percent_out_of_range_count": len(out_of_range),
         "unsupported_readiness_claim_count": unsupported_claims,
+        "production_readiness_rebaseline_required": rebaseline["required"],
+        "production_readiness_rebaseline_status": rebaseline["status"],
+        "production_readiness_rebaseline_reason_count": rebaseline["reason_count"],
+        "product_progress_percentage_change_count": rebaseline[
+            "percentage_change_count"
+        ],
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
         "capability_table_rows": [_capability_table_row(row) for row in rows],

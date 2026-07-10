@@ -24,6 +24,9 @@ def test_product_capability_progress_passes() -> None:
     assert summary["progress_decrease_without_reason_count"] == 0
     assert summary["progress_percent_out_of_range_count"] == 0
     assert summary["unsupported_readiness_claim_count"] == 0
+    assert summary["production_readiness_rebaseline_required"] is True
+    assert summary["production_readiness_rebaseline_reason_count"] == 3
+    assert summary["product_progress_percentage_change_count"] == 0
     assert summary["production_behavior_change_count"] == 0
     assert summary["semantic_drift_count"] == 0
 
@@ -33,7 +36,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
 
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
-    assert summary["phase_label"] == "nas_container_manager_live_start_package"
+    assert summary["phase_label"] == "nas_tailscale_private_https_acceptance"
     assert all(
         0 <= row["current_progress_percent"] <= 100
         for row in summary["capability_progress"]

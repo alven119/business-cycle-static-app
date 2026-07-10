@@ -207,8 +207,11 @@ Estimated deployment sequence:
   for validation. The repository now provides the checklist, report template,
   sample validator fixture, and rollback drill; live acceptance remains blocked
   until the operator report is supplied.
-- Phase 109: validate the operator-supplied live-start report and, if accepted,
-  move to the first read-only NAS service smoke with private auth retained.
+- Phase 109: reconcile the actual running app/Postgres containers, harden the
+  browser login for HTTPS, and establish the Tailscale Serve/mobile acceptance
+  gate. The NAS Tailscale node is online, but Serve remains disabled until the
+  tailnet administrator enables it and the phone cellular smoke passes. Funnel
+  and public router forwarding remain prohibited.
 
 ## GitHub Pages Retirement
 
@@ -238,17 +241,15 @@ Backups must cover:
 
 ## Deferred Gaps
 
-- Actual FastAPI/ASGI service startup behind private local access.
-- Executed DS925+ package install and NAS-side database read-only smoke.
+- Tailscale Serve administrator enablement, loopback-only app publishing, and
+  mobile browser acceptance over cellular data.
+- Tailscale stable update, access-grant review, DSM firewall review, and server
+  key-expiry review.
 - Executed Postgres migrations and live DB smoke test.
-- Actual Container Manager import and service startup.
-- Executed operator-approved private auth and health-check acceptance.
-- Real operator report ingestion for the DS925+ live deployment session.
-- Actual DS925+ Docker image build and Container Manager project import.
-- Operator-supplied Phase108 live-start report ingestion and acceptance.
+- Phase109 operator-supplied private HTTPS acceptance report.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
-- Production-grade auth/session boundary for private mobile use.
+- Private HTTPS activation of the implemented secure-cookie/session boundary.
 - Local Postgres read smoke with read-only credentials.
 - Data refresh worker.
 - Executed revised data import into the NAS Postgres instance.

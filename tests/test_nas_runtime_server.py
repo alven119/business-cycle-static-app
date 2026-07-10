@@ -4,7 +4,10 @@ import pytest
 
 from business_cycle.service import nas_runtime_server
 from business_cycle.service.healthcheck import build_healthcheck_summary
-from business_cycle.service.nas_runtime_server import build_runtime_response
+from business_cycle.service.nas_runtime_server import (
+    LoginAttemptLimiter,
+    build_runtime_response,
+)
 from business_cycle.service.refresh_worker_disabled_until_gate import main as refresh_main
 
 pytestmark = pytest.mark.archive_regression
@@ -88,6 +91,7 @@ def test_runtime_main_prebuilds_dashboard_shell_once(
 
     class FakeServer:
         nas_app_shell: dict[str, object]
+        login_attempt_limiter: LoginAttemptLimiter
 
         def __init__(self, address: tuple[str, int], handler: object) -> None:
             assert address == ("127.0.0.1", 8000)
@@ -95,6 +99,7 @@ def test_runtime_main_prebuilds_dashboard_shell_once(
 
         def serve_forever(self) -> None:
             assert self.nas_app_shell is shell
+            assert isinstance(self.login_attempt_limiter, LoginAttemptLimiter)
             events.append("served")
 
         def server_close(self) -> None:
@@ -105,6 +110,44 @@ def test_runtime_main_prebuilds_dashboard_shell_once(
 
     assert nas_runtime_server.main([]) == 0
     assert events == ["served", "closed"]
+
+
+def test_runtime_secure_cookie_and_security_headers_follow_https_gate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BUSINESS_CYCLE_APP_SECURE_COOKIE", "true")
+
+    response = build_runtime_response(
+        path="/login",
+        method="POST",
+        session_secret="expected-secret",
+        body="session_secret=expected-secret",
+    )
+    headers = nas_runtime_server._response_security_headers()  # noqa: SLF001
+
+    assert "Secure" in response.headers["Set-Cookie"]
+    assert headers["Strict-Transport-Security"] == "max-age=31536000"
+    assert headers["X-Frame-Options"] == "DENY"
+    assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
+
+
+def test_login_attempt_limiter_blocks_then_expires_without_storing_secret() -> None:
+    now = [100.0]
+    limiter = LoginAttemptLimiter(
+        max_failures=2,
+        window_seconds=60,
+        clock=lambda: now[0],
+    )
+
+    limiter.record_failure("client-a")
+    assert limiter.is_blocked("client-a") is False
+    limiter.record_failure("client-a")
+    assert limiter.is_blocked("client-a") is True
+    assert limiter.retry_after_seconds("client-a") == 61
+
+    now[0] = 161.0
+    assert limiter.is_blocked("client-a") is False
+    assert limiter.retry_after_seconds("client-a") == 0
 
 
 def test_runtime_rejects_unsupported_method() -> None:
