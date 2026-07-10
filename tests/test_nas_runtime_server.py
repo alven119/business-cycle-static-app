@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+from urllib.parse import urlencode
+
 import pytest
 
 from business_cycle.service import nas_runtime_server
@@ -171,6 +174,92 @@ def test_runtime_ttl_cache_refreshes_and_retains_visible_last_good_snapshot() ->
     )
     assert cache.refresh_error_count == 1
     assert "database temporarily unavailable" not in str(stale)
+
+
+def test_runtime_declared_start_routes_require_auth_preview_apply_and_rollback(
+    tmp_path,
+) -> None:
+    active = tmp_path / "declared_cycle_state_registry.yaml"
+    secret = "expected-secret"
+    auth = {"X-Business-Cycle-Session": secret}
+    unauthorized = build_runtime_response(
+        path="/cycle-state",
+        session_secret=secret,
+        headers={"Accept": "text/html"},
+        cycle_state_registry_path=str(active),
+    )
+    page = build_runtime_response(
+        path="/cycle-state",
+        session_secret=secret,
+        headers=auth,
+        cycle_state_registry_path=str(active),
+    )
+    preview = build_runtime_response(
+        path="/cycle-state/preview",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "exact_start_date": "2025-06-01",
+                "confirmation_note": "user confirmed exact date",
+                "as_of": "2026-07-10",
+            },
+        ),
+        cycle_state_registry_path=str(active),
+    )
+    token = re.search(r'name="preview_token" value="([a-f0-9]+)"', preview.body)
+    assert token is not None
+    applied = build_runtime_response(
+        path="/cycle-state/apply",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "preview_token": token.group(1),
+                "exact_start_date": "2025-06-01",
+                "confirmation_note": "user confirmed exact date",
+                "as_of": "2026-07-10",
+                "apply_confirmation": "CONFIRM_DECLARED_BOOM_START_CONTEXT",
+            },
+        ),
+        cycle_state_registry_path=str(active),
+    )
+    api = build_runtime_response(
+        path="/api/cycle-state.json",
+        session_secret=secret,
+        headers=auth,
+        cycle_state_registry_path=str(active),
+    )
+    active_hash = __import__("json").loads(api.body)["active_registry_hash"]
+    rollback = build_runtime_response(
+        path="/cycle-state/rollback",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "expected_active_hash": active_hash,
+                "rollback_confirmation": "CONFIRM_DECLARED_BOOM_START_ROLLBACK",
+            },
+        ),
+        cycle_state_registry_path=str(active),
+    )
+
+    assert unauthorized.status_code == 303
+    assert page.status_code == 200
+    assert "景氣狀態設定" in page.body
+    assert "尚待使用者確認" in page.body
+    assert preview.status_code == 200
+    assert "寫入前預覽" in preview.body
+    assert applied.status_code == 200
+    assert applied.route_id == "nas_declared_phase_start_apply"
+    assert "已寫入 NAS 私有受治理 registry" in applied.body
+    assert '"declared_phase_start_context_status": "confirmed_exact_date"' in api.body
+    assert rollback.status_code == 200
+    assert rollback.route_id == "nas_declared_phase_start_rollback"
+    assert "已回復上一版" in rollback.body
 
 
 def test_runtime_secure_cookie_and_security_headers_follow_https_gate(

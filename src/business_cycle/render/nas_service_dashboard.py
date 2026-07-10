@@ -79,8 +79,8 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "111" if runtime_live_mode else "95",
-        "phase_id": 111 if runtime_live_mode else 95,
+        "phase": "113" if runtime_live_mode else "95",
+        "phase_id": 113 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": "phase95_nas_service_dashboard_renderer",
         "artifact_version": contract["version"],
@@ -381,6 +381,7 @@ def _api_payloads(
                 "source_refresh_health_status",
                 "not_configured",
             ),
+            "declared_cycle_state": snapshot.get("declared_cycle_state", {}),
             "postgres_write_attempted": False,
             "live_fetch_attempted": False,
             "frontend_database_access_allowed": False,
@@ -506,6 +507,7 @@ def _overview_html(
         for route in routes
     )
     refresh_html = _refresh_status_html(snapshot) if runtime_live_mode else ""
+    cycle_state_html = _declared_cycle_state_html(snapshot)
     return _html_document(
         title="NAS 私有研究儀表板",
         body=f"""
@@ -521,6 +523,7 @@ def _overview_html(
           <article><strong>{snapshot['series_snapshot_count']}</strong><span>序列快照</span></article>
         </section>
         {refresh_html}
+        {cycle_state_html}
         <section>
           <h2>私有服務路由</h2>
           <ul>{routes_html}</ul>
@@ -665,6 +668,37 @@ def _refresh_status_html(snapshot: dict[str, Any]) -> str:
         <article><strong>{int(status.get('completed_series_count', 0))}/{int(status.get('requested_series_count', 0))}</strong><span>完成來源</span></article>
       </div>
       <p class="meta">來源健康：{escape(health_labels.get(health, health))}；此更新只代表 revised 資料同步，不代表景氣階段確認。</p>
+    </section>
+    """
+
+
+def _declared_cycle_state_html(snapshot: dict[str, Any]) -> str:
+    state = snapshot.get("declared_cycle_state", {})
+    phase = str(state.get("declared_current_phase_label_zh", "榮景"))
+    next_phase = str(state.get("legal_next_phase_label_zh", "衰退"))
+    start = str(state.get("declared_phase_start_display_zh", "尚待使用者確認"))
+    age = state.get("declared_phase_age_days")
+    age_range = state.get("declared_phase_age_range_days")
+    if age is not None:
+        age_display = f"約 {age} 天"
+    elif age_range:
+        age_display = (
+            f"約 {age_range['minimum_days']} 至 {age_range['maximum_days']} 天"
+        )
+    else:
+        age_display = "未知，需使用者確認"
+    return f"""
+    <section aria-labelledby="declared-cycle-state-heading"
+      data-declared-cycle-state="true">
+      <h2 id="declared-cycle-state-heading">目前宣告景氣狀態</h2>
+      <div class="summary-grid">
+        <article><strong>{escape(phase)}</strong><span>宣告階段</span></article>
+        <article><strong>{escape(next_phase)}</strong><span>合法下一階段</span></article>
+        <article><strong>{escape(start)}</strong><span>榮景起始</span></article>
+        <article><strong>{escape(age_display)}</strong><span>階段年齡</span></article>
+      </div>
+      <p class="meta">這是使用者／治理登錄的研究背景，不是由最新資料推論的目前階段。</p>
+      <p><a href="/cycle-state">檢視或確認榮景起始資訊</a></p>
     </section>
     """
 
@@ -982,6 +1016,10 @@ def _trust_metadata(contract: dict[str, Any], snapshot: dict[str, Any]) -> dict[
         "source_refresh_health_status": snapshot.get(
             "source_refresh_health_status",
             "not_configured",
+        ),
+        "declared_state_source": snapshot.get("declared_cycle_state", {}).get(
+            "active_registry_source",
+            "canonical_default",
         ),
         "postgres_write_attempted": False,
         "live_fetch_attempted": False,

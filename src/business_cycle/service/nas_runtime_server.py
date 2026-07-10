@@ -21,6 +21,17 @@ import time
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
+from business_cycle.cycle_state.nas_declared_phase_start_registry import (
+    DEFAULT_ACTIVE_REGISTRY_PATH,
+    NasDeclaredPhaseStartError,
+    apply_nas_declared_phase_start_update,
+    build_nas_declared_phase_start_status,
+    preview_nas_declared_phase_start_update,
+    rollback_nas_declared_phase_start_update,
+)
+from business_cycle.render.nas_declared_phase_start import (
+    render_nas_declared_phase_start_page,
+)
 from business_cycle.service.nas_app_shell import (
     NasAppRequest,
     build_nas_app_shell,
@@ -154,6 +165,12 @@ class NasAppShellTtlCache:
                 self._shell = stale
                 return self._shell
 
+    def invalidate(self) -> None:
+        """Force the next request to rematerialize the dashboard shell."""
+
+        with self._lock:
+            self._built_at = float("-inf")
+
 
 @dataclass(frozen=True)
 class RuntimeResponse:
@@ -174,6 +191,7 @@ def build_runtime_response(
     session_secret: str | None = None,
     shell: dict[str, Any] | None = None,
     body: str = "",
+    cycle_state_registry_path: str | None = None,
 ) -> RuntimeResponse:
     """Return a private NAS runtime response without binding a network port."""
 
@@ -224,11 +242,13 @@ def build_runtime_response(
                     "dashboard_snapshot_status",
                     "current_cached_snapshot",
                 ),
+                "governed_cycle_state_operator_route_count": 5,
                 "research_only": True,
                 "public_exposure": False,
             },
         )
-    if method.upper() != "GET":
+    normalized_method = method.upper()
+    if normalized_method not in {"GET", "POST"}:
         return _json_response(405, {"error": "method_not_allowed", "research_only": True})
 
     secret = session_secret if session_secret is not None else _session_secret()
@@ -253,13 +273,28 @@ def build_runtime_response(
             },
         )
 
+    cycle_state_response = _cycle_state_response(
+        path=normalized_path,
+        method=normalized_method,
+        body=body,
+        active_registry_path=(
+            cycle_state_registry_path
+            or os.environ.get("BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH")
+            or str(DEFAULT_ACTIVE_REGISTRY_PATH)
+        ),
+    )
+    if cycle_state_response is not None:
+        return cycle_state_response
+    if normalized_method != "GET":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+
     shell = shell or build_nas_app_shell()
     local_policy = shell["auth_policy"]
     shell_response = dispatch_nas_app_request(
         shell,
         NasAppRequest(
             path=normalized_path,
-            method=method.upper(),
+            method=normalized_method,
             headers={
                 local_policy["session_header_name"]: local_policy[
                     "local_smoke_session_marker"
@@ -313,12 +348,15 @@ def _build_startup_shell() -> dict[str, Any]:
     if os.environ.get("BUSINESS_CYCLE_DATABASE_URL"):
         return build_nas_live_dashboard_runtime(
             refresh_status_path=os.environ.get("BUSINESS_CYCLE_REFRESH_STATUS_PATH"),
+            declared_registry_path=os.environ.get(
+                "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH"
+            ),
         )["nas_app_shell"]
     return build_nas_app_shell()
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase112"
+    server_version = "BusinessCycleNAS/phase113"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -361,6 +399,13 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
                 limiter.record_failure(client_key)
             elif response.status_code == 303:
                 limiter.clear(client_key)
+        if response.route_id in {
+            "nas_declared_phase_start_apply",
+            "nas_declared_phase_start_rollback",
+        }:
+            cache = getattr(self.server, "nas_app_shell_cache", None)
+            if isinstance(cache, NasAppShellTtlCache):
+                cache.invalidate()
         self._send_runtime_response(response)
 
     def log_message(self, format: str, *args: object) -> None:
@@ -387,6 +432,134 @@ def _server_shell(server: Any) -> dict[str, Any] | None:
     if isinstance(cache, NasAppShellTtlCache):
         return cache.get()
     return getattr(server, "nas_app_shell", None)
+
+
+def _cycle_state_response(
+    *,
+    path: str,
+    method: str,
+    body: str,
+    active_registry_path: str,
+) -> RuntimeResponse | None:
+    operator_paths = {
+        "/cycle-state",
+        "/api/cycle-state.json",
+        "/cycle-state/preview",
+        "/cycle-state/apply",
+        "/cycle-state/rollback",
+    }
+    if path not in operator_paths:
+        return None
+    status = build_nas_declared_phase_start_status(
+        active_registry_path=active_registry_path,
+    )
+    if path == "/cycle-state" and method == "GET":
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            render_nas_declared_phase_start_page(status=status),
+            route_id="nas_declared_phase_start_page",
+        )
+    if path == "/api/cycle-state.json" and method == "GET":
+        return RuntimeResponse(
+            200,
+            "application/json",
+            json.dumps(status, sort_keys=True),
+            route_id="nas_declared_phase_start_api",
+        )
+    if method != "POST":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+    form = parse_qs(body, keep_blank_values=True)
+    try:
+        if path == "/cycle-state/preview":
+            note = _form_value(form, "confirmation_note")
+            preview = preview_nas_declared_phase_start_update(
+                exact_start_date=_form_value(form, "exact_start_date") or None,
+                window_start_date=_form_value(form, "window_start_date") or None,
+                window_end_date=_form_value(form, "window_end_date") or None,
+                confirmation_note=note,
+                as_of=_form_value(form, "as_of") or None,
+                active_registry_path=active_registry_path,
+            )
+            return RuntimeResponse(
+                200 if preview["preview_valid"] else 400,
+                "text/html; charset=utf-8",
+                render_nas_declared_phase_start_page(
+                    status=status,
+                    preview=preview,
+                    confirmation_note=note,
+                ),
+                route_id="nas_declared_phase_start_preview",
+            )
+        if path == "/cycle-state/apply":
+            apply_nas_declared_phase_start_update(
+                preview_token=_form_value(form, "preview_token"),
+                confirmation=_form_value(form, "apply_confirmation"),
+                exact_start_date=_form_value(form, "exact_start_date") or None,
+                window_start_date=_form_value(form, "window_start_date") or None,
+                window_end_date=_form_value(form, "window_end_date") or None,
+                confirmation_note=_form_value(form, "confirmation_note"),
+                as_of=_form_value(form, "as_of") or None,
+                active_registry_path=active_registry_path,
+            )
+            updated = build_nas_declared_phase_start_status(
+                active_registry_path=active_registry_path,
+            )
+            return RuntimeResponse(
+                200,
+                "text/html; charset=utf-8",
+                render_nas_declared_phase_start_page(
+                    status=updated,
+                    message_zh="榮景起始資訊已寫入 NAS 私有受治理 registry。",
+                ),
+                route_id="nas_declared_phase_start_apply",
+            )
+        rollback_nas_declared_phase_start_update(
+            expected_active_hash=_form_value(form, "expected_active_hash"),
+            confirmation=_form_value(form, "rollback_confirmation"),
+            active_registry_path=active_registry_path,
+        )
+        rolled_back = build_nas_declared_phase_start_status(
+            active_registry_path=active_registry_path,
+        )
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            render_nas_declared_phase_start_page(
+                status=rolled_back,
+                message_zh="已回復上一版 declared boom 起始資訊。",
+            ),
+            route_id="nas_declared_phase_start_rollback",
+        )
+    except (NasDeclaredPhaseStartError, ValueError) as exc:
+        return RuntimeResponse(
+            400,
+            "text/html; charset=utf-8",
+            render_nas_declared_phase_start_page(
+                status=status,
+                error_zh=_cycle_state_error_zh(str(exc)),
+            ),
+            route_id="nas_declared_phase_start_error",
+        )
+
+
+def _form_value(form: dict[str, list[str]], key: str) -> str:
+    return form.get(key, [""])[0].strip()
+
+
+def _cycle_state_error_zh(message: str) -> str:
+    translations = {
+        "explicit apply confirmation is required": "請勾選明確套用確認。",
+        "confirmation note is required": "請填寫確認理由。",
+        "declared phase-start preview is invalid": "起始日或區間未通過預覽驗證。",
+        "stale or mismatched preview token": "預覽已過期或內容不一致，請重新預覽。",
+        "active registry changed after preview": "Registry 已變更，請重新預覽。",
+        "explicit rollback confirmation is required": "請勾選 rollback 確認。",
+        "private NAS registry override does not exist": "目前沒有可 rollback 的 NAS override。",
+        "active registry hash changed before rollback": "Registry 已變更，請重新載入頁面。",
+        "no declared phase-start backup is available": "找不到可用的 registry 備份。",
+    }
+    return translations.get(message, "輸入未通過安全驗證，請重新檢查。")
 
 
 def _json_response(status_code: int, payload: dict[str, Any]) -> RuntimeResponse:

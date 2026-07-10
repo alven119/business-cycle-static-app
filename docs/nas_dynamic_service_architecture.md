@@ -232,6 +232,13 @@ Estimated deployment sequence:
   and rematerializes its read-only Postgres snapshot on a 15-minute TTL. A
   refresh-read failure retains the last good snapshot with an explicit stale
   marker. This does not create point-in-time data or infer a phase.
+- Phase 113: add an authenticated private-NAS declared boom start workflow.
+  The operator page can preview either an exact user-declared date or a bounded
+  user-declared window, rejects stale previews, and requires an explicit
+  confirmation before atomically writing the NAS-only registry override. Every
+  update retains a prior-registry backup and a hash-only event record; rollback
+  requires a second explicit confirmation. The repository canonical registry
+  remains the read-only default, and no macro data is used to infer the start.
 
 ## GitHub Pages Retirement
 
@@ -264,6 +271,8 @@ Backups must cover:
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
 - Per-source release-calendar scheduling beyond the daily revised refresh.
+- User confirmation of the declared boom exact start date or bounded window;
+  until then, the dashboard displays an explicit unknown phase age.
 - Dedicated least-privilege dashboard database role and credential rotation.
 - Executed vintage/PIT backfill into `observation_vintage`.
 - Backup restore rehearsal for Postgres and source artifacts.

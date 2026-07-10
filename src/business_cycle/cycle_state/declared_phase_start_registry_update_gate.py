@@ -81,6 +81,7 @@ def build_declared_phase_start_registry_update_gate(
         confirmation_note=confirmation_note,
         input_source=input_source,
         as_of=as_of,
+        registry_path=registry_path,
     )
     write_errors = _write_error_codes(
         preview=preview,
@@ -94,7 +95,10 @@ def build_declared_phase_start_registry_update_gate(
     tmp_registry_path: str | None = None
     if tmp_write_allowed and tmp_registry_output_path is not None:
         output_path = Path(tmp_registry_output_path)
-        payload = _updated_registry_payload(preview, registry_path)
+        payload = build_updated_declared_phase_start_registry_payload(
+            preview,
+            registry_path,
+        )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(
             yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
@@ -361,10 +365,12 @@ def build_declared_phase_start_registry_update_gate_view_model(
     }
 
 
-def _updated_registry_payload(
+def build_updated_declared_phase_start_registry_payload(
     preview: dict[str, Any],
     registry_path: Path,
 ) -> dict[str, Any]:
+    """Build the validated registry payload shared by tmp and NAS write gates."""
+
     payload = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
     registry = payload["declared_cycle_state_registry"]
     declared = registry["declared_state"]

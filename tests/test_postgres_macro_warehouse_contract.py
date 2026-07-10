@@ -294,15 +294,22 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     artifact_init = compose["services"]["macro_source_artifact_init"]
     worker = compose["services"]["macro_refresh_worker"]
 
-    assert app["image"] == "business-cycle-nas-app:phase112-scheduled-refresh"
+    assert app["image"] == (
+        "business-cycle-nas-app:phase113-declared-start-governance"
+    )
     assert app["ports"] == ["127.0.0.1:18080:8000"]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
+    assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
     assert artifact_init["restart"] == "no"
     assert artifact_init["network_mode"] == "none"
     assert "chown -R 1000:1000" in artifact_init["command"][0]
+    assert "cycle_state_config:/var/lib/business-cycle/cycle-state" in (
+        artifact_init["volumes"]
+    )
+    assert "cycle_state_config:/var/lib/business-cycle/cycle-state" in app["volumes"]
     assert worker["restart"] == "unless-stopped"
     assert "profiles" not in worker
     assert worker["volumes"] == [
@@ -583,6 +590,10 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["source_refresh_health_status"] == "healthy"
     assert "官方資料更新狀態" in overview
     assert "最近更新成功" in overview
+    assert "目前宣告景氣狀態" in overview
+    assert "榮景" in overview
+    assert "合法下一階段" in overview
+    assert "檢視或確認榮景起始資訊" in overview
     assert html.count("<details>") == 37
     assert "查看今年／過去 1 年／過去 5 年走勢" in html
     assert 'class="interactive-chart"' in html

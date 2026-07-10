@@ -16,6 +16,7 @@ from typing import Any
 import yaml
 
 from business_cycle.cycle_state.declared_phase_registry import (
+    DEFAULT_REGISTRY_PATH,
     load_declared_cycle_state,
 )
 
@@ -58,12 +59,13 @@ def build_declared_phase_start_registry_update_preview(
     confirmation_note: str = "",
     input_source: str = "operator_preview",
     as_of: str | date = date(2026, 7, 3),
+    registry_path: str | Path = DEFAULT_REGISTRY_PATH,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
 ) -> dict[str, Any]:
     """Build a dry-run preview for a future declared registry update."""
 
     contract = _load_contract(contract_path)
-    state = load_declared_cycle_state()
+    state = load_declared_cycle_state(registry_path)
     phase_input = PhaseStartInput(
         exact_start_date=_parse_optional_date(exact_start_date),
         window_start_date=_parse_optional_date(window_start_date),

@@ -1,0 +1,64 @@
+nas_declared_phase_start_governance_contract:
+  version: "1.0"
+  status: active_private_nas_governance_contract
+  phase_id: 113
+  phase_label: nas_declared_boom_start_confirmation_and_rollback
+  depends_on:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/declared_phase_start_registry_update_preview.yaml
+    - specs/common/declared_phase_start_registry_update_gate.yaml
+    - specs/common/ordered_cycle_state_machine.yaml
+  active_registry_policy:
+    canonical_repository_registry_is_read_only_default: true
+    private_nas_override_allowed_after_authenticated_confirmation: true
+    active_registry_path: /var/lib/business-cycle/cycle-state/declared_cycle_state_registry.yaml
+    atomic_write_required: true
+    prior_registry_backup_required: true
+    rollback_confirmation_required: true
+    stale_preview_rejected: true
+    confirmation_note_required: true
+  input_policy:
+    exact_user_declared_start_date_allowed: true
+    bounded_user_declared_start_window_allowed: true
+    exact_and_window_mutually_exclusive: true
+    missing_input_rejected: true
+    future_date_rejected: true
+    current_macro_data_may_infer_start: false
+  display_policy:
+    exact_date_may_show_exact_age_days: true
+    bounded_window_may_show_age_range_only: true
+    unknown_must_show_user_confirmation_required: true
+    declared_state_label_required: true
+    inferred_phase_label_prohibited: true
+  private_operator_routes:
+    - /cycle-state
+    - /api/cycle-state.json
+    - /cycle-state/preview
+    - /cycle-state/apply
+    - /cycle-state/rollback
+  prohibited_outputs:
+    - current_phase
+    - candidate_phase
+    - selected_phase
+    - winning_phase
+    - phase_score
+    - phase_rank
+    - buy_signal
+    - sell_signal
+    - target_weight
+    - trade_action
+  hard_gates:
+    nas_declared_phase_start_governance_contract_ready: true
+    private_operator_route_count: 5
+    exact_date_update_supported: true
+    bounded_window_update_supported: true
+    stale_preview_rejected: true
+    atomic_write_ready: true
+    rollback_ready: true
+    canonical_repository_registry_modified: false
+    current_data_used_to_infer_declared_phase_count: 0
+    phase_age_false_precision_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

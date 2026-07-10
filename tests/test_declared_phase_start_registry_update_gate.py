@@ -4,11 +4,26 @@ import json
 import subprocess
 import sys
 
+import pytest
+
+from business_cycle.audits.phase113_nas_declared_phase_start_governance_closure import (
+    summarize_phase113_nas_declared_phase_start_governance_closure,
+)
 from business_cycle.cycle_state.declared_phase_registry import load_declared_cycle_state
 from business_cycle.cycle_state.declared_phase_start_registry_update_gate import (
     build_declared_phase_start_registry_update_gate,
     build_declared_phase_start_registry_update_gate_view_model,
     summarize_declared_phase_start_registry_update_gate,
+)
+from business_cycle.cycle_state.nas_declared_phase_start_registry import (
+    APPLY_CONFIRMATION,
+    ROLLBACK_CONFIRMATION,
+    NasDeclaredPhaseStartError,
+    apply_nas_declared_phase_start_update,
+    build_nas_declared_phase_start_status,
+    preview_nas_declared_phase_start_update,
+    rollback_nas_declared_phase_start_update,
+    summarize_nas_declared_phase_start_governance_contract,
 )
 
 
@@ -135,3 +150,90 @@ def test_apply_declared_phase_start_registry_update_script(tmp_path) -> None:
     assert "tmp_registry_write_completed=true" in completed.stdout
     assert "canonical_registry_write_allowed=false" in completed.stdout
     assert payload["exact_tmp_registry_phase_age_days"] == 397
+
+
+def test_phase113_private_registry_preview_apply_stale_guard_and_rollback(
+    tmp_path,
+) -> None:
+    summary = summarize_nas_declared_phase_start_governance_contract()
+    active = tmp_path / "declared_cycle_state_registry.yaml"
+    preview = preview_nas_declared_phase_start_update(
+        window_start_date="2025-04-01",
+        window_end_date="2025-06-30",
+        confirmation_note="user confirmed bounded research window",
+        as_of="2026-07-10",
+        active_registry_path=active,
+    )
+    applied = apply_nas_declared_phase_start_update(
+        preview_token=preview["preview_token"],
+        confirmation=APPLY_CONFIRMATION,
+        window_start_date="2025-04-01",
+        window_end_date="2025-06-30",
+        confirmation_note="user confirmed bounded research window",
+        as_of="2026-07-10",
+        active_registry_path=active,
+    )
+    status = build_nas_declared_phase_start_status(
+        active_registry_path=active,
+        as_of="2026-07-10",
+    )
+
+    assert summary["result"] == "passed"
+    assert applied["apply_completed"] is True
+    assert status["declared_current_phase"] == "boom"
+    assert status["legal_next_phase"] == "recession"
+    assert status["declared_phase_start_context_status"] == (
+        "confirmed_bounded_window"
+    )
+    assert status["declared_phase_age_days"] is None
+    assert status["declared_phase_age_range_days"] == {
+        "minimum_days": 375,
+        "maximum_days": 465,
+    }
+    with pytest.raises(NasDeclaredPhaseStartError, match="stale or mismatched"):
+        apply_nas_declared_phase_start_update(
+            preview_token=preview["preview_token"],
+            confirmation=APPLY_CONFIRMATION,
+            window_start_date="2025-04-01",
+            window_end_date="2025-06-30",
+            confirmation_note="user confirmed bounded research window",
+            as_of="2026-07-10",
+            active_registry_path=active,
+        )
+    rolled_back = rollback_nas_declared_phase_start_update(
+        expected_active_hash=applied["after_hash"],
+        confirmation=ROLLBACK_CONFIRMATION,
+        active_registry_path=active,
+        as_of="2026-07-10",
+    )
+    assert rolled_back["rollback_completed"] is True
+    assert rolled_back["active_status"]["declared_phase_start_context_status"] == (
+        "awaiting_user_confirmation"
+    )
+
+
+def test_phase113_live_closure_and_cli_pass() -> None:
+    summary = summarize_phase113_nas_declared_phase_start_governance_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase113_closure_ready"] is True
+    assert summary["private_confirmation_workflow_deployed"] is True
+    assert summary["active_registry_override_present"] is False
+    assert summary["declared_phase_start_context_status"] == (
+        "awaiting_user_confirmation"
+    )
+    assert summary["declared_current_phase"] == "boom"
+    assert summary["legal_next_phase"] == "recession"
+    assert summary["canonical_repository_registry_modified"] is False
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase113_nas_declared_phase_start_governance_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase113_closure_ready=true" in completed.stdout
+    assert "user_confirmation_still_required=true" in completed.stdout
+    assert "result=passed" in completed.stdout

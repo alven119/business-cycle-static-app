@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase112-scheduled-refresh
+    image: business-cycle-nas-app:phase113-declared-start-governance
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -29,6 +29,8 @@ services:
     depends_on:
       macro_postgres:
         condition: service_healthy
+      macro_source_artifact_init:
+        condition: service_completed_successfully
     environment:
       BUSINESS_CYCLE_SERVICE_MODE: private_nas_research
       BUSINESS_CYCLE_DATABASE_URL: ${BUSINESS_CYCLE_DATABASE_URL}
@@ -41,12 +43,14 @@ services:
       BUSINESS_CYCLE_HEALTHCHECK_URL: http://127.0.0.1:8000/healthz
       BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS: "900"
       BUSINESS_CYCLE_REFRESH_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase112/refresh-status.json
+      BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH: /var/lib/business-cycle/cycle-state/declared_cycle_state_registry.yaml
     ports:
       - "127.0.0.1:18080:8000"
     networks:
       - business_cycle_private
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts:ro
+      - cycle_state_config:/var/lib/business-cycle/cycle-state
     healthcheck:
       test:
         - CMD
@@ -65,13 +69,14 @@ services:
       - sh
       - -c
     command:
-      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts
+      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
+      - cycle_state_config:/var/lib/business-cycle/cycle-state
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase112-scheduled-refresh
+    image: business-cycle-nas-app:phase113-declared-start-governance
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -112,6 +117,7 @@ services:
 volumes:
   macro_postgres_data: {}
   macro_source_artifacts: {}
+  cycle_state_config: {}
 
 networks:
   business_cycle_private: {}

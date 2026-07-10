@@ -226,6 +226,7 @@ def build_nas_live_postgres_dashboard_snapshot(
     executor: DashboardReadExecutor | None = None,
     snapshot_as_of: str | None = None,
     refresh_status: dict[str, Any] | None = None,
+    declared_cycle_state: dict[str, Any] | None = None,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
 ) -> dict[str, Any]:
     """Build 39 role snapshots from a read-only live Postgres query."""
@@ -282,6 +283,19 @@ def build_nas_live_postgres_dashboard_snapshot(
         "completed_series_count": 0,
         "failed_series_count": 0,
     }
+    resolved_declared_cycle_state = declared_cycle_state or {
+        "declared_current_phase": "boom",
+        "declared_current_phase_label_zh": "榮景",
+        "legal_next_phase": "recession",
+        "legal_next_phase_label_zh": "衰退",
+        "declared_phase_start_context_status": "awaiting_user_confirmation",
+        "declared_phase_start_display_zh": "尚待使用者確認",
+        "declared_phase_age_days": None,
+        "declared_phase_age_range_days": None,
+        "active_registry_source": "canonical_default",
+        "active_registry_override_present": False,
+        "current_data_used_to_infer_declared_phase_count": 0,
+    }
     snapshot: dict[str, Any] = {
         "artifact_id": "phase111_nas_live_postgres_dashboard_snapshot",
         "artifact_version": contract["version"],
@@ -318,6 +332,7 @@ def build_nas_live_postgres_dashboard_snapshot(
             resolved_refresh_status,
             available_series_count=len(series_rows),
         ),
+        "declared_cycle_state": resolved_declared_cycle_state,
         "live_db_connection_attempt_count": 1,
         "postgres_write_attempt_count": 0,
         "schema_migration_attempt_count": 0,
@@ -346,6 +361,10 @@ def build_nas_live_postgres_dashboard_snapshot(
                 resolved_refresh_status,
                 available_series_count=len(series_rows),
             ),
+            "declared_state_source": resolved_declared_cycle_state[
+                "active_registry_source"
+            ],
+            "current_data_used_to_infer_declared_phase": False,
         },
         "allowed_uses": contract["allowed_uses"],
         "prohibited_uses": contract["prohibited_uses"],
@@ -360,6 +379,7 @@ def build_nas_live_postgres_dashboard_snapshot(
             "observation_revised_total_count": snapshot[
                 "observation_revised_total_count"
             ],
+            "declared_cycle_state": resolved_declared_cycle_state,
         },
     )
     snapshot["result"] = "passed"

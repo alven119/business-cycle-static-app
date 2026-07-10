@@ -5,6 +5,10 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from business_cycle.cycle_state.nas_declared_phase_start_registry import (
+    DEFAULT_ACTIVE_REGISTRY_PATH,
+    build_nas_declared_phase_start_status,
+)
 from business_cycle.render.nas_service_dashboard import (
     build_nas_service_dashboard_bundle,
 )
@@ -25,6 +29,7 @@ def build_nas_live_dashboard_runtime(
     executor: DashboardReadExecutor | None = None,
     snapshot_as_of: str | None = None,
     refresh_status_path: str | None = None,
+    declared_registry_path: str | None = None,
 ) -> dict[str, Any]:
     """Build the live runtime; configured DB failures must not silently fall back."""
 
@@ -32,20 +37,25 @@ def build_nas_live_dashboard_runtime(
     if executor is None and not resolved_url:
         raise RuntimeError("BUSINESS_CYCLE_DATABASE_URL is required for live dashboard")
     refresh_status = load_refresh_status(refresh_status_path or DEFAULT_STATUS_PATH)
+    declared_cycle_state = build_nas_declared_phase_start_status(
+        active_registry_path=declared_registry_path or DEFAULT_ACTIVE_REGISTRY_PATH,
+        as_of=snapshot_as_of,
+    )
     snapshot = build_nas_live_postgres_dashboard_snapshot(
         database_url=resolved_url,
         executor=executor,
         snapshot_as_of=snapshot_as_of,
         refresh_status=refresh_status,
+        declared_cycle_state=declared_cycle_state,
     )
     dashboard = build_nas_service_dashboard_bundle(
         snapshot_manifest=snapshot,
         runtime_live_mode=True,
     )
     shell = build_nas_app_shell(dashboard_bundle=dashboard)
-    shell["phase"] = "111"
-    shell["phase_id"] = 111
-    shell["artifact_id"] = "phase111_nas_live_postgres_dashboard_runtime"
+    shell["phase"] = "113"
+    shell["phase_id"] = 113
+    shell["artifact_id"] = "phase113_nas_declared_start_governance_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -62,6 +72,9 @@ def build_nas_live_dashboard_runtime(
         ],
         "refresh_state": refresh_status["refresh_state"],
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
+        "declared_phase_start_context_status": declared_cycle_state[
+            "declared_phase_start_context_status"
+        ],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -75,10 +88,13 @@ def build_nas_live_dashboard_runtime(
         ],
         "refresh_state": refresh_status["refresh_state"],
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
+        "declared_phase_start_context_status": declared_cycle_state[
+            "declared_phase_start_context_status"
+        ],
     }
     runtime: dict[str, Any] = {
-        "phase": 112,
-        "artifact_id": "phase111_nas_live_postgres_dashboard_runtime",
+        "phase": 113,
+        "artifact_id": "phase113_nas_declared_start_governance_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -95,6 +111,7 @@ def build_nas_live_dashboard_runtime(
         "observation_vintage_row_count": snapshot["observation_vintage_row_count"],
         "refresh_state": refresh_status["refresh_state"],
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
+        "declared_cycle_state": declared_cycle_state,
         "transaction_read_only_enforced": True,
         "silent_fixture_fallback_count": 0,
         "postgres_write_attempt_count": 0,
@@ -107,7 +124,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 112,
+        "development_next_phase": 114,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True
