@@ -12,15 +12,15 @@ nas_tailscale_private_https_contract:
     observation_mode: redacted_operator_and_codex_live_smoke
     app_container_healthy: true
     postgres_container_healthy: true
-    postgres_business_table_count: 0
+    postgres_business_table_count: 11
     tailscale_backend_state: Running
     tailscale_online: true
     tailscale_installed_version: 1.58.2
     tailscale_peer_count: 1
-    tailscale_online_peer_count: 0
-    tailscale_serve_configured: false
+    tailscale_online_peer_count: 1
+    tailscale_serve_configured: true
     tailscale_funnel_configured: false
-    mobile_cellular_smoke_passed: false
+    mobile_cellular_smoke_passed: true
     tailnet_ip_or_dns_committed: false
   target_private_access:
     access_mode: tailscale_serve_private_https
@@ -86,14 +86,32 @@ nas_tailscale_private_https_contract:
     accepted_status: accepted_private_https
     missing_status: operator_enable_serve_and_mobile_smoke_required
     repo_storage_allowed: false
+  observed_acceptance_report:
+    report_id: phase109_operator_attested_private_https_acceptance
+    report_mode: operator_attested_tailscale_private_https
+    serve_target: http://127.0.0.1:18080
+    tailscale_update_reviewed: true
+    tailscale_operator_permission_ready: true
+    tailscale_serve_enabled: true
+    tailscale_https_enabled: true
+    funnel_disabled: true
+    grants_reviewed: true
+    firewall_reviewed: true
+    key_expiry_policy_reviewed: true
+    app_loopback_only: true
+    secure_cookie_enabled: true
+    https_healthz_passed: true
+    https_readyz_passed: true
+    https_login_passed: true
+    https_logout_passed: true
+    mobile_cellular_smoke_passed: true
+    no_public_exposure_confirmed: true
   product_readiness_rebaseline:
     required: true
-    status: pending_private_https_and_live_db_acceptance
+    status: pending_dashboard_live_db_read
     reasons:
-      - postgres_business_schema_not_migrated
       - dashboard_live_db_read_not_enabled
-      - tailscale_private_https_not_accepted
-    percentage_change_allowed_now: false
+    percentage_change_allowed_now: true
   allowed_uses:
     - private_tailnet_https_activation
     - mobile_browser_acceptance
@@ -131,15 +149,15 @@ nas_tailscale_private_https_contract:
     runtime_security_headers_ready: true
     tailscale_live_state_reconciled: true
     tailscale_backend_online_observed: true
-    tailscale_serve_configured: false
+    tailscale_serve_configured: true
     tailscale_funnel_configured: false
-    mobile_cellular_smoke_passed: false
+    mobile_cellular_smoke_passed: true
     sample_acceptance_report_valid: true
-    private_https_acceptance_status: operator_enable_serve_and_mobile_smoke_required
-    private_https_accepted: false
-    operator_action_required: true
+    private_https_acceptance_status: accepted_private_https
+    private_https_accepted: true
+    operator_action_required: false
     production_readiness_rebaseline_required: true
-    production_readiness_rebaseline_reason_count: 3
+    production_readiness_rebaseline_reason_count: 1
     product_progress_percentage_change_count: 0
     public_exposure_enabled: false
     secure_value_committed_count: 0
@@ -149,4 +167,4 @@ nas_tailscale_private_https_contract:
     phase_rank_or_score_added_count: 0
     production_behavior_change_count: 0
     semantic_drift_count: 0
-    development_next_phase: PHASE_109_OPERATOR_ACCEPTANCE
+    development_next_phase: 110

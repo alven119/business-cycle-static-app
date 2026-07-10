@@ -1,4 +1,4 @@
-"""Phase109 Tailscale private HTTPS acceptance checkpoint closure."""
+"""Phase109 Tailscale private HTTPS acceptance closure."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ CLOSURE_PATH = ROOT / "specs/audits/phase109_nas_tailscale_private_https_closure
 def summarize_phase109_nas_tailscale_private_https_closure(
     closure_path: str | Path = CLOSURE_PATH,
 ) -> dict[str, Any]:
-    """Return Phase109 checkpoint gates without claiming live HTTPS acceptance."""
+    """Return the operator-attested Phase109 private HTTPS acceptance gates."""
 
     private_https = summarize_nas_tailscale_private_https()
     progress = summarize_product_capability_progress()
@@ -112,7 +112,7 @@ def summarize_phase109_nas_tailscale_private_https_closure(
         "historical_replay_backtest_alignment": "no_replay_or_backtest_execution",
         "development_next_phase": private_https["development_next_phase"],
         "phase109_closure_status": (
-            "blocked_operator_tailscale_serve_and_mobile_acceptance"
+            "closed_tailscale_private_https_and_mobile_acceptance"
         ),
     }
     summary["result"] = "passed" if _passes(summary, expected) else "blocked"

@@ -68,6 +68,9 @@ def summarize_phase95_nas_service_dashboard_closure(
             "html_revised_snapshot_role_count"
         ],
         "html_blocked_role_count": dashboard["html_blocked_role_count"],
+        "traditional_chinese_role_label_count": dashboard[
+            "traditional_chinese_role_label_count"
+        ],
         "mobile_trust_caveat_count": dashboard["mobile_trust_caveat_count"],
         "frontend_database_access_allowed": dashboard[
             "frontend_database_access_allowed"

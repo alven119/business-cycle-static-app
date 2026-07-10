@@ -20,6 +20,9 @@ from business_cycle.storage.nas_indicator_snapshots import (
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_service_dashboard_contract.yaml"
+DEFAULT_ROLE_LABELS_PATH = (
+    ROOT / "specs/common/book_core_role_display_labels_zh.yaml"
+)
 TMP_ROOT = Path("/tmp")
 
 PROHIBITED_FIELDS = {
@@ -55,9 +58,21 @@ def build_nas_service_dashboard_bundle(
 
     contract = load_nas_service_dashboard_contract(contract_path)
     snapshot = snapshot_manifest or build_nas_indicator_snapshot_manifest()
+    role_labels = load_book_core_role_display_labels_zh()
+    _validate_role_label_coverage(snapshot=snapshot, role_labels=role_labels)
     routes = _route_manifest(contract)
-    api_payloads = _api_payloads(snapshot=snapshot, contract=contract, routes=routes)
-    html_pages = _html_pages(snapshot=snapshot, contract=contract, routes=routes)
+    api_payloads = _api_payloads(
+        snapshot=snapshot,
+        contract=contract,
+        routes=routes,
+        role_labels=role_labels,
+    )
+    html_pages = _html_pages(
+        snapshot=snapshot,
+        contract=contract,
+        routes=routes,
+        role_labels=role_labels,
+    )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
         "phase": "95",
@@ -103,6 +118,7 @@ def build_nas_service_dashboard_bundle(
             html_pages,
             'data-snapshot-status="blocked"',
         ),
+        "traditional_chinese_role_label_count": len(role_labels),
         "mobile_trust_caveat_count": len(_mobile_trust_caveats()),
         "frontend_database_access_allowed": False,
         "frontend_api_key_allowed": False,
@@ -164,6 +180,7 @@ def summarize_nas_service_dashboard(
         "html_role_card_count",
         "html_revised_snapshot_role_count",
         "html_blocked_role_count",
+        "traditional_chinese_role_label_count",
         "mobile_trust_caveat_count",
         "frontend_database_access_allowed",
         "frontend_api_key_allowed",
@@ -307,8 +324,12 @@ def _api_payloads(
     snapshot: dict[str, Any],
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
+    role_labels: dict[str, str],
 ) -> dict[str, Any]:
-    roles = [_role_api_row(row) for row in snapshot["role_snapshots"]]
+    roles = [
+        _role_api_row(row, display_name_zh=role_labels[row["role_id"]])
+        for row in snapshot["role_snapshots"]
+    ]
     return {
         "indicator_snapshot": {
             "payload_id": "nas_indicator_snapshot_api_v1",
@@ -344,6 +365,7 @@ def _api_payloads(
             "roles": [
                 {
                     "role_id": row["role_id"],
+                    "display_name_zh": row["display_name_zh"],
                     "phase_or_layer": row["phase_or_layer"],
                     "major_group_id": row["major_group_id"],
                     "snapshot_status": row["snapshot_status"],
@@ -356,11 +378,16 @@ def _api_payloads(
     }
 
 
-def _role_api_row(row: dict[str, Any]) -> dict[str, Any]:
+def _role_api_row(
+    row: dict[str, Any],
+    *,
+    display_name_zh: str,
+) -> dict[str, Any]:
     latest = row["latest_revised_observations"]
     latest_display = latest[0] if latest else {}
     return {
         "role_id": row["role_id"],
+        "display_name_zh": display_name_zh,
         "phase_or_layer": row["phase_or_layer"],
         "major_group_id": row["major_group_id"],
         "official_series_ids": row["official_series_ids"],
@@ -382,19 +409,29 @@ def _html_pages(
     snapshot: dict[str, Any],
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
+    role_labels: dict[str, str],
 ) -> list[dict[str, Any]]:
     return [
         {
             "page_id": "overview",
             "path": "/",
             "title_zh": "NAS 私有研究儀表板",
-            "html": _overview_html(snapshot=snapshot, contract=contract, routes=routes),
+            "html": _overview_html(
+                snapshot=snapshot,
+                contract=contract,
+                routes=routes,
+                role_labels=role_labels,
+            ),
         },
         {
             "page_id": "indicator_index",
             "path": "/indicators",
             "title_zh": "指標總覽",
-            "html": _indicator_index_html(snapshot=snapshot, contract=contract),
+            "html": _indicator_index_html(
+                snapshot=snapshot,
+                contract=contract,
+                role_labels=role_labels,
+            ),
         },
     ]
 
@@ -404,9 +441,10 @@ def _overview_html(
     snapshot: dict[str, Any],
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
+    role_labels: dict[str, str],
 ) -> str:
     samples = "\n".join(
-        _role_sample(row)
+        _role_sample(row, display_name_zh=role_labels[row["role_id"]])
         for row in snapshot["role_snapshots"][:8]
     )
     caveats = "\n".join(
@@ -453,8 +491,12 @@ def _indicator_index_html(
     *,
     snapshot: dict[str, Any],
     contract: dict[str, Any],
+    role_labels: dict[str, str],
 ) -> str:
-    cards = "\n".join(_role_card(row) for row in snapshot["role_snapshots"])
+    cards = "\n".join(
+        _role_card(row, display_name_zh=role_labels[row["role_id"]])
+        for row in snapshot["role_snapshots"]
+    )
     caveats = "\n".join(
         f"<li>{escape(item)}</li>" for item in _mobile_trust_caveats()
     )
@@ -476,7 +518,7 @@ def _indicator_index_html(
     )
 
 
-def _role_card(row: dict[str, Any]) -> str:
+def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
     status = row["snapshot_status"]
     latest = row["latest_revised_observations"]
     latest_display = latest[0] if latest else {}
@@ -486,7 +528,8 @@ def _role_card(row: dict[str, Any]) -> str:
     return f"""
     <article id="role-{escape(row['role_id'])}" class="role-card"
       data-role-card="true" data-snapshot-status="{escape(status)}">
-      <h3>{escape(row['role_id'])}</h3>
+      <h3>{escape(display_name_zh)}</h3>
+      <p class="technical-id">技術識別：<code>{escape(row['role_id'])}</code></p>
       <p class="meta">{escape(row['phase_or_layer'])} / {escape(row['major_group_id'])}</p>
       <dl>
         <dt>快照狀態</dt><dd>{escape(status)}</dd>
@@ -499,10 +542,10 @@ def _role_card(row: dict[str, Any]) -> str:
     """
 
 
-def _role_sample(row: dict[str, Any]) -> str:
+def _role_sample(row: dict[str, Any], *, display_name_zh: str) -> str:
     return (
         f"<li><a href=\"/indicators#role-{escape(row['role_id'])}\">"
-        f"{escape(row['role_id'])}</a> - {escape(row['snapshot_status'])}</li>"
+        f"{escape(display_name_zh)}</a> - {escape(row['snapshot_status'])}</li>"
     )
 
 
@@ -523,7 +566,8 @@ def _html_document(*, title: str, body: str) -> str:
     .summary-grid, .role-grid {{ display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }}
     .summary-grid article, .role-card {{ background: #fff; border: 1px solid #d9dee6; border-radius: 8px; padding: 14px; }}
     .summary-grid strong {{ display: block; font-size: 1.8rem; }}
-    .summary-grid span, .meta, dt {{ color: #5b6674; }}
+    .summary-grid span, .meta, .technical-id, dt {{ color: #5b6674; }}
+    .technical-id {{ margin: -2px 0 8px; font-size: 0.82rem; }}
     dl {{ display: grid; grid-template-columns: minmax(92px, auto) 1fr; gap: 6px 10px; margin: 0; }}
     dd {{ margin: 0; overflow-wrap: anywhere; }}
     code {{ background: #e9edf2; border-radius: 4px; padding: 2px 4px; }}
@@ -544,6 +588,36 @@ def _routes_ready(routes: list[dict[str, Any]], contract: dict[str, Any]) -> boo
         and all(route["frontend_database_access_allowed"] is False for route in routes)
         and all(route["frontend_api_key_allowed"] is False for route in routes)
     )
+
+
+def load_book_core_role_display_labels_zh(
+    path: str | Path = DEFAULT_ROLE_LABELS_PATH,
+) -> dict[str, str]:
+    """Load the governed Traditional Chinese display name for every role."""
+
+    payload = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    contract = payload["book_core_role_display_labels_zh"]
+    if contract["language"] != "zh-Hant-TW":
+        raise ValueError("book-core role labels must use zh-Hant-TW")
+    return {str(key): str(value) for key, value in contract["roles"].items()}
+
+
+def _validate_role_label_coverage(
+    *,
+    snapshot: dict[str, Any],
+    role_labels: dict[str, str],
+) -> None:
+    role_ids = {str(row["role_id"]) for row in snapshot["role_snapshots"]}
+    label_ids = set(role_labels)
+    if role_ids != label_ids:
+        missing = sorted(role_ids - label_ids)
+        unexpected = sorted(label_ids - role_ids)
+        raise ValueError(
+            "book-core role label coverage mismatch: "
+            f"missing={missing}, unexpected={unexpected}",
+        )
+    if any(not label.strip() for label in role_labels.values()):
+        raise ValueError("book-core Traditional Chinese role labels must be non-empty")
 
 
 def _api_payloads_ready(api_payloads: dict[str, Any], snapshot: dict[str, Any]) -> bool:

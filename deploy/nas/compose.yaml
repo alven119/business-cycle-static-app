@@ -1,0 +1,87 @@
+name: business-cycle-research
+services:
+  macro_postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${MACRO_POSTGRES_DB:-business_cycle}
+      POSTGRES_USER: ${MACRO_POSTGRES_USER:-business_cycle_app}
+      POSTGRES_PASSWORD: ${MACRO_POSTGRES_PASSWORD}
+    volumes:
+      - macro_postgres_data:/var/lib/postgresql/data
+      - macro_source_artifacts:/var/lib/business-cycle/source-artifacts:ro
+    networks:
+      - business_cycle_private
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  business_cycle_app:
+    image: business-cycle-nas-app:phase110-zh-labels
+    build:
+      context: /volume2/docker/business-cycle/app
+      dockerfile: Dockerfile.nas
+    restart: unless-stopped
+    depends_on:
+      macro_postgres:
+        condition: service_healthy
+    environment:
+      BUSINESS_CYCLE_SERVICE_MODE: private_nas_research
+      BUSINESS_CYCLE_DATABASE_URL: ${BUSINESS_CYCLE_DATABASE_URL}
+      BUSINESS_CYCLE_APP_SESSION_HEADER: ${BUSINESS_CYCLE_APP_SESSION_HEADER:-X-Business-Cycle-Session}
+      BUSINESS_CYCLE_APP_SESSION_SECRET: ${BUSINESS_CYCLE_APP_SESSION_SECRET}
+      BUSINESS_CYCLE_APP_SECURE_COOKIE: "true"
+      BUSINESS_CYCLE_LOGIN_MAX_FAILURES: "5"
+      BUSINESS_CYCLE_LOGIN_WINDOW_SECONDS: "300"
+      BUSINESS_CYCLE_PUBLIC_EXPOSURE: "false"
+      BUSINESS_CYCLE_HEALTHCHECK_URL: http://127.0.0.1:8000/healthz
+    ports:
+      - "127.0.0.1:18080:8000"
+    networks:
+      - business_cycle_private
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -m
+        - business_cycle.service.healthcheck
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  macro_refresh_worker:
+    image: business-cycle-nas-app:phase110-zh-labels
+    build:
+      context: /volume2/docker/business-cycle/app
+      dockerfile: Dockerfile.nas
+    restart: "no"
+    profiles:
+      - manual-revised-import
+    depends_on:
+      macro_postgres:
+        condition: service_healthy
+    environment:
+      BUSINESS_CYCLE_DATABASE_URL: ${BUSINESS_CYCLE_DATABASE_URL}
+      FRED_API_KEY: ${FRED_API_KEY}
+    command:
+      - python
+      - -m
+      - business_cycle.service.nas_revised_import_worker
+      - --execute-live
+      - --operator-confirmation
+      - I_UNDERSTAND_THIS_FETCHES_FRED_AND_WRITES_NAS_POSTGRES
+    volumes:
+      - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
+    networks:
+      - business_cycle_private
+
+volumes:
+  macro_postgres_data: {}
+  macro_source_artifacts: {}
+
+networks:
+  business_cycle_private: {}

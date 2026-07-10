@@ -1,6 +1,6 @@
 phase109_nas_tailscale_private_https_closure:
   version: "1.0"
-  status: blocked_operator_acceptance_checkpoint
+  status: closed_private_https_acceptance
   phase_id: 109
   phase_label: nas_tailscale_private_https_acceptance
   hard_gates:
@@ -13,18 +13,17 @@ phase109_nas_tailscale_private_https_closure:
     runtime_security_headers_ready: true
     tailscale_live_state_reconciled: true
     tailscale_backend_online_observed: true
-    tailscale_serve_configured: false
+    tailscale_serve_configured: true
     tailscale_funnel_configured: false
-    mobile_cellular_smoke_passed: false
-    private_https_acceptance_status: operator_enable_serve_and_mobile_smoke_required
-    private_https_accepted: false
-    operator_action_required: true
-    postgres_business_table_count_observed: 0
+    mobile_cellular_smoke_passed: true
+    private_https_acceptance_status: accepted_private_https
+    private_https_accepted: true
+    operator_action_required: false
+    postgres_business_table_count_observed: 11
     production_readiness_rebaseline_required: true
-    production_readiness_rebaseline_reason_count: 3
+    production_readiness_rebaseline_reason_count: 1
     product_progress_percentage_change_count: 0
     product_capability_progress_ready: true
-    product_capability_progress_phase_id: "109"
     public_exposure_enabled: false
     secure_value_committed_count: 0
     candidate_phase_emitted: false
@@ -39,5 +38,5 @@ phase109_nas_tailscale_private_https_closure:
     cycle_state_machine_alignment_status: declared_state_preserved_private_https_only
     portfolio_policy_research_alignment: research_templates_unchanged_no_live_instruction
     historical_replay_backtest_alignment: no_replay_or_backtest_execution
-    development_next_phase: PHASE_109_OPERATOR_ACCEPTANCE
-    phase109_closure_status: blocked_operator_tailscale_serve_and_mobile_acceptance
+    development_next_phase: 110
+    phase109_closure_status: closed_tailscale_private_https_and_mobile_acceptance

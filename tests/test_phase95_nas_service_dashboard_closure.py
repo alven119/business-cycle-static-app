@@ -19,6 +19,7 @@ def test_phase95_nas_service_dashboard_closure_passes() -> None:
     assert summary["phase95_closure_ready"] is True
     assert summary["nas_service_dashboard_contract_ready"] is True
     assert summary["nas_service_html_renderer_ready"] is True
+    assert summary["traditional_chinese_role_label_count"] == 39
     assert summary["product_capability_rebaseline_recorded"] is True
     assert summary["progress_decrease_count"] == 0
     assert summary["progress_decrease_without_reason_count"] == 0

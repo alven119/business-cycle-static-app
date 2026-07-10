@@ -1,0 +1,52 @@
+book_core_role_display_labels_zh:
+  version: "1.0"
+  status: active_private_nas_display_contract
+  language: zh-Hant-TW
+  source_semantics:
+    - specs/audits/canonical_book_requirement_manifest.yaml
+    - specs/audits/book_phase_major_group_contract.yaml
+  display_policy:
+    primary_heading_field: display_name_zh
+    technical_identifier_field: role_id
+    role_id_may_be_primary_heading: false
+    role_id_must_remain_visible_for_lineage: true
+  roles:
+    boom_claims_u_shape: 初領失業救濟金 U 型走勢
+    boom_consumer_confidence: 消費者信心
+    boom_corporate_delinquency_or_default: 企業逾期或違約
+    boom_durable_goods_second_surge: 耐久財支出第二波上升
+    boom_government_revenue: 政府收入
+    boom_inventory_accumulation_context: 庫存累積情境
+    boom_inventory_level: 庫存水準
+    boom_personal_delinquency_or_default: 個人逾期或違約
+    boom_private_investment: 民間投資
+    boom_retail_sales_vs_broad_pce: 零售銷售與廣義實質個人消費
+    boom_state_local_government_spending: 州與地方政府支出
+    growth_adp_employment: ADP 私部門就業
+    growth_core_cpi: 核心消費者物價指數
+    growth_core_pce: 核心個人消費支出物價指數
+    growth_initial_claims_decline: 初領失業救濟金下降
+    growth_nonfarm_payrolls: 非農就業人數
+    growth_personal_saving_rate: 個人儲蓄率
+    growth_private_nonresidential_fixed_investment: 民間非住宅固定投資
+    growth_real_disposable_income_vs_consumption: 實質可支配所得與消費
+    growth_residential_investment: 住宅投資
+    growth_sustainable_inflation_interpretation: 可持續通膨判讀
+    recession_confirmation_breadth: 衰退確認證據廣度
+    recession_consumption_confirmation: 消費衰退確認
+    recession_credit_financial_confirmation: 信用與金融衰退確認
+    recession_employment_confirmation: 就業衰退確認
+    recession_investment_or_industrial_confirmation: 投資或工業活動衰退確認
+    recovery_durable_goods_new_orders: 製造業耐久財新訂單
+    recovery_exports: 出口回升
+    recovery_imports: 進口回升
+    recovery_initial_jobless_claims: 初領失業救濟金
+    recovery_private_nonresidential_fixed_investment: 民間非住宅固定投資
+    recovery_real_pce_durable_goods: 實質耐久財個人消費支出
+    recovery_real_retail_sales: 實質零售銷售
+    recovery_short_term_unemployment: 短期失業人數
+    recovery_weekly_claim_noise_filter: 每週初領失業救濟金雜訊過濾
+    trough_claims_reversal: 初領失業救濟金反轉
+    trough_labor_reversal: 勞動市場反轉
+    trough_policy_financial_not_sufficient_alone: 政策與金融寬鬆不足以單獨確認落底
+    trough_real_activity_reversal: 實質經濟活動反轉

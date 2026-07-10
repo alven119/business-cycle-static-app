@@ -1,7 +1,7 @@
 ---
-version: "2.8"
+version: "3.0"
 status: active
-phase_id: 108
+phase_id: 110
 contract_path: specs/common/nas_dynamic_service_contract.yaml
 ---
 
@@ -209,9 +209,16 @@ Estimated deployment sequence:
   until the operator report is supplied.
 - Phase 109: reconcile the actual running app/Postgres containers, harden the
   browser login for HTTPS, and establish the Tailscale Serve/mobile acceptance
-  gate. The NAS Tailscale node is online, but Serve remains disabled until the
-  tailnet administrator enables it and the phone cellular smoke passes. Funnel
-  and public router forwarding remain prohibited.
+  gate. The NAS Tailscale node and private HTTPS Serve are online, the app is
+  loopback-only with secure cookies, and phone cellular HTTPS/login/dashboard
+  acceptance has passed. Funnel and public router forwarding remain prohibited.
+- Phase 110: execute the first operator-authorized NAS Postgres migration and
+  revised-history import. The live `macro` schema now contains 11 governed
+  tables, 26 official source-series registry rows, 26 checksummed source
+  artifacts, and 22,131 revised observations spanning 1919-01-01 through
+  2026-07-04. The import is resumable and idempotent. `observation_vintage`
+  remains empty, the dashboard still uses its bundled snapshot, and no revised
+  row may be described as point-in-time evidence.
 
 ## GitHub Pages Retirement
 
@@ -241,18 +248,10 @@ Backups must cover:
 
 ## Deferred Gaps
 
-- Tailscale Serve administrator enablement, loopback-only app publishing, and
-  mobile browser acceptance over cellular data.
 - Tailscale stable update, access-grant review, DSM firewall review, and server
   key-expiry review.
-- Executed Postgres migrations and live DB smoke test.
-- Phase109 operator-supplied private HTTPS acceptance report.
 - Live FastAPI/ASGI route mounting for the Phase 97 ASGI adapter after the
   Phase 98 lifecycle rehearsal.
-- Private HTTPS activation of the implemented secure-cookie/session boundary.
-- Local Postgres read smoke with read-only credentials.
 - Data refresh worker.
-- Executed revised data import into the NAS Postgres instance.
 - Executed vintage/PIT backfill into `observation_vintage`.
-- NAS smoke test.
-- Mobile dashboard browser verification over private access.
+- Dashboard live Postgres read path and YTD/1Y/5Y query integration.

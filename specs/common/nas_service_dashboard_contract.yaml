@@ -5,6 +5,7 @@ nas_service_dashboard_contract:
   phase_label: nas_service_dashboard_route_api_renderer
   depends_on:
     - specs/common/nas_indicator_snapshot_contract.yaml
+    - specs/common/book_core_role_display_labels_zh.yaml
     - specs/common/product_capability_progress.yaml
     - docs/nas_dynamic_service_architecture.md
   service_scope:
@@ -94,6 +95,7 @@ nas_service_dashboard_contract:
     html_role_card_count: 39
     html_revised_snapshot_role_count: 37
     html_blocked_role_count: 2
+    traditional_chinese_role_label_count: 39
     mobile_trust_caveat_count: 6
     frontend_database_access_allowed: false
     frontend_api_key_allowed: false

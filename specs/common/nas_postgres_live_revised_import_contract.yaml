@@ -1,0 +1,98 @@
+nas_postgres_live_revised_import_contract:
+  version: "1.0"
+  status: active_operator_authorized_live_import
+  phase_id: 110
+  phase_label: nas_postgres_live_revised_history_import
+  depends_on:
+    - specs/common/postgres_macro_warehouse_contract.yaml
+    - specs/common/revised_macro_data_import_contract.yaml
+    - specs/common/nas_tailscale_private_https_contract.yaml
+  source_policy:
+    provider_family: FRED/ALFRED
+    data_mode: revised
+    full_history_requested: true
+    api_key_env: FRED_API_KEY
+    database_url_env: BUSINESS_CYCLE_DATABASE_URL
+    direct_series_ids:
+      - AAA
+      - BAA
+      - BUSINV
+      - CBIC1
+      - CCSA
+      - CPILFESL
+      - DGORDER
+      - DRBLACBS
+      - DRCLACBS
+      - DSPIC96
+      - EXPGS
+      - FEDFUNDS
+      - FPIC1
+      - ICSA
+      - IMPGS
+      - INDPRO
+      - PAYEMS
+      - PCEC96
+      - PCEDGC96
+      - PCEPILFE
+      - PRFIC1
+      - PSAVERT
+      - RRSFS
+      - SLCEC1
+      - UEMPLT5
+      - W006RC1Q027SBEA
+    derived_roles_deferred_to_snapshot_materialization:
+      credit_spread_baa_aaa: [BAA, AAA]
+      industrial_production_bottoming: [INDPRO]
+      initial_jobless_claims_peak_reversal: [ICSA]
+      short_term_unemployment_peak_reversal: [UEMPLT5]
+  execution_policy:
+    operator_confirmation: I_UNDERSTAND_THIS_FETCHES_FRED_AND_WRITES_NAS_POSTGRES
+    psql_client_required: true
+    artifact_root: /var/lib/business-cycle/source-artifacts/phase110
+    schema_name: macro
+    schema_migration_idempotent: true
+    per_series_transaction: true
+    upsert_idempotent: true
+    checkpoint_after_each_series: true
+    resume_completed_series: true
+    partial_success_preserved: true
+    source_artifact_checksum_required: true
+    backup_before_first_migration_required: true
+    tests_network_allowed: false
+  data_semantics:
+    revised_may_not_be_labeled_point_in_time: true
+    revised_may_not_emit_phase_evidence_by_itself: true
+    revised_may_not_emit_candidate_or_current_phase: true
+    missing_values_preserved_as_text: true
+    no_silent_substitution: true
+  allowed_uses:
+    - private_nas_revised_macro_warehouse
+    - dashboard_revised_history_source
+    - indicator_chart_history_source
+    - future_revised_replay_research
+  prohibited_uses:
+    - point_in_time_claim
+    - formal_current_phase_inference
+    - candidate_phase_selection
+    - personalized_portfolio_instruction
+    - trade_action
+    - public_output
+  hard_gates:
+    nas_postgres_live_revised_import_contract_ready: true
+    postgres_schema_contract_ready: true
+    direct_series_count: 26
+    derived_role_count: 4
+    full_history_requested: true
+    migration_idempotent: true
+    upsert_idempotent: true
+    checkpoint_resume_ready: true
+    backup_required: true
+    source_artifact_checksum_required: true
+    revised_mislabeled_as_pit_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 111

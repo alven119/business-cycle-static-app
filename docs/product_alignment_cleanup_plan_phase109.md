@@ -1,7 +1,7 @@
 # Phase 109 Tailscale Private HTTPS Acceptance
 
-Phase 109 hardens the deployed private NAS login surface and records the exact
-gap between a healthy LAN deployment and accepted mobile access over Tailscale.
+Phase 109 hardens and accepts the deployed private NAS login surface over
+Tailscale private HTTPS.
 
 ## Product progress
 
@@ -10,26 +10,24 @@ gap between a healthy LAN deployment and accepted mobile access over Tailscale.
 - HTTPS-aware secure cookies, login failure limiting, request size limiting,
   HSTS gating, CSP, frame blocking, referrer policy, and MIME-sniffing protection
   are implemented in the private runtime.
-- The NAS Tailscale node is online, but Tailscale Serve is not enabled on the
-  tailnet and the deployment account does not have root/operator permission.
+- Tailscale Serve proxies the loopback-only app endpoint over tailnet HTTPS.
+- HTTPS health, readiness, login, logout, Secure Cookie, and phone cellular
+  access have passed operator acceptance.
 - No Tailscale Funnel or public router forwarding is permitted.
 
-## Acceptance blocker
+## Acceptance result
 
-The operator must enable Tailscale Serve in the tailnet, grant the deployment
-account Tailscale operator permission or run the command as root, switch the app
-publish address back to loopback, enable secure cookies, and complete a phone
-test over cellular data with Wi-Fi disabled. Phase 110 must not start until this
-private HTTPS acceptance report passes.
+The deployment account has Tailscale operator permission, Funnel remains off,
+the app is published only on loopback, and the user confirmed the private HTTPS
+dashboard on a phone over cellular data with Wi-Fi disabled. No tailnet identity
+or secret is committed.
 
 ## Data reality
 
-The running Postgres container currently has zero business tables. The deployed
-dashboard therefore remains a bundled research snapshot rather than a live DB
-view. Product progress percentages remain unchanged in this checkpoint; a
-formal production-readiness rebaseline is required after private HTTPS and live
-DB acceptance so the table does not confuse contract coverage with operational
-readiness.
+Phase 110 subsequently migrated the 11-table macro schema and imported 22,131
+revised observations. The deployed dashboard still renders a bundled research
+snapshot rather than reading Postgres, so live DB dashboard wiring remains the
+single production-readiness rebaseline gap.
 
 ## Doctrine boundary
 

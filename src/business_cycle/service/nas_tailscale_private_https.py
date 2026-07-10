@@ -57,9 +57,10 @@ def build_nas_tailscale_private_https_acceptance(
         sample_report,
         contract,
     )
+    observed_report = acceptance_report or contract.get("observed_acceptance_report")
     actual_validation = (
-        validate_nas_tailscale_private_https_report(acceptance_report, contract)
-        if acceptance_report is not None
+        validate_nas_tailscale_private_https_report(observed_report, contract)
+        if observed_report is not None
         else _missing_acceptance(contract)
     )
     hardening = _runtime_hardening_status(contract)
@@ -277,7 +278,7 @@ def _observed_state_ready(observed: dict[str, Any]) -> bool:
         and observed["postgres_container_healthy"] is True
         and observed["tailscale_backend_state"] == "Running"
         and observed["tailscale_online"] is True
-        and observed["tailscale_serve_configured"] is False
+        and observed["tailscale_serve_configured"] is True
         and observed["tailscale_funnel_configured"] is False
         and observed["tailnet_ip_or_dns_committed"] is False
     )
@@ -314,13 +315,21 @@ def _missing_acceptance(contract: dict[str, Any]) -> dict[str, Any]:
 
 def _activation_checklist(contract: dict[str, Any]) -> list[dict[str, Any]]:
     observed = contract["observed_live_state"]
+    accepted = validate_nas_tailscale_private_https_report(
+        contract["observed_acceptance_report"],
+        contract,
+    )["private_https_accepted"]
     completed = {
         "confirm_funnel_disabled": observed["tailscale_funnel_configured"] is False,
     }
     return [
         {
             "step_id": step,
-            "status": "observed_passed" if completed.get(step) else "operator_required",
+            "status": (
+                "observed_passed"
+                if accepted or completed.get(step)
+                else "operator_required"
+            ),
             "secret_input_required": False,
         }
         for step in contract["operator_acceptance_steps"]

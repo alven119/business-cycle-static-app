@@ -35,6 +35,7 @@ def test_nas_service_dashboard_summary_passes() -> None:
     assert summary["html_role_card_count"] == 39
     assert summary["html_revised_snapshot_role_count"] == 37
     assert summary["html_blocked_role_count"] == 2
+    assert summary["traditional_chinese_role_label_count"] == 39
     assert summary["mobile_trust_caveat_count"] == 6
 
 
@@ -63,6 +64,15 @@ def test_nas_service_dashboard_html_is_chinese_research_surface() -> None:
     assert "不是投資建議" in html
     assert 'data-role-card="true"' in html
     assert 'data-snapshot-status="blocked"' in html
+    assert "初領失業救濟金 U 型走勢" in html
+    assert "核心個人消費支出物價指數" in html
+    assert "政策與金融寬鬆不足以單獨確認落底" in html
+    assert "<h3>boom_claims_u_shape</h3>" not in html
+    assert "技術識別：<code>boom_claims_u_shape</code>" in html
+
+    roles = bundle["api_payloads"]["indicator_snapshot"]["roles"]
+    assert len(roles) == 39
+    assert all(row["display_name_zh"] for row in roles)
 
 
 def test_nas_service_dashboard_output_must_be_under_tmp(tmp_path: Path) -> None:
