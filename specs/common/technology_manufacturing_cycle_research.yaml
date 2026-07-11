@@ -1,0 +1,117 @@
+technology_manufacturing_cycle_research:
+  version: "1.0"
+  status: active_private_nas_research_extension
+  phase_id: 122
+  phase_label: unified_data_fidelity_and_taiwan_us_technology_cycle
+  source_policy:
+    data_mode: revised
+    refresh_mode: opt_in_daily_with_manual_retry
+    fred_api_key_env: FRED_API_KEY
+    database_url_env: BUSINESS_CYCLE_DATABASE_URL
+    artifact_root: /var/lib/business-cycle/source-artifacts/phase122
+    sources:
+      - series_id: DGORDER
+        title_zh: 美國耐久財製造業新訂單
+        source_family: U.S. Census Bureau/FRED
+        source_url_without_secret: https://fred.stlouisfed.org/series/DGORDER
+        geography: US
+        frequency: monthly
+        units: millions_of_us_dollars
+        seasonal_adjustment: seasonally_adjusted
+        nominal_or_real: nominal
+        source_mode: existing_warehouse_series
+        display_transform: year_over_year_percent
+        history_start: "1992-02-01"
+        definition_risk_zh: 包含運輸設備等波動項目，單月大型訂單會扭曲水準，應以年增趨勢搭配細項觀察。
+      - series_id: A34SNO
+        title_zh: 美國電腦及電子產品製造業新訂單
+        source_family: U.S. Census Bureau/FRED
+        source_url_without_secret: https://fred.stlouisfed.org/series/A34SNO
+        geography: US
+        frequency: monthly
+        units: millions_of_us_dollars
+        seasonal_adjustment: seasonally_adjusted
+        nominal_or_real: nominal
+        source_mode: fred_revised_full_history
+        display_transform: year_over_year_percent
+        history_start: "1992-02-01"
+        definition_risk_zh: 範圍廣於半導體，且為名目訂單；年增率仍會受價格、基期與修訂影響。
+      - series_id: A34HNO
+        title_zh: 美國其他電子元件製造業新訂單
+        source_family: U.S. Census Bureau/FRED
+        source_url_without_secret: https://fred.stlouisfed.org/series/A34HNO
+        geography: US
+        frequency: monthly
+        units: millions_of_us_dollars
+        seasonal_adjustment: seasonally_adjusted
+        nominal_or_real: nominal
+        source_mode: fred_revised_full_history
+        display_transform: year_over_year_percent
+        history_start: "1992-02-01"
+        definition_risk_zh: Other Electronic Component Manufacturing 不等於半導體；2010 年後 Census 分類揭露方式改變，跨期比較須保留此限制。
+      - series_id: TW_MOEA_ICT_EXPORT_ORDERS
+        title_zh: 台灣資訊與通信產品外銷訂單
+        source_family: Taiwan MOEA Department of Statistics
+        source_url_without_secret: https://service.moea.gov.tw/EE520/opendata/經濟部統計處_外銷訂單_資訊通訊產品.csv
+        dataset_catalog_url: https://data.gov.tw/dataset/16361
+        geography: TW
+        frequency: monthly
+        units: millions_of_us_dollars
+        seasonal_adjustment: not_seasonally_adjusted
+        nominal_or_real: nominal
+        source_mode: official_csv_revised_history
+        display_transform: year_over_year_percent
+        history_start: "1984-01-01"
+        publication_schedule_zh: 資料月次月 20 至 23 日，遇例假日可能提前或延後。
+        definition_risk_zh: 外銷接單不是出口實績，也不是美國訂單；受匯率、海外生產與產品分類影響。
+      - series_id: TW_MOEA_ELECTRONICS_EXPORT_ORDERS
+        title_zh: 台灣電子產品外銷訂單
+        source_family: Taiwan MOEA Department of Statistics
+        source_url_without_secret: https://service.moea.gov.tw/EE520/opendata/經濟部統計處_外銷訂單_電子產品.csv
+        dataset_catalog_url: https://data.gov.tw/dataset/16362
+        geography: TW
+        frequency: monthly
+        units: millions_of_us_dollars
+        seasonal_adjustment: not_seasonally_adjusted
+        nominal_or_real: nominal
+        source_mode: official_csv_revised_history
+        display_transform: year_over_year_percent
+        history_start: "1984-01-01"
+        publication_schedule_zh: 資料月次月 20 至 23 日，遇例假日可能提前或延後。
+        definition_risk_zh: 外銷接單包含台灣廠商海外生產，不能直接視為台灣境內產出或美國需求的完全替代。
+  interpretation_policy:
+    page_title_zh: 台美科技製造循環
+    output_mode: modern_supporting_research_extension
+    primary_display_unit: year_over_year_percent
+    raw_source_values_preserved: true
+    higher_meaning_zh: 年增率走高表示訂單動能相較去年改善，可作科技需求與製造循環擴張的 supporting context。
+    lower_meaning_zh: 年增率走低或轉負表示訂單動能降溫，需檢查是否廣泛、持續並與就業及消費等 book-core 證據一致。
+    zero_boundary_zh: 零以上代表高於去年同期，零以下代表低於去年同期；零不是景氣階段門檻。
+    us_taiwan_separation_required: true
+    no_phase_confirmation_from_page: true
+    no_book_core_substitution: true
+  prohibited_claims:
+    - A34HNO_is_semiconductor_orders
+    - taiwan_export_orders_replace_us_book_core_roles
+    - nominal_orders_are_real_growth
+    - one_month_yoy_confirms_transition
+    - technology_page_emits_candidate_or_current_phase
+  hard_gates:
+    contract_ready: true
+    source_count: 5
+    newly_wired_source_count: 4
+    official_source_count: 5
+    yoy_display_source_count: 5
+    source_with_complete_identity_count: 5
+    source_with_risk_label_count: 5
+    us_source_count: 3
+    taiwan_source_count: 2
+    raw_source_value_preserved_count: 5
+    silent_substitution_count: 0
+    arbitrary_threshold_added_count: 0
+    numeric_weight_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 123

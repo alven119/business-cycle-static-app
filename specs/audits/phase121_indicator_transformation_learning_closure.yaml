@@ -8,6 +8,7 @@ phase121_indicator_transformation_learning_closure:
     raw_source_data_mutated: false
     postgres_schema_changed: false
     legacy_v1_modified: false
+    recorded_average_product_capability_progress_percent: 80.6
   hard_gates:
     phase121_closure_ready: true
     indicator_transformation_learning_contract_ready: true

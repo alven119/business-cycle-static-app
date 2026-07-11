@@ -271,6 +271,13 @@ def build_nas_live_postgres_dashboard_snapshot(
     observations_by_series = _observations_by_series(
         payload.get("observation_rows", []),
     )
+    technology_series_ids = {
+        "DGORDER",
+        "A34SNO",
+        "A34HNO",
+        "TW_MOEA_ICT_EXPORT_ORDERS",
+        "TW_MOEA_ELECTRONICS_EXPORT_ORDERS",
+    }
     derived = contract["derived_display_series"]
     learning_contract = load_indicator_transformation_learning_contract()
     role_snapshots = [
@@ -348,6 +355,10 @@ def build_nas_live_postgres_dashboard_snapshot(
         "role_snapshots": role_snapshots,
         "series_snapshots": list(series_rows.values()),
         "source_artifact_snapshots": list(artifact_rows.values()),
+        "technology_series_observations": {
+            series_id: observations_by_series.get(series_id, [])
+            for series_id in sorted(technology_series_ids)
+        },
         "role_snapshot_count": len(role_snapshots),
         "role_with_revised_snapshot_count": len(available_roles),
         "role_without_revised_snapshot_count": len(role_snapshots) - len(available_roles),

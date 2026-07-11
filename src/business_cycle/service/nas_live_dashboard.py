@@ -11,6 +11,7 @@ from business_cycle.cycle_state.nas_declared_phase_start_registry import (
 )
 from business_cycle.render.nas_service_dashboard import (
     build_nas_service_dashboard_bundle,
+    render_technology_manufacturing_cycle_page,
 )
 from business_cycle.service.nas_app_shell import build_nas_app_shell
 from business_cycle.service.nas_scheduled_revised_refresh import (
@@ -117,9 +118,17 @@ def build_nas_live_dashboard_runtime(
         runtime_live_mode=True,
     )
     shell = build_nas_app_shell(dashboard_bundle=dashboard)
-    shell["phase"] = "121"
-    shell["phase_id"] = 121
-    shell["artifact_id"] = "phase121_indicator_learning_runtime"
+    technology_cycle = dashboard["technology_manufacturing_cycle"]
+    shell["technology_manufacturing_cycle"] = technology_cycle
+    shell["technology_manufacturing_cycle_html"] = (
+        render_technology_manufacturing_cycle_page(
+            technology_cycle,
+            navigation=dashboard["command_center"]["navigation"],
+        )
+    )
+    shell["phase"] = "122"
+    shell["phase_id"] = 122
+    shell["artifact_id"] = "phase122_technology_manufacturing_cycle_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -233,8 +242,8 @@ def build_nas_live_dashboard_runtime(
         ],
     }
     runtime: dict[str, Any] = {
-        "phase": 121,
-        "artifact_id": "phase121_indicator_learning_runtime",
+        "phase": 122,
+        "artifact_id": "phase122_technology_manufacturing_cycle_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,

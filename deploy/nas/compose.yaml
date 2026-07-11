@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase121-indicator-learning
+    image: business-cycle-nas-app:phase122-technology-cycle
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -84,7 +84,7 @@ services:
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase121-indicator-learning
+    image: business-cycle-nas-app:phase122-technology-cycle
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -99,6 +99,8 @@ services:
       BUSINESS_CYCLE_REFRESH_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_FRED_AND_WRITES_NAS_POSTGRES
       BUSINESS_CYCLE_PIT_BACKFILL_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_ALFRED_AND_WRITES_NAS_POSTGRES
       BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_MIGRATES_CALENDAR_AND_WRITES_BROADER_ALFRED_PIT
+      BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED: "true"
+      BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_OFFICIAL_TECHNOLOGY_DATA_AND_WRITES_NAS_POSTGRES
       FRED_API_KEY: ${FRED_API_KEY}
     command:
       - python

@@ -20,6 +20,9 @@ from business_cycle.storage.nas_postgres_live_revised_import import (
     load_nas_postgres_live_revised_import_contract,
     run_nas_postgres_live_revised_import,
 )
+from business_cycle.storage.nas_technology_manufacturing_import import (
+    run_technology_manufacturing_import,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_scheduled_revised_refresh_contract.yaml"
@@ -95,6 +98,9 @@ def run_scheduled_refresh_once(
     import_runner: Callable[..., dict[str, Any]] = run_nas_postgres_live_revised_import,
     now: Callable[[], datetime] | None = None,
     series_ids: list[str] | None = None,
+    technology_import_runner: Callable[..., dict[str, Any]] = (
+        run_technology_manufacturing_import
+    ),
 ) -> dict[str, Any]:
     """Run one mutually exclusive refresh and preserve a redacted latest status."""
 
@@ -124,10 +130,22 @@ def run_scheduled_refresh_once(
                 resume=False,
                 series_ids=series_ids,
             )
+            technology_report: dict[str, Any] | None = None
+            if _technology_refresh_enabled() and _is_full_daily_refresh(series_ids):
+                technology_report = technology_import_runner(
+                    execute_live=True,
+                    operator_confirmation=os.environ.get(
+                        "BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION",
+                    ),
+                    artifact_dir=root.parent / "phase122" / "runs" / run_id,
+                )
             completed = clock()
             succeeded = report.get("result") == "passed" and int(
                 report.get("failed_series_count", 0)
-            ) == 0
+            ) == 0 and (
+                technology_report is None
+                or technology_report.get("result") == "passed"
+            )
             status = _base_status("succeeded" if succeeded else "failed") | {
                 "last_run_state": "succeeded" if succeeded else "failed",
                 "run_id": run_id,
@@ -150,6 +168,15 @@ def run_scheduled_refresh_once(
                 if succeeded
                 else "one_or_more_sources_failed",
                 "series_refresh_results": _redacted_series_refresh_results(report),
+                "technology_refresh_enabled": _technology_refresh_enabled(),
+                "technology_refresh_result": (
+                    technology_report.get("result")
+                    if technology_report is not None
+                    else "not_run_for_subset_or_disabled"
+                ),
+                "technology_completed_series_count": int(
+                    (technology_report or {}).get("completed_series_count", 0)
+                ),
             }
         except Exception as exc:  # noqa: BLE001 - status must survive failure
             completed = clock()
@@ -253,10 +280,28 @@ def _base_status(state: str) -> dict[str, Any]:
         "error_class": None,
         "error_message_redacted": None,
         "series_refresh_results": [],
+        "technology_refresh_enabled": _technology_refresh_enabled(),
+        "technology_refresh_result": "not_run",
+        "technology_completed_series_count": 0,
         "candidate_phase_emitted": False,
         "current_phase_emitted": False,
         "secret_value_recorded": False,
     }
+
+
+def _technology_refresh_enabled() -> bool:
+    return os.environ.get("BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED", "false").lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _is_full_daily_refresh(series_ids: list[str] | None) -> bool:
+    if series_ids is None:
+        return True
+    canonical = load_nas_postgres_live_revised_import_contract()["source_policy"][
+        "direct_series_ids"
+    ]
+    return set(series_ids) == set(canonical)
 
 
 def _redacted_series_refresh_results(report: dict[str, Any]) -> list[dict[str, Any]]:

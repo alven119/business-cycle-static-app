@@ -17,6 +17,12 @@ from business_cycle.render.indicator_detail_source_risk_values import (
 from business_cycle.render.indicator_learning_semantics import (
     transform_observations_for_display,
 )
+from business_cycle.render.technology_manufacturing_cycle import (
+    build_technology_manufacturing_cycle_view,
+)
+from business_cycle.storage.nas_technology_manufacturing_import import (
+    summarize_technology_manufacturing_contract,
+)
 from business_cycle.storage.raw_store import RawCsvStore
 
 
@@ -139,3 +145,48 @@ def test_phase121_display_transformations_are_causal_role_specific_and_audited()
     assert moving_rows[-1]["value_numeric"] == "115"
     assert moving_semantics["transform_label_zh"] == "4 期移動平均"
     assert all(row["phase_support_allowed"] is False for row in yoy_rows + moving_rows)
+
+
+def test_phase122_technology_cycle_uses_official_yoy_and_preserves_boundaries() -> None:
+    rows = []
+    for year, base in ((2024, 100), (2025, 110), (2026, 121)):
+        for month in range(1, 7):
+            rows.append({
+                "observation_date": f"{year}-{month:02d}-01",
+                "value_numeric": str(base + month),
+                "source_artifact_id": f"artifact-{year}",
+                "provenance_hash": f"hash-{year}-{month}",
+            })
+    view = build_technology_manufacturing_cycle_view({
+        "snapshot_as_of": "2026-07-11",
+        "technology_series_observations": {
+            series_id: rows
+            for series_id in (
+                "DGORDER",
+                "A34SNO",
+                "A34HNO",
+                "TW_MOEA_ICT_EXPORT_ORDERS",
+                "TW_MOEA_ELECTRONICS_EXPORT_ORDERS",
+            )
+        },
+    })
+    contract = summarize_technology_manufacturing_contract()
+
+    assert contract["result"] == "passed"
+    assert contract["newly_wired_source_count"] == 4
+    assert view["series_count"] == 5
+    assert view["available_series_count"] == 5
+    assert view["us_series_count"] == 3
+    assert view["taiwan_series_count"] == 2
+    assert view["book_core_substitution_allowed"] is False
+    assert view["phase_confirmation_allowed"] is False
+    assert view["candidate_phase_emitted"] is False
+    assert view["current_phase_emitted"] is False
+    assert all(card["raw_source_value_preserved"] for card in view["series_cards"])
+    assert all(card["phase_support_allowed"] is False for card in view["series_cards"])
+    assert all(
+        card["latest_yoy_observation"]["comparison_observation_date"].startswith("2025-")
+        for card in view["series_cards"]
+    )
+    electronic = next(card for card in view["series_cards"] if card["series_id"] == "A34HNO")
+    assert "不等於半導體" in electronic["definition_risk_zh"]

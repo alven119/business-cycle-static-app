@@ -1,8 +1,8 @@
 product_capability_100_completion_plan:
   version: "2.0"
   status: active_completion_planning_contract
-  baseline_phase_id: 121
-  baseline_phase_label: indicator_transformation_and_learning_semantics
+  baseline_phase_id: 122
+  baseline_phase_label: unified_data_fidelity_and_taiwan_us_technology_cycle
   objective_zh: >
     以最少工程 Phase 完成私人 NAS v1.0 所需的資料、判讀、轉折、配置、重播、
     回測與操作能力，再以不可跳過的 prospective calendar gate 完成正式 production
@@ -28,6 +28,7 @@ product_capability_100_completion_plan:
   phase_plan:
     - phase_id: 122
       title_zh: 統一資料正確性與台美科技製造循環研究頁
+      execution_status: completed
       objective_zh: >
         驗證 39-role transformation、官方 identity、單位、名目／實質、頻率與修訂；
         接入可信的美國與台灣科技製造官方序列、revised history 與風險標籤，完成專頁。
@@ -42,6 +43,7 @@ product_capability_100_completion_plan:
         - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
     - phase_id: 123
       title_zh: Live ordered-cycle evidence 與轉折判讀 runtime
+      execution_status: next
       objective_zh: >
         將 book-aligned evidence evaluators 接入 declared boom 的 continuation、ending
         watch、recession watch 與 confirmation lanes，顯示累積、矛盾、缺口及 why-not-confirmation，

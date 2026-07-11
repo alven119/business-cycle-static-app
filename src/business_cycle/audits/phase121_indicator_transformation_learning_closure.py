@@ -10,9 +10,6 @@ import yaml
 from business_cycle.audits.indicator_transformation_learning_semantics import (
     summarize_indicator_transformation_learning_semantics,
 )
-from business_cycle.audits.product_capability_progress import (
-    summarize_product_capability_progress,
-)
 from business_cycle.render.indicator_learning_semantics import (
     load_indicator_transformation_learning_contract,
 )
@@ -37,7 +34,6 @@ def summarize_phase121_indicator_transformation_learning_closure(
     audit = summarize_indicator_transformation_learning_semantics()
     display = load_indicator_transformation_learning_contract()
     dashboard = load_nas_live_postgres_dashboard_contract()
-    progress = summarize_product_capability_progress()
     summary: dict[str, Any] = {
         "phase": 121,
         "phase121_closure_ready": payload["status"]
@@ -96,9 +92,11 @@ def summarize_phase121_indicator_transformation_learning_closure(
         "portfolio_policy_output_count": 0,
         "backtest_execution_count": 0,
         "semantic_drift_count": 0,
-        "average_product_capability_progress_percent": progress[
-            "average_progress_percent"
-        ],
+        "average_product_capability_progress_percent": float(
+            payload["implementation_acceptance"][
+                "recorded_average_product_capability_progress_percent"
+            ]
+        ),
         "product_doctrine_alignment_status": "aligned",
         "cycle_state_machine_alignment_status": (
             "declared_boom_preserved_display_semantics_aligned"

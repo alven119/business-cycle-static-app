@@ -307,6 +307,13 @@ def build_runtime_response(
     )
     if source_operations_response is not None:
         return source_operations_response
+    technology_response = _technology_cycle_response(
+        path=normalized_path,
+        method=normalized_method,
+        shell=shell,
+    )
+    if technology_response is not None:
+        return technology_response
     if normalized_method != "GET":
         return _json_response(405, {"error": "method_not_allowed", "research_only": True})
 
@@ -393,7 +400,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase121"
+    server_version = "BusinessCycleNAS/phase122"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -612,6 +619,42 @@ def _source_operations_response(
         "application/json",
         build_nas_source_operations_api(diagnostics),
         route_id="nas_source_operations_api",
+    )
+
+
+def _technology_cycle_response(
+    *,
+    path: str,
+    method: str,
+    shell: dict[str, Any] | None,
+) -> RuntimeResponse | None:
+    if path not in {"/technology-cycle", "/api/technology-cycle.json"}:
+        return None
+    if method != "GET":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+    resolved = shell or {}
+    view = resolved.get("technology_manufacturing_cycle")
+    if not isinstance(view, dict):
+        return _json_response(503, {
+            "error": "technology_cycle_not_available",
+            "research_only": True,
+            "private_nas_only": True,
+        })
+    if path == "/technology-cycle":
+        html = resolved.get("technology_manufacturing_cycle_html")
+        if not isinstance(html, str) or not html:
+            return _json_response(503, {"error": "technology_cycle_renderer_unavailable"})
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            html,
+            route_id="technology_manufacturing_cycle_page",
+        )
+    return RuntimeResponse(
+        200,
+        "application/json",
+        json.dumps(view, sort_keys=True),
+        route_id="technology_manufacturing_cycle_api",
     )
 
 

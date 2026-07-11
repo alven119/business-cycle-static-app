@@ -16,6 +16,9 @@ from business_cycle.audits.product_capability_progress import (
 from business_cycle.render.nas_cycle_command_center import (
     build_nas_cycle_command_center,
 )
+from business_cycle.render.technology_manufacturing_cycle import (
+    build_technology_manufacturing_cycle_view,
+)
 from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
     summarize_nas_indicator_snapshot,
@@ -66,6 +69,18 @@ def build_nas_service_dashboard_bundle(
     role_labels = load_book_core_role_display_labels_zh()
     _validate_role_label_coverage(snapshot=snapshot, role_labels=role_labels)
     command_center = build_nas_cycle_command_center(snapshot)
+    technology_cycle = None
+    if runtime_live_mode:
+        command_center["navigation"].insert(
+            3,
+            {
+                "nav_id": "technology_cycle",
+                "label_zh": "台美科技循環",
+                "path": "/technology-cycle",
+                "enabled": True,
+            },
+        )
+        technology_cycle = build_technology_manufacturing_cycle_view(snapshot)
     routes = _route_manifest(contract)
     api_payloads = _api_payloads(
         snapshot=snapshot,
@@ -105,6 +120,7 @@ def build_nas_service_dashboard_bundle(
         "api_payloads": api_payloads,
         "html_pages": html_pages,
         "command_center": command_center,
+        "technology_manufacturing_cycle": technology_cycle,
         "trust_metadata": _trust_metadata(contract=contract, snapshot=snapshot),
         "allowed_uses": contract["allowed_uses"],
         "prohibited_uses": contract["prohibited_uses"],
@@ -183,6 +199,76 @@ def build_nas_service_dashboard_bundle(
     )
     bundle["result"] = "passed" if bundle["nas_service_dashboard_ready"] else "blocked"
     return bundle
+
+
+def render_technology_manufacturing_cycle_page(
+    view: dict[str, Any],
+    *,
+    navigation: list[dict[str, Any]],
+) -> str:
+    """Render the governed Phase122 research extension inside the NAS shell."""
+
+    cards = "".join(_technology_cycle_card(row) for row in view["series_cards"])
+    return _html_document(
+        title="台美科技製造循環",
+        active_nav_id="technology_cycle",
+        navigation=navigation,
+        body=f"""
+        <section class="hero">
+          <div>
+            <p class="eyebrow">modern supporting research / revised diagnostic</p>
+            <h1>台美科技製造循環</h1>
+            <p>以官方訂單年增率對照美國科技製造需求與台灣供應鏈接單動能。這一頁協助學習與研究，
+            不取代書中 book-core 指標，也不單獨確認榮景結束或衰退。</p>
+          </div>
+          <p class="research-badge">研究擴充，不是階段結論</p>
+        </section>
+        <div class="trust-ribbon" aria-label="科技循環資料信任資訊">
+          <span><b>資料模式</b> revised diagnostic</span>
+          <span><b>主要判讀</b> 年增率</span>
+          <span><b>原始資料</b> 名目百萬美元</span>
+          <span><b>可用序列</b> {int(view['available_series_count'])}/{int(view['series_count'])}</span>
+        </div>
+        <section class="content-band">
+          <h2>年增率怎麼看</h2>
+          <dl class="learning-grid">
+            <dt>走高</dt><dd>{escape(str(view['higher_meaning_zh']))}</dd>
+            <dt>走低</dt><dd>{escape(str(view['lower_meaning_zh']))}</dd>
+            <dt>零軸</dt><dd>{escape(str(view['zero_boundary_zh']))}</dd>
+          </dl>
+        </section>
+        <section class="content-band">
+          <div class="section-heading"><div><p class="section-kicker">Official source comparison</p>
+          <h2>美國需求與台灣供應鏈</h2></div></div>
+          <div class="role-grid">{cards}</div>
+        </section>
+        <p class="boundary-note">A34HNO 是「其他電子元件製造業」，不是半導體訂單；台灣外銷訂單是接單而非出口實績。
+        所有序列均為名目金額，年增率受價格、匯率、基期與修訂影響。</p>
+        """,
+    )
+
+
+def _technology_cycle_card(row: dict[str, Any]) -> str:
+    latest = row.get("latest_yoy_observation")
+    latest_text = "尚無足夠同比資料"
+    if latest:
+        latest_text = f"{latest['value_numeric']}%（{latest['observation_date']}）"
+    geography = "美國" if row["geography"] == "US" else "台灣"
+    seasonal = "季調" if row["seasonal_adjustment"] == "seasonally_adjusted" else "未季調"
+    return f"""
+    <article class="role-card" data-technology-series="{escape(str(row['series_id']))}">
+      <p class="eyebrow">{escape(geography)} / {escape(seasonal)}</p>
+      <h3>{escape(str(row['title_zh']))}</h3>
+      <p class="technical-id">{escape(str(row['series_id']))}</p>
+      <p class="interpretation-value"><strong>最新年增率</strong><br>{escape(latest_text)}</p>
+      <dl>
+        <dt>官方來源</dt><dd>{escape(str(row['source_family']))}</dd>
+        <dt>原始單位</dt><dd>名目百萬美元</dd>
+        <dt>資料風險</dt><dd>{escape(str(row['definition_risk_zh']))}</dd>
+      </dl>
+      {_chart_details_html(row['chart_payload_detail'])}
+    </article>
+    """
 
 
 def summarize_nas_service_dashboard(

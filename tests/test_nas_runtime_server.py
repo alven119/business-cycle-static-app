@@ -424,3 +424,41 @@ def test_disabled_refresh_worker_exits_successfully(capsys: pytest.CaptureFixtur
     output = capsys.readouterr().out
     assert '"refresh_worker_enabled": false' in output
     assert '"live_fetch_attempt_count": 0' in output
+
+
+def test_phase122_technology_cycle_routes_are_private_research_only() -> None:
+    view = {
+        "view_model_id": "technology_manufacturing_cycle_research_v1",
+        "research_only": True,
+        "candidate_phase_emitted": False,
+        "current_phase_emitted": False,
+    }
+    shell = {
+        "technology_manufacturing_cycle": view,
+        "technology_manufacturing_cycle_html": "<h1>台美科技製造循環</h1>",
+    }
+    unauthorized = build_runtime_response(
+        path="/technology-cycle",
+        session_secret="expected-secret",
+        shell=shell,
+    )
+    page = build_runtime_response(
+        path="/technology-cycle",
+        session_secret="expected-secret",
+        headers={"X-Business-Cycle-Session": "expected-secret"},
+        shell=shell,
+    )
+    api = build_runtime_response(
+        path="/api/technology-cycle.json",
+        session_secret="expected-secret",
+        headers={"X-Business-Cycle-Session": "expected-secret"},
+        shell=shell,
+    )
+
+    assert unauthorized.status_code == 401
+    assert page.status_code == 200
+    assert page.route_id == "technology_manufacturing_cycle_page"
+    assert "台美科技製造循環" in page.body
+    assert api.status_code == 200
+    assert api.route_id == "technology_manufacturing_cycle_api"
+    assert '"candidate_phase_emitted": false' in api.body

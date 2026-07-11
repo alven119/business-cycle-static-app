@@ -46,6 +46,10 @@ from business_cycle.audits.phase121_indicator_transformation_learning_closure im
     summarize_phase121_indicator_transformation_learning_closure,
 )
 from business_cycle.data_sources import SeriesObservation
+from business_cycle.data_sources.moea_export_orders import (
+    SERIES as MOEA_SERIES,
+    parse_moea_export_orders_csv,
+)
 from business_cycle.data_sources.alfred_provider import AlfredObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
 from business_cycle.service.nas_official_release_calendar import (
@@ -87,6 +91,10 @@ from business_cycle.storage.nas_postgres_live_revised_import import (
     run_nas_postgres_live_revised_import,
     summarize_nas_postgres_live_revised_import_contract,
     load_nas_postgres_live_revised_import_contract,
+)
+from business_cycle.storage.nas_technology_manufacturing_import import (
+    CONFIRMATION as TECHNOLOGY_CONFIRMATION,
+    run_technology_manufacturing_import,
 )
 from business_cycle.storage.postgres_macro_warehouse import (
     generate_postgres_schema_sql,
@@ -221,6 +229,52 @@ class _FakeSqlExecutor:
     def execute(self, sql: str) -> str:
         self.statements.append(sql)
         return "ok"
+
+
+class _FakeTechnologyProvider:
+    def fetch_series_observations(self, series_id: str) -> list[SeriesObservation]:
+        return [
+            SeriesObservation(
+                series_id=series_id,
+                date=f"{2024 + index // 12}-{index % 12 + 1:02d}-01",
+                value=str(100 + index),
+            )
+            for index in range(25)
+        ]
+
+
+def test_phase122_moea_csv_parser_and_postgres_import_are_hermetic(tmp_path: Path) -> None:
+    definition = MOEA_SERIES["TW_MOEA_ICT_EXPORT_ORDERS"]
+    csv_rows = ["統計項目,貨品別,資料期(民國年),統計值(金額),計量單位"]
+    for index in range(25):
+        roc_year = 112 + index // 12
+        month = index % 12 + 1
+        csv_rows.append(
+            f"外銷訂單金額_美元,資訊與通信產品,{roc_year:03d}{month:02d},"
+            f"{1000 + index},百萬美元"
+        )
+    parsed = parse_moea_export_orders_csv(
+        ("\ufeff" + "\n".join(csv_rows)).encode(),
+        definition=definition,
+    )
+    sql = _FakeSqlExecutor()
+    report = run_technology_manufacturing_import(
+        execute_live=True,
+        operator_confirmation=TECHNOLOGY_CONFIRMATION,
+        artifact_dir=tmp_path / "phase122",
+        fred_provider=_FakeTechnologyProvider(),
+        moea_provider=_FakeTechnologyProvider(),
+        executor=sql,
+    )
+
+    assert parsed[0].date == "2023-01-01"
+    assert parsed[-1].date == "2025-01-01"
+    assert report["result"] == "passed"
+    assert report["requested_series_count"] == 4
+    assert report["completed_series_count"] == 4
+    assert len(sql.statements) == 5
+    assert any("verified_official_phase122" in statement for statement in sql.statements)
+    assert any("TW_MOEA_ICT_EXPORT_ORDERS" in statement for statement in sql.statements)
 
 
 def test_phase110_live_revised_import_contract_is_complete() -> None:
@@ -392,7 +446,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase120-cycle-command-center"
+    assert app["image"] == "business-cycle-nas-app:phase122-technology-cycle"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -429,6 +483,10 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "FRED_API_KEY" in worker["environment"]
     assert "BUSINESS_CYCLE_PIT_BACKFILL_OPERATOR_CONFIRMATION" in worker["environment"]
     assert "BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION" in worker["environment"]
+    assert worker["environment"]["BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED"] == "true"
+    assert "BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION" in (
+        worker["environment"]
+    )
     assert "tailscale funnel" not in Path("deploy/nas/compose.yaml").read_text(
         encoding="utf-8"
     ).lower()
@@ -439,6 +497,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
 
 def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     summary = summarize_nas_scheduled_revised_refresh_contract()
     calls: list[dict[str, object]] = []
@@ -481,6 +540,32 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
     assert json.loads((tmp_path / "refresh-status.json").read_text()) == status
     assert calls[0]["retry_count"] == 3
     assert calls[0]["resume"] is False
+
+    technology_calls: list[dict[str, object]] = []
+
+    def successful_technology_import(**kwargs: object) -> dict[str, object]:
+        technology_calls.append(kwargs)
+        return {
+            "result": "passed",
+            "requested_series_count": 4,
+            "completed_series_count": 4,
+            "failed_series_count": 0,
+        }
+
+    monkeypatch.setenv("BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED", "true")
+    technology_status = run_scheduled_refresh_once(
+        artifact_root=tmp_path / "technology-schedule",
+        operator_confirmation=CONFIRMATION,
+        import_runner=successful_import,
+        technology_import_runner=successful_technology_import,
+        now=lambda: datetime(2026, 7, 10, tzinfo=timezone.utc),
+    )
+    assert technology_status["technology_refresh_result"] == "passed"
+    assert technology_status["technology_completed_series_count"] == 4
+    assert len(technology_calls) == 1
+    assert str(technology_calls[0]["artifact_dir"]).endswith(
+        "phase122/runs/20260710T000000Z"
+    )
 
     schedule_root = tmp_path / "schedule"
     schedule_root.mkdir()
@@ -744,7 +829,12 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert runtime["phase"] == 121
+    assert runtime["phase"] == 122
+    assert runtime["nas_app_shell"]["technology_manufacturing_cycle"]["series_count"] == 5
+    assert runtime["nas_app_shell"]["technology_manufacturing_cycle"][
+        "candidate_phase_emitted"
+    ] is False
+    assert "台美科技循環" in overview
     assert "景氣循環指揮中心" in overview
     assert "資料健康度" in overview
     assert "來源更新正常" in overview
