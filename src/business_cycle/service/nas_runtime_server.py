@@ -393,7 +393,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase120"
+    server_version = "BusinessCycleNAS/phase121"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

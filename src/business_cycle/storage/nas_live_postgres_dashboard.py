@@ -15,6 +15,11 @@ from urllib.parse import unquote, urlsplit
 
 import yaml
 
+from business_cycle.render.indicator_learning_semantics import (
+    learning_semantics_for_role,
+    load_indicator_transformation_learning_contract,
+    transform_observations_for_display,
+)
 from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
 )
@@ -82,7 +87,7 @@ observation_rows AS (
   FROM macro.observation_revised
   CROSS JOIN bounds
   WHERE observation_revised.observation_date >=
-    bounds.database_latest_date - INTERVAL '5 years'
+    bounds.database_latest_date - INTERVAL '6 years'
   ORDER BY observation_revised.series_key, observation_revised.observation_date
 )
 SELECT json_build_object(
@@ -267,6 +272,7 @@ def build_nas_live_postgres_dashboard_snapshot(
         payload.get("observation_rows", []),
     )
     derived = contract["derived_display_series"]
+    learning_contract = load_indicator_transformation_learning_contract()
     role_snapshots = [
         _live_role_snapshot(
             row,
@@ -276,6 +282,7 @@ def build_nas_live_postgres_dashboard_snapshot(
             derived=derived,
             as_of=resolved_as_of,
             contract=contract,
+            learning_contract=learning_contract,
         )
         for row in baseline["role_snapshots"]
     ]
@@ -480,6 +487,7 @@ def _live_role_snapshot(
     derived: dict[str, dict[str, Any]],
     as_of: str,
     contract: dict[str, Any],
+    learning_contract: dict[str, Any],
 ) -> dict[str, Any]:
     series_contexts = [
         _materialize_display_series(
@@ -493,8 +501,23 @@ def _live_role_snapshot(
     ]
     series_contexts = [row for row in series_contexts if row is not None]
     chart_series = [
-        _series_chart_payload(row, as_of=as_of, contract=contract)
+        _series_chart_payload(
+            row,
+            role_id=str(baseline["role_id"]),
+            as_of=as_of,
+            contract=contract,
+            learning_contract=learning_contract,
+        )
         for row in series_contexts
+    ]
+    learning_context = learning_semantics_for_role(
+        str(baseline["role_id"]),
+        contract=learning_contract,
+    )
+    latest_interpretations = [
+        row["latest_interpretation"]
+        for row in chart_series
+        if row.get("latest_interpretation") is not None
     ]
     latest = [row["latest_observation"] for row in series_contexts]
     source_blocked = not baseline["official_series_ids"]
@@ -512,6 +535,8 @@ def _live_role_snapshot(
         "source_mode": "live_postgres_read_only",
         "freshness_status": _role_freshness_status(freshness_rows),
         "source_lineage": [row["source_lineage"] for row in series_contexts],
+        "learning_semantics": learning_context,
+        "latest_interpretation_observations": latest_interpretations,
         "chart_payload_detail": {
             "chart_payload_id": f"live_postgres_chart:{baseline['role_id']}",
             "snapshot_as_of": as_of,
@@ -527,6 +552,11 @@ def _live_role_snapshot(
             "missing_value_treated_as_neutral": False,
             "unavailable_chart_treated_as_zero": False,
             "allowed_periods": ["ytd", "trailing_1y", "trailing_5y"],
+            "primary_display_transform": learning_context[
+                "transform_profile_id"
+            ],
+            "raw_source_value_preserved": True,
+            "interpretation_promoted_to_phase_evidence": False,
         },
         "strict_point_in_time_result": False,
         "candidate_selection_eligible": False,
@@ -660,15 +690,22 @@ def _apply_display_operation(
 def _series_chart_payload(
     context: dict[str, Any],
     *,
+    role_id: str,
     as_of: str,
     contract: dict[str, Any],
+    learning_contract: dict[str, Any],
 ) -> dict[str, Any]:
     as_of_date = date.fromisoformat(as_of)
+    transformed, semantics = transform_observations_for_display(
+        context["observations"],
+        role_id=role_id,
+        contract=learning_contract,
+    )
     periods = [
         _period_payload(
             row["period_id"],
             row["label_zh"],
-            observations=context["observations"],
+            observations=transformed,
             as_of=as_of_date,
         )
         for row in contract["data_policy"]["chart_periods"]
@@ -684,12 +721,41 @@ def _series_chart_payload(
         "series_id": context["series_id"],
         "source_series_ids": context["component_series_ids"],
         "provider": "postgres_revised_warehouse",
-        "unit": context["unit"],
+        "source_unit": context["unit"],
+        "unit": (
+            context["unit"]
+            if semantics["interpretation_unit"] == "source_unit"
+            else semantics["interpretation_unit"]
+        ),
+        "interpretation_unit_zh": semantics["interpretation_unit_zh"],
+        "display_transform": semantics["transform_profile_id"],
+        "display_transform_label_zh": semantics["transform_label_zh"],
+        "display_transform_formula": semantics["transform_formula"],
+        "interpretation_name_zh": semantics["interpretation_name_zh"],
+        "latest_interpretation": (
+            {
+                "observation_date": transformed[-1]["observation_date"],
+                "value_numeric": transformed[-1]["value_numeric"],
+                "unit": (
+                    context["unit"]
+                    if semantics["interpretation_unit"] == "source_unit"
+                    else semantics["interpretation_unit"]
+                ),
+                "source_series_ids": context["component_series_ids"],
+                "display_transform": semantics["transform_profile_id"],
+                "display_only": True,
+                "phase_support_allowed": False,
+            }
+            if transformed
+            else None
+        ),
         "series_chart_available": any(
             row["chart_status"] == "available" for row in periods
         ),
         "freshness": freshness,
         "periods": periods,
+        "raw_source_value_preserved": True,
+        "phase_support_allowed": False,
     }
 
 

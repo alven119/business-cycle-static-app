@@ -1,115 +1,180 @@
 product_capability_100_completion_plan:
-  version: "1.0"
+  version: "2.0"
   status: active_completion_planning_contract
-  baseline_phase_id: 86
-  baseline_phase_label: transition_risk_evidence_accumulation_view
+  baseline_phase_id: 121
+  baseline_phase_label: indicator_transformation_and_learning_semantics
   objective_zh: >
-    在不改變產品 doctrine、不啟用 standalone current phase classifier、不輸出投資建議的前提下，
-    規劃最少工程 phase，將八項產品能力推進到 dashboard/research production 使用所需的
-    100% readiness。若正式 production 定義包含未來前瞻經濟驗證，F2 仍受日曆與 prospective
-    evidence gate 限制，不能用工程 phase 立即跳過。
+    以最少工程 Phase 完成私人 NAS v1.0 所需的資料、判讀、轉折、配置、重播、
+    回測與操作能力，再以不可跳過的 prospective calendar gate 完成正式 production
+    100% 驗證。不得為縮短 Phase 數而犧牲資料完整性、書籍語意或時間正確性。
+  planning_priorities:
+    - data_completeness_and_correctness
+    - book_aligned_interpretation_and_display
+    - minimum_non_overlapping_phase_count
+    - formal_production_readiness_for_all_capabilities
   minimum_engineering_phase_count: 5
-  planned_phase_ids:
-    - 87
-    - 88
-    - 89
-    - 90
-    - 91
+  minimum_total_phase_count_including_calendar_gate: 6
+  planned_phase_ids: [122, 123, 124, 125, 126, 127]
+  engineering_phase_ids: [122, 123, 124, 125, 126]
+  calendar_validation_phase_id: 127
   calendar_prospective_validation_gate_required: true
   calendar_gate_cannot_be_bypassed_by_phase_work: true
+  prospective_minimum_evaluation_months: 12
+  prospective_minimum_complete_strict_dates: 12
+  prospective_100_percent_timing_zh: >
+    最早必須在 prospective protocol 明確啟動後累積 12 個完整月份與 12 個 complete
+    strict dates；依目前 2026-07 first eligible period，實際 100% 不早於 2027 年下半年，
+    且仍取決於每期資料完整與無模型變更重置。
   phase_plan:
-    - phase_id: 87
-      title_zh: Research dashboard production-readiness rehearsal
+    - phase_id: 122
+      title_zh: 統一資料正確性與台美科技製造循環研究頁
       objective_zh: >
-        演練 dashboard migration、renderer caveats、rollback checklist 與 production
-        boundary drill，確認目前 research dashboard 可安全進入 migration review。
-      primary_capabilities:
-        - C6_SAFE_OUTPUT_GOVERNANCE
-        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
-    - phase_id: 88
-      title_zh: Portfolio policy replay research surface completion
-      objective_zh: >
-        將 portfolio policy templates、成本、turnover、再平衡、禁止用途與 replay
-        assumptions 完整接入 research dashboard，不輸出目前配置建議。
-      primary_capabilities:
-        - C4_PORTFOLIO_POLICY_RESEARCH
-        - C3_EXPLAINABILITY_AND_ATTRIBUTION
-    - phase_id: 89
-      title_zh: Historical replay execution and attribution completion
-      objective_zh: >
-        補齊 strict/revised replay artifact、transition timing attribution、missing-data
-        abstention 與 scenario traceability，讓歷史重播達到可審查研究用途。
-      primary_capabilities:
-        - C5_HISTORICAL_REPLAY_AND_BACKTEST
-        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-    - phase_id: 90
-      title_zh: Research backtest and policy artifact completion
-      objective_zh: >
-        補齊 cash-flow-aware research backtest artifacts、policy comparison caveats、
-        no-advice validators 與 dashboard drilldown，不轉成 live allocation。
-      primary_capabilities:
-        - C4_PORTFOLIO_POLICY_RESEARCH
-        - C5_HISTORICAL_REPLAY_AND_BACKTEST
-        - C6_SAFE_OUTPUT_GOVERNANCE
-    - phase_id: 91
-      title_zh: Final research-production migration readiness seal
-      objective_zh: >
-        建立最終 migration readiness seal、rollback proof、production boundary
-        review、documentation parity 與 dashboard acceptance bundle。若前瞻驗證尚未
-        滿足，只能標示為 research dashboard production-migration-ready，而非宣稱已完成經濟驗證。
+        驗證 39-role transformation、官方 identity、單位、名目／實質、頻率與修訂；
+        接入可信的美國與台灣科技製造官方序列、revised history 與風險標籤，完成專頁。
+      completion_gates:
+        - all_chart_transformations_source_verified
+        - technology_series_identity_and_continuity_verified
+        - revised_history_imported_without_silent_substitution
       primary_capabilities:
         - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
         - C2_TRANSITION_RISK_DETECTION
         - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+    - phase_id: 123
+      title_zh: Live ordered-cycle evidence 與轉折判讀 runtime
+      objective_zh: >
+        將 book-aligned evidence evaluators 接入 declared boom 的 continuation、ending
+        watch、recession watch 與 confirmation lanes，顯示累積、矛盾、缺口及 why-not-confirmation，
+        不建立 standalone classifier。
+      completion_gates:
+        - live_evidence_evaluator_connected
+        - watch_confirmation_separation_verified
+        - declared_state_and_legal_transition_preserved
+      primary_capabilities:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C6_SAFE_OUTPUT_GOVERNANCE
+    - phase_id: 124
+      title_zh: 配置研究與歷史重播互動產品面
+      objective_zh: >
+        合併完成 declared-phase-linked 書籍配置研究模板、事件選擇器、月度 playhead、
+        指標／轉折 attribution 與 revised/PIT mode UX，維持研究模板而非個人化指令。
+      completion_gates:
+        - portfolio_research_route_operational
+        - historical_event_replay_route_operational
+        - book_template_and_modern_extension_separated
+      primary_capabilities:
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C4_PORTFOLIO_POLICY_RESEARCH
+        - C5_HISTORICAL_REPLAY_AND_BACKTEST
+    - phase_id: 125
+      title_zh: Strict PIT replay 與 cash-flow-aware backtest 完成
+      objective_zh: >
+        補齊可取得的官方 PIT、執行 strict/revised replay、total-return 與 cash-flow-aware
+        research backtest，呈現成本、turnover、drawdown、錯誤轉折代價與完整 provenance。
+      completion_gates:
+        - strict_pit_input_audit_complete_or_explicit_blocker
+        - cash_flow_aware_backtest_operational
+        - historical_results_not_used_for_rule_tuning
+      primary_capabilities:
+        - C4_PORTFOLIO_POLICY_RESEARCH
+        - C5_HISTORICAL_REPLAY_AND_BACKTEST
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+    - phase_id: 126
+      title_zh: 私人 NAS v1.0 production acceptance
+      objective_zh: >
+        完成 mobile/Tailscale、來源排程、schema drift、backup/restore、rollback、權限、
+        service health、資料庫維運及操作手冊驗收。工程能力可達 v1.0 操作驗收門檻，
+        但不得把尚未完成的 prospective validation 寫成已驗證。
+      completion_gates:
+        - nas_v1_operational_acceptance_passed
+        - source_health_and_restore_drills_passed
+        - rollback_and_security_review_passed
+      primary_capabilities:
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
+        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+    - phase_id: 127
+      title_zh: Calendar-gated prospective validation 與全能力 100% seal
+      objective_zh: >
+        僅在 12 個完整月與 12 個 strict dates 累積完成後，依 preregistered protocol
+        執行未見資料驗證、獨立審查與最終 production seal；模型變更會重置未來評估窗。
+      time_gated: true
+      completion_gates:
+        - prospective_minimum_evaluation_months_reached
+        - prospective_minimum_complete_strict_dates_reached
+        - independent_validation_passed
+        - all_capability_production_gates_passed
+      primary_capabilities:
+        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
+        - C2_TRANSITION_RISK_DETECTION
+        - C3_EXPLAINABILITY_AND_ATTRIBUTION
+        - C4_PORTFOLIO_POLICY_RESEARCH
+        - C5_HISTORICAL_REPLAY_AND_BACKTEST
+        - C6_SAFE_OUTPUT_GOVERNANCE
+        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
         - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
   capability_targets:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-      current_percent: 100
+      current_percent: 84
+      engineering_readiness_target_percent: 99
       target_percent: 100
-      target_phase_id: 91
-      remaining_gap_zh: preserve declared-state semantics through migration rehearsal
+      target_phase_id: 127
+      remaining_gap_zh: live evidence、legal transition confirmation、PIT/economic/prospective validation
     - capability_id: C2_TRANSITION_RISK_DETECTION
-      current_percent: 100
+      current_percent: 88
+      engineering_readiness_target_percent: 99
       target_percent: 100
-      target_phase_id: 91
-      remaining_gap_zh: preserve legal transition watch/confirmation semantics through migration rehearsal
+      target_phase_id: 127
+      remaining_gap_zh: live watch/confirmation accumulation、historical false-signal review、prospective validation
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
-      current_percent: 100
+      current_percent: 88
+      engineering_readiness_target_percent: 99
       target_percent: 100
-      target_phase_id: 91
-      remaining_gap_zh: extend explanation parity to portfolio and replay surfaces
+      target_phase_id: 127
+      remaining_gap_zh: 科技循環、配置、replay/backtest 與正式結果的完整 drill-down
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
-      current_percent: 89
+      current_percent: 65
+      engineering_readiness_target_percent: 99
       target_percent: 100
-      target_phase_id: 90
-      remaining_gap_zh: complete research policy replay surface, caveats, costs, turnover, and no-advice validators
+      target_phase_id: 127
+      remaining_gap_zh: NAS route、actual total-return research、政策重播與最終驗證
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
-      current_percent: 93
+      current_percent: 55
+      engineering_readiness_target_percent: 99
       target_percent: 100
-      target_phase_id: 90
-      remaining_gap_zh: complete replay/backtest artifacts, attribution, and data-mode drilldown for research use
+      target_phase_id: 127
+      remaining_gap_zh: playable replay、strict PIT、cash-flow-aware actual results 與驗證
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
-      current_percent: 100
+      current_percent: 99
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 91
-      remaining_gap_zh: preserve no-advice, no-current-allocation, and migration boundary gates
+      target_phase_id: 126
+      remaining_gap_zh: v1.0 migration、rollback、security 與 operations acceptance
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-      current_percent: 100
+      current_percent: 91
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 91
-      remaining_gap_zh: preserve freshness, release, revised/PIT, and abstention semantics through replay migration
+      target_phase_id: 126
+      remaining_gap_zh: strict PIT coverage、release timestamp gaps 與 operational abstention acceptance
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
-      current_percent: 97
+      current_percent: 75
+      engineering_readiness_target_percent: 95
       target_percent: 100
-      target_phase_id: 91
-      remaining_gap_zh: complete migration rehearsal and rollback readiness; prospective economic validation remains calendar-gated
+      target_phase_id: 127
+      remaining_gap_zh: explicit protocol start、12 個完整月、12 個 strict dates 與獨立驗證
   hard_gates:
     product_capability_100_completion_plan_ready: true
     minimum_engineering_phase_count: 5
-    planned_phase_count: 5
+    minimum_total_phase_count_including_calendar_gate: 6
+    planned_phase_count: 6
     all_target_capabilities_reach_100: true
     calendar_prospective_validation_gate_required: true
     calendar_gate_cannot_be_bypassed_by_phase_work: true
+    prospective_minimum_evaluation_months: 12
+    prospective_minimum_complete_strict_dates: 12
     standalone_classifier_added_count: 0
     phase_rank_or_score_added_count: 0
     current_allocation_recommendation_count: 0

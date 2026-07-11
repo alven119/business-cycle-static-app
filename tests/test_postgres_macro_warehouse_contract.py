@@ -9,6 +9,9 @@ import sys
 import pytest
 import yaml
 
+from business_cycle.audits.indicator_transformation_learning_semantics import (
+    summarize_indicator_transformation_learning_semantics,
+)
 from business_cycle.audits.phase110_nas_postgres_live_revised_import_closure import (
     summarize_phase110_nas_postgres_live_revised_import_closure,
 )
@@ -38,6 +41,9 @@ from business_cycle.audits.phase119_private_login_strict_replay_ux_closure impor
 )
 from business_cycle.audits.phase120_cycle_command_center_closure import (
     summarize_phase120_cycle_command_center_closure,
+)
+from business_cycle.audits.phase121_indicator_transformation_learning_closure import (
+    summarize_phase121_indicator_transformation_learning_closure,
 )
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.data_sources.alfred_provider import AlfredObservation
@@ -596,9 +602,34 @@ def _live_dashboard_fixture_payload() -> dict[str, object]:
             },
         )
         base = 4 if series_id == "AAA" else 6 if series_id == "BAA" else 100 + index
-        for offset, observation_date in enumerate(
-            ("2025-01-01", "2025-08-01", "2026-01-01", "2026-07-01"),
-        ):
+        observation_dates = (
+            (
+                "2025-07-02",
+                "2026-06-10",
+                "2026-06-17",
+                "2026-06-24",
+                "2026-07-01",
+            )
+            if frequency == "weekly"
+            else (
+                "2025-01-01",
+                "2025-04-01",
+                "2025-07-01",
+                "2026-01-01",
+                "2026-04-01",
+                "2026-07-01",
+            )
+            if frequency == "quarterly"
+            else (
+                "2025-05-01",
+                "2025-06-01",
+                "2025-07-01",
+                "2026-05-01",
+                "2026-06-01",
+                "2026-07-01",
+            )
+        )
+        for offset, observation_date in enumerate(observation_dates):
             observation_rows.append(
                 {
                     "series_key": series_id,
@@ -662,6 +693,14 @@ def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage(
     assert spread["latest_revised_observations"][0]["value_numeric"] == "2"
     assert spread["source_lineage"][0]["component_series_ids"] == ["BAA", "AAA"]
     assert spread["chart_payload_detail"]["chart_available"] is True
+    durable = roles["recovery_durable_goods_new_orders"]
+    durable_chart = durable["chart_payload_detail"]["series_charts"][0]
+    assert durable_chart["display_transform"] == "year_over_year_percent_change"
+    assert durable_chart["source_unit"] == "Index"
+    assert durable_chart["unit"] == "percent_yoy"
+    assert durable["latest_interpretation_observations"]
+    assert durable["latest_revised_observations"][0]["unit"] == "Index"
+    assert durable["learning_semantics"]["phase_support_allowed"] is False
     assert roles["boom_consumer_confidence"]["snapshot_status"] == "blocked"
     assert roles["growth_adp_employment"]["snapshot_status"] == "blocked"
 
@@ -705,7 +744,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert runtime["phase"] == 120
+    assert runtime["phase"] == 121
     assert "景氣循環指揮中心" in overview
     assert "資料健康度" in overview
     assert "來源更新正常" in overview
@@ -736,8 +775,33 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert "2026-07-01" in html
     assert "初領失業救濟金 U 型走勢" in html
     assert "目前數值使用 revised diagnostic snapshot" in html
+    assert "官方原始值" in html
+    assert "主要判讀方式" in html
+    assert "如何判讀這個指標" in html
+    assert "升高／走強" in html
+    assert "當下榮景脈絡" in html
+    assert "耐久財新訂單年增率" in html
     assert runtime["candidate_phase_emitted"] is False
     assert runtime["current_phase_emitted"] is False
+
+
+def test_phase121_transformation_learning_audit_and_closure_pass() -> None:
+    audit = summarize_indicator_transformation_learning_semantics()
+    closure = summarize_phase121_indicator_transformation_learning_closure()
+
+    assert audit["result"] == "passed"
+    assert audit["audited_role_count"] == 39
+    assert audit["raw_level_mismatch_before_count"] == 31
+    assert audit["raw_level_mismatch_after_count"] == 0
+    assert audit["yoy_display_role_count"] == 23
+    assert audit["moving_average_display_role_count"] == 8
+    assert audit["level_display_role_count"] == 6
+    assert audit["unavailable_display_role_count"] == 2
+    assert audit["smoothing_promoted_to_phase_support_count"] == 0
+    assert audit["sustainable_inflation_false_confirmation_count"] == 0
+    assert closure["result"] == "passed"
+    assert closure["phase121_closure_ready"] is True
+    assert closure["development_next_phase"] == 122
 
 
 def test_phase111_live_postgres_dashboard_closure_passes() -> None:

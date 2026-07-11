@@ -464,6 +464,11 @@ def _role_api_row(
         "freshness_status": row.get("freshness_status", "unavailable"),
         "source_mode": row.get("source_mode", "bundled_rehearsal_snapshot"),
         "source_lineage": row.get("source_lineage", []),
+        "learning_semantics": row.get("learning_semantics", {}),
+        "latest_interpretation_observations": row.get(
+            "latest_interpretation_observations",
+            [],
+        ),
         "chart_payload_detail": row.get("chart_payload_detail", {}),
         "pit_backfill_status": row["pit_backfill_status"],
         "blocked_reason_codes": row["blocked_reason_codes"],
@@ -613,8 +618,8 @@ def _indicator_index_html(
         <section class="hero">
           <p class="eyebrow">research-only / {escape(_dashboard_data_source_label(runtime_live_mode))}</p>
           <h1>總經指標快照</h1>
-          <p>每個卡片顯示繁中名稱、最新 revised 數值、資料新鮮度、來源血緣、
-          PIT 補齊狀態與資料缺口。可展開查看今年以來、過去 1 年與過去 5 年走勢；
+          <p>每個卡片分開顯示官方原始值與書籍導向的主要判讀值，並說明數值升降在
+          declared 榮景與衰退轉折觀察中的意義。可展開查看今年以來、過去 1 年與過去 5 年走勢；
           blocked 不會被當作 neutral，也不會被補零。</p>
         </section>
         <section>
@@ -777,6 +782,10 @@ def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
     blocked = ", ".join(row["blocked_reason_codes"]) or "none"
     freshness = _freshness_label_zh(row.get("freshness_status", "unavailable"))
     chart_html = _chart_details_html(row.get("chart_payload_detail", {}))
+    learning = row.get("learning_semantics", {})
+    interpreted = list(row.get("latest_interpretation_observations", []))
+    interpretation_html = _latest_interpretation_html(interpreted, learning)
+    learning_html = _learning_semantics_html(learning)
     return f"""
     <article id="role-{escape(row['role_id'])}" class="role-card"
       data-role-card="true" data-snapshot-status="{escape(status)}">
@@ -786,12 +795,15 @@ def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
       <dl>
         <dt>快照狀態</dt><dd>{escape(status)}</dd>
         <dt>最新 revised 日期</dt><dd>{escape(str(observation_date))}</dd>
-        <dt>最新 revised 值</dt><dd>{escape(str(value_text))}</dd>
-        <dt>單位</dt><dd>{escape(str(unit))}</dd>
+        <dt>官方原始值</dt><dd>{escape(str(value_text))}</dd>
+        <dt>官方原始單位</dt><dd>{escape(str(unit))}</dd>
+        <dt>主要判讀方式</dt><dd>{escape(str(learning.get('transform_label_zh') or '尚未定義'))}</dd>
         <dt>資料新鮮度</dt><dd>{escape(freshness)}</dd>
         <dt>PIT 補齊</dt><dd>{escape(row['pit_backfill_status'])}</dd>
         <dt>缺口</dt><dd>{escape(blocked)}</dd>
       </dl>
+      {interpretation_html}
+      {learning_html}
       {chart_html}
     </article>
     """
@@ -919,13 +931,17 @@ def _chart_details_html(chart: dict[str, Any]) -> str:
         for period in series.get("periods", [])
     )
     return (
-        "<details><summary>查看今年／過去 1 年／過去 5 年走勢</summary>"
+        "<details><summary>查看今年／過去 1 年／過去 5 年走勢（主要判讀值）</summary>"
         f"<div class=\"chart-grid\">{panels}</div></details>"
     )
 
 
 def _chart_period_panel(series: dict[str, Any], period: dict[str, Any]) -> str:
-    title = f"{series.get('series_id', 'series')} · {period.get('label', '')}"
+    title = (
+        f"{series.get('interpretation_name_zh', series.get('series_id', 'series'))}"
+        f" · {series.get('series_id', 'series')} · {period.get('label', '')}"
+    )
+    unit = str(series.get("interpretation_unit_zh") or series.get("unit") or "")
     points = list(period.get("points", []))
     if period.get("chart_status") != "available" or not points:
         return (
@@ -945,11 +961,52 @@ def _chart_period_panel(series: dict[str, Any], period: dict[str, Any]) -> str:
         '<output class="chart-tooltip" aria-live="polite" hidden></output>'
         "</div>"
         '<p class="chart-hint">移動游標或觸碰走勢線，可查看日期與數值；鍵盤可用左右方向鍵。</p>'
+        f'<p class="chart-meta">判讀方式：{escape(str(series.get("display_transform_label_zh") or ""))}；'
+        f'顯示單位：{escape(unit)}；原始單位：{escape(str(series.get("source_unit") or "未提供"))}</p>'
         f"<p class=\"chart-meta\">{escape(str(first['date']))}："
         f"{escape(str(first['value']))} → {escape(str(last['date']))}："
         f"{escape(str(last['value']))}；資料點 {len(points)}，繪圖點 {rendered_count}</p>"
         "</section>"
     )
+
+
+def _latest_interpretation_html(
+    rows: list[dict[str, Any]],
+    learning: dict[str, Any],
+) -> str:
+    if not rows:
+        return (
+            '<p class="interpretation-value is-unavailable">主要判讀值：'
+            f'{escape(str(learning.get("interpretation_name_zh") or "尚無"))}目前不可用；不填零。</p>'
+        )
+    items = "".join(
+        "<li>"
+        f"{escape(', '.join(str(item) for item in row.get('source_series_ids', [])))}："
+        f"{escape(str(row.get('value_numeric')))} {escape(str(row.get('unit') or ''))}"
+        f"（{escape(str(row.get('observation_date')))}）"
+        "</li>"
+        for row in rows
+    )
+    return (
+        '<div class="interpretation-value"><strong>最新主要判讀值</strong>'
+        f"<ul>{items}</ul></div>"
+    )
+
+
+def _learning_semantics_html(learning: dict[str, Any]) -> str:
+    if not learning:
+        return ""
+    return f"""
+    <div class="learning-panel" data-indicator-learning-semantics="true">
+      <h4>如何判讀這個指標</h4>
+      <dl class="learning-grid">
+        <dt>升高／走強</dt><dd>{escape(str(learning['high_or_rising_meaning_zh']))}</dd>
+        <dt>降低／走弱</dt><dd>{escape(str(learning['low_or_falling_meaning_zh']))}</dd>
+        <dt>當下榮景脈絡</dt><dd>{escape(str(learning['declared_boom_context_zh']))}</dd>
+        <dt>判讀限制</dt><dd>{escape(str(learning['caveat_zh']))}</dd>
+      </dl>
+    </div>
+    """
 
 
 def _sparkline_svg(points: list[dict[str, Any]]) -> tuple[str, int]:
@@ -1119,6 +1176,13 @@ def _html_document(
     .chart-marker {{ fill: #fff; stroke: var(--blue); stroke-width: 2; vector-effect: non-scaling-stroke; }}
     .chart-tooltip {{ position: absolute; top: 2px; z-index: 2; transform: translateX(-50%); background: #1c2430; color: #fff; border-radius: 4px; padding: 5px 7px; font-size: .75rem; white-space: nowrap; pointer-events: none; }}
     .chart-hint, .chart-meta {{ color: var(--muted); font-size: .75rem; margin: 4px 0 0; }}
+    .interpretation-value, .learning-panel {{ margin: 12px 0; padding: 11px; border-left: 3px solid var(--blue); background: #f1f6f9; }}
+    .interpretation-value.is-unavailable {{ border-left-color: var(--amber); background: var(--amber-soft); }}
+    .interpretation-value ul {{ margin: 6px 0 0; padding-left: 18px; }}
+    .learning-panel h4 {{ margin: 0 0 8px; font-size: .88rem; }}
+    .learning-grid {{ display: grid; grid-template-columns: minmax(88px, .3fr) minmax(0, 1fr); gap: 6px 10px; margin: 0; font-size: .78rem; }}
+    .learning-grid dt {{ color: var(--muted); font-weight: 700; }}
+    .learning-grid dd {{ margin: 0; }}
     dl {{ display: grid; grid-template-columns: minmax(92px, auto) 1fr; gap: 6px 10px; margin: 0; }}
     dd {{ margin: 0; overflow-wrap: anywhere; }}
     code {{ background: #e9edf2; border-radius: 4px; padding: 2px 4px; }}

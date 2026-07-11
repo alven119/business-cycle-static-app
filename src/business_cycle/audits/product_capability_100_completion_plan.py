@@ -55,6 +55,9 @@ def summarize_product_capability_100_completion_plan(
         "minimum_engineering_phase_count": int(
             plan["minimum_engineering_phase_count"]
         ),
+        "minimum_total_phase_count_including_calendar_gate": int(
+            plan["minimum_total_phase_count_including_calendar_gate"]
+        ),
         "planned_phase_count": len(phase_plan),
         "planned_phase_ids": planned_phase_ids,
         "target_capability_count": len(capability_rows),
@@ -68,6 +71,13 @@ def summarize_product_capability_100_completion_plan(
         "calendar_gate_cannot_be_bypassed_by_phase_work": bool(
             plan["calendar_gate_cannot_be_bypassed_by_phase_work"]
         ),
+        "prospective_minimum_evaluation_months": int(
+            plan["prospective_minimum_evaluation_months"]
+        ),
+        "prospective_minimum_complete_strict_dates": int(
+            plan["prospective_minimum_complete_strict_dates"]
+        ),
+        "calendar_validation_phase_id": int(plan["calendar_validation_phase_id"]),
         "standalone_classifier_added_count": 0,
         "phase_rank_or_score_added_count": 0,
         "current_allocation_recommendation_count": 0,
@@ -78,7 +88,7 @@ def summarize_product_capability_100_completion_plan(
     }
     summary["product_capability_100_completion_plan_ready"] = (
         capability_ids == TARGET_CAPABILITY_IDS
-        and planned_phase_ids == [87, 88, 89, 90, 91]
+        and planned_phase_ids == [122, 123, 124, 125, 126, 127]
         and summary["all_target_capabilities_reach_100"]
         and summary["monotonic_progress_targets"]
         and _passes(summary, expected)

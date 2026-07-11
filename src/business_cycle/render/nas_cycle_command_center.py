@@ -258,15 +258,23 @@ def _lane_view(
 def _indicator_view(row: dict[str, Any], label: str) -> dict[str, Any]:
     latest = row.get("latest_revised_observations", [])
     observation = latest[0] if latest else {}
-    value = observation.get("value_numeric")
-    if value is None:
+    interpreted = row.get("latest_interpretation_observations", [])
+    interpretation = interpreted[0] if interpreted else {}
+    value = interpretation.get("value_numeric")
+    if value is None and not row.get("learning_semantics"):
+        value = observation.get("value_numeric")
+    if value is None and not row.get("learning_semantics"):
         value = observation.get("value_text")
     return {
         "role_id": row["role_id"],
         "display_name_zh": label,
-        "latest_observation_date": observation.get("observation_date"),
+        "latest_observation_date": interpretation.get("observation_date")
+        or observation.get("observation_date"),
         "latest_value": value,
-        "latest_unit": observation.get("unit"),
+        "latest_unit": interpretation.get("unit"),
+        "display_transform": row.get("learning_semantics", {}).get(
+            "transform_profile_id"
+        ),
         "snapshot_status": row["snapshot_status"],
         "freshness_status": row.get("freshness_status", "unavailable"),
         "chart_available": row.get("chart_payload_detail", {}).get(

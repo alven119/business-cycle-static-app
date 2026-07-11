@@ -1,0 +1,358 @@
+indicator_transformation_learning_semantics:
+  version: "1.0"
+  status: active_private_nas_research_display_contract
+  phase_id: 121
+  objective_zh: >
+    將官方來源的原始 observation 與書籍導向的主要判讀值分開呈現，並為每個
+    canonical economic role 說明數值升降及 declared boom 到 recession 合法轉折
+    脈絡。這些轉換只供研究顯示與學習，不會自動形成 phase evidence。
+  depends_on:
+    - specs/audits/canonical_book_requirement_manifest.yaml
+    - specs/audits/book_phase_evidence_rule_registry.yaml
+    - specs/common/book_core_role_display_labels_zh.yaml
+    - specs/common/nas_live_postgres_dashboard_contract.yaml
+  policies:
+    raw_source_value_preserved: true
+    interpretation_value_separate_from_raw: true
+    role_specific_transform_required: true
+    all_levels_converted_to_yoy: false
+    nominal_measure_mislabeled_real_allowed: false
+    smoothing_promoted_to_phase_support: false
+    interpretation_promoted_to_phase_evidence: false
+    sustainable_inflation_inferred_from_components: false
+    unavailable_input_zero_filled: false
+    revised_mislabeled_point_in_time: false
+    candidate_or_current_phase_emission_allowed: false
+  transform_profiles:
+    year_over_year_percent_change:
+      label_zh: 年增率
+      formula: (current_value / same_calendar_period_prior_year_value - 1) * 100
+      output_unit: percent_yoy
+      output_unit_zh: "% 年增率"
+      source_history_years_required: 6
+      prior_period_selection: exact_same_calendar_period_prior_year
+      missing_prior_behavior: abstain
+      zero_prior_behavior: abstain
+    trailing_4_observation_mean:
+      label_zh: 4 期移動平均
+      formula: arithmetic_mean(latest_4_causal_observations)
+      output_unit: source_unit
+      output_unit_zh: 原單位（4 期移動平均）
+      required_observation_count: 4
+      expected_frequency: weekly
+      maximum_calendar_span_days: 35
+      insufficient_history_behavior: abstain
+    trailing_3_observation_mean:
+      label_zh: 3 期移動平均
+      formula: arithmetic_mean(latest_3_causal_observations)
+      output_unit: source_unit
+      output_unit_zh: 原單位（3 期移動平均）
+      required_observation_count: 3
+      expected_frequency: monthly
+      maximum_calendar_span_days: 93
+      insufficient_history_behavior: abstain
+    level:
+      label_zh: 水準值
+      formula: current_value
+      output_unit: source_unit
+      output_unit_zh: 原始資料單位
+      insufficient_history_behavior: abstain_when_current_missing
+    unavailable:
+      label_zh: 尚無可用資料
+      formula: none
+      output_unit: unavailable
+      output_unit_zh: 無
+      insufficient_history_behavior: explicit_blocked
+  roles:
+    boom_claims_u_shape:
+      transform_profile_id: trailing_4_observation_mean
+      interpretation_name_zh: 初領失業救濟金 4 週平均
+      high_or_rising_meaning_zh: 上升代表裁員壓力增加；低檔後轉升比單週尖峰更值得注意。
+      low_or_falling_meaning_zh: 下降或低檔穩定代表新增失業壓力較低，但不能單獨確認榮景延續。
+      declared_boom_context_zh: 榮景期觀察是否由低檔形成 U 型回升；平滑本身不是 recession confirmation。
+      caveat_zh: 必須配合消費與更廣的就業確認證據。
+    boom_consumer_confidence:
+      transform_profile_id: unavailable
+      interpretation_name_zh: 消費者信心（缺授權直接來源）
+      high_or_rising_meaning_zh: 若未來取得書中概念等價資料，上升通常表示家庭預期改善。
+      low_or_falling_meaning_zh: 若未來取得等價資料，下降通常表示消費意願與預期轉弱。
+      declared_boom_context_zh: 目前維持 source blocked，不以 generic sentiment 替代。
+      caveat_zh: 缺少授權直接來源，不能產生數值圖或 phase evidence。
+    boom_corporate_delinquency_or_default:
+      transform_profile_id: level
+      interpretation_name_zh: 企業逾期率水準
+      high_or_rising_meaning_zh: 上升代表企業信用壓力增加，可能伴隨融資與投資轉弱。
+      low_or_falling_meaning_zh: 下降代表信用壓力緩和，但不能單獨證明景氣延續。
+      declared_boom_context_zh: 榮景後期若逾期率由低檔持續回升，屬轉折風險脈絡。
+      caveat_zh: 銀行資料的涵蓋部門與修訂政策必須一併解讀。
+    boom_durable_goods_second_surge:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 耐久財新訂單年增率
+      high_or_rising_meaning_zh: 年增率升高代表耐久財需求與未來生產承諾增強。
+      low_or_falling_meaning_zh: 年增率下降代表訂單動能降溫；持續轉負才是較強的轉弱脈絡。
+      declared_boom_context_zh: 用來觀察榮景中的第二波耐久財需求是否延續或高檔回落。
+      caveat_zh: DGORDER 是名目、月度且易受大型訂單影響，須看趨勢而非單月。
+    boom_government_revenue:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 政府收入年增率
+      high_or_rising_meaning_zh: 成長加速通常反映所得、獲利或稅基仍有支撐。
+      low_or_falling_meaning_zh: 成長放緩或收縮可能反映稅基與名目活動轉弱。
+      declared_boom_context_zh: 榮景期收入動能回落可作政府部門與景氣降溫脈絡。
+      caveat_zh: 名目值受通膨、稅制與一次性收支影響。
+    boom_inventory_accumulation_context:
+      transform_profile_id: level
+      interpretation_name_zh: 實質民間庫存變動水準
+      high_or_rising_meaning_zh: 正值或上升表示企業加速累積庫存，可能是需求預期或過度堆庫。
+      low_or_falling_meaning_zh: 下降表示補庫放慢或去庫存，需與銷售動能共同判讀。
+      declared_boom_context_zh: 榮景後期「庫存增加、銷售轉弱」比單看高庫存更具警示意義。
+      caveat_zh: 此序列是庫存變動流量，不是庫存存量，不應再套一般 YoY 當主要圖。
+    boom_inventory_level:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 企業庫存年增率
+      high_or_rising_meaning_zh: 年增率升高表示庫存累積加快，可能支援生產，也可能形成過剩風險。
+      low_or_falling_meaning_zh: 年增率下降表示補庫放緩或去庫存。
+      declared_boom_context_zh: 必須比較銷售與訂單；庫存加速但需求降溫是較重要的榮景末期訊號。
+      caveat_zh: BUSINV 是名目庫存水準，價格變動會影響年增率。
+    boom_personal_delinquency_or_default:
+      transform_profile_id: level
+      interpretation_name_zh: 個人逾期率水準
+      high_or_rising_meaning_zh: 上升代表家庭償債壓力增加，可能壓抑後續消費。
+      low_or_falling_meaning_zh: 下降代表家庭信用壓力較低。
+      declared_boom_context_zh: 榮景後期由低檔回升比絕對水準單獨偏高更值得追蹤。
+      caveat_zh: 信用卡涵蓋範圍不能代表所有家庭債務。
+    boom_private_investment:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質民間固定投資年增率
+      high_or_rising_meaning_zh: 年增率升高代表企業與住宅資本形成仍強。
+      low_or_falling_meaning_zh: 年增率下降或轉負代表投資循環降溫。
+      declared_boom_context_zh: 榮景期高檔回落可提示融資壓力與未來生產動能轉弱。
+      caveat_zh: 季資料與後續修訂使單期變化不宜過度解讀。
+    boom_retail_sales_vs_broad_pce:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質零售與廣義實質消費年增率
+      high_or_rising_meaning_zh: 兩者同步增強表示消費擴張較廣；僅一項上升表示結構分化。
+      low_or_falling_meaning_zh: 兩者同步放緩表示家計需求動能轉弱。
+      declared_boom_context_zh: 零售先弱、廣義消費後弱可作榮景結束觀察，但未 preregister 的 lead-lag 不作確認。
+      caveat_zh: 兩條實質序列分開顯示，不以平均或投票消除 mixed evidence。
+    boom_state_local_government_spending:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 州與地方政府實質支出年增率
+      high_or_rising_meaning_zh: 年增率升高表示地方公共需求仍在擴張。
+      low_or_falling_meaning_zh: 放緩或收縮表示政府部門對總需求的支撐減弱。
+      declared_boom_context_zh: 榮景後期支出降溫是廣度脈絡，不能單獨確認衰退。
+      caveat_zh: 支出與政府收入是不同角色，不能互相替代。
+    growth_adp_employment:
+      transform_profile_id: unavailable
+      interpretation_name_zh: ADP 私部門就業（授權缺口）
+      high_or_rising_meaning_zh: 若取得合法資料，成長增加通常表示私部門聘僱較強。
+      low_or_falling_meaning_zh: 若取得合法資料，成長放緩通常表示聘僱動能轉弱。
+      declared_boom_context_zh: 目前維持 proprietary access blocked，不用 PAYEMS 冒充 ADP。
+      caveat_zh: 無合法可重現來源時不產生圖表。
+    growth_core_cpi:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 核心 CPI 年增率
+      high_or_rising_meaning_zh: 升高代表基礎消費價格壓力增加或更黏著。
+      low_or_falling_meaning_zh: 下降代表核心價格壓力緩和，但也需辨別供給改善或需求轉弱。
+      declared_boom_context_zh: 榮景期高檔黏著可能限制政策空間；下降本身不等於衰退。
+      caveat_zh: 核心 CPI 不可被 headline CPI 替代，也不能單獨證明通膨可持續。
+    growth_core_pce:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 核心 PCE 物價年增率
+      high_or_rising_meaning_zh: 升高代表較廣的基礎消費價格壓力增加。
+      low_or_falling_meaning_zh: 下降代表核心通膨壓力緩和。
+      declared_boom_context_zh: 榮景期持續偏高增加政策與融資壓力；回落需搭配需求與就業。
+      caveat_zh: 核心 PCE 與核心 CPI 分開呈現，任一序列都不能自動解讀為可持續通膨。
+    growth_initial_claims_decline:
+      transform_profile_id: trailing_4_observation_mean
+      interpretation_name_zh: 初領失業救濟金 4 週平均
+      high_or_rising_meaning_zh: 上升代表裁員壓力增加。
+      low_or_falling_meaning_zh: 下降代表新增失業壓力緩和，有利於就業成長脈絡。
+      declared_boom_context_zh: 在 declared boom 中改看是否由低檔回升，不能把平滑下降當榮景確認。
+      caveat_zh: 4 週平均只降低週資料雜訊，不是 phase support 本身。
+    growth_nonfarm_payrolls:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 非農就業年增率
+      high_or_rising_meaning_zh: 年增率升高表示整體聘僱擴張加快。
+      low_or_falling_meaning_zh: 年增率放緩或轉負表示就業動能弱化。
+      declared_boom_context_zh: 榮景期就業成長放緩需與 claims、消費及工業活動共同判讀。
+      caveat_zh: PAYEMS 是獨立官方就業角色，不是 ADP 的替代資料。
+    growth_personal_saving_rate:
+      transform_profile_id: level
+      interpretation_name_zh: 個人儲蓄率水準
+      high_or_rising_meaning_zh: 升高可能表示所得改善，也可能表示家庭轉趨保守、延後消費。
+      low_or_falling_meaning_zh: 下降可能表示消費意願強，也可能表示家庭緩衝下降。
+      declared_boom_context_zh: 必須搭配實質所得與消費關係，不能用單一高低方向判斷榮景風險。
+      caveat_zh: 書籍語意仍缺 reference-window rule，因此只作 observation learning。
+    growth_private_nonresidential_fixed_investment:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質非住宅固定投資年增率
+      high_or_rising_meaning_zh: 升高代表企業資本支出與擴產意願增強。
+      low_or_falling_meaning_zh: 放緩或轉負代表企業投資意願弱化。
+      declared_boom_context_zh: 榮景後期投資動能回落可提示成本、利率或需求壓力。
+      caveat_zh: 現有 FPIC1 涵蓋範圍較廣，頁面必須保留 source-scope 風險。
+    growth_real_disposable_income_vs_consumption:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質可支配所得與實質消費年增率
+      high_or_rising_meaning_zh: 所得與消費同步成長表示家計擴張較有支撐；所得領先消費可增加緩衝。
+      low_or_falling_meaning_zh: 所得落後消費或兩者同步轉弱，可能表示消費可持續性下降。
+      declared_boom_context_zh: 榮景期觀察消費是否持續快於所得，但不設定任意差額門檻。
+      caveat_zh: 必須同為實質、同 as-of；目前只顯示 relation，不輸出 phase support。
+    growth_residential_investment:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質住宅投資年增率
+      high_or_rising_meaning_zh: 升高代表住宅建設與相關需求增強。
+      low_or_falling_meaning_zh: 放緩或轉負代表利率敏感需求降溫。
+      declared_boom_context_zh: 榮景期住宅投資轉弱常反映融資成本傳導，但不能單獨確認衰退。
+      caveat_zh: 季資料需避免以單期修訂值過度推論。
+    growth_sustainable_inflation_interpretation:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 核心 CPI／PCE 年增率並列
+      high_or_rising_meaning_zh: 兩者升高顯示核心價格壓力較廣，但不自動等於可持續。
+      low_or_falling_meaning_zh: 兩者下降顯示壓力緩和，仍需需求、工資與持續性規則。
+      declared_boom_context_zh: 只提供榮景期通膨壓力背景，不以 2%、3% 或其他任意門檻確認階段。
+      caveat_zh: qualitative sustainability rule 未完成，維持 composite observation。
+    recession_confirmation_breadth:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 工業生產年增率
+      high_or_rising_meaning_zh: 年增率升高表示實體生產活動擴張。
+      low_or_falling_meaning_zh: 持續放緩或轉負表示工業活動收縮範圍可能擴大。
+      declared_boom_context_zh: 榮景轉衰退需跨就業、消費與投資形成廣度，INDPRO 單項不足以確認。
+      caveat_zh: 此圖只顯示 breadth input，不計算 role-count vote。
+    recession_consumption_confirmation:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 廣義實質個人消費年增率
+      high_or_rising_meaning_zh: 年增率升高表示家計實質需求仍具韌性。
+      low_or_falling_meaning_zh: 持續放緩或轉負表示消費面衰退風險增加。
+      declared_boom_context_zh: 必須與就業確認共同形成較強 recession confirmation，單項轉弱只屬觀察。
+      caveat_zh: revised 資料圖不是 point-in-time confirmation。
+    recession_credit_financial_confirmation:
+      transform_profile_id: level
+      interpretation_name_zh: Baa－Aaa 信用利差
+      high_or_rising_meaning_zh: 利差擴大表示企業信用風險與融資壓力上升。
+      low_or_falling_meaning_zh: 利差收斂表示金融壓力緩和。
+      declared_boom_context_zh: 可作榮景末期 supporting warning，但 modern financial condition 不能取代 book-core real economy confirmation。
+      caveat_zh: 利差為 supporting-only，不可單獨確認 recession。
+    recession_employment_confirmation:
+      transform_profile_id: trailing_4_observation_mean
+      interpretation_name_zh: 續領失業救濟金 4 週平均
+      high_or_rising_meaning_zh: 上升代表失業持續時間與就業壓力增加。
+      low_or_falling_meaning_zh: 下降代表持續失業壓力緩和。
+      declared_boom_context_zh: 與初領失業金相比屬較持續的勞動壓力輸入，但仍需 consumption confirmation。
+      caveat_zh: 平滑序列本身不是衰退確認。
+    recession_investment_or_industrial_confirmation:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 工業生產年增率
+      high_or_rising_meaning_zh: 升高表示工業與投資相關實體活動增強。
+      low_or_falling_meaning_zh: 持續下降或轉負表示實體活動收縮。
+      declared_boom_context_zh: 榮景後期的持續轉弱可補強 recession watch，但需跨群組確認。
+      caveat_zh: 不以單一工業生產年增率選擇 current phase。
+    recovery_durable_goods_new_orders:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 耐久財新訂單年增率
+      high_or_rising_meaning_zh: 回升代表耐久財需求與未來生產承諾改善。
+      low_or_falling_meaning_zh: 持續下滑表示製造需求仍在惡化。
+      declared_boom_context_zh: 同一序列在榮景期用來觀察高檔回落，角色語意不得混為 recovery confirmation。
+      caveat_zh: 名目、大型訂單波動與修訂風險必須顯示。
+    recovery_exports:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 出口年增率
+      high_or_rising_meaning_zh: 回升表示外部需求與全球貿易活動改善。
+      low_or_falling_meaning_zh: 下滑表示外需或價格／匯率條件轉弱。
+      declared_boom_context_zh: 榮景期出口年增率回落可提示全球需求降溫，對台灣供應鏈具有 supporting 意義。
+      caveat_zh: EXPGS 為名目值，價格與匯率會影響年增率；進出口必須分開。
+    recovery_imports:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 進口年增率
+      high_or_rising_meaning_zh: 回升通常表示美國內需、採購或補庫活動改善。
+      low_or_falling_meaning_zh: 下滑可能表示內需、庫存需求或價格因素轉弱。
+      declared_boom_context_zh: 榮景期進口回落可提示國內需求降溫，但必須搭配消費與庫存。
+      caveat_zh: IMPGS 為名目值，價格與匯率會影響年增率；不得與出口合併替代。
+    recovery_initial_jobless_claims:
+      transform_profile_id: trailing_4_observation_mean
+      interpretation_name_zh: 初領失業救濟金 4 週平均
+      high_or_rising_meaning_zh: 上升表示新增裁員壓力增加。
+      low_or_falling_meaning_zh: 從高峰反轉下降表示新增失業壓力開始緩和。
+      declared_boom_context_zh: 在 declared boom 中主要觀察低檔後回升風險，不能反向宣稱 recovery。
+      caveat_zh: turning point 需要 causal history；單週或單次下降不足。
+    recovery_private_nonresidential_fixed_investment:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質非住宅固定投資年增率
+      high_or_rising_meaning_zh: 回升表示企業投資活動改善。
+      low_or_falling_meaning_zh: 持續下滑表示企業資本支出仍弱。
+      declared_boom_context_zh: 榮景期同一序列轉弱屬投資降溫脈絡，不自動切換 phase。
+      caveat_zh: 季資料及涵蓋範圍風險需保留。
+    recovery_real_pce_durable_goods:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質耐久財消費年增率
+      high_or_rising_meaning_zh: 回升代表家庭大額實質支出改善。
+      low_or_falling_meaning_zh: 下滑表示利率敏感消費需求轉弱。
+      declared_boom_context_zh: 榮景期高檔回落可作需求降溫觀察，但不等於 recession confirmation。
+      caveat_zh: 需搭配實質所得、零售與融資條件。
+    recovery_real_retail_sales:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 實質零售銷售年增率
+      high_or_rising_meaning_zh: 回升表示通膨調整後的商品消費需求改善。
+      low_or_falling_meaning_zh: 持續下滑或轉負表示實質零售需求轉弱。
+      declared_boom_context_zh: 榮景期年增動能下滑可提示消費降溫，不能只看單月水準。
+      caveat_zh: 應看年增趨勢與數月動能，不以單一月份推論階段。
+    recovery_short_term_unemployment:
+      transform_profile_id: trailing_3_observation_mean
+      interpretation_name_zh: 短期失業人數 3 個月平均
+      high_or_rising_meaning_zh: 上升表示近期進入失業的人數增加。
+      low_or_falling_meaning_zh: 從高檔下降表示新近失業壓力緩和。
+      declared_boom_context_zh: 榮景期由低檔回升是就業邊際轉弱脈絡。
+      caveat_zh: 移動平均只降低月度雜訊，不單獨形成 turning-point confirmation。
+    recovery_weekly_claim_noise_filter:
+      transform_profile_id: trailing_4_observation_mean
+      interpretation_name_zh: 初領失業救濟金 4 週雜訊過濾
+      high_or_rising_meaning_zh: 平滑後上升表示週資料中的裁員壓力可能不是單次尖峰。
+      low_or_falling_meaning_zh: 平滑後下降表示週資料壓力緩和。
+      declared_boom_context_zh: 僅提供 claims 趨勢可讀性，不產生榮景或衰退 phase support。
+      caveat_zh: smoothing alone is not phase evidence。
+    trough_claims_reversal:
+      transform_profile_id: trailing_4_observation_mean
+      interpretation_name_zh: 初領失業救濟金 4 週平均反轉脈絡
+      high_or_rising_meaning_zh: 高檔仍升表示裁員壓力尚未落底。
+      low_or_falling_meaning_zh: 從高檔持續下降可構成 trough watch input。
+      declared_boom_context_zh: 目前 declared boom，不把 trough role 輸入拿來逆向重分類目前階段。
+      caveat_zh: 政策或金融改善不能替代勞動市場反轉確認。
+    trough_labor_reversal:
+      transform_profile_id: trailing_3_observation_mean
+      interpretation_name_zh: 短期失業人數 3 個月平均反轉脈絡
+      high_or_rising_meaning_zh: 高檔仍升表示勞動市場尚未形成落底反轉。
+      low_or_falling_meaning_zh: 從高檔下降可作勞動 trough watch input。
+      declared_boom_context_zh: 只保留全循環研究語意，不影響 declared boom registry。
+      caveat_zh: 必須搭配 claims 與 real activity，不能單項確認 recovery。
+    trough_policy_financial_not_sufficient_alone:
+      transform_profile_id: level
+      interpretation_name_zh: 聯邦基金利率水準
+      high_or_rising_meaning_zh: 高或上升表示政策與融資條件較緊。
+      low_or_falling_meaning_zh: 下降表示政策壓力緩和，但也可能是對經濟惡化的反應。
+      declared_boom_context_zh: 榮景期高利率可增加轉折壓力；降息本身不能確認 trough 或 recovery。
+      caveat_zh: policy-only / financial-only evidence 永遠不能單獨升級為 recovery confirmation。
+    trough_real_activity_reversal:
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: 工業生產年增率反轉脈絡
+      high_or_rising_meaning_zh: 從低檔回升表示實體生產活動可能落底。
+      low_or_falling_meaning_zh: 持續下滑表示 real activity 尚未確認反轉。
+      declared_boom_context_zh: 目前只作全循環研究與歷史重播輸入，不改寫 declared boom。
+      caveat_zh: raw direction 不等於 turning point，需 causal history 與跨群組證據。
+  hard_gates:
+    indicator_transformation_learning_contract_ready: true
+    canonical_role_count: 39
+    audited_role_count: 39
+    role_without_transform_count: 0
+    role_without_learning_semantics_count: 0
+    yoy_display_role_count: 23
+    moving_average_display_role_count: 8
+    level_display_role_count: 6
+    unavailable_display_role_count: 2
+    raw_level_mismatch_before_count: 31
+    raw_level_mismatch_after_count: 0
+    nominal_real_mislabel_count: 0
+    smoothing_promoted_to_phase_support_count: 0
+    sustainable_inflation_false_confirmation_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

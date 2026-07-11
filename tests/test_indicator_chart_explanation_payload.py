@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from business_cycle.audits.indicator_transformation_learning_semantics import (
+    summarize_indicator_transformation_learning_semantics,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.render.indicator_chart_explanation_payload import (
     build_indicator_chart_explanation_payload,
@@ -10,6 +13,9 @@ from business_cycle.render.indicator_chart_explanation_payload import (
 )
 from business_cycle.render.indicator_detail_source_risk_values import (
     build_indicator_detail_source_risk_value_cards,
+)
+from business_cycle.render.indicator_learning_semantics import (
+    transform_observations_for_display,
 )
 from business_cycle.storage.raw_store import RawCsvStore
 
@@ -100,3 +106,36 @@ def test_phase64_chart_payload_view_model_is_research_only() -> None:
     assert view_model["candidate_phase_emitted"] is False
     assert view_model["current_phase_emitted"] is False
     assert view_model["phase_rank_or_score_added_count"] == 0
+
+
+def test_phase121_display_transformations_are_causal_role_specific_and_audited() -> None:
+    audit = summarize_indicator_transformation_learning_semantics()
+    yoy_rows, yoy_semantics = transform_observations_for_display(
+        [
+            {"observation_date": "2025-06-01", "value_numeric": "100"},
+            {"observation_date": "2026-06-01", "value_numeric": "110"},
+        ],
+        role_id="recovery_durable_goods_new_orders",
+    )
+    moving_rows, moving_semantics = transform_observations_for_display(
+        [
+            {"observation_date": "2026-06-10", "value_numeric": "100"},
+            {"observation_date": "2026-06-17", "value_numeric": "110"},
+            {"observation_date": "2026-06-24", "value_numeric": "120"},
+            {"observation_date": "2026-07-01", "value_numeric": "130"},
+        ],
+        role_id="recovery_initial_jobless_claims",
+    )
+
+    assert audit["result"] == "passed"
+    assert audit["audited_role_count"] == 39
+    assert audit["raw_level_mismatch_before_count"] == 31
+    assert audit["raw_level_mismatch_after_count"] == 0
+    assert audit["role_without_learning_semantics_count"] == 0
+    assert yoy_rows[-1]["value_numeric"] == "10"
+    assert yoy_rows[-1]["source_value_numeric"] == "110"
+    assert yoy_rows[-1]["comparison_observation_date"] == "2025-06-01"
+    assert yoy_semantics["transform_label_zh"] == "年增率"
+    assert moving_rows[-1]["value_numeric"] == "115"
+    assert moving_semantics["transform_label_zh"] == "4 期移動平均"
+    assert all(row["phase_support_allowed"] is False for row in yoy_rows + moving_rows)

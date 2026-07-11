@@ -7,6 +7,7 @@ nas_live_postgres_dashboard_contract:
     - specs/common/nas_postgres_live_revised_import_contract.yaml
     - specs/common/nas_service_dashboard_contract.yaml
     - specs/common/book_core_role_display_labels_zh.yaml
+    - specs/common/indicator_transformation_learning_semantics.yaml
     - specs/common/postgres_macro_warehouse_contract.yaml
   database_read_policy:
     database_url_env: BUSINESS_CYCLE_DATABASE_URL
@@ -24,6 +25,9 @@ nas_live_postgres_dashboard_contract:
     source_table: macro.observation_revised
     vintage_table_read_count: 0
     chart_history_years: 5
+    chart_source_lookback_years: 6
+    role_specific_interpretation_transform_required: true
+    raw_source_value_preserved: true
     chart_periods:
       - {period_id: ytd, label_zh: 今年以來}
       - {period_id: trailing_1y, label_zh: 過去 1 年}
