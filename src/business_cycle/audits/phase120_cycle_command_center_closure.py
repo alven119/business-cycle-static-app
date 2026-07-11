@@ -42,8 +42,26 @@ def summarize_phase120_cycle_command_center_closure(
     lanes = command["command_center"]["transition_lanes"]
     summary: dict[str, Any] = {
         "phase": 120,
-        "phase120_closure_ready": payload["status"]
-        == "closed_implementation_ready",
+        "phase120_closure_ready": payload["status"] == "closed_live_accepted",
+        "nas_live_deployment_accepted": payload["implementation_acceptance"][
+            "live_nas_deployment_status"
+        ]
+        == "accepted_phase120_private_nas",
+        "app_container_healthy": payload["implementation_acceptance"][
+            "app_container_healthy"
+        ],
+        "worker_container_healthy": payload["implementation_acceptance"][
+            "worker_container_healthy"
+        ],
+        "postgres_container_healthy": payload["implementation_acceptance"][
+            "postgres_container_healthy"
+        ],
+        "lan_login_loop_detected": payload["implementation_acceptance"][
+            "lan_login_loop_detected"
+        ],
+        "tailscale_serve_tailnet_only": payload["implementation_acceptance"][
+            "tailscale_serve_tailnet_only"
+        ],
         "nas_cycle_command_center_contract_ready": command[
             "nas_cycle_command_center_contract_ready"
         ],

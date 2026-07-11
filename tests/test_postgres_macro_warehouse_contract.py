@@ -1548,6 +1548,12 @@ def test_phase120_cycle_command_center_closure_and_script_pass() -> None:
 
     assert summary["result"] == "passed"
     assert summary["phase120_closure_ready"] is True
+    assert summary["nas_live_deployment_accepted"] is True
+    assert summary["app_container_healthy"] is True
+    assert summary["worker_container_healthy"] is True
+    assert summary["postgres_container_healthy"] is True
+    assert summary["lan_login_loop_detected"] is False
+    assert summary["tailscale_serve_tailnet_only"] is True
     assert summary["cycle_command_center_view_model_ready"] is True
     assert summary["professional_navigation_shell_ready"] is True
     assert summary["declared_current_phase"] == "boom"

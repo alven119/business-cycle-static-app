@@ -1,13 +1,34 @@
 phase120_cycle_command_center_closure:
   version: "1.0"
-  status: closed_implementation_ready
+  status: closed_live_accepted
   implementation_acceptance:
     app_image_reference: business-cycle-nas-app:phase120-cycle-command-center
-    live_nas_deployment_status: pending_ssh_public_key_restoration
+    live_nas_deployment_status: accepted_phase120_private_nas
+    accepted_at_utc: "2026-07-11T04:24:29Z"
+    app_container_healthy: true
+    worker_container_healthy: true
+    postgres_container_healthy: true
+    lan_health_status: 200
+    lan_ready_status: 200
+    lan_login_status: 303
+    lan_login_redirect: /
+    lan_cookie_secure: false
+    lan_dashboard_status: 200
+    lan_login_loop_detected: false
+    command_center_visible: true
+    transition_lane_count_observed: 4
+    tailscale_serve_tailnet_only: true
+    tailscale_serve_target: http://127.0.0.1:18080
     test_strategy: extend_existing_dashboard_and_postgres_product_core_tests
     new_test_file_count: 0
   hard_gates:
     phase120_closure_ready: true
+    nas_live_deployment_accepted: true
+    app_container_healthy: true
+    worker_container_healthy: true
+    postgres_container_healthy: true
+    lan_login_loop_detected: false
+    tailscale_serve_tailnet_only: true
     nas_cycle_command_center_contract_ready: true
     cycle_command_center_view_model_ready: true
     professional_navigation_shell_ready: true
