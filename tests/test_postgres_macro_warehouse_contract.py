@@ -30,6 +30,9 @@ from business_cycle.audits.phase116_nas_release_aware_refresh_closure import (
 from business_cycle.audits.phase117_transition_pit_backfill_closure import (
     summarize_phase117_transition_pit_backfill_closure,
 )
+from business_cycle.audits.phase118_broader_pit_release_replay_closure import (
+    summarize_phase118_broader_pit_release_replay_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.data_sources.alfred_provider import AlfredObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
@@ -85,6 +88,13 @@ from business_cycle.storage.nas_transition_pit_backfill import (
     run_transition_pit_backfill,
     summarize_nas_transition_pit_backfill_contract,
 )
+from business_cycle.storage.nas_broader_pit_release_replay import (
+    CONFIRMATION as PHASE118_CONFIRMATION,
+    build_release_calendar_schema_migration_sql,
+    build_revision_aware_release_calendar_plan,
+    run_nas_broader_pit_release_replay,
+    summarize_nas_broader_pit_release_replay_contract,
+)
 
 
 def test_postgres_macro_warehouse_contract_passes() -> None:
@@ -99,6 +109,8 @@ def test_postgres_macro_warehouse_contract_passes() -> None:
     assert summary["pit_ready_schema"] is True
     assert summary["revised_vintage_separation_ready"] is True
     assert summary["vintage_required_column_missing_count"] == 0
+    assert summary["release_calendar_revision_events_supported"] is True
+    assert summary["release_calendar_required_column_missing_count"] == 0
     assert summary["source_artifact_hash_required"] is True
     assert summary["schema_requires_live_db"] is False
     assert summary["live_db_connection_attempt_count"] == 0
@@ -142,6 +154,8 @@ def test_postgres_schema_sql_is_deterministic_and_pit_ready() -> None:
     assert "release_timestamp_utc timestamptz NOT NULL" in sql
     assert "CHECK (data_mode = 'vintage_as_of')" in sql
     assert "CREATE TABLE IF NOT EXISTS macro.source_artifact" in sql
+    assert "release_event_id text NOT NULL" in sql
+    assert "PRIMARY KEY (series_key, release_event_id)" in sql
     assert "UNIQUE (content_hash)" in sql
     assert "CREATE TABLE IF NOT EXISTS macro.dashboard_snapshot" in sql
     assert "CHECK (research_only IS TRUE)" in sql
@@ -362,7 +376,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase117-transition-pit-backfill"
+    assert app["image"] == "business-cycle-nas-app:phase118-broader-pit-replay-audit"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -373,6 +387,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH" in app["environment"]
+    assert "BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
     assert artifact_init["restart"] == "no"
@@ -396,6 +411,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     )
     assert "FRED_API_KEY" in worker["environment"]
     assert "BUSINESS_CYCLE_PIT_BACKFILL_OPERATOR_CONFIRMATION" in worker["environment"]
+    assert "BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION" in worker["environment"]
     assert "tailscale funnel" not in Path("deploy/nas/compose.yaml").read_text(
         encoding="utf-8"
     ).lower()
@@ -1229,6 +1245,159 @@ def test_phase117_transition_pit_contract_calendar_and_live_import_are_safe(
     assert "observation_vintage_row_count=42957" in completed.stdout
     assert "full_all_series_pit_history_complete=false" in completed.stdout
     assert "result=passed" in completed.stdout
+
+
+class _FakeStrictReplayAuditExecutor:
+    def query_json(self, sql: str) -> dict[str, object]:
+        assert "macro.observation_vintage" in sql
+        assert "realtime_start <= s.as_of" in sql
+        assert "realtime_end >= s.as_of" in sql
+        series_ids = load_nas_postgres_live_revised_import_contract()[
+            "source_policy"
+        ]["direct_series_ids"]
+        scenario_rows = []
+        for scenario_id, as_of in (
+            ("dotcom_cycle_2000_2003", "2000-01-31"),
+            ("global_financial_crisis_2007_2009", "2007-01-31"),
+            ("covid_recession_2020", "2020-01-31"),
+            ("euro_debt_slowdown_2011_2012", "2011-01-31"),
+            ("late_cycle_2018_2019", "2018-01-31"),
+        ):
+            scenario_rows.append(
+                {
+                    "scenario_id": scenario_id,
+                    "as_of": as_of,
+                    "available_series_ids": series_ids,
+                }
+            )
+        return {
+            "transaction_read_only": "on",
+            "database_vintage_series_count": len(series_ids),
+            "scenario_rows": scenario_rows,
+        }
+
+
+class _FakeBroaderVintageProvider(_FakeTransitionVintageProvider):
+    def fetch_observations(
+        self,
+        series_id: str,
+        *,
+        observation_start: str | None = None,
+        observation_end: str | None = None,
+        realtime_start: str | None = None,
+        realtime_end: str | None = None,
+        output_type: int = 1,
+    ) -> list[AlfredObservation]:
+        assert realtime_end == "9999-12-31"
+        return super().fetch_observations(
+            series_id,
+            observation_start=observation_start,
+            observation_end=observation_end,
+            realtime_start=realtime_start,
+            realtime_end="2026-07-10",
+            output_type=output_type,
+        )
+
+
+def test_phase118_broader_pit_revision_calendar_and_input_audit_are_safe(
+    tmp_path: Path,
+) -> None:
+    summary = summarize_nas_broader_pit_release_replay_contract()
+    plan = build_revision_aware_release_calendar_plan()
+    migration = build_release_calendar_schema_migration_sql()
+    provider = _FakeBroaderVintageProvider()
+    executor = _FakeSqlExecutor()
+
+    assert summary["result"] == "passed"
+    assert summary["broader_pit_series_count"] == 13
+    assert summary["expected_all_direct_series_count_after"] == 26
+    assert plan["normalized_release_event_row_count"] == 85
+    assert plan["weekly_reference_event_row_count"] == 12
+    assert plan["revision_event_row_count"] == 21
+    assert plan["deferred_release_event_row_count"] == 0
+    assert plan["duplicate_release_event_id_count"] == 0
+    assert all(row["actual_release_at_utc"] is None for row in plan["normalized_release_event_rows"])
+    for row in plan["normalized_release_event_rows"]:
+        if row["series_key"] not in {"ICSA", "CCSA"}:
+            continue
+        release_day = date.fromisoformat(row["expected_release_at_utc"][:10])
+        reference_end = date.fromisoformat(row["reference_period_end"])
+        expected_lag = 5 if row["series_key"] == "ICSA" else 12
+        assert (release_day - reference_end).days == expected_lag
+        assert row["reference_period_precision"] == "official_week_ending_rule"
+    assert "Phase118 calendar guard rejected unexpected live rows" in migration
+    assert "PRIMARY KEY (series_key, release_event_id)" in migration
+
+    with pytest.raises(ValueError, match="explicit confirmation"):
+        run_nas_broader_pit_release_replay(
+            execute_live=False,
+            operator_confirmation=None,
+            artifact_dir=tmp_path / "rejected",
+            provider=provider,
+            executor=executor,
+            audit_executor=_FakeStrictReplayAuditExecutor(),
+        )
+    report = run_nas_broader_pit_release_replay(
+        execute_live=True,
+        operator_confirmation=PHASE118_CONFIRMATION,
+        artifact_dir=tmp_path / "phase118",
+        provider=provider,
+        executor=executor,
+        audit_executor=_FakeStrictReplayAuditExecutor(),
+        execution_date=date(2026, 7, 10),
+    )
+
+    assert report["result"] == "passed"
+    assert report["completed_series_count"] == 13
+    assert report["failed_series_count"] == 0
+    assert report["broader_observation_vintage_row_count_planned"] == 26
+    assert report["normalized_release_event_row_count_planned"] == 85
+    assert report["strict_replay_input_audit"][
+        "scenario_with_all_required_series_count"
+    ] == 5
+    assert report["model_execution_count"] == 0
+    assert report["backtest_execution_count"] == 0
+    assert report["candidate_phase_emitted"] is False
+    assert report["current_phase_emitted"] is False
+    assert len(provider.calls) == 13
+    assert len(executor.statements) == 15
+    sql = "\n".join(executor.statements)
+    assert "INSERT INTO macro.release_calendar" in sql
+    assert "INSERT INTO macro.observation_vintage" in sql
+    assert not (Path("data/backtests") / "phase118").exists()
+    completed = subprocess.run(
+        [sys.executable, "scripts/show_nas_broader_pit_release_replay.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "normalized_release_event_row_count=85" in completed.stdout
+    assert "revision_event_row_count=21" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+    closure = summarize_phase118_broader_pit_release_replay_closure()
+    assert closure["result"] == "passed"
+    assert closure["phase118_closure_ready"] is True
+    assert closure["all_direct_pit_series_count"] == 26
+    assert closure["observation_vintage_row_count"] == 76848
+    assert closure["release_calendar_row_count"] == 85
+    assert closure["strict_replay_scenario_with_all_inputs_count"] == 2
+    assert closure["strict_replay_scenario_with_partial_inputs_count"] == 3
+    assert closure["macro_history_all_modes_complete"] is False
+    assert closure["candidate_phase_emitted"] is False
+    assert closure["current_phase_emitted"] is False
+    closure_cli = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase118_broader_pit_release_replay_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase118_closure_ready=true" in closure_cli.stdout
+    assert "all_direct_pit_series_count=26" in closure_cli.stdout
+    assert "result=passed" in closure_cli.stdout
 
 
 def test_phase115_source_retry_restore_closure_and_script_pass() -> None:

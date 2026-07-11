@@ -24,6 +24,13 @@ VINTAGE_REQUIRED_COLUMNS = {
     "source_artifact_id",
     "provenance_hash",
 }
+RELEASE_CALENDAR_REQUIRED_COLUMNS = {
+    "release_event_id",
+    "source_reference_period_label",
+    "reference_period_precision",
+    "release_semantics",
+    "availability_precision",
+}
 
 
 def load_postgres_macro_warehouse_contract(
@@ -79,6 +86,9 @@ def summarize_postgres_macro_warehouse_contract(
         table for table, spec in tables.items() if not spec.get("primary_key")
     ]
     vintage_missing = _vintage_required_column_missing_count(tables)
+    release_calendar_missing = _release_calendar_required_column_missing_count(
+        tables
+    )
     ddl = generate_postgres_schema_sql(contract)
     database = contract["database"]
     design = contract["design_principles"]
@@ -103,6 +113,12 @@ def summarize_postgres_macro_warehouse_contract(
         "pit_ready_schema": bool(design["pit_schema_required_from_start"]),
         "revised_vintage_separation_ready": _revised_vintage_separation_ready(tables),
         "vintage_required_column_missing_count": vintage_missing,
+        "release_calendar_revision_events_supported": bool(
+            design["release_calendar_revision_events_supported"]
+        ),
+        "release_calendar_required_column_missing_count": (
+            release_calendar_missing
+        ),
         "source_artifact_hash_required": _source_artifact_hash_required(tables),
         "schema_sql_generated": bool(ddl.strip()),
         "schema_requires_live_db": bool(database["live_connection_required_now"]),
@@ -179,6 +195,13 @@ def _revised_vintage_separation_ready(tables: dict[str, dict[str, Any]]) -> bool
 def _vintage_required_column_missing_count(tables: dict[str, dict[str, Any]]) -> int:
     vintage_columns = _column_names(tables["observation_vintage"])
     return len(VINTAGE_REQUIRED_COLUMNS - vintage_columns)
+
+
+def _release_calendar_required_column_missing_count(
+    tables: dict[str, dict[str, Any]],
+) -> int:
+    columns = _column_names(tables["release_calendar"])
+    return len(RELEASE_CALENDAR_REQUIRED_COLUMNS - columns)
 
 
 def _source_artifact_hash_required(tables: dict[str, dict[str, Any]]) -> bool:

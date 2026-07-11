@@ -1,5 +1,5 @@
 postgres_macro_warehouse_contract:
-  version: "1.0"
+  version: "1.1"
   status: active
   phase_id: 91
   phase_label: postgres_macro_warehouse_pit_schema_ready
@@ -17,6 +17,7 @@ postgres_macro_warehouse_contract:
     revised_and_vintage_separated: true
     revised_data_complete_first: true
     vintage_backfill_incremental: true
+    release_calendar_revision_events_supported: true
     missing_vintage_abstains_or_labels_revised_diagnostic: true
     source_artifact_hash_required: true
     frontend_direct_db_access_allowed: false
@@ -106,17 +107,24 @@ postgres_macro_warehouse_contract:
         - CHECK (data_mode = 'vintage_as_of')
     release_calendar:
       purpose: Expected and observed release timing for source availability.
-      primary_key: [series_key, reference_period_start, release_family]
+      primary_key: [series_key, release_event_id]
       columns:
         - {name: series_key, sql_type: text, nullable: false}
+        - {name: release_event_id, sql_type: text, nullable: false}
         - {name: release_family, sql_type: text, nullable: false}
+        - {name: source_reference_period_label, sql_type: text, nullable: false}
+        - {name: reference_period_precision, sql_type: text, nullable: false}
         - {name: reference_period_start, sql_type: date, nullable: false}
         - {name: reference_period_end, sql_type: date, nullable: false}
         - {name: expected_release_at_utc, sql_type: timestamptz, nullable: true}
         - {name: actual_release_at_utc, sql_type: timestamptz, nullable: true}
+        - {name: release_semantics, sql_type: text, nullable: false}
+        - {name: availability_precision, sql_type: text, nullable: false}
         - {name: release_status, sql_type: text, nullable: false}
         - {name: source_artifact_id, sql_type: text, nullable: true}
         - {name: provenance_hash, sql_type: text, nullable: false}
+      constraints:
+        - UNIQUE (series_key, release_family, source_reference_period_label, expected_release_at_utc)
     indicator_value_snapshot:
       purpose: Derived indicator values with source observation lineage.
       primary_key: [snapshot_id]
@@ -247,6 +255,8 @@ postgres_macro_warehouse_contract:
     pit_ready_schema: true
     revised_vintage_separation_ready: true
     vintage_required_column_missing_count: 0
+    release_calendar_revision_events_supported: true
+    release_calendar_required_column_missing_count: 0
     source_artifact_hash_required: true
     schema_sql_generated: true
     schema_requires_live_db: false

@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase117-transition-pit-backfill
+    image: business-cycle-nas-app:phase118-broader-pit-replay-audit
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -47,6 +47,7 @@ services:
       BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase115/operations-status.json
       BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase116/schedule-status.json
       BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase117/latest-backfill-report.json
+      BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase118/latest-broader-pit-report.json
     ports:
       - "127.0.0.1:18080:8000"
       - "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000"
@@ -73,14 +74,14 @@ services:
       - sh
       - -c
     command:
-      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
+      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
       - cycle_state_config:/var/lib/business-cycle/cycle-state
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase117-transition-pit-backfill
+    image: business-cycle-nas-app:phase118-broader-pit-replay-audit
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -94,6 +95,7 @@ services:
       BUSINESS_CYCLE_DATABASE_URL: ${BUSINESS_CYCLE_DATABASE_URL}
       BUSINESS_CYCLE_REFRESH_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_FRED_AND_WRITES_NAS_POSTGRES
       BUSINESS_CYCLE_PIT_BACKFILL_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_ALFRED_AND_WRITES_NAS_POSTGRES
+      BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_MIGRATES_CALENDAR_AND_WRITES_BROADER_ALFRED_PIT
       FRED_API_KEY: ${FRED_API_KEY}
     command:
       - python

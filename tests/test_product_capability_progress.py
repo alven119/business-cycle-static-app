@@ -26,7 +26,7 @@ def test_product_capability_progress_passes() -> None:
     assert summary["unsupported_readiness_claim_count"] == 0
     assert summary["production_readiness_rebaseline_required"] is False
     assert summary["production_readiness_rebaseline_reason_count"] == 0
-    assert summary["product_progress_percentage_change_count"] == 1
+    assert summary["product_progress_percentage_change_count"] == 0
     assert summary["production_behavior_change_count"] == 0
     assert summary["semantic_drift_count"] == 0
 
@@ -37,7 +37,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
     assert summary["phase_label"] == (
-        "transition_critical_alfred_pit_backfill_and_normalized_release_calendar"
+        "broader_alfred_pit_revision_calendar_and_strict_replay_input_audit"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

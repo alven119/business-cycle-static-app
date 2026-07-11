@@ -1,0 +1,103 @@
+nas_broader_pit_release_replay_contract:
+  version: "1.0"
+  status: active_operator_authorized_broader_pit_and_calendar_migration
+  phase_id: 118
+  phase_label: broader_alfred_pit_revision_aware_calendar_strict_replay_input_audit
+  depends_on:
+    - specs/common/nas_transition_pit_backfill_contract.yaml
+    - specs/common/postgres_macro_warehouse_contract.yaml
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/audits/historical_validation_scenario_manifest.yaml
+  broader_pit_scope:
+    observation_start: "1998-01-01"
+    realtime_start: "1998-01-01"
+    realtime_end: "9999-12-31"
+    realtime_end_policy: >-
+      FRED realtime maximum sentinel avoids a false future-date request when
+      the NAS Asia/Taipei date is one day ahead of the FRED service date. It
+      requests currently known intervals only and is not a future observation.
+    alfred_output_type: 1
+    prior_transition_series_count: 13
+    broader_series_ids:
+      - BUSINV
+      - CBIC1
+      - CPILFESL
+      - DRBLACBS
+      - DRCLACBS
+      - DSPIC96
+      - FEDFUNDS
+      - PAYEMS
+      - PCEPILFE
+      - PRFIC1
+      - PSAVERT
+      - SLCEC1
+      - W006RC1Q027SBEA
+    expected_all_direct_series_count_after: 26
+  release_calendar_schema_migration:
+    expected_pre_migration_row_count: 59
+    expected_pre_migration_actual_release_non_null_count: 0
+    guarded_replace_required: true
+    add_columns:
+      - release_event_id
+      - source_reference_period_label
+      - reference_period_precision
+      - release_semantics
+      - availability_precision
+    primary_key_after: [series_key, release_event_id]
+    revision_events_preserved: true
+    weekly_reference_periods_preserved: true
+  weekly_reference_period_policy:
+    source_family_id: dol_weekly_unemployment_claims
+    source_evidence: U.S. Department of Labor weekly claims release
+    series_rules:
+      ICSA:
+        reference_period_end_days_before_release: 5
+        reference_period_precision: official_week_ending_rule
+      CCSA:
+        reference_period_end_days_before_release: 12
+        reference_period_precision: official_week_ending_rule
+    observation_date_used_as_release_date: false
+  strict_replay_input_audit:
+    scenario_manifest: specs/audits/historical_validation_scenario_manifest.yaml
+    scenario_count: 5
+    required_direct_series_count: 26
+    input_eligibility_rule: >-
+      A series is input-available at scenario start when at least one preserved
+      realtime interval has observation_date <= as_of and realtime_start <=
+      as_of <= realtime_end. This does not assert transformation lookback.
+    model_execution_allowed: false
+    phase_output_allowed: false
+    accuracy_metric_allowed: false
+    performance_metric_allowed: false
+  execution_policy:
+    explicit_operator_confirmation_required: true
+    existing_phase117_checkpoint_reused: false
+    phase118_checkpoint_separate: true
+    idempotent_pit_upsert: true
+    guarded_calendar_transaction: true
+    partial_success_preserved: true
+    tests_require_network: false
+    tests_require_postgres: false
+    repository_output_allowed: false
+  hard_gates:
+    nas_broader_pit_release_replay_contract_ready: true
+    broader_pit_series_count: 13
+    expected_all_direct_series_count_after: 26
+    release_calendar_schema_migration_ready: true
+    revision_aware_calendar_plan_ready: true
+    source_release_event_series_row_count: 85
+    normalized_release_event_row_count: 85
+    weekly_reference_event_row_count: 12
+    revision_event_row_count: 21
+    deferred_release_event_row_count: 0
+    observation_date_assumed_release_date_count: 0
+    strict_replay_scenario_count: 5
+    model_execution_count: 0
+    backtest_execution_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 119

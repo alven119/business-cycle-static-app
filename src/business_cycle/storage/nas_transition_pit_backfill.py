@@ -281,51 +281,25 @@ def load_transition_pit_backfill_status(
     return payload
 
 
-def run_transition_pit_backfill(
+def import_alfred_pit_series(
     *,
-    execute_live: bool,
-    operator_confirmation: str | None,
-    artifact_dir: str | Path,
-    provider: TransitionVintageProvider | None = None,
-    executor: SqlExecutor | None = None,
-    database_url: str | None = None,
-    execution_date: date | None = None,
-    resume: bool = True,
-) -> dict[str, Any]:
-    """Import the governed transition subset and normalized release calendar."""
+    series_ids: list[str],
+    artifact_root: Path,
+    fetcher: TransitionVintageProvider,
+    sql: SqlExecutor,
+    observation_start: str,
+    realtime_start: str,
+    realtime_end: str,
+    checkpoint_name: str,
+    checkpoint_schema_version: str,
+    resume: bool,
+) -> list[PitSeriesImportResult]:
+    """Reuse one checkpointed ALFRED interval importer across NAS phases."""
 
-    if not execute_live or operator_confirmation != CONFIRMATION:
-        raise ValueError("live PIT backfill requires explicit operator confirmation")
-    contract = load_nas_transition_pit_backfill_contract()
-    scope = contract["transition_scope"]
-    artifact_root = _validated_artifact_dir(artifact_dir)
-    artifact_root.mkdir(parents=True, exist_ok=True)
-    resolved_date = execution_date or date.today()
-    realtime_end = resolved_date.isoformat()
-    fetcher = provider or AlfredProvider()
-    sql = executor or PsqlSubprocessExecutor(
-        database_url or os.environ.get("BUSINESS_CYCLE_DATABASE_URL", "")
-    )
-    checkpoint_path = artifact_root / "checkpoint.json"
+    checkpoint_path = artifact_root / checkpoint_name
     checkpoint = _load_checkpoint(checkpoint_path) if resume else {"completed": {}}
-    sql.execute(generate_postgres_schema_sql())
-
-    release_plan = build_normalized_release_calendar_plan()
-    release_artifact_path = artifact_root / "normalized-release-calendar.json"
-    _atomic_json_write(release_artifact_path, release_plan)
-    release_content_hash = hashlib.sha256(release_artifact_path.read_bytes()).hexdigest()
-    release_artifact_id = f"official_release_calendar::{release_content_hash[:16]}"
-    sql.execute(
-        _release_calendar_upsert_sql(
-            rows=release_plan["normalized_release_calendar_rows"],
-            artifact_id=release_artifact_id,
-            content_hash=release_content_hash,
-            fetched_at=_utc_now(),
-        )
-    )
-
     results: list[PitSeriesImportResult] = []
-    for series_id in scope["transition_series_ids"]:
+    for series_id in series_ids:
         saved = checkpoint.get("completed", {}).get(series_id) if resume else None
         if saved:
             results.append(
@@ -341,10 +315,10 @@ def run_transition_pit_backfill(
         try:
             observations = fetcher.fetch_observations(
                 series_id,
-                observation_start=str(scope["observation_start"]),
-                realtime_start=str(scope["realtime_start"]),
+                observation_start=observation_start,
+                realtime_start=realtime_start,
                 realtime_end=realtime_end,
-                output_type=int(scope["alfred_output_type"]),
+                output_type=1,
             )
             normalized = _normalize_vintage_observations(series_id, observations)
             if not normalized:
@@ -370,7 +344,7 @@ def run_transition_pit_backfill(
                 "artifact_id": artifact_id,
                 "completed_at_utc": _utc_now(),
             }
-            checkpoint["schema_version"] = "phase117_transition_pit_backfill_v1"
+            checkpoint["schema_version"] = checkpoint_schema_version
             _atomic_json_write(checkpoint_path, checkpoint)
             results.append(
                 PitSeriesImportResult(
@@ -393,6 +367,62 @@ def run_transition_pit_backfill(
                     error_message_redacted=_redact(str(exc)),
                 )
             )
+    return results
+
+
+def run_transition_pit_backfill(
+    *,
+    execute_live: bool,
+    operator_confirmation: str | None,
+    artifact_dir: str | Path,
+    provider: TransitionVintageProvider | None = None,
+    executor: SqlExecutor | None = None,
+    database_url: str | None = None,
+    execution_date: date | None = None,
+    resume: bool = True,
+) -> dict[str, Any]:
+    """Import the governed transition subset and normalized release calendar."""
+
+    if not execute_live or operator_confirmation != CONFIRMATION:
+        raise ValueError("live PIT backfill requires explicit operator confirmation")
+    contract = load_nas_transition_pit_backfill_contract()
+    scope = contract["transition_scope"]
+    artifact_root = _validated_artifact_dir(artifact_dir)
+    artifact_root.mkdir(parents=True, exist_ok=True)
+    resolved_date = execution_date or date.today()
+    realtime_end = resolved_date.isoformat()
+    fetcher = provider or AlfredProvider()
+    sql = executor or PsqlSubprocessExecutor(
+        database_url or os.environ.get("BUSINESS_CYCLE_DATABASE_URL", "")
+    )
+    sql.execute(generate_postgres_schema_sql())
+
+    release_plan = build_normalized_release_calendar_plan()
+    release_artifact_path = artifact_root / "normalized-release-calendar.json"
+    _atomic_json_write(release_artifact_path, release_plan)
+    release_content_hash = hashlib.sha256(release_artifact_path.read_bytes()).hexdigest()
+    release_artifact_id = f"official_release_calendar::{release_content_hash[:16]}"
+    sql.execute(
+        _release_calendar_upsert_sql(
+            rows=release_plan["normalized_release_calendar_rows"],
+            artifact_id=release_artifact_id,
+            content_hash=release_content_hash,
+            fetched_at=_utc_now(),
+        )
+    )
+
+    results = import_alfred_pit_series(
+        series_ids=list(scope["transition_series_ids"]),
+        artifact_root=artifact_root,
+        fetcher=fetcher,
+        sql=sql,
+        observation_start=str(scope["observation_start"]),
+        realtime_start=str(scope["realtime_start"]),
+        realtime_end=realtime_end,
+        checkpoint_name="checkpoint.json",
+        checkpoint_schema_version="phase117_transition_pit_backfill_v1",
+        resume=resume,
+    )
 
     rows = [row.__dict__ for row in results]
     completed = [
@@ -575,6 +605,14 @@ def _release_calendar_upsert_sql(
 ) -> str:
     values = []
     for row in rows:
+        event_id = "phase117::" + _hash_payload(
+            {
+                "series_key": row["series_key"],
+                "release_family": row["release_family"],
+                "reference_period_label": row["reference_period_label"],
+                "expected_release_at_utc": row["expected_release_at_utc"],
+            }
+        )[:24]
         expected = _literal(row["expected_release_at_utc"])
         provenance = _hash_payload(
             {
@@ -589,11 +627,20 @@ def _release_calendar_upsert_sql(
             "(" + ", ".join(
                 [
                     _literal(row["series_key"]),
+                    _literal(event_id),
                     _literal(row["release_family"]),
+                    _literal(row["reference_period_label"]),
+                    _literal(
+                        "quarter"
+                        if "-Q" in row["reference_period_label"]
+                        else "month"
+                    ),
                     _literal(row["reference_period_start"]) + "::date",
                     _literal(row["reference_period_end"]) + "::date",
                     expected + "::timestamptz",
                     "NULL",
+                    _literal(row["release_semantics"]),
+                    "'exact_timestamp'",
                     _literal(row["release_status"]),
                     _literal(artifact_id),
                     _literal(provenance),
@@ -618,12 +665,13 @@ INSERT INTO macro.source_artifact (
 ON CONFLICT (content_hash) DO NOTHING;
 
 INSERT INTO macro.release_calendar (
-  series_key, release_family, reference_period_start, reference_period_end,
-  expected_release_at_utc, actual_release_at_utc, release_status,
-  source_artifact_id, provenance_hash
+  series_key, release_event_id, release_family, source_reference_period_label,
+  reference_period_precision, reference_period_start, reference_period_end,
+  expected_release_at_utc, actual_release_at_utc, release_semantics,
+  availability_precision, release_status, source_artifact_id, provenance_hash
 ) VALUES
 {joined_values}
-ON CONFLICT (series_key, reference_period_start, release_family) DO UPDATE SET
+ON CONFLICT (series_key, release_event_id) DO UPDATE SET
   reference_period_end = EXCLUDED.reference_period_end,
   expected_release_at_utc = EXCLUDED.expected_release_at_utc,
   actual_release_at_utc = EXCLUDED.actual_release_at_utc,

@@ -207,6 +207,12 @@ Estimated deployment sequence:
   for validation. The repository now provides the checklist, report template,
   sample validator fixture, and rollback drill; live acceptance remains blocked
   until the operator report is supplied.
+- Phase 118: broader ALFRED/PIT coverage and revision-aware release calendar.
+  The live warehouse now contains 76,848 vintage interval rows across all 26
+  direct series and 85 normalized release events. A read-only five-scenario
+  audit reports two complete-input starts and three partial starts. No replay,
+  phase decision, accuracy metric, performance metric, or portfolio action is
+  executed.
 - Phase 109: reconcile the actual running app/Postgres containers, harden the
   browser login for HTTPS, and establish the Tailscale Serve/mobile acceptance
   gate. The NAS Tailscale node and private HTTPS Serve are online, the app is
