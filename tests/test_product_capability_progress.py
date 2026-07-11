@@ -19,14 +19,14 @@ def test_product_capability_progress_passes() -> None:
     assert set(row["capability_id"] for row in summary["capability_progress"]) == (
         CORE_CAPABILITY_IDS
     )
-    assert summary["impacted_capability_count"] == 8
-    assert summary["progress_decrease_count"] == 7
+    assert summary["impacted_capability_count"] == 5
+    assert summary["progress_decrease_count"] == 0
     assert summary["progress_decrease_without_reason_count"] == 0
     assert summary["progress_percent_out_of_range_count"] == 0
     assert summary["unsupported_readiness_claim_count"] == 0
     assert summary["production_readiness_rebaseline_required"] is True
     assert summary["production_readiness_rebaseline_reason_count"] == 2
-    assert summary["product_progress_percentage_change_count"] == 7
+    assert summary["product_progress_percentage_change_count"] == 4
     assert summary["production_behavior_change_count"] == 0
     assert summary["semantic_drift_count"] == 0
 
@@ -37,7 +37,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
     assert summary["phase_label"] == (
-        "private_lan_login_strict_replay_timeline_and_ux_rebaseline"
+        "cycle_command_center_and_professional_navigation_shell"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

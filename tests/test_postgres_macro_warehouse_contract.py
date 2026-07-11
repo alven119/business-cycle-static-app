@@ -36,6 +36,9 @@ from business_cycle.audits.phase118_broader_pit_release_replay_closure import (
 from business_cycle.audits.phase119_private_login_strict_replay_ux_closure import (
     summarize_phase119_private_login_strict_replay_ux_closure,
 )
+from business_cycle.audits.phase120_cycle_command_center_closure import (
+    summarize_phase120_cycle_command_center_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.data_sources.alfred_provider import AlfredObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
@@ -383,9 +386,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == (
-        "business-cycle-nas-app:phase119-login-and-strict-replay-timeline"
-    )
+    assert app["image"] == "business-cycle-nas-app:phase120-cycle-command-center"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -704,12 +705,26 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert "官方資料更新狀態" in overview
-    assert "最近更新成功" in overview
-    assert "目前宣告景氣狀態" in overview
+    assert runtime["phase"] == 120
+    assert "景氣循環指揮中心" in overview
+    assert "資料健康度" in overview
+    assert "來源更新正常" in overview
+    assert "目前研究位置" in overview
     assert "榮景" in overview
-    assert "合法下一階段" in overview
-    assert "檢視或確認榮景起始資訊" in overview
+    assert "榮景 → 衰退" in overview
+    assert "轉折風險雷達" in overview
+    assert overview.count('data-transition-lane="') == 4
+    assert "資料已到位，等待即時 evidence evaluator" in overview
+    assert "本期優先觀察" in overview
+    assert "初領失業救濟金 U 型走勢" in overview
+    assert "資料輸入 readiness，不是 transition 結論" in overview
+    command_center = bundle["command_center"]
+    assert command_center["declared_state"]["declared_current_phase"] == "boom"
+    assert command_center["declared_state"]["legal_next_phase"] == "recession"
+    assert len(command_center["transition_lanes"]) == 4
+    assert len(command_center["key_indicators"]) == 5
+    assert command_center["transition_conclusion_output_count"] == 0
+    assert command_center["current_phase_emitted"] is False
     assert html.count("<details>") == 37
     assert "查看今年／過去 1 年／過去 5 年走勢" in html
     assert 'class="interactive-chart"' in html
@@ -1526,6 +1541,37 @@ def test_phase119_monthly_strict_replay_inputs_abstain_without_model_execution(
     assert "complete_month_count=48" in closure_cli.stdout
     assert "abstention_month_count=108" in closure_cli.stdout
     assert "result=passed" in closure_cli.stdout
+
+
+def test_phase120_cycle_command_center_closure_and_script_pass() -> None:
+    summary = summarize_phase120_cycle_command_center_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["phase120_closure_ready"] is True
+    assert summary["cycle_command_center_view_model_ready"] is True
+    assert summary["professional_navigation_shell_ready"] is True
+    assert summary["declared_current_phase"] == "boom"
+    assert summary["legal_next_phase"] == "recession"
+    assert summary["transition_lane_count"] == 4
+    assert summary["input_ready_evaluator_pending_lane_count"] == 4
+    assert summary["key_indicator_count"] == 5
+    assert summary["live_transition_evaluator_connected"] is False
+    assert summary["transition_conclusion_output_count"] == 0
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    assert summary["semantic_drift_count"] == 0
+    assert summary["test_file_delta"] == 0
+    assert summary["development_next_phase"] == 121
+
+    completed = subprocess.run(
+        [sys.executable, "scripts/show_phase120_cycle_command_center_closure.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase120_closure_ready=true" in completed.stdout
+    assert "transition_lane_count=4" in completed.stdout
+    assert "result=passed" in completed.stdout
 
 
 def test_phase115_source_retry_restore_closure_and_script_pass() -> None:

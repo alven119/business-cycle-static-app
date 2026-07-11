@@ -13,6 +13,9 @@ import yaml
 from business_cycle.audits.product_capability_progress import (
     summarize_product_capability_progress,
 )
+from business_cycle.render.nas_cycle_command_center import (
+    build_nas_cycle_command_center,
+)
 from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
     summarize_nas_indicator_snapshot,
@@ -62,6 +65,7 @@ def build_nas_service_dashboard_bundle(
     snapshot = snapshot_manifest or build_nas_indicator_snapshot_manifest()
     role_labels = load_book_core_role_display_labels_zh()
     _validate_role_label_coverage(snapshot=snapshot, role_labels=role_labels)
+    command_center = build_nas_cycle_command_center(snapshot)
     routes = _route_manifest(contract)
     api_payloads = _api_payloads(
         snapshot=snapshot,
@@ -75,14 +79,19 @@ def build_nas_service_dashboard_bundle(
         contract=contract,
         routes=routes,
         role_labels=role_labels,
+        command_center=command_center,
         runtime_live_mode=runtime_live_mode,
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "119" if runtime_live_mode else "95",
-        "phase_id": 119 if runtime_live_mode else 95,
+        "phase": "120" if runtime_live_mode else "95",
+        "phase_id": 120 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
-        "artifact_id": "phase95_nas_service_dashboard_renderer",
+        "artifact_id": (
+            "phase120_nas_cycle_command_center_renderer"
+            if runtime_live_mode
+            else "phase95_nas_service_dashboard_renderer"
+        ),
         "artifact_version": contract["version"],
         "output_mode": (
             "research_only_private_nas_live_postgres_dashboard"
@@ -95,6 +104,7 @@ def build_nas_service_dashboard_bundle(
         "routes": routes,
         "api_payloads": api_payloads,
         "html_pages": html_pages,
+        "command_center": command_center,
         "trust_metadata": _trust_metadata(contract=contract, snapshot=snapshot),
         "allowed_uses": contract["allowed_uses"],
         "prohibited_uses": contract["prohibited_uses"],
@@ -128,6 +138,14 @@ def build_nas_service_dashboard_bundle(
         ),
         "traditional_chinese_role_label_count": len(role_labels),
         "mobile_trust_caveat_count": len(_mobile_trust_caveats()),
+        "cycle_command_center_view_model_ready": command_center[
+            "cycle_command_center_view_model_ready"
+        ],
+        "command_center_navigation_item_count": len(command_center["navigation"]),
+        "command_center_transition_lane_count": len(
+            command_center["transition_lanes"]
+        ),
+        "command_center_key_indicator_count": len(command_center["key_indicators"]),
         "frontend_database_access_allowed": False,
         "frontend_api_key_allowed": False,
         "live_server_start_attempt_count": 0,
@@ -194,6 +212,10 @@ def summarize_nas_service_dashboard(
         "html_blocked_role_count",
         "traditional_chinese_role_label_count",
         "mobile_trust_caveat_count",
+        "cycle_command_center_view_model_ready",
+        "command_center_navigation_item_count",
+        "command_center_transition_lane_count",
+        "command_center_key_indicator_count",
         "frontend_database_access_allowed",
         "frontend_api_key_allowed",
         "live_server_start_attempt_count",
@@ -457,6 +479,7 @@ def _html_pages(
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
     role_labels: dict[str, str],
+    command_center: dict[str, Any],
     runtime_live_mode: bool,
 ) -> list[dict[str, Any]]:
     return [
@@ -469,6 +492,7 @@ def _html_pages(
                 contract=contract,
                 routes=routes,
                 role_labels=role_labels,
+                command_center=command_center,
                 runtime_live_mode=runtime_live_mode,
             ),
         },
@@ -480,6 +504,7 @@ def _html_pages(
                 snapshot=snapshot,
                 contract=contract,
                 role_labels=role_labels,
+                command_center=command_center,
                 runtime_live_mode=runtime_live_mode,
             ),
         },
@@ -492,50 +517,74 @@ def _overview_html(
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
     role_labels: dict[str, str],
+    command_center: dict[str, Any],
     runtime_live_mode: bool,
 ) -> str:
-    samples = "\n".join(
-        _role_sample(row, display_name_zh=role_labels[row["role_id"]])
-        for row in snapshot["role_snapshots"][:8]
-    )
-    caveats = "\n".join(
-        f"<li>{escape(item)}</li>" for item in _mobile_trust_caveats()
-    )
-    routes_html = "\n".join(
-        f"<li><code>{escape(route['method'])} {escape(route['path'])}</code> - "
-        f"{escape(route['title_zh'])}</li>"
-        for route in routes
-    )
-    refresh_html = _refresh_status_html(snapshot) if runtime_live_mode else ""
-    cycle_state_html = _declared_cycle_state_html(snapshot)
+    del routes, role_labels
     return _html_document(
-        title="NAS 私有研究儀表板",
+        title="景氣循環指揮中心",
+        active_nav_id="overview",
+        navigation=command_center["navigation"],
         body=f"""
-        <section class="hero">
-          <p class="eyebrow">{escape(_dashboard_eyebrow(runtime_live_mode))}</p>
-          <h1>{escape(_dashboard_heading(runtime_live_mode))}</h1>
-          <p>{escape(_dashboard_intro(runtime_live_mode))}</p>
+        <section class="command-header">
+          <div>
+            <p class="eyebrow">{escape(_dashboard_eyebrow(runtime_live_mode))}</p>
+            <h1>景氣循環指揮中心</h1>
+            <p class="lede">{escape(_dashboard_intro(runtime_live_mode))}</p>
+          </div>
+          <p class="research-badge">研究用途 / revised diagnostic</p>
         </section>
-        <section class="summary-grid">
-          <article><strong>{snapshot['role_snapshot_count']}</strong><span>指標角色快照</span></article>
-          <article><strong>{snapshot['role_with_revised_snapshot_count']}</strong><span>有 revised 數值</span></article>
-          <article><strong>{snapshot['role_without_revised_snapshot_count']}</strong><span>資料 blocked</span></article>
-          <article><strong>{snapshot['series_snapshot_count']}</strong><span>序列快照</span></article>
+        {_command_center_trust_ribbon(command_center)}
+        <section class="cycle-command" aria-labelledby="cycle-command-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Ordered cycle state</p>
+              <h2 id="cycle-command-heading">目前研究位置</h2>
+            </div>
+            <a class="text-link" href="/cycle-state">檢視階段治理</a>
+          </div>
+          {_declared_cycle_command_html(command_center)}
+          {_cycle_order_html(command_center)}
         </section>
-        {refresh_html}
-        {cycle_state_html}
-        <section>
-          <h2>私有服務路由</h2>
-          <ul>{routes_html}</ul>
+        <section id="transition-monitor" class="content-band" aria-labelledby="transition-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Boom to recession</p>
+              <h2 id="transition-heading">轉折風險雷達</h2>
+            </div>
+            <span class="status-note">資料輸入 readiness，不是 transition 結論</span>
+          </div>
+          <p class="section-intro">四條 lane 分開呈現榮景延續、榮景結束 watch、衰退 watch 與衰退 confirmation。即時 evidence evaluator 尚未接線，因此不會從最新值直接下判斷。</p>
+          {_transition_lane_html(command_center)}
         </section>
-        <section>
-          <h2>行動版信任標籤</h2>
-          <ul>{caveats}</ul>
+        <section class="content-band" aria-labelledby="indicator-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Transition-critical indicators</p>
+              <h2 id="indicator-heading">本期優先觀察</h2>
+            </div>
+            <a class="text-link" href="/indicators">查看 39 個指標</a>
+          </div>
+          {_key_indicator_html(command_center)}
         </section>
-        <section>
-          <h2>指標樣本</h2>
-          <ul>{samples}</ul>
-          <p><a href="/indicators">查看全部指標</a></p>
+        <section class="content-band" aria-labelledby="health-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Data trust</p>
+              <h2 id="health-heading">資料健康度</h2>
+            </div>
+            <a class="text-link" href="/source-operations">查看來源維運</a>
+          </div>
+          {_command_center_health_html(command_center)}
+        </section>
+        <section class="roadmap-band" aria-labelledby="roadmap-heading">
+          <p class="section-kicker">Next product surfaces</p>
+          <h2 id="roadmap-heading">接下來會接進這個工作台</h2>
+          <div class="roadmap-grid">
+            <article id="portfolio-research-roadmap"><strong>配置研究</strong><span>Phase 123：declared phase 對應書籍研究模板</span></article>
+            <article id="historical-replay-roadmap"><strong>歷史重播</strong><span>Phase 124：事件選擇器與月度 playhead</span></article>
+            <article><strong>指標學習</strong><span>Phase 121：圖表、書中意涵與資料血緣</span></article>
+          </div>
         </section>
         """,
     )
@@ -546,6 +595,7 @@ def _indicator_index_html(
     snapshot: dict[str, Any],
     contract: dict[str, Any],
     role_labels: dict[str, str],
+    command_center: dict[str, Any],
     runtime_live_mode: bool,
 ) -> str:
     cards = "\n".join(
@@ -557,6 +607,8 @@ def _indicator_index_html(
     )
     return _html_document(
         title="指標總覽",
+        active_nav_id="indicators",
+        navigation=command_center["navigation"],
         body=f"""
         <section class="hero">
           <p class="eyebrow">research-only / {escape(_dashboard_data_source_label(runtime_live_mode))}</p>
@@ -572,6 +624,145 @@ def _indicator_index_html(
         <section class="role-grid">{cards}</section>
         """,
     )
+
+
+def _command_center_trust_ribbon(command_center: dict[str, Any]) -> str:
+    health = command_center["data_health"]
+    return f"""
+    <div class="trust-ribbon" aria-label="資料信任資訊">
+      <span><b>資料模式</b> revised diagnostic</span>
+      <span><b>資料截至</b> {escape(str(health.get('database_latest_observation_date') or '尚無'))}</span>
+      <span><b>可用角色</b> {int(health['available_role_count'])}/{int(health['role_count'])}</span>
+      <span><b>轉折判讀</b> 尚未接通即時 evaluator</span>
+    </div>
+    """
+
+
+def _declared_cycle_command_html(command_center: dict[str, Any]) -> str:
+    state = command_center["declared_state"]
+    age = state.get("declared_phase_age_days")
+    age_range = state.get("declared_phase_age_range_days")
+    if age is not None:
+        age_display = f"約 {int(age)} 天"
+    elif age_range:
+        age_display = (
+            f"約 {int(age_range['minimum_days'])} 至 "
+            f"{int(age_range['maximum_days'])} 天"
+        )
+    else:
+        age_display = "尚待使用者確認起始日"
+    return f"""
+    <div class="phase-command-grid">
+      <article class="phase-primary">
+        <span class="phase-label">Declared current cycle state</span>
+        <strong>{escape(str(state['declared_current_phase_label_zh']))}</strong>
+        <p>由使用者／治理 registry 宣告，並非最新資料分類結果。</p>
+      </article>
+      <article class="transition-primary">
+        <span class="phase-label">Legal next transition</span>
+        <strong>{escape(str(state['declared_current_phase_label_zh']))} → {escape(str(state['legal_next_phase_label_zh']))}</strong>
+        <p>系統只監測合法下一階段，不在四個階段間重新投票。</p>
+      </article>
+      <article class="phase-context">
+        <span class="phase-label">Declared phase age</span>
+        <strong>{escape(age_display)}</strong>
+        <p>缺少確認日期時不製造精確階段年齡。</p>
+      </article>
+    </div>
+    """
+
+
+def _cycle_order_html(command_center: dict[str, Any]) -> str:
+    items = []
+    for row in command_center["cycle_order"]:
+        classes = ["cycle-step"]
+        state = "循環階段"
+        if row["is_declared"]:
+            classes.append("is-declared")
+            state = "目前宣告"
+        elif row["is_legal_next"]:
+            classes.append("is-next")
+            state = "合法下一階段"
+        items.append(
+            f'<li class="{" ".join(classes)}"><strong>{escape(row["label_zh"])}</strong>'
+            f"<span>{escape(state)}</span></li>"
+        )
+    return f'<ol class="cycle-order" aria-label="合法景氣循環順序">{"".join(items)}</ol>'
+
+
+def _transition_lane_html(command_center: dict[str, Any]) -> str:
+    cards = []
+    for lane in command_center["transition_lanes"]:
+        status_class = (
+            "status-missing"
+            if lane["missing_input_count"]
+            else "status-pending"
+        )
+        role_links = "".join(
+            f'<a href="/indicators#role-{escape(role_id)}">{escape(role_id)}</a>'
+            for role_id in lane["required_role_ids"]
+        )
+        lane_label = {
+            "continuation_context": "延續脈絡",
+            "transition_watch": "風險觀察",
+            "transition_confirmation": "轉折確認",
+        }.get(lane["lane_type"], lane["lane_type"])
+        cards.append(
+            f"""
+            <article class="lane-card" data-transition-lane="{escape(lane['lane_id'])}">
+              <div class="lane-card-head">
+                <span class="lane-type">{escape(lane_label)}</span>
+                <span class="lane-input-count">{int(lane['available_input_count'])}/{int(lane['required_role_count'])} 輸入</span>
+              </div>
+              <h3>{escape(lane['title_zh'])}</h3>
+              <p>{escape(lane['purpose_zh'])}</p>
+              <p class="lane-status {status_class}">{escape(lane['display_status_zh'])}</p>
+              <div class="lane-role-links">{role_links}</div>
+            </article>
+            """
+        )
+    return f'<div class="lane-grid">{"".join(cards)}</div>'
+
+
+def _key_indicator_html(command_center: dict[str, Any]) -> str:
+    rows = []
+    for indicator in command_center["key_indicators"]:
+        value = indicator.get("latest_value")
+        value_display = "尚無資料" if value is None else str(value)
+        if value is not None and indicator.get("latest_unit"):
+            value_display = f"{value_display} {indicator['latest_unit']}"
+        rows.append(
+            f"""
+            <a class="priority-indicator" href="{escape(indicator['detail_path'])}">
+              <span class="indicator-name">{escape(indicator['display_name_zh'])}</span>
+              <strong>{escape(value_display)}</strong>
+              <span>{escape(str(indicator.get('latest_observation_date') or '尚無日期'))}</span>
+              <span>{escape(_freshness_label_zh(indicator['freshness_status']))}</span>
+            </a>
+            """
+        )
+    return f'<div class="priority-indicator-list">{"".join(rows)}</div>'
+
+
+def _command_center_health_html(command_center: dict[str, Any]) -> str:
+    health = command_center["data_health"]
+    health_label = {
+        "healthy": "來源更新正常",
+        "degraded": "來源更新降級",
+        "baseline_loaded_waiting_for_scheduled_refresh": "已有基準，等待排程",
+        "unavailable": "來源資料不可用",
+    }.get(health["source_refresh_health_status"], health["source_refresh_health_status"])
+    return f"""
+    <div class="health-grid">
+      <article><span>來源狀態</span><strong>{escape(health_label)}</strong></article>
+      <article><span>新鮮角色</span><strong>{int(health['fresh_role_count'])}</strong></article>
+      <article><span>過期角色</span><strong>{int(health['stale_role_count'])}</strong></article>
+      <article><span>可用圖表</span><strong>{int(health['chart_available_role_count'])}/{int(health['role_count'])}</strong></article>
+      <article><span>最近同步</span><strong>{escape(str(health.get('last_completed_at_utc') or '尚無'))}</strong></article>
+      <article><span>下次排程</span><strong>{escape(str(health.get('next_scheduled_at_utc') or '尚未排程'))}</strong></article>
+    </div>
+    <p class="boundary-note">目前首頁顯示 revised research data。資料健康不等於景氣證據，raw value 也不會自動升級成 watch 或 confirmation。</p>
+    """
 
 
 def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
@@ -825,7 +1016,18 @@ def _downsample_points(
     return [points[index] for index in sorted(indexes)]
 
 
-def _html_document(*, title: str, body: str) -> str:
+def _html_document(
+    *,
+    title: str,
+    body: str,
+    active_nav_id: str,
+    navigation: list[dict[str, Any]],
+) -> str:
+    desktop_navigation = _navigation_html(navigation, active_nav_id=active_nav_id)
+    mobile_navigation = _mobile_navigation_html(
+        navigation,
+        active_nav_id=active_nav_id,
+    )
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -833,47 +1035,173 @@ def _html_document(*, title: str, body: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{escape(title)}</title>
   <style>
-    body {{ margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; background: #f6f7f9; color: #1c2430; }}
-    main {{ width: min(1120px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 40px; }}
-    .hero {{ padding: 22px 0 14px; }}
-    .eyebrow {{ font-size: 0.78rem; text-transform: uppercase; color: #516070; letter-spacing: 0; }}
-    h1 {{ margin: 0 0 10px; font-size: clamp(1.65rem, 5vw, 2.8rem); line-height: 1.12; }}
-    h2 {{ margin-top: 26px; font-size: 1.2rem; }}
-    .summary-grid, .role-grid {{ display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }}
-    .summary-grid article, .role-card {{ background: #fff; border: 1px solid #d9dee6; border-radius: 8px; padding: 14px; }}
+    :root {{ color-scheme: light; --ink: #17211b; --muted: #627068; --line: #d9dfda; --paper: #fff; --wash: #f4f7f4; --green: #176b4d; --green-soft: #e3f2eb; --red: #a43c35; --red-soft: #fae9e6; --amber: #9a6518; --amber-soft: #fff2d7; --blue: #245f86; }}
+    * {{ box-sizing: border-box; }}
+    html {{ scroll-behavior: smooth; }}
+    body {{ margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; background: var(--wash); color: var(--ink); line-height: 1.55; }}
+    .app-shell {{ min-height: 100vh; }}
+    .sidebar {{ display: none; background: #10251d; color: #f5faf7; padding: 24px 18px; }}
+    .brand {{ display: block; margin-bottom: 28px; }}
+    .brand strong {{ display: block; font-size: 1.05rem; }}
+    .brand span {{ color: #a9c4b7; font-size: .75rem; }}
+    .nav-list {{ display: grid; gap: 4px; }}
+    .nav-item {{ display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 9px 10px; border-left: 3px solid transparent; color: #d7e5de; text-decoration: none; }}
+    .nav-item:hover, .nav-item.is-active {{ background: #19372b; border-left-color: #73c69e; color: #fff; }}
+    .nav-item.is-disabled {{ color: #799488; cursor: default; }}
+    .nav-item small {{ font-size: .65rem; }}
+    .sidebar-footer {{ margin-top: 30px; border-top: 1px solid #315044; padding-top: 16px; color: #a9c4b7; font-size: .72rem; }}
+    main {{ width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 22px 0 92px; }}
+    .command-header, .hero {{ display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 14px 0 22px; border-bottom: 1px solid var(--line); }}
+    .eyebrow, .section-kicker {{ margin: 0 0 5px; font-size: .72rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0; }}
+    h1 {{ margin: 0 0 8px; font-size: 2rem; line-height: 1.18; }}
+    h2 {{ margin: 0; font-size: 1.25rem; }}
+    h3 {{ font-size: 1rem; }}
+    .lede, .section-intro {{ max-width: 760px; margin: 0; color: var(--muted); }}
+    .research-badge {{ flex: none; margin: 0; border: 1px solid #b8c9bf; background: var(--paper); color: var(--green); padding: 6px 9px; font-size: .72rem; font-weight: 700; }}
+    .trust-ribbon {{ display: flex; gap: 18px; overflow-x: auto; margin: 0 -14px; padding: 11px 14px; background: #edf2ee; border-bottom: 1px solid var(--line); font-size: .76rem; white-space: nowrap; }}
+    .trust-ribbon b {{ color: var(--green); margin-right: 4px; }}
+    .cycle-command, .content-band, .roadmap-band {{ padding: 26px 0; border-bottom: 1px solid var(--line); }}
+    .section-heading {{ display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 14px; }}
+    .text-link {{ color: var(--blue); font-size: .85rem; font-weight: 650; }}
+    .status-note {{ color: var(--amber); font-size: .75rem; font-weight: 700; }}
+    .phase-command-grid {{ display: grid; gap: 10px; grid-template-columns: 1fr; }}
+    .phase-primary, .transition-primary, .phase-context {{ min-height: 142px; padding: 16px; border: 1px solid var(--line); border-top: 4px solid var(--green); background: var(--paper); }}
+    .transition-primary {{ border-top-color: var(--red); }}
+    .phase-context {{ border-top-color: var(--blue); }}
+    .phase-label {{ display: block; color: var(--muted); font-size: .72rem; text-transform: uppercase; }}
+    .phase-command-grid strong {{ display: block; margin: 10px 0 6px; font-size: 1.65rem; }}
+    .phase-command-grid p {{ margin: 0; color: var(--muted); font-size: .82rem; }}
+    .cycle-order {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; list-style: none; margin: 12px 0 0; padding: 0; }}
+    .cycle-step {{ min-width: 0; padding: 9px 7px; border-bottom: 3px solid #bdc7c0; background: #e9eeea; text-align: center; }}
+    .cycle-step strong, .cycle-step span {{ display: block; }}
+    .cycle-step span {{ overflow-wrap: anywhere; color: var(--muted); font-size: .65rem; }}
+    .cycle-step.is-declared {{ border-color: var(--green); background: var(--green-soft); color: var(--green); }}
+    .cycle-step.is-next {{ border-color: var(--red); background: var(--red-soft); color: var(--red); }}
+    .lane-grid {{ display: grid; gap: 10px; margin-top: 16px; }}
+    .lane-card {{ min-height: 220px; padding: 15px; border: 1px solid var(--line); background: var(--paper); }}
+    .lane-card-head {{ display: flex; justify-content: space-between; gap: 8px; }}
+    .lane-type, .lane-input-count {{ color: var(--muted); font-size: .7rem; }}
+    .lane-card h3 {{ margin: 14px 0 7px; }}
+    .lane-card > p {{ color: var(--muted); font-size: .82rem; }}
+    .lane-status {{ padding-left: 9px; border-left: 3px solid var(--amber); color: var(--amber) !important; font-weight: 650; }}
+    .lane-status.status-missing {{ border-color: var(--red); color: var(--red) !important; }}
+    .lane-role-links {{ display: flex; flex-wrap: wrap; gap: 5px; }}
+    .lane-role-links a {{ border: 1px solid var(--line); padding: 3px 5px; color: var(--blue); font-size: .65rem; overflow-wrap: anywhere; }}
+    .priority-indicator-list {{ display: grid; border-top: 1px solid var(--line); }}
+    .priority-indicator {{ display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(90px, 1fr); gap: 4px 12px; padding: 12px 6px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }}
+    .priority-indicator:hover {{ background: #edf4f0; }}
+    .priority-indicator span {{ color: var(--muted); font-size: .74rem; }}
+    .indicator-name {{ color: var(--ink) !important; font-size: .88rem !important; font-weight: 650; }}
+    .health-grid, .summary-grid, .role-grid, .roadmap-grid {{ display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }}
+    .health-grid article {{ min-height: 92px; padding: 13px 0; border-top: 2px solid var(--line); }}
+    .health-grid span, .health-grid strong {{ display: block; }}
+    .health-grid span {{ color: var(--muted); font-size: .72rem; }}
+    .health-grid strong {{ margin-top: 7px; font-size: 1rem; overflow-wrap: anywhere; }}
+    .boundary-note {{ margin: 12px 0 0; padding: 10px 12px; background: var(--amber-soft); color: #76531e; font-size: .78rem; }}
+    .roadmap-grid article {{ min-height: 90px; padding: 13px; border: 1px dashed #aab8af; background: transparent; }}
+    .roadmap-grid strong, .roadmap-grid span {{ display: block; }}
+    .roadmap-grid span {{ margin-top: 5px; color: var(--muted); font-size: .75rem; }}
+    .summary-grid article, .role-card {{ background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 14px; }}
     .summary-grid strong {{ display: block; font-size: 1.8rem; }}
-    .summary-grid span, .meta, .technical-id, dt {{ color: #5b6674; }}
-    .technical-id {{ margin: -2px 0 8px; font-size: 0.82rem; }}
-    details {{ margin-top: 12px; border-top: 1px solid #e1e5ea; padding-top: 10px; }}
-    summary {{ color: #0b5cab; cursor: pointer; font-weight: 650; }}
+    .summary-grid span, .meta, .technical-id, dt {{ color: var(--muted); }}
+    .technical-id {{ margin: -2px 0 8px; font-size: .82rem; }}
+    details {{ margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }}
+    summary {{ color: var(--blue); cursor: pointer; font-weight: 650; }}
     .chart-grid {{ display: grid; gap: 10px; margin-top: 10px; }}
-    .chart-panel {{ border: 1px solid #e1e5ea; border-radius: 6px; padding: 8px; }}
-    .chart-panel h4 {{ margin: 0 0 6px; font-size: 0.88rem; }}
+    .chart-panel {{ border: 1px solid var(--line); border-radius: 5px; padding: 8px; }}
+    .chart-panel h4 {{ margin: 0 0 6px; font-size: .88rem; }}
     .chart-interactive-wrap {{ position: relative; }}
     .chart-panel svg {{ display: block; width: 100%; height: 92px; touch-action: pan-y; outline: none; }}
-    .chart-panel svg:focus-visible {{ outline: 2px solid #0b5cab; outline-offset: 2px; }}
+    .chart-panel svg:focus-visible {{ outline: 2px solid var(--blue); outline-offset: 2px; }}
     .chart-axis {{ stroke: #c6cdd5; stroke-width: 1; }}
-    .chart-line {{ fill: none; stroke: #0b5cab; stroke-width: 2; vector-effect: non-scaling-stroke; }}
+    .chart-line {{ fill: none; stroke: var(--blue); stroke-width: 2; vector-effect: non-scaling-stroke; }}
     .chart-crosshair {{ stroke: #59697c; stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }}
-    .chart-marker {{ fill: #fff; stroke: #0b5cab; stroke-width: 2; vector-effect: non-scaling-stroke; }}
-    .chart-tooltip {{ position: absolute; top: 2px; z-index: 2; transform: translateX(-50%); background: #1c2430; color: #fff; border-radius: 4px; padding: 5px 7px; font-size: 0.75rem; white-space: nowrap; pointer-events: none; }}
-    .chart-hint {{ color: #5b6674; font-size: 0.72rem; margin: 2px 0 5px; }}
-    .chart-meta {{ color: #5b6674; font-size: 0.78rem; margin: 4px 0 0; }}
+    .chart-marker {{ fill: #fff; stroke: var(--blue); stroke-width: 2; vector-effect: non-scaling-stroke; }}
+    .chart-tooltip {{ position: absolute; top: 2px; z-index: 2; transform: translateX(-50%); background: #1c2430; color: #fff; border-radius: 4px; padding: 5px 7px; font-size: .75rem; white-space: nowrap; pointer-events: none; }}
+    .chart-hint, .chart-meta {{ color: var(--muted); font-size: .75rem; margin: 4px 0 0; }}
     dl {{ display: grid; grid-template-columns: minmax(92px, auto) 1fr; gap: 6px 10px; margin: 0; }}
     dd {{ margin: 0; overflow-wrap: anywhere; }}
     code {{ background: #e9edf2; border-radius: 4px; padding: 2px 4px; }}
-    a {{ color: #0b5cab; }}
+    a {{ color: var(--blue); }}
+    .mobile-nav {{ position: fixed; z-index: 10; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line); background: rgba(255,255,255,.97); }}
+    .mobile-nav a {{ min-width: 0; padding: 9px 2px 8px; color: var(--muted); text-align: center; text-decoration: none; font-size: .66rem; }}
+    .mobile-nav a.is-active {{ color: var(--green); font-weight: 750; }}
+    @media (max-width: 640px) {{
+      .command-header, .hero, .section-heading {{ display: block; }}
+      .research-badge, .status-note, .text-link {{ display: inline-block; margin-top: 9px; }}
+      h1 {{ font-size: 1.65rem; }}
+      .cycle-order {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+    }}
     @media (min-width: 720px) {{
+      .phase-command-grid {{ grid-template-columns: 1.1fr 1.1fr .8fr; }}
+      .lane-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+      .priority-indicator {{ grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(100px, .8fr) minmax(130px, .8fr); align-items: center; }}
       .chart-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+    }}
+    @media (min-width: 980px) {{
+      .app-shell {{ display: grid; grid-template-columns: 220px minmax(0, 1fr); }}
+      .sidebar {{ position: sticky; top: 0; display: flex; flex-direction: column; height: 100vh; }}
+      main {{ padding: 22px 0 48px; }}
+      .mobile-nav {{ display: none; }}
+      .lane-grid {{ grid-template-columns: repeat(4, minmax(0, 1fr)); }}
     }}
   </style>
 </head>
 <body>
-  <main>{body}</main>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><strong>景氣循環研究台</strong><span>Private NAS research service</span></div>
+      {desktop_navigation}
+      <p class="sidebar-footer">Declared state + ordered transition monitor<br>研究用途，不是投資建議</p>
+    </aside>
+    <main>{body}</main>
+  </div>
+  {mobile_navigation}
   {_chart_interaction_script()}
 </body>
 </html>
 """
+
+
+def _navigation_html(
+    navigation: list[dict[str, Any]],
+    *,
+    active_nav_id: str,
+) -> str:
+    rows = []
+    for item in navigation:
+        classes = ["nav-item"]
+        if item["nav_id"] == active_nav_id:
+            classes.append("is-active")
+        if not item["enabled"]:
+            classes.append("is-disabled")
+            rows.append(
+                f'<span class="{" ".join(classes)}">{escape(item["label_zh"])}'
+                f'<small>Phase {int(item["planned_phase"])}</small></span>'
+            )
+            continue
+        rows.append(
+            f'<a class="{" ".join(classes)}" href="{escape(item["path"])}">'
+            f'{escape(item["label_zh"])}</a>'
+        )
+    return f'<nav class="nav-list" aria-label="主要導覽">{"".join(rows)}</nav>'
+
+
+def _mobile_navigation_html(
+    navigation: list[dict[str, Any]],
+    *,
+    active_nav_id: str,
+) -> str:
+    rows = []
+    for item in navigation:
+        if not item["enabled"]:
+            continue
+        active = "is-active" if item["nav_id"] == active_nav_id else ""
+        rows.append(
+            f'<a class="{active}" href="{escape(item["path"])}">'
+            f'{escape(item["label_zh"])}</a>'
+        )
+    return f'<nav class="mobile-nav" aria-label="行動版主要導覽">{"".join(rows)}</nav>'
 
 
 def _chart_interaction_script() -> str:
@@ -986,7 +1314,9 @@ def _html_pages_ready(html_pages: list[dict[str, Any]], snapshot: dict[str, Any]
     html = "\n".join(page["html"] for page in html_pages)
     return (
         len(html_pages) == 2
-        and "NAS 私有研究儀表板" in html
+        and "景氣循環指揮中心" in html
+        and 'data-transition-lane="boom_ending_watch"' in html
+        and 'aria-label="主要導覽"' in html
         and "research-only" in html
         and "revised diagnostic" in html
         and 'data-role-card="true"' in html

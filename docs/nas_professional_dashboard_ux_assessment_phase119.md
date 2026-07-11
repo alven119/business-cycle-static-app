@@ -124,7 +124,7 @@ available without competing with the daily research workflow.
 
 | Phase | Product delivery |
 |---|---|
-| 120 | Cycle command center and professional navigation shell |
+| 120 | Cycle command center and professional navigation shell（已完成） |
 | 121 | Indicator learning detail page, chart inspection, recession shading |
 | 122 | Four-phase analysis and legal-transition evidence workspace |
 | 123 | Declared-phase portfolio policy research and template comparison |

@@ -1,0 +1,118 @@
+nas_cycle_command_center_contract:
+  version: "1.0"
+  status: active_research_contract
+  phase_id: 120
+  phase_label: cycle_command_center_and_professional_navigation_shell
+  depends_on:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/ordered_cycle_state_machine.yaml
+    - specs/common/boom_transition_indicator_roles.yaml
+    - specs/common/nas_live_postgres_dashboard_contract.yaml
+    - specs/common/book_core_role_display_labels_zh.yaml
+  output_policy:
+    output_mode: research_only_private_nas_cycle_command_center
+    language: zh-Hant-TW
+    private_nas_only: true
+    declared_state_not_inferred: true
+    live_transition_evaluator_connected: false
+    phase_score_or_rank_allowed: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+    personalized_portfolio_instruction_allowed: false
+  cycle_order:
+    - recession
+    - recovery
+    - growth
+    - boom
+  phase_labels_zh:
+    recession: 衰退
+    recovery: 復甦
+    growth: 成長
+    boom: 榮景
+  navigation:
+    - nav_id: overview
+      label_zh: 景氣總覽
+      path: /
+      enabled: true
+    - nav_id: phase_transition
+      label_zh: 階段與轉折
+      path: "/#transition-monitor"
+      enabled: true
+    - nav_id: indicators
+      label_zh: 指標研究
+      path: /indicators
+      enabled: true
+    - nav_id: historical_replay
+      label_zh: 歷史重播
+      path: "#historical-replay-roadmap"
+      enabled: false
+      planned_phase: 124
+    - nav_id: portfolio_research
+      label_zh: 配置研究
+      path: "#portfolio-research-roadmap"
+      enabled: false
+      planned_phase: 123
+    - nav_id: data_operations
+      label_zh: 資料維運
+      path: /source-operations
+      enabled: true
+    - nav_id: cycle_governance
+      label_zh: 階段治理
+      path: /cycle-state
+      enabled: true
+  transition_lanes:
+    - lane_id: boom_continuation
+      title_zh: 榮景延續
+      lane_type: continuation_context
+      purpose_zh: 觀察消費與私人投資韌性是否仍支持 declared boom 的研究背景。
+      required_role_ids:
+        - boom_private_investment
+        - boom_retail_sales_vs_broad_pce
+    - lane_id: boom_ending_watch
+      title_zh: 榮景結束觀察
+      lane_type: transition_watch
+      purpose_zh: 觀察初領失業救濟金、消費與投資是否累積轉弱風險；watch 不等於確認。
+      required_role_ids:
+        - boom_claims_u_shape
+        - boom_private_investment
+        - boom_retail_sales_vs_broad_pce
+    - lane_id: recession_watch
+      title_zh: 衰退觀察
+      lane_type: transition_watch
+      purpose_zh: 觀察勞動市場早期壓力；單一 claims 變化不能確認衰退。
+      required_role_ids:
+        - boom_claims_u_shape
+    - lane_id: recession_confirmation
+      title_zh: 衰退確認
+      lane_type: transition_confirmation
+      purpose_zh: 就業與廣義消費必須形成比 watch 更強的確認證據；缺任一核心輸入即 abstain。
+      required_role_ids:
+        - recession_employment_confirmation
+        - recession_consumption_confirmation
+  key_indicator_role_ids:
+    - boom_claims_u_shape
+    - boom_private_investment
+    - boom_retail_sales_vs_broad_pce
+    - recession_employment_confirmation
+    - recession_consumption_confirmation
+  hard_gates:
+    nas_cycle_command_center_contract_ready: true
+    cycle_command_center_view_model_ready: true
+    declared_current_phase: boom
+    legal_next_phase: recession
+    legal_cycle_order_valid: true
+    navigation_item_count: 7
+    enabled_navigation_item_count: 5
+    transition_lane_count: 4
+    key_indicator_count: 5
+    live_transition_evaluator_connected: false
+    transition_conclusion_output_count: 0
+    watch_promoted_to_confirmation_count: 0
+    raw_value_promoted_to_evidence_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 121

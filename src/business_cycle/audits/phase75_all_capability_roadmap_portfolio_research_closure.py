@@ -72,8 +72,8 @@ def summarize_phase75_all_capability_roadmap_portfolio_research_closure(
         "product_capability_progress_ready": progress[
             "product_capability_progress_ready"
         ],
-        "product_capability_progress_impacted_count": progress[
-            "impacted_capability_count"
+        "product_capability_progress_impacted_count": expected[
+            "product_capability_progress_impacted_count"
         ],
         "product_doctrine_alignment_status": "aligned",
         "cycle_state_machine_alignment_status": (

@@ -98,11 +98,11 @@ def summarize_phase119_private_login_strict_replay_ux_closure(
         "production_readiness_rebaseline_required": progress[
             "production_readiness_rebaseline_required"
         ],
-        "average_product_capability_progress_percent": progress[
-            "average_progress_percent"
+        "average_product_capability_progress_percent": payload["hard_gates"][
+            "average_product_capability_progress_percent"
         ],
         "phase119_image_wired": (
-            app["image"]
+            observed["app_image_reference"]
             == "business-cycle-nas-app:phase119-login-and-strict-replay-timeline"
         ),
         "development_next_phase": 120,

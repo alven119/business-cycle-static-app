@@ -283,6 +283,15 @@ Estimated deployment sequence:
   periods and revision events that the current calendar key cannot represent
   remain explicit gaps.
 
+## Phase 120 Command Center
+
+Phase 120 replaces the operationally oriented NAS homepage with a professional
+cycle command center. It renders the declared boom state, legal boom-to-recession
+transition, phase-age caveat, four separate continuation/watch/confirmation
+lanes, transition-critical indicator links, and data-health trust metadata.
+Lane status remains input readiness only until a later live evidence-evaluator
+gate; raw revised values cannot become transition evidence in this phase.
+
 ## GitHub Pages Retirement
 
 GitHub Pages is no longer a deployment target.

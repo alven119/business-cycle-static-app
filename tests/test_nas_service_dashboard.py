@@ -37,6 +37,10 @@ def test_nas_service_dashboard_summary_passes() -> None:
     assert summary["html_blocked_role_count"] == 2
     assert summary["traditional_chinese_role_label_count"] == 39
     assert summary["mobile_trust_caveat_count"] == 6
+    assert summary["cycle_command_center_view_model_ready"] is True
+    assert summary["command_center_navigation_item_count"] == 7
+    assert summary["command_center_transition_lane_count"] == 4
+    assert summary["command_center_key_indicator_count"] == 5
 
 
 def test_nas_service_dashboard_preserves_private_no_live_boundaries() -> None:
@@ -58,7 +62,7 @@ def test_nas_service_dashboard_html_is_chinese_research_surface() -> None:
     bundle = build_nas_service_dashboard_bundle()
     html = "\n".join(page["html"] for page in bundle["html_pages"])
 
-    assert "NAS 私有研究儀表板" in html
+    assert "景氣循環指揮中心" in html
     assert "總經指標快照" in html
     assert "研究用，不是正式景氣階段判斷" in html
     assert "不是投資建議" in html
@@ -69,6 +73,22 @@ def test_nas_service_dashboard_html_is_chinese_research_surface() -> None:
     assert "政策與金融寬鬆不足以單獨確認落底" in html
     assert "<h3>boom_claims_u_shape</h3>" not in html
     assert "技術識別：<code>boom_claims_u_shape</code>" in html
+    assert 'aria-label="主要導覽"' in html
+    assert 'aria-label="行動版主要導覽"' in html
+    assert 'data-transition-lane="boom_continuation"' in html
+    assert 'data-transition-lane="boom_ending_watch"' in html
+    assert 'data-transition-lane="recession_watch"' in html
+    assert 'data-transition-lane="recession_confirmation"' in html
+    assert "等待即時 evidence evaluator" in html
+    assert "watch 不等於確認" in html
+    assert "raw value" in html
+
+    command_center = bundle["command_center"]
+    assert command_center["declared_state"]["declared_current_phase"] == "boom"
+    assert command_center["declared_state"]["legal_next_phase"] == "recession"
+    assert command_center["live_transition_evaluator_connected"] is False
+    assert command_center["transition_conclusion_output_count"] == 0
+    assert command_center["raw_value_promoted_to_evidence_count"] == 0
 
     roles = bundle["api_payloads"]["indicator_snapshot"]["roles"]
     assert len(roles) == 39
@@ -106,6 +126,7 @@ def test_show_nas_service_dashboard_script() -> None:
     assert "nas_service_dashboard_ready=true" in result.stdout
     assert "route_count=4" in result.stdout
     assert "html_role_card_count=39" in result.stdout
+    assert "cycle_command_center_view_model_ready=true" in result.stdout
 
 
 def test_render_nas_service_dashboard_dry_run_script(tmp_path: Path) -> None:

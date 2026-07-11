@@ -117,9 +117,9 @@ def build_nas_live_dashboard_runtime(
         runtime_live_mode=True,
     )
     shell = build_nas_app_shell(dashboard_bundle=dashboard)
-    shell["phase"] = "119"
-    shell["phase_id"] = 119
-    shell["artifact_id"] = "phase119_private_login_and_strict_replay_timeline_runtime"
+    shell["phase"] = "120"
+    shell["phase_id"] = 120
+    shell["artifact_id"] = "phase120_cycle_command_center_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -233,8 +233,8 @@ def build_nas_live_dashboard_runtime(
         ],
     }
     runtime: dict[str, Any] = {
-        "phase": 119,
-        "artifact_id": "phase119_private_login_and_strict_replay_timeline_runtime",
+        "phase": 120,
+        "artifact_id": "phase120_cycle_command_center_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
