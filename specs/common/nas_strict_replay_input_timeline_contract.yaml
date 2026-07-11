@@ -1,0 +1,106 @@
+nas_strict_replay_input_timeline_contract:
+  version: "1.0"
+  status: active_private_nas_read_only_rehearsal
+  phase_id: 119
+  phase_label: private_lan_login_and_monthly_strict_replay_input_timeline
+  dependencies:
+    scenario_manifest: specs/audits/historical_validation_scenario_manifest.yaml
+    pit_storage: macro.observation_vintage
+    phase118_status: /var/lib/business-cycle/source-artifacts/phase118/latest-broader-pit-report.json
+    ux_references:
+      - https://www.macromicro.me/collections/22050/mm-exclusive
+      - https://www.macromicro.me/getting-started
+      - https://convextrade.com/indicators
+  replay_input_policy:
+    scenario_count: 5
+    expected_month_end_row_count: 156
+    required_direct_series_count: 26
+    data_mode: vintage_as_of
+    timeline_frequency: calendar_month_end
+    availability_rule: >-
+      A direct series is present for a month when at least one observation has
+      observation_date <= month_end and a realtime interval satisfying
+      realtime_start <= month_end <= realtime_end.
+    lookback_sufficiency_claim_allowed: false
+    revised_fallback_allowed: false
+    missing_series_state: abstain_missing_official_pit_input
+    complete_series_state: input_complete_for_future_evidence_replay
+  lan_login_policy:
+    private_lan_http_cookie_allowed: true
+    allowed_hosts:
+      - 192.168.1.116
+      - 192.168.1.116:18080
+    tailscale_https_secure_cookie_required: true
+    arbitrary_host_http_cookie_allowed: false
+    public_exposure_allowed: false
+  product_ux_blueprint:
+    primary_navigation:
+      - cycle_command_center
+      - phase_and_transition_analysis
+      - indicator_library
+      - historical_replay_lab
+      - portfolio_policy_research
+      - data_and_operations
+    cycle_command_center_priority_fields:
+      - declared_current_phase
+      - declared_phase_age
+      - legal_next_phase
+      - continuation_evidence
+      - transition_watch
+      - transition_confirmation
+      - data_freshness
+    indicator_detail_requirements:
+      - traditional_chinese_book_term
+      - why_it_matters
+      - how_to_read_high_and_low
+      - latest_value_and_release_date
+      - ytd_1y_5y_max_chart
+      - hover_and_touch_date_value_tooltip
+      - recession_event_shading
+      - revised_and_vintage_mode_switch
+      - source_and_transformation_lineage
+    replay_lab_requirements:
+      - scenario_selector
+      - monthly_playhead
+      - evidence_available_at_that_time
+      - missing_input_abstention
+      - revised_vs_vintage_comparison
+      - transition_timing
+      - policy_template_replay
+      - drawdown_and_cash_flow_aware_metrics
+    portfolio_research_requirements:
+      - declared_phase_book_template
+      - rationale_and_indicator_links
+      - alternative_template_comparison
+      - research_only_caveat
+      - no_personalized_trade_instruction
+  execution_policy:
+    explicit_live_flag_required: true
+    database_transaction_read_only_required: true
+    output_paths_allowed:
+      - /tmp
+      - /var/lib/business-cycle/source-artifacts/phase119
+    model_execution_allowed: false
+    label_read_allowed: false
+    metric_computation_allowed: false
+    backtest_execution_allowed: false
+    candidate_phase_output_allowed: false
+    current_phase_output_allowed: false
+  hard_gates:
+    nas_strict_replay_input_timeline_contract_ready: true
+    scenario_count: 5
+    expected_month_end_row_count: 156
+    required_direct_series_count: 26
+    private_lan_http_login_contract_ready: true
+    tailscale_https_secure_cookie_preserved: true
+    professional_dashboard_ux_blueprint_ready: true
+    model_execution_count: 0
+    label_used_by_runtime_count: 0
+    historical_accuracy_metric_count: 0
+    economic_performance_metric_count: 0
+    backtest_execution_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 120

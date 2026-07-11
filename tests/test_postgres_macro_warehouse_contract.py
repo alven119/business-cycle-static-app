@@ -33,6 +33,9 @@ from business_cycle.audits.phase117_transition_pit_backfill_closure import (
 from business_cycle.audits.phase118_broader_pit_release_replay_closure import (
     summarize_phase118_broader_pit_release_replay_closure,
 )
+from business_cycle.audits.phase119_private_login_strict_replay_ux_closure import (
+    summarize_phase119_private_login_strict_replay_ux_closure,
+)
 from business_cycle.data_sources import SeriesObservation
 from business_cycle.data_sources.alfred_provider import AlfredObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
@@ -94,6 +97,10 @@ from business_cycle.storage.nas_broader_pit_release_replay import (
     build_revision_aware_release_calendar_plan,
     run_nas_broader_pit_release_replay,
     summarize_nas_broader_pit_release_replay_contract,
+)
+from business_cycle.storage.nas_strict_replay_input_timeline import (
+    run_nas_strict_replay_input_timeline,
+    summarize_nas_strict_replay_input_timeline_contract,
 )
 
 
@@ -376,7 +383,9 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase118-broader-pit-replay-audit"
+    assert app["image"] == (
+        "business-cycle-nas-app:phase119-login-and-strict-replay-timeline"
+    )
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -388,6 +397,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH" in app["environment"]
+    assert "BUSINESS_CYCLE_STRICT_REPLAY_TIMELINE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
     assert artifact_init["restart"] == "no"
@@ -1277,6 +1287,45 @@ class _FakeStrictReplayAuditExecutor:
         }
 
 
+class _FakeMonthlyReplayTimelineExecutor:
+    def query_json(self, sql: str) -> dict[str, object]:
+        assert "generate_series" in sql
+        assert "macro.observation_vintage" in sql
+        series_ids = load_nas_postgres_live_revised_import_contract()[
+            "source_policy"
+        ]["direct_series_ids"]
+        scenario_windows = (
+            ("dotcom_cycle_2000_2003", 2000, 1, 2003, 12),
+            ("global_financial_crisis_2007_2009", 2007, 1, 2009, 12),
+            ("covid_recession_2020", 2020, 1, 2021, 12),
+            ("euro_debt_slowdown_2011_2012", 2011, 1, 2012, 12),
+            ("late_cycle_2018_2019", 2018, 1, 2019, 12),
+        )
+        rows = []
+        for scenario_id, start_year, start_month, end_year, end_month in scenario_windows:
+            year, month = start_year, start_month
+            while (year, month) <= (end_year, end_month):
+                available = list(series_ids)
+                if scenario_id == "dotcom_cycle_2000_2003" and (year, month) == (
+                    2000,
+                    1,
+                ):
+                    available = available[1:]
+                rows.append(
+                    {
+                        "scenario_id": scenario_id,
+                        "as_of": f"{year:04d}-{month:02d}-28",
+                        "available_series_ids": available,
+                    }
+                )
+                month += 1
+                if month == 13:
+                    year += 1
+                    month = 1
+        assert len(rows) == 156
+        return {"transaction_read_only": "on", "timeline_rows": rows}
+
+
 class _FakeBroaderVintageProvider(_FakeTransitionVintageProvider):
     def fetch_observations(
         self,
@@ -1397,6 +1446,85 @@ def test_phase118_broader_pit_revision_calendar_and_input_audit_are_safe(
     )
     assert "phase118_closure_ready=true" in closure_cli.stdout
     assert "all_direct_pit_series_count=26" in closure_cli.stdout
+    assert "result=passed" in closure_cli.stdout
+
+
+def test_phase119_monthly_strict_replay_inputs_abstain_without_model_execution(
+    tmp_path: Path,
+) -> None:
+    summary = summarize_nas_strict_replay_input_timeline_contract()
+    executor = _FakeMonthlyReplayTimelineExecutor()
+
+    assert summary["result"] == "passed"
+    assert summary["scenario_count"] == 5
+    assert summary["expected_month_end_row_count"] == 156
+    assert summary["required_direct_series_count"] == 26
+    assert summary["private_lan_http_login_contract_ready"] is True
+    assert summary["professional_dashboard_ux_blueprint_ready"] is True
+    with pytest.raises(ValueError, match="--execute-live"):
+        run_nas_strict_replay_input_timeline(
+            execute_live=False,
+            output=tmp_path / "rejected.json",
+            executor=executor,
+        )
+    artifact = run_nas_strict_replay_input_timeline(
+        execute_live=True,
+        output=tmp_path / "phase119-timeline.json",
+        executor=executor,
+    )
+
+    assert artifact["result"] == "passed"
+    assert artifact["month_end_row_count"] == 156
+    assert artifact["complete_month_count"] == 155
+    assert artifact["abstention_month_count"] == 1
+    abstained = [
+        row for row in artifact["timeline_rows"] if row["abstention_required"]
+    ]
+    assert len(abstained) == 1
+    assert abstained[0]["missing_series_count"] == 1
+    assert artifact["revised_fallback_count"] == 0
+    assert artifact["lookback_sufficiency_claim_count"] == 0
+    assert artifact["model_execution_count"] == 0
+    assert artifact["historical_accuracy_metric_count"] == 0
+    assert artifact["economic_performance_metric_count"] == 0
+    assert artifact["backtest_execution_count"] == 0
+    assert artifact["candidate_phase_emitted"] is False
+    assert artifact["current_phase_emitted"] is False
+    assert (tmp_path / "phase119-timeline.json").exists()
+    assert not (Path("data/backtests") / "phase119").exists()
+    completed = subprocess.run(
+        [sys.executable, "scripts/show_nas_strict_replay_input_timeline.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "expected_month_end_row_count=156" in completed.stdout
+    assert "professional_dashboard_ux_blueprint_ready=true" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+    closure = summarize_phase119_private_login_strict_replay_ux_closure()
+    assert closure["result"] == "passed"
+    assert closure["phase119_closure_ready"] is True
+    assert closure["private_lan_http_login_fixed"] is True
+    assert closure["tailscale_https_secure_cookie_preserved"] is True
+    assert closure["timeline_month_end_row_count"] == 156
+    assert closure["complete_month_count"] == 48
+    assert closure["abstention_month_count"] == 108
+    assert closure["professional_dashboard_ux_assessment_ready"] is True
+    assert closure["candidate_phase_emitted"] is False
+    assert closure["current_phase_emitted"] is False
+    closure_cli = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase119_private_login_strict_replay_ux_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase119_closure_ready=true" in closure_cli.stdout
+    assert "complete_month_count=48" in closure_cli.stdout
+    assert "abstention_month_count=108" in closure_cli.stdout
     assert "result=passed" in closure_cli.stdout
 
 

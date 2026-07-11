@@ -289,6 +289,38 @@ def test_runtime_secure_cookie_and_security_headers_follow_https_gate(
     assert headers["X-Frame-Options"] == "DENY"
     assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
 
+    monkeypatch.setenv("BUSINESS_CYCLE_PRIVATE_LAN_HTTP_COOKIE_ALLOWED", "true")
+    monkeypatch.setenv(
+        "BUSINESS_CYCLE_PRIVATE_LAN_HOSTS",
+        "192.168.1.116,192.168.1.116:18080",
+    )
+    lan_login_page = build_runtime_response(
+        path="/login",
+        method="GET",
+        headers={"Host": "192.168.1.116:18080"},
+    )
+    lan_login = build_runtime_response(
+        path="/login",
+        method="POST",
+        headers={"Host": "192.168.1.116:18080"},
+        session_secret="expected-secret",
+        body="session_secret=expected-secret",
+    )
+    tailscale_login = build_runtime_response(
+        path="/login",
+        method="POST",
+        headers={
+            "Host": "mao-family-nas.tailb97dc1.ts.net",
+            "X-Forwarded-Proto": "https",
+        },
+        session_secret="expected-secret",
+        body="session_secret=expected-secret",
+    )
+
+    assert "家中私有 LAN HTTP" in lan_login_page.body
+    assert "Secure" not in lan_login.headers["Set-Cookie"]
+    assert "Secure" in tailscale_login.headers["Set-Cookie"]
+
 
 def test_login_attempt_limiter_blocks_then_expires_without_storing_secret() -> None:
     now = [100.0]

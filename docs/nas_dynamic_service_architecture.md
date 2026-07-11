@@ -213,6 +213,14 @@ Estimated deployment sequence:
   audit reports two complete-input starts and three partial starts. No replay,
   phase decision, accuracy metric, performance metric, or portfolio action is
   executed.
+- Phase 119: private LAN login compatibility and monthly strict replay input
+  timeline. A governed host allowlist permits the private `192.168.1.116`
+  HTTP entry to use a non-Secure session cookie while Tailscale HTTPS retains
+  the Secure cookie. The read-only replay artifact covers 156 scenario months:
+  48 have all 26 direct series and 108 explicitly abstain. The professional
+  dashboard UX blueprint reorders future work around a cycle command center,
+  indicator learning, transition analysis, portfolio research, replay, and
+  data operations.
 - Phase 109: reconcile the actual running app/Postgres containers, harden the
   browser login for HTTPS, and establish the Tailscale Serve/mobile acceptance
   gate. The NAS Tailscale node and private HTTPS Serve are online, the app is

@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase118-broader-pit-replay-audit
+    image: business-cycle-nas-app:phase119-login-and-strict-replay-timeline
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -37,6 +37,8 @@ services:
       BUSINESS_CYCLE_APP_SESSION_HEADER: ${BUSINESS_CYCLE_APP_SESSION_HEADER:-X-Business-Cycle-Session}
       BUSINESS_CYCLE_APP_SESSION_SECRET: ${BUSINESS_CYCLE_APP_SESSION_SECRET}
       BUSINESS_CYCLE_APP_SECURE_COOKIE: "true"
+      BUSINESS_CYCLE_PRIVATE_LAN_HTTP_COOKIE_ALLOWED: "true"
+      BUSINESS_CYCLE_PRIVATE_LAN_HOSTS: "192.168.1.116,192.168.1.116:18080"
       BUSINESS_CYCLE_LOGIN_MAX_FAILURES: "5"
       BUSINESS_CYCLE_LOGIN_WINDOW_SECONDS: "300"
       BUSINESS_CYCLE_PUBLIC_EXPOSURE: "false"
@@ -48,6 +50,7 @@ services:
       BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase116/schedule-status.json
       BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase117/latest-backfill-report.json
       BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase118/latest-broader-pit-report.json
+      BUSINESS_CYCLE_STRICT_REPLAY_TIMELINE_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase119/latest-strict-replay-input-timeline.json
     ports:
       - "127.0.0.1:18080:8000"
       - "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000"
@@ -74,14 +77,14 @@ services:
       - sh
       - -c
     command:
-      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
+      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/source-artifacts/phase119 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
       - cycle_state_config:/var/lib/business-cycle/cycle-state
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase118-broader-pit-replay-audit
+    image: business-cycle-nas-app:phase119-login-and-strict-replay-timeline
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas

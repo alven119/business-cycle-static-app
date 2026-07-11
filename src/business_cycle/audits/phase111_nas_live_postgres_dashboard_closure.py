@@ -80,10 +80,10 @@ def summarize_phase111_nas_live_postgres_dashboard_closure(
         "product_capability_progress_ready": progress[
             "product_capability_progress_ready"
         ],
-        "production_readiness_rebaseline_required": progress[
+        "production_readiness_rebaseline_required": payload["hard_gates"][
             "production_readiness_rebaseline_required"
         ],
-        "production_readiness_rebaseline_reason_count": progress[
+        "production_readiness_rebaseline_reason_count": payload["hard_gates"][
             "production_readiness_rebaseline_reason_count"
         ],
         "development_next_phase": 112,

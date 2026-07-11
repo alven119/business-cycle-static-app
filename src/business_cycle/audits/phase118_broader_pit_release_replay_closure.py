@@ -16,7 +16,6 @@ from business_cycle.storage.nas_broader_pit_release_replay import (
 
 ROOT = Path(__file__).resolve().parents[3]
 CLOSURE_PATH = ROOT / "specs/audits/phase118_broader_pit_release_replay_closure.yaml"
-COMPOSE_PATH = ROOT / "deploy/nas/compose.yaml"
 
 
 def summarize_phase118_broader_pit_release_replay_closure(
@@ -28,9 +27,6 @@ def summarize_phase118_broader_pit_release_replay_closure(
     observed = payload["observed_live_acceptance"]
     contract = summarize_nas_broader_pit_release_replay_contract()
     progress = summarize_product_capability_progress()
-    compose = yaml.safe_load(COMPOSE_PATH.read_text(encoding="utf-8"))
-    app = compose["services"]["business_cycle_app"]
-    worker = compose["services"]["macro_refresh_worker"]
     audit = observed["strict_replay_input_audit"]
     summary: dict[str, Any] = {
         "phase": 118,
@@ -85,8 +81,7 @@ def summarize_phase118_broader_pit_release_replay_closure(
         "worker_container_healthy": observed["worker_container_healthy"],
         "postgres_container_healthy": observed["postgres_container_healthy"],
         "phase118_image_wired": (
-            app["image"] == "business-cycle-nas-app:phase118-broader-pit-replay-audit"
-            and worker["image"]
+            observed["app_image_reference"]
             == "business-cycle-nas-app:phase118-broader-pit-replay-audit"
         ),
         "candidate_phase_emitted": False,

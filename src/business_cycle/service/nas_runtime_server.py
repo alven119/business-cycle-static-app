@@ -202,12 +202,21 @@ def build_runtime_response(
     normalized_path = urlparse(path).path or "/"
     headers = _normalize_headers(headers or {})
     if normalized_path == "/login":
-        return _login_response(method=method, body=body, session_secret=session_secret)
+        return _login_response(
+            method=method,
+            body=body,
+            headers=headers,
+            session_secret=session_secret,
+        )
     if normalized_path == "/logout":
         return _redirect_response(
             "/login",
             extra_headers={
-                "Set-Cookie": _session_cookie("", max_age=0),
+                "Set-Cookie": _session_cookie(
+                    "",
+                    max_age=0,
+                    secure=_secure_cookie_for_request(headers),
+                ),
             },
         )
     if normalized_path == "/healthz":
@@ -373,12 +382,18 @@ def _build_startup_shell() -> dict[str, Any]:
             pit_backfill_status_path=os.environ.get(
                 "BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH"
             ),
+            broader_pit_status_path=os.environ.get(
+                "BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH"
+            ),
+            strict_replay_timeline_status_path=os.environ.get(
+                "BUSINESS_CYCLE_STRICT_REPLAY_TIMELINE_STATUS_PATH"
+            ),
         )["nas_app_shell"]
     return build_nas_app_shell()
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase118"
+    server_version = "BusinessCycleNAS/phase119"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -668,11 +683,16 @@ def _login_response(
     *,
     method: str,
     body: str,
+    headers: dict[str, str],
     session_secret: str | None,
 ) -> RuntimeResponse:
     secret = session_secret if session_secret is not None else _session_secret()
+    private_lan_http = _private_lan_http_request(headers)
     if method.upper() == "GET":
-        return _html_response(200, _login_page())
+        return _html_response(
+            200,
+            _login_page(private_lan_http=private_lan_http),
+        )
     if method.upper() != "POST":
         return _json_response(405, {"error": "method_not_allowed", "research_only": True})
     if not secret:
@@ -686,20 +706,36 @@ def _login_response(
         )
     submitted = parse_qs(body, keep_blank_values=True).get("session_secret", [""])[0]
     if not hmac.compare_digest(submitted, secret):
-        return _html_response(401, _login_page(error="登入密碼不正確，請再試一次。"))
+        return _html_response(
+            401,
+            _login_page(
+                error="登入密碼不正確，請再試一次。",
+                private_lan_http=private_lan_http,
+            ),
+        )
     token = _session_token(secret)
     return _redirect_response(
         "/",
         extra_headers={
-            "Set-Cookie": _session_cookie(token, max_age=604800),
+            "Set-Cookie": _session_cookie(
+                token,
+                max_age=604800,
+                secure=_secure_cookie_for_request(headers),
+            ),
         },
     )
 
 
-def _login_page(error: str = "") -> str:
+def _login_page(error: str = "", *, private_lan_http: bool = False) -> str:
     error_html = (
         f'<p class="error">{html.escape(error)}</p>'
         if error
+        else ""
+    )
+    transport_html = (
+        '<p class="transport">目前使用家中私有 LAN HTTP。此入口可登入，'
+        "但離家使用時請改用 Tailscale HTTPS。</p>"
+        if private_lan_http
         else ""
     )
     return f"""<!doctype html>
@@ -750,6 +786,13 @@ def _login_page(error: str = "") -> str:
     }}
     button:disabled {{ opacity: .7; cursor: wait; }}
     .error {{ color: #b42318; font-weight: 650; }}
+    .transport {{
+      padding: 10px 12px;
+      border-left: 3px solid #2563eb;
+      background: #eff6ff;
+      color: #1e3a5f;
+      font-size: 14px;
+    }}
     .caveat {{ margin-top: 18px; font-size: 13px; color: #667085; }}
   </style>
 </head>
@@ -757,6 +800,7 @@ def _login_page(error: str = "") -> str:
   <main>
     <h1>景氣循環研究服務</h1>
     <p>這是私人 NAS 研究儀表板。請輸入你在 Container Manager 設定的服務密碼。</p>
+    {transport_html}
     {error_html}
     <form method="post" action="/login">
       <label for="session_secret">服務密碼</label>
@@ -784,7 +828,12 @@ def _session_header_name() -> str:
     return os.environ.get("BUSINESS_CYCLE_APP_SESSION_HEADER", DEFAULT_SESSION_HEADER)
 
 
-def _session_cookie(value: str, *, max_age: int) -> str:
+def _session_cookie(
+    value: str,
+    *,
+    max_age: int,
+    secure: bool | None = None,
+) -> str:
     attributes = [
         f"{SESSION_COOKIE_NAME}={value}",
         "Path=/",
@@ -792,13 +841,37 @@ def _session_cookie(value: str, *, max_age: int) -> str:
         "HttpOnly",
         "SameSite=Strict",
     ]
-    if _secure_cookie_enabled():
+    if _secure_cookie_enabled() if secure is None else secure:
         attributes.append("Secure")
     return "; ".join(attributes)
 
 
 def _secure_cookie_enabled() -> bool:
     return _env_flag("BUSINESS_CYCLE_APP_SECURE_COOKIE", default=False)
+
+
+def _secure_cookie_for_request(headers: dict[str, str]) -> bool:
+    forwarded_proto = headers.get("x-forwarded-proto", "").split(",", 1)[0].strip()
+    if forwarded_proto.lower() == "https":
+        return True
+    if _private_lan_http_request(headers):
+        return False
+    return _secure_cookie_enabled()
+
+
+def _private_lan_http_request(headers: dict[str, str]) -> bool:
+    if not _env_flag("BUSINESS_CYCLE_PRIVATE_LAN_HTTP_COOKIE_ALLOWED", default=False):
+        return False
+    forwarded_proto = headers.get("x-forwarded-proto", "").split(",", 1)[0].strip()
+    if forwarded_proto.lower() == "https":
+        return False
+    host = headers.get("host", "").strip().lower()
+    allowed_hosts = {
+        value.strip().lower()
+        for value in os.environ.get("BUSINESS_CYCLE_PRIVATE_LAN_HOSTS", "").split(",")
+        if value.strip()
+    }
+    return bool(host and host in allowed_hosts)
 
 
 def _response_security_headers() -> dict[str, str]:
