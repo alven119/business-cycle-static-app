@@ -38,6 +38,7 @@ def load_nas_cycle_command_center_contract(
 def build_nas_cycle_command_center(
     snapshot: dict[str, Any],
     *,
+    live_transition_evidence: dict[str, Any] | None = None,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
     role_labels_path: str | Path = DEFAULT_ROLE_LABELS_PATH,
 ) -> dict[str, Any]:
@@ -49,12 +50,23 @@ def build_nas_cycle_command_center(
     declared = dict(snapshot.get("declared_cycle_state", {}))
     phase = str(declared.get("declared_current_phase", "boom"))
     legal_next = str(declared.get("legal_next_phase", "recession"))
+    live_lanes = (live_transition_evidence or {}).get("lanes", {})
+    live_roles = (live_transition_evidence or {}).get("role_evidence", {})
     lanes = [
-        _lane_view(row, roles=roles)
+        _lane_view(
+            row,
+            roles=roles,
+            role_labels=labels,
+            live_lane=live_lanes.get(row["lane_id"]),
+        )
         for row in contract["transition_lanes"]
     ]
     key_indicators = [
-        _indicator_view(roles[role_id], labels[role_id])
+        _indicator_view(
+            roles[role_id],
+            labels[role_id],
+            live_evidence=live_roles.get(role_id),
+        )
         for role_id in contract["key_indicator_role_ids"]
     ]
     navigation = [dict(row) for row in contract["navigation"]]
@@ -104,7 +116,11 @@ def build_nas_cycle_command_center(
         "transition_lanes": lanes,
         "key_indicators": key_indicators,
         "data_health": _data_health(snapshot),
-        "live_transition_evaluator_connected": False,
+        "live_transition_evaluator_connected": bool(
+            live_transition_evidence
+            and live_transition_evidence.get("result") == "passed"
+        ),
+        "live_transition_evidence": live_transition_evidence,
         "transition_conclusion_output_count": 0,
         "watch_promoted_to_confirmation_count": 0,
         "raw_value_promoted_to_evidence_count": 0,
@@ -117,8 +133,13 @@ def build_nas_cycle_command_center(
         "trust_metadata": {
             "output_label": "research_only_declared_cycle_context",
             "declared_state_not_inferred": True,
-            "transition_lane_status_is_input_readiness_not_conclusion": True,
-            "live_transition_evaluator_connected": False,
+            "transition_lane_status_is_input_readiness_not_conclusion": (
+                live_transition_evidence is None
+            ),
+            "live_transition_evaluator_connected": bool(
+                live_transition_evidence
+                and live_transition_evidence.get("result") == "passed"
+            ),
             "revised_diagnostic_only": snapshot.get("data_mode")
             == "revised_diagnostic",
             "watch_confirmation_separated": True,
@@ -137,7 +158,11 @@ def build_nas_cycle_command_center(
             "personalized_portfolio_instruction",
             "trade_action",
         ],
-        "development_next_phase": int(contract["hard_gates"]["development_next_phase"]),
+        "development_next_phase": (
+            124
+            if live_transition_evidence is not None
+            else int(contract["hard_gates"]["development_next_phase"])
+        ),
     }
     command_center["nas_cycle_command_center_contract_ready"] = _contract_ready(
         contract
@@ -221,6 +246,8 @@ def _lane_view(
     lane: dict[str, Any],
     *,
     roles: dict[str, dict[str, Any]],
+    role_labels: dict[str, str],
+    live_lane: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     role_rows = [roles[role_id] for role_id in lane["required_role_ids"]]
     available = sum(
@@ -237,7 +264,7 @@ def _lane_view(
     else:
         input_status = "input_ready_evaluation_pending"
         status_zh = "資料已到位，等待即時 evidence evaluator"
-    return {
+    row = {
         "lane_id": lane["lane_id"],
         "title_zh": lane["title_zh"],
         "lane_type": lane["lane_type"],
@@ -253,9 +280,37 @@ def _lane_view(
         "transition_conclusion_emitted": False,
         "watch_is_confirmation": False,
     }
+    if live_lane is None:
+        return row
+    lane_status = str(live_lane["lane_status"])
+    row |= {
+        "evidence_evaluation_status": lane_status,
+        "display_status_zh": _live_lane_status_zh(lane_status),
+        "supportive_evidence_count": live_lane["supportive_evidence_count"],
+        "contradictory_evidence_count": live_lane[
+            "contradictory_evidence_count"
+        ],
+        "mixed_evidence_count": live_lane["mixed_evidence_count"],
+        "abstained_evidence_count": live_lane["abstained_evidence_count"],
+        "evidence_items": [
+            {
+                **item,
+                "display_name_zh": role_labels[str(item["role_id"])],
+            }
+            for item in live_lane["evidence_items"]
+        ],
+        "why_not_confirmation": list(live_lane["why_not_confirmation"]),
+        "transition_conclusion_emitted": False,
+    }
+    return row
 
 
-def _indicator_view(row: dict[str, Any], label: str) -> dict[str, Any]:
+def _indicator_view(
+    row: dict[str, Any],
+    label: str,
+    *,
+    live_evidence: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     latest = row.get("latest_revised_observations", [])
     observation = latest[0] if latest else {}
     interpreted = row.get("latest_interpretation_observations", [])
@@ -283,7 +338,24 @@ def _indicator_view(row: dict[str, Any], label: str) -> dict[str, Any]:
         ),
         "detail_path": f"/indicators#role-{row['role_id']}",
         "raw_value_is_phase_evidence": False,
+        "live_evidence_status": (
+            live_evidence.get("evidence_status") if live_evidence else None
+        ),
+        "live_evidence_abstention_reason": (
+            live_evidence.get("abstention_reason") if live_evidence else None
+        ),
     }
+
+
+def _live_lane_status_zh(status: str) -> str:
+    return {
+        "supportive_evidence_present": "已有支持證據（研究用，不改變 declared state）",
+        "contradictory_evidence_present": "目前證據反對此 lane",
+        "mixed_evidence": "證據互相矛盾，維持 mixed",
+        "incomplete_evidence": "證據不完整，明確 abstain",
+        "explicit_abstention": "缺少可判讀證據，明確 abstain",
+        "neutral_evidence": "目前證據中性，未形成方向",
+    }.get(status, status)
 
 
 def _data_health(snapshot: dict[str, Any]) -> dict[str, Any]:

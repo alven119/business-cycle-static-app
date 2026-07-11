@@ -561,6 +561,9 @@ def _live_role_snapshot(
         "source_lineage": [row["source_lineage"] for row in series_contexts],
         "learning_semantics": learning_context,
         "latest_interpretation_observations": latest_interpretations,
+        "evidence_input_series": [
+            _evidence_input_series(row) for row in series_contexts
+        ],
         "chart_payload_detail": {
             "chart_payload_id": f"live_postgres_chart:{baseline['role_id']}",
             "snapshot_as_of": as_of,
@@ -585,6 +588,30 @@ def _live_role_snapshot(
         "strict_point_in_time_result": False,
         "candidate_selection_eligible": False,
         "formal_current_output_allowed": False,
+    }
+
+
+def _evidence_input_series(context: dict[str, Any]) -> dict[str, Any]:
+    """Preserve causal revised history for a separately governed evaluator."""
+
+    return {
+        "series_id": context["series_id"],
+        "source_series_ids": list(context["component_series_ids"]),
+        "frequency": context["frequency"],
+        "source_unit": context["unit"],
+        "observations": [
+            {
+                "date": row["observation_date"],
+                "value": row.get("value_numeric"),
+                "data_mode": "revised",
+                "source_artifact_id": row.get("source_artifact_id"),
+                "provenance_hash": row.get("provenance_hash"),
+            }
+            for row in context["observations"]
+            if row.get("value_numeric") is not None
+        ],
+        "source_lineage": context["source_lineage"],
+        "phase_support_allowed_without_evaluator_contract": False,
     }
 
 

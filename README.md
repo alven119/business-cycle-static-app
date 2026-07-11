@@ -9,10 +9,13 @@ historical replay/backtest research surfaces. GitHub Pages deployment has been
 retired; the GitHub repository may remain as source control and CI during the
 NAS migration, but it is no longer the user-facing deployment target.
 
-Phase 122 adds a private research-only Taiwan/US technology manufacturing
-surface. It uses official Census/FRED and Taiwan MOEA revised histories,
-displays causal year-over-year trends with YTD/1Y/5Y charts, and preserves the
-boundary between supporting technology context and book-core phase evidence.
+Phase 123 connects five transition-critical book roles to the private NAS live
+ordered-cycle evidence runtime. The dashboard now separates boom continuation,
+boom-ending watch, recession watch, and recession confirmation, while showing
+supporting, contradictory, mixed, and abstained evidence plus why a governed
+state change has not occurred. It retains the Phase 122 official Taiwan/US
+technology manufacturing research surface and does not emit a candidate or
+current phase.
 
 ## Current structure
 

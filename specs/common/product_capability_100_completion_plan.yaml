@@ -1,8 +1,8 @@
 product_capability_100_completion_plan:
   version: "2.0"
   status: active_completion_planning_contract
-  baseline_phase_id: 122
-  baseline_phase_label: unified_data_fidelity_and_taiwan_us_technology_cycle
+  baseline_phase_id: 123
+  baseline_phase_label: live_ordered_cycle_evidence_and_transition_runtime
   objective_zh: >
     以最少工程 Phase 完成私人 NAS v1.0 所需的資料、判讀、轉折、配置、重播、
     回測與操作能力，再以不可跳過的 prospective calendar gate 完成正式 production
@@ -43,7 +43,7 @@ product_capability_100_completion_plan:
         - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
     - phase_id: 123
       title_zh: Live ordered-cycle evidence 與轉折判讀 runtime
-      execution_status: next
+      execution_status: completed
       objective_zh: >
         將 book-aligned evidence evaluators 接入 declared boom 的 continuation、ending
         watch、recession watch 與 confirmation lanes，顯示累積、矛盾、缺口及 why-not-confirmation，
@@ -59,6 +59,7 @@ product_capability_100_completion_plan:
         - C6_SAFE_OUTPUT_GOVERNANCE
     - phase_id: 124
       title_zh: 配置研究與歷史重播互動產品面
+      execution_status: next
       objective_zh: >
         合併完成 declared-phase-linked 書籍配置研究模板、事件選擇器、月度 playhead、
         指標／轉折 attribution 與 revised/PIT mode UX，維持研究模板而非個人化指令。
@@ -120,23 +121,23 @@ product_capability_100_completion_plan:
         - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
   capability_targets:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-      current_percent: 84
+      current_percent: 90
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
-      remaining_gap_zh: live evidence、legal transition confirmation、PIT/economic/prospective validation
+      remaining_gap_zh: 配置／replay product integration、strict PIT 與 economic/prospective validation
     - capability_id: C2_TRANSITION_RISK_DETECTION
-      current_percent: 88
+      current_percent: 95
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
-      remaining_gap_zh: live watch/confirmation accumulation、historical false-signal review、prospective validation
+      remaining_gap_zh: historical false-signal／timing review、strict PIT 與 prospective validation
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
-      current_percent: 88
+      current_percent: 95
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
-      remaining_gap_zh: 科技循環、配置、replay/backtest 與正式結果的完整 drill-down
+      remaining_gap_zh: 配置、replay/backtest 與正式結果的完整 drill-down
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       current_percent: 65
       engineering_readiness_target_percent: 99
@@ -156,7 +157,7 @@ product_capability_100_completion_plan:
       target_phase_id: 126
       remaining_gap_zh: v1.0 migration、rollback、security 與 operations acceptance
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-      current_percent: 91
+      current_percent: 93
       engineering_readiness_target_percent: 100
       target_percent: 100
       target_phase_id: 126

@@ -126,9 +126,9 @@ def build_nas_live_dashboard_runtime(
             navigation=dashboard["command_center"]["navigation"],
         )
     )
-    shell["phase"] = "122"
-    shell["phase_id"] = 122
-    shell["artifact_id"] = "phase122_technology_manufacturing_cycle_runtime"
+    shell["phase"] = "123"
+    shell["phase_id"] = 123
+    shell["artifact_id"] = "phase123_live_ordered_cycle_evidence_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -191,6 +191,12 @@ def build_nas_live_dashboard_runtime(
         "declared_phase_start_context_status": declared_cycle_state[
             "declared_phase_start_context_status"
         ],
+        "live_transition_evaluator_connected": dashboard["command_center"][
+            "live_transition_evaluator_connected"
+        ],
+        "live_transition_phase_evidence_output_role_count": dashboard[
+            "live_ordered_cycle_evidence"
+        ]["phase_evidence_output_role_count"],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -240,10 +246,16 @@ def build_nas_live_dashboard_runtime(
         "declared_phase_start_context_status": declared_cycle_state[
             "declared_phase_start_context_status"
         ],
+        "live_transition_evaluator_connected": dashboard["command_center"][
+            "live_transition_evaluator_connected"
+        ],
+        "live_transition_phase_evidence_output_role_count": dashboard[
+            "live_ordered_cycle_evidence"
+        ]["phase_evidence_output_role_count"],
     }
     runtime: dict[str, Any] = {
-        "phase": 122,
-        "artifact_id": "phase122_technology_manufacturing_cycle_runtime",
+        "phase": 123,
+        "artifact_id": "phase123_live_ordered_cycle_evidence_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -266,6 +278,7 @@ def build_nas_live_dashboard_runtime(
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "source_release_diagnostics": snapshot["source_release_diagnostics"],
         "declared_cycle_state": declared_cycle_state,
+        "live_ordered_cycle_evidence": dashboard["live_ordered_cycle_evidence"],
         "transaction_read_only_enforced": True,
         "silent_fixture_fallback_count": 0,
         "postgres_write_attempt_count": 0,
@@ -278,7 +291,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 122,
+        "development_next_phase": 124,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True
@@ -287,6 +300,10 @@ def build_nas_live_dashboard_runtime(
         and runtime["source_blocked_role_count"] == 2
         and runtime["chart_available_role_count"] == 37
         and runtime["source_release_diagnostics"]["release_calendar_runtime_ready"]
+        is True
+        and runtime["live_ordered_cycle_evidence"][
+            "live_evidence_evaluator_connected"
+        ]
         is True
         and runtime["transaction_read_only_enforced"] is True
         and runtime["postgres_write_attempt_count"] == 0

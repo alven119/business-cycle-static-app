@@ -4,6 +4,13 @@ from business_cycle.transition_monitor.boom_transition_monitor import (
     build_boom_transition_monitor,
     summarize_boom_transition_monitor,
 )
+from business_cycle.audits.phase123_live_ordered_cycle_evidence_closure import (
+    build_phase123_live_evidence_fixture_snapshot,
+    summarize_phase123_live_ordered_cycle_evidence_closure,
+)
+from business_cycle.transition_monitor.live_ordered_cycle_evidence import (
+    build_live_ordered_cycle_evidence,
+)
 
 
 def test_boom_transition_monitor_uses_declared_state_without_inference() -> None:
@@ -79,3 +86,69 @@ def test_monitor_summary_hard_gates_pass() -> None:
     assert summary["phase_rank_or_score_added_count"] == 0
     assert summary["selected_phase_output_count"] == 0
     assert summary["result"] == "passed"
+
+
+def test_phase123_live_runtime_connects_transformed_evidence_without_phase_output() -> None:
+    summary = summarize_phase123_live_ordered_cycle_evidence_closure()
+    runtime = summary["runtime"]
+
+    assert summary["result"] == "passed"
+    assert summary["live_evidence_evaluator_connected"] is True
+    assert summary["evaluated_role_count"] == 5
+    assert summary["phase_evidence_output_role_count"] == 5
+    assert summary["lane_output_count"] == 4
+    assert runtime["lanes"]["boom_ending_watch"]["lane_status"] == (
+        "supportive_evidence_present"
+    )
+    assert runtime["lanes"]["recession_confirmation"]["why_not_confirmation"]
+    assert runtime["watch_confirmation_separation_verified"] is True
+    assert runtime["raw_value_promoted_to_evidence_count"] == 0
+    assert runtime["smoothing_alone_promoted_to_evidence_count"] == 0
+    assert runtime["role_count_voting_added_count"] == 0
+    assert runtime["candidate_phase_emitted"] is False
+    assert runtime["current_phase_emitted"] is False
+
+
+def test_phase123_missing_component_abstains_instead_of_becoming_neutral() -> None:
+    snapshot = build_phase123_live_evidence_fixture_snapshot()
+    retail = next(
+        row
+        for row in snapshot["role_snapshots"]
+        if row["role_id"] == "boom_retail_sales_vs_broad_pce"
+    )
+    retail["evidence_input_series"] = [
+        row for row in retail["evidence_input_series"] if row["series_id"] != "PCEC96"
+    ]
+
+    runtime = build_live_ordered_cycle_evidence(snapshot)
+
+    assert runtime["role_evidence"]["boom_retail_sales_vs_broad_pce"][
+        "evidence_status"
+    ] == "abstained"
+    assert runtime["lanes"]["boom_ending_watch"]["lane_status"] == (
+        "incomplete_evidence"
+    )
+    assert runtime["missing_value_treated_as_neutral_count"] == 0
+    assert runtime["missing_value_treated_as_zero_count"] == 0
+
+
+def test_phase123_component_disagreement_remains_mixed_without_voting() -> None:
+    snapshot = build_phase123_live_evidence_fixture_snapshot()
+    retail = next(
+        row
+        for row in snapshot["role_snapshots"]
+        if row["role_id"] == "boom_retail_sales_vs_broad_pce"
+    )
+    pce = next(
+        row for row in retail["evidence_input_series"] if row["series_id"] == "PCEC96"
+    )
+    pce["observations"][-1]["value"] = 120
+
+    runtime = build_live_ordered_cycle_evidence(snapshot)
+
+    assert runtime["role_evidence"]["boom_retail_sales_vs_broad_pce"][
+        "evidence_status"
+    ] == "mixed"
+    assert runtime["lanes"]["boom_ending_watch"]["lane_status"] == "mixed_evidence"
+    assert runtime["role_count_voting_added_count"] == 0
+    assert runtime["watch_promoted_to_confirmation_count"] == 0

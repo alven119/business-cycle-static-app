@@ -23,6 +23,9 @@ from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
     summarize_nas_indicator_snapshot,
 )
+from business_cycle.transition_monitor.live_ordered_cycle_evidence import (
+    build_live_ordered_cycle_evidence,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_service_dashboard_contract.yaml"
@@ -68,7 +71,13 @@ def build_nas_service_dashboard_bundle(
     snapshot = snapshot_manifest or build_nas_indicator_snapshot_manifest()
     role_labels = load_book_core_role_display_labels_zh()
     _validate_role_label_coverage(snapshot=snapshot, role_labels=role_labels)
-    command_center = build_nas_cycle_command_center(snapshot)
+    live_transition_evidence = (
+        build_live_ordered_cycle_evidence(snapshot) if runtime_live_mode else None
+    )
+    command_center = build_nas_cycle_command_center(
+        snapshot,
+        live_transition_evidence=live_transition_evidence,
+    )
     technology_cycle = None
     if runtime_live_mode:
         command_center["navigation"].insert(
@@ -87,6 +96,7 @@ def build_nas_service_dashboard_bundle(
         contract=contract,
         routes=routes,
         role_labels=role_labels,
+        command_center=command_center,
         runtime_live_mode=runtime_live_mode,
     )
     html_pages = _html_pages(
@@ -99,11 +109,11 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "120" if runtime_live_mode else "95",
-        "phase_id": 120 if runtime_live_mode else 95,
+        "phase": "123" if runtime_live_mode else "95",
+        "phase_id": 123 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase120_nas_cycle_command_center_renderer"
+            "phase123_live_ordered_cycle_evidence_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),
@@ -120,6 +130,7 @@ def build_nas_service_dashboard_bundle(
         "api_payloads": api_payloads,
         "html_pages": html_pages,
         "command_center": command_center,
+        "live_ordered_cycle_evidence": live_transition_evidence,
         "technology_manufacturing_cycle": technology_cycle,
         "trust_metadata": _trust_metadata(contract=contract, snapshot=snapshot),
         "allowed_uses": contract["allowed_uses"],
@@ -162,6 +173,9 @@ def build_nas_service_dashboard_bundle(
             command_center["transition_lanes"]
         ),
         "command_center_key_indicator_count": len(command_center["key_indicators"]),
+        "live_transition_evaluator_connected": command_center[
+            "live_transition_evaluator_connected"
+        ],
         "frontend_database_access_allowed": False,
         "frontend_api_key_allowed": False,
         "live_server_start_attempt_count": 0,
@@ -178,7 +192,11 @@ def build_nas_service_dashboard_bundle(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": int(contract["hard_gates"]["development_next_phase"]),
+        "development_next_phase": (
+            124
+            if runtime_live_mode
+            else int(contract["hard_gates"]["development_next_phase"])
+        ),
     }
     bundle["prohibited_output_field_count"] = _contains_prohibited_field(bundle)
     bundle["bundle_hash"] = _hash_payload(
@@ -445,6 +463,7 @@ def _api_payloads(
     contract: dict[str, Any],
     routes: list[dict[str, Any]],
     role_labels: dict[str, str],
+    command_center: dict[str, Any],
     runtime_live_mode: bool,
 ) -> dict[str, Any]:
     roles = [
@@ -490,6 +509,13 @@ def _api_payloads(
                 "not_configured",
             ),
             "declared_cycle_state": snapshot.get("declared_cycle_state", {}),
+            "live_transition_evaluator_connected": command_center[
+                "live_transition_evaluator_connected"
+            ],
+            "transition_lane_count": len(command_center["transition_lanes"]),
+            "watch_confirmation_separated": command_center["trust_metadata"][
+                "watch_confirmation_separated"
+            ],
             "postgres_write_attempted": False,
             "live_fetch_attempted": False,
             "frontend_database_access_allowed": False,
@@ -643,9 +669,9 @@ def _overview_html(
               <p class="section-kicker">Boom to recession</p>
               <h2 id="transition-heading">轉折風險雷達</h2>
             </div>
-            <span class="status-note">資料輸入 readiness，不是 transition 結論</span>
+            <span class="status-note">live evidence 已接線；研究判讀，不是 declared state 改判</span>
           </div>
-          <p class="section-intro">四條 lane 分開呈現榮景延續、榮景結束 watch、衰退 watch 與衰退 confirmation。即時 evidence evaluator 尚未接線，因此不會從最新值直接下判斷。</p>
+          <p class="section-intro">四條 lane 分開呈現榮景延續、榮景結束 watch、衰退 watch 與衰退 confirmation。判讀使用年增率、4 期平均與 causal direction／turning-point contract；watch 不會升級成 confirmation，任何 evidence 也不會自動改寫 declared 榮景。</p>
           {_transition_lane_html(command_center)}
         </section>
         <section class="content-band" aria-labelledby="indicator-heading">
@@ -672,7 +698,7 @@ def _overview_html(
           <p class="section-kicker">Next product surfaces</p>
           <h2 id="roadmap-heading">接下來會接進這個工作台</h2>
           <div class="roadmap-grid">
-            <article id="portfolio-research-roadmap"><strong>配置研究</strong><span>Phase 123：declared phase 對應書籍研究模板</span></article>
+            <article id="portfolio-research-roadmap"><strong>配置研究</strong><span>Phase 124：declared phase 對應書籍研究模板</span></article>
             <article id="historical-replay-roadmap"><strong>歷史重播</strong><span>Phase 124：事件選擇器與月度 playhead</span></article>
             <article><strong>指標學習</strong><span>Phase 121：圖表、書中意涵與資料血緣</span></article>
           </div>
@@ -724,7 +750,7 @@ def _command_center_trust_ribbon(command_center: dict[str, Any]) -> str:
       <span><b>資料模式</b> revised diagnostic</span>
       <span><b>資料截至</b> {escape(str(health.get('database_latest_observation_date') or '尚無'))}</span>
       <span><b>可用角色</b> {int(health['available_role_count'])}/{int(health['role_count'])}</span>
-      <span><b>轉折判讀</b> 尚未接通即時 evaluator</span>
+      <span><b>轉折判讀</b> {"live evaluator 已接線" if command_center['live_transition_evaluator_connected'] else "尚未接通即時 evaluator"}</span>
     </div>
     """
 
@@ -784,11 +810,7 @@ def _cycle_order_html(command_center: dict[str, Any]) -> str:
 def _transition_lane_html(command_center: dict[str, Any]) -> str:
     cards = []
     for lane in command_center["transition_lanes"]:
-        status_class = (
-            "status-missing"
-            if lane["missing_input_count"]
-            else "status-pending"
-        )
+        status_class = _lane_status_class(lane)
         role_links = "".join(
             f'<a href="/indicators#role-{escape(role_id)}">{escape(role_id)}</a>'
             for role_id in lane["required_role_ids"]
@@ -798,6 +820,21 @@ def _transition_lane_html(command_center: dict[str, Any]) -> str:
             "transition_watch": "風險觀察",
             "transition_confirmation": "轉折確認",
         }.get(lane["lane_type"], lane["lane_type"])
+        evidence_html = _lane_evidence_items_html(lane)
+        why_html = "".join(
+            f"<li>{escape(str(reason))}</li>"
+            for reason in lane.get("why_not_confirmation", [])
+        )
+        counts_html = ""
+        if command_center["live_transition_evaluator_connected"]:
+            counts_html = (
+                '<dl class="lane-evidence-counts">'
+                f"<dt>支持</dt><dd>{int(lane.get('supportive_evidence_count', 0))}</dd>"
+                f"<dt>反對</dt><dd>{int(lane.get('contradictory_evidence_count', 0))}</dd>"
+                f"<dt>Mixed</dt><dd>{int(lane.get('mixed_evidence_count', 0))}</dd>"
+                f"<dt>Abstain</dt><dd>{int(lane.get('abstained_evidence_count', 0))}</dd>"
+                "</dl>"
+            )
         cards.append(
             f"""
             <article class="lane-card" data-transition-lane="{escape(lane['lane_id'])}">
@@ -808,11 +845,54 @@ def _transition_lane_html(command_center: dict[str, Any]) -> str:
               <h3>{escape(lane['title_zh'])}</h3>
               <p>{escape(lane['purpose_zh'])}</p>
               <p class="lane-status {status_class}">{escape(lane['display_status_zh'])}</p>
+              {counts_html}
+              {evidence_html}
+              {f'<details class="why-not"><summary>為何尚未確認／不能改判</summary><ul>{why_html}</ul></details>' if why_html else ''}
               <div class="lane-role-links">{role_links}</div>
             </article>
             """
         )
     return f'<div class="lane-grid">{"".join(cards)}</div>'
+
+
+def _lane_status_class(lane: dict[str, Any]) -> str:
+    status = str(lane.get("evidence_evaluation_status", ""))
+    if "supportive" in status:
+        return "status-supportive"
+    if "contradictory" in status or "mixed" in status:
+        return "status-warning"
+    if lane["missing_input_count"] or "abstention" in status or "incomplete" in status:
+        return "status-missing"
+    return "status-pending"
+
+
+def _lane_evidence_items_html(lane: dict[str, Any]) -> str:
+    items = []
+    state_labels = {
+        "supportive": "支持",
+        "contradictory": "反對",
+        "mixed": "Mixed",
+        "abstained": "Abstain",
+        "neutral": "中性",
+    }
+    for item in lane.get("evidence_items", []):
+        state = str(item["lane_evidence_state"])
+        dates = ", ".join(
+            sorted(set(item.get("latest_transformed_observation_dates", {}).values()))
+        ) or "尚無"
+        reason = item.get("abstention_reason")
+        reason_html = (
+            f'<span class="evidence-reason">{escape(str(reason))}</span>'
+            if reason
+            else ""
+        )
+        items.append(
+            f'<li data-evidence-state="{escape(state)}">'
+            f'<strong>{escape(str(item.get("display_name_zh", item["role_id"])))}</strong>'
+            f'<span class="evidence-state">{escape(state_labels.get(state, state))}</span>'
+            f'<span>{escape(dates)}</span>{reason_html}</li>'
+        )
+    return f'<ul class="lane-evidence-items">{"".join(items)}</ul>' if items else ""
 
 
 def _key_indicator_html(command_center: dict[str, Any]) -> str:
@@ -1228,6 +1308,17 @@ def _html_document(
     .lane-card > p {{ color: var(--muted); font-size: .82rem; }}
     .lane-status {{ padding-left: 9px; border-left: 3px solid var(--amber); color: var(--amber) !important; font-weight: 650; }}
     .lane-status.status-missing {{ border-color: var(--red); color: var(--red) !important; }}
+    .lane-status.status-supportive {{ border-color: var(--green); color: var(--green) !important; }}
+    .lane-status.status-warning {{ border-color: var(--amber); color: var(--amber) !important; }}
+    .lane-evidence-counts {{ display: grid; grid-template-columns: repeat(4, auto); gap: 3px 8px; margin: 12px 0; font-size: .72rem; }}
+    .lane-evidence-counts dt {{ color: var(--muted); }}
+    .lane-evidence-counts dd {{ margin: 0; font-weight: 700; }}
+    .lane-evidence-items {{ display: grid; gap: 6px; padding: 0; list-style: none; }}
+    .lane-evidence-items li {{ display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 8px; padding: 7px; border: 1px solid var(--line); font-size: .68rem; }}
+    .lane-evidence-items li > span:nth-of-type(2), .evidence-reason {{ grid-column: 1 / -1; color: var(--muted); }}
+    .evidence-state {{ font-weight: 750; }}
+    .why-not {{ margin: 10px 0; font-size: .72rem; }}
+    .why-not summary {{ cursor: pointer; color: var(--blue); font-weight: 700; }}
     .lane-role-links {{ display: flex; flex-wrap: wrap; gap: 5px; }}
     .lane-role-links a {{ border: 1px solid var(--line); padding: 3px 5px; color: var(--blue); font-size: .65rem; overflow-wrap: anywhere; }}
     .priority-indicator-list {{ display: grid; border-top: 1px solid var(--line); }}

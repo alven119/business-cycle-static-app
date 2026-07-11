@@ -446,7 +446,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase122-technology-cycle"
+    assert app["image"] == "business-cycle-nas-app:phase123-live-evidence"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -873,7 +873,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert runtime["phase"] == 122
+    assert runtime["phase"] == 123
     assert runtime["nas_app_shell"]["technology_manufacturing_cycle"]["series_count"] == 5
     assert runtime["nas_app_shell"]["technology_manufacturing_cycle"][
         "candidate_phase_emitted"
@@ -887,15 +887,17 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert "榮景 → 衰退" in overview
     assert "轉折風險雷達" in overview
     assert overview.count('data-transition-lane="') == 4
-    assert "資料已到位，等待即時 evidence evaluator" in overview
+    assert "live evidence 已接線" in overview
     assert "本期優先觀察" in overview
     assert "初領失業救濟金 U 型走勢" in overview
-    assert "資料輸入 readiness，不是 transition 結論" in overview
+    assert "研究判讀，不是 declared state 改判" in overview
     command_center = bundle["command_center"]
     assert command_center["declared_state"]["declared_current_phase"] == "boom"
     assert command_center["declared_state"]["legal_next_phase"] == "recession"
     assert len(command_center["transition_lanes"]) == 4
     assert len(command_center["key_indicators"]) == 5
+    assert command_center["live_transition_evaluator_connected"] is True
+    assert runtime["live_ordered_cycle_evidence"]["evaluated_role_count"] == 5
     assert command_center["transition_conclusion_output_count"] == 0
     assert command_center["current_phase_emitted"] is False
     assert html.count("<details>") == 37
