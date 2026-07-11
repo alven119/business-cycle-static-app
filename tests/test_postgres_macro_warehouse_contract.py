@@ -790,6 +790,50 @@ def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage(
     assert roles["growth_adp_employment"]["snapshot_status"] == "blocked"
 
 
+def test_phase122_supplementary_series_do_not_pollute_book_core_release_diagnostics() -> None:
+    payload = _live_dashboard_fixture_payload()
+    payload["series_registry_rows"].append({
+        "series_key": "A34SNO",
+        "source_family": "U.S. Census Bureau/FRED",
+        "source_series_id": "A34SNO",
+        "source_title": "美國電腦及電子產品製造業新訂單",
+        "units": "millions_of_us_dollars",
+        "frequency": "monthly",
+        "seasonal_adjustment": "seasonally_adjusted",
+        "geographic_scope": "US",
+        "source_url_without_secret": "https://fred.stlouisfed.org/series/A34SNO",
+        "source_identity_status": "verified_official_phase122",
+        "updated_at_utc": "2026-07-11T00:00:00Z",
+    })
+    payload["observation_rows"].extend([
+        {
+            "series_key": "A34SNO",
+            "observation_date": f"{year}-05-01",
+            "value_numeric": value,
+            "value_text": None,
+            "unit": "millions_of_us_dollars",
+            "data_mode": "revised",
+            "source_artifact_id": "artifact::A34SNO",
+            "provenance_hash": f"hash-{year}",
+        }
+        for year, value in ((2025, "100"), (2026, "110"))
+    ])
+
+    class SupplementaryExecutor:
+        def query_json(self, sql: str) -> dict[str, object]:
+            assert sql == DASHBOARD_READ_SQL
+            return payload
+
+    snapshot = build_nas_live_postgres_dashboard_snapshot(
+        executor=SupplementaryExecutor(),
+        snapshot_as_of="2026-07-11",
+    )
+
+    assert snapshot["series_snapshot_count"] == 27
+    assert snapshot["technology_series_observations"]["A34SNO"]
+    assert snapshot["source_release_diagnostics"]["release_family_count"] == 12
+
+
 def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     tmp_path: Path,
 ) -> None:

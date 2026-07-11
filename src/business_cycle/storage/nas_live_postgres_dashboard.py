@@ -23,6 +23,9 @@ from business_cycle.render.indicator_learning_semantics import (
 from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
 )
+from business_cycle.storage.nas_postgres_live_revised_import import (
+    load_nas_postgres_live_revised_import_contract,
+)
 from business_cycle.service.nas_official_release_calendar import (
     build_nas_official_release_diagnostics,
 )
@@ -326,6 +329,16 @@ def build_nas_live_postgres_dashboard_snapshot(
         as_of=date.fromisoformat(resolved_as_of),
         freshness_windows=contract["freshness_windows_days"],
     )
+    canonical_release_series_ids = set(
+        load_nas_postgres_live_revised_import_contract()["source_policy"][
+            "direct_series_ids"
+        ]
+    )
+    series_release_inputs = [
+        row
+        for row in series_release_inputs
+        if row["series_id"] in canonical_release_series_ids
+    ]
     source_release_diagnostics = build_nas_official_release_diagnostics(
         as_of=resolved_as_of,
         series_inputs=series_release_inputs,
