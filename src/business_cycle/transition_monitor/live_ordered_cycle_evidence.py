@@ -52,6 +52,10 @@ def build_live_ordered_cycle_evidence(
     """Evaluate governed role histories without selecting or changing a phase."""
 
     contract = load_nas_live_ordered_cycle_evidence_contract(contract_path)
+    source_data_mode = str(snapshot.get("data_mode", "revised_diagnostic"))
+    primitive_data_mode = (
+        "vintage_as_of" if source_data_mode == "vintage_as_of" else "revised"
+    )
     role_snapshots = {
         str(row["role_id"]): row for row in snapshot.get("role_snapshots", [])
     }
@@ -61,6 +65,7 @@ def build_live_ordered_cycle_evidence(
             role_contract=role_contract,
             snapshot_row=role_snapshots.get(role_id),
             as_of=str(snapshot.get("snapshot_as_of") or ""),
+            data_mode=primitive_data_mode,
         )
         for role_id, role_contract in contract["role_evaluators"].items()
     }
@@ -83,7 +88,7 @@ def build_live_ordered_cycle_evidence(
         "output_mode": contract["output_policy"]["output_mode"],
         "research_only": True,
         "snapshot_as_of": snapshot.get("snapshot_as_of"),
-        "data_mode": snapshot.get("data_mode", "revised_diagnostic"),
+        "data_mode": source_data_mode,
         "declared_current_phase": declared_phase,
         "legal_next_phase": legal_next,
         "role_evidence": role_outputs,
@@ -142,13 +147,17 @@ def build_live_ordered_cycle_evidence(
         ],
         "trust_metadata": {
             "output_label": "research_only",
-            "source_mode": "live_postgres_read_only",
-            "revised_diagnostic_only": True,
+            "source_mode": (
+                "historical_postgres_vintage_read_only"
+                if primitive_data_mode == "vintage_as_of"
+                else "live_postgres_read_only"
+            ),
+            "revised_diagnostic_only": primitive_data_mode == "revised",
             "book_rule_registry_reused": True,
             "display_formula_recomputed_under_phase123_evidence_contract": True,
             "watch_confirmation_separated": True,
             "declared_state_not_inferred": True,
-            "point_in_time_result": False,
+            "point_in_time_result": primitive_data_mode == "vintage_as_of",
         },
     }
     artifact["prohibited_output_field_count"] = _contains_prohibited_field(artifact)
@@ -167,17 +176,27 @@ def _evaluate_role(
     role_contract: dict[str, Any],
     snapshot_row: dict[str, Any] | None,
     as_of: str,
+    data_mode: str,
 ) -> dict[str, Any]:
     if snapshot_row is None:
         return _abstained_role(role_id, role_contract, "role_snapshot_missing")
-    if snapshot_row.get("snapshot_status") != "revised_snapshot_ready":
+    expected_snapshot_status = (
+        "vintage_snapshot_ready"
+        if data_mode == "vintage_as_of"
+        else "revised_snapshot_ready"
+    )
+    if snapshot_row.get("snapshot_status") != expected_snapshot_status:
         return _abstained_role(
             role_id,
             role_contract,
-            "live_revised_snapshot_unavailable",
+            f"{data_mode}_snapshot_unavailable",
             snapshot_row=snapshot_row,
         )
-    if snapshot_row.get("freshness_status") in {"stale", "unavailable", "mixed"}:
+    if data_mode == "revised" and snapshot_row.get("freshness_status") in {
+        "stale",
+        "unavailable",
+        "mixed",
+    }:
         return _abstained_role(
             role_id,
             role_contract,
@@ -202,6 +221,7 @@ def _evaluate_role(
             role_id=role_id,
             rows=list(inputs[series_id]["observations"]),
             expected_profile=str(role_contract["transform_profile_id"]),
+            data_mode=data_mode,
         )
         for series_id in required_ids
     }
@@ -219,7 +239,7 @@ def _evaluate_role(
                 observations=transformed[series_id],
                 as_of=as_of,
                 expected_direction=str(role_contract["expected_direction"]),
-                data_mode="revised",
+                data_mode=data_mode,
                 rule_id=f"phase123::{role_id}::{series_id}",
                 minimum_observations=2,
             )
@@ -235,7 +255,7 @@ def _evaluate_role(
         evaluated = evaluate_phase_evidence(
             role_id=role_id,
             as_of=as_of,
-            data_mode="revised",
+            data_mode=data_mode,
             observations=transformed[required_ids[0]],
         )
         status = str(evaluated["evidence_status"])
@@ -277,6 +297,7 @@ def _transform_for_evidence(
     role_id: str,
     rows: list[dict[str, Any]],
     expected_profile: str,
+    data_mode: str,
 ) -> list[dict[str, Any]]:
     display_rows = [
         {
@@ -297,7 +318,7 @@ def _transform_for_evidence(
         {
             "date": str(row["observation_date"]),
             "value": row["value_numeric"],
-            "data_mode": "revised",
+            "data_mode": data_mode,
             "source_artifact_id": row.get("source_artifact_id"),
             "provenance_hash": row.get("provenance_hash"),
         }

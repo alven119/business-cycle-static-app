@@ -98,6 +98,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_completion_sprint.py",
             "show_github_actions_test_efficiency.py",
             "show_phase121_indicator_transformation_learning_closure.py",
+            "show_phase125_strict_replay_backtest_closure.py",
             "show_phase124_portfolio_replay_lab_closure.py",
             "show_phase123_live_ordered_cycle_evidence_closure.py",
             "show_phase120_cycle_command_center_closure.py",
@@ -207,7 +208,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase124_portfolio_replay_lab_closure.py" in (
+    assert "scripts/show_phase125_strict_replay_backtest_closure.py" in (
         FULL_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase120_cycle_command_center_closure.py" in (

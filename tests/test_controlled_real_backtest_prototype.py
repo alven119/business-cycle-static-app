@@ -10,6 +10,9 @@ from business_cycle.portfolio import (
     summarize_controlled_real_backtest_prototype,
     validate_controlled_prototype_fixtures,
 )
+from business_cycle.portfolio.cash_flow_research_backtest import (
+    run_cash_flow_research_backtest,
+)
 
 FIXTURES_PATH = Path("specs/portfolio/controlled_real_backtest_prototype_fixtures.yaml")
 
@@ -81,6 +84,33 @@ def test_controlled_real_backtest_prototype_summary_flags_are_safe() -> None:
     assert summary["dashboard_integration"] is False
     assert summary["result"] == "passed"
     assert summary["recommended_next_phase"] == "QA0"
+
+
+def test_phase125_cash_flow_kernel_neutralizes_contributions_and_computes_xirr() -> None:
+    periods = ["2020-01-31", "2020-02-29", "2021-01-31", "2021-02-28"]
+    returns = {
+        period: {"equity": 0.01, "cash": 0.001} for period in periods
+    }
+    result = run_cash_flow_research_backtest(
+        scenario_id="fixture",
+        policy_template_id="stock_cash_initial",
+        parameter_id="fixture_50",
+        periods=periods,
+        asset_returns=returns,
+        equity_parameter=0.5,
+        defensive_asset="cash",
+        initial_value=100_000.0,
+        annual_contribution=10_000.0,
+        transaction_cost_bps=10.0,
+    )
+
+    assert result["metrics"]["total_contributions"] == 20_000.0
+    assert result["metrics"]["money_weighted_return_xirr"] is not None
+    assert result["metrics"]["max_drawdown_on_unitized_nav"] <= 0
+    assert result["monthly_rows"][0]["unitized_nav"] > 100.0
+    assert result["dynamic_transition_policy_executed"] is False
+    assert result["current_allocation_recommendation_allowed"] is False
+    assert result["trade_signal_allowed"] is False
 
 
 def test_controlled_real_backtest_prototype_fixtures_do_not_contain_prohibited_content() -> None:

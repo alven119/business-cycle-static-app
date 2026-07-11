@@ -258,6 +258,12 @@ def build_runtime_response(
                 "governed_cycle_state_operator_route_count": 5,
                 "source_operations_route_count": 2,
                 "portfolio_replay_route_count": 4,
+                "strict_replay_backtest_status": trust.get(
+                    "strict_replay_backtest_status", "not_started"
+                ),
+                "research_backtest_result_count": trust.get(
+                    "research_backtest_result_count", 0
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -408,7 +414,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase124"
+    server_version = "BusinessCycleNAS/phase125"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

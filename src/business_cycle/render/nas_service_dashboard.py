@@ -122,11 +122,11 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "124" if runtime_live_mode else "95",
-        "phase_id": 124 if runtime_live_mode else 95,
+        "phase": "125" if runtime_live_mode else "95",
+        "phase_id": 125 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase124_portfolio_replay_lab_renderer"
+            "phase125_strict_replay_backtest_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),
@@ -207,7 +207,7 @@ def build_nas_service_dashboard_bundle(
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
         "development_next_phase": (
-            125
+            126
             if runtime_live_mode
             else int(contract["hard_gates"]["development_next_phase"])
         ),
@@ -309,14 +309,14 @@ def render_portfolio_research_page(
         </section>
         <div class="trust-ribbon"><span><b>Declared state</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
         <span><b>Legal next</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
-        <span><b>模板數</b> {len(view['template_cards'])}</span><span><b>執行狀態</b> 尚未執行回測</span></div>
+        <span><b>模板數</b> {len(view['template_cards'])}</span><span><b>研究結果</b> {int(view['research_backtest_result_count'])} 組</span></div>
         <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Live transition context</p>
         <h2>目前 evidence 如何限制配置研究</h2></div></div>
         <ul class="lane-evidence-items">{lane_rows}</ul>
         <p class="boundary-note">Watch 不等於 confirmation；即使 confirmation evidence 到位，也不會自動觸發配置動作。</p></section>
         <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Eight governed templates</p>
         <h2>書籍基準與研究替代方案</h2></div></div><div class="role-grid">{cards}</div></section>
-        <p class="boundary-note">research-only、backtest-only，不構成投資建議；未使用你的持倉、風險承受度或券商帳戶資料。</p>
+        <p class="boundary-note">Phase 125 結果僅為固定參數 sensitivity；NASDAQ-100 總報酬偏重科技，長債為 DGS10 duration model，均不得稱為書籍 benchmark。research-only、backtest-only，不構成投資建議。</p>
         """,
     )
 
@@ -342,12 +342,13 @@ def render_historical_replay_page(
         body=f"""
         <section class="command-header"><div><p class="eyebrow">Historical replay lab / input readiness</p>
         <h1>景氣循環歷史重播</h1><p class="lede">選擇事件、資料模式與月份，檢查當時可得 inputs、缺漏與應觀察角色。
-        Phase 124 不執行模型或績效回測；Phase 125 才會接入 strict replay 與 cash-flow-aware backtest。</p></div>
+        Phase 125 僅在官方 PIT inputs 完整的月份執行 evidence replay，並以 unitized NAV／XIRR 顯示固定參數 sensitivity；缺資料月份維持 abstain。</p></div>
         <p class="research-badge">研究重播，不是歷史績效結論</p></section>
         <div class="trust-ribbon"><span><b>情境</b> {len(view['scenario_rows'])}</span>
         <span><b>月度節點</b> {len(view['monthly_playhead_rows'])}</span>
         <span><b>PIT 完整月</b> {int(view['strict_complete_month_count'])}</span>
-        <span><b>PIT Abstain 月</b> {int(view['strict_abstention_month_count'])}</span></div>
+        <span><b>PIT Abstain 月</b> {int(view['strict_abstention_month_count'])}</span>
+        <span><b>Backtest 結果</b> {int(view['research_backtest_result_count'])}</span></div>
         <section class="content-band replay-console" aria-labelledby="replay-console-title">
           <div class="section-heading"><div><p class="section-kicker">Interactive playhead</p><h2 id="replay-console-title">事件月度檢視</h2></div></div>
           <div class="replay-controls">
@@ -357,7 +358,8 @@ def render_historical_replay_page(
           </div>
           <article class="replay-readout"><h3 id="replay-title"></h3><p id="replay-focus"></p>
           <dl class="learning-grid"><dt>月份</dt><dd id="replay-asof"></dd><dt>資料狀態</dt><dd id="replay-state"></dd>
-          <dt>可用／缺漏</dt><dd id="replay-counts"></dd><dt>Attribution</dt><dd id="replay-roles"></dd></dl>
+          <dt>可用／缺漏</dt><dd id="replay-counts"></dd><dt>Attribution</dt><dd id="replay-roles"></dd>
+          <dt>Strict evidence</dt><dd id="replay-evidence"></dd><dt>研究回測</dt><dd id="replay-backtest"></dd></dl>
           <p id="replay-caveat" class="boundary-note"></p></article>
         </section>
         <section class="content-band"><h2>預註冊歷史事件</h2><div class="role-grid">{scenario_cards}</div></section>
@@ -378,22 +380,34 @@ def _portfolio_template_card(row: dict[str, Any]) -> str:
         "passive_comparator": "被動比較基準",
         "future_cycle_research": "後續循環研究",
     }.get(str(row["relevance_status"]), str(row["relevance_status"]))
+    result_summary = row["research_result_summary"]
+    result_html = _result_range_html(result_summary)
     return f"""
     <article class="role-card"><p class="eyebrow">{escape(relevance)}</p>
       <h3>{escape(str(row['description_zh']))}</h3><p class="technical-id">{escape(str(row['template_id']))}</p>
       <p>{escape(str(row['research_parameter_label_zh']))}</p><div class="parameter-levels">{level_html}</div>
       <dl><dt>資產範圍</dt><dd>{escape(' / '.join(row['asset_universe']))}</dd>
-      <dt>分類</dt><dd>{escape(str(row['book_or_modern_classification']))}</dd></dl>
+      <dt>分類</dt><dd>{escape(str(row['book_or_modern_classification']))}</dd>
+      <dt>Phase 125 結果</dt><dd>{result_html}</dd></dl>
       <p class="boundary-note">backtest-only；不是目前配置建議。</p></article>
     """
 
 
 def _replay_scenario_card(row: dict[str, Any]) -> str:
+    metrics = row["result_metric_range"]
+    metric_html = (
+        _ratio_range_zh(metrics["annualized_twr"], "年化 TWR")
+        + "；"
+        + _ratio_range_zh(metrics["max_drawdown"], "最大回撤")
+        if metrics["annualized_twr"]
+        else "PIT inputs 不完整，依法 abstain"
+    )
     return f"""
     <article class="role-card"><p class="eyebrow">{escape(str(row['scenario_family']))}</p>
     <h3>{escape(str(row['title_zh']))}</h3><p>{escape(str(row['focus_zh']))}</p>
     <dl><dt>期間</dt><dd>{escape(str(row['window_start']))} – {escape(str(row['window_end']))}</dd>
-    <dt>月份</dt><dd>{int(row['month_count'])}</dd></dl></article>
+    <dt>月份</dt><dd>{int(row['month_count'])}</dd><dt>Strict replay</dt><dd>{'已執行' if row['strict_evidence_replay_executed'] else '未執行／abstain'}</dd>
+    <dt>固定參數結果</dt><dd>{int(row['research_backtest_result_count'])} 組；{metric_html}</dd></dl></article>
     """
 
 
@@ -421,7 +435,9 @@ def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
         document.getElementById('replay-state').textContent = strict ? row.strict_input_state : row.revised_comparison_state;
         document.getElementById('replay-counts').textContent = strict ? `${{row.strict_available_series_count}} 可用 / ${{row.strict_missing_series_count}} 缺漏` : '修訂後資料比較介面；尚未執行模型';
         document.getElementById('replay-roles').textContent = row.attribution_role_ids.join('、');
-        document.getElementById('replay-caveat').textContent = strict && row.strict_abstention_required ? '當月缺少官方 PIT inputs，正式 replay 必須 abstain，不能回退 revised。' : '此頁目前只顯示 input readiness，不輸出歷史 phase 或績效。';
+        document.getElementById('replay-evidence').textContent = row.strict_evidence_replay_executed ? Object.entries(row.strict_lane_states).map(([key, value]) => `${{key}}: ${{value}}`).join('；') : '未執行';
+        document.getElementById('replay-backtest').textContent = scenario.research_backtest_result_count ? `${{scenario.research_backtest_result_count}} 組固定參數 sensitivity` : '未執行';
+        document.getElementById('replay-caveat').textContent = strict && row.strict_abstention_required ? '當月缺少官方 PIT inputs，strict replay 必須 abstain，不能回退 revised。' : (row.strict_evidence_replay_executed ? '已執行 strict evidence replay；不輸出歷史 current phase。回測為固定參數研究，不是動態換倉結果。' : '此模式目前不輸出歷史 phase。');
       }}
       scenarioSelect.addEventListener('change', () => {{ playhead.value = 0; render(); }});
       modeSelect.addEventListener('change', render);
@@ -429,6 +445,25 @@ def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
       render();
     }})();
     """
+
+
+def _result_range_html(summary: dict[str, Any]) -> str:
+    if not summary["result_count"]:
+        return "尚無可安全執行結果"
+    return (
+        f"{int(summary['result_count'])} 組；"
+        + _ratio_range_zh(summary["annualized_twr_range"], "年化 TWR")
+        + "；"
+        + _ratio_range_zh(summary["max_drawdown_range"], "最大回撤")
+    )
+
+
+def _ratio_range_zh(value_range: dict[str, float] | None, label: str) -> str:
+    if not value_range:
+        return f"{label} 無"
+    minimum = float(value_range["minimum"]) * 100.0
+    maximum = float(value_range["maximum"]) * 100.0
+    return f"{label} {minimum:.1f}%～{maximum:.1f}%"
 
 
 def _technology_cycle_card(row: dict[str, Any]) -> str:

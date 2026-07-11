@@ -67,6 +67,14 @@ from business_cycle.render.nas_portfolio_replay_lab import (
 from business_cycle.transition_monitor.live_ordered_cycle_evidence import (
     build_live_ordered_cycle_evidence,
 )
+from business_cycle.audits.phase125_strict_replay_backtest_closure import (
+    build_phase125_fixture_timeline,
+    summarize_phase125_strict_replay_backtest_closure,
+)
+from business_cycle.render.nas_service_dashboard import (
+    render_historical_replay_page,
+    render_portfolio_research_page,
+)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -141,6 +149,45 @@ def test_phase124_nas_portfolio_and_replay_surfaces_are_operational_without_exec
     assert lab["backtest_execution_count"] == 0
     assert lab["candidate_phase_emitted"] is False
     assert lab["current_phase_emitted"] is False
+
+
+def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces() -> None:
+    summary = summarize_phase125_strict_replay_backtest_closure()
+    artifact = summary["artifact"]
+    snapshot = build_phase123_live_evidence_fixture_snapshot()
+    snapshot["source_release_diagnostics"] = {
+        "strict_replay_input_timeline": build_phase125_fixture_timeline(),
+        "strict_replay_backtest_status": artifact,
+    }
+    live = build_live_ordered_cycle_evidence(snapshot)
+    lab = build_nas_portfolio_replay_lab(snapshot, live_transition_evidence=live)
+    navigation = [
+        {"nav_id": "portfolio_research", "label_zh": "配置研究", "path": "/portfolio-research", "enabled": True},
+        {"nav_id": "historical_replay", "label_zh": "歷史重播", "path": "/historical-replay", "enabled": True},
+    ]
+    portfolio_html = render_portfolio_research_page(
+        lab["portfolio_research"], navigation=navigation
+    )
+    replay_html = render_historical_replay_page(
+        lab["historical_replay"], navigation=navigation
+    )
+
+    assert summary["result"] == "passed"
+    assert artifact["strict_replay_complete_scenario_count"] == 2
+    assert artifact["strict_replay_blocked_scenario_count"] == 3
+    assert artifact["evidence_replay_output_count"] == 48
+    assert artifact["research_backtest_result_count"] == 16
+    assert artifact["unitized_nav_result_count"] == 16
+    assert artifact["xirr_result_count"] == 16
+    assert artifact["book_benchmark_result_count"] == 0
+    assert lab["phase125_execution_connected"] is True
+    assert lab["phase125_research_backtest_result_count"] == 16
+    assert "16 組" in portfolio_html
+    assert "年化 TWR" in portfolio_html
+    assert "Strict evidence" in replay_html
+    assert "固定參數 sensitivity" in replay_html
+    assert artifact["candidate_phase_emitted"] is False
+    assert artifact["current_phase_emitted"] is False
 
 
 def test_research_dashboard_bundle_is_research_only_and_trusted() -> None:

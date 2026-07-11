@@ -45,6 +45,10 @@ from business_cycle.storage.nas_strict_replay_input_timeline import (
     DEFAULT_STATUS_PATH as DEFAULT_STRICT_REPLAY_TIMELINE_STATUS_PATH,
     load_nas_strict_replay_input_timeline_status,
 )
+from business_cycle.validation.nas_strict_replay_backtest import (
+    DEFAULT_STATUS_PATH as DEFAULT_STRICT_REPLAY_BACKTEST_STATUS_PATH,
+    load_nas_strict_replay_backtest_status,
+)
 
 
 def build_nas_live_dashboard_runtime(
@@ -59,6 +63,7 @@ def build_nas_live_dashboard_runtime(
     pit_backfill_status_path: str | None = None,
     broader_pit_status_path: str | None = None,
     strict_replay_timeline_status_path: str | None = None,
+    strict_replay_backtest_status_path: str | None = None,
 ) -> dict[str, Any]:
     """Build the live runtime; configured DB failures must not silently fall back."""
 
@@ -87,6 +92,11 @@ def build_nas_live_dashboard_runtime(
         strict_replay_timeline_status_path
         or DEFAULT_STRICT_REPLAY_TIMELINE_STATUS_PATH
     )
+    strict_replay_backtest_status = load_nas_strict_replay_backtest_status(
+        strict_replay_backtest_status_path
+        or os.environ.get("BUSINESS_CYCLE_STRICT_REPLAY_BACKTEST_STATUS_PATH")
+        or DEFAULT_STRICT_REPLAY_BACKTEST_STATUS_PATH
+    )
     snapshot = build_nas_live_postgres_dashboard_snapshot(
         database_url=resolved_url,
         executor=executor,
@@ -109,6 +119,9 @@ def build_nas_live_dashboard_runtime(
     )
     snapshot["source_release_diagnostics"]["strict_replay_input_timeline"] = (
         strict_replay_timeline_status
+    )
+    snapshot["source_release_diagnostics"]["strict_replay_backtest_status"] = (
+        strict_replay_backtest_status
     )
     snapshot["source_release_diagnostics"]["warehouse_mode_counts"] = {
         "observation_revised": snapshot["observation_revised_total_count"],
@@ -138,9 +151,9 @@ def build_nas_live_dashboard_runtime(
         portfolio_replay_lab["historical_replay"],
         navigation=dashboard["command_center"]["navigation"],
     )
-    shell["phase"] = "124"
-    shell["phase_id"] = 124
-    shell["artifact_id"] = "phase124_portfolio_replay_lab_runtime"
+    shell["phase"] = "125"
+    shell["phase_id"] = 125
+    shell["artifact_id"] = "phase125_strict_replay_backtest_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -215,6 +228,17 @@ def build_nas_live_dashboard_runtime(
         "historical_event_replay_route_operational": portfolio_replay_lab[
             "historical_event_replay_route_operational"
         ],
+        "strict_replay_backtest_status": strict_replay_backtest_status.get(
+            "result", "not_started"
+        ),
+        "strict_replay_executed_month_count": int(
+            strict_replay_backtest_status.get(
+                "strict_replay_executed_month_count", 0
+            )
+        ),
+        "research_backtest_result_count": int(
+            strict_replay_backtest_status.get("research_backtest_result_count", 0)
+        ),
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -278,8 +302,8 @@ def build_nas_live_dashboard_runtime(
         ],
     }
     runtime: dict[str, Any] = {
-        "phase": 124,
-        "artifact_id": "phase124_portfolio_replay_lab_runtime",
+        "phase": 125,
+        "artifact_id": "phase125_strict_replay_backtest_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -298,6 +322,7 @@ def build_nas_live_dashboard_runtime(
         "pit_backfill_status": pit_backfill_status,
         "broader_pit_status": broader_pit_status,
         "strict_replay_input_timeline_status": strict_replay_timeline_status,
+        "strict_replay_backtest_status": strict_replay_backtest_status,
         "refresh_state": refresh_status["refresh_state"],
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "source_release_diagnostics": snapshot["source_release_diagnostics"],
@@ -316,7 +341,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 125,
+        "development_next_phase": 126,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True

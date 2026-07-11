@@ -9,13 +9,14 @@ historical replay/backtest research surfaces. GitHub Pages deployment has been
 retired; the GitHub repository may remain as source control and CI during the
 NAS migration, but it is no longer the user-facing deployment target.
 
-Phase 124 adds private NAS routes for declared-phase-linked portfolio policy
-research and historical replay. The Traditional Chinese portfolio surface
-compares eight governed book/modern research templates against declared boom,
-legal next recession, and live transition evidence. The replay surface provides
-five preregistered events, strict PIT/revised mode separation, and a 156-month
-input-readiness playhead. This phase executes neither a model nor a backtest and
-does not emit a candidate or current phase.
+Phase 125 executes research-only strict PIT evidence replay for the two fully
+covered historical scenarios (48 months) and preserves explicit abstention for
+108 incomplete months. It also produces 16 cash-flow-aware constant-parameter
+sensitivity results with annual contributions, unitized NAV, XIRR, drawdown,
+turnover, and explicit source-risk lineage. NASDAQ-100 Total Return is labeled
+as a technology-heavy equity substitute and DGS10 is only a modeled long-
+Treasury proxy; neither is presented as a formal book benchmark. Candidate and
+current phase emission remain disabled.
 
 ## Current structure
 

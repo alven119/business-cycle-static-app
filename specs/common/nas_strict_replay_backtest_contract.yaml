@@ -1,0 +1,92 @@
+nas_strict_replay_backtest_contract:
+  version: "1.0"
+  status: active_private_nas_research_execution
+  phase_id: 125
+  phase_label: strict_pit_replay_and_cash_flow_aware_research_backtest
+  dependencies:
+    strict_timeline: specs/common/nas_strict_replay_input_timeline_contract.yaml
+    evidence_runtime: specs/common/nas_live_ordered_cycle_evidence_contract.yaml
+    cash_flow_kernel: specs/portfolio/cash_flow_aware_backtest_kernel_contract.yaml
+    portfolio_templates: specs/portfolio/portfolio_policy_template_fixtures.yaml
+    metric_registry: specs/portfolio/backtest_metric_formula_registry.yaml
+  strict_replay_policy:
+    scenario_count: 5
+    complete_scenario_count_required: 2
+    blocked_scenario_count_expected: 3
+    executable_month_count_expected: 48
+    abstention_month_count_expected: 108
+    revised_fallback_allowed: false
+    historical_labels_allowed: false
+    future_observations_allowed: false
+  market_data_policy:
+    observation_start: "1999-03-01"
+    sources:
+      equity:
+        series_id: NASDAQXNDX
+        source_family: FRED_licensed_Nasdaq
+        title: NASDAQ-100 Total Return
+        monthly_aggregation: last_available_daily_index
+        source_equivalence: supporting_substitute_not_book_benchmark
+        data_risk: medium_high_technology_concentration_and_copyright
+      cash:
+        series_id: DFF
+        source_family: Federal_Reserve_via_FRED
+        title: Effective Federal Funds Rate
+        monthly_aggregation: average_daily_rate_divided_by_1200
+        source_equivalence: research_cash_return_proxy
+        data_risk: medium_cash_proxy_not_investable_total_return
+      long_treasury_proxy:
+        series_id: DGS10
+        source_family: Federal_Reserve_via_FRED
+        title: 10-Year Treasury Constant Maturity Rate
+        monthly_aggregation: last_available_daily_yield_duration_model
+        source_equivalence: modeled_supporting_proxy_not_total_return_index
+        data_risk: high_duration_model_not_official_total_return
+    modeled_long_treasury_duration_years: 8.0
+    official_historical_long_treasury_total_return_available: false
+    book_benchmark_claim_allowed: false
+  backtest_assumptions:
+    result_scope: constant_parameter_sensitivity_only
+    initial_value: 100000.0
+    annual_contribution: 10000.0
+    annual_contribution_month: 1
+    rebalance_frequency: annual
+    transaction_cost_bps: 10.0
+    dynamic_transition_policy_execution_allowed: false
+    historical_transition_timeline_blocker: governed_state_timeline_not_available
+    parameter_runs_per_complete_scenario: 8
+  output_policy:
+    output_mode: research_only_private_nas_strict_replay_backtest
+    allowed_paths: [/tmp, /var/lib/business-cycle/source-artifacts/phase125]
+    public_output_allowed: false
+    repository_output_allowed: false
+    personalized_instruction_allowed: false
+    trade_signal_allowed: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+    no_tuning_from_results: true
+  hard_gates:
+    nas_strict_replay_backtest_contract_ready: true
+    strict_replay_scenario_count: 5
+    strict_replay_complete_scenario_count: 2
+    strict_replay_blocked_scenario_count: 3
+    strict_replay_executed_month_count: 48
+    strict_replay_abstention_month_count: 108
+    evidence_replay_output_count: 48
+    market_data_source_count: 3
+    source_substitution_risk_disclosed_count: 3
+    cash_flow_aware_kernel_ready: true
+    unitized_nav_result_count: 16
+    xirr_result_count: 16
+    research_backtest_result_count: 16
+    dynamic_transition_policy_execution_count: 0
+    book_benchmark_result_count: 0
+    revised_fallback_count: 0
+    historical_label_used_count: 0
+    current_allocation_recommendation_count: 0
+    trade_signal_output_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    prospective_registry_record_count: 0
+    semantic_drift_count: 0

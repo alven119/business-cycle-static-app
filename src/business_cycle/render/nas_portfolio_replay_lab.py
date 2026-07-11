@@ -57,12 +57,20 @@ def build_nas_portfolio_replay_lab(
 
     contract = load_nas_portfolio_replay_lab_contract(contract_path)
     declared = dict(snapshot.get("declared_cycle_state", {}))
+    phase125_execution = snapshot.get("source_release_diagnostics", {}).get(
+        "strict_replay_backtest_status", {}
+    )
     portfolio = _portfolio_view(
         contract=contract,
         declared=declared,
         live_transition_evidence=live_transition_evidence,
+        phase125_execution=phase125_execution,
     )
-    replay = _replay_view(contract=contract, snapshot=snapshot)
+    replay = _replay_view(
+        contract=contract,
+        snapshot=snapshot,
+        phase125_execution=phase125_execution,
+    )
     artifact: dict[str, Any] = {
         "artifact_id": "phase124_nas_portfolio_replay_lab_v1",
         "artifact_version": contract["version"],
@@ -103,6 +111,14 @@ def build_nas_portfolio_replay_lab(
         "model_execution_count": 0,
         "backtest_execution_count": 0,
         "metric_computation_count": 0,
+        "phase125_execution_connected": phase125_execution.get("result")
+        == "passed",
+        "phase125_research_backtest_result_count": int(
+            phase125_execution.get("research_backtest_result_count", 0)
+        ),
+        "phase125_evidence_replay_output_count": int(
+            phase125_execution.get("evidence_replay_output_count", 0)
+        ),
         "candidate_phase_emitted": False,
         "current_phase_emitted": False,
         "production_behavior_change_count": 0,
@@ -124,6 +140,8 @@ def build_nas_portfolio_replay_lab(
             "declared_state_not_inferred": True,
             "portfolio_templates_are_backtest_parameters": True,
             "historical_replay_is_input_readiness_only": True,
+            "phase125_execution_connected": phase125_execution.get("result")
+            == "passed",
             "strict_revised_fallback_allowed": False,
             "model_executed": False,
             "backtest_executed": False,
@@ -144,11 +162,15 @@ def _portfolio_view(
     contract: dict[str, Any],
     declared: dict[str, Any],
     live_transition_evidence: dict[str, Any],
+    phase125_execution: dict[str, Any],
 ) -> dict[str, Any]:
     baseline = summarize_portfolio_policy_research_baseline()
     surface = build_portfolio_policy_replay_research_surface_view_model()
     parameters = _template_parameters()
     policy = contract["portfolio_policy"]
+    execution_results = list(
+        phase125_execution.get("research_backtest_results", [])
+    )
     cards = []
     for row in baseline["templates"]:
         template_id = str(row["template_id"])
@@ -169,6 +191,9 @@ def _portfolio_view(
                 "book_or_modern_classification": row["template_family"],
                 "research_parameter_levels_percent": parameters.get(template_id, []),
                 "research_parameter_label_zh": _parameter_label(template_id),
+                "research_result_summary": _template_result_summary(
+                    template_id, execution_results
+                ),
                 "current_allocation_recommendation_allowed": False,
                 "personalized_trade_instruction_allowed": False,
             }
@@ -200,6 +225,19 @@ def _portfolio_view(
             "portfolio_policy_replay_research_surface_ready"
         ],
         "book_parameter_grid_is_current_instruction": False,
+        "phase125_execution_status": phase125_execution.get(
+            "result", "not_started"
+        ),
+        "research_backtest_result_count": len(execution_results),
+        "market_data_lineage": list(
+            phase125_execution.get("market_data_lineage", [])
+        ),
+        "book_benchmark_result_count": int(
+            phase125_execution.get("book_benchmark_result_count", 0)
+        ),
+        "dynamic_transition_policy_execution_count": int(
+            phase125_execution.get("dynamic_transition_policy_execution_count", 0)
+        ),
         "research_only": True,
     }
 
@@ -208,6 +246,7 @@ def _replay_view(
     *,
     contract: dict[str, Any],
     snapshot: dict[str, Any],
+    phase125_execution: dict[str, Any],
 ) -> dict[str, Any]:
     manifest = load_historical_validation_scenario_manifest()
     scenario_display = contract["replay_policy"]["scenario_display"]
@@ -218,11 +257,19 @@ def _replay_view(
         (str(row["scenario_id"]), str(row["as_of"])): row
         for row in strict_status.get("timeline_rows", [])
     }
+    evidence_by_key = {
+        (str(row["scenario_id"]), str(row["as_of"])): row
+        for row in phase125_execution.get("evidence_replay_rows", [])
+    }
+    result_rows = list(phase125_execution.get("research_backtest_results", []))
     scenarios = []
     playhead_rows = []
     for scenario in manifest["scenario_rows"]:
         scenario_id = str(scenario["scenario_id"])
         display = scenario_display[scenario_id]
+        scenario_results = [
+            row for row in result_rows if str(row["scenario_id"]) == scenario_id
+        ]
         months = _month_ends(
             str(scenario["validation_window_start"]),
             str(scenario["validation_window_end"]),
@@ -237,10 +284,16 @@ def _replay_view(
                 "window_end": scenario["validation_window_end"],
                 "month_count": len(months),
                 "attribution_role_ids": list(display["attribution_role_ids"]),
+                "strict_evidence_replay_executed": any(
+                    key[0] == scenario_id for key in evidence_by_key
+                ),
+                "research_backtest_result_count": len(scenario_results),
+                "result_metric_range": _scenario_metric_range(scenario_results),
             }
         )
         for month_end in months:
             strict = strict_by_key.get((scenario_id, month_end))
+            evidence = evidence_by_key.get((scenario_id, month_end))
             playhead_rows.append(
                 {
                     "scenario_id": scenario_id,
@@ -263,8 +316,15 @@ def _replay_view(
                         "revised_diagnostic_navigation_ready_no_model_execution"
                     ),
                     "attribution_role_ids": list(display["attribution_role_ids"]),
-                    "model_executed": False,
-                    "backtest_executed": False,
+                    "strict_evidence_replay_executed": evidence is not None,
+                    "strict_lane_states": (
+                        dict(evidence["lane_states"]) if evidence else {}
+                    ),
+                    "strict_role_states": (
+                        dict(evidence["role_states"]) if evidence else {}
+                    ),
+                    "model_executed": evidence is not None,
+                    "backtest_executed": bool(scenario_results),
                     "candidate_phase_emitted": False,
                     "current_phase_emitted": False,
                 }
@@ -293,8 +353,51 @@ def _replay_view(
             strict_status.get("abstention_month_count", len(playhead_rows))
         ),
         "historical_result_emitted": False,
+        "phase125_execution_status": phase125_execution.get(
+            "result", "not_started"
+        ),
+        "strict_evidence_replay_output_count": len(evidence_by_key),
+        "research_backtest_result_count": len(result_rows),
+        "dynamic_transition_policy_execution_count": int(
+            phase125_execution.get("dynamic_transition_policy_execution_count", 0)
+        ),
         "research_only": True,
     }
+
+
+def _template_result_summary(
+    template_id: str,
+    results: list[dict[str, Any]],
+) -> dict[str, Any]:
+    rows = [row for row in results if row["policy_template_id"] == template_id]
+    return {
+        "result_count": len(rows),
+        "scenario_count": len({row["scenario_id"] for row in rows}),
+        "annualized_twr_range": _range(
+            [row["metrics"]["annualized_time_weighted_return"] for row in rows]
+        ),
+        "max_drawdown_range": _range(
+            [row["metrics"]["max_drawdown_on_unitized_nav"] for row in rows]
+        ),
+        "result_scope": "constant_parameter_sensitivity_only",
+    }
+
+
+def _scenario_metric_range(results: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "annualized_twr": _range(
+            [row["metrics"]["annualized_time_weighted_return"] for row in results]
+        ),
+        "max_drawdown": _range(
+            [row["metrics"]["max_drawdown_on_unitized_nav"] for row in results]
+        ),
+    }
+
+
+def _range(values: list[float]) -> dict[str, float] | None:
+    if not values:
+        return None
+    return {"minimum": min(values), "maximum": max(values)}
 
 
 def _template_parameters() -> dict[str, list[int]]:
