@@ -58,6 +58,15 @@ from business_cycle.render.portfolio_policy_replay_research_surface import (
 from business_cycle.cycle_state.declared_phase_start_confirmation import (
     build_declared_phase_start_confirmation_view_model,
 )
+from business_cycle.audits.phase123_live_ordered_cycle_evidence_closure import (
+    build_phase123_live_evidence_fixture_snapshot,
+)
+from business_cycle.render.nas_portfolio_replay_lab import (
+    build_nas_portfolio_replay_lab,
+)
+from business_cycle.transition_monitor.live_ordered_cycle_evidence import (
+    build_live_ordered_cycle_evidence,
+)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -101,6 +110,37 @@ def test_research_dashboard_bundle_reconciles_authoritative_counts() -> None:
     assert summary["candidate_phase_emitted"] is False
     assert summary["current_phase_emitted"] is False
     assert summary["label_used_by_runtime_count"] == 0
+
+
+def test_phase124_nas_portfolio_and_replay_surfaces_are_operational_without_execution() -> None:
+    snapshot = build_phase123_live_evidence_fixture_snapshot()
+    snapshot["source_release_diagnostics"] = {
+        "strict_replay_input_timeline": {
+            "complete_month_count": 0,
+            "abstention_month_count": 156,
+            "timeline_rows": [],
+        }
+    }
+    live = build_live_ordered_cycle_evidence(snapshot)
+
+    lab = build_nas_portfolio_replay_lab(
+        snapshot,
+        live_transition_evidence=live,
+    )
+
+    assert lab["result"] == "passed"
+    assert lab["policy_template_count"] == 8
+    assert lab["scenario_count"] == 5
+    assert lab["monthly_playhead_row_count"] == 156
+    assert lab["replay_data_mode_count"] == 2
+    assert lab["portfolio_research_route_operational"] is True
+    assert lab["historical_event_replay_route_operational"] is True
+    assert lab["strict_revised_fallback_count"] == 0
+    assert lab["current_allocation_recommendation_count"] == 0
+    assert lab["model_execution_count"] == 0
+    assert lab["backtest_execution_count"] == 0
+    assert lab["candidate_phase_emitted"] is False
+    assert lab["current_phase_emitted"] is False
 
 
 def test_research_dashboard_bundle_is_research_only_and_trusted() -> None:

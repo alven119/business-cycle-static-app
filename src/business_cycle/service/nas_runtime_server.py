@@ -257,6 +257,7 @@ def build_runtime_response(
                 ),
                 "governed_cycle_state_operator_route_count": 5,
                 "source_operations_route_count": 2,
+                "portfolio_replay_route_count": 4,
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -314,6 +315,13 @@ def build_runtime_response(
     )
     if technology_response is not None:
         return technology_response
+    portfolio_replay_response = _portfolio_replay_response(
+        path=normalized_path,
+        method=normalized_method,
+        shell=shell,
+    )
+    if portfolio_replay_response is not None:
+        return portfolio_replay_response
     if normalized_method != "GET":
         return _json_response(405, {"error": "method_not_allowed", "research_only": True})
 
@@ -400,7 +408,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase123"
+    server_version = "BusinessCycleNAS/phase124"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -655,6 +663,70 @@ def _technology_cycle_response(
         "application/json",
         json.dumps(view, sort_keys=True),
         route_id="technology_manufacturing_cycle_api",
+    )
+
+
+def _portfolio_replay_response(
+    *,
+    path: str,
+    method: str,
+    shell: dict[str, Any] | None,
+) -> RuntimeResponse | None:
+    routes = {
+        "/portfolio-research",
+        "/api/portfolio-research.json",
+        "/historical-replay",
+        "/api/historical-replay.json",
+    }
+    if path not in routes:
+        return None
+    if method != "GET":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+    resolved = shell or {}
+    lab = resolved.get("portfolio_replay_lab")
+    if not isinstance(lab, dict):
+        return _json_response(
+            503,
+            {
+                "error": "portfolio_replay_lab_not_available",
+                "research_only": True,
+                "private_nas_only": True,
+            },
+        )
+    if path == "/portfolio-research":
+        html_page = resolved.get("portfolio_research_html")
+        if not isinstance(html_page, str) or not html_page:
+            return _json_response(503, {"error": "portfolio_renderer_unavailable"})
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            html_page,
+            route_id="nas_portfolio_research_page",
+        )
+    if path == "/historical-replay":
+        html_page = resolved.get("historical_replay_html")
+        if not isinstance(html_page, str) or not html_page:
+            return _json_response(503, {"error": "historical_replay_renderer_unavailable"})
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            html_page,
+            route_id="nas_historical_replay_page",
+        )
+    view = (
+        lab["portfolio_research"]
+        if path == "/api/portfolio-research.json"
+        else lab["historical_replay"]
+    )
+    return RuntimeResponse(
+        200,
+        "application/json",
+        json.dumps(view, sort_keys=True),
+        route_id=(
+            "nas_portfolio_research_api"
+            if path == "/api/portfolio-research.json"
+            else "nas_historical_replay_api"
+        ),
     )
 
 

@@ -16,6 +16,9 @@ from business_cycle.audits.product_capability_progress import (
 from business_cycle.render.nas_cycle_command_center import (
     build_nas_cycle_command_center,
 )
+from business_cycle.render.nas_portfolio_replay_lab import (
+    build_nas_portfolio_replay_lab,
+)
 from business_cycle.render.technology_manufacturing_cycle import (
     build_technology_manufacturing_cycle_view,
 )
@@ -79,6 +82,7 @@ def build_nas_service_dashboard_bundle(
         live_transition_evidence=live_transition_evidence,
     )
     technology_cycle = None
+    portfolio_replay_lab = None
     if runtime_live_mode:
         command_center["navigation"].insert(
             3,
@@ -89,7 +93,16 @@ def build_nas_service_dashboard_bundle(
                 "enabled": True,
             },
         )
+        for nav in command_center["navigation"]:
+            if nav["nav_id"] == "historical_replay":
+                nav |= {"path": "/historical-replay", "enabled": True, "planned_phase": 124}
+            elif nav["nav_id"] == "portfolio_research":
+                nav |= {"path": "/portfolio-research", "enabled": True, "planned_phase": 124}
         technology_cycle = build_technology_manufacturing_cycle_view(snapshot)
+        portfolio_replay_lab = build_nas_portfolio_replay_lab(
+            snapshot,
+            live_transition_evidence=live_transition_evidence,
+        )
     routes = _route_manifest(contract)
     api_payloads = _api_payloads(
         snapshot=snapshot,
@@ -109,11 +122,11 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "123" if runtime_live_mode else "95",
-        "phase_id": 123 if runtime_live_mode else 95,
+        "phase": "124" if runtime_live_mode else "95",
+        "phase_id": 124 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase123_live_ordered_cycle_evidence_renderer"
+            "phase124_portfolio_replay_lab_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),
@@ -132,6 +145,7 @@ def build_nas_service_dashboard_bundle(
         "command_center": command_center,
         "live_ordered_cycle_evidence": live_transition_evidence,
         "technology_manufacturing_cycle": technology_cycle,
+        "portfolio_replay_lab": portfolio_replay_lab,
         "trust_metadata": _trust_metadata(contract=contract, snapshot=snapshot),
         "allowed_uses": contract["allowed_uses"],
         "prohibited_uses": contract["prohibited_uses"],
@@ -193,7 +207,7 @@ def build_nas_service_dashboard_bundle(
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
         "development_next_phase": (
-            124
+            125
             if runtime_live_mode
             else int(contract["hard_gates"]["development_next_phase"])
         ),
@@ -204,6 +218,7 @@ def build_nas_service_dashboard_bundle(
             "snapshot_manifest_hash": bundle["snapshot_manifest_hash"],
             "routes": routes,
             "api_payloads": api_payloads,
+            "portfolio_replay_lab": portfolio_replay_lab,
             "html_pages": [
                 {"page_id": page["page_id"], "html_hash": _hash_payload(page["html"])}
                 for page in html_pages
@@ -264,6 +279,156 @@ def render_technology_manufacturing_cycle_page(
         所有序列均為名目金額，年增率受價格、匯率、基期與修訂影響。</p>
         """,
     )
+
+
+def render_portfolio_research_page(
+    view: dict[str, Any],
+    *,
+    navigation: list[dict[str, Any]],
+) -> str:
+    """Render declared-phase-linked research templates without advice wording."""
+
+    cards = "".join(_portfolio_template_card(row) for row in view["template_cards"])
+    lane_rows = "".join(
+        f"<li><strong>{escape(str(lane_id))}</strong>"
+        f"<span>{escape(str(row['lane_status']))}</span></li>"
+        for lane_id, row in view["live_transition_lane_context"].items()
+    )
+    return _html_document(
+        title="配置研究",
+        active_nav_id="portfolio_research",
+        navigation=navigation,
+        body=f"""
+        <section class="command-header">
+          <div><p class="eyebrow">Book policy research / private NAS</p>
+          <h1>景氣循環配置研究</h1>
+          <p class="lede">以 declared {escape(str(view['declared_current_phase_label_zh']))} 與合法下一階段
+          {escape(str(view['legal_next_phase_label_zh']))} 為研究脈絡，比較書籍模板與防守替代方案。
+          這些比例是 backtest-only 參數，不是你的目前配置建議。</p></div>
+          <p class="research-badge">研究模板，不是交易指令</p>
+        </section>
+        <div class="trust-ribbon"><span><b>Declared state</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
+        <span><b>Legal next</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
+        <span><b>模板數</b> {len(view['template_cards'])}</span><span><b>執行狀態</b> 尚未執行回測</span></div>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Live transition context</p>
+        <h2>目前 evidence 如何限制配置研究</h2></div></div>
+        <ul class="lane-evidence-items">{lane_rows}</ul>
+        <p class="boundary-note">Watch 不等於 confirmation；即使 confirmation evidence 到位，也不會自動觸發配置動作。</p></section>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Eight governed templates</p>
+        <h2>書籍基準與研究替代方案</h2></div></div><div class="role-grid">{cards}</div></section>
+        <p class="boundary-note">research-only、backtest-only，不構成投資建議；未使用你的持倉、風險承受度或券商帳戶資料。</p>
+        """,
+    )
+
+
+def render_historical_replay_page(
+    view: dict[str, Any],
+    *,
+    navigation: list[dict[str, Any]],
+) -> str:
+    """Render an interactive scenario/mode/month input-readiness replay lab."""
+
+    scenarios_json = json.dumps(view["scenario_rows"], ensure_ascii=False).replace("</", "<\\/")
+    rows_json = json.dumps(view["monthly_playhead_rows"], ensure_ascii=False).replace("</", "<\\/")
+    options = "".join(
+        f'<option value="{escape(str(row["scenario_id"]))}">{escape(str(row["title_zh"]))}</option>'
+        for row in view["scenario_rows"]
+    )
+    scenario_cards = "".join(_replay_scenario_card(row) for row in view["scenario_rows"])
+    return _html_document(
+        title="歷史重播",
+        active_nav_id="historical_replay",
+        navigation=navigation,
+        body=f"""
+        <section class="command-header"><div><p class="eyebrow">Historical replay lab / input readiness</p>
+        <h1>景氣循環歷史重播</h1><p class="lede">選擇事件、資料模式與月份，檢查當時可得 inputs、缺漏與應觀察角色。
+        Phase 124 不執行模型或績效回測；Phase 125 才會接入 strict replay 與 cash-flow-aware backtest。</p></div>
+        <p class="research-badge">研究重播，不是歷史績效結論</p></section>
+        <div class="trust-ribbon"><span><b>情境</b> {len(view['scenario_rows'])}</span>
+        <span><b>月度節點</b> {len(view['monthly_playhead_rows'])}</span>
+        <span><b>PIT 完整月</b> {int(view['strict_complete_month_count'])}</span>
+        <span><b>PIT Abstain 月</b> {int(view['strict_abstention_month_count'])}</span></div>
+        <section class="content-band replay-console" aria-labelledby="replay-console-title">
+          <div class="section-heading"><div><p class="section-kicker">Interactive playhead</p><h2 id="replay-console-title">事件月度檢視</h2></div></div>
+          <div class="replay-controls">
+            <label>歷史事件<select id="replay-scenario">{options}</select></label>
+            <label>資料模式<select id="replay-mode"><option value="vintage_as_of">當時可得資料（PIT）</option><option value="revised_declared_comparison_only">修訂後診斷比較</option></select></label>
+            <label>月份<input id="replay-playhead" type="range" min="0" max="0" value="0"><output id="replay-date"></output></label>
+          </div>
+          <article class="replay-readout"><h3 id="replay-title"></h3><p id="replay-focus"></p>
+          <dl class="learning-grid"><dt>月份</dt><dd id="replay-asof"></dd><dt>資料狀態</dt><dd id="replay-state"></dd>
+          <dt>可用／缺漏</dt><dd id="replay-counts"></dd><dt>Attribution</dt><dd id="replay-roles"></dd></dl>
+          <p id="replay-caveat" class="boundary-note"></p></article>
+        </section>
+        <section class="content-band"><h2>預註冊歷史事件</h2><div class="role-grid">{scenario_cards}</div></section>
+        <script type="application/json" id="replay-scenarios">{scenarios_json}</script>
+        <script type="application/json" id="replay-rows">{rows_json}</script>
+        <script>{_replay_interaction_script(view['default_scenario_id'], view['default_data_mode'])}</script>
+        """,
+    )
+
+
+def _portfolio_template_card(row: dict[str, Any]) -> str:
+    levels = row.get("research_parameter_levels_percent", [])
+    level_html = "".join(f"<span>{int(value)}%</span>" for value in levels) or "<span>尚待 Phase 125 運算</span>"
+    relevance = {
+        "declared_boom_primary_research": "Declared 榮景主要研究",
+        "declared_boom_alternative_research": "Declared 榮景替代研究",
+        "legal_next_recession_research": "合法下一階段研究",
+        "passive_comparator": "被動比較基準",
+        "future_cycle_research": "後續循環研究",
+    }.get(str(row["relevance_status"]), str(row["relevance_status"]))
+    return f"""
+    <article class="role-card"><p class="eyebrow">{escape(relevance)}</p>
+      <h3>{escape(str(row['description_zh']))}</h3><p class="technical-id">{escape(str(row['template_id']))}</p>
+      <p>{escape(str(row['research_parameter_label_zh']))}</p><div class="parameter-levels">{level_html}</div>
+      <dl><dt>資產範圍</dt><dd>{escape(' / '.join(row['asset_universe']))}</dd>
+      <dt>分類</dt><dd>{escape(str(row['book_or_modern_classification']))}</dd></dl>
+      <p class="boundary-note">backtest-only；不是目前配置建議。</p></article>
+    """
+
+
+def _replay_scenario_card(row: dict[str, Any]) -> str:
+    return f"""
+    <article class="role-card"><p class="eyebrow">{escape(str(row['scenario_family']))}</p>
+    <h3>{escape(str(row['title_zh']))}</h3><p>{escape(str(row['focus_zh']))}</p>
+    <dl><dt>期間</dt><dd>{escape(str(row['window_start']))} – {escape(str(row['window_end']))}</dd>
+    <dt>月份</dt><dd>{int(row['month_count'])}</dd></dl></article>
+    """
+
+
+def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
+    return f"""
+    (() => {{
+      const scenarios = JSON.parse(document.getElementById('replay-scenarios').textContent);
+      const rows = JSON.parse(document.getElementById('replay-rows').textContent);
+      const scenarioSelect = document.getElementById('replay-scenario');
+      const modeSelect = document.getElementById('replay-mode');
+      const playhead = document.getElementById('replay-playhead');
+      scenarioSelect.value = {json.dumps(default_scenario)};
+      modeSelect.value = {json.dumps(default_mode)};
+      function render() {{
+        const scenario = scenarios.find(row => row.scenario_id === scenarioSelect.value);
+        const timeline = rows.filter(row => row.scenario_id === scenario.scenario_id);
+        playhead.max = Math.max(0, timeline.length - 1);
+        playhead.value = Math.min(Number(playhead.value), Number(playhead.max));
+        const row = timeline[Number(playhead.value)] || timeline[0];
+        const strict = modeSelect.value === 'vintage_as_of';
+        document.getElementById('replay-title').textContent = scenario.title_zh;
+        document.getElementById('replay-focus').textContent = scenario.focus_zh;
+        document.getElementById('replay-date').textContent = row.as_of;
+        document.getElementById('replay-asof').textContent = row.as_of;
+        document.getElementById('replay-state').textContent = strict ? row.strict_input_state : row.revised_comparison_state;
+        document.getElementById('replay-counts').textContent = strict ? `${{row.strict_available_series_count}} 可用 / ${{row.strict_missing_series_count}} 缺漏` : '修訂後資料比較介面；尚未執行模型';
+        document.getElementById('replay-roles').textContent = row.attribution_role_ids.join('、');
+        document.getElementById('replay-caveat').textContent = strict && row.strict_abstention_required ? '當月缺少官方 PIT inputs，正式 replay 必須 abstain，不能回退 revised。' : '此頁目前只顯示 input readiness，不輸出歷史 phase 或績效。';
+      }}
+      scenarioSelect.addEventListener('change', () => {{ playhead.value = 0; render(); }});
+      modeSelect.addEventListener('change', render);
+      playhead.addEventListener('input', render);
+      render();
+    }})();
+    """
 
 
 def _technology_cycle_card(row: dict[str, Any]) -> str:
@@ -1319,6 +1484,14 @@ def _html_document(
     .evidence-state {{ font-weight: 750; }}
     .why-not {{ margin: 10px 0; font-size: .72rem; }}
     .why-not summary {{ cursor: pointer; color: var(--blue); font-weight: 700; }}
+    .parameter-levels {{ display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }}
+    .parameter-levels span {{ padding: 5px 8px; border: 1px solid var(--blue); color: var(--blue); font-weight: 750; }}
+    .replay-console {{ border-top: 3px solid var(--blue); }}
+    .replay-controls {{ display: grid; grid-template-columns: 1fr; gap: 12px; margin: 16px 0; }}
+    .replay-controls label {{ display: grid; gap: 6px; color: var(--muted); font-size: .78rem; font-weight: 700; }}
+    .replay-controls select {{ min-height: 40px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 7px; }}
+    .replay-controls input {{ width: 100%; }}
+    .replay-readout {{ padding: 16px; border: 1px solid var(--line); background: var(--paper); }}
     .lane-role-links {{ display: flex; flex-wrap: wrap; gap: 5px; }}
     .lane-role-links a {{ border: 1px solid var(--line); padding: 3px 5px; color: var(--blue); font-size: .65rem; overflow-wrap: anywhere; }}
     .priority-indicator-list {{ display: grid; border-top: 1px solid var(--line); }}
@@ -1378,6 +1551,7 @@ def _html_document(
       .lane-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
       .priority-indicator {{ grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(100px, .8fr) minmax(130px, .8fr); align-items: center; }}
       .chart-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+      .replay-controls {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
     }}
     @media (min-width: 980px) {{
       .app-shell {{ display: grid; grid-template-columns: 220px minmax(0, 1fr); }}

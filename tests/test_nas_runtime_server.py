@@ -462,3 +462,54 @@ def test_phase122_technology_cycle_routes_are_private_research_only() -> None:
     assert api.status_code == 200
     assert api.route_id == "technology_manufacturing_cycle_api"
     assert '"candidate_phase_emitted": false' in api.body
+
+
+def test_phase124_portfolio_and_replay_routes_are_private_and_research_only() -> None:
+    shell = {
+        "portfolio_replay_lab": {
+            "portfolio_research": {"research_only": True, "template_cards": []},
+            "historical_replay": {"research_only": True, "scenario_rows": []},
+        },
+        "portfolio_research_html": "<h1>景氣循環配置研究</h1>",
+        "historical_replay_html": "<h1>景氣循環歷史重播</h1>",
+    }
+    headers = {"X-Business-Cycle-Session": "expected-secret"}
+
+    unauthorized = build_runtime_response(
+        path="/portfolio-research",
+        session_secret="expected-secret",
+        shell=shell,
+    )
+    portfolio = build_runtime_response(
+        path="/portfolio-research",
+        session_secret="expected-secret",
+        headers=headers,
+        shell=shell,
+    )
+    replay = build_runtime_response(
+        path="/historical-replay",
+        session_secret="expected-secret",
+        headers=headers,
+        shell=shell,
+    )
+    portfolio_api = build_runtime_response(
+        path="/api/portfolio-research.json",
+        session_secret="expected-secret",
+        headers=headers,
+        shell=shell,
+    )
+    replay_api = build_runtime_response(
+        path="/api/historical-replay.json",
+        session_secret="expected-secret",
+        headers=headers,
+        shell=shell,
+    )
+
+    assert unauthorized.status_code == 401
+    assert portfolio.status_code == replay.status_code == 200
+    assert portfolio.route_id == "nas_portfolio_research_page"
+    assert replay.route_id == "nas_historical_replay_page"
+    assert portfolio_api.route_id == "nas_portfolio_research_api"
+    assert replay_api.route_id == "nas_historical_replay_api"
+    assert '"research_only": true' in portfolio_api.body
+    assert '"research_only": true' in replay_api.body

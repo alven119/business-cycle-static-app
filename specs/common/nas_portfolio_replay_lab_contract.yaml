@@ -1,0 +1,96 @@
+nas_portfolio_replay_lab_contract:
+  version: "1.0"
+  status: active_private_nas_research_product_surface
+  phase_id: 124
+  phase_label: portfolio_research_and_historical_replay_interactive_surface
+  dependencies:
+    declared_cycle_state: specs/common/declared_cycle_state_registry.yaml
+    live_ordered_cycle_evidence: specs/common/nas_live_ordered_cycle_evidence_contract.yaml
+    portfolio_policy_surface: specs/common/portfolio_policy_replay_research_surface.yaml
+    historical_scenario_manifest: specs/audits/historical_validation_scenario_manifest.yaml
+    strict_replay_timeline: specs/common/nas_strict_replay_input_timeline_contract.yaml
+  portfolio_policy:
+    template_count: 8
+    declared_phase: boom
+    legal_next_phase: recession
+    default_research_template_id: boom_70_50_30_template
+    passive_comparator_template_id: passive_all_stock_baseline
+    declared_phase_relevant_template_ids:
+      - boom_70_50_30_template
+      - stock_cash_initial
+      - stock_cash_advanced
+      - stock_long_treasury_initial
+      - stock_long_treasury_advanced
+    legal_next_transition_template_ids:
+      - recession_defense_research_template
+    parameter_display_policy:
+      backtest_only_levels_may_be_displayed: true
+      current_allocation_recommendation_allowed: false
+      personalized_trade_instruction_allowed: false
+  replay_policy:
+    scenario_count: 5
+    expected_month_end_row_count: 156
+    data_modes:
+      - vintage_as_of
+      - revised_declared_comparison_only
+    default_scenario_id: late_cycle_2018_2019
+    default_data_mode: vintage_as_of
+    monthly_playhead_enabled: true
+    revised_fallback_for_vintage_allowed: false
+    scenario_display:
+      dotcom_cycle_2000_2003:
+        title_zh: 網路泡沫循環（2000–2003）
+        focus_zh: 觀察榮景結束、衰退確認與後續復甦的證據順序。
+        attribution_role_ids: [boom_claims_u_shape, boom_private_investment, boom_retail_sales_vs_broad_pce, recession_employment_confirmation, recession_consumption_confirmation]
+      global_financial_crisis_2007_2009:
+        title_zh: 全球金融危機（2007–2009）
+        focus_zh: 觀察金融壓力下實體就業、消費與投資確認是否完整。
+        attribution_role_ids: [boom_private_investment, boom_personal_delinquency_or_default, boom_corporate_delinquency_or_default, recession_employment_confirmation, recession_consumption_confirmation]
+      covid_recession_2020:
+        title_zh: COVID 外生衝擊（2020–2021）
+        focus_zh: 觀察極短且劇烈的外生衝擊，並保留 shock caveat。
+        attribution_role_ids: [boom_claims_u_shape, recession_employment_confirmation, recession_consumption_confirmation, trough_claims_reversal, trough_labor_reversal]
+      euro_debt_slowdown_2011_2012:
+        title_zh: 歐債危機與二次衰退疑慮（2011–2012）
+        focus_zh: 觀察 slowdown watch 為何可能不形成美國衰退確認。
+        attribution_role_ids: [recession_employment_confirmation, recession_consumption_confirmation, trough_policy_financial_not_sufficient_alone]
+      late_cycle_2018_2019:
+        title_zh: 2018 升息與貿易戰壓力（2018–2019）
+        focus_zh: 觀察 late-cycle watch、榮景延續與衰退確認之間的差異。
+        attribution_role_ids: [boom_claims_u_shape, boom_private_investment, boom_retail_sales_vs_broad_pce, recession_employment_confirmation, recession_consumption_confirmation]
+  routes:
+    - {path: /portfolio-research, output_kind: html}
+    - {path: /api/portfolio-research.json, output_kind: json}
+    - {path: /historical-replay, output_kind: html}
+    - {path: /api/historical-replay.json, output_kind: json}
+  output_policy:
+    output_mode: research_only_private_nas_portfolio_and_replay
+    private_nas_only: true
+    public_output_allowed: false
+    model_execution_allowed: false
+    backtest_execution_allowed: false
+    metric_computation_allowed: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+  hard_gates:
+    nas_portfolio_replay_lab_contract_ready: true
+    portfolio_research_route_operational: true
+    historical_event_replay_route_operational: true
+    book_template_and_modern_extension_separated: true
+    declared_phase_context_connected: true
+    live_transition_context_connected: true
+    policy_template_count: 8
+    scenario_count: 5
+    monthly_playhead_row_count: 156
+    replay_data_mode_count: 2
+    revised_pit_mode_separation_valid: true
+    strict_revised_fallback_count: 0
+    current_allocation_recommendation_count: 0
+    personalized_trade_instruction_count: 0
+    model_execution_count: 0
+    backtest_execution_count: 0
+    metric_computation_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
