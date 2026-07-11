@@ -9,8 +9,8 @@ product_capability_progress:
     is found, code is removed or broken, or the user explicitly expands the
     capability definition. Any decrease must include decrease_reason_zh in the
     affected row.
-  phase_id: "126"
-  phase_label: private_nas_v1_operational_acceptance
+  phase_id: "127"
+  phase_label: prospective_calendar_wait_state
   production_readiness_rebaseline:
     required: true
     status: rebaselined_after_mobile_login_gate_and_explicit_product_ux_acceptance
@@ -22,107 +22,107 @@ product_capability_progress:
   capability_progress:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       title_zh: 景氣階段判讀能力
-      previous_progress_percent: 93
+      previous_progress_percent: 95
       current_progress_percent: 95
-      phase_delta_percent: 2
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase126 驗收 strict replay 可重跑、artifact 可保留、服務可 rollback/forward，確保既有 declared-state 與 evidence 能長期維運。
+      phase_impact_zh: Phase127 將前瞻月份、strict-date 完整度與 calendar blockers 接入 NAS；尚未累積新資料，因此判讀成熟度維持不變。
       current_status_zh: 已有 declared state、legal next phase、phase evidence profiles、official source wiring、coverage matrix、indicator detail cards、boom-to-recession surface、全循環 transition lane templates、continuity surface、24 個 major-group profiles、latest evidence HTML page、YTD/1Y/5Y chart payload、transition timing replay preview、transition risk evidence accumulation view、declared phase-start handoff、37-role numeric/chart coverage、dashboard method explanation、local current cache bridge、Phase84 dashboard decision explanation、Phase85 current data refresh UX、Phase94 NAS server-side indicator snapshot、Phase95 NAS route/API/HTML renderer rehearsal、Phase96 NAS app shell/local smoke、Phase97 ASGI adapter skeleton、Phase98 local lifecycle rehearsal、Phase99 read-only warehouse smoke、Phase100 Container Manager bundle dry-run、Phase101 private local startup smoke、Phase103 DS925+ endpoint smoke，以及 Phase104 NAS Postgres revised import/backup rehearsal。
       remaining_gap_zh: 還需要使用者確認 declared boom 精確起始日或區間，並補齊 legal transition confirmation 條件與實際資料累積。
       completed_summary_zh: 已完成 declared state、legal next phase、39-role data/transform contracts、24 個 major groups、live transition lanes、指標教育與趨勢圖，以及兩個完整情境共 48 個月的 strict PIT evidence replay；全程不建立 standalone classifier。
       incomplete_summary_zh: 尚未完成使用者確認的 declared boom 起始日或起始區間 canonical registry 寫入，以及 transition confirmation 操作規則；Tailscale 手機 HTTPS 與 dashboard live DB read 已驗收。
-      next_gap_zh: Phase127 依 calendar gate 累積 prospective evidence；另待 declared start canonical context。
+      next_gap_zh: 等待 2026-08-31 canonical as-of 與 2026-10-31 最早人工 append；另待 declared start canonical context。
       decrease_reason_zh:
     - capability_id: C2_TRANSITION_RISK_DETECTION
       title_zh: 轉折風險偵測能力
-      previous_progress_percent: 97
+      previous_progress_percent: 98
       current_progress_percent: 98
-      phase_delta_percent: 1
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase126 證明 transition evidence runtime、PIT artifact 與 refresh 排程在重跑及 rollback 後仍連續可用。
+      phase_impact_zh: Phase127 明示未見 transition／stress event 的前瞻累積門檻，避免把歷史 replay 當成轉折驗證。
       current_status_zh: 已有 boom transition monitor、boom-to-recession surface、data-risk labels、value/context semantics、coverage burn-down view、indicator-level detail cards、全循環 transition lane template registry、continuity 缺口解釋、major-group profiles、role-level drill-down、latest evidence HTML page、transition role chart payload、transition timing replay preview、transition risk evidence accumulation view、37-role current numeric/chart coverage、method recipe explanation、local current cache bridge、Phase84 decision explanation polish、Phase85 refresh UX、NAS snapshot 的 transition role data service shape、Phase95 NAS route/API/HTML renderer rehearsal、Phase96 app shell local smoke、Phase97 ASGI adapter skeleton、Phase98 lifecycle rehearsal、Phase99 read-only warehouse smoke、Phase100 Container Manager bundle dry-run、Phase101 private local startup smoke、Phase103 endpoint smoke，以及 Phase104 revised import/backup rehearsal。
       remaining_gap_zh: 需要使用者確認 phase-age context、turning-point confirmation rules、授權私有來源讀取與 actual release accumulation。
       completed_summary_zh: 已完成 ordered transition templates、boom continuation／ending watch／recession watch／confirmation、live evidence、why-not-confirmation、role attribution，以及 48 個 strict PIT 月份的歷史 lane replay。
       incomplete_summary_zh: 尚未完成 governed phase-age canonical context、turning-point confirmation rules、授權私有來源讀取與 actual release accumulation。
-      next_gap_zh: Phase127 累積前瞻 false-signal／timing evidence，維持 watch／confirmation 分離。
+      next_gap_zh: protocol 合法啟動後累積 unseen transition／stress event、false-signal 與 timing evidence。
       decrease_reason_zh:
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
       title_zh: 解釋能力
       previous_progress_percent: 99
-      current_progress_percent: 99
-      phase_delta_percent: 0
+      current_progress_percent: 100
+      phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase126 新增繁體中文 NAS v1 維運狀態與 operator runbook，清楚區分服務已驗收與模型尚未前瞻驗證。
+      phase_impact_zh: Phase127 新增繁體中文前瞻驗證頁，完整解釋 calendar gate、0/12 進度、registry 0 筆、模型變更重置與下一步。
       current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition risk evidence accumulation view、37-role numeric/chart coverage、method recipe explanation、每個指標分數高低解讀、local current cache bridge、Phase83 trend chart drilldown、Phase84 decision explanation、Phase85 refresh UX、Phase94 NAS server-side explanation snapshot，以及 Phase124 配置／重播互動 attribution 已形成說明鏈。
-      remaining_gap_zh: 需要 confirmed phase-age context、actual release accumulation、兩個 source-blocked role 的清楚風險說明，以及 strict replay/backtest 結果 attribution。
+      remaining_gap_zh: 解釋框架已完成；confirmed phase-age、actual releases 與 blocked sources 會依資料到位後沿用既有 lineage／risk／abstention 欄位更新。
       completed_summary_zh: 已完成指標意涵／來源／風險／lineage、39-role detail cards、YTD/1Y/5Y、transition attribution、8 個配置模板、5 情境／156 月 playhead，以及 strict evidence 與回測 metric 的繁體中文說明。
-      incomplete_summary_zh: 尚未完成三個早期 PIT 情境、正式 broad-equity／long-Treasury benchmark 與 confirmed phase-age canonical context。
-      next_gap_zh: Phase127 將 prospective validation 狀態與完整月份證據納入解釋鏈。
+      incomplete_summary_zh: 沒有待新增的解釋產品面；尚未發生的前瞻 records 與外部資料缺口會持續顯示 unavailable／blocked，而不假造內容。
+      next_gap_zh: 解釋產品面已完整；後續只需隨真實前瞻 records 更新內容，不新增另一套說明架構。
       decrease_reason_zh:
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       title_zh: Portfolio policy research 能力
-      previous_progress_percent: 97
+      previous_progress_percent: 98
       current_progress_percent: 98
-      phase_delta_percent: 1
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase126 驗收 16 組研究結果可決定性重跑、保留、備份還原及 rollback 後持續讀取。
+      phase_impact_zh: Phase127 將配置研究的正式驗證缺口連回前瞻 calendar gate，沒有新增或改動配置比例。
       current_status_zh: 已有 portfolio research 安全邊界、8-template baseline/fixtures、replay schedule、cash-flow-aware kernel、10 個 research-only backtest artifacts、Phase89A 文字對齊，以及 Phase124 私人 NAS `/portfolio-research` 互動頁、declared boom／legal next recession／live transition context。
       remaining_gap_zh: 需要正式 broad-equity／long-Treasury total-return 授權來源、動態 transition-conditioned policy timeline 與 prospective validation。
       completed_summary_zh: 已完成 8 個受治理模板、replay schedule、cash-flow-aware kernel、書籍／modern 分類、私人 NAS 互動頁，以及兩個 strict 情境的 16 組 unitized-NAV／XIRR 固定參數研究結果。
       incomplete_summary_zh: 動態 transition-conditioned policy 尚未執行；NASDAQ-100 是科技偏重替代，長債是 DGS10 duration proxy，因此 book benchmark result 仍為 0。
-      next_gap_zh: Phase127 前瞻驗證；正式 broad-equity 與 long-Treasury total-return 仍需授權來源。
+      next_gap_zh: 前瞻驗證、動態 transition-conditioned policy，以及正式 broad-equity／long-Treasury total-return 來源。
       decrease_reason_zh:
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
       title_zh: 歷史重播與回測能力
-      previous_progress_percent: 94
+      previous_progress_percent: 96
       current_progress_percent: 96
-      phase_delta_percent: 2
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase126 將 strict replay/backtest 納入 immutable retention、checksum、restore 與 rollback continuity，形成可維運產品路徑。
+      phase_impact_zh: Phase127 明示歷史 strict replay 與真正 prospective validation 的差異，防止 replay 結果被誤標為未見資料驗證。
       current_status_zh: 已有 validation/research artifact chain、cash-flow-aware kernel、strict/revised runner preview、PIT-ready Postgres schema、vintage availability accounting，以及 Phase124 私人 NAS `/historical-replay` 的 5 情境、156 月 playhead 與真實 strict timeline readiness。
       remaining_gap_zh: 需要處理 2000/2007/2011 官方早期 PIT、正式 benchmark、dynamic policy timing 與 prospective validation；現有兩情境已完成執行。
       completed_summary_zh: 已完成 validation artifact chain、PIT-ready Postgres、5 情境／156 月互動重播、48 月 strict evidence execution、16 組 cash-flow-aware backtests、unitized NAV、XIRR、drawdown、turnover 與 source-risk lineage。
       incomplete_summary_zh: Dotcom、GFC、歐債三情境仍缺官方早期 PIT；動態 policy timing、正式 benchmark 與 prospective validation 尚未完成。
-      next_gap_zh: Phase127 前瞻驗證；Dotcom、GFC、歐債官方早期 PIT 缺口繼續明示。
+      next_gap_zh: 累積前瞻 records；Dotcom、GFC、歐債官方早期 PIT 與正式 benchmark 缺口繼續明示。
       decrease_reason_zh:
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       title_zh: 安全輸出治理能力
-      previous_progress_percent: 99
+      previous_progress_percent: 100
       current_progress_percent: 100
-      phase_delta_percent: 1
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase126 完成 private HTTPS、retention、backup/restore、rollback、runbook、secret/output 與 operations acceptance 全鏈安全驗收。
+      phase_impact_zh: Phase127 把 no auto-start、no-write、no-peeking、no-tuning、candidate disabled 與 calendar no-bypass 契約接入頁面及 readyz。
       current_status_zh: safety scans、closure checks、forbidden output policy、product progress monotonic rule、production isolation、no-silent-substitution gates、indicator detail gates、transition completion gates、full-cycle template gates、continuity gates、major-group profile gates、drill-down gates、latest evidence page gates、chart/method transparency gates、timing preview gates、transition risk accumulation gates、CI efficiency gates、test-index gates、phase-start confirmation/update gates、numeric/chart coverage gates、method explanation gates、local current cache bridge gates、portfolio baseline/template forbidden-output gates、policy replay schedule gates、cash-flow kernel gates、historical replay runner gates、research-only backtest artifact gates、Phase81 dashboard surface gates、Phase82 replay/backtest lineage gates、Phase83 trend drilldown gates、Phase84 decision explanation gates 與 Phase85 refresh UX gates 持續運作。
       remaining_gap_zh: 需要把相同 forbidden-field 契約套用到 canonical write gate、actual transition accumulation、portfolio replay surface 與後續 computed replay/backtest artifacts。
       completed_summary_zh: 已完成 secret/generated/output scans、production isolation、no-silent-substitution、watch/confirmation separation、PIT no-fallback、portfolio forbidden fields、explicit live command、受控 artifact path、no-result-tuning 與 research-only dashboard gates。
       incomplete_summary_zh: 私人 NAS v1.0 security／rollback／operations acceptance 已完成；僅 calendar-gated prospective seal 屬後續模型驗證，不降低安全輸出能力。
-      next_gap_zh: 維持 100% 工程安全門檻；Phase127 只增加 calendar-gated validation seal。
+      next_gap_zh: 維持 100% 工程安全門檻；真實 append 時沿用相同明確人工命令與 hash-chain gate。
       decrease_reason_zh:
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       title_zh: 時間完整性與 abstention
-      previous_progress_percent: 97
+      previous_progress_percent: 100
       current_progress_percent: 100
-      phase_delta_percent: 3
+      phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase126 驗收 PIT no-fallback、缺口 abstention、immutable lineage、重跑 hash 與 rollback 前後資料 continuity。
+      phase_impact_zh: Phase127 把 canonical as-of、late release、complete strict date 與缺漏 abstention 直接呈現在等待狀態。
       current_status_zh: release metadata、revised/PIT 分層、missing/stale abstention、causal chart lookback、PIT-ready schema、actual vintage intervals，以及 Phase124 的 156 月 strict timeline／revised comparison 明確分離已完成。
       remaining_gap_zh: 需要後續 PIT cache/backfill、exact vintage coverage、authorized private input provenance、使用者確認的 phase-age context、actual transition replay/backtest data 與正式 canonical registry write gate。
       completed_summary_zh: 已完成 release metadata、revised/PIT 區分、causal lookback、vintage intervals、no-silent-fallback、156 月 input timeline，以及實際執行 48 月／abstain 108 月的 temporal gate。
       incomplete_summary_zh: 26 個 direct series PIT 已補入，但 2000/2007/2011 scenario 仍受 claims、delinquency、government receipts 等官方早期 realtime history 限制；actual release timestamp、全部 scenario coverage 與 canonical phase-age write 尚未完成。
-      next_gap_zh: 時間治理工程門檻已完成；Phase127 持續累積前瞻月份，早期官方 PIT 缺口維持明示 blocker。
+      next_gap_zh: 時間治理工程門檻已完成；依真實發布日累積前瞻月份，早期官方 PIT 缺口維持明示 blocker。
       decrease_reason_zh:
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       title_zh: 模型治理與前瞻驗證
-      previous_progress_percent: 80
-      current_progress_percent: 95
-      phase_delta_percent: 15
+      previous_progress_percent: 95
+      current_progress_percent: 96
+      phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase126 完成 v1 research service 的 deterministic rerun、retention、restore、rollback、mobile 與 operator acceptance，但保留 prospective calendar gate。
+      phase_impact_zh: Phase127 完成前瞻 calendar wait 的 NAS 產品面、readyz metadata、no-write closure 與 model-change reset 說明；真實 protocol 仍未啟動。
       current_status_zh: freeze/closure/prospective governance 持續隔離，prospective registry 未啟動；Phase75-88 已把 portfolio template fixtures、replay schedule、cash-flow kernel、historical replay runner、research-only backtest artifacts、dashboard surface、replay/backtest lineage hardening、indicator trend drilldown、dashboard decision explanation、current data refresh UX、transition risk evidence accumulation view、migration rehearsal 與 portfolio policy replay research surface 納入 closure；Phase90-104 補上 NAS service architecture、PIT-ready warehouse schema、revised import dry-run closure、PIT availability accounting closure、NAS snapshot materialization closure、NAS route/API/HTML renderer closure、NAS app shell local smoke closure、NAS ASGI adapter skeleton closure、NAS lifecycle rehearsal closure、NAS read-only warehouse smoke closure、Container Manager bundle closure、private startup smoke closure、DS925+ endpoint smoke closure 與 revised import/backup rehearsal closure。
       remaining_gap_zh: 未來仍需前瞻驗證資料累積、explicit migration gate、computed replay/backtest artifact lineage、book-fidelity migration、retention delete gate 與 PIT 累積。
       completed_summary_zh: 已完成 freeze/closure lineage、prospective registry isolation、no-result-peeking、NAS schema/refresh/backup gates、Phase125 research execution lineage，以及 Phase126 deterministic rerun、retention、restore、rollback、mobile 與 operator acceptance。
       incomplete_summary_zh: 尚未完成 12 個月前瞻資料累積、independent validation、正式 migration seal、三個早期 PIT 情境與正式 book benchmark market sources。
-      next_gap_zh: Phase127 需累積至少 12 個完整月份與 12 個 strict dates，再做獨立驗證與 production seal。
+      next_gap_zh: 依時鐘合法啟動後累積至少 12 個完整月份與 12 個 strict dates，再做獨立驗證與最終 seal。
       decrease_reason_zh:
   hard_gates:
     product_capability_progress_ready: true

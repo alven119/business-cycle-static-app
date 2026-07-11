@@ -28,7 +28,7 @@ COPY src ./src
 COPY specs ./specs
 COPY docs/project_north_star.md docs/investment_cycle_product_doctrine.md \
     docs/phase_execution_standing_contract.md docs/nas_dynamic_service_architecture.md \
-    docs/nas_v1_operator_runbook.md \
+    docs/nas_v1_operator_runbook.md docs/product_alignment_cleanup_plan_phase127.md \
     ./docs/
 
 RUN mkdir -p /usr/local/lib/python3.10/specs /usr/local/lib/python3.10/docs \

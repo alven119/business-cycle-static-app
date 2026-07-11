@@ -93,6 +93,15 @@ def build_nas_service_dashboard_bundle(
                 "enabled": True,
             },
         )
+        command_center["navigation"].append(
+            {
+                "nav_id": "prospective_monitoring",
+                "label_zh": "前瞻驗證",
+                "path": "/prospective-monitoring",
+                "enabled": True,
+                "planned_phase": 127,
+            }
+        )
         for nav in command_center["navigation"]:
             if nav["nav_id"] == "historical_replay":
                 nav |= {"path": "/historical-replay", "enabled": True, "planned_phase": 124}
@@ -122,11 +131,11 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "125" if runtime_live_mode else "95",
-        "phase_id": 126 if runtime_live_mode else 95,
+        "phase": "127" if runtime_live_mode else "95",
+        "phase_id": 127 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase126_private_nas_v1_operational_renderer"
+            "phase127_prospective_calendar_wait_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),

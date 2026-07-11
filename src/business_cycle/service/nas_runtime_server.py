@@ -273,6 +273,21 @@ def build_runtime_response(
                 "nas_v1_operational_acceptance_passed": bool(
                     trust.get("nas_v1_operational_acceptance_passed", False)
                 ),
+                "prospective_wait_state": trust.get(
+                    "prospective_wait_state", "not_configured"
+                ),
+                "prospective_protocol_started": bool(
+                    trust.get("prospective_protocol_started", False)
+                ),
+                "prospective_registry_record_count": int(
+                    trust.get("prospective_registry_record_count", 0)
+                ),
+                "real_registry_write_attempt_count": int(
+                    trust.get("real_registry_write_attempt_count", 0)
+                ),
+                "prospective_validation_seal_ready": bool(
+                    trust.get("prospective_validation_seal_ready", False)
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -337,6 +352,13 @@ def build_runtime_response(
     )
     if portfolio_replay_response is not None:
         return portfolio_replay_response
+    prospective_response = _prospective_validation_response(
+        path=normalized_path,
+        method=normalized_method,
+        shell=shell,
+    )
+    if prospective_response is not None:
+        return prospective_response
     if normalized_method != "GET":
         return _json_response(405, {"error": "method_not_allowed", "research_only": True})
 
@@ -423,7 +445,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase126"
+    server_version = "BusinessCycleNAS/phase127"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -742,6 +764,48 @@ def _portfolio_replay_response(
             if path == "/api/portfolio-research.json"
             else "nas_historical_replay_api"
         ),
+    )
+
+
+def _prospective_validation_response(
+    *,
+    path: str,
+    method: str,
+    shell: dict[str, Any] | None,
+) -> RuntimeResponse | None:
+    if path not in {
+        "/prospective-monitoring",
+        "/api/prospective-monitoring.json",
+    }:
+        return None
+    if method != "GET":
+        return _json_response(405, {"error": "method_not_allowed", "research_only": True})
+    resolved = shell or {}
+    state = resolved.get("prospective_validation_wait_state")
+    if not isinstance(state, dict):
+        return _json_response(
+            503,
+            {
+                "error": "prospective_wait_state_not_available",
+                "research_only": True,
+                "private_nas_only": True,
+            },
+        )
+    if path == "/prospective-monitoring":
+        html_page = resolved.get("prospective_validation_html")
+        if not isinstance(html_page, str) or not html_page:
+            return _json_response(503, {"error": "prospective_renderer_unavailable"})
+        return RuntimeResponse(
+            200,
+            "text/html; charset=utf-8",
+            html_page,
+            route_id="nas_prospective_validation_page",
+        )
+    return RuntimeResponse(
+        200,
+        "application/json",
+        json.dumps(state, sort_keys=True),
+        route_id="nas_prospective_validation_api",
     )
 
 

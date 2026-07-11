@@ -96,16 +96,17 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_progress.py",
         "show_product_capability_95_roadmap.py",
         "show_product_capability_completion_sprint.py",
-            "show_github_actions_test_efficiency.py",
-            "show_phase121_indicator_transformation_learning_closure.py",
-            "show_phase126_nas_v1_operational_acceptance_closure.py",
-            "show_phase125_strict_replay_backtest_closure.py",
-            "show_phase124_portfolio_replay_lab_closure.py",
-            "show_phase123_live_ordered_cycle_evidence_closure.py",
-            "show_phase120_cycle_command_center_closure.py",
-            "show_phase119_private_login_strict_replay_ux_closure.py",
-            "show_phase118_broader_pit_release_replay_closure.py",
-            "show_phase117_transition_pit_backfill_closure.py",
+        "show_github_actions_test_efficiency.py",
+        "show_phase127_prospective_calendar_gate_closure.py",
+        "show_phase121_indicator_transformation_learning_closure.py",
+        "show_phase126_nas_v1_operational_acceptance_closure.py",
+        "show_phase125_strict_replay_backtest_closure.py",
+        "show_phase124_portfolio_replay_lab_closure.py",
+        "show_phase123_live_ordered_cycle_evidence_closure.py",
+        "show_phase120_cycle_command_center_closure.py",
+        "show_phase119_private_login_strict_replay_ux_closure.py",
+        "show_phase118_broader_pit_release_replay_closure.py",
+        "show_phase117_transition_pit_backfill_closure.py",
         "show_phase116_nas_release_aware_refresh_closure.py",
         "show_phase115_nas_source_retry_restore_closure.py",
         "show_phase111_nas_live_postgres_dashboard_closure.py",
@@ -209,8 +210,11 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase126_nas_v1_operational_acceptance_closure.py" in (
+    assert "scripts/show_phase127_prospective_calendar_gate_closure.py" in (
         FULL_CLOSURE_SCRIPTS
+    )
+    assert "scripts/show_phase126_nas_v1_operational_acceptance_closure.py" in (
+        NIGHTLY_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase120_cycle_command_center_closure.py" in (
         NIGHTLY_CLOSURE_SCRIPTS

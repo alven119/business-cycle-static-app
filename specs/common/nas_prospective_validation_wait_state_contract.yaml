@@ -1,0 +1,56 @@
+nas_prospective_validation_wait_state_contract:
+  version: "1.0"
+  status: active_calendar_wait_contract
+  phase_id: 127
+  contract_id: nas_prospective_validation_wait_state_v1
+  observation_period: "2026-07"
+  canonical_as_of: "2026-08-31"
+  earliest_possible_manual_append_at: "2026-10-31"
+  minimum_evaluation_months: 12
+  minimum_complete_strict_dates: 12
+  required_prior_artifacts:
+    - prospective_shadow_manual_start_v1
+    - prospective_shadow_monitoring_v1
+    - phase126_private_nas_v1_operational_acceptance
+  calendar_policy:
+    bypass_allowed: false
+    automatic_start_allowed: false
+    automatic_registry_append_allowed: false
+    explicit_user_command_required: true
+  validation_policy:
+    result_inspection_before_gate_allowed: false
+    rule_tuning_from_results_allowed: false
+    parameter_change_resets_evaluation_window: true
+    prior_records_retained_after_reset: true
+    requires_unseen_transition_event: true
+    requires_unseen_non_recession_stress_event: true
+  output_policy:
+    output_mode: research_only_private_nas_prospective_wait_state
+    language: zh-Hant-TW
+    registry_metadata_only: true
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+  hard_gates:
+    prospective_wait_state_contract_ready: true
+    phase126_acceptance_dependency_ready: true
+    protocol_registered: true
+    registry_armed: true
+    protocol_started: false
+    current_wait_state: awaiting_canonical_as_of
+    canonical_as_of_reached: false
+    earliest_manual_append_reached: false
+    evaluation_month_count: 0
+    complete_strict_date_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    prospective_result_inspected: false
+    automatic_start_path_count: 0
+    calendar_gate_bypass_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    formal_production_validated: false
+    prospective_validation_seal_ready: false
+    economic_validation_status: not_started
+    recommended_next_action: WAIT_FOR_FIRST_ELIGIBLE_AS_OF
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

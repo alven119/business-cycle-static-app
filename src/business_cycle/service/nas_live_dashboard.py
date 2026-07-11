@@ -15,6 +15,9 @@ from business_cycle.render.nas_service_dashboard import (
     render_portfolio_research_page,
     render_technology_manufacturing_cycle_page,
 )
+from business_cycle.render.nas_prospective_validation import (
+    render_nas_prospective_validation_page,
+)
 from business_cycle.service.nas_app_shell import build_nas_app_shell
 from business_cycle.service.nas_scheduled_revised_refresh import (
     DEFAULT_STATUS_PATH,
@@ -53,6 +56,9 @@ from business_cycle.storage.nas_strict_replay_input_timeline import (
 from business_cycle.validation.nas_strict_replay_backtest import (
     DEFAULT_STATUS_PATH as DEFAULT_STRICT_REPLAY_BACKTEST_STATUS_PATH,
     load_nas_strict_replay_backtest_status,
+)
+from business_cycle.validation.nas_prospective_validation_wait_state import (
+    build_nas_prospective_validation_wait_state,
 )
 
 
@@ -109,6 +115,9 @@ def build_nas_live_dashboard_runtime(
         or DEFAULT_V1_ACCEPTANCE_STATUS_PATH
     )
     strict_replay_retention = build_strict_replay_retention_preview()
+    prospective_wait_state = build_nas_prospective_validation_wait_state(
+        phase126_acceptance_status=v1_acceptance_status,
+    )
     snapshot = build_nas_live_postgres_dashboard_snapshot(
         database_url=resolved_url,
         executor=executor,
@@ -169,9 +178,14 @@ def build_nas_live_dashboard_runtime(
         portfolio_replay_lab["historical_replay"],
         navigation=dashboard["command_center"]["navigation"],
     )
-    shell["phase"] = "126"
-    shell["phase_id"] = 126
-    shell["artifact_id"] = "phase126_private_nas_v1_operational_runtime"
+    shell["prospective_validation_wait_state"] = prospective_wait_state
+    shell["prospective_validation_html"] = render_nas_prospective_validation_page(
+        prospective_wait_state,
+        navigation=dashboard["command_center"]["navigation"],
+    )
+    shell["phase"] = "127"
+    shell["phase_id"] = 127
+    shell["artifact_id"] = "phase127_prospective_calendar_wait_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -266,6 +280,17 @@ def build_nas_live_dashboard_runtime(
         "nas_v1_operational_acceptance_passed": bool(
             v1_acceptance_status.get("nas_v1_operational_acceptance_passed", False)
         ),
+        "prospective_wait_state": prospective_wait_state["current_wait_state"],
+        "prospective_protocol_started": prospective_wait_state["protocol_started"],
+        "prospective_registry_record_count": prospective_wait_state[
+            "prospective_registry_record_count"
+        ],
+        "real_registry_write_attempt_count": prospective_wait_state[
+            "real_registry_write_attempt_count"
+        ],
+        "prospective_validation_seal_ready": prospective_wait_state[
+            "prospective_validation_seal_ready"
+        ],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -327,10 +352,18 @@ def build_nas_live_dashboard_runtime(
         "historical_event_replay_route_operational": portfolio_replay_lab[
             "historical_event_replay_route_operational"
         ],
+        "prospective_wait_state": prospective_wait_state["current_wait_state"],
+        "prospective_protocol_started": prospective_wait_state["protocol_started"],
+        "prospective_registry_record_count": prospective_wait_state[
+            "prospective_registry_record_count"
+        ],
+        "real_registry_write_attempt_count": prospective_wait_state[
+            "real_registry_write_attempt_count"
+        ],
     }
     runtime: dict[str, Any] = {
-        "phase": 126,
-        "artifact_id": "phase126_private_nas_v1_operational_runtime",
+        "phase": 127,
+        "artifact_id": "phase127_prospective_calendar_wait_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -352,6 +385,7 @@ def build_nas_live_dashboard_runtime(
         "strict_replay_backtest_status": strict_replay_backtest_status,
         "strict_replay_retention_preview": strict_replay_retention,
         "nas_v1_operational_acceptance_status": v1_acceptance_status,
+        "prospective_validation_wait_state": prospective_wait_state,
         "refresh_state": refresh_status["refresh_state"],
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "source_release_diagnostics": snapshot["source_release_diagnostics"],
@@ -370,7 +404,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 127,
+        "development_next_phase": "WAIT_FOR_FIRST_ELIGIBLE_AS_OF",
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True

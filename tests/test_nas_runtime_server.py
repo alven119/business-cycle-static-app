@@ -46,6 +46,11 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
                     "accepted_private_nas_v1_research_service"
                 ),
                 "nas_v1_operational_acceptance_passed": True,
+                "prospective_wait_state": "awaiting_canonical_as_of",
+                "prospective_protocol_started": False,
+                "prospective_registry_record_count": 0,
+                "real_registry_write_attempt_count": 0,
+                "prospective_validation_seal_ready": False,
             },
         },
     )
@@ -54,6 +59,49 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
     assert '"source_operations_route_count": 2' in live_ready.body
     assert '"release_family_count": 12' in live_ready.body
     assert '"nas_v1_operational_acceptance_passed": true' in live_ready.body
+    assert '"prospective_wait_state": "awaiting_canonical_as_of"' in live_ready.body
+    assert '"prospective_registry_record_count": 0' in live_ready.body
+
+
+def test_runtime_prospective_wait_routes_are_private_metadata_only() -> None:
+    state = {
+        "current_wait_state": "awaiting_canonical_as_of",
+        "protocol_started": False,
+        "prospective_registry_record_count": 0,
+        "real_registry_write_attempt_count": 0,
+        "candidate_phase_emitted": False,
+        "current_phase_emitted": False,
+    }
+    shell = {
+        "prospective_validation_wait_state": state,
+        "prospective_validation_html": "<html lang=\"zh-Hant-TW\">前瞻驗證進度</html>",
+    }
+    secret = "expected-secret"
+    unauthorized = build_runtime_response(
+        path="/prospective-monitoring",
+        session_secret=secret,
+        headers={"Accept": "text/html"},
+        shell=shell,
+    )
+    page = build_runtime_response(
+        path="/prospective-monitoring",
+        session_secret=secret,
+        headers={"X-Business-Cycle-Session": secret},
+        shell=shell,
+    )
+    api = build_runtime_response(
+        path="/api/prospective-monitoring.json",
+        session_secret=secret,
+        headers={"X-Business-Cycle-Session": secret},
+        shell=shell,
+    )
+
+    assert unauthorized.status_code == 303
+    assert page.status_code == 200
+    assert "前瞻驗證進度" in page.body
+    assert api.status_code == 200
+    assert '"protocol_started": false' in api.body
+    assert '"prospective_registry_record_count": 0' in api.body
 
 
 def test_runtime_protected_routes_require_secret() -> None:

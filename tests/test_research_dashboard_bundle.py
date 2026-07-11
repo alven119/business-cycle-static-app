@@ -74,6 +74,9 @@ from business_cycle.audits.phase125_strict_replay_backtest_closure import (
 from business_cycle.audits.phase126_nas_v1_operational_acceptance_closure import (
     summarize_phase126_nas_v1_operational_acceptance_closure,
 )
+from business_cycle.audits.phase127_prospective_calendar_gate_closure import (
+    summarize_phase127_prospective_calendar_gate_closure,
+)
 from business_cycle.render.nas_service_dashboard import (
     render_historical_replay_page,
     render_portfolio_research_page,
@@ -208,6 +211,21 @@ def test_phase126_private_nas_v1_operational_acceptance_is_complete_but_not_econ
     assert artifact["formal_production_validated"] is False
     assert artifact["candidate_phase_emitted"] is False
     assert artifact["current_phase_emitted"] is False
+
+
+def test_phase127_wait_surface_is_calendar_gated_and_does_not_write_or_seal() -> None:
+    summary = summarize_phase127_prospective_calendar_gate_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["prospective_wait_state_contract_ready"] is True
+    assert summary["prospective_wait_state_page_ready"] is True
+    assert summary["current_wait_state"] == "awaiting_canonical_as_of"
+    assert summary["protocol_started"] is False
+    assert summary["prospective_registry_record_count"] == 0
+    assert summary["real_registry_write_attempt_count"] == 0
+    assert summary["prospective_validation_seal_ready"] is False
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
 
 
 def test_research_dashboard_bundle_is_research_only_and_trusted() -> None:
