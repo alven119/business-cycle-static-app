@@ -264,6 +264,15 @@ def build_runtime_response(
                 "research_backtest_result_count": trust.get(
                     "research_backtest_result_count", 0
                 ),
+                "strict_replay_retained_snapshot_count": trust.get(
+                    "strict_replay_retained_snapshot_count", 0
+                ),
+                "nas_v1_operational_acceptance_status": trust.get(
+                    "nas_v1_operational_acceptance_status", "not_started"
+                ),
+                "nas_v1_operational_acceptance_passed": bool(
+                    trust.get("nas_v1_operational_acceptance_passed", False)
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -414,7 +423,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase125"
+    server_version = "BusinessCycleNAS/phase126"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

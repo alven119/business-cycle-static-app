@@ -9,6 +9,13 @@ historical replay/backtest research surfaces. GitHub Pages deployment has been
 retired; the GitHub repository may remain as source control and CI during the
 NAS migration, but it is no longer the user-facing deployment target.
 
+Phase 126 accepts the private NAS v1.0 research service operationally. It
+verifies deterministic strict-replay reruns, immutable checksummed artifact
+retention, isolated PostgreSQL/source-artifact restore, actual container
+rollback/forward, current mobile/private HTTPS routes, and a Traditional-Chinese
+operator runbook. This acceptance is an engineering/operations gate; it does
+not claim economic or prospective validation.
+
 Phase 125 executes research-only strict PIT evidence replay for the two fully
 covered historical scenarios (48 months) and preserves explicit abstention for
 108 incomplete months. It also produces 16 cash-flow-aware constant-parameter

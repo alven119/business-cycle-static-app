@@ -23,6 +23,9 @@ from business_cycle.storage.nas_strict_replay_input_timeline import (
     DEFAULT_STATUS_PATH as DEFAULT_TIMELINE_PATH,
     load_nas_strict_replay_input_timeline_status,
 )
+from business_cycle.service.nas_v1_operational_acceptance import (
+    persist_strict_replay_artifact,
+)
 from business_cycle.transition_monitor.live_ordered_cycle_evidence import (
     build_live_ordered_cycle_evidence,
     load_nas_live_ordered_cycle_evidence_contract,
@@ -262,8 +265,7 @@ def run_nas_strict_replay_backtest(
         market_provider=market_provider or FredProvider(timeout_seconds=60.0),
         timeline_status=load_nas_strict_replay_input_timeline_status(timeline_path),
     )
-    _atomic_json_write(output_path, artifact)
-    return artifact
+    return persist_strict_replay_artifact(output_path, artifact)
 
 
 def load_nas_strict_replay_backtest_status(

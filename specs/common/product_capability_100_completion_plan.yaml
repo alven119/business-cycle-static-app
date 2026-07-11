@@ -1,8 +1,8 @@
 product_capability_100_completion_plan:
   version: "2.0"
   status: active_completion_planning_contract
-  baseline_phase_id: 125
-  baseline_phase_label: strict_pit_replay_and_cash_flow_aware_research_backtest
+  baseline_phase_id: 126
+  baseline_phase_label: private_nas_v1_operational_acceptance
   objective_zh: >
     以最少工程 Phase 完成私人 NAS v1.0 所需的資料、判讀、轉折、配置、重播、
     回測與操作能力，再以不可跳過的 prospective calendar gate 完成正式 production
@@ -87,8 +87,8 @@ product_capability_100_completion_plan:
         - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
         - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
     - phase_id: 126
-      title_zh: 私人 NAS v1.0 production acceptance
-      execution_status: next
+      title_zh: 私人 NAS v1.0 operational acceptance
+      execution_status: completed
       objective_zh: >
         完成 mobile/Tailscale、來源排程、schema drift、backup/restore、rollback、權限、
         service health、資料庫維運及操作手冊驗收。工程能力可達 v1.0 操作驗收門檻，
@@ -123,13 +123,13 @@ product_capability_100_completion_plan:
         - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
   capability_targets:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-      current_percent: 93
+      current_percent: 95
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
       remaining_gap_zh: 配置／replay product integration、strict PIT 與 economic/prospective validation
     - capability_id: C2_TRANSITION_RISK_DETECTION
-      current_percent: 97
+      current_percent: 98
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
@@ -141,31 +141,31 @@ product_capability_100_completion_plan:
       target_phase_id: 127
       remaining_gap_zh: 配置、replay/backtest 與正式結果的完整 drill-down
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
-      current_percent: 97
+      current_percent: 98
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
       remaining_gap_zh: NAS route、actual total-return research、政策重播與最終驗證
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
-      current_percent: 94
+      current_percent: 96
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
       remaining_gap_zh: playable replay、strict PIT、cash-flow-aware actual results 與驗證
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
-      current_percent: 99
+      current_percent: 100
       engineering_readiness_target_percent: 100
       target_percent: 100
       target_phase_id: 126
       remaining_gap_zh: v1.0 migration、rollback、security 與 operations acceptance
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-      current_percent: 97
+      current_percent: 100
       engineering_readiness_target_percent: 100
       target_percent: 100
       target_phase_id: 126
       remaining_gap_zh: strict PIT coverage、release timestamp gaps 與 operational abstention acceptance
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
-      current_percent: 80
+      current_percent: 95
       engineering_readiness_target_percent: 95
       target_percent: 100
       target_phase_id: 127

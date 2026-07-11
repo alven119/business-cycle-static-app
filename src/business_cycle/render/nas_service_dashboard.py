@@ -123,10 +123,10 @@ def build_nas_service_dashboard_bundle(
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
         "phase": "125" if runtime_live_mode else "95",
-        "phase_id": 125 if runtime_live_mode else 95,
+        "phase_id": 126 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase125_strict_replay_backtest_renderer"
+            "phase126_private_nas_v1_operational_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),

@@ -1,0 +1,104 @@
+nas_v1_operational_acceptance_contract:
+  version: "1.0"
+  status: active_private_nas_v1_research_acceptance
+  phase_id: 126
+  phase_label: private_nas_v1_operational_acceptance
+  dependencies:
+    strict_replay_backtest: specs/common/nas_strict_replay_backtest_contract.yaml
+    backup_restore: specs/common/nas_source_retry_restore_contract.yaml
+    refresh_scheduler: specs/common/nas_release_aware_refresh_contract.yaml
+    private_https: specs/common/nas_tailscale_private_https_contract.yaml
+  rerun_policy:
+    minimum_execution_count: 2
+    deterministic_artifact_hash_required: true
+    immutable_snapshot_required: true
+    snapshot_checksum_required: true
+    latest_pointer_may_be_replaced: true
+    retained_snapshot_may_be_replaced: false
+  artifact_retention_policy:
+    artifact_root: /var/lib/business-cycle/source-artifacts/phase125
+    immutable_run_directory: runs
+    successful_snapshot_keep_count: 7
+    failed_snapshot_keep_count: 3
+    unknown_snapshot_preserved: true
+    automatic_delete_enabled: false
+    retention_preview_required: true
+  backup_restore_policy:
+    isolated_staging_database_required: true
+    row_count_match_required: true
+    staging_database_drop_required: true
+    postgres_checksum_required: true
+    source_artifact_checksum_required: true
+  rollback_policy:
+    previous_image: business-cycle-nas-app:phase124-portfolio-replay
+    accepted_image: business-cycle-nas-app:phase126-v1-operational-acceptance
+    previous_image_health_required: true
+    forward_image_health_required: true
+    database_continuity_required: true
+    artifact_volume_continuity_required: true
+    final_image_must_be_accepted_image: true
+  mobile_acceptance_policy:
+    prior_private_https_acceptance_may_be_reused: true
+    tailscale_funnel_allowed: false
+    public_exposure_allowed: false
+    secure_cookie_required: true
+    current_login_route_required: true
+    current_dashboard_route_required: true
+    mobile_viewport_required: true
+    traditional_chinese_navigation_required: true
+  runbook_policy:
+    path: docs/nas_v1_operator_runbook.md
+    minimum_section_count: 9
+    required_sections:
+      - daily_health_check
+      - source_refresh
+      - strict_replay_rerun
+      - artifact_retention
+      - backup_restore
+      - rollback
+      - tailscale_mobile
+      - incident_response
+      - known_limits
+  output_policy:
+    allowed_paths:
+      - /tmp
+      - /var/lib/business-cycle/source-artifacts/phase126
+    repository_output_allowed: false
+    public_output_allowed: false
+    secret_output_allowed: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+  acceptance_status: accepted_private_nas_v1_research_service
+  hard_gates:
+    nas_v1_operational_acceptance_contract_ready: true
+    strict_replay_rerun_verified: true
+    strict_replay_rerun_hash_match: true
+    immutable_artifact_retention_ready: true
+    retained_snapshot_checksum_valid: true
+    retention_delete_execution_count: 0
+    backup_restore_drill_passed: true
+    backup_restore_row_count_match: true
+    backup_restore_staging_database_dropped: true
+    rollback_drill_passed: true
+    rollback_database_continuity_valid: true
+    rollback_artifact_continuity_valid: true
+    final_accepted_image_restored: true
+    mobile_private_https_acceptance_preserved: true
+    mobile_current_routes_verified: true
+    tailscale_funnel_configured: false
+    public_exposure_enabled: false
+    operator_runbook_ready: true
+    source_scheduler_healthy: true
+    nas_v1_operational_acceptance_passed: true
+    formal_production_validated: false
+    economic_validation_status: not_started
+    book_alignment_claim_allowed: false
+    real_backtest_progression_allowed: false
+    secret_value_recorded: false
+    prohibited_field_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

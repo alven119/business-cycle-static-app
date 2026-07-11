@@ -71,6 +71,9 @@ from business_cycle.audits.phase125_strict_replay_backtest_closure import (
     build_phase125_fixture_timeline,
     summarize_phase125_strict_replay_backtest_closure,
 )
+from business_cycle.audits.phase126_nas_v1_operational_acceptance_closure import (
+    summarize_phase126_nas_v1_operational_acceptance_closure,
+)
 from business_cycle.render.nas_service_dashboard import (
     render_historical_replay_page,
     render_portfolio_research_page,
@@ -186,6 +189,23 @@ def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces
     assert "年化 TWR" in portfolio_html
     assert "Strict evidence" in replay_html
     assert "固定參數 sensitivity" in replay_html
+    assert artifact["candidate_phase_emitted"] is False
+    assert artifact["current_phase_emitted"] is False
+
+
+def test_phase126_private_nas_v1_operational_acceptance_is_complete_but_not_economic_validation() -> None:
+    summary = summarize_phase126_nas_v1_operational_acceptance_closure()
+    artifact = summary["artifact"]
+
+    assert summary["result"] == "passed"
+    assert artifact["strict_replay_rerun_verified"] is True
+    assert artifact["retained_snapshot_count"] == 2
+    assert artifact["retained_snapshot_checksum_valid"] is True
+    assert artifact["backup_restore_drill_passed"] is True
+    assert artifact["rollback_drill_passed"] is True
+    assert artifact["mobile_current_routes_verified"] is True
+    assert artifact["nas_v1_operational_acceptance_passed"] is True
+    assert artifact["formal_production_validated"] is False
     assert artifact["candidate_phase_emitted"] is False
     assert artifact["current_phase_emitted"] is False
 

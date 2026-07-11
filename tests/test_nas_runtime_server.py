@@ -42,6 +42,10 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
                 "snapshot_as_of": "2026-07-10",
                 "database_latest_observation_date": "2026-07-04",
                 "release_family_count": 12,
+                "nas_v1_operational_acceptance_status": (
+                    "accepted_private_nas_v1_research_service"
+                ),
+                "nas_v1_operational_acceptance_passed": True,
             },
         },
     )
@@ -49,6 +53,7 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
     assert '"dashboard_data_source": "live_postgres_read_only"' in live_ready.body
     assert '"source_operations_route_count": 2' in live_ready.body
     assert '"release_family_count": 12' in live_ready.body
+    assert '"nas_v1_operational_acceptance_passed": true' in live_ready.body
 
 
 def test_runtime_protected_routes_require_secret() -> None:
@@ -404,6 +409,8 @@ def test_phase115_source_operations_routes_are_private_and_traditional_chinese()
     assert "固定時間與官方發布補抓" in page.body
     assert "03:30" in page.body
     assert "私人備份保留預覽" in page.body
+    assert "私人 NAS v1.0 操作驗收" in page.body
+    assert "不代表模型已完成經濟或前瞻驗證" in page.body
     assert "歷史資料模式完整度" in page.body
     assert "PIT 只代表 ALFRED realtime interval 已保存" in page.body
     assert api.status_code == 200

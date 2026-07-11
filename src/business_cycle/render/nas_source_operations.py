@@ -21,6 +21,12 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
         "backup_retention_preview", _default_backup_retention_preview()
     )
     pit = diagnostics.get("pit_backfill_status", _default_pit_backfill_status())
+    strict_retention = diagnostics.get(
+        "strict_replay_retention_preview", _default_strict_retention_preview()
+    )
+    v1_acceptance = diagnostics.get(
+        "nas_v1_operational_acceptance", _default_v1_acceptance_status()
+    )
     warehouse = diagnostics.get(
         "warehouse_mode_counts", _default_warehouse_mode_counts()
     )
@@ -115,6 +121,18 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
         <dt>候選清理</dt><dd>{int(retention.get('retention_candidate_count', 0))} 份</dd>
       </dl>
       <p class="meta">Phase 116 只提供 retention preview，不會自動刪除任何備份。</p>
+    </article>
+    <article class="operation">
+      <h3>私人 NAS v1.0 操作驗收</h3>
+      <dl>
+        <dt>驗收狀態</dt><dd>{escape(_v1_acceptance_zh(str(v1_acceptance.get('acceptance_status', 'not_started'))))}</dd>
+        <dt>Strict snapshots</dt><dd>{int(strict_retention.get('immutable_snapshot_count', 0))} 份</dd>
+        <dt>Snapshot checksum</dt><dd>{'全部有效' if strict_retention.get('all_snapshot_checksums_valid') else '尚未完成'}</dd>
+        <dt>備份還原</dt><dd>{'通過' if v1_acceptance.get('backup_restore_drill_passed') else '尚未驗收'}</dd>
+        <dt>Rollback/forward</dt><dd>{'通過' if v1_acceptance.get('rollback_drill_passed') else '尚未驗收'}</dd>
+        <dt>Mobile private HTTPS</dt><dd>{'通過' if v1_acceptance.get('mobile_current_routes_verified') else '尚未驗收'}</dd>
+      </dl>
+      <p class="meta">此為私人 research service 維運驗收，不代表模型已完成經濟或前瞻驗證。</p>
     </article>
     <article class="operation">
       <h3>歷史資料模式完整度</h3>
@@ -238,6 +256,22 @@ def _default_pit_backfill_status() -> dict[str, Any]:
     }
 
 
+def _default_strict_retention_preview() -> dict[str, Any]:
+    return {
+        "immutable_snapshot_count": 0,
+        "all_snapshot_checksums_valid": False,
+    }
+
+
+def _default_v1_acceptance_status() -> dict[str, Any]:
+    return {
+        "acceptance_status": "not_started",
+        "backup_restore_drill_passed": False,
+        "rollback_drill_passed": False,
+        "mobile_current_routes_verified": False,
+    }
+
+
 def _default_warehouse_mode_counts() -> dict[str, int]:
     return {
         "observation_revised": 0,
@@ -276,6 +310,14 @@ def _pit_status_zh(status: str) -> str:
         "passed": "轉折關鍵 PIT 補齊成功",
         "blocked": "部分序列補齊失敗，已保留成功資料",
         "not_started": "尚未執行",
+    }.get(status, status)
+
+
+def _v1_acceptance_zh(status: str) -> str:
+    return {
+        "not_started": "尚未執行",
+        "blocked_operational_evidence": "維運證據未完成",
+        "accepted_private_nas_v1_research_service": "私人 NAS v1.0 已驗收",
     }.get(status, status)
 
 
