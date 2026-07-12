@@ -30,12 +30,23 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     warehouse = diagnostics.get(
         "warehouse_mode_counts", _default_warehouse_mode_counts()
     )
+    full_cycle = diagnostics.get(
+        "full_cycle_data_readiness", _default_full_cycle_data_readiness()
+    )
     retry_rows = "".join(
         f"<li><code>{escape(str(row['series_id']))}</code>："
         f"{escape(_retry_reason_zh(str(row['reason_code'])))}</li>"
         for row in retry.get("retry_candidates", [])
     ) or "<li>目前沒有符合受治理重試條件的失敗來源。</li>"
     backup_counts = _row_count_summary(backup)
+    phase_readiness_rows = "".join(
+        _phase_readiness_row(row) for row in full_cycle["phase_rows"]
+    )
+    blocked_context_rows = "".join(
+        _blocked_context_row(row)
+        for row in full_cycle["role_rows"]
+        if str(row["runtime_revised_status"]).startswith("source_blocked")
+    )
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -80,6 +91,8 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     <article><strong>{int(diagnostics['series_with_failure_reason_count'])}</strong><span>有失敗原因序列</span></article>
     <article><strong>{int(retry['retry_candidate_count'])}</strong><span>受治理重試候選</span></article>
     <article><strong>{escape(_backup_state_zh(str(backup['backup_restore_state'])))}</strong><span>最近備份還原演練</span></article>
+    <article><strong>{int(full_cycle['automated_revised_series_available_count'])}/{int(full_cycle['automated_revised_series_count'])}</strong><span>四階段自動化 revised inputs</span></article>
+    <article><strong>{int(full_cycle['core_revised_ready_role_count'])}/39</strong><span>book-core 經濟角色資料就緒</span></article>
   </section>
   <p><a href="/">返回總覽</a> · <a href="/api/source-operations.json">查看 JSON</a></p>
   <h2>受治理重試與備份還原</h2>
@@ -146,6 +159,17 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
       <p class="meta">PIT 只代表 ALFRED realtime interval 已保存；目前仍不宣稱所有序列、所有年代或正式回測已具 point-in-time 完整性。</p>
     </article>
   </section>
+  <h2>四階段資料完整性</h2>
+  <p>這裡只回答「原始資料是否已進 PostgreSQL、derived lineage 是否可重建」。
+  資料就緒不等於 phase evidence 或階段確認；supporting proxy 也不會填補 book-core 缺口。</p>
+  <table><thead><tr><th>研究階段</th><th>經濟角色</th><th>revised inputs 就緒</th><th>來源 blocked</th><th>缺 Postgres input</th><th>supporting context</th></tr></thead>
+    <tbody>{phase_readiness_rows}</tbody></table>
+  <details><summary>查看授權／等價性限制與替代風險</summary>
+    <table><thead><tr><th>書籍角色</th><th>核心狀態</th><th>可用旁證</th><th>不可混用原因</th></tr></thead>
+      <tbody>{blocked_context_rows}</tbody></table>
+    <p class="meta"><code>UMCSENT</code> 由 FRED 提供但依來源要求延遲一個月；它是密大消費者信心，
+    不是 Conference Board Consumer Confidence。<code>PAYEMS</code> 是 BLS 非農就業，不能冒充 ADP。</p>
+  </details>
   <h2>每個官方發布來源</h2>
   <section class="families">{families}</section>
   <h2>逐序列 refresh drilldown</h2>
@@ -278,6 +302,65 @@ def _default_warehouse_mode_counts() -> dict[str, int]:
         "observation_vintage": 0,
         "release_calendar": 0,
     }
+
+
+def _default_full_cycle_data_readiness() -> dict[str, Any]:
+    return {
+        "automated_revised_series_count": 27,
+        "automated_revised_series_available_count": 0,
+        "core_revised_ready_role_count": 0,
+        "phase_rows": [
+            {
+                "phase": phase,
+                "role_count": 0,
+                "revised_ready_role_count": 0,
+                "source_blocked_role_count": 0,
+                "missing_input_role_count": 0,
+                "supporting_context_available_role_count": 0,
+            }
+            for phase in ("recession", "recovery", "growth", "boom")
+        ],
+        "role_rows": [],
+    }
+
+
+def _phase_readiness_row(row: dict[str, Any]) -> str:
+    labels = {
+        "recession": "衰退／落底",
+        "recovery": "復甦",
+        "growth": "成長",
+        "boom": "榮景／轉折",
+    }
+    return (
+        "<tr>"
+        f"<td>{escape(labels.get(str(row['phase']), str(row['phase'])))}</td>"
+        f"<td>{int(row['role_count'])}</td>"
+        f"<td>{int(row['revised_ready_role_count'])}</td>"
+        f"<td>{int(row['source_blocked_role_count'])}</td>"
+        f"<td>{int(row['missing_input_role_count'])}</td>"
+        f"<td>{int(row['supporting_context_available_role_count'])}</td>"
+        "</tr>"
+    )
+
+
+def _blocked_context_row(row: dict[str, Any]) -> str:
+    role_labels = {
+        "boom_consumer_confidence": "消費者信心（Conference Board 概念）",
+        "growth_adp_employment": "ADP 私部門就業",
+    }
+    supporting = ", ".join(row["available_supporting_series_ids"]) or "尚未入庫"
+    reason = {
+        "boom_consumer_confidence": "密大 sentiment 只作旁證，調查設計與 Conference Board 不同。",
+        "growth_adp_employment": "PAYEMS 是官方非農就業，但不是 ADP 私部門就業報告。",
+    }.get(str(row["role_id"]), "替代來源不得靜默升格為 book-core。")
+    return (
+        "<tr>"
+        f"<td>{escape(role_labels.get(str(row['role_id']), str(row['role_id'])))}</td>"
+        f"<td>{escape(str(row['runtime_revised_status']))}</td>"
+        f"<td>{escape(supporting)}</td>"
+        f"<td>{escape(reason)}</td>"
+        "</tr>"
+    )
 
 
 def _retry_reason_zh(reason: str) -> str:

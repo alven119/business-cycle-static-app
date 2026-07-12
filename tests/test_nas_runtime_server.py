@@ -56,6 +56,10 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
                 "nas_unfinished_marker_count": 0,
                 "nas_software_placeholder_gap_count": 0,
                 "nas_disclosed_gap_page_count": 8,
+                "all_automated_revised_inputs_in_postgres": True,
+                "automated_revised_series_available_count": 27,
+                "core_revised_ready_role_count": 37,
+                "source_blocked_with_supporting_context_count": 2,
             },
         },
     )
@@ -70,6 +74,9 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
     assert '"nas_scanned_page_count": 8' in live_ready.body
     assert '"nas_software_placeholder_gap_count": 0' in live_ready.body
     assert '"nas_disclosed_gap_page_count": 8' in live_ready.body
+    assert '"all_automated_revised_inputs_in_postgres": true' in live_ready.body
+    assert '"automated_revised_series_available_count": 27' in live_ready.body
+    assert '"source_blocked_with_supporting_context_count": 2' in live_ready.body
 
 
 def test_runtime_prospective_wait_routes_are_private_metadata_only() -> None:

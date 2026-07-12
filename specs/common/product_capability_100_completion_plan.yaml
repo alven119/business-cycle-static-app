@@ -118,7 +118,8 @@ product_capability_100_completion_plan:
         C4_PORTFOLIO_POLICY_RESEARCH: 99
     - phase_id: 130
       title_zh: 四階段 revised/current 資料倉儲與穩定定時來源完成
-      execution_status: planned
+      execution_status: completed
+      completion_status: closed_full_cycle_revised_inputs_complete_with_explicit_source_blockers
       objective_zh: >
         建立 role-series-transformation-phase-lane 完整矩陣，將全部可自動化 current/revised
         inputs 存入 PostgreSQL；兩個授權受限角色保留 supporting proxy 與資料風險，不靜默替代。

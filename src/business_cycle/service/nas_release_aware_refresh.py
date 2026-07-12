@@ -26,7 +26,7 @@ from business_cycle.service.nas_source_retry_restore import (
     load_source_operations_status,
 )
 from business_cycle.storage.nas_postgres_live_revised_import import (
-    load_nas_postgres_live_revised_import_contract,
+    automated_revised_series_ids,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -76,6 +76,12 @@ def summarize_nas_release_aware_refresh_contract(
         ),
         "direct_revised_series_count": int(
             completeness["direct_revised_series_count"]
+        ),
+        "supporting_context_series_count": int(
+            completeness["supporting_context_series_count"]
+        ),
+        "automated_revised_series_count": int(
+            completeness["automated_revised_series_count"]
         ),
         "macro_history_all_modes_complete": completeness[
             "all_macro_history_complete"
@@ -448,8 +454,7 @@ def _backup_run_status(path: Path, latest: dict[str, Any]) -> str:
 
 
 def _canonical_series_ids() -> list[str]:
-    contract = load_nas_postgres_live_revised_import_contract()
-    return [str(value) for value in contract["source_policy"]["direct_series_ids"]]
+    return automated_revised_series_ids()
 
 
 def _contract_ready(contract: dict[str, Any]) -> bool:

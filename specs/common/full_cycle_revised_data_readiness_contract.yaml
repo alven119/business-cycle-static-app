@@ -1,0 +1,98 @@
+full_cycle_revised_data_readiness_contract:
+  version: "1.0"
+  status: active_private_nas_research_contract
+  phase_id: 130
+  phase_label: full_cycle_revised_current_data_warehouse_completion
+  dependencies:
+    role_types: specs/audits/book_core_role_type_registry.yaml
+    evidence_rules: specs/audits/book_phase_evidence_rule_registry.yaml
+    source_identity: specs/audits/book_core_official_source_identity_contract.yaml
+    live_import: specs/common/nas_postgres_live_revised_import_contract.yaml
+    live_dashboard: specs/common/nas_live_postgres_dashboard_contract.yaml
+    low_cost_sources: specs/common/low_cost_macro_source_completion.yaml
+  matrix_policy:
+    canonical_requirement_included: true
+    methodology_requirement_separate_from_indicator_denominator: true
+    raw_series_stored_in_postgres: true
+    derived_and_composite_values_materialized_on_read: true
+    revised_and_point_in_time_status_separate: true
+    one_row_per_canonical_requirement: true
+    source_risk_visible: true
+    missing_input_never_zero_filled: true
+    proxy_never_silently_replaces_book_core: true
+  supporting_context_series:
+    - series_id: UMCSENT
+      supports_role_id: boom_consumer_confidence
+      source_family: University of Michigan via FRED
+      source_title: University of Michigan Consumer Sentiment
+      substitution_degree: supporting_only_not_conference_board_confidence
+      automation_status: automated_revised_fred
+      frequency: monthly
+      units: "Index 1966:Q1=100"
+      seasonal_adjustment: not_seasonally_adjusted
+      redistribution_delay: one_month_at_source_request
+      schedule_precision: cadence_only_for_fred_redistribution
+      source_risk_level: medium_high
+      official_series_url: https://fred.stlouisfed.org/series/UMCSENT
+    - series_id: PAYEMS
+      supports_role_id: growth_adp_employment
+      source_family: BLS via FRED
+      source_title: All Employees, Total Nonfarm
+      substitution_degree: supporting_only_not_adp
+      automation_status: already_automated_canonical_series
+      frequency: monthly
+      units: thousands_of_persons
+      seasonal_adjustment: seasonally_adjusted
+      schedule_precision: exact_bls_employment_situation
+      source_risk_level: medium_high
+      official_series_url: https://fred.stlouisfed.org/series/PAYEMS
+  blocked_core_roles:
+    - role_id: boom_consumer_confidence
+      blocker: no_public_official_equivalent
+      user_impact_zh: 可觀察密大消費者信心作旁證，但不能稱為書中 Conference Board 消費者信心。
+      next_action_zh: 未來可由使用者提供合法授權資料；在此之前維持 book-core blocked。
+    - role_id: growth_adp_employment
+      blocker: proprietary_access_required
+      user_impact_zh: 可觀察官方非農就業作旁證，但不能稱為 ADP 私部門就業。
+      next_action_zh: 未來可由使用者提供合法授權 ADP 資料；在此之前維持 book-core blocked。
+  allowed_uses:
+    - private_nas_full_cycle_data_readiness
+    - revised_history_and_current_chart_inputs
+    - source_risk_and_missing_impact_explanation
+    - supporting_context_with_visible_substitution_risk
+  prohibited_uses:
+    - supporting_proxy_as_book_core_replacement
+    - point_in_time_claim
+    - current_phase_inference
+    - candidate_phase_selection
+    - phase_score_or_rank
+    - personalized_allocation_instruction
+    - trade_action
+    - public_output
+  hard_gates:
+    full_cycle_revised_data_readiness_contract_ready: true
+    canonical_requirement_count: 40
+    economic_indicator_role_count: 39
+    methodology_requirement_count: 1
+    phase_count: 4
+    canonical_direct_input_series_count: 26
+    supplemental_automated_series_count: 1
+    automated_revised_series_count: 27
+    core_revised_ready_role_count: 37
+    source_blocked_core_role_count: 2
+    supporting_proxy_role_count: 2
+    derived_or_composite_role_count: 7
+    derived_or_composite_lineage_missing_count: 0
+    role_without_phase_lane_count: 0
+    role_without_transformation_context_count: 0
+    role_without_source_risk_count: 0
+    silent_substitution_count: 0
+    supporting_proxy_promoted_to_core_count: 0
+    methodology_counted_as_indicator_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 131

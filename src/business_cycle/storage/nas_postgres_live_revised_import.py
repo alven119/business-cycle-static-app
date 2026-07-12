@@ -106,6 +106,8 @@ def summarize_nas_postgres_live_revised_import_contract(
     execution = contract["execution_policy"]
     warehouse = summarize_postgres_macro_warehouse_contract()
     direct = list(source["direct_series_ids"])
+    supporting = list(source.get("supporting_context_series_ids", []))
+    automated = automated_revised_series_ids(contract)
     derived = dict(source["derived_roles_deferred_to_snapshot_materialization"])
     summary = {
         "phase": 110,
@@ -118,6 +120,8 @@ def summarize_nas_postgres_live_revised_import_contract(
             "postgres_macro_warehouse_contract_ready"
         ],
         "direct_series_count": len(direct),
+        "supporting_context_series_count": len(supporting),
+        "automated_revised_series_count": len(automated),
         "derived_role_count": len(derived),
         "full_history_requested": bool(source["full_history_requested"]),
         "migration_idempotent": bool(execution["schema_migration_idempotent"]),
@@ -140,6 +144,21 @@ def summarize_nas_postgres_live_revised_import_contract(
         "passed" if _matches(summary, contract["hard_gates"]) else "blocked"
     )
     return summary
+
+
+def automated_revised_series_ids(
+    contract: dict[str, Any] | None = None,
+) -> list[str]:
+    """Return canonical inputs plus explicitly labeled supporting context."""
+
+    loaded = contract or load_nas_postgres_live_revised_import_contract()
+    source = loaded["source_policy"]
+    values = list(source["direct_series_ids"]) + list(
+        source.get("supporting_context_series_ids", [])
+    )
+    if len(values) != len(set(values)):
+        raise ValueError("automated revised series must be unique")
+    return sorted(values)
 
 
 def run_nas_postgres_live_revised_import(
@@ -173,7 +192,7 @@ def run_nas_postgres_live_revised_import(
     registry = _load_registry(registry_path)
     series_ids = _validated_requested_series_ids(
         requested=series_ids,
-        allowed=list(contract["source_policy"]["direct_series_ids"]),
+        allowed=automated_revised_series_ids(contract),
     )
     started_at = _utc_now()
     sql.execute(generate_postgres_schema_sql())

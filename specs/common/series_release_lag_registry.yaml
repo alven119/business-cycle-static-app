@@ -996,6 +996,31 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: UMCSENT
+    source: FRED
+    frequency: monthly
+    release_family: University of Michigan Surveys of Consumers via FRED
+    release_source: University of Michigan Surveys of Consumers
+    availability_mode: revised_only_supporting_context
+    availability_precision: month_delayed_redistribution
+    release_lag_rule: source_requests_one_month_delay_before_fred_redistribution;
+      do_not_infer_availability_from_observation_date
+    release_lag_days_if_fixed: null
+    vintage_query_supported: false
+    initial_release_query_supported: false
+    earliest_observation_date: '1952-11-01'
+    earliest_vintage_date: unknown
+    latest_verified_vintage_date: '2026-05-01'
+    scenario_coverage_start: '1978-01-01'
+    scenario_coverage_end: '2026-05-01'
+    temporal_status: revised_supporting_only
+    point_in_time_eligible: false
+    known_revision_behavior: source may revise monthly sentiment; FRED redistribution
+      is delayed one month at the source's request
+    official_metadata_source: FRED UMCSENT series metadata and University of Michigan
+      Surveys of Consumers release calendar
+    caveats: Supporting consumer-sentiment context only. It must not replace the
+      book-core Conference Board consumer-confidence role or be labeled strict PIT.
   - series_id: UEMPLT5
     source: FRED/ALFRED
     frequency: monthly
@@ -1225,7 +1250,7 @@ series_release_lag_registry:
       for the same as_of date.
   summary:
     authoritative_registry: series_release_lag_registry.yaml
-    discovered_unique_series_count: 50
+    discovered_unique_series_count: 51
     series_missing_availability_metadata_count: 0
     series_without_temporal_status_count: 0
     revised_data_only: false

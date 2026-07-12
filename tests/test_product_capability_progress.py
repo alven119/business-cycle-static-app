@@ -37,7 +37,7 @@ def test_product_capability_progress_is_orientation_not_readiness_claim() -> Non
     assert "formal production use" in summary["progress_semantics"]
     assert "monotonic by default" in summary["progress_semantics"]
     assert summary["phase_label"] == (
-        "governed_cycle_transition_confirmation_receipt_and_correction"
+        "full_cycle_revised_current_data_warehouse_completion"
     )
     assert all(
         0 <= row["current_progress_percent"] <= 100

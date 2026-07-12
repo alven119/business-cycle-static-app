@@ -23,6 +23,9 @@ from business_cycle.render.indicator_learning_semantics import (
 from business_cycle.storage.nas_indicator_snapshots import (
     build_nas_indicator_snapshot_manifest,
 )
+from business_cycle.storage.full_cycle_revised_data_readiness import (
+    build_full_cycle_revised_runtime_readiness,
+)
 from business_cycle.storage.nas_postgres_live_revised_import import (
     load_nas_postgres_live_revised_import_contract,
 )
@@ -353,6 +356,12 @@ def build_nas_live_postgres_dashboard_snapshot(
     source_release_diagnostics["backup_restore_status"] = (
         resolved_source_operations_status
     )
+    full_cycle_readiness = build_full_cycle_revised_runtime_readiness(
+        available_series_ids=set(observations_by_series),
+    )
+    source_release_diagnostics["full_cycle_data_readiness"] = (
+        full_cycle_readiness
+    )
     snapshot: dict[str, Any] = {
         "artifact_id": "phase111_nas_live_postgres_dashboard_snapshot",
         "artifact_version": contract["version"],
@@ -397,6 +406,7 @@ def build_nas_live_postgres_dashboard_snapshot(
             available_series_count=len(series_rows),
         ),
         "source_release_diagnostics": source_release_diagnostics,
+        "full_cycle_revised_data_readiness": full_cycle_readiness,
         "declared_cycle_state": resolved_declared_cycle_state,
         "live_db_connection_attempt_count": 1,
         "postgres_write_attempt_count": 0,

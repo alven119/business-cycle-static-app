@@ -318,6 +318,18 @@ def build_runtime_response(
                 "governed_cycle_transition_receipt_count": int(
                     trust.get("governed_cycle_transition_receipt_count", 0)
                 ),
+                "all_automated_revised_inputs_in_postgres": bool(
+                    trust.get("all_automated_revised_inputs_in_postgres", False)
+                ),
+                "automated_revised_series_available_count": int(
+                    trust.get("automated_revised_series_available_count", 0)
+                ),
+                "core_revised_ready_role_count": int(
+                    trust.get("core_revised_ready_role_count", 0)
+                ),
+                "source_blocked_with_supporting_context_count": int(
+                    trust.get("source_blocked_with_supporting_context_count", 0)
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -476,7 +488,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase129"
+    server_version = "BusinessCycleNAS/phase130"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

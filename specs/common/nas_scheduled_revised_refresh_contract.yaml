@@ -50,6 +50,8 @@ nas_scheduled_revised_refresh_contract:
     source_health_status_ready: true
     dashboard_shell_ttl_cache_ready: true
     direct_series_count: 26
+    supporting_context_series_count: 1
+    automated_revised_series_count: 27
     default_interval_seconds: 86400
     bounded_retry_count: 3
     concurrent_refresh_rejected: true

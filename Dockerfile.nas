@@ -31,6 +31,7 @@ COPY docs/project_north_star.md docs/investment_cycle_product_doctrine.md \
     docs/nas_v1_operator_runbook.md docs/product_alignment_cleanup_plan_phase127.md \
     docs/product_alignment_cleanup_plan_phase128.md \
     docs/product_alignment_cleanup_plan_phase129.md \
+    docs/product_alignment_cleanup_plan_phase130.md \
     docs/full_cycle_state_portfolio_roadmap_phase129_133.md \
     ./docs/
 

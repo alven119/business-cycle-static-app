@@ -17,6 +17,7 @@ import yaml
 
 from business_cycle.storage.nas_postgres_live_revised_import import (
     CONFIRMATION,
+    automated_revised_series_ids,
     load_nas_postgres_live_revised_import_contract,
     run_nas_postgres_live_revised_import,
 )
@@ -55,6 +56,12 @@ def summarize_nas_scheduled_revised_refresh_contract(
         "source_health_status_ready": True,
         "dashboard_shell_ttl_cache_ready": True,
         "direct_series_count": len(source["source_policy"]["direct_series_ids"]),
+        "supporting_context_series_count": len(
+            source["source_policy"].get("supporting_context_series_ids", [])
+        ),
+        "automated_revised_series_count": len(
+            automated_revised_series_ids(source)
+        ),
         "default_interval_seconds": int(schedule["default_interval_seconds"]),
         "bounded_retry_count": int(schedule["bounded_retry_count"]),
         "concurrent_refresh_rejected": bool(
@@ -298,10 +305,7 @@ def _technology_refresh_enabled() -> bool:
 def _is_full_daily_refresh(series_ids: list[str] | None) -> bool:
     if series_ids is None:
         return True
-    canonical = load_nas_postgres_live_revised_import_contract()["source_policy"][
-        "direct_series_ids"
-    ]
-    return set(series_ids) == set(canonical)
+    return set(series_ids) == set(automated_revised_series_ids())
 
 
 def _redacted_series_refresh_results(report: dict[str, Any]) -> list[dict[str, Any]]:

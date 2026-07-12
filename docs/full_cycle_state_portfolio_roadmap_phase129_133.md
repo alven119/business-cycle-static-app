@@ -62,6 +62,10 @@ append-only confirmation receipt 與 correction rollback。先完成目前 boom 
 
 ### Phase 130：四階段 revised/current 資料倉儲
 
+狀態：已完成。26 個 canonical raw inputs 與 1 個明示風險的 supporting series 已納入每日 revised
+排程；37 個經濟角色可由 PostgreSQL 重建，ADP／Conference Board confidence 保持 blocked，
+PAYEMS／UMCSENT 只作旁證。
+
 完成 role-series-transformation-phase-lane 矩陣、PostgreSQL current/revised inputs、derived
 lineage、來源排程、重試與 schema drift。ADP 與 Conference Board confidence 保留 proxy
 及授權風險，不得把 PAYEMS 或 UMich sentiment 冒充原 role。

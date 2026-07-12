@@ -40,6 +40,8 @@ nas_postgres_live_revised_import_contract:
       - SLCEC1
       - UEMPLT5
       - W006RC1Q027SBEA
+    supporting_context_series_ids:
+      - UMCSENT
     derived_roles_deferred_to_snapshot_materialization:
       credit_spread_baa_aaa: [BAA, AAA]
       industrial_production_bottoming: [INDPRO]
@@ -81,6 +83,8 @@ nas_postgres_live_revised_import_contract:
     nas_postgres_live_revised_import_contract_ready: true
     postgres_schema_contract_ready: true
     direct_series_count: 26
+    supporting_context_series_count: 1
+    automated_revised_series_count: 27
     derived_role_count: 4
     full_history_requested: true
     migration_idempotent: true

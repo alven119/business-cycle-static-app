@@ -218,9 +218,9 @@ def build_nas_live_dashboard_runtime(
         }
     )
     shell["nas_page_completeness"] = page_scan
-    shell["phase"] = "129"
-    shell["phase_id"] = 129
-    shell["artifact_id"] = "phase129_governed_cycle_transition_runtime"
+    shell["phase"] = "130"
+    shell["phase_id"] = 130
+    shell["artifact_id"] = "phase130_full_cycle_revised_data_runtime"
     shell["governed_cycle_transition"] = governed_transition_status
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
@@ -347,6 +347,18 @@ def build_nas_live_dashboard_runtime(
         "governed_cycle_transition_receipt_count": governed_transition_status[
             "transition_event_count"
         ],
+        "all_automated_revised_inputs_in_postgres": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["all_automated_revised_inputs_in_postgres"],
+        "automated_revised_series_available_count": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["automated_revised_series_available_count"],
+        "core_revised_ready_role_count": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["core_revised_ready_role_count"],
+        "source_blocked_with_supporting_context_count": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["source_blocked_with_supporting_context_count"],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -427,10 +439,22 @@ def build_nas_live_dashboard_runtime(
         "nas_disclosed_gap_page_count": page_scan[
             "page_with_disclosed_gap_count"
         ],
+        "all_automated_revised_inputs_in_postgres": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["all_automated_revised_inputs_in_postgres"],
+        "automated_revised_series_available_count": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["automated_revised_series_available_count"],
+        "core_revised_ready_role_count": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["core_revised_ready_role_count"],
+        "source_blocked_with_supporting_context_count": snapshot[
+            "full_cycle_revised_data_readiness"
+        ]["source_blocked_with_supporting_context_count"],
     }
     runtime: dict[str, Any] = {
-        "phase": 129,
-        "artifact_id": "phase129_governed_cycle_transition_runtime",
+        "phase": 130,
+        "artifact_id": "phase130_full_cycle_revised_data_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -459,6 +483,9 @@ def build_nas_live_dashboard_runtime(
         "source_release_diagnostics": snapshot["source_release_diagnostics"],
         "declared_cycle_state": declared_cycle_state,
         "governed_cycle_transition": governed_transition_status,
+        "full_cycle_revised_data_readiness": snapshot[
+            "full_cycle_revised_data_readiness"
+        ],
         "live_ordered_cycle_evidence": dashboard["live_ordered_cycle_evidence"],
         "portfolio_replay_lab": portfolio_replay_lab,
         "transaction_read_only_enforced": True,
@@ -473,7 +500,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": "WAIT_FOR_FIRST_ELIGIBLE_AS_OF",
+        "development_next_phase": 131,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True
@@ -488,6 +515,18 @@ def build_nas_live_dashboard_runtime(
         ]
         is True
         and runtime["portfolio_replay_lab"]["result"] == "passed"
+        and runtime["full_cycle_revised_data_readiness"][
+            "all_automated_revised_inputs_in_postgres"
+        ]
+        is True
+        and runtime["full_cycle_revised_data_readiness"][
+            "core_revised_ready_role_count"
+        ]
+        == 37
+        and runtime["full_cycle_revised_data_readiness"][
+            "source_blocked_core_role_count"
+        ]
+        == 2
         and runtime["transaction_read_only_enforced"] is True
         and runtime["postgres_write_attempt_count"] == 0
         and runtime["candidate_phase_emitted"] is False
