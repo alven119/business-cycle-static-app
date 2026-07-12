@@ -52,7 +52,7 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 0
       phase_impacted: true
-      phase_impact_zh: Phase133 新增事後週期註解、書籍政策回放與固定權重指標 provenance，並解釋 NBER expansion 為何不能硬拆書籍子階段。
+      phase_impact_zh: Phase133 新增事後週期註解與固定權重 provenance，並將配置／重播頁重排為先回答使用者問題、再按需展開方法與來源。
       current_status_zh: 指標意涵、來源、替代程度、風險標籤、value context、freshness、release timing、why-not-evidence、lineage、next gap、transition attribution、continuity gap explanation、major-group readiness explanation、role drill-down、latest evidence dashboard page、方法透明度、chart payload、transition risk evidence accumulation view、37-role numeric/chart coverage、method recipe explanation、每個指標分數高低解讀、local current cache bridge、Phase83 trend chart drilldown、Phase84 decision explanation、Phase85 refresh UX、Phase94 NAS server-side explanation snapshot，以及 Phase124 配置／重播互動 attribution 已形成說明鏈。
       remaining_gap_zh: 解釋框架已完成；confirmed phase-age、actual releases 與 blocked sources 會依資料到位後沿用既有 lineage／risk／abstention 欄位更新。
       completed_summary_zh: 已完成指標意涵／來源／風險／lineage、39-role detail cards、YTD/1Y/5Y、transition attribution、8 個配置模板、5 情境／156 月 playhead，以及 strict evidence 與回測 metric 的繁體中文說明。
@@ -65,7 +65,7 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 1
       phase_impacted: true
-      phase_impact_zh: Phase133 完成歷史 book-policy 註解與 12 組 100／70／50／30 股票現金、股票長債固定權重敏感度比較，不選最佳結果。
+      phase_impact_zh: Phase133 完成歷史 book-policy 與 12 組固定權重比較；頁面先解釋目前規則、資料訊號與風險／機會成本，再按需展開完整參數。
       current_status_zh: 已有 portfolio research 安全邊界、8-template baseline/fixtures、replay schedule、cash-flow-aware kernel、10 個 research-only backtest artifacts、Phase89A 文字對齊，以及 Phase124 私人 NAS `/portfolio-research` 互動頁、declared boom／legal next recession／live transition context。
       remaining_gap_zh: 工程產品面已完成；正式 broad-equity／long-Treasury total-return 授權來源與 prospective validation 仍屬資料／驗證缺口。
       completed_summary_zh: 已完成 8 個受治理模板、cash-flow-aware kernel、五情境歷史政策時間軸、12 組固定權重比較、回撤恢復／換手／成本／機會成本與私人 NAS 互動頁。
@@ -78,7 +78,7 @@ product_capability_progress:
       current_progress_percent: 100
       phase_delta_percent: 2
       phase_impacted: true
-      phase_impact_zh: Phase133 完成 156 月 governed event／reference-cycle／book-policy 註解與固定權重研究結果，三個 PIT 缺口情境仍明確 abstain。
+      phase_impact_zh: Phase133 完成 156 月註解，並以「站在當時／事後對照」雙欄重播；三個 PIT 缺口情境仍明確 abstain。
       current_status_zh: 已有 validation/research artifact chain、cash-flow-aware kernel、strict/revised runner preview、PIT-ready Postgres schema、vintage availability accounting，以及 Phase124 私人 NAS `/historical-replay` 的 5 情境、156 月 playhead 與真實 strict timeline readiness。
       remaining_gap_zh: 工程重播與回測產品面已完成；七條早期官方 PIT、正式 market benchmark 與 prospective validation 仍待外部資料累積。
       completed_summary_zh: 已完成 5 情境／156 月互動重播、48 月 strict evidence、事件與 NBER 事後註解、16 組 cash-flow-aware 結果，以及固定權重回撤／恢復／成本比較。

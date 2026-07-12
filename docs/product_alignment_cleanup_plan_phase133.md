@@ -31,3 +31,16 @@ test file。新增一個整合測試，並擴充既有 Phase 125 surface test；
 
 工程產品面完成不等於模型已完成前瞻驗證。F2 維持 96%，prospective registry 仍為 0 筆，
 並依 Phase 127 calendar gate 等待第一個合法 as-of 與至少 12 個完整月份。
+
+## 使用者導向介面修正
+
+Phase 133 完成後的實際使用回饋指出，原頁面雖然資料與 lineage 完整，資訊順序仍像工程
+artifact viewer。後續修正維持所有計算與治理邊界，只重排兩個頁面的問題順序：
+
+- 配置研究先回答目前書籍規則、當前轉折資料與尚不能決定的比例，再顯示歷史取捨。
+- 歷史重播先回答站在當時能看到什麼，再顯示事後週期與政策對照。
+- raw role/lane/status ID 改由繁體中文指標、觀察與確認語意呈現。
+- 全部模板、固定參數表、PIT 缺口與 provenance 改為按需展開。
+- provenance 使用垂直欄位、可斷行的 technical text 與 mobile-safe details，避免長 ID 破壞排版。
+
+這項修正不增加 phase inference、配置指令、歷史結果 tuning 或 revised fallback。

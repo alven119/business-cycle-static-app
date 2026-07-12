@@ -310,52 +310,61 @@ def render_portfolio_research_page(
         _full_cycle_policy_row(row) for row in view["full_cycle_policy_rows"]
     )
     lane_rows = "".join(
-        f"<li><strong>{escape(str(lane_id))}</strong>"
-        f"<span>{escape(str(row['lane_status']))}</span></li>"
-        for lane_id, row in view["live_transition_lane_context"].items()
+        _portfolio_lane_row(row) for row in view["live_transition_lane_context"]
     )
     sensitivity_rows = "".join(
         _fixed_weight_sensitivity_row(row)
         for row in view["fixed_weight_sensitivity_rows"]
     )
+    scenario_summaries = "".join(
+        _sensitivity_scenario_summary(row)
+        for row in view["sensitivity_scenario_summaries"]
+    )
     timeline = view["historical_policy_timeline_summary"]
+    policy = view["current_policy_context"]
     return _html_document(
         title="配置研究",
         active_nav_id="portfolio_research",
         navigation=navigation,
         body=f"""
         <section class="command-header">
-          <div><p class="eyebrow">Book policy research / private NAS</p>
-          <h1>景氣循環配置研究</h1>
-          <p class="lede">以 declared {escape(str(view['declared_current_phase_label_zh']))} 與合法下一階段
-          {escape(str(view['legal_next_phase_label_zh']))} 為研究脈絡，比較書籍模板與防守替代方案。
-          這些比例是 backtest-only 參數，不是你的目前配置建議。</p></div>
-          <p class="research-badge">研究模板，不是交易指令</p>
+          <div><p class="eyebrow">依景氣階段研究配置取捨</p>
+          <h1>現在的配置研究該看什麼？</h1>
+          <p class="lede">這頁用書中的景氣配置觀念回答三件事：目前階段的政策脈絡、轉折證據是否改變研究重點，
+          以及不同防守比例在歷史壓力期間付出了什麼代價。它不替你下單，也不從歷史結果挑一個比例叫你照做。</p></div>
+          <p class="research-badge">研究取捨，不是個人化指令</p>
         </section>
-        <div class="trust-ribbon" data-phase-context-hash="{escape(str(view['phase_context_hash']))}"><span><b>Declared state</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
-        <span><b>Legal next</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
-        <span><b>模板數</b> {len(view['template_cards'])}</span><span><b>研究結果</b> {int(view['research_backtest_result_count'])} 組</span></div>
-        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Live transition context</p>
-        <h2>目前 evidence 如何限制配置研究</h2></div></div>
-        <ul class="lane-evidence-items">{lane_rows}</ul>
-        <p class="boundary-note">Watch 不等於 confirmation；即使 confirmation evidence 到位，也不會自動觸發配置動作。</p></section>
-        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Ordered-cycle policy timing</p>
-        <h2>四階段轉折與配置研究時機</h2></div></div>
-        <p>配置研究不能只看榮景轉衰退。衰退落底可能早於復甦確認，成長進入榮景則是書籍開始去風險研究的重要邊界。</p>
-        <div class="role-grid">{cycle_rows}</div></section>
-        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Eight governed templates</p>
-        <h2>書籍基準與研究替代方案</h2></div></div><div class="role-grid">{cards}</div></section>
-        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Historical policy research</p>
-        <h2>歷史固定權重敏感度</h2></div></div>
-        <p>沿用 Phase 125 的 cash-flow-aware strict PIT 結果，比較 100／70／50／30 股票與現金，以及 70／50 股票與長債代理。
-        五個情境共有 {int(timeline['monthly_annotation_count'])} 個月度註解；目前 {int(timeline['strict_complete_scenario_count'])} 個情境可計算，
-        {int(timeline['explicit_pit_blocked_scenario_count'])} 個因官方早期 PIT 缺口維持 abstain。</p>
-        <div class="table-scroll"><table class="research-table"><thead><tr><th>情境</th><th>固定參數</th><th>防守資產</th><th>年化 TWR</th><th>最大回撤</th><th>回撤恢復</th><th>換手／成本</th><th>機會成本</th></tr></thead>
+        <div class="trust-ribbon" data-phase-context-hash="{escape(str(view['phase_context_hash']))}"><span><b>目前研究階段</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
+        <span><b>下一個合法階段</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
+        <span><b>階段起始</b> {escape(str(view['declared_phase_start_display_zh']))}</span>
+        <span><b>可用回測</b> {int(timeline['strict_complete_scenario_count'])}／{int(timeline['scenario_count'])} 個事件</span></div>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">先看結論</p>
+        <h2>目前資料把配置研究帶到哪裡？</h2></div></div>
+        <div class="insight-grid">
+          <div class="insight-item"><p class="insight-label">書中的階段規則</p><h3>{escape(str(view['declared_current_phase_label_zh']))}期先研究降低股票曝險</h3><p>{escape(str(policy['book_rule_zh']))}</p></div>
+          <div class="insight-item"><p class="insight-label">目前轉折資料</p><h3>先分清觀察與確認</h3><p>{escape(str(policy['what_current_data_adds_zh']))}</p></div>
+          <div class="insight-item"><p class="insight-label">目前不能替你決定的事</p><h3>尚不能選定 70／50／30</h3><p>{escape(str(policy['decision_boundary_zh']))}</p></div>
+        </div>
+        <p class="decision-callout"><strong>實際用途：</strong>{escape(str(policy['transition_focus_zh']))}</p></section>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">現在該追蹤什麼</p>
+        <h2>配置研究會隨轉折證據改變重點</h2></div></div>
+        <div class="evidence-list">{lane_rows}</div>
+        <p class="boundary-note">觀察訊號用來提早注意風險；確認證據用來準備受治理的階段切換。兩者都不會自動改變持股。</p></section>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">歷史資料能回答的問題</p>
+        <h2>防守能降低多少風險，又可能錯過多少報酬？</h2></div></div>
+        <p>目前只有 COVID 與 2018–2019 具備完整的當時資料，可以比較固定比例。其他三個事件保留在歷史重播頁說明資料缺口，不拿修訂值假裝當時已知。</p>
+        <div class="insight-grid">{scenario_summaries}</div>
+        <div class="metric-guide"><strong>怎麼讀：</strong><span><b>最大回撤</b> 看過程最深跌幅</span><span><b>恢復時間</b> 看回到前高花多久</span><span><b>機會成本</b> 看防守後少參與的漲幅</span><span><b>換手／成本</b> 看執行摩擦</span></div>
+        <details class="detail-panel"><summary>查看 12 組固定參數的完整結果</summary>
+        <div class="table-scroll"><table class="research-table"><thead><tr><th>事件</th><th>股票／防守</th><th>防守工具</th><th>年化報酬</th><th>最大回撤</th><th>恢復時間</th><th>換手／成本</th><th>機會成本</th></tr></thead>
         <tbody>{sensitivity_rows}</tbody></table></div>
-        <p class="boundary-note">表格依預註冊參數順序呈現，不排序、不挑選歷史最佳結果，也不回頭調整轉折規則。長債是 DGS10 duration model；所有結果均為 research-only、backtest-only。</p></section>
-        <p class="boundary-note">目前已有 {int(view['research_backtest_result_count'])} 組 strict 固定參數 sensitivity，涵蓋 {int(view['quantitative_template_result_count'])} 個具數值參數模板；
-        另有 {int(view['evidence_context_only_template_count'])} 個轉折時機模板因書中沒有額外精確權重而刻意不硬造數值。NASDAQ-100 偏重科技，長債為 DGS10 duration model，均不得稱為書籍正式 benchmark。
-        research-only、backtest-only，不構成投資建議。</p>
+        <p class="boundary-note">依預註冊參數順序呈現，不排序、不挑選歷史最佳結果。長債是 DGS10 duration model，NASDAQ-100 是科技偏重替代，均不是正式書籍 benchmark。</p></details></section>
+        <section class="content-band"><details class="detail-panel"><summary>查看四階段配置邏輯</summary>
+        <p>配置研究不能只看榮景轉衰退：衰退落底可能早於復甦確認；成長進入榮景則是書籍開始去風險研究的重要邊界。</p>
+        <div class="role-grid">{cycle_rows}</div></details></section>
+        <section class="content-band"><details class="detail-panel"><summary>查看全部八個研究模板與技術限制</summary>
+        <div class="role-grid">{cards}</div></details></section>
+        <p class="boundary-note">所有比例與結果均為 research-only、backtest-only，不構成投資建議，也不代表未來績效。</p>
         """,
     )
 
@@ -379,39 +388,49 @@ def render_historical_replay_page(
         active_nav_id="historical_replay",
         navigation=navigation,
         body=f"""
-        <section class="command-header"><div><p class="eyebrow">Historical replay lab / input readiness</p>
-        <h1>景氣循環歷史重播</h1><p class="lede">選擇事件、資料模式與月份，檢查當時可得 inputs、缺漏與應觀察角色。
-        Phase 125 僅在官方 PIT inputs 完整的月份執行 evidence replay，並以 unitized NAV／XIRR 顯示固定參數 sensitivity；缺資料月份維持 abstain。</p></div>
-        <p class="research-badge">研究重播，不是歷史績效結論</p></section>
+        <section class="command-header"><div><p class="eyebrow">回到事件發生當下</p>
+        <h1>如果站在當時，資料會告訴我什麼？</h1><p class="lede">這頁不是讓你讀 artifact，而是練習景氣判讀：選一個歷史事件和月份，先看當時真正拿得到的資料，
+        再對照後來發生的景氣階段，理解哪些是早期觀察、哪些才算確認，以及資料不足時為什麼必須暫不判讀。</p></div>
+        <p class="research-badge">學習判讀，不偷看未來</p></section>
         <div class="trust-ribbon" data-phase-context-hash="{escape(str(view['phase_context_hash']))}">
-        <span><b>Declared</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
-        <span><b>Legal next</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
-        <span><b>情境</b> {len(view['scenario_rows'])}</span>
-        <span><b>月度節點</b> {len(view['monthly_playhead_rows'])}</span>
-        <span><b>PIT 完整月</b> {int(view['strict_complete_month_count'])}</span>
-        <span><b>PIT Abstain 月</b> {int(view['strict_abstention_month_count'])}</span>
-        <span><b>Governed events</b> {int(view['governed_event_count'])}</span>
-        <span><b>Backtest 結果</b> {int(view['research_backtest_result_count'])}</span></div>
-        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Data mode boundary</p>
-        <h2>Strict PIT 與 revised 比較不混用</h2></div></div>
-        <p>「當時可得資料」只讀取可驗證的 release vintage；「修訂後診斷比較」只供研究對照，
-        不會回填 PIT 缺口。網路泡沫、GFC 與歐債三個情境仍保留 uncertainty window，避免假完整。</p></section>
+        <span><b>目前研究脈絡</b> {escape(str(view['declared_current_phase_label_zh']))} → {escape(str(view['legal_next_phase_label_zh']))}</span>
+        <span><b>歷史事件</b> {len(view['scenario_rows'])} 個</span>
+        <span><b>當時資料完整</b> {int(view['strict_complete_month_count'])} 個月</span>
+        <span><b>資料不足</b> {int(view['strict_abstention_month_count'])} 個月</span></div>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">這頁的三種用途</p>
+        <h2>從歷史事件練習，不是背答案</h2></div></div>
+        <div class="insight-grid">
+          <div class="insight-item"><p class="insight-label">當時知道什麼</p><h3>只看當月以前發布的資料</h3><p>避免用後來修訂的漂亮數字，誤以為轉折當下很容易判斷。</p></div>
+          <div class="insight-item"><p class="insight-label">訊號如何累積</p><h3>觀察不等於確認</h3><p>看就業、消費與投資如何從分歧、轉弱，逐步形成或否定轉折。</p></div>
+          <div class="insight-item"><p class="insight-label">投資研究連結</p><h3>理解太早與太晚的代價</h3><p>完整情境可再到配置研究比較防守、回撤與錯失復甦的取捨。</p></div>
+        </div></section>
         <section class="content-band replay-console" aria-labelledby="replay-console-title">
-          <div class="section-heading"><div><p class="section-kicker">Interactive playhead</p><h2 id="replay-console-title">事件月度檢視</h2></div></div>
+          <div class="section-heading"><div><p class="section-kicker">逐月回到當時</p><h2 id="replay-console-title">選擇事件與月份</h2></div></div>
           <div class="replay-controls">
             <label>歷史事件<select id="replay-scenario">{options}</select></label>
-            <label>資料模式<select id="replay-mode"><option value="vintage_as_of">當時可得資料（PIT）</option><option value="revised_declared_comparison_only">修訂後診斷比較</option></select></label>
+            <label>觀看角度<select id="replay-mode"><option value="vintage_as_of">站在當時：只看當時可得資料</option><option value="revised_declared_comparison_only">事後對照：查看修訂後背景</option></select></label>
             <label>月份<input id="replay-playhead" type="range" min="0" max="0" value="0"><output id="replay-date"></output></label>
           </div>
-          <article class="replay-readout"><h3 id="replay-title"></h3><p id="replay-focus"></p>
-          <dl class="learning-grid"><dt>月份</dt><dd id="replay-asof"></dd><dt>資料狀態</dt><dd id="replay-state"></dd>
-          <dt>可用／缺漏</dt><dd id="replay-counts"></dd><dt>Attribution</dt><dd id="replay-roles"></dd>
-          <dt>Strict evidence</dt><dd id="replay-evidence"></dd><dt>研究回測</dt><dd id="replay-backtest"></dd>
-          <dt>事後週期註解</dt><dd id="replay-reference-state"></dd><dt>書籍政策回放</dt><dd id="replay-policy"></dd>
-          <dt>Watch／confirmation</dt><dd id="replay-transition-annotation"></dd><dt>Shock／不確定性</dt><dd id="replay-event-flags"></dd></dl>
+          <article class="replay-readout"><div class="replay-heading"><div><h3 id="replay-title"></h3><p id="replay-focus"></p></div><span id="replay-state" class="status-chip"></span></div>
+          <p id="replay-takeaway" class="decision-callout"></p>
+          <div class="replay-columns">
+            <section class="replay-column"><p class="insight-label">站在當時</p><h3>當月可以怎麼判讀？</h3>
+              <dl class="learning-grid"><dt>月份</dt><dd id="replay-asof"></dd><dt>資料完整度</dt><dd id="replay-counts"></dd>
+              <dt>證據重點</dt><dd id="replay-evidence"></dd><dt>觀察與確認</dt><dd id="replay-transition-annotation"></dd>
+              <dt>優先觀察指標</dt><dd id="replay-roles"></dd></dl>
+            </section>
+            <section class="replay-column hindsight"><p class="insight-label">事後對照</p><h3>後來發生了什麼？</h3>
+              <dl class="learning-grid"><dt>官方週期註解</dt><dd id="replay-reference-state"></dd><dt>書籍政策回放</dt><dd id="replay-policy"></dd>
+              <dt>特殊事件</dt><dd id="replay-event-flags"></dd><dt>配置研究</dt><dd id="replay-backtest"></dd></dl>
+            </section>
+          </div>
           <p id="replay-caveat" class="boundary-note"></p></article>
         </section>
-        <section class="content-band"><h2>預註冊歷史事件</h2><div class="role-grid">{scenario_cards}</div></section>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">選哪個事件來學？</p><h2>五種不同的判讀難題</h2></div></div>
+        <p>不是每個事件都有完整的早期官方資料。資料不足的案例仍有價值：它們提醒我們哪些歷史結論不能假裝能在當時重現。</p>
+        <div class="role-grid">{scenario_cards}</div></section>
+        <section class="content-band"><details class="detail-panel"><summary>為什麼「當時資料」和「事後修訂」必須分開？</summary>
+        <p>當時資料只使用該月份以前可驗證的發布版本；事後修訂只能幫助理解背景，不能回填當時缺漏。網路泡沫、全球金融危機與歐債三個情境因此保留資料不確定標記。</p></details></section>
         <script type="application/json" id="replay-scenarios">{scenarios_json}</script>
         <script type="application/json" id="replay-rows">{rows_json}</script>
         <script>{_replay_interaction_script(view['default_scenario_id'], view['default_data_mode'])}</script>
@@ -438,6 +457,30 @@ def _portfolio_template_card(row: dict[str, Any]) -> str:
       <dt>分類</dt><dd>{escape(str(row['book_or_modern_classification']))}</dd>
       <dt>Strict PIT 研究結果</dt><dd>{result_html}</dd></dl>
       <p class="boundary-note">backtest-only；不是目前配置建議。</p></article>
+    """
+
+
+def _portfolio_lane_row(row: dict[str, Any]) -> str:
+    counts = (
+        f"支持 {int(row['supportive_evidence_count'])}／"
+        f"反對 {int(row['contradictory_evidence_count'])}／"
+        f"資料不足 {int(row['abstained_evidence_count'])}"
+    )
+    return f"""
+    <div class="evidence-row"><div><p class="insight-label">{escape(str(row['title_zh']))}</p>
+    <p>{escape(str(row['purpose_zh']))}</p></div>
+    <div class="evidence-status"><strong>{escape(str(row['lane_status_label_zh']))}</strong><span>{escape(counts)}</span></div></div>
+    """
+
+
+def _sensitivity_scenario_summary(row: dict[str, Any]) -> str:
+    return f"""
+    <div class="insight-item"><p class="insight-label">{escape(str(row['title_zh']))}</p>
+    <h3>{int(row['result_count'])} 組固定比例可比較</h3>
+    <p>{escape(str(row['research_question_zh']))}</p>
+    <dl><dt>最大回撤範圍</dt><dd>{escape(str(row['drawdown_range_zh']))}</dd>
+    <dt>最高機會成本</dt><dd>{float(row['maximum_opportunity_cost_percent']):.2f}%</dd></dl>
+    <p class="boundary-note">{escape(str(row['takeaway_zh']))}</p></div>
     """
 
 
@@ -478,27 +521,34 @@ def _replay_scenario_card(row: dict[str, Any]) -> str:
         + "；"
         + _ratio_range_zh(metrics["max_drawdown"], "最大回撤")
         if metrics["annualized_twr"]
-        else "PIT inputs 不完整，依法 abstain"
+        else "當時資料不完整，不產生回測結論"
     )
     event_items = "".join(
-        "<li><strong>"
-        + escape(str(event["event_type"]))
-        + "</strong><span>"
+        '<li><span class="provenance-title">'
         + escape(str(event["display_label_zh"]))
-        + "（"
-        + escape(str(event["source_class"]))
-        + "）</span></li>"
+        + '</span><span class="provenance-meta">'
+        + escape(str(event["event_start"]))
+        + " 至 "
+        + escape(str(event["event_end"]))
+        + "</span><span class=\"provenance-source\">來源類型："
+        + escape(_event_source_label_zh(str(event["source_class"])))
+        + "</span></li>"
         for event in row["governed_events"]
     )
-    gaps = "、".join(row["pit_gap_series_ids"]) or "無"
+    gaps = "、".join(row["pit_gap_series_ids"]) or "沒有已知缺漏"
+    role_labels = "、".join(row["attribution_role_labels_zh"])
     return f"""
-    <article class="role-card"><p class="eyebrow">{escape(str(row['scenario_family']))}</p>
-    <h3>{escape(str(row['title_zh']))}</h3><p>{escape(str(row['focus_zh']))}</p>
-    <dl><dt>期間</dt><dd>{escape(str(row['window_start']))} – {escape(str(row['window_end']))}</dd>
-    <dt>月份</dt><dd>{int(row['month_count'])}</dd><dt>Strict replay</dt><dd>{'已執行' if row['strict_evidence_replay_executed'] else '未執行／abstain'}</dd>
-    <dt>PIT 狀態</dt><dd>{escape(str(row['pit_status']))}</dd><dt>缺口 series</dt><dd>{escape(gaps)}</dd>
-    <dt>固定參數結果</dt><dd>{int(row['research_backtest_result_count'])} 組；{metric_html}</dd></dl>
-    <details><summary>事件與 provenance</summary><ul class="lane-evidence-items">{event_items}</ul></details></article>
+    <article class="role-card scenario-card"><p class="eyebrow">{escape(str(row['data_readiness_label_zh']))}</p>
+    <h3>{escape(str(row['title_zh']))}</h3><p>{escape(str(row['research_use_zh']))}</p>
+    <p class="scenario-answer"><strong>目前能回答：</strong>{escape(str(row['available_answer_zh']))}</p>
+    <dl><dt>事件期間</dt><dd>{escape(str(row['window_start']))} – {escape(str(row['window_end']))}</dd>
+    <dt>研究焦點</dt><dd>{escape(str(row['focus_zh']))}</dd>
+    <dt>固定比例研究</dt><dd>{int(row['research_backtest_result_count'])} 組；{metric_html}</dd></dl>
+    <details class="provenance-details"><summary>查看觀察指標、資料缺口與事件來源</summary>
+      <div class="provenance-block"><strong>優先觀察指標</strong><p>{escape(role_labels)}</p></div>
+      <div class="provenance-block"><strong>缺漏的官方資料序列</strong><p class="technical-wrap">{escape(gaps)}</p></div>
+      <div class="provenance-block"><strong>事件註解</strong><ul class="provenance-list">{event_items}</ul></div>
+    </details></article>
     """
 
 
@@ -523,19 +573,17 @@ def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
         document.getElementById('replay-focus').textContent = scenario.focus_zh;
         document.getElementById('replay-date').textContent = row.as_of;
         document.getElementById('replay-asof').textContent = row.as_of;
-        document.getElementById('replay-state').textContent = strict ? row.strict_input_state : row.revised_comparison_state;
-        document.getElementById('replay-counts').textContent = strict ? `${{row.strict_available_series_count}} 可用 / ${{row.strict_missing_series_count}} 缺漏` : '修訂後資料比較介面；尚未執行模型';
-        document.getElementById('replay-roles').textContent = row.attribution_role_ids.join('、');
-        document.getElementById('replay-evidence').textContent = row.strict_evidence_replay_executed ? Object.entries(row.strict_lane_states).map(([key, value]) => `${{key}}: ${{value}}`).join('；') : '未執行';
-        document.getElementById('replay-backtest').textContent = scenario.research_backtest_result_count ? `${{scenario.research_backtest_result_count}} 組固定參數 sensitivity` : '未執行';
-        const referenceLabels = {{recession: 'NBER 事後衰退註解', nber_expansion_book_subphase_unclassified: 'NBER expansion；書籍子階段未分類', no_declared_us_recession_reference: '研究窗內無 NBER 美國衰退'}};
-        document.getElementById('replay-reference-state').textContent = `${{referenceLabels[row.reference_cycle_state] || row.reference_cycle_state}}${{row.reference_phase_age_month ? `（第 ${{row.reference_phase_age_month}} 月）` : ''}}`;
-        document.getElementById('replay-policy').textContent = row.book_policy_requirement_id ? `書籍衰退規則：股票 ${{row.book_policy_equity_parameter_percent}}%（歷史回放）` : '無可安全套用的書籍四階段權重';
-        const watches = row.transition_watch_annotations.map(item => `${{item.lane_id}}: ${{item.evidence_state}}`);
-        const confirmations = row.transition_confirmation_annotations.map(item => `${{item.lane_id}}: ${{item.evidence_state}}`);
-        document.getElementById('replay-transition-annotation').textContent = [...watches, ...confirmations].join('；') || '當月無 strict evidence 註解';
-        document.getElementById('replay-event-flags').textContent = [row.shock_annotation_present ? '外生衝擊' : '', row.uncertainty_annotation_present ? 'PIT 不確定窗' : ''].filter(Boolean).join('／') || '無';
-        document.getElementById('replay-caveat').textContent = strict && row.strict_abstention_required ? '當月缺少官方 PIT inputs，strict replay 必須 abstain，不能回退 revised。' : (row.strict_evidence_replay_executed ? '已執行 strict evidence replay；不輸出歷史 current phase。回測為固定參數研究，不是動態換倉結果。' : '此模式目前不輸出歷史 phase。');
+        document.getElementById('replay-state').textContent = strict ? row.strict_input_state_label_zh : '事後修訂背景';
+        document.getElementById('replay-counts').textContent = strict ? `${{row.strict_available_series_count}} 項可用／${{row.strict_missing_series_count}} 項缺漏` : '修訂資料只供背景對照，不回填當時判讀';
+        document.getElementById('replay-roles').textContent = row.attribution_role_labels_zh.join('、');
+        document.getElementById('replay-evidence').textContent = strict ? row.strict_lane_summary_zh : '切回「站在當時」才能檢查當時 evidence；事後模式不執行模型。';
+        document.getElementById('replay-backtest').textContent = scenario.research_backtest_result_count ? `${{scenario.research_backtest_result_count}} 組固定比例可比較；請到配置研究看風險與機會成本` : '當時資料不完整，沒有可安全執行的固定比例研究';
+        document.getElementById('replay-reference-state').textContent = `${{row.reference_cycle_state_label_zh}}${{row.reference_phase_age_month ? `（衰退第 ${{row.reference_phase_age_month}} 月）` : ''}}`;
+        document.getElementById('replay-policy').textContent = row.book_policy_replay_summary_zh;
+        document.getElementById('replay-transition-annotation').textContent = strict ? row.transition_annotation_summary_zh : '事後週期標籤不會回頭改寫當時的觀察與確認證據。';
+        document.getElementById('replay-event-flags').textContent = row.event_flags_label_zh;
+        document.getElementById('replay-takeaway').textContent = strict ? row.learning_takeaway_zh : row.historical_annotation_reason_zh;
+        document.getElementById('replay-caveat').textContent = strict && row.strict_abstention_required ? '這個月缺少官方當時資料，所以只能說「不知道」，不能用後來修訂值補答案。' : (strict ? '這是當時資料的研究重播，不是系統當年的正式 current phase，也不是交易訊號。' : '事後對照幫助理解事件背景，但不能證明當時已經知道轉折。');
       }}
       scenarioSelect.addEventListener('change', () => {{ playhead.value = 0; render(); }});
       modeSelect.addEventListener('change', render);
@@ -553,6 +601,14 @@ def _scenario_label_zh(scenario_id: str) -> str:
         "euro_debt_slowdown_2011_2012": "歐債壓力",
         "late_cycle_2018_2019": "2018–2019 晚期循環",
     }.get(scenario_id, scenario_id)
+
+
+def _event_source_label_zh(source_class: str) -> str:
+    return {
+        "preregistered_scenario_metadata": "預先登錄的事件期間",
+        "explicit_pit_gap": "明確記錄的當時資料缺口",
+        "strict_evidence_derived": "由當時可得證據推導",
+    }.get(source_class, source_class)
 
 
 def _result_range_html(summary: dict[str, Any]) -> str:
@@ -1671,6 +1727,23 @@ def _html_document(
     .lane-evidence-items li {{ display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 8px; padding: 7px; border: 1px solid var(--line); font-size: .68rem; }}
     .lane-evidence-items li > span:nth-of-type(2), .evidence-reason {{ grid-column: 1 / -1; color: var(--muted); }}
     .evidence-state {{ font-weight: 750; }}
+    .insight-grid {{ display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }}
+    .insight-item {{ min-width: 0; padding: 15px 0; border-top: 3px solid var(--green); }}
+    .insight-item:nth-child(2) {{ border-top-color: var(--blue); }}
+    .insight-item:nth-child(3) {{ border-top-color: var(--amber); }}
+    .insight-item h3 {{ margin: 5px 0 7px; }}
+    .insight-item p {{ margin: 0; color: var(--muted); }}
+    .insight-label {{ margin: 0; color: var(--green) !important; font-size: .72rem; font-weight: 750; }}
+    .decision-callout {{ margin: 14px 0 0; padding: 12px 14px; border-left: 4px solid var(--green); background: var(--green-soft); }}
+    .evidence-list {{ display: grid; border-top: 1px solid var(--line); }}
+    .evidence-row {{ display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 13px 4px; border-bottom: 1px solid var(--line); }}
+    .evidence-row p {{ margin: 3px 0 0; color: var(--muted); font-size: .8rem; }}
+    .evidence-status {{ display: grid; gap: 2px; min-width: 150px; text-align: right; }}
+    .evidence-status strong {{ color: var(--amber); }}
+    .evidence-status span {{ color: var(--muted); font-size: .7rem; }}
+    .metric-guide {{ display: flex; flex-wrap: wrap; gap: 7px 15px; margin-top: 15px; padding: 11px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: .78rem; }}
+    .metric-guide span {{ color: var(--muted); }}
+    .detail-panel {{ margin-top: 15px; padding: 12px 0 0; }}
     .why-not {{ margin: 10px 0; font-size: .72rem; }}
     .why-not summary {{ cursor: pointer; color: var(--blue); font-weight: 700; }}
     .parameter-levels {{ display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }}
@@ -1681,6 +1754,13 @@ def _html_document(
     .replay-controls select {{ min-height: 40px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 7px; }}
     .replay-controls input {{ width: 100%; }}
     .replay-readout {{ padding: 16px; border: 1px solid var(--line); background: var(--paper); }}
+    .replay-heading {{ display: flex; justify-content: space-between; align-items: start; gap: 14px; }}
+    .replay-heading h3, .replay-heading p {{ margin: 0 0 5px; }}
+    .status-chip {{ flex: none; max-width: 230px; padding: 5px 8px; background: var(--amber-soft); color: var(--amber); font-size: .72rem; font-weight: 750; text-align: center; }}
+    .replay-columns {{ display: grid; gap: 16px; margin-top: 16px; }}
+    .replay-column {{ min-width: 0; padding-top: 12px; border-top: 3px solid var(--green); }}
+    .replay-column.hindsight {{ border-top-color: var(--blue); }}
+    .replay-column h3 {{ margin: 4px 0 12px; }}
     .lane-role-links {{ display: flex; flex-wrap: wrap; gap: 5px; }}
     .lane-role-links a {{ border: 1px solid var(--line); padding: 3px 5px; color: var(--blue); font-size: .65rem; overflow-wrap: anywhere; }}
     .priority-indicator-list {{ display: grid; border-top: 1px solid var(--line); }}
@@ -1702,12 +1782,21 @@ def _html_document(
     .roadmap-grid article {{ min-height: 90px; padding: 13px; border: 1px dashed #aab8af; background: transparent; }}
     .roadmap-grid strong, .roadmap-grid span {{ display: block; }}
     .roadmap-grid span {{ margin-top: 5px; color: var(--muted); font-size: .75rem; }}
-    .summary-grid article, .role-card {{ background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 14px; }}
+    .summary-grid article, .role-card {{ min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 14px; overflow-wrap: anywhere; }}
     .summary-grid strong {{ display: block; font-size: 1.8rem; }}
     .summary-grid span, .meta, .technical-id, dt {{ color: var(--muted); }}
     .technical-id {{ margin: -2px 0 8px; font-size: .82rem; }}
     details {{ margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }}
     summary {{ color: var(--blue); cursor: pointer; font-weight: 650; }}
+    .scenario-answer {{ padding-left: 9px; border-left: 3px solid var(--green); }}
+    .provenance-details {{ overflow: hidden; }}
+    .provenance-block {{ min-width: 0; margin-top: 12px; }}
+    .provenance-block p {{ margin: 4px 0 0; }}
+    .provenance-list {{ display: grid; gap: 8px; margin: 6px 0 0; padding: 0; list-style: none; }}
+    .provenance-list li {{ display: grid; min-width: 0; gap: 2px; padding: 8px 0; border-bottom: 1px solid var(--line); }}
+    .provenance-title {{ font-weight: 700; }}
+    .provenance-meta, .provenance-source {{ color: var(--muted); font-size: .72rem; overflow-wrap: anywhere; }}
+    .technical-wrap {{ overflow-wrap: anywhere; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; }}
     .chart-grid {{ display: grid; gap: 10px; margin-top: 10px; }}
     .chart-panel {{ border: 1px solid var(--line); border-radius: 5px; padding: 8px; }}
     .chart-panel h4 {{ margin: 0 0 6px; font-size: .88rem; }}
@@ -1739,6 +1828,10 @@ def _html_document(
       .research-badge, .status-note, .text-link {{ display: inline-block; margin-top: 9px; }}
       h1 {{ font-size: 1.65rem; }}
       .cycle-order {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+      .evidence-row, .replay-heading {{ display: block; }}
+      .evidence-status {{ margin-top: 8px; text-align: left; }}
+      .status-chip {{ display: inline-block; margin-top: 8px; }}
+      .learning-grid, dl {{ grid-template-columns: minmax(80px, .35fr) minmax(0, 1fr); }}
     }}
     @media (min-width: 720px) {{
       .phase-command-grid {{ grid-template-columns: 1.1fr 1.1fr .8fr; }}
@@ -1746,6 +1839,7 @@ def _html_document(
       .priority-indicator {{ grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(100px, .8fr) minmax(130px, .8fr); align-items: center; }}
       .chart-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
       .replay-controls {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+      .replay-columns {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
     }}
     @media (min-width: 980px) {{
       .app-shell {{ display: grid; grid-template-columns: 220px minmax(0, 1fr); }}

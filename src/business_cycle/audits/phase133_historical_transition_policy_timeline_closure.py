@@ -104,8 +104,8 @@ def summarize_phase133_historical_transition_policy_timeline_closure(
         "policy_timeline_visible_count": sum(
             marker in html
             for marker, html in (
-                ("歷史固定權重敏感度", portfolio_html),
-                ("事後週期註解", replay_html),
+                ("防守能降低多少風險", portfolio_html),
+                ("如果站在當時，資料會告訴我什麼", replay_html),
             )
         ),
         "private_nas_mobile_acceptance_passed": all(

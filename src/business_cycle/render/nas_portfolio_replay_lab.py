@@ -34,6 +34,31 @@ from business_cycle.validation.historical_pit_transition_events import (
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_portfolio_replay_lab_contract.yaml"
 TEMPLATE_FIXTURE_PATH = ROOT / "specs/portfolio/portfolio_policy_template_fixtures.yaml"
+ROLE_LABELS_PATH = ROOT / "specs/common/book_core_role_display_labels_zh.yaml"
+
+LANE_LABELS_ZH = {
+    "boom_continuation": "榮景延續",
+    "boom_ending_watch": "榮景結束觀察",
+    "recession_watch": "衰退風險觀察",
+    "recession_confirmation": "衰退確認",
+}
+
+EVIDENCE_STATE_LABELS_ZH = {
+    "supportive_evidence_present": "支持證據出現",
+    "contradictory_evidence_present": "反對證據出現",
+    "mixed_evidence": "證據分歧",
+    "incomplete_evidence": "證據不足",
+    "explicit_abstention": "資料不足，暫不判讀",
+    "unavailable": "目前無資料",
+}
+
+SCENARIO_USE_ZH = {
+    "dotcom_cycle_2000_2003": "研究科技榮景結束後，實體經濟確認與市場回落是否同步。",
+    "global_financial_crisis_2007_2009": "研究金融壓力如何逐步傳到就業、消費與投資。",
+    "covid_recession_2020": "研究外生衝擊下，為何不能把一般循環規則機械套用。",
+    "euro_debt_slowdown_2011_2012": "研究風險升高但未形成美國衰退時，如何避免過早去風險。",
+    "late_cycle_2018_2019": "研究晚期循環的警訊，如何與真正衰退確認區分。",
+}
 
 PROHIBITED_FIELDS = {
     "current_phase",
@@ -70,6 +95,7 @@ def build_nas_portfolio_replay_lab(
     contract = load_nas_portfolio_replay_lab_contract(contract_path)
     declared = dict(snapshot.get("declared_cycle_state", {}))
     phase_context = build_phase_aware_dashboard_context(declared)
+    role_labels = _role_labels()
     phase125_execution = snapshot.get("source_release_diagnostics", {}).get(
         "strict_replay_backtest_status", {}
     )
@@ -83,6 +109,7 @@ def build_nas_portfolio_replay_lab(
         phase125_execution=phase125_execution,
         phase_context=phase_context,
         historical_policy=historical_policy,
+        role_labels=role_labels,
     )
     replay = _replay_view(
         contract=contract,
@@ -90,6 +117,7 @@ def build_nas_portfolio_replay_lab(
         phase125_execution=phase125_execution,
         phase_context=phase_context,
         historical_policy=historical_policy,
+        role_labels=role_labels,
     )
     artifact: dict[str, Any] = {
         "artifact_id": "phase124_nas_portfolio_replay_lab_v1",
@@ -197,6 +225,7 @@ def _portfolio_view(
     phase125_execution: dict[str, Any],
     phase_context: dict[str, Any],
     historical_policy: dict[str, Any],
+    role_labels: dict[str, str],
 ) -> dict[str, Any]:
     baseline = summarize_portfolio_policy_research_baseline()
     surface = build_portfolio_policy_replay_research_surface_view_model()
@@ -235,6 +264,14 @@ def _portfolio_view(
         declared_phase=str(declared.get("declared_current_phase", "boom")),
         live_lanes=(live_transition_evidence or {}).get("lanes", {}),
     )
+    active_policy = next(
+        row for row in full_cycle["phase_rows"] if row["is_declared_phase"]
+    )
+    lane_context = _portfolio_lane_context(
+        live_transition_evidence=live_transition_evidence,
+        phase_context=phase_context,
+    )
+    sensitivity_rows = historical_policy["fixed_weight_sensitivity_rows"]
     return {
         "view_id": "nas_portfolio_policy_research",
         "declared_current_phase": declared.get("declared_current_phase", "boom"),
@@ -245,6 +282,12 @@ def _portfolio_view(
         "legal_next_phase_label_zh": declared.get(
             "legal_next_phase_label_zh", "衰退"
         ),
+        "declared_phase_start_display_zh": declared.get(
+            "declared_phase_start_display_zh", "尚待使用者確認"
+        ),
+        "phase_age_status": declared.get(
+            "phase_age_status", "unknown_or_user_required"
+        ),
         "default_research_template_id": phase_context[
             "primary_portfolio_template_id"
         ],
@@ -254,18 +297,15 @@ def _portfolio_view(
         "full_cycle_policy_context_ready": full_cycle[
             "full_cycle_portfolio_transition_research_ready"
         ],
-        "live_transition_lane_context": {
-            lane_id: {
-                "lane_status": lane["lane_status"],
-                "supportive_evidence_count": lane["supportive_evidence_count"],
-                "contradictory_evidence_count": lane[
-                    "contradictory_evidence_count"
-                ],
-                "abstained_evidence_count": lane["abstained_evidence_count"],
-            }
-            for lane_id, lane in (live_transition_evidence or {}).get(
-                "lanes", {}
-            ).items()
+        "live_transition_lane_context": lane_context,
+        "current_policy_context": {
+            "book_rule_zh": active_policy["book_policy_context_zh"],
+            "transition_focus_zh": active_policy["timing_interpretation_zh"],
+            "decision_boundary_zh": _policy_decision_boundary(
+                phase_context=phase_context,
+                active_policy=active_policy,
+            ),
+            "what_current_data_adds_zh": _current_data_policy_summary(lane_context),
         },
         "active_transition_context_connected": True,
         "active_evaluator_mode": (
@@ -314,9 +354,11 @@ def _portfolio_view(
                 "explicit_pit_blocked_scenario_count"
             ],
         },
-        "fixed_weight_sensitivity_rows": historical_policy[
-            "fixed_weight_sensitivity_rows"
-        ],
+        "fixed_weight_sensitivity_rows": sensitivity_rows,
+        "sensitivity_scenario_summaries": _sensitivity_scenario_summaries(
+            sensitivity_rows
+        ),
+        "role_labels": role_labels,
         "fixed_weight_results_used_for_rule_tuning": False,
         "best_historical_result_selected": False,
         "research_only": True,
@@ -330,6 +372,7 @@ def _replay_view(
     phase125_execution: dict[str, Any],
     phase_context: dict[str, Any],
     historical_policy: dict[str, Any],
+    role_labels: dict[str, str],
 ) -> dict[str, Any]:
     manifest = load_historical_validation_scenario_manifest()
     scenario_display = contract["replay_policy"]["scenario_display"]
@@ -377,6 +420,11 @@ def _replay_view(
                 "window_end": scenario["validation_window_end"],
                 "month_count": len(months),
                 "attribution_role_ids": list(display["attribution_role_ids"]),
+                "attribution_role_labels_zh": [
+                    role_labels.get(str(role_id), str(role_id))
+                    for role_id in display["attribution_role_ids"]
+                ],
+                "research_use_zh": SCENARIO_USE_ZH[scenario_id],
                 "strict_evidence_replay_executed": any(
                     key[0] == scenario_id for key in evidence_by_key
                 ),
@@ -385,6 +433,15 @@ def _replay_view(
                 "pit_status": governed_registry["scenario_status"][scenario_id][
                     "pit_status"
                 ],
+                "data_readiness_label_zh": _pit_status_label(
+                    governed_registry["scenario_status"][scenario_id]["pit_status"]
+                ),
+                "available_answer_zh": _scenario_available_answer(
+                    pit_status=governed_registry["scenario_status"][scenario_id][
+                        "pit_status"
+                    ],
+                    result_count=len(scenario_results),
+                ),
                 "governed_events": events_by_scenario.get(scenario_id, []),
                 "pit_gap_series_ids": sorted(
                     row["series_id"]
@@ -419,6 +476,10 @@ def _replay_view(
                         "revised_diagnostic_navigation_ready_no_model_execution"
                     ),
                     "attribution_role_ids": list(display["attribution_role_ids"]),
+                    "attribution_role_labels_zh": [
+                        role_labels.get(str(role_id), str(role_id))
+                        for role_id in display["attribution_role_ids"]
+                    ],
                     "strict_evidence_replay_executed": evidence is not None,
                     "strict_lane_states": (
                         dict(evidence["lane_states"]) if evidence else {}
@@ -459,6 +520,7 @@ def _replay_view(
                     "current_phase_emitted": False,
                 }
             )
+            playhead_rows[-1] |= _monthly_learning_summary(playhead_rows[-1])
     return {
         "view_id": "nas_historical_replay_lab",
         "declared_current_phase_label_zh": phase_context[
@@ -512,7 +574,226 @@ def _replay_view(
         "historical_label_runtime_usage_count": historical_policy[
             "historical_label_runtime_usage_count"
         ],
+        "role_labels": role_labels,
     }
+
+
+def _role_labels() -> dict[str, str]:
+    payload = yaml.safe_load(ROLE_LABELS_PATH.read_text(encoding="utf-8"))
+    return dict(payload["book_core_role_display_labels_zh"]["roles"])
+
+
+def _portfolio_lane_context(
+    *,
+    live_transition_evidence: dict[str, Any] | None,
+    phase_context: dict[str, Any],
+) -> list[dict[str, Any]]:
+    configured = {
+        str(row["lane_id"]): row for row in phase_context["transition_lanes"]
+    }
+    rows = []
+    for lane_id, lane in (live_transition_evidence or {}).get("lanes", {}).items():
+        config = configured.get(str(lane_id), {})
+        status = str(lane["lane_status"])
+        rows.append(
+            {
+                "lane_id": str(lane_id),
+                "title_zh": config.get(
+                    "title_zh", LANE_LABELS_ZH.get(str(lane_id), str(lane_id))
+                ),
+                "purpose_zh": config.get("purpose_zh", "目前轉折證據研究。"),
+                "lane_type": config.get("lane_type", "evidence_context"),
+                "lane_status": status,
+                "lane_status_label_zh": EVIDENCE_STATE_LABELS_ZH.get(status, status),
+                "supportive_evidence_count": lane["supportive_evidence_count"],
+                "contradictory_evidence_count": lane[
+                    "contradictory_evidence_count"
+                ],
+                "abstained_evidence_count": lane["abstained_evidence_count"],
+            }
+        )
+    return rows
+
+
+def _policy_decision_boundary(
+    *, phase_context: dict[str, Any], active_policy: dict[str, Any]
+) -> str:
+    if phase_context["phase_age_status"] == "unknown_or_user_required":
+        return (
+            "階段起始日尚未確認，70／50／30 只能作敏感度比較，不能依榮景年齡選定其中一個比例。"
+        )
+    return (
+        f"目前可依受治理的階段起始資訊研究 {active_policy['numeric_policy_status']}；"
+        "仍不會自動形成配置動作。"
+    )
+
+
+def _current_data_policy_summary(lanes: list[dict[str, Any]]) -> str:
+    supportive_watch = [
+        row["title_zh"]
+        for row in lanes
+        if row["lane_status"] == "supportive_evidence_present"
+        and row["lane_type"] == "transition_watch"
+    ]
+    supportive_confirmation = [
+        row["title_zh"]
+        for row in lanes
+        if row["lane_status"] == "supportive_evidence_present"
+        and row["lane_type"] == "transition_confirmation"
+    ]
+    incomplete = [
+        row["title_zh"]
+        for row in lanes
+        if row["lane_status"] in {"incomplete_evidence", "explicit_abstention"}
+    ]
+    if supportive_watch or supportive_confirmation:
+        parts = []
+        if supportive_watch:
+            parts.append("觀察訊號：" + "、".join(supportive_watch))
+        if supportive_confirmation:
+            parts.append("確認證據：" + "、".join(supportive_confirmation))
+        return "目前資料顯示" + "；".join(parts) + "。兩者不會自動改變配置。"
+    if incomplete:
+        return "目前尚不足以形成完整轉折判讀：" + "、".join(incomplete) + "。"
+    return "目前資料用來追蹤榮景延續與衰退風險，不直接決定配置比例。"
+
+
+def _sensitivity_scenario_summaries(
+    rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        grouped.setdefault(str(row["scenario_id"]), []).append(row)
+    summaries = []
+    for scenario_id, scenario_rows in grouped.items():
+        drawdowns = [
+            abs(float(row["max_drawdown_on_unitized_nav"])) * 100.0
+            for row in scenario_rows
+        ]
+        opportunity_costs = [
+            float(value)
+            for row in scenario_rows
+            for value in (
+                row["missed_recovery_opportunity_cost_percent"],
+                row["false_derisk_opportunity_cost_percent"],
+            )
+            if value is not None
+        ]
+        summaries.append(
+            {
+                "scenario_id": scenario_id,
+                "title_zh": _scenario_title_zh(scenario_id),
+                "result_count": len(scenario_rows),
+                "drawdown_range_zh": (
+                    f"{min(drawdowns):.1f}%～{max(drawdowns):.1f}%"
+                ),
+                "maximum_opportunity_cost_percent": max(opportunity_costs, default=0.0),
+                "research_question_zh": (
+                    "降低股票曝險換來多少回撤變化，又可能犧牲多少後續復甦或未衰退期間的報酬？"
+                ),
+                "takeaway_zh": (
+                    "比較重點是風險與機會成本的交換，不是找出一個歷史績效最高、現在就照做的比例。"
+                ),
+            }
+        )
+    return summaries
+
+
+def _pit_status_label(status: str) -> str:
+    return {
+        "strict_complete": "可用當時資料完整重播",
+        "partial_explicit_abstention": "早期官方資料不完整，只能部分研究",
+    }.get(str(status), str(status))
+
+
+def _scenario_available_answer(*, pit_status: str, result_count: int) -> str:
+    if pit_status == "strict_complete":
+        return (
+            f"可逐月查看當時可得證據，並比較 {result_count} 組固定參數研究結果。"
+        )
+    return (
+        "可查看事件背景、事後週期註解與缺漏資料；不能聲稱已重現當時的完整轉折判讀。"
+    )
+
+
+def _monthly_learning_summary(row: dict[str, Any]) -> dict[str, str]:
+    lane_states = dict(row["strict_lane_states"])
+    watch_rows = row["transition_watch_annotations"]
+    confirmation_rows = row["transition_confirmation_annotations"]
+    if not row["strict_evidence_replay_executed"]:
+        evidence_summary = "當月資料不足，系統依法不做 evidence 判讀。"
+        takeaway = "先看缺了哪些資料；不要用後來修訂值假裝當時已經知道。"
+    elif any(
+        item["evidence_state"] == "supportive_evidence_present"
+        for item in confirmation_rows
+    ):
+        evidence_summary = "當月已有轉折確認證據，但它仍不是自動換檔或交易指令。"
+        takeaway = "確認證據比 watch 強；仍要檢查資料完整度與受治理的狀態切換。"
+    elif any(
+        item["evidence_state"] == "supportive_evidence_present"
+        for item in watch_rows
+    ):
+        evidence_summary = "當月出現早期觀察訊號，尚未形成轉折確認。"
+        takeaway = "這是提高注意力的時點，不是提前把 watch 當成衰退。"
+    else:
+        evidence_summary = "當月 evidence 尚未形成一致的轉折方向。"
+        takeaway = "觀察支持、反對與不足證據如何隨月份累積，而不是只看單一數值。"
+    reference = {
+        "recession": "事後資料將本月列在 NBER 衰退區間",
+        "nber_expansion_book_subphase_unclassified": "事後為擴張期，但無法只靠 NBER 再分書籍子階段",
+        "no_declared_us_recession_reference": "研究窗內沒有 NBER 美國衰退",
+    }.get(str(row["reference_cycle_state"]), str(row["reference_cycle_state"]))
+    policy = (
+        f"書籍衰退期規則回放：股票 {row['book_policy_equity_parameter_percent']}%"
+        if row["book_policy_requirement_id"]
+        else "本月沒有可安全套用的書籍四階段權重"
+    )
+    transition_summary = _annotation_summary(watch_rows, confirmation_rows)
+    event_summary = "／".join(
+        item
+        for item in (
+            "外生衝擊" if row["shock_annotation_present"] else "",
+            "PIT 資料不確定" if row["uncertainty_annotation_present"] else "",
+        )
+        if item
+    ) or "沒有額外事件註記"
+    return {
+        "strict_input_state_label_zh": (
+            "當時資料足以執行重播"
+            if not row["strict_abstention_required"]
+            else "當時資料不完整，必須暫不判讀"
+        ),
+        "strict_lane_summary_zh": evidence_summary,
+        "reference_cycle_state_label_zh": reference,
+        "book_policy_replay_summary_zh": policy,
+        "transition_annotation_summary_zh": transition_summary,
+        "event_flags_label_zh": event_summary,
+        "learning_takeaway_zh": takeaway,
+        "lane_state_count": len(lane_states),
+    }
+
+
+def _annotation_summary(
+    watches: list[dict[str, str]], confirmations: list[dict[str, str]]
+) -> str:
+    parts = []
+    for label, rows in (("觀察", watches), ("確認", confirmations)):
+        for row in rows:
+            parts.append(
+                f"{label}「{LANE_LABELS_ZH.get(row['lane_id'], row['lane_id'])}」："
+                f"{EVIDENCE_STATE_LABELS_ZH.get(row['evidence_state'], row['evidence_state'])}"
+            )
+    return "；".join(parts) or "當月沒有可用的轉折證據註解"
+
+
+def _scenario_title_zh(scenario_id: str) -> str:
+    return {
+        "dotcom_cycle_2000_2003": "網路泡沫循環",
+        "global_financial_crisis_2007_2009": "全球金融危機",
+        "covid_recession_2020": "COVID 外生衝擊",
+        "euro_debt_slowdown_2011_2012": "歐債危機疑慮",
+        "late_cycle_2018_2019": "2018–2019 晚期循環",
+    }.get(scenario_id, scenario_id)
 
 
 def _template_result_summary(
