@@ -51,6 +51,9 @@ from business_cycle.audits.phase130_full_cycle_revised_data_closure import (
 from business_cycle.audits.phase131_historical_pit_transition_events_closure import (
     summarize_phase131_historical_pit_transition_events_closure,
 )
+from business_cycle.audits.phase132_phase_aware_dashboard_closure import (
+    summarize_phase132_phase_aware_dashboard_closure,
+)
 from business_cycle.validation.historical_pit_transition_events import (
     build_historical_pit_transition_event_registry,
 )
@@ -461,15 +464,15 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase131-historical-pit-events"
-    assert worker["image"] == "business-cycle-nas-app:phase131-historical-pit-events"
+    assert app["image"] == "business-cycle-nas-app:phase132-phase-aware-dashboard"
+    assert worker["image"] == "business-cycle-nas-app:phase132-phase-aware-dashboard"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
     ]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
-    assert app["environment"]["BUSINESS_CYCLE_PHASE_TRANSITION_ACTIVATION_ENABLED"] == "false"
+    assert app["environment"]["BUSINESS_CYCLE_PHASE_TRANSITION_ACTIVATION_ENABLED"] == "true"
     assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
@@ -901,7 +904,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert runtime["phase"] == 131
+    assert runtime["phase"] == 132
     assert runtime["full_cycle_revised_data_readiness"][
         "all_automated_revised_inputs_in_postgres"
     ] is True
@@ -1960,3 +1963,21 @@ def test_phase131_historical_pit_gap_and_governed_events_pass() -> None:
     )
     assert "phase131_closure_ready=true" in completed.stdout
     assert "result=passed" in completed.stdout
+
+
+def test_phase132_phase_aware_dashboard_closure_passes() -> None:
+    summary = summarize_phase132_phase_aware_dashboard_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["synthetic_declared_state_count"] == 4
+    assert summary["synthetic_state_render_pass_count"] == 4
+    assert summary["phase_specific_transition_lane_count"] == 13
+    assert summary["phase_specific_priority_role_count"] == 20
+    assert summary["atomic_context_surface_check_count"] == 16
+    assert summary["partial_page_context_switch_count"] == 0
+    assert summary["live_evaluator_phase_count"] == 1
+    assert summary["explicit_input_readiness_only_phase_count"] == 3
+    assert summary["transition_activation_gate_enabled"] is True
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    assert summary["development_next_phase"] == 133

@@ -7,6 +7,10 @@ from typing import Any
 
 import yaml
 
+from business_cycle.render.phase_aware_dashboard_context import (
+    build_phase_aware_dashboard_context,
+)
+
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_cycle_command_center_contract.yaml"
 DEFAULT_ROLE_LABELS_PATH = ROOT / "specs/common/book_core_role_display_labels_zh.yaml"
@@ -48,32 +52,53 @@ def build_nas_cycle_command_center(
     labels = _load_role_labels(role_labels_path)
     roles = {str(row["role_id"]): row for row in snapshot["role_snapshots"]}
     declared = dict(snapshot.get("declared_cycle_state", {}))
-    phase = str(declared.get("declared_current_phase", "boom"))
-    legal_next = str(declared.get("legal_next_phase", "recession"))
+    if "declared_current_phase" not in declared:
+        declared = {
+            "declared_current_phase": "boom",
+            "declared_phase_start_display_zh": "尚待使用者確認",
+            "phase_age_status": "unknown_or_user_required",
+            "active_registry_hash": "canonical_declared_registry",
+            "active_registry_source": "canonical_default",
+        }
+    phase_context = build_phase_aware_dashboard_context(declared)
+    phase = str(phase_context["declared_current_phase"])
+    legal_next = str(phase_context["legal_next_phase"])
     live_lanes = (live_transition_evidence or {}).get("lanes", {})
     live_roles = (live_transition_evidence or {}).get("role_evidence", {})
+    live_evidence_matches_context = bool(
+        live_transition_evidence
+        and live_transition_evidence.get("result") == "passed"
+        and live_transition_evidence.get("declared_current_phase") == phase
+        and live_transition_evidence.get("legal_next_phase") == legal_next
+    )
     lanes = [
         _lane_view(
             row,
             roles=roles,
             role_labels=labels,
-            live_lane=live_lanes.get(row["lane_id"]),
+            live_lane=(
+                live_lanes.get(row["lane_id"])
+                if live_evidence_matches_context
+                else None
+            ),
         )
-        for row in contract["transition_lanes"]
+        for row in phase_context["transition_lanes"]
     ]
     key_indicators = [
         _indicator_view(
             roles[role_id],
             labels[role_id],
-            live_evidence=live_roles.get(role_id),
+            live_evidence=(
+                live_roles.get(role_id) if live_evidence_matches_context else None
+            ),
         )
-        for role_id in contract["key_indicator_role_ids"]
+        for role_id in phase_context["priority_role_ids"]
     ]
     navigation = [dict(row) for row in contract["navigation"]]
     command_center: dict[str, Any] = {
-        "view_model_id": "nas_cycle_command_center_v1",
-        "view_model_version": contract["version"],
-        "phase": 120,
+        "view_model_id": "nas_phase_aware_cycle_command_center_v1",
+        "view_model_version": phase_context["context_version"],
+        "phase": 132,
         "output_mode": contract["output_policy"]["output_mode"],
         "research_only": True,
         "snapshot_as_of": snapshot.get("snapshot_as_of"),
@@ -82,12 +107,12 @@ def build_nas_cycle_command_center(
             "declared_current_phase": phase,
             "declared_current_phase_label_zh": declared.get(
                 "declared_current_phase_label_zh",
-                contract["phase_labels_zh"].get(phase, phase),
+                phase_context["declared_current_phase_label_zh"],
             ),
             "legal_next_phase": legal_next,
             "legal_next_phase_label_zh": declared.get(
                 "legal_next_phase_label_zh",
-                contract["phase_labels_zh"].get(legal_next, legal_next),
+                phase_context["legal_next_phase_label_zh"],
             ),
             "declared_phase_start_display_zh": declared.get(
                 "declared_phase_start_display_zh",
@@ -113,14 +138,23 @@ def build_nas_cycle_command_center(
             for phase_id in contract["cycle_order"]
         ],
         "navigation": navigation,
+        "phase_context": phase_context,
+        "phase_context_hash": phase_context["context_hash"],
+        "transition_heading_zh": phase_context["transition_heading_zh"],
+        "learning_intro_zh": phase_context["learning_intro_zh"],
+        "other_phase_navigation": phase_context["other_phase_navigation"],
         "transition_lanes": lanes,
         "key_indicators": key_indicators,
         "data_health": _data_health(snapshot),
-        "live_transition_evaluator_connected": bool(
-            live_transition_evidence
-            and live_transition_evidence.get("result") == "passed"
+        "live_transition_evaluator_connected": live_evidence_matches_context,
+        "active_evaluator_mode": (
+            "live_book_evidence"
+            if live_evidence_matches_context
+            else "input_readiness_only_explicit_abstention"
         ),
-        "live_transition_evidence": live_transition_evidence,
+        "live_transition_evidence": (
+            live_transition_evidence if live_evidence_matches_context else None
+        ),
         "transition_conclusion_output_count": 0,
         "watch_promoted_to_confirmation_count": 0,
         "raw_value_promoted_to_evidence_count": 0,
@@ -136,10 +170,7 @@ def build_nas_cycle_command_center(
             "transition_lane_status_is_input_readiness_not_conclusion": (
                 live_transition_evidence is None
             ),
-            "live_transition_evaluator_connected": bool(
-                live_transition_evidence
-                and live_transition_evidence.get("result") == "passed"
-            ),
+            "live_transition_evaluator_connected": live_evidence_matches_context,
             "revised_diagnostic_only": snapshot.get("data_mode")
             == "revised_diagnostic",
             "watch_confirmation_separated": True,
@@ -158,11 +189,7 @@ def build_nas_cycle_command_center(
             "personalized_portfolio_instruction",
             "trade_action",
         ],
-        "development_next_phase": (
-            124
-            if live_transition_evidence is not None
-            else int(contract["hard_gates"]["development_next_phase"])
-        ),
+        "development_next_phase": 133,
     }
     command_center["nas_cycle_command_center_contract_ready"] = _contract_ready(
         contract
@@ -173,10 +200,10 @@ def build_nas_cycle_command_center(
     command_center["cycle_command_center_view_model_ready"] = (
         command_center["nas_cycle_command_center_contract_ready"]
         and command_center["prohibited_output_field_count"] == 0
-        and len(lanes) == 4
+        and len(lanes) >= 3
         and len(key_indicators) == 5
-        and phase == "boom"
-        and legal_next == "recession"
+        and legal_next == phase_context["legal_next_phase"]
+        and len(phase_context["required_surface_ids"]) == 6
     )
     command_center["result"] = (
         "passed" if command_center["cycle_command_center_view_model_ready"] else "blocked"

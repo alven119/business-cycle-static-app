@@ -64,6 +64,10 @@ from business_cycle.audits.phase123_live_ordered_cycle_evidence_closure import (
 from business_cycle.render.nas_portfolio_replay_lab import (
     build_nas_portfolio_replay_lab,
 )
+from business_cycle.render.phase_aware_dashboard_context import (
+    build_phase_aware_dashboard_context,
+    summarize_phase_aware_dashboard_context,
+)
 from business_cycle.transition_monitor.live_ordered_cycle_evidence import (
     build_live_ordered_cycle_evidence,
 )
@@ -164,6 +168,41 @@ def test_phase124_nas_portfolio_and_replay_surfaces_are_operational_without_exec
         row["pit_status"] == "partial_explicit_abstention"
         for row in replay["scenario_rows"]
     ) == 3
+
+
+def test_phase132_four_declared_contexts_preserve_legal_order() -> None:
+    summary = summarize_phase_aware_dashboard_context()
+    expected = {
+        "recession": "recovery",
+        "recovery": "growth",
+        "growth": "boom",
+        "boom": "recession",
+    }
+
+    assert summary["result"] == "passed"
+    assert summary["phase_context_count"] == 4
+    for phase, legal_next in expected.items():
+        context = build_phase_aware_dashboard_context(
+            {
+                "declared_current_phase": phase,
+                "declared_phase_start_display_zh": "synthetic",
+                "phase_age_status": "synthetic",
+                "active_registry_hash": f"test-{phase}",
+            }
+        )
+        assert context["legal_next_phase"] == legal_next
+        assert len(context["priority_role_ids"]) == 5
+        assert any(
+            row["lane_type"] == "transition_watch"
+            for row in context["transition_lanes"]
+        )
+        assert any(
+            row["lane_type"] == "transition_confirmation"
+            for row in context["transition_lanes"]
+        )
+        assert context["automatic_state_change_allowed"] is False
+        assert context["candidate_phase_emitted"] is False
+        assert context["current_phase_emitted"] is False
 
 
 def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces() -> None:

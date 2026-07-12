@@ -169,10 +169,11 @@ def build_nas_live_dashboard_runtime(
         snapshot_manifest=snapshot,
         runtime_live_mode=True,
     )
+    live_ordered_evidence = dashboard.get("live_ordered_cycle_evidence") or {}
     governed_transition_status = build_nas_governed_transition_status(
         active_registry_path=declared_registry_path or DEFAULT_ACTIVE_REGISTRY_PATH,
         as_of=snapshot_as_of,
-        live_transition_evidence=dashboard["live_ordered_cycle_evidence"],
+        live_transition_evidence=dashboard.get("live_ordered_cycle_evidence"),
     )
     shell = build_nas_app_shell(dashboard_bundle=dashboard)
     technology_cycle = dashboard["technology_manufacturing_cycle"]
@@ -218,9 +219,9 @@ def build_nas_live_dashboard_runtime(
         }
     )
     shell["nas_page_completeness"] = page_scan
-    shell["phase"] = "131"
-    shell["phase_id"] = 131
-    shell["artifact_id"] = "phase131_historical_pit_transition_events_runtime"
+    shell["phase"] = "132"
+    shell["phase_id"] = 132
+    shell["artifact_id"] = "phase132_phase_aware_dashboard_runtime"
     shell["governed_cycle_transition"] = governed_transition_status
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
@@ -287,9 +288,9 @@ def build_nas_live_dashboard_runtime(
         "live_transition_evaluator_connected": dashboard["command_center"][
             "live_transition_evaluator_connected"
         ],
-        "live_transition_phase_evidence_output_role_count": dashboard[
-            "live_ordered_cycle_evidence"
-        ]["phase_evidence_output_role_count"],
+        "live_transition_phase_evidence_output_role_count": (
+            dashboard["command_center"].get("live_transition_evidence") or {}
+        ).get("phase_evidence_output_role_count", 0),
         "portfolio_research_route_operational": portfolio_replay_lab[
             "portfolio_research_route_operational"
         ],
@@ -359,6 +360,12 @@ def build_nas_live_dashboard_runtime(
         "source_blocked_with_supporting_context_count": snapshot[
             "full_cycle_revised_data_readiness"
         ]["source_blocked_with_supporting_context_count"],
+        "declared_phase_context_hash": dashboard["command_center"][
+            "phase_context_hash"
+        ],
+        "declared_phase_context_evaluator_mode": dashboard["command_center"][
+            "active_evaluator_mode"
+        ],
         "historical_pit_gap_series_count": portfolio_replay_lab[
             "historical_replay"
         ]["pit_gap_series_count"],
@@ -417,9 +424,9 @@ def build_nas_live_dashboard_runtime(
         "live_transition_evaluator_connected": dashboard["command_center"][
             "live_transition_evaluator_connected"
         ],
-        "live_transition_phase_evidence_output_role_count": dashboard[
-            "live_ordered_cycle_evidence"
-        ]["phase_evidence_output_role_count"],
+        "live_transition_phase_evidence_output_role_count": (
+            dashboard["command_center"].get("live_transition_evidence") or {}
+        ).get("phase_evidence_output_role_count", 0),
         "portfolio_research_route_operational": portfolio_replay_lab[
             "portfolio_research_route_operational"
         ],
@@ -459,8 +466,8 @@ def build_nas_live_dashboard_runtime(
         ]["source_blocked_with_supporting_context_count"],
     }
     runtime: dict[str, Any] = {
-        "phase": 131,
-        "artifact_id": "phase131_historical_pit_transition_events_runtime",
+        "phase": 132,
+        "artifact_id": "phase132_phase_aware_dashboard_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -492,7 +499,7 @@ def build_nas_live_dashboard_runtime(
         "full_cycle_revised_data_readiness": snapshot[
             "full_cycle_revised_data_readiness"
         ],
-        "live_ordered_cycle_evidence": dashboard["live_ordered_cycle_evidence"],
+        "live_ordered_cycle_evidence": live_ordered_evidence,
         "portfolio_replay_lab": portfolio_replay_lab,
         "transaction_read_only_enforced": True,
         "silent_fixture_fallback_count": 0,
@@ -506,7 +513,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 132,
+        "development_next_phase": 133,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True
@@ -516,8 +523,8 @@ def build_nas_live_dashboard_runtime(
         and runtime["chart_available_role_count"] == 37
         and runtime["source_release_diagnostics"]["release_calendar_runtime_ready"]
         is True
-        and runtime["live_ordered_cycle_evidence"][
-            "live_evidence_evaluator_connected"
+        and runtime["dashboard_bundle"]["command_center"][
+            "cycle_command_center_view_model_ready"
         ]
         is True
         and runtime["portfolio_replay_lab"]["result"] == "passed"

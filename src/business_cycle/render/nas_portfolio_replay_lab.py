@@ -18,6 +18,9 @@ from business_cycle.portfolio.full_cycle_transition_policy import (
 from business_cycle.render.portfolio_policy_replay_research_surface import (
     build_portfolio_policy_replay_research_surface_view_model,
 )
+from business_cycle.render.phase_aware_dashboard_context import (
+    build_phase_aware_dashboard_context,
+)
 from business_cycle.validation.historical_validation_manifest import (
     load_historical_validation_scenario_manifest,
 )
@@ -56,13 +59,14 @@ def load_nas_portfolio_replay_lab_contract(
 def build_nas_portfolio_replay_lab(
     snapshot: dict[str, Any],
     *,
-    live_transition_evidence: dict[str, Any],
+    live_transition_evidence: dict[str, Any] | None,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
 ) -> dict[str, Any]:
     """Compose existing governed artifacts into two interactive NAS surfaces."""
 
     contract = load_nas_portfolio_replay_lab_contract(contract_path)
     declared = dict(snapshot.get("declared_cycle_state", {}))
+    phase_context = build_phase_aware_dashboard_context(declared)
     phase125_execution = snapshot.get("source_release_diagnostics", {}).get(
         "strict_replay_backtest_status", {}
     )
@@ -71,11 +75,13 @@ def build_nas_portfolio_replay_lab(
         declared=declared,
         live_transition_evidence=live_transition_evidence,
         phase125_execution=phase125_execution,
+        phase_context=phase_context,
     )
     replay = _replay_view(
         contract=contract,
         snapshot=snapshot,
         phase125_execution=phase125_execution,
+        phase_context=phase_context,
     )
     artifact: dict[str, Any] = {
         "artifact_id": "phase124_nas_portfolio_replay_lab_v1",
@@ -101,11 +107,13 @@ def build_nas_portfolio_replay_lab(
             for row in portfolio["template_cards"]
         ),
         "declared_phase_context_connected": (
-            portfolio["declared_current_phase"] == "boom"
+            portfolio["phase_context_hash"] == phase_context["context_hash"]
+            and replay["phase_context_hash"] == phase_context["context_hash"]
         ),
-        "live_transition_context_connected": bool(
-            portfolio["live_transition_lane_context"]
-        ),
+        "phase_context_hash": phase_context["context_hash"],
+        "live_transition_context_connected": portfolio[
+            "active_transition_context_connected"
+        ],
         "policy_template_count": len(portfolio["template_cards"]),
         "scenario_count": len(replay["scenario_rows"]),
         "monthly_playhead_row_count": len(replay["monthly_playhead_rows"]),
@@ -167,8 +175,9 @@ def _portfolio_view(
     *,
     contract: dict[str, Any],
     declared: dict[str, Any],
-    live_transition_evidence: dict[str, Any],
+    live_transition_evidence: dict[str, Any] | None,
     phase125_execution: dict[str, Any],
+    phase_context: dict[str, Any],
 ) -> dict[str, Any]:
     baseline = summarize_portfolio_policy_research_baseline()
     surface = build_portfolio_policy_replay_research_surface_view_model()
@@ -182,12 +191,10 @@ def _portfolio_view(
         template_id = str(row["template_id"])
         if template_id == policy["passive_comparator_template_id"]:
             relevance = "passive_comparator"
-        elif template_id == policy["default_research_template_id"]:
-            relevance = "declared_boom_primary_research"
-        elif template_id in policy["declared_phase_relevant_template_ids"]:
-            relevance = "declared_boom_alternative_research"
-        elif template_id in policy["legal_next_transition_template_ids"]:
-            relevance = "legal_next_recession_research"
+        elif template_id == phase_context["primary_portfolio_template_id"]:
+            relevance = "declared_phase_primary_research"
+        elif template_id in phase_context["relevant_portfolio_template_ids"]:
+            relevance = "declared_phase_related_research"
         else:
             relevance = "future_cycle_research"
         result_summary = _template_result_summary(template_id, execution_results)
@@ -207,7 +214,7 @@ def _portfolio_view(
         )
     full_cycle = build_full_cycle_portfolio_transition_research(
         declared_phase=str(declared.get("declared_current_phase", "boom")),
-        live_lanes=live_transition_evidence["lanes"],
+        live_lanes=(live_transition_evidence or {}).get("lanes", {}),
     )
     return {
         "view_id": "nas_portfolio_policy_research",
@@ -219,7 +226,10 @@ def _portfolio_view(
         "legal_next_phase_label_zh": declared.get(
             "legal_next_phase_label_zh", "衰退"
         ),
-        "default_research_template_id": policy["default_research_template_id"],
+        "default_research_template_id": phase_context[
+            "primary_portfolio_template_id"
+        ],
+        "phase_context_hash": phase_context["context_hash"],
         "template_cards": cards,
         "full_cycle_policy_rows": full_cycle["phase_rows"],
         "full_cycle_policy_context_ready": full_cycle[
@@ -234,8 +244,17 @@ def _portfolio_view(
                 ],
                 "abstained_evidence_count": lane["abstained_evidence_count"],
             }
-            for lane_id, lane in live_transition_evidence["lanes"].items()
+            for lane_id, lane in (live_transition_evidence or {}).get(
+                "lanes", {}
+            ).items()
         },
+        "active_transition_context_connected": True,
+        "active_evaluator_mode": (
+            "live_book_evidence"
+            if live_transition_evidence
+            and live_transition_evidence.get("result") == "passed"
+            else "input_readiness_only_explicit_abstention"
+        ),
         "source_surface_ready": surface[
             "portfolio_policy_replay_research_surface_ready"
         ],
@@ -270,6 +289,7 @@ def _replay_view(
     contract: dict[str, Any],
     snapshot: dict[str, Any],
     phase125_execution: dict[str, Any],
+    phase_context: dict[str, Any],
 ) -> dict[str, Any]:
     manifest = load_historical_validation_scenario_manifest()
     scenario_display = contract["replay_policy"]["scenario_display"]
@@ -369,6 +389,13 @@ def _replay_view(
             )
     return {
         "view_id": "nas_historical_replay_lab",
+        "declared_current_phase_label_zh": phase_context[
+            "declared_current_phase_label_zh"
+        ],
+        "legal_next_phase_label_zh": phase_context[
+            "legal_next_phase_label_zh"
+        ],
+        "phase_context_hash": phase_context["context_hash"],
         "scenario_rows": scenarios,
         "monthly_playhead_rows": playhead_rows,
         "data_mode_options": [

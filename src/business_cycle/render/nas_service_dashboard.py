@@ -74,8 +74,15 @@ def build_nas_service_dashboard_bundle(
     snapshot = snapshot_manifest or build_nas_indicator_snapshot_manifest()
     role_labels = load_book_core_role_display_labels_zh()
     _validate_role_label_coverage(snapshot=snapshot, role_labels=role_labels)
+    declared_phase = str(
+        snapshot.get("declared_cycle_state", {}).get(
+            "declared_current_phase", "boom"
+        )
+    )
     live_transition_evidence = (
-        build_live_ordered_cycle_evidence(snapshot) if runtime_live_mode else None
+        build_live_ordered_cycle_evidence(snapshot)
+        if runtime_live_mode and declared_phase == "boom"
+        else None
     )
     command_center = build_nas_cycle_command_center(
         snapshot,
@@ -131,11 +138,11 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "128" if runtime_live_mode else "95",
-        "phase_id": 128 if runtime_live_mode else 95,
+        "phase": "132" if runtime_live_mode else "95",
+        "phase_id": 132 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase128_full_cycle_portfolio_page_renderer"
+            "phase132_phase_aware_dashboard_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),
@@ -152,6 +159,7 @@ def build_nas_service_dashboard_bundle(
         "api_payloads": api_payloads,
         "html_pages": html_pages,
         "command_center": command_center,
+        "phase_context_hash": command_center["phase_context_hash"],
         "live_ordered_cycle_evidence": live_transition_evidence,
         "technology_manufacturing_cycle": technology_cycle,
         "portfolio_replay_lab": portfolio_replay_lab,
@@ -319,7 +327,7 @@ def render_portfolio_research_page(
           這些比例是 backtest-only 參數，不是你的目前配置建議。</p></div>
           <p class="research-badge">研究模板，不是交易指令</p>
         </section>
-        <div class="trust-ribbon"><span><b>Declared state</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
+        <div class="trust-ribbon" data-phase-context-hash="{escape(str(view['phase_context_hash']))}"><span><b>Declared state</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
         <span><b>Legal next</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
         <span><b>模板數</b> {len(view['template_cards'])}</span><span><b>研究結果</b> {int(view['research_backtest_result_count'])} 組</span></div>
         <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Live transition context</p>
@@ -362,7 +370,10 @@ def render_historical_replay_page(
         <h1>景氣循環歷史重播</h1><p class="lede">選擇事件、資料模式與月份，檢查當時可得 inputs、缺漏與應觀察角色。
         Phase 125 僅在官方 PIT inputs 完整的月份執行 evidence replay，並以 unitized NAV／XIRR 顯示固定參數 sensitivity；缺資料月份維持 abstain。</p></div>
         <p class="research-badge">研究重播，不是歷史績效結論</p></section>
-        <div class="trust-ribbon"><span><b>情境</b> {len(view['scenario_rows'])}</span>
+        <div class="trust-ribbon" data-phase-context-hash="{escape(str(view['phase_context_hash']))}">
+        <span><b>Declared</b> {escape(str(view['declared_current_phase_label_zh']))}</span>
+        <span><b>Legal next</b> {escape(str(view['legal_next_phase_label_zh']))}</span>
+        <span><b>情境</b> {len(view['scenario_rows'])}</span>
         <span><b>月度節點</b> {len(view['monthly_playhead_rows'])}</span>
         <span><b>PIT 完整月</b> {int(view['strict_complete_month_count'])}</span>
         <span><b>PIT Abstain 月</b> {int(view['strict_abstention_month_count'])}</span>
@@ -397,9 +408,8 @@ def _portfolio_template_card(row: dict[str, Any]) -> str:
     levels = row.get("research_parameter_levels_percent", [])
     level_html = "".join(f"<span>{int(value)}%</span>" for value in levels) or "<span>時機研究，不硬造權重</span>"
     relevance = {
-        "declared_boom_primary_research": "Declared 榮景主要研究",
-        "declared_boom_alternative_research": "Declared 榮景替代研究",
-        "legal_next_recession_research": "合法下一階段研究",
+        "declared_phase_primary_research": "Declared 階段主要研究",
+        "declared_phase_related_research": "Declared 階段相關研究",
         "passive_comparator": "被動比較基準",
         "future_cycle_research": "後續循環研究",
     }.get(str(row["relevance_status"]), str(row["relevance_status"]))
@@ -763,6 +773,8 @@ def _api_payloads(
                 "not_configured",
             ),
             "declared_cycle_state": snapshot.get("declared_cycle_state", {}),
+            "phase_context_hash": command_center["phase_context_hash"],
+            "active_evaluator_mode": command_center["active_evaluator_mode"],
             "live_transition_evaluator_connected": command_center[
                 "live_transition_evaluator_connected"
             ],
@@ -903,7 +915,7 @@ def _overview_html(
             <h1>景氣循環指揮中心</h1>
             <p class="lede">{escape(_dashboard_intro(runtime_live_mode))}</p>
           </div>
-          <p class="research-badge">研究用途 / revised diagnostic</p>
+          <p class="research-badge">Declared {escape(str(command_center['declared_state']['declared_current_phase_label_zh']))} / revised diagnostic</p>
         </section>
         {_command_center_trust_ribbon(command_center)}
         <section class="cycle-command" aria-labelledby="cycle-command-heading">
@@ -920,12 +932,12 @@ def _overview_html(
         <section id="transition-monitor" class="content-band" aria-labelledby="transition-heading">
           <div class="section-heading">
             <div>
-              <p class="section-kicker">Boom to recession</p>
+              <p class="section-kicker">{escape(str(command_center['declared_state']['declared_current_phase_label_zh']))} → {escape(str(command_center['declared_state']['legal_next_phase_label_zh']))}</p>
               <h2 id="transition-heading">轉折風險雷達</h2>
             </div>
-            <span class="status-note">live evidence 已接線；研究判讀，不是 declared state 改判</span>
+            <span class="status-note">{escape(str(command_center['active_evaluator_mode']))}；研究判讀，不是 declared state 改判</span>
           </div>
-          <p class="section-intro">四條 lane 分開呈現榮景延續、榮景結束 watch、衰退 watch 與衰退 confirmation。判讀使用年增率、4 期平均與 causal direction／turning-point contract；watch 不會升級成 confirmation，任何 evidence 也不會自動改寫 declared 榮景。</p>
+          <p class="section-intro">{escape(str(command_center['transition_heading_zh']))}。{escape(str(command_center['learning_intro_zh']))} Watch 不會自動升級成 confirmation，任何 evidence 也不會改寫 declared state。</p>
           {_transition_lane_html(command_center)}
         </section>
         <section class="content-band" aria-labelledby="indicator-heading">
@@ -969,9 +981,25 @@ def _indicator_index_html(
     command_center: dict[str, Any],
     runtime_live_mode: bool,
 ) -> str:
+    priority_ids = list(command_center["phase_context"]["priority_role_ids"])
+    priority_order = {role_id: index for index, role_id in enumerate(priority_ids)}
+    declared_phase = command_center["declared_state"]["declared_current_phase"]
+    ordered_rows = sorted(
+        snapshot["role_snapshots"],
+        key=lambda row: (
+            0 if row["role_id"] in priority_order else 1,
+            priority_order.get(row["role_id"], 999),
+            0 if row["phase_or_layer"] == declared_phase else 1,
+            str(row["role_id"]),
+        ),
+    )
     cards = "\n".join(
-        _role_card(row, display_name_zh=role_labels[row["role_id"]])
-        for row in snapshot["role_snapshots"]
+        _role_card(
+            row,
+            display_name_zh=role_labels[row["role_id"]],
+            is_priority=row["role_id"] in priority_order,
+        )
+        for row in ordered_rows
     )
     caveats = "\n".join(
         f"<li>{escape(item)}</li>" for item in _mobile_trust_caveats()
@@ -985,9 +1013,12 @@ def _indicator_index_html(
           <p class="eyebrow">research-only / {escape(_dashboard_data_source_label(runtime_live_mode))}</p>
           <h1>總經指標快照</h1>
           <p>每個卡片分開顯示官方原始值與書籍導向的主要判讀值，並說明數值升降在
-          declared 榮景與衰退轉折觀察中的意義。可展開查看今年以來、過去 1 年與過去 5 年走勢；
+          declared {escape(str(command_center['declared_state']['declared_current_phase_label_zh']))} 與
+          {escape(str(command_center['declared_state']['legal_next_phase_label_zh']))}轉折觀察中的意義。
+          {escape(str(command_center['learning_intro_zh']))} 可展開查看今年以來、過去 1 年與過去 5 年走勢；
           blocked 不會被當作 neutral，也不會被補零。</p>
         </section>
+        {_command_center_trust_ribbon(command_center)}
         <section>
           <h2>資料邊界</h2>
           <ul>{caveats}</ul>
@@ -1000,7 +1031,10 @@ def _indicator_index_html(
 def _command_center_trust_ribbon(command_center: dict[str, Any]) -> str:
     health = command_center["data_health"]
     return f"""
-    <div class="trust-ribbon" aria-label="資料信任資訊">
+    <div class="trust-ribbon" aria-label="資料信任資訊"
+      data-phase-context-hash="{escape(str(command_center['phase_context_hash']))}">
+      <span><b>Declared</b> {escape(str(command_center['declared_state']['declared_current_phase_label_zh']))}</span>
+      <span><b>Legal next</b> {escape(str(command_center['declared_state']['legal_next_phase_label_zh']))}</span>
       <span><b>資料模式</b> revised diagnostic</span>
       <span><b>資料截至</b> {escape(str(health.get('database_latest_observation_date') or '尚無'))}</span>
       <span><b>可用角色</b> {int(health['available_role_count'])}/{int(health['role_count'])}</span>
@@ -1190,7 +1224,9 @@ def _command_center_health_html(command_center: dict[str, Any]) -> str:
     """
 
 
-def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
+def _role_card(
+    row: dict[str, Any], *, display_name_zh: str, is_priority: bool = False
+) -> str:
     status = row["snapshot_status"]
     latest = row["latest_revised_observations"]
     latest_display = latest[0] if latest else {}
@@ -1208,7 +1244,9 @@ def _role_card(row: dict[str, Any], *, display_name_zh: str) -> str:
     learning_html = _learning_semantics_html(learning)
     return f"""
     <article id="role-{escape(row['role_id'])}" class="role-card"
-      data-role-card="true" data-snapshot-status="{escape(status)}">
+      data-role-card="true" data-snapshot-status="{escape(status)}"
+      data-phase-priority="{str(is_priority).lower()}">
+      {"<p class='eyebrow'>本階段優先觀察</p>" if is_priority else ""}
       <h3>{escape(display_name_zh)}</h3>
       <p class="technical-id">技術識別：<code>{escape(row['role_id'])}</code></p>
       <p class="meta">{escape(row['phase_or_layer'])} / {escape(row['major_group_id'])}</p>
@@ -1819,7 +1857,7 @@ def _html_pages_ready(html_pages: list[dict[str, Any]], snapshot: dict[str, Any]
     return (
         len(html_pages) == 2
         and "景氣循環指揮中心" in html
-        and 'data-transition-lane="boom_ending_watch"' in html
+        and html.count('data-transition-lane="') >= 3
         and 'aria-label="主要導覽"' in html
         and "research-only" in html
         and "revised diagnostic" in html

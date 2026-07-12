@@ -1,0 +1,89 @@
+phase_aware_dashboard_context:
+  version: "1.0"
+  status: active_private_nas_atomic_context
+  phase_id: 132
+  dependencies:
+    - specs/common/declared_cycle_state_registry.yaml
+    - specs/common/ordered_cycle_state_machine.yaml
+    - specs/common/full_ordered_cycle_transition_lane_templates.yaml
+    - specs/common/full_cycle_portfolio_transition_research.yaml
+  output_policy:
+    declared_state_not_inferred: true
+    automatic_state_change_allowed: false
+    phase_score_or_rank_allowed: false
+    personalized_portfolio_instruction_allowed: false
+    non_operational_evaluator_status: input_readiness_only_explicit_abstention
+  required_surface_ids:
+    - overview
+    - transition_radar
+    - priority_indicators
+    - indicator_learning
+    - portfolio_research
+    - mobile_navigation
+  phase_contexts:
+    recession:
+      phase_label_zh: 衰退
+      legal_next_phase: recovery
+      legal_next_phase_label_zh: 復甦
+      transition_heading_zh: 衰退深度、落底觀察與復甦確認
+      learning_intro_zh: 衰退期先分辨實體經濟是否仍在收縮，再觀察勞動與實質活動是否出現可持續反轉；政策寬鬆不能單獨確認復甦。
+      priority_role_ids: [trough_claims_reversal, trough_labor_reversal, trough_real_activity_reversal, recovery_real_retail_sales, recovery_durable_goods_new_orders]
+      primary_portfolio_template_id: recovery_re_risk_research_template
+      relevant_portfolio_template_ids: [recovery_re_risk_research_template, passive_all_stock_baseline]
+      transition_lanes:
+        - {lane_id: recession_depth_context, title_zh: 衰退深度與持續狀態, lane_type: continuation_context, purpose_zh: 檢查就業、消費與投資收縮是否仍支持 declared recession。, required_role_ids: [recession_employment_confirmation, recession_consumption_confirmation, recession_investment_or_industrial_confirmation]}
+        - {lane_id: trough_watch, title_zh: 景氣落底觀察, lane_type: transition_watch, purpose_zh: 觀察勞動與實質活動是否反轉；watch 不等於復甦確認。, required_role_ids: [trough_claims_reversal, trough_labor_reversal, trough_real_activity_reversal]}
+        - {lane_id: recovery_confirmation, title_zh: 復甦確認, lane_type: transition_confirmation, purpose_zh: 就業、消費、投資與貿易須形成可治理的復甦證據。, required_role_ids: [recovery_initial_jobless_claims, recovery_short_term_unemployment, recovery_real_retail_sales, recovery_private_nonresidential_fixed_investment, recovery_exports]}
+    recovery:
+      phase_label_zh: 復甦
+      legal_next_phase: growth
+      legal_next_phase_label_zh: 成長
+      transition_heading_zh: 復甦延續與成長接棒
+      learning_intro_zh: 復甦期觀察就業、消費、投資與貿易的反彈廣度，再確認所得、儲蓄、就業與投資能否接成較穩定的成長。
+      priority_role_ids: [growth_real_disposable_income_vs_consumption, growth_personal_saving_rate, growth_nonfarm_payrolls, growth_private_nonresidential_fixed_investment, growth_core_pce]
+      primary_portfolio_template_id: passive_all_stock_baseline
+      relevant_portfolio_template_ids: [passive_all_stock_baseline]
+      transition_lanes:
+        - {lane_id: recovery_continuation_context, title_zh: 復甦延續狀態, lane_type: continuation_context, purpose_zh: 檢查復甦四大群組是否持續改善。, required_role_ids: [recovery_initial_jobless_claims, recovery_real_retail_sales, recovery_private_nonresidential_fixed_investment, recovery_exports]}
+        - {lane_id: growth_transition_watch, title_zh: 成長接棒觀察, lane_type: transition_watch, purpose_zh: 觀察所得、儲蓄、就業與投資是否從反彈轉為持續成長。, required_role_ids: [growth_real_disposable_income_vs_consumption, growth_personal_saving_rate, growth_nonfarm_payrolls, growth_private_nonresidential_fixed_investment]}
+        - {lane_id: growth_confirmation_readiness, title_zh: 成長確認準備, lane_type: transition_confirmation, purpose_zh: 核心通膨只能作可持續性判讀的一部分，不得自行設定門檻確認成長。, required_role_ids: [growth_real_disposable_income_vs_consumption, growth_nonfarm_payrolls, growth_private_nonresidential_fixed_investment, growth_core_cpi, growth_core_pce]}
+    growth:
+      phase_label_zh: 成長
+      legal_next_phase: boom
+      legal_next_phase_label_zh: 榮景
+      transition_heading_zh: 健康成長、過熱觀察與榮景確認
+      learning_intro_zh: 成長期先確認所得、就業與投資仍健康，再觀察耐久財、庫存、政府收支與信用壓力是否轉向榮景後段特徵。
+      priority_role_ids: [boom_claims_u_shape, boom_durable_goods_second_surge, boom_private_investment, boom_inventory_accumulation_context, boom_government_revenue]
+      primary_portfolio_template_id: boom_70_50_30_template
+      relevant_portfolio_template_ids: [boom_70_50_30_template, stock_cash_advanced, stock_long_treasury_advanced]
+      transition_lanes:
+        - {lane_id: healthy_expansion_context, title_zh: 健康成長延續, lane_type: continuation_context, purpose_zh: 檢查所得、就業、投資與核心通膨脈絡是否仍支持健康成長。, required_role_ids: [growth_real_disposable_income_vs_consumption, growth_nonfarm_payrolls, growth_private_nonresidential_fixed_investment, growth_core_pce]}
+        - {lane_id: overheating_watch, title_zh: 過熱與榮景觀察, lane_type: transition_watch, purpose_zh: 觀察耐久財第二波、投資與庫存累積，金融指標不得取代 book-core。, required_role_ids: [boom_claims_u_shape, boom_durable_goods_second_surge, boom_private_investment, boom_inventory_accumulation_context]}
+        - {lane_id: boom_transition_confirmation, title_zh: 榮景轉折確認, lane_type: transition_confirmation, purpose_zh: 榮景確認須保留政府收支、信用與信心缺口，不以 proxy 靜默補齊。, required_role_ids: [boom_claims_u_shape, boom_durable_goods_second_surge, boom_government_revenue, boom_personal_delinquency_or_default, boom_consumer_confidence]}
+    boom:
+      phase_label_zh: 榮景
+      legal_next_phase: recession
+      legal_next_phase_label_zh: 衰退
+      transition_heading_zh: 榮景延續、結束觀察與衰退確認
+      learning_intro_zh: 榮景期先觀察消費與投資韌性，再分開檢查榮景結束 watch、衰退 watch 與較晚出現的衰退 confirmation。
+      priority_role_ids: [boom_claims_u_shape, boom_private_investment, boom_retail_sales_vs_broad_pce, recession_employment_confirmation, recession_consumption_confirmation]
+      primary_portfolio_template_id: boom_70_50_30_template
+      relevant_portfolio_template_ids: [boom_70_50_30_template, stock_cash_initial, stock_cash_advanced, stock_long_treasury_initial, stock_long_treasury_advanced, recession_defense_research_template]
+      transition_lanes:
+        - {lane_id: boom_continuation, title_zh: 榮景延續, lane_type: continuation_context, purpose_zh: 觀察消費與私人投資韌性是否仍支持 declared boom 的研究背景。, required_role_ids: [boom_private_investment, boom_retail_sales_vs_broad_pce]}
+        - {lane_id: boom_ending_watch, title_zh: 榮景結束觀察, lane_type: transition_watch, purpose_zh: 觀察初領失業救濟金、消費與投資是否累積轉弱風險；watch 不等於確認。, required_role_ids: [boom_claims_u_shape, boom_private_investment, boom_retail_sales_vs_broad_pce]}
+        - {lane_id: recession_watch, title_zh: 衰退觀察, lane_type: transition_watch, purpose_zh: 觀察勞動市場早期壓力；單一 claims 變化不能確認衰退。, required_role_ids: [boom_claims_u_shape]}
+        - {lane_id: recession_confirmation, title_zh: 衰退確認, lane_type: transition_confirmation, purpose_zh: 就業與廣義消費必須形成比 watch 更強的確認證據；缺任一核心輸入即 abstain。, required_role_ids: [recession_employment_confirmation, recession_consumption_confirmation]}
+  hard_gates:
+    phase_context_count: 4
+    legal_transition_context_count: 4
+    phase_with_priority_roles_count: 4
+    phase_with_transition_watch_count: 4
+    phase_with_transition_confirmation_count: 4
+    phase_with_learning_copy_count: 4
+    phase_with_portfolio_context_count: 4
+    required_surface_count: 6
+    automatic_state_change_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    semantic_drift_count: 0

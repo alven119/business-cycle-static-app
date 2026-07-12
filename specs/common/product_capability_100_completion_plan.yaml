@@ -162,7 +162,8 @@ product_capability_100_completion_plan:
         F1_TEMPORAL_INTEGRITY_AND_ABSTENTION: 100
     - phase_id: 132
       title_zh: Phase-aware Dashboard、轉折雷達與優先指標原子切換
-      execution_status: planned
+      execution_status: completed
+      completion_status: closed_phase_aware_dashboard_atomic_context_switch_ready
       objective_zh: >
         所有核心頁面從同一 active state registry 讀取 phase context；確認 transition 後，
         overview、radar、priority indicators、learning copy 與 portfolio context 一致切換，無需重新部署。

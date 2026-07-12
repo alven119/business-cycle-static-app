@@ -1,0 +1,33 @@
+phase132_phase_aware_dashboard_closure:
+  version: "1.0"
+  phase_id: 132
+  status: closed_phase_aware_dashboard_atomic_context_switch_ready
+  hard_gates:
+    phase132_closure_ready: true
+    phase_aware_dashboard_context_ready: true
+    synthetic_declared_state_count: 4
+    synthetic_state_render_pass_count: 4
+    legal_transition_context_count: 4
+    phase_specific_transition_lane_count: 13
+    phase_specific_priority_role_count: 20
+    priority_card_render_count: 20
+    atomic_context_surface_check_count: 16
+    partial_page_context_switch_count: 0
+    mobile_phase_context_ready_count: 4
+    other_phase_reference_navigation_ready_count: 4
+    live_evaluator_phase_count: 1
+    explicit_input_readiness_only_phase_count: 3
+    transition_activation_gate_enabled: true
+    automatic_state_change_count: 0
+    watch_promoted_to_confirmation_count: 0
+    personalized_portfolio_instruction_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    development_next_phase: 133
+    phase132_closure_status: closed_phase_aware_dashboard_atomic_context_switch_ready

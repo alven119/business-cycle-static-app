@@ -330,6 +330,13 @@ def build_runtime_response(
                 "source_blocked_with_supporting_context_count": int(
                     trust.get("source_blocked_with_supporting_context_count", 0)
                 ),
+                "declared_phase_context_hash": trust.get(
+                    "declared_phase_context_hash"
+                ),
+                "declared_phase_context_evaluator_mode": trust.get(
+                    "declared_phase_context_evaluator_mode",
+                    "not_configured",
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -488,7 +495,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase131"
+    server_version = "BusinessCycleNAS/phase132"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

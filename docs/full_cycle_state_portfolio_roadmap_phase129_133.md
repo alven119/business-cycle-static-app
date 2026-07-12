@@ -82,9 +82,13 @@ lineage、來源排程、重試與 schema drift。ADP 與 Conference Board confi
 
 ### Phase 132：Phase-aware Dashboard 原子切換
 
-以四種 synthetic declared states 驗證 overview、radar、priority indicators、learning copy、
-portfolio context 與 mobile navigation。確認 transition 後不需重新部署，所有頁面從同一 active
-registry 重建研究 context。
+狀態：已完成。四種 synthetic declared states 均可從同一 active registry context hash 原子重建
+overview、radar、priority indicators、learning copy、portfolio context 與 mobile ribbon。Boom 使用
+既有 live evaluator；recession／recovery／growth 在 evaluator 尚未 operationalize 時明確顯示
+input-readiness-only abstention，不會誤套 boom 規則。
+
+Transition activation gate 已開啟，但仍須完成 Phase 129 的受治理 preview、證據確認與 operator
+confirmation；資料不會自動切換 declared state。確認後無需重新部署，所有核心研究頁同步換檔。
 
 ### Phase 133：歷史政策時間軸與固定權重敏感度
 
