@@ -194,6 +194,13 @@ Before planning or implementing any phase, read:
 - specs/common/investment_cycle_product_doctrine.yaml
 - docs/phase_execution_standing_contract.md
 - specs/common/phase_execution_standing_contract.yaml
+- docs/full_cycle_state_portfolio_roadmap_phase129_133.md
+- specs/common/product_capability_100_completion_plan.yaml
+
+Phase 129–133 must follow the active roadmap dependency order unless the user
+explicitly reprioritizes scope. A later phase must not silently combine revised
+and PIT readiness, auto-confirm a cycle transition, partially switch dashboard
+phase context, or use historical best-performing weights as current guidance.
 
 Every phase must map its work to at least one product capability and must not conflict with the North Star semantics.
 

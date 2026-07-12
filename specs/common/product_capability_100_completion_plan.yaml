@@ -1,185 +1,269 @@
 product_capability_100_completion_plan:
-  version: "2.0"
-  status: active_completion_planning_contract
+  version: "3.0"
+  status: active_full_cycle_state_portfolio_completion_route
   baseline_phase_id: 128
   baseline_phase_label: full_cycle_portfolio_timing_and_page_completion
-  post_plan_remediation:
-    phase_id: 128
-    reason_zh: 使用者要求清除配置頁過期 Phase125 placeholder，並補齊全循環轉折與配置研究時機。
-    calendar_validation_gate_unchanged: true
+  roadmap_document: docs/full_cycle_state_portfolio_roadmap_phase129_133.md
   objective_zh: >
-    以最少工程 Phase 完成私人 NAS v1.0 所需的資料、判讀、轉折、配置、重播、
-    回測與操作能力，再以不可跳過的 prospective calendar gate 完成正式 production
-    100% 驗證。不得為縮短 Phase 數而犧牲資料完整性、書籍語意或時間正確性。
+    以五個相依且不可顛倒的工程 Phase，完成受治理的景氣階段切換、四階段資料倉儲、
+    歷史 PIT 與轉折事件、phase-aware Dashboard，以及書籍規則回放與固定權重敏感度。
+    不得為縮短 Phase 數而把 revised、PIT、歷史標籤或配置研究語意混在一起。
   planning_priorities:
-    - data_completeness_and_correctness
-    - book_aligned_interpretation_and_display
-    - minimum_non_overlapping_phase_count
-    - formal_production_readiness_for_all_capabilities
+    - governed_state_change_before_dashboard_switching
+    - full_cycle_data_completeness_and_source_risk
+    - strict_pit_separated_from_revised_history
+    - atomic_phase_aware_dashboard_context
+    - book_policy_replay_separated_from_sensitivity_research
   minimum_engineering_phase_count: 5
   minimum_total_phase_count_including_calendar_gate: 6
-  planned_phase_ids: [122, 123, 124, 125, 126, 127]
-  engineering_phase_ids: [122, 123, 124, 125, 126]
+  planned_phase_ids: [129, 130, 131, 132, 133]
+  engineering_phase_ids: [129, 130, 131, 132, 133]
+  active_roadmap_start_phase_id: 129
+  active_roadmap_end_phase_id: 133
   calendar_validation_phase_id: 127
+  calendar_validation_runs_in_parallel: true
   calendar_prospective_validation_gate_required: true
   calendar_gate_cannot_be_bypassed_by_phase_work: true
   prospective_minimum_evaluation_months: 12
   prospective_minimum_complete_strict_dates: 12
   prospective_100_percent_timing_zh: >
-    最早必須在 prospective protocol 明確啟動後累積 12 個完整月份與 12 個 complete
-    strict dates；依目前 2026-07 first eligible period，實際 100% 不早於 2027 年下半年，
-    且仍取決於每期資料完整與無模型變更重置。
+    Phase 129–133 可以完成產品工程面，但 F2 的正式 100% 仍需 Phase 127 prospective
+    calendar 累積 12 個完整月份與 12 個 complete strict dates；不得以工程完成取代未見資料驗證。
+
+  dependency_chain:
+    - {before: 129, after: 130, reason: active_state_contract_precedes_data_routing}
+    - {before: 130, after: 131, reason: revised_warehouse_inventory_precedes_historical_pit_gap_closure}
+    - {before: 131, after: 132, reason: complete_data_status_precedes_phase_aware_surface_promotion}
+    - {before: 132, after: 133, reason: governed_phase_context_precedes_policy_timeline_annotation}
+
+  ux_continuity_contract:
+    user_journey_steps:
+      - step_id: observe
+        user_question_zh: 目前在哪個 declared phase，正在注意哪個合法轉折？
+        required_surface: overview
+      - step_id: understand
+        user_question_zh: 哪些證據支持、反對、缺失，為什麼尚未確認？
+        required_surface: transition_review
+      - step_id: confirm
+        user_question_zh: 是否由我確認合法下一階段與新階段起始日？
+        required_surface: governed_transition_confirmation
+      - step_id: reorient
+        user_question_zh: 確認後整個 Dashboard 是否一致切到新階段研究位置？
+        required_surface: phase_aware_dashboard
+      - step_id: learn
+        user_question_zh: 新階段優先看什麼，數值高低與轉折風險代表什麼？
+        required_surface: phase_indicator_learning
+      - step_id: research
+        user_question_zh: 書籍規則與固定權重在歷史事件中呈現什麼差異？
+        required_surface: historical_policy_replay
+    global_context_fields:
+      - declared_phase
+      - declared_phase_start_or_window
+      - phase_age_status
+      - legal_next_phase
+      - latest_data_as_of
+      - data_mode
+      - evidence_completeness
+      - source_risk_summary
+    transition_confirmation_steps:
+      - evidence_review
+      - effective_date_or_window
+      - before_after_preview
+      - explicit_confirmation
+      - append_only_receipt
+    confusion_prevention_rules:
+      - no_automatic_phase_switch_from_latest_data
+      - watch_never_presented_as_confirmation
+      - confirmation_never_presented_as_trade_action
+      - dashboard_context_switch_is_atomic
+      - old_phase_history_remains_accessible
+      - revised_and_pit_badges_are_always_visible
+      - proxy_never_silently_replaces_book_core
+      - policy_weight_is_not_transition_cause
+      - historical_best_weight_is_not_future_recommendation
+      - blocked_state_explains_user_impact_and_next_action
+    mobile_requirements:
+      - sticky_declared_phase_and_legal_next_context
+      - confirmation_summary_before_submit
+      - no_horizontal_table_required_for_core_decision_context
+      - charts_and_event_annotations_touch_readable
+    atomic_phase_context_switch_required: true
+    rollback_is_append_only_correction: true
+    personalized_allocation_instruction_allowed: false
+
   phase_plan:
-    - phase_id: 122
-      title_zh: 統一資料正確性與台美科技製造循環研究頁
-      execution_status: completed
+    - phase_id: 129
+      title_zh: 受治理景氣階段轉換確認與 active state registry
+      execution_status: planned
       objective_zh: >
-        驗證 39-role transformation、官方 identity、單位、名目／實質、頻率與修訂；
-        接入可信的美國與台灣科技製造官方序列、revised history 與風險標籤，完成專頁。
+        擴充既有 phase-start governance，提供證據檢閱、合法下一階段、起始日或日期區間、
+        before/after preview、明確確認、append-only receipt 與 correction rollback。
+      ux_deliverables:
+        - private_transition_review_page
+        - evidence_support_contradiction_missing_summary
+        - effective_date_or_window_control
+        - atomic_before_after_preview
+        - confirmation_receipt_and_history
       completion_gates:
-        - all_chart_transformations_source_verified
-        - technology_series_identity_and_continuity_verified
-        - revised_history_imported_without_silent_substitution
-      primary_capabilities:
-        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-        - C2_TRANSITION_RISK_DETECTION
-        - C3_EXPLAINABILITY_AND_ATTRIBUTION
-        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-    - phase_id: 123
-      title_zh: Live ordered-cycle evidence 與轉折判讀 runtime
-      execution_status: completed
+        - current_boom_start_confirmable_without_false_precision
+        - legal_next_transition_only
+        - stale_preview_rejected
+        - active_state_and_start_date_updated_atomically
+        - rollback_preserves_append_only_history
+        - no_data_driven_automatic_phase_switch
+      expected_capability_progress:
+        C1_BUSINESS_CYCLE_PHASE_ASSESSMENT: 97
+        C2_TRANSITION_RISK_DETECTION: 99
+        C4_PORTFOLIO_POLICY_RESEARCH: 99
+    - phase_id: 130
+      title_zh: 四階段 revised/current 資料倉儲與穩定定時來源完成
+      execution_status: planned
       objective_zh: >
-        將 book-aligned evidence evaluators 接入 declared boom 的 continuation、ending
-        watch、recession watch 與 confirmation lanes，顯示累積、矛盾、缺口及 why-not-confirmation，
-        不建立 standalone classifier。
+        建立 role-series-transformation-phase-lane 完整矩陣，將全部可自動化 current/revised
+        inputs 存入 PostgreSQL；兩個授權受限角色保留 supporting proxy 與資料風險，不靜默替代。
+      ux_deliverables:
+        - per_phase_data_readiness_matrix
+        - source_risk_and_substitution_badges
+        - stale_and_next_release_explanation
+        - blocked_input_user_impact
       completion_gates:
-        - live_evidence_evaluator_connected
-        - watch_confirmation_separation_verified
-        - declared_state_and_legal_transition_preserved
-      primary_capabilities:
-        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-        - C2_TRANSITION_RISK_DETECTION
-        - C3_EXPLAINABILITY_AND_ATTRIBUTION
-        - C6_SAFE_OUTPUT_GOVERNANCE
-    - phase_id: 124
-      title_zh: 配置研究與歷史重播互動產品面
-      execution_status: completed
+        - all_automatable_revised_inputs_in_postgres
+        - derived_and_composite_lineage_complete
+        - per_source_schedule_retry_and_schema_drift_ready
+        - adp_and_confidence_risk_visible
+        - no_silent_substitution
+      expected_capability_progress:
+        C1_BUSINESS_CYCLE_PHASE_ASSESSMENT: 98
+        C2_TRANSITION_RISK_DETECTION: 99
+        C3_EXPLAINABILITY_AND_ATTRIBUTION: 100
+    - phase_id: 131
+      title_zh: 歷史 PIT 缺口與 governed transition event registry 完成
+      execution_status: planned
       objective_zh: >
-        合併完成 declared-phase-linked 書籍配置研究模板、事件選擇器、月度 playhead、
-        指標／轉折 attribution 與 revised/PIT mode UX，維持研究模板而非個人化指令。
+        補齊三個 partial 歷史情境可安全取得的 official vintages，建立 phase start、watch、
+        confirmation、shock 與 uncertainty-window 事件；無法取得者明確 abstain，不以 revised 冒充 PIT。
+      ux_deliverables:
+        - historical_data_mode_badges
+        - event_provenance_drawer
+        - uncertainty_window_display
+        - strict_gap_impact_explanation
       completion_gates:
-        - portfolio_research_route_operational
-        - historical_event_replay_route_operational
-        - book_template_and_modern_extension_separated
-      primary_capabilities:
-        - C3_EXPLAINABILITY_AND_ATTRIBUTION
-        - C4_PORTFOLIO_POLICY_RESEARCH
-        - C5_HISTORICAL_REPLAY_AND_BACKTEST
-    - phase_id: 125
-      title_zh: Strict PIT replay 與 cash-flow-aware backtest 完成
-      execution_status: completed
+        - five_scenarios_have_explicit_pit_status
+        - official_archive_backfill_exhausted_or_evidenced_blocker
+        - historical_labels_not_used_for_runtime_tuning
+        - revised_comparison_is_visually_separate
+        - covid_shock_caveat_preserved
+      expected_capability_progress:
+        C1_BUSINESS_CYCLE_PHASE_ASSESSMENT: 99
+        C5_HISTORICAL_REPLAY_AND_BACKTEST: 98
+        F1_TEMPORAL_INTEGRITY_AND_ABSTENTION: 100
+    - phase_id: 132
+      title_zh: Phase-aware Dashboard、轉折雷達與優先指標原子切換
+      execution_status: planned
       objective_zh: >
-        補齊可取得的官方 PIT、執行 strict/revised replay、total-return 與 cash-flow-aware
-        research backtest，呈現成本、turnover、drawdown、錯誤轉折代價與完整 provenance。
+        所有核心頁面從同一 active state registry 讀取 phase context；確認 transition 後，
+        overview、radar、priority indicators、learning copy 與 portfolio context 一致切換，無需重新部署。
+      ux_deliverables:
+        - persistent_phase_context_ribbon
+        - phase_specific_transition_radar
+        - phase_specific_priority_indicator_order
+        - why_it_matters_now_learning_copy
+        - other_phase_reference_navigation
       completion_gates:
-        - strict_pit_input_audit_complete_or_explicit_blocker
-        - cash_flow_aware_backtest_operational
-        - historical_results_not_used_for_rule_tuning
-      primary_capabilities:
-        - C4_PORTFOLIO_POLICY_RESEARCH
-        - C5_HISTORICAL_REPLAY_AND_BACKTEST
-        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
-    - phase_id: 126
-      title_zh: 私人 NAS v1.0 operational acceptance
-      execution_status: completed
+        - all_four_declared_states_rendered_in_test_matrix
+        - no_partial_page_context_switch
+        - watch_confirmation_action_separation_visible
+        - old_phase_history_remains_accessible
+        - mobile_phase_context_is_immediately_visible
+      expected_capability_progress:
+        C1_BUSINESS_CYCLE_PHASE_ASSESSMENT: 100
+        C2_TRANSITION_RISK_DETECTION: 100
+        C3_EXPLAINABILITY_AND_ATTRIBUTION: 100
+    - phase_id: 133
+      title_zh: 歷史轉折政策時間軸、書籍規則回放與固定權重敏感度
+      execution_status: planned
       objective_zh: >
-        完成 mobile/Tailscale、來源排程、schema drift、backup/restore、rollback、權限、
-        service health、資料庫維運及操作手冊驗收。工程能力可達 v1.0 操作驗收門檻，
-        但不得把尚未完成的 prospective validation 寫成已驗證。
+        在五個歷史案例逐月標記 governed phase、phase age、watch、confirmation、shock 與
+        書籍模板權重；平行比較固定 100/70/50/30 與股票／現金、股票／長債研究，不做事後最佳化推薦。
+      ux_deliverables:
+        - event_annotated_policy_timeline
+        - book_rule_weight_at_event
+        - fixed_weight_sensitivity_comparison
+        - book_rule_vs_modern_extension_labels
+        - drawdown_recovery_and_missed_transition_explanation
       completion_gates:
-        - nas_v1_operational_acceptance_passed
-        - source_health_and_restore_drills_passed
-        - rollback_and_security_review_passed
-      primary_capabilities:
-        - C6_SAFE_OUTPUT_GOVERNANCE
-        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
-    - phase_id: 127
-      title_zh: Calendar-gated prospective validation 與全能力 100% seal
-      execution_status: calendar_wait_active
-      objective_zh: >
-        僅在 12 個完整月與 12 個 strict dates 累積完成後，依 preregistered protocol
-        執行未見資料驗證、獨立審查與最終 production seal；模型變更會重置未來評估窗。
-      time_gated: true
-      completion_gates:
-        - prospective_minimum_evaluation_months_reached
-        - prospective_minimum_complete_strict_dates_reached
-        - independent_validation_passed
-        - all_capability_production_gates_passed
-      primary_capabilities:
-        - C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-        - C2_TRANSITION_RISK_DETECTION
-        - C3_EXPLAINABILITY_AND_ATTRIBUTION
-        - C4_PORTFOLIO_POLICY_RESEARCH
-        - C5_HISTORICAL_REPLAY_AND_BACKTEST
-        - C6_SAFE_OUTPUT_GOVERNANCE
-        - F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
-        - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
+        - five_scenarios_have_event_annotations_or_explicit_blocker
+        - book_policy_state_not_presented_as_transition_cause
+        - fixed_weight_results_not_used_to_tune_rules
+        - cash_flow_aware_metrics_have_complete_provenance
+        - no_personalized_current_allocation_instruction
+        - private_nas_mobile_acceptance_passed
+      expected_capability_progress:
+        C4_PORTFOLIO_POLICY_RESEARCH: 100
+        C5_HISTORICAL_REPLAY_AND_BACKTEST: 100
+        C6_SAFE_OUTPUT_GOVERNANCE: 100
+
   capability_targets:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
       current_percent: 96
-      engineering_readiness_target_percent: 99
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 127
-      remaining_gap_zh: 配置／replay product integration、strict PIT 與 economic/prospective validation
+      target_phase_id: 132
+      remaining_gap_zh: governed phase transition、完整資料路由與 phase-aware Dashboard 原子切換
     - capability_id: C2_TRANSITION_RISK_DETECTION
       current_percent: 99
-      engineering_readiness_target_percent: 99
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 127
-      remaining_gap_zh: historical false-signal／timing review、strict PIT 與 prospective validation
+      target_phase_id: 132
+      remaining_gap_zh: 四種 active state 的 live radar 與 priority indicator 切換驗收
     - capability_id: C3_EXPLAINABILITY_AND_ATTRIBUTION
       current_percent: 100
-      engineering_readiness_target_percent: 99
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 127
-      remaining_gap_zh: 配置、replay/backtest 與正式結果的完整 drill-down
+      target_phase_id: 132
+      remaining_gap_zh: 維持 phase-aware why-it-matters-now 與一致 trust metadata
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
       current_percent: 99
-      engineering_readiness_target_percent: 99
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 127
-      remaining_gap_zh: NAS route、actual total-return research、政策重播與最終驗證
+      target_phase_id: 133
+      remaining_gap_zh: 歷史事件上的書籍規則權重與固定權重敏感度整合
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
       current_percent: 96
-      engineering_readiness_target_percent: 99
+      engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 127
-      remaining_gap_zh: playable replay、strict PIT、cash-flow-aware actual results 與驗證
+      target_phase_id: 133
+      remaining_gap_zh: 三個 partial PIT 情境、governed transition events 與政策時間軸
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       current_percent: 100
       engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 126
-      remaining_gap_zh: v1.0 migration、rollback、security 與 operations acceptance
+      target_phase_id: 133
+      remaining_gap_zh: 維持研究模板、歷史結果與目前個人化指令的清楚邊界
     - capability_id: F1_TEMPORAL_INTEGRITY_AND_ABSTENTION
       current_percent: 100
       engineering_readiness_target_percent: 100
       target_percent: 100
-      target_phase_id: 126
-      remaining_gap_zh: strict PIT coverage、release timestamp gaps 與 operational abstention acceptance
+      target_phase_id: 131
+      remaining_gap_zh: 維持 revised/PIT 分離並對早期 archive 缺口明確 abstain
     - capability_id: F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
       current_percent: 96
-      engineering_readiness_target_percent: 95
+      engineering_readiness_target_percent: 96
       target_percent: 100
       target_phase_id: 127
-      remaining_gap_zh: explicit protocol start、12 個完整月、12 個 strict dates 與獨立驗證
+      remaining_gap_zh: 12 個完整 prospective 月份、12 個 strict dates 與獨立驗證
+
   hard_gates:
     product_capability_100_completion_plan_ready: true
     minimum_engineering_phase_count: 5
     minimum_total_phase_count_including_calendar_gate: 6
-    planned_phase_count: 6
+    planned_phase_count: 5
+    active_roadmap_start_phase_id: 129
+    active_roadmap_end_phase_id: 133
+    dependency_chain_count: 4
+    user_journey_step_count: 6
+    confusion_prevention_rule_count: 10
+    atomic_phase_context_switch_required: true
     all_target_capabilities_reach_100: true
     calendar_prospective_validation_gate_required: true
     calendar_gate_cannot_be_bypassed_by_phase_work: true

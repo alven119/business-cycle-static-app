@@ -146,8 +146,15 @@ def test_product_capability_100_completion_plan_records_minimum_route() -> None:
     assert summary["product_capability_100_completion_plan_ready"] is True
     assert summary["minimum_engineering_phase_count"] == 5
     assert summary["minimum_total_phase_count_including_calendar_gate"] == 6
-    assert summary["planned_phase_count"] == 6
-    assert summary["planned_phase_ids"] == [122, 123, 124, 125, 126, 127]
+    assert summary["planned_phase_count"] == 5
+    assert summary["planned_phase_ids"] == [129, 130, 131, 132, 133]
+    assert summary["active_roadmap_start_phase_id"] == 129
+    assert summary["active_roadmap_end_phase_id"] == 133
+    assert summary["dependency_chain_count"] == 4
+    assert summary["dependency_chain_valid"] is True
+    assert summary["user_journey_step_count"] == 6
+    assert summary["confusion_prevention_rule_count"] == 10
+    assert summary["atomic_phase_context_switch_required"] is True
     assert summary["all_target_capabilities_reach_100"] is True
     assert summary["monotonic_progress_targets"] is True
     assert summary["calendar_prospective_validation_gate_required"] is True
@@ -172,7 +179,10 @@ def test_product_capability_100_completion_plan_script() -> None:
     assert "product_capability_100_completion_plan_ready=True" in result.stdout
     assert "minimum_engineering_phase_count=5" in result.stdout
     assert "minimum_total_phase_count_including_calendar_gate=6" in result.stdout
-    assert "planned_phase_ids=[122, 123, 124, 125, 126, 127]" in result.stdout
+    assert "planned_phase_ids=[129, 130, 131, 132, 133]" in result.stdout
+    assert "dependency_chain_valid=True" in result.stdout
+    assert "user_journey_step_count=6" in result.stdout
+    assert "atomic_phase_context_switch_required=True" in result.stdout
     assert "calendar_prospective_validation_gate_required=True" in result.stdout
     assert "prospective_minimum_evaluation_months=12" in result.stdout
     assert "calendar_validation_phase_id=127" in result.stdout

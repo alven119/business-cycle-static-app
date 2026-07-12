@@ -41,6 +41,11 @@ def summarize_product_capability_100_completion_plan(
     phase_plan = list(plan["phase_plan"])
     capability_ids = {row["capability_id"] for row in capability_rows}
     planned_phase_ids = [int(phase["phase_id"]) for phase in phase_plan]
+    configured_phase_ids = [int(value) for value in plan["planned_phase_ids"]]
+    dependency_chain = list(plan["dependency_chain"])
+    ux_contract = dict(plan["ux_continuity_contract"])
+    user_journey_steps = list(ux_contract["user_journey_steps"])
+    confusion_rules = list(ux_contract["confusion_prevention_rules"])
     target_reach_count = sum(int(row["target_percent"]) == 100 for row in capability_rows)
     monotonic_count = sum(
         int(row["target_percent"]) >= int(row["current_percent"])
@@ -60,6 +65,19 @@ def summarize_product_capability_100_completion_plan(
         ),
         "planned_phase_count": len(phase_plan),
         "planned_phase_ids": planned_phase_ids,
+        "planned_phase_ids_match_configured": planned_phase_ids
+        == configured_phase_ids,
+        "active_roadmap_start_phase_id": int(plan["active_roadmap_start_phase_id"]),
+        "active_roadmap_end_phase_id": int(plan["active_roadmap_end_phase_id"]),
+        "dependency_chain_count": len(dependency_chain),
+        "dependency_chain_valid": _dependency_chain_valid(
+            dependency_chain, configured_phase_ids
+        ),
+        "user_journey_step_count": len(user_journey_steps),
+        "confusion_prevention_rule_count": len(confusion_rules),
+        "atomic_phase_context_switch_required": bool(
+            ux_contract["atomic_phase_context_switch_required"]
+        ),
         "target_capability_count": len(capability_rows),
         "target_capability_ids": [row["capability_id"] for row in capability_rows],
         "all_target_capabilities_reach_100": target_reach_count
@@ -88,7 +106,9 @@ def summarize_product_capability_100_completion_plan(
     }
     summary["product_capability_100_completion_plan_ready"] = (
         capability_ids == TARGET_CAPABILITY_IDS
-        and planned_phase_ids == [122, 123, 124, 125, 126, 127]
+        and planned_phase_ids == configured_phase_ids
+        and planned_phase_ids == list(range(129, 134))
+        and summary["dependency_chain_valid"]
         and summary["all_target_capabilities_reach_100"]
         and summary["monotonic_progress_targets"]
         and _passes(summary, expected)
@@ -99,6 +119,16 @@ def summarize_product_capability_100_completion_plan(
         else "blocked"
     )
     return summary
+
+
+def _dependency_chain_valid(
+    dependency_chain: list[dict[str, Any]], planned_phase_ids: list[int]
+) -> bool:
+    expected_pairs = list(zip(planned_phase_ids, planned_phase_ids[1:]))
+    actual_pairs = [
+        (int(row["before"]), int(row["after"])) for row in dependency_chain
+    ]
+    return actual_pairs == expected_pairs
 
 
 def _passes(summary: dict[str, Any], expected: dict[str, Any]) -> bool:
