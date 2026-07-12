@@ -15,6 +15,7 @@ import yaml
 
 from business_cycle.cycle_state.ordered_state_machine import (
     OrderedCycleStateMachine,
+    PHASES,
     load_ordered_cycle_state_machine,
 )
 
@@ -176,10 +177,10 @@ def _phase_age(start_date: date | None, as_of: date | None) -> int | None:
 
 
 def _validate_state(state: DeclaredCycleState) -> None:
-    if state.declared_current_phase != "boom":
-        raise DeclaredCycleStateRegistryError("Phase45 initial declared phase must be boom")
-    if state.legal_next_phase != "recession":
-        raise DeclaredCycleStateRegistryError("Boom legal next phase must be recession")
+    if state.declared_current_phase not in PHASES:
+        raise DeclaredCycleStateRegistryError("Declared phase must be in legal cycle")
+    if state.legal_next_phase == state.declared_current_phase:
+        raise DeclaredCycleStateRegistryError("Legal next phase cannot equal declared phase")
     if state.formal_current_phase_inference_enabled:
         raise DeclaredCycleStateRegistryError("Formal inference must remain disabled")
     if state.candidate_phase_emission_enabled or state.current_phase_emission_enabled:

@@ -249,6 +249,7 @@ def test_runtime_ttl_cache_refreshes_and_retains_visible_last_good_snapshot() ->
 
 def test_runtime_declared_start_routes_require_auth_preview_apply_and_rollback(
     tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     active = tmp_path / "declared_cycle_state_registry.yaml"
     secret = "expected-secret"
@@ -297,13 +298,134 @@ def test_runtime_declared_start_routes_require_auth_preview_apply_and_rollback(
         ),
         cycle_state_registry_path=str(active),
     )
+    shell = {
+        "live_ordered_cycle_evidence": {
+            "snapshot_as_of": "2026-07-10",
+            "data_mode": "revised_diagnostic",
+            "declared_current_phase": "boom",
+            "legal_next_phase": "recession",
+            "lanes": {
+                "boom_ending_watch": {
+                    "lane_type": "transition_watch",
+                    "lane_status": "supportive_evidence_present",
+                    "supportive_evidence_count": 2,
+                    "contradictory_evidence_count": 0,
+                    "mixed_evidence_count": 0,
+                    "abstained_evidence_count": 1,
+                    "why_not_confirmation": [],
+                },
+                "recession_confirmation": {
+                    "lane_type": "transition_confirmation",
+                    "lane_status": "incomplete_evidence",
+                    "supportive_evidence_count": 1,
+                    "contradictory_evidence_count": 0,
+                    "mixed_evidence_count": 0,
+                    "abstained_evidence_count": 1,
+                    "why_not_confirmation": ["required_role_not_supportive"],
+                },
+            },
+        },
+    }
+    transition_preview = build_runtime_response(
+        path="/cycle-state/transition/preview",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "requested_next_phase": "recession",
+                "exact_effective_date": "2026-07-01",
+                "confirmation_note": "user confirms legal transition",
+                "as_of": "2026-07-10",
+            },
+        ),
+        shell=shell,
+        cycle_state_registry_path=str(active),
+    )
+    transition_token = re.search(
+        r'name="preview_token" value="([a-f0-9]+)"', transition_preview.body
+    )
+    assert transition_token is None
+    assert "Phase 132" in transition_preview.body
+    monkeypatch.setenv("BUSINESS_CYCLE_PHASE_TRANSITION_ACTIVATION_ENABLED", "true")
+    transition_preview = build_runtime_response(
+        path="/cycle-state/transition/preview",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "requested_next_phase": "recession",
+                "exact_effective_date": "2026-07-01",
+                "confirmation_note": "user confirms legal transition",
+                "as_of": "2026-07-10",
+            },
+        ),
+        shell=shell,
+        cycle_state_registry_path=str(active),
+    )
+    transition_token = re.search(
+        r'name="preview_token" value="([a-f0-9]+)"', transition_preview.body
+    )
+    assert transition_token is not None
+    transition_apply = build_runtime_response(
+        path="/cycle-state/transition/apply",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "preview_token": transition_token.group(1),
+                "requested_next_phase": "recession",
+                "exact_effective_date": "2026-07-01",
+                "confirmation_note": "user confirms legal transition",
+                "as_of": "2026-07-10",
+                "evidence_review_acknowledged": "true",
+                "transition_confirmation": (
+                    "CONFIRM_GOVERNED_LEGAL_CYCLE_TRANSITION"
+                ),
+            },
+        ),
+        shell=shell,
+        cycle_state_registry_path=str(active),
+    )
     api = build_runtime_response(
         path="/api/cycle-state.json",
         session_secret=secret,
         headers=auth,
+        shell=shell,
         cycle_state_registry_path=str(active),
     )
-    active_hash = __import__("json").loads(api.body)["active_registry_hash"]
+    transition_status = __import__("json").loads(api.body)
+    assert transition_status["declared_current_phase"] == "recession"
+    assert transition_status["legal_next_phase"] == "recovery"
+    transition_rollback = build_runtime_response(
+        path="/cycle-state/transition/rollback",
+        method="POST",
+        session_secret=secret,
+        headers=auth,
+        body=urlencode(
+            {
+                "receipt_id": transition_status["latest_transition_receipt_id"],
+                "expected_active_hash": transition_status["active_registry_hash"],
+                "correction_note": "operator correction",
+                "correction_confirmation": (
+                    "CONFIRM_GOVERNED_TRANSITION_CORRECTION"
+                ),
+            },
+        ),
+        shell=shell,
+        cycle_state_registry_path=str(active),
+    )
+    corrected_api = build_runtime_response(
+        path="/api/cycle-state.json",
+        session_secret=secret,
+        headers=auth,
+        shell=shell,
+        cycle_state_registry_path=str(active),
+    )
+    corrected_status = __import__("json").loads(corrected_api.body)
+    active_hash = corrected_status["active_registry_hash"]
     rollback = build_runtime_response(
         path="/cycle-state/rollback",
         method="POST",
@@ -327,7 +449,12 @@ def test_runtime_declared_start_routes_require_auth_preview_apply_and_rollback(
     assert applied.status_code == 200
     assert applied.route_id == "nas_declared_phase_start_apply"
     assert "已寫入 NAS 私有受治理 registry" in applied.body
-    assert '"declared_phase_start_context_status": "confirmed_exact_date"' in api.body
+    assert transition_apply.status_code == 200
+    assert transition_apply.route_id == "nas_governed_cycle_transition_apply"
+    assert transition_rollback.status_code == 200
+    assert transition_rollback.route_id == "nas_governed_cycle_transition_rollback"
+    assert corrected_status["transition_ledger_event_count"] == 2
+    assert corrected_status["transition_hash_chain_valid"] is True
     assert rollback.status_code == 200
     assert rollback.route_id == "nas_declared_phase_start_rollback"
     assert "已回復上一版" in rollback.body

@@ -10,6 +10,9 @@ from business_cycle.cycle_state.nas_declared_phase_start_registry import (
     DEFAULT_ACTIVE_REGISTRY_PATH,
     build_nas_declared_phase_start_status,
 )
+from business_cycle.cycle_state.nas_governed_cycle_transition import (
+    build_nas_governed_transition_status,
+)
 from business_cycle.render.nas_service_dashboard import (
     build_nas_service_dashboard_bundle,
     render_historical_replay_page,
@@ -166,6 +169,11 @@ def build_nas_live_dashboard_runtime(
         snapshot_manifest=snapshot,
         runtime_live_mode=True,
     )
+    governed_transition_status = build_nas_governed_transition_status(
+        active_registry_path=declared_registry_path or DEFAULT_ACTIVE_REGISTRY_PATH,
+        as_of=snapshot_as_of,
+        live_transition_evidence=dashboard["live_ordered_cycle_evidence"],
+    )
     shell = build_nas_app_shell(dashboard_bundle=dashboard)
     technology_cycle = dashboard["technology_manufacturing_cycle"]
     shell["technology_manufacturing_cycle"] = technology_cycle
@@ -201,7 +209,7 @@ def build_nas_live_dashboard_runtime(
             "/portfolio-research": shell["portfolio_research_html"],
             "/historical-replay": shell["historical_replay_html"],
             "/cycle-state": render_nas_declared_phase_start_page(
-                status=declared_cycle_state
+                status=governed_transition_status
             ),
             "/source-operations": render_nas_source_operations_page(
                 snapshot["source_release_diagnostics"]
@@ -210,9 +218,10 @@ def build_nas_live_dashboard_runtime(
         }
     )
     shell["nas_page_completeness"] = page_scan
-    shell["phase"] = "128"
-    shell["phase_id"] = 128
-    shell["artifact_id"] = "phase128_full_cycle_portfolio_page_runtime"
+    shell["phase"] = "129"
+    shell["phase_id"] = 129
+    shell["artifact_id"] = "phase129_governed_cycle_transition_runtime"
+    shell["governed_cycle_transition"] = governed_transition_status
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -329,6 +338,15 @@ def build_nas_live_dashboard_runtime(
         "nas_disclosed_gap_page_count": page_scan[
             "page_with_disclosed_gap_count"
         ],
+        "governed_cycle_transition_preview_allowed": governed_transition_status[
+            "transition_preview_allowed"
+        ],
+        "governed_cycle_transition_activation_enabled": governed_transition_status[
+            "live_transition_activation_enabled"
+        ],
+        "governed_cycle_transition_receipt_count": governed_transition_status[
+            "transition_event_count"
+        ],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -411,8 +429,8 @@ def build_nas_live_dashboard_runtime(
         ],
     }
     runtime: dict[str, Any] = {
-        "phase": 128,
-        "artifact_id": "phase128_full_cycle_portfolio_page_runtime",
+        "phase": 129,
+        "artifact_id": "phase129_governed_cycle_transition_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -440,6 +458,7 @@ def build_nas_live_dashboard_runtime(
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "source_release_diagnostics": snapshot["source_release_diagnostics"],
         "declared_cycle_state": declared_cycle_state,
+        "governed_cycle_transition": governed_transition_status,
         "live_ordered_cycle_evidence": dashboard["live_ordered_cycle_evidence"],
         "portfolio_replay_lab": portfolio_replay_lab,
         "transaction_read_only_enforced": True,

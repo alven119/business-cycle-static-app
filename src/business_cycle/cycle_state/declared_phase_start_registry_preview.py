@@ -19,6 +19,7 @@ from business_cycle.cycle_state.declared_phase_registry import (
     DEFAULT_REGISTRY_PATH,
     load_declared_cycle_state,
 )
+from business_cycle.cycle_state.ordered_state_machine import PHASES
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = (
@@ -144,8 +145,8 @@ def build_declared_phase_start_registry_update_preview(
     }
     preview["prohibited_output_field_count"] = _contains_prohibited_field(preview)
     preview["declared_phase_start_registry_update_preview_ready"] = (
-        preview["declared_current_phase"] == "boom"
-        and preview["legal_next_phase"] == "recession"
+        preview["declared_current_phase"] in PHASES
+        and preview["legal_next_phase"] != preview["declared_current_phase"]
         and preview["registry_write_allowed"] is False
         and preview["declared_registry_modified"] is False
         and preview["phase_age_false_precision_count"] == 0

@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase128-full-cycle-portfolio-pages
+    image: business-cycle-nas-app:phase129-governed-cycle-transition
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -44,6 +44,7 @@ services:
       BUSINESS_CYCLE_PUBLIC_EXPOSURE: "false"
       BUSINESS_CYCLE_HEALTHCHECK_URL: http://127.0.0.1:8000/healthz
       BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS: "900"
+      BUSINESS_CYCLE_PHASE_TRANSITION_ACTIVATION_ENABLED: "false"
       BUSINESS_CYCLE_REFRESH_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase112/refresh-status.json
       BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH: /var/lib/business-cycle/cycle-state/declared_cycle_state_registry.yaml
       BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase115/operations-status.json
@@ -86,7 +87,7 @@ services:
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase128-full-cycle-portfolio-pages
+    image: business-cycle-nas-app:phase129-governed-cycle-transition
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas

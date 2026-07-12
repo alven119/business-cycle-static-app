@@ -377,7 +377,7 @@ def build_updated_declared_phase_start_registry_payload(
     patch = preview["registry_patch_preview"] or {}
     declared.update(patch)
     declared["declaration_rationale"] = (
-        "User-supplied declared boom start input applied through Phase71 tmp "
+        "User-supplied declared phase start input applied through Phase71 tmp "
         "registry update rehearsal. This remains a declared state value, not "
         "an inferred current phase result."
     )

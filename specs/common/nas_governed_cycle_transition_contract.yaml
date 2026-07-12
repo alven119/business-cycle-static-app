@@ -1,0 +1,72 @@
+nas_governed_cycle_transition_contract:
+  version: "1.0"
+  status: active_private_nas_transition_governance
+  phase_id: 129
+  contract_id: nas_governed_cycle_transition_v1
+  dependencies:
+    declared_registry: specs/common/declared_cycle_state_registry.yaml
+    state_machine: specs/common/ordered_cycle_state_machine.yaml
+    phase_start_governance: specs/common/nas_declared_phase_start_governance_contract.yaml
+    full_cycle_lanes: specs/common/full_ordered_cycle_transition_lane_templates.yaml
+    active_roadmap: specs/common/product_capability_100_completion_plan.yaml
+  transition_policy:
+    current_phase_start_context_required: true
+    only_legal_next_phase_allowed: true
+    exact_effective_date_supported: true
+    bounded_effective_window_supported: true
+    evidence_review_required: true
+    evidence_may_auto_apply_transition: false
+    confirmation_note_required: true
+    stale_preview_rejected: true
+    active_registry_and_start_context_written_atomically: true
+    canonical_repository_registry_write_allowed: false
+  event_policy:
+    append_only_event_ledger: true
+    hash_chain_required: true
+    immutable_receipt_required: true
+    rollback_deletes_original_event: false
+    rollback_writes_correction_event: true
+    note_value_persisted: false
+    note_hash_persisted: true
+  runtime_gate:
+    transition_core_implemented: true
+    live_activation_default_enabled: false
+    activation_requires_phase_aware_dashboard_gate: true
+    activation_gate_owner_phase: 132
+    reason_zh: >
+      Phase123/124 的 live evaluator 與 portfolio context 仍以 boom 為 runtime contract；
+      Phase132 完成全頁原子 phase context routing 前，不允許 NAS 產生半套切換。
+  private_operator_routes:
+    - {path: /cycle-state, method: GET, purpose: review}
+    - {path: /api/cycle-state.json, method: GET, purpose: status_and_receipts}
+    - {path: /cycle-state/transition/preview, method: POST, purpose: preview}
+    - {path: /cycle-state/transition/apply, method: POST, purpose: confirmed_apply}
+    - {path: /cycle-state/transition/rollback, method: POST, purpose: correction_rollback}
+  output_policy:
+    output_mode: research_only_private_nas_governed_transition
+    current_data_infers_declared_phase: false
+    candidate_phase_emission_allowed: false
+    current_phase_emission_allowed: false
+    portfolio_action_allowed: false
+    public_output_allowed: false
+  hard_gates:
+    nas_governed_cycle_transition_contract_ready: true
+    legal_transition_preview_ready: true
+    exact_effective_date_supported: true
+    bounded_effective_window_supported: true
+    current_start_required_before_transition: true
+    illegal_transition_rejected_count: 2
+    stale_preview_rejected: true
+    active_registry_atomic_update_ready: true
+    append_only_transition_event_count: 1
+    immutable_receipt_count: 1
+    rollback_correction_event_count: 1
+    original_transition_event_preserved: true
+    hash_chain_valid: true
+    live_transition_activation_enabled: false
+    phase132_atomic_dashboard_gate_required: true
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

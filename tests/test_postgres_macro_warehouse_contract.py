@@ -446,14 +446,15 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase128-full-cycle-portfolio-pages"
-    assert worker["image"] == "business-cycle-nas-app:phase128-full-cycle-portfolio-pages"
+    assert app["image"] == "business-cycle-nas-app:phase129-governed-cycle-transition"
+    assert worker["image"] == "business-cycle-nas-app:phase129-governed-cycle-transition"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
     ]
     assert app["environment"]["BUSINESS_CYCLE_APP_SECURE_COOKIE"] == "true"
     assert app["environment"]["BUSINESS_CYCLE_DASHBOARD_SHELL_TTL_SECONDS"] == "900"
+    assert app["environment"]["BUSINESS_CYCLE_PHASE_TRANSITION_ACTIVATION_ENABLED"] == "false"
     assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
@@ -878,7 +879,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert runtime["phase"] == 126
+    assert runtime["phase"] == 129
     assert runtime["portfolio_replay_lab"]["policy_template_count"] == 8
     assert runtime["portfolio_replay_lab"]["scenario_count"] == 5
     assert runtime["portfolio_replay_lab"]["monthly_playhead_row_count"] == 156

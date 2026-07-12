@@ -25,9 +25,15 @@ from business_cycle.cycle_state.nas_declared_phase_start_registry import (
     DEFAULT_ACTIVE_REGISTRY_PATH,
     NasDeclaredPhaseStartError,
     apply_nas_declared_phase_start_update,
-    build_nas_declared_phase_start_status,
     preview_nas_declared_phase_start_update,
     rollback_nas_declared_phase_start_update,
+)
+from business_cycle.cycle_state.nas_governed_cycle_transition import (
+    NasGovernedCycleTransitionError,
+    apply_nas_governed_cycle_transition,
+    build_nas_governed_transition_status,
+    preview_nas_governed_cycle_transition,
+    rollback_nas_governed_cycle_transition,
 )
 from business_cycle.render.nas_declared_phase_start import (
     render_nas_declared_phase_start_page,
@@ -255,7 +261,7 @@ def build_runtime_response(
                     "dashboard_snapshot_status",
                     "current_cached_snapshot",
                 ),
-                "governed_cycle_state_operator_route_count": 5,
+                "governed_cycle_state_operator_route_count": 8,
                 "source_operations_route_count": 2,
                 "portfolio_replay_route_count": 4,
                 "strict_replay_backtest_status": trust.get(
@@ -303,6 +309,15 @@ def build_runtime_response(
                 "nas_disclosed_gap_page_count": int(
                     trust.get("nas_disclosed_gap_page_count", 0)
                 ),
+                "governed_cycle_transition_preview_allowed": bool(
+                    trust.get("governed_cycle_transition_preview_allowed", False)
+                ),
+                "governed_cycle_transition_activation_enabled": bool(
+                    trust.get("governed_cycle_transition_activation_enabled", False)
+                ),
+                "governed_cycle_transition_receipt_count": int(
+                    trust.get("governed_cycle_transition_receipt_count", 0)
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -343,6 +358,7 @@ def build_runtime_response(
             or os.environ.get("BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH")
             or str(DEFAULT_ACTIVE_REGISTRY_PATH)
         ),
+        shell=shell,
     )
     if cycle_state_response is not None:
         return cycle_state_response
@@ -460,7 +476,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase128"
+    server_version = "BusinessCycleNAS/phase129"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(
@@ -497,6 +513,7 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
             method="POST",
             headers={key: value for key, value in self.headers.items()},
             body=body,
+            shell=_server_shell(self.server),
         )
         if normalized_path == "/login":
             if response.status_code == 401:
@@ -506,6 +523,8 @@ class _RuntimeHandler(BaseHTTPRequestHandler):
         if response.route_id in {
             "nas_declared_phase_start_apply",
             "nas_declared_phase_start_rollback",
+            "nas_governed_cycle_transition_apply",
+            "nas_governed_cycle_transition_rollback",
         }:
             cache = getattr(self.server, "nas_app_shell_cache", None)
             if isinstance(cache, NasAppShellTtlCache):
@@ -544,6 +563,7 @@ def _cycle_state_response(
     method: str,
     body: str,
     active_registry_path: str,
+    shell: dict[str, Any] | None,
 ) -> RuntimeResponse | None:
     operator_paths = {
         "/cycle-state",
@@ -551,11 +571,16 @@ def _cycle_state_response(
         "/cycle-state/preview",
         "/cycle-state/apply",
         "/cycle-state/rollback",
+        "/cycle-state/transition/preview",
+        "/cycle-state/transition/apply",
+        "/cycle-state/transition/rollback",
     }
     if path not in operator_paths:
         return None
-    status = build_nas_declared_phase_start_status(
+    live_evidence = (shell or {}).get("live_ordered_cycle_evidence")
+    status = build_nas_governed_transition_status(
         active_registry_path=active_registry_path,
+        live_transition_evidence=live_evidence,
     )
     if path == "/cycle-state" and method == "GET":
         return RuntimeResponse(
@@ -595,6 +620,76 @@ def _cycle_state_response(
                 ),
                 route_id="nas_declared_phase_start_preview",
             )
+        if path == "/cycle-state/transition/preview":
+            note = _form_value(form, "confirmation_note")
+            transition_preview = preview_nas_governed_cycle_transition(
+                requested_next_phase=_form_value(form, "requested_next_phase"),
+                exact_effective_date=_form_value(form, "exact_effective_date")
+                or None,
+                window_start_date=_form_value(form, "window_start_date") or None,
+                window_end_date=_form_value(form, "window_end_date") or None,
+                confirmation_note=note,
+                as_of=_form_value(form, "as_of") or None,
+                active_registry_path=active_registry_path,
+                live_transition_evidence=live_evidence,
+            )
+            return RuntimeResponse(
+                200 if transition_preview["preview_valid"] else 400,
+                "text/html; charset=utf-8",
+                render_nas_declared_phase_start_page(
+                    status=status,
+                    transition_preview=transition_preview,
+                    confirmation_note=note,
+                ),
+                route_id="nas_governed_cycle_transition_preview",
+            )
+        if path == "/cycle-state/transition/apply":
+            applied = apply_nas_governed_cycle_transition(
+                preview_token=_form_value(form, "preview_token"),
+                confirmation=_form_value(form, "transition_confirmation"),
+                evidence_review_acknowledged=(
+                    _form_value(form, "evidence_review_acknowledged") == "true"
+                ),
+                requested_next_phase=_form_value(form, "requested_next_phase"),
+                exact_effective_date=_form_value(form, "exact_effective_date")
+                or None,
+                window_start_date=_form_value(form, "window_start_date") or None,
+                window_end_date=_form_value(form, "window_end_date") or None,
+                confirmation_note=_form_value(form, "confirmation_note"),
+                as_of=_form_value(form, "as_of") or None,
+                active_registry_path=active_registry_path,
+                live_transition_evidence=live_evidence,
+            )
+            return RuntimeResponse(
+                200,
+                "text/html; charset=utf-8",
+                render_nas_declared_phase_start_page(
+                    status=applied["active_status"],
+                    message_zh=(
+                        "合法景氣轉折已原子寫入；receipt 已保存，原事件不可刪除。"
+                    ),
+                ),
+                route_id="nas_governed_cycle_transition_apply",
+            )
+        if path == "/cycle-state/transition/rollback":
+            rolled_back = rollback_nas_governed_cycle_transition(
+                receipt_id=_form_value(form, "receipt_id"),
+                expected_active_hash=_form_value(form, "expected_active_hash"),
+                confirmation=_form_value(form, "correction_confirmation"),
+                correction_note=_form_value(form, "correction_note"),
+                active_registry_path=active_registry_path,
+            )
+            return RuntimeResponse(
+                200,
+                "text/html; charset=utf-8",
+                render_nas_declared_phase_start_page(
+                    status=rolled_back["active_status"],
+                    message_zh=(
+                        "已新增 correction receipt 並回復前一 declared state；原轉折紀錄仍保留。"
+                    ),
+                ),
+                route_id="nas_governed_cycle_transition_rollback",
+            )
         if path == "/cycle-state/apply":
             apply_nas_declared_phase_start_update(
                 preview_token=_form_value(form, "preview_token"),
@@ -606,8 +701,9 @@ def _cycle_state_response(
                 as_of=_form_value(form, "as_of") or None,
                 active_registry_path=active_registry_path,
             )
-            updated = build_nas_declared_phase_start_status(
+            updated = build_nas_governed_transition_status(
                 active_registry_path=active_registry_path,
+                live_transition_evidence=live_evidence,
             )
             return RuntimeResponse(
                 200,
@@ -623,8 +719,9 @@ def _cycle_state_response(
             confirmation=_form_value(form, "rollback_confirmation"),
             active_registry_path=active_registry_path,
         )
-        rolled_back = build_nas_declared_phase_start_status(
+        rolled_back = build_nas_governed_transition_status(
             active_registry_path=active_registry_path,
+            live_transition_evidence=live_evidence,
         )
         return RuntimeResponse(
             200,
@@ -635,7 +732,11 @@ def _cycle_state_response(
             ),
             route_id="nas_declared_phase_start_rollback",
         )
-    except (NasDeclaredPhaseStartError, ValueError) as exc:
+    except (
+        NasDeclaredPhaseStartError,
+        NasGovernedCycleTransitionError,
+        ValueError,
+    ) as exc:
         return RuntimeResponse(
             400,
             "text/html; charset=utf-8",
@@ -839,6 +940,20 @@ def _cycle_state_error_zh(message: str) -> str:
         "private NAS registry override does not exist": "目前沒有可 rollback 的 NAS override。",
         "active registry hash changed before rollback": "Registry 已變更，請重新載入頁面。",
         "no declared phase-start backup is available": "找不到可用的 registry 備份。",
+        "phase-aware dashboard activation gate is not enabled": (
+            "Phase 132 全頁原子換檔尚未完成，目前只能預覽轉折，不能寫入 active state。"
+        ),
+        "explicit transition confirmation is required": "請勾選合法轉折確認。",
+        "evidence review acknowledgement is required": "請確認已檢閱 evidence。",
+        "governed transition preview is invalid": "轉折預覽未通過，請修正輸入。",
+        "stale or mismatched transition preview token": "轉折預覽已過期，請重新預覽。",
+        "active registry changed after transition preview": "Registry 已變更，請重新預覽轉折。",
+        "explicit correction confirmation is required": "請勾選 correction 確認。",
+        "correction note is required": "請輸入 correction 理由。",
+        "active registry hash changed before correction": "Registry 已變更，無法直接 correction。",
+        "transition receipt does not exist": "找不到指定的 transition receipt。",
+        "transition receipt already corrected": "此 transition receipt 已有 correction。",
+        "transition backup hash mismatch": "Transition 備份 checksum 不符。",
     }
     return translations.get(message, "輸入未通過安全驗證，請重新檢查。")
 

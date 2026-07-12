@@ -23,6 +23,12 @@ from business_cycle.cycle_state.declared_phase_start_registry_update_gate import
 )
 
 ROOT = Path(__file__).resolve().parents[3]
+PHASE_LABELS_ZH = {
+    "recession": "衰退",
+    "recovery": "復甦",
+    "growth": "成長",
+    "boom": "榮景",
+}
 DEFAULT_CONTRACT_PATH = (
     ROOT / "specs/common/nas_declared_phase_start_governance_contract.yaml"
 )
@@ -76,11 +82,15 @@ def build_nas_declared_phase_start_status(
     return {
         "status_version": "phase113_declared_start_status_v1",
         "declared_current_phase": state.declared_current_phase,
-        "declared_current_phase_label_zh": "榮景",
+        "declared_current_phase_label_zh": PHASE_LABELS_ZH[
+            state.declared_current_phase
+        ],
         "legal_previous_phase": state.legal_previous_phase,
-        "legal_previous_phase_label_zh": "成長",
+        "legal_previous_phase_label_zh": PHASE_LABELS_ZH[
+            state.legal_previous_phase
+        ],
         "legal_next_phase": state.legal_next_phase,
-        "legal_next_phase_label_zh": "衰退",
+        "legal_next_phase_label_zh": PHASE_LABELS_ZH[state.legal_next_phase],
         "declared_phase_start_context_status": context_status,
         "declared_phase_start_display_zh": display_zh,
         "declared_phase_start_date": (
@@ -218,7 +228,7 @@ def apply_nas_declared_phase_start_update(
     declared = registry["declared_state"]
     declared["declaration_status"] = "active_user_confirmed_research_state"
     declared["declaration_rationale"] = (
-        "User-confirmed declared boom start context applied through the private "
+        "User-confirmed declared phase start context applied through the private "
         "NAS Phase113 gate. This remains declared context, not phase inference."
     )
     timestamp = _timestamp(now)

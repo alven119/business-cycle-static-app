@@ -94,7 +94,8 @@ product_capability_100_completion_plan:
   phase_plan:
     - phase_id: 129
       title_zh: 受治理景氣階段轉換確認與 active state registry
-      execution_status: planned
+      execution_status: completed
+      completion_status: closed_governed_transition_core_ready_live_activation_waits_atomic_dashboard_gate
       objective_zh: >
         擴充既有 phase-start governance，提供證據檢閱、合法下一階段、起始日或日期區間、
         before/after preview、明確確認、append-only receipt 與 correction rollback。
