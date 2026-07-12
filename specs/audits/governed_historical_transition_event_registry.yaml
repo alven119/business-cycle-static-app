@@ -1,0 +1,75 @@
+governed_historical_transition_event_registry:
+  version: "1.0"
+  phase_id: 131
+  event_rows:
+    - event_id: dotcom_scenario_window
+      scenario_id: dotcom_cycle_2000_2003
+      event_type: scenario_window
+      event_start: "2000-01-31"
+      event_end: "2003-12-31"
+      source_class: preregistered_scenario_metadata
+      display_label_zh: 網路泡沫循環研究窗
+    - event_id: dotcom_pit_uncertainty
+      scenario_id: dotcom_cycle_2000_2003
+      event_type: uncertainty_window
+      event_start: "2000-01-31"
+      event_end: "2003-12-31"
+      source_class: explicit_pit_gap
+      display_label_zh: PIT 缺口，不輸出正式轉折結論
+    - event_id: gfc_scenario_window
+      scenario_id: global_financial_crisis_2007_2009
+      event_type: scenario_window
+      event_start: "2007-01-31"
+      event_end: "2009-12-31"
+      source_class: preregistered_scenario_metadata
+      display_label_zh: 全球金融危機研究窗
+    - event_id: gfc_pit_uncertainty
+      scenario_id: global_financial_crisis_2007_2009
+      event_type: uncertainty_window
+      event_start: "2007-01-31"
+      event_end: "2009-12-31"
+      source_class: explicit_pit_gap
+      display_label_zh: PIT 缺口，不輸出正式轉折結論
+    - event_id: covid_scenario_window
+      scenario_id: covid_recession_2020
+      event_type: scenario_window
+      event_start: "2020-01-31"
+      event_end: "2021-12-31"
+      source_class: preregistered_scenario_metadata
+      display_label_zh: COVID 衰退與復甦研究窗
+    - event_id: covid_exogenous_shock
+      scenario_id: covid_recession_2020
+      event_type: shock
+      event_start: "2020-02-29"
+      event_end: "2020-04-30"
+      source_class: preregistered_scenario_metadata
+      display_label_zh: 外生衝擊 caveat
+    - event_id: euro_debt_scenario_window
+      scenario_id: euro_debt_slowdown_2011_2012
+      event_type: scenario_window
+      event_start: "2011-01-31"
+      event_end: "2012-12-31"
+      source_class: preregistered_scenario_metadata
+      display_label_zh: 歐債壓力研究窗
+    - event_id: euro_debt_pit_uncertainty
+      scenario_id: euro_debt_slowdown_2011_2012
+      event_type: uncertainty_window
+      event_start: "2011-01-31"
+      event_end: "2012-12-31"
+      source_class: explicit_pit_gap
+      display_label_zh: PIT 缺口，不輸出正式轉折結論
+    - event_id: late_cycle_scenario_window
+      scenario_id: late_cycle_2018_2019
+      event_type: scenario_window
+      event_start: "2018-01-31"
+      event_end: "2019-12-31"
+      source_class: preregistered_scenario_metadata
+      display_label_zh: 2018–2019 晚期循環研究窗
+  runtime_derived_event_policy:
+    allowed_input: strict_phase125_evidence_rows_only
+    watch_lane_suffix: _watch
+    confirmation_lane_suffix: _confirmation
+    emitted_event_types: [transition_watch, transition_confirmation]
+    first_supportive_transition_only: true
+    phase_output_allowed: false
+    declared_state_mutation_allowed: false

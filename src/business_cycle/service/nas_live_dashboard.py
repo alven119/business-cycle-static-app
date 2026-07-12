@@ -218,9 +218,9 @@ def build_nas_live_dashboard_runtime(
         }
     )
     shell["nas_page_completeness"] = page_scan
-    shell["phase"] = "130"
-    shell["phase_id"] = 130
-    shell["artifact_id"] = "phase130_full_cycle_revised_data_runtime"
+    shell["phase"] = "131"
+    shell["phase_id"] = 131
+    shell["artifact_id"] = "phase131_historical_pit_transition_events_runtime"
     shell["governed_cycle_transition"] = governed_transition_status
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
@@ -359,6 +359,12 @@ def build_nas_live_dashboard_runtime(
         "source_blocked_with_supporting_context_count": snapshot[
             "full_cycle_revised_data_readiness"
         ]["source_blocked_with_supporting_context_count"],
+        "historical_pit_gap_series_count": portfolio_replay_lab[
+            "historical_replay"
+        ]["pit_gap_series_count"],
+        "governed_historical_event_count": portfolio_replay_lab[
+            "historical_replay"
+        ]["governed_event_count"],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -453,8 +459,8 @@ def build_nas_live_dashboard_runtime(
         ]["source_blocked_with_supporting_context_count"],
     }
     runtime: dict[str, Any] = {
-        "phase": 130,
-        "artifact_id": "phase130_full_cycle_revised_data_runtime",
+        "phase": 131,
+        "artifact_id": "phase131_historical_pit_transition_events_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -500,7 +506,7 @@ def build_nas_live_dashboard_runtime(
         "role_count_voting_added_count": 0,
         "production_behavior_change_count": 0,
         "semantic_drift_count": 0,
-        "development_next_phase": 131,
+        "development_next_phase": 132,
     }
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True

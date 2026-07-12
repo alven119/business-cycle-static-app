@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase130-full-cycle-revised-data
+    image: business-cycle-nas-app:phase131-historical-pit-events
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -87,7 +87,7 @@ services:
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase130-full-cycle-revised-data
+    image: business-cycle-nas-app:phase131-historical-pit-events
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas

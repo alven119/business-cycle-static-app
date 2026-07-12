@@ -1,0 +1,32 @@
+phase131_historical_pit_transition_events_closure:
+  version: "1.0"
+  phase_id: 131
+  status: closed_official_pit_gaps_exhausted_or_evidenced_and_transition_events_governed
+  hard_gates:
+    phase131_closure_ready: true
+    scenario_count: 5
+    pit_gap_series_count: 7
+    partial_scenario_count: 3
+    strict_complete_scenario_count: 2
+    scenario_with_explicit_pit_status_count: 5
+    scenario_with_governed_event_count: 5
+    official_archive_gap_evidenced_count: 7
+    static_event_count: 9
+    uncertainty_window_count: 3
+    shock_event_count: 1
+    false_pit_completion_count: 0
+    revised_fallback_count: 0
+    historical_label_runtime_usage_count: 0
+    revised_pit_visual_separation_ready: true
+    event_provenance_drawer_ready: true
+    strict_gap_impact_explanation_ready: true
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    development_next_phase: 132
+    phase131_closure_status: closed_official_pit_gaps_exhausted_or_evidenced_and_transition_events_governed

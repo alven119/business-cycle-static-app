@@ -1,0 +1,87 @@
+historical_pit_gap_registry:
+  version: "1.0"
+  phase_id: 131
+  baseline_complete_month_count: 48
+  baseline_abstention_month_count: 108
+  scenario_status:
+    dotcom_cycle_2000_2003:
+      pit_status: partial_explicit_abstention
+      complete_month_count: 0
+      abstention_month_count: 48
+    global_financial_crisis_2007_2009:
+      pit_status: partial_explicit_abstention
+      complete_month_count: 0
+      abstention_month_count: 36
+    covid_recession_2020:
+      pit_status: strict_complete
+      complete_month_count: 24
+      abstention_month_count: 0
+    euro_debt_slowdown_2011_2012:
+      pit_status: partial_explicit_abstention
+      complete_month_count: 0
+      abstention_month_count: 24
+    late_cycle_2018_2019:
+      pit_status: strict_complete
+      complete_month_count: 24
+      abstention_month_count: 0
+  gap_rows:
+    - series_id: ICSA
+      source_agency: U.S. Department of Labor
+      official_archive_url: https://oui.doleta.gov/unemploy/claims_arch.asp
+      affected_scenarios: [dotcom_cycle_2000_2003, global_financial_crisis_2007_2009]
+      maximum_missing_month_count: 48
+      archive_assessment: official_weekly_release_archive_requires_artifact_parser
+      pit_resolution_status: evidenced_blocker
+      blocker_code: historical_release_artifact_parser_not_implemented
+    - series_id: CCSA
+      source_agency: U.S. Department of Labor
+      official_archive_url: https://oui.doleta.gov/unemploy/claims_arch.asp
+      affected_scenarios: [dotcom_cycle_2000_2003, global_financial_crisis_2007_2009]
+      maximum_missing_month_count: 48
+      archive_assessment: official_weekly_release_archive_requires_artifact_parser
+      pit_resolution_status: evidenced_blocker
+      blocker_code: historical_release_artifact_parser_not_implemented
+    - series_id: DRBLACBS
+      source_agency: Federal Reserve Board
+      official_archive_url: https://www.federalreserve.gov/releases/chargeoff/
+      affected_scenarios: [dotcom_cycle_2000_2003, global_financial_crisis_2007_2009, euro_debt_slowdown_2011_2012]
+      maximum_missing_month_count: 48
+      archive_assessment: current_historical_table_is_revised_and_not_an_exact_release_vintage
+      pit_resolution_status: evidenced_blocker
+      blocker_code: original_release_vintage_not_machine_reproducible
+    - series_id: DRCLACBS
+      source_agency: Federal Reserve Board
+      official_archive_url: https://www.federalreserve.gov/releases/chargeoff/
+      affected_scenarios: [dotcom_cycle_2000_2003, global_financial_crisis_2007_2009, euro_debt_slowdown_2011_2012]
+      maximum_missing_month_count: 48
+      archive_assessment: current_historical_table_is_revised_and_not_an_exact_release_vintage
+      pit_resolution_status: evidenced_blocker
+      blocker_code: original_release_vintage_not_machine_reproducible
+    - series_id: W006RC1Q027SBEA
+      source_agency: U.S. Bureau of Economic Analysis
+      official_archive_url: https://apps.bea.gov/histdata/
+      affected_scenarios: [dotcom_cycle_2000_2003, global_financial_crisis_2007_2009, euro_debt_slowdown_2011_2012]
+      maximum_missing_month_count: 48
+      archive_assessment: archived_nipa_tables_require_release_specific_table_mapping
+      pit_resolution_status: evidenced_blocker
+      blocker_code: release_specific_table_mapping_not_verified
+    - series_id: RRSFS
+      source_agency: U.S. Census Bureau
+      official_archive_url: https://www.census.gov/retail/historic_releases.html
+      affected_scenarios: [dotcom_cycle_2000_2003]
+      maximum_missing_month_count: 17
+      archive_assessment: official_monthly_pdf_archive_requires_versioned_parser
+      pit_resolution_status: evidenced_blocker
+      blocker_code: historical_release_pdf_parser_not_implemented
+    - series_id: PCEPILFE
+      source_agency: U.S. Bureau of Economic Analysis
+      official_archive_url: https://apps.bea.gov/histdata/
+      affected_scenarios: [dotcom_cycle_2000_2003]
+      maximum_missing_month_count: 7
+      archive_assessment: early_release_vintage_not_complete_in_current_alfred_capture
+      pit_resolution_status: evidenced_blocker
+      blocker_code: exact_early_release_vintage_not_verified
+  safety:
+    revised_values_used_as_pit_count: 0
+    fixed_lag_assumption_count: 0
+    observation_date_assumed_available_count: 0

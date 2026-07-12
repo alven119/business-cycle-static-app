@@ -366,7 +366,12 @@ def render_historical_replay_page(
         <span><b>月度節點</b> {len(view['monthly_playhead_rows'])}</span>
         <span><b>PIT 完整月</b> {int(view['strict_complete_month_count'])}</span>
         <span><b>PIT Abstain 月</b> {int(view['strict_abstention_month_count'])}</span>
+        <span><b>Governed events</b> {int(view['governed_event_count'])}</span>
         <span><b>Backtest 結果</b> {int(view['research_backtest_result_count'])}</span></div>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Data mode boundary</p>
+        <h2>Strict PIT 與 revised 比較不混用</h2></div></div>
+        <p>「當時可得資料」只讀取可驗證的 release vintage；「修訂後診斷比較」只供研究對照，
+        不會回填 PIT 缺口。網路泡沫、GFC 與歐債三個情境仍保留 uncertainty window，避免假完整。</p></section>
         <section class="content-band replay-console" aria-labelledby="replay-console-title">
           <div class="section-heading"><div><p class="section-kicker">Interactive playhead</p><h2 id="replay-console-title">事件月度檢視</h2></div></div>
           <div class="replay-controls">
@@ -420,12 +425,25 @@ def _replay_scenario_card(row: dict[str, Any]) -> str:
         if metrics["annualized_twr"]
         else "PIT inputs 不完整，依法 abstain"
     )
+    event_items = "".join(
+        "<li><strong>"
+        + escape(str(event["event_type"]))
+        + "</strong><span>"
+        + escape(str(event["display_label_zh"]))
+        + "（"
+        + escape(str(event["source_class"]))
+        + "）</span></li>"
+        for event in row["governed_events"]
+    )
+    gaps = "、".join(row["pit_gap_series_ids"]) or "無"
     return f"""
     <article class="role-card"><p class="eyebrow">{escape(str(row['scenario_family']))}</p>
     <h3>{escape(str(row['title_zh']))}</h3><p>{escape(str(row['focus_zh']))}</p>
     <dl><dt>期間</dt><dd>{escape(str(row['window_start']))} – {escape(str(row['window_end']))}</dd>
     <dt>月份</dt><dd>{int(row['month_count'])}</dd><dt>Strict replay</dt><dd>{'已執行' if row['strict_evidence_replay_executed'] else '未執行／abstain'}</dd>
-    <dt>固定參數結果</dt><dd>{int(row['research_backtest_result_count'])} 組；{metric_html}</dd></dl></article>
+    <dt>PIT 狀態</dt><dd>{escape(str(row['pit_status']))}</dd><dt>缺口 series</dt><dd>{escape(gaps)}</dd>
+    <dt>固定參數結果</dt><dd>{int(row['research_backtest_result_count'])} 組；{metric_html}</dd></dl>
+    <details><summary>事件與 provenance</summary><ul class="lane-evidence-items">{event_items}</ul></details></article>
     """
 
 

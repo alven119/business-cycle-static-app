@@ -1,0 +1,50 @@
+historical_pit_transition_event_contract:
+  version: "1.0"
+  status: active_research_only
+  phase_id: 131
+  scenario_manifest: specs/audits/historical_validation_scenario_manifest.yaml
+  pit_gap_registry: specs/audits/historical_pit_gap_registry.yaml
+  event_registry: specs/audits/governed_historical_transition_event_registry.yaml
+  data_mode_policy:
+    strict_mode: vintage_as_of
+    comparison_mode: revised_declared_comparison_only
+    revised_fallback_allowed: false
+    observation_date_as_availability_allowed: false
+  event_types:
+    - scenario_window
+    - phase_start_reference
+    - transition_watch
+    - transition_confirmation
+    - shock
+    - uncertainty_window
+  event_source_classes:
+    - preregistered_scenario_metadata
+    - external_reference_annotation_only
+    - strict_evidence_derived
+    - explicit_pit_gap
+  event_policy:
+    labels_used_by_runtime: false
+    external_reference_may_tune_rules: false
+    watch_is_confirmation: false
+    confirmation_changes_declared_state: false
+    phase_start_reference_is_inferred_phase: false
+    missing_pit_creates_uncertainty_window: true
+  output_policy:
+    output_mode: research_historical_replay_annotation_only
+    candidate_phase_allowed: false
+    current_phase_allowed: false
+    phase_score_allowed: false
+    portfolio_action_allowed: false
+  hard_gates:
+    scenario_count: 5
+    pit_gap_series_count: 7
+    partial_scenario_count: 3
+    scenario_with_explicit_pit_status_count: 5
+    scenario_with_governed_event_count: 5
+    official_archive_gap_evidenced_count: 7
+    false_pit_completion_count: 0
+    revised_fallback_count: 0
+    historical_label_runtime_usage_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    semantic_drift_count: 0

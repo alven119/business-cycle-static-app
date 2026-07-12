@@ -21,6 +21,9 @@ from business_cycle.render.portfolio_policy_replay_research_surface import (
 from business_cycle.validation.historical_validation_manifest import (
     load_historical_validation_scenario_manifest,
 )
+from business_cycle.validation.historical_pit_transition_events import (
+    build_historical_pit_transition_event_registry,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_portfolio_replay_lab_contract.yaml"
@@ -282,6 +285,12 @@ def _replay_view(
         for row in phase125_execution.get("evidence_replay_rows", [])
     }
     result_rows = list(phase125_execution.get("research_backtest_results", []))
+    governed_registry = build_historical_pit_transition_event_registry(
+        evidence_rows=list(phase125_execution.get("evidence_replay_rows", []))
+    )
+    events_by_scenario: dict[str, list[dict[str, Any]]] = {}
+    for event in governed_registry["event_rows"]:
+        events_by_scenario.setdefault(str(event["scenario_id"]), []).append(event)
     scenarios = []
     playhead_rows = []
     for scenario in manifest["scenario_rows"]:
@@ -309,6 +318,15 @@ def _replay_view(
                 ),
                 "research_backtest_result_count": len(scenario_results),
                 "result_metric_range": _scenario_metric_range(scenario_results),
+                "pit_status": governed_registry["scenario_status"][scenario_id][
+                    "pit_status"
+                ],
+                "governed_events": events_by_scenario.get(scenario_id, []),
+                "pit_gap_series_ids": sorted(
+                    row["series_id"]
+                    for row in governed_registry["gap_rows"]
+                    if scenario_id in row["affected_scenarios"]
+                ),
             }
         )
         for month_end in months:
@@ -382,6 +400,10 @@ def _replay_view(
             phase125_execution.get("dynamic_transition_policy_execution_count", 0)
         ),
         "research_only": True,
+        "governed_transition_event_registry": governed_registry,
+        "governed_event_count": len(governed_registry["event_rows"]),
+        "pit_gap_series_count": governed_registry["pit_gap_series_count"],
+        "revised_pit_visual_separation_ready": True,
     }
 
 

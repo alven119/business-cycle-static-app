@@ -140,7 +140,8 @@ product_capability_100_completion_plan:
         C3_EXPLAINABILITY_AND_ATTRIBUTION: 100
     - phase_id: 131
       title_zh: 歷史 PIT 缺口與 governed transition event registry 完成
-      execution_status: planned
+      execution_status: completed
+      completion_status: closed_official_pit_gaps_exhausted_or_evidenced_and_transition_events_governed
       objective_zh: >
         補齊三個 partial 歷史情境可安全取得的 official vintages，建立 phase start、watch、
         confirmation、shock 與 uncertainty-window 事件；無法取得者明確 abstain，不以 revised 冒充 PIT。

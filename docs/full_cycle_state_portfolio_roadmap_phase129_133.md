@@ -72,9 +72,13 @@ lineage、來源排程、重試與 schema drift。ADP 與 Conference Board confi
 
 ### Phase 131：歷史 PIT 與轉折事件
 
-補齊網路泡沫、GFC、歐債危機可安全取得的 official vintages；建立 phase start、watch、
-confirmation、shock、uncertainty window 與 provenance。revised comparison 與 strict PIT 必須
-視覺分離，歷史 label 不得回饋 runtime tuning。
+狀態：已完成。五個情境均有明確 PIT 狀態；COVID 與 2018–2019 為 strict complete，
+網路泡沫、GFC、歐債危機保留 uncertainty window。七條早期官方缺口已逐一登錄來源、
+可重現性與 blocker，不以目前修訂表或固定 lag 冒充當時 vintage。
+
+完成 scenario window、shock、uncertainty window 與 strict evidence-derived watch／confirmation
+事件契約及 provenance。revised comparison 與 strict PIT 在歷史重播頁視覺分離，歷史 label
+不回饋 runtime tuning，也不改寫 declared state。
 
 ### Phase 132：Phase-aware Dashboard 原子切換
 

@@ -155,6 +155,15 @@ def test_phase124_nas_portfolio_and_replay_surfaces_are_operational_without_exec
     assert lab["backtest_execution_count"] == 0
     assert lab["candidate_phase_emitted"] is False
     assert lab["current_phase_emitted"] is False
+    replay = lab["historical_replay"]
+    assert replay["pit_gap_series_count"] == 7
+    assert replay["governed_event_count"] == 9
+    assert replay["revised_pit_visual_separation_ready"] is True
+    assert sum(row["pit_status"] == "strict_complete" for row in replay["scenario_rows"]) == 2
+    assert sum(
+        row["pit_status"] == "partial_explicit_abstention"
+        for row in replay["scenario_rows"]
+    ) == 3
 
 
 def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces() -> None:
@@ -168,8 +177,18 @@ def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces
     live = build_live_ordered_cycle_evidence(snapshot)
     lab = build_nas_portfolio_replay_lab(snapshot, live_transition_evidence=live)
     navigation = [
-        {"nav_id": "portfolio_research", "label_zh": "配置研究", "path": "/portfolio-research", "enabled": True},
-        {"nav_id": "historical_replay", "label_zh": "歷史重播", "path": "/historical-replay", "enabled": True},
+        {
+            "nav_id": "portfolio_research",
+            "label_zh": "配置研究",
+            "path": "/portfolio-research",
+            "enabled": True,
+        },
+        {
+            "nav_id": "historical_replay",
+            "label_zh": "歷史重播",
+            "path": "/historical-replay",
+            "enabled": True,
+        },
     ]
     portfolio_html = render_portfolio_research_page(
         lab["portfolio_research"], navigation=navigation
@@ -199,6 +218,10 @@ def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces
     assert "Phase 125 結果" not in portfolio_html
     assert "Strict evidence" in replay_html
     assert "固定參數 sensitivity" in replay_html
+    assert "Strict PIT 與 revised 比較不混用" in replay_html
+    assert "事件與 provenance" in replay_html
+    assert "PIT 缺口，不輸出正式轉折結論" in replay_html
+    assert lab["historical_replay"]["governed_event_count"] == 9
     assert artifact["candidate_phase_emitted"] is False
     assert artifact["current_phase_emitted"] is False
 
