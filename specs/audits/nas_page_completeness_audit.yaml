@@ -20,7 +20,7 @@ nas_page_completeness_audit:
     "/": [declared_phase_start_context_unconfirmed, prospective_validation_calendar_pending]
     "/indicators": [two_source_limited_roles_disclosed]
     "/technology-cycle": [nominal_price_exchange_rate_base_effect_risk_disclosed]
-    "/portfolio-research": [formal_market_benchmark_source_gap, dynamic_transition_policy_timeline_gap]
+    "/portfolio-research": [formal_market_benchmark_source_gap, prospective_policy_validation_pending]
     "/historical-replay": [three_early_pit_scenarios_incomplete]
     "/cycle-state": [user_declared_start_confirmation_required]
     "/source-operations": [broader_early_pit_and_exact_release_timestamp_gap]

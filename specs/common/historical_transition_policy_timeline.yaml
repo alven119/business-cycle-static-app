@@ -1,0 +1,96 @@
+historical_transition_policy_timeline:
+  version: "1.0"
+  status: active_private_nas_research
+  phase_id: 133
+  contract_id: historical_transition_policy_timeline_v1
+  dependencies:
+    scenario_manifest: specs/audits/historical_validation_scenario_manifest.yaml
+    label_policy: specs/audits/historical_validation_label_policy.yaml
+    transition_events: specs/audits/governed_historical_transition_event_registry.yaml
+    strict_replay_backtest: specs/common/nas_strict_replay_backtest_contract.yaml
+    book_policy: specs/common/full_cycle_portfolio_transition_research.yaml
+  reference_chronology:
+    source_id: nber_us_business_cycle_dates_declared_validation_label
+    source_title: US Business Cycle Expansions and Contractions
+    source_url: https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions
+    usage: historical_annotation_and_policy_replay_only
+    runtime_input_allowed: false
+    rule_tuning_allowed: false
+    scenario_turning_points:
+      dotcom_cycle_2000_2003:
+        peak_month: "2001-03"
+        trough_month: "2001-11"
+      global_financial_crisis_2007_2009:
+        peak_month: "2007-12"
+        trough_month: "2009-06"
+      covid_recession_2020:
+        peak_month: "2020-02"
+        trough_month: "2020-04"
+      euro_debt_slowdown_2011_2012:
+        no_declared_us_recession_in_window: true
+      late_cycle_2018_2019:
+        no_declared_us_recession_in_window: true
+  annotation_policy:
+    recession_month_definition: month_after_nber_peak_through_nber_trough
+    expansion_book_subphase_inference_allowed: false
+    phase_age_available_only_for_nber_recession_annotation: true
+    unknown_book_subphase_label: nber_expansion_book_subphase_unclassified
+    no_recession_label: no_declared_us_recession_reference
+    book_recession_policy_requirement_id: recession_stock_weight_100
+    book_recession_equity_parameter_percent: 100
+    book_policy_state_may_cause_transition: false
+    candidate_or_current_phase_emission_allowed: false
+  sensitivity_policy:
+    source_result_scope: constant_parameter_sensitivity_only
+    included_parameter_ids:
+      - passive_equity_100
+      - boom_cash_70
+      - boom_cash_50
+      - boom_cash_30
+      - stock_treasury_70
+      - stock_treasury_50
+    parameter_order: [passive_equity_100, boom_cash_70, boom_cash_50, boom_cash_30, stock_treasury_70, stock_treasury_50]
+    expected_complete_scenario_count: 2
+    expected_result_count: 12
+    cash_flow_aware_metrics:
+      - annualized_time_weighted_return
+      - money_weighted_return_xirr
+      - max_drawdown_on_unitized_nav
+      - drawdown_recovery_months
+      - turnover
+      - transaction_cost_total
+      - missed_recovery_opportunity_cost_percent
+      - false_derisk_opportunity_cost_percent
+    best_result_selection_allowed: false
+    result_ranking_allowed: false
+    rule_tuning_allowed: false
+    current_allocation_instruction_allowed: false
+  output_policy:
+    research_only: true
+    private_nas_only: true
+    historical_labels_are_annotations_only: true
+    revised_fallback_allowed: false
+    personalized_instruction_allowed: false
+    trade_signal_allowed: false
+    public_output_allowed: false
+  hard_gates:
+    historical_transition_policy_timeline_ready: true
+    scenario_count: 5
+    monthly_annotation_count: 156
+    scenario_with_annotation_or_blocker_count: 5
+    strict_complete_scenario_count: 2
+    explicit_pit_blocked_scenario_count: 3
+    nber_recession_annotation_month_count: 28
+    book_policy_annotation_month_count: 28
+    fixed_weight_sensitivity_result_count: 12
+    cash_flow_metric_provenance_complete_count: 12
+    recovery_cost_result_count: 6
+    false_derisk_cost_result_count: 6
+    book_policy_state_transition_cause_count: 0
+    fixed_weight_result_rule_tuning_count: 0
+    best_historical_result_selected_count: 0
+    historical_label_runtime_usage_count: 0
+    personalized_instruction_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    semantic_drift_count: 0

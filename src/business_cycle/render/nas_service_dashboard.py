@@ -314,6 +314,11 @@ def render_portfolio_research_page(
         f"<span>{escape(str(row['lane_status']))}</span></li>"
         for lane_id, row in view["live_transition_lane_context"].items()
     )
+    sensitivity_rows = "".join(
+        _fixed_weight_sensitivity_row(row)
+        for row in view["fixed_weight_sensitivity_rows"]
+    )
+    timeline = view["historical_policy_timeline_summary"]
     return _html_document(
         title="配置研究",
         active_nav_id="portfolio_research",
@@ -340,6 +345,14 @@ def render_portfolio_research_page(
         <div class="role-grid">{cycle_rows}</div></section>
         <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Eight governed templates</p>
         <h2>書籍基準與研究替代方案</h2></div></div><div class="role-grid">{cards}</div></section>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Historical policy research</p>
+        <h2>歷史固定權重敏感度</h2></div></div>
+        <p>沿用 Phase 125 的 cash-flow-aware strict PIT 結果，比較 100／70／50／30 股票與現金，以及 70／50 股票與長債代理。
+        五個情境共有 {int(timeline['monthly_annotation_count'])} 個月度註解；目前 {int(timeline['strict_complete_scenario_count'])} 個情境可計算，
+        {int(timeline['explicit_pit_blocked_scenario_count'])} 個因官方早期 PIT 缺口維持 abstain。</p>
+        <div class="table-scroll"><table class="research-table"><thead><tr><th>情境</th><th>固定參數</th><th>防守資產</th><th>年化 TWR</th><th>最大回撤</th><th>回撤恢復</th><th>換手／成本</th><th>機會成本</th></tr></thead>
+        <tbody>{sensitivity_rows}</tbody></table></div>
+        <p class="boundary-note">表格依預註冊參數順序呈現，不排序、不挑選歷史最佳結果，也不回頭調整轉折規則。長債是 DGS10 duration model；所有結果均為 research-only、backtest-only。</p></section>
         <p class="boundary-note">目前已有 {int(view['research_backtest_result_count'])} 組 strict 固定參數 sensitivity，涵蓋 {int(view['quantitative_template_result_count'])} 個具數值參數模板；
         另有 {int(view['evidence_context_only_template_count'])} 個轉折時機模板因書中沒有額外精確權重而刻意不硬造數值。NASDAQ-100 偏重科技，長債為 DGS10 duration model，均不得稱為書籍正式 benchmark。
         research-only、backtest-only，不構成投資建議。</p>
@@ -393,7 +406,9 @@ def render_historical_replay_page(
           <article class="replay-readout"><h3 id="replay-title"></h3><p id="replay-focus"></p>
           <dl class="learning-grid"><dt>月份</dt><dd id="replay-asof"></dd><dt>資料狀態</dt><dd id="replay-state"></dd>
           <dt>可用／缺漏</dt><dd id="replay-counts"></dd><dt>Attribution</dt><dd id="replay-roles"></dd>
-          <dt>Strict evidence</dt><dd id="replay-evidence"></dd><dt>研究回測</dt><dd id="replay-backtest"></dd></dl>
+          <dt>Strict evidence</dt><dd id="replay-evidence"></dd><dt>研究回測</dt><dd id="replay-backtest"></dd>
+          <dt>事後週期註解</dt><dd id="replay-reference-state"></dd><dt>書籍政策回放</dt><dd id="replay-policy"></dd>
+          <dt>Watch／confirmation</dt><dd id="replay-transition-annotation"></dd><dt>Shock／不確定性</dt><dd id="replay-event-flags"></dd></dl>
           <p id="replay-caveat" class="boundary-note"></p></article>
         </section>
         <section class="content-band"><h2>預註冊歷史事件</h2><div class="role-grid">{scenario_cards}</div></section>
@@ -423,6 +438,36 @@ def _portfolio_template_card(row: dict[str, Any]) -> str:
       <dt>分類</dt><dd>{escape(str(row['book_or_modern_classification']))}</dd>
       <dt>Strict PIT 研究結果</dt><dd>{result_html}</dd></dl>
       <p class="boundary-note">backtest-only；不是目前配置建議。</p></article>
+    """
+
+
+def _fixed_weight_sensitivity_row(row: dict[str, Any]) -> str:
+    defensive = {
+        "cash": "現金代理",
+        "long_treasury_proxy": "長債代理",
+    }.get(str(row["defensive_asset"]), str(row["defensive_asset"]))
+    recovery = row["drawdown_recovery_months"]
+    recovery_text = "期間內未恢復" if recovery is None else f"{int(recovery)} 個月"
+    opportunity = row["missed_recovery_opportunity_cost_percent"]
+    opportunity_label = "錯失復甦"
+    if opportunity is None:
+        opportunity = row["false_derisk_opportunity_cost_percent"]
+        opportunity_label = "誤去風險"
+    opportunity_text = (
+        "不適用"
+        if opportunity is None
+        else f"{opportunity_label} {float(opportunity):.2f}%"
+    )
+    metrics = row
+    return f"""
+    <tr><td>{escape(_scenario_label_zh(str(row['scenario_id'])))}</td>
+    <td>股票 {int(row['equity_parameter_percent'])}%／防守 {int(row['defensive_parameter_percent'])}%</td>
+    <td>{escape(defensive)}</td>
+    <td>{float(metrics['annualized_time_weighted_return']) * 100:.1f}%</td>
+    <td>{float(metrics['max_drawdown_on_unitized_nav']) * 100:.1f}%</td>
+    <td>{escape(recovery_text)}</td>
+    <td>{float(metrics['turnover']):.3f}／{float(metrics['transaction_cost_total']):.0f}</td>
+    <td>{escape(opportunity_text)}</td></tr>
     """
 
 
@@ -483,6 +528,13 @@ def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
         document.getElementById('replay-roles').textContent = row.attribution_role_ids.join('、');
         document.getElementById('replay-evidence').textContent = row.strict_evidence_replay_executed ? Object.entries(row.strict_lane_states).map(([key, value]) => `${{key}}: ${{value}}`).join('；') : '未執行';
         document.getElementById('replay-backtest').textContent = scenario.research_backtest_result_count ? `${{scenario.research_backtest_result_count}} 組固定參數 sensitivity` : '未執行';
+        const referenceLabels = {{recession: 'NBER 事後衰退註解', nber_expansion_book_subphase_unclassified: 'NBER expansion；書籍子階段未分類', no_declared_us_recession_reference: '研究窗內無 NBER 美國衰退'}};
+        document.getElementById('replay-reference-state').textContent = `${{referenceLabels[row.reference_cycle_state] || row.reference_cycle_state}}${{row.reference_phase_age_month ? `（第 ${{row.reference_phase_age_month}} 月）` : ''}}`;
+        document.getElementById('replay-policy').textContent = row.book_policy_requirement_id ? `書籍衰退規則：股票 ${{row.book_policy_equity_parameter_percent}}%（歷史回放）` : '無可安全套用的書籍四階段權重';
+        const watches = row.transition_watch_annotations.map(item => `${{item.lane_id}}: ${{item.evidence_state}}`);
+        const confirmations = row.transition_confirmation_annotations.map(item => `${{item.lane_id}}: ${{item.evidence_state}}`);
+        document.getElementById('replay-transition-annotation').textContent = [...watches, ...confirmations].join('；') || '當月無 strict evidence 註解';
+        document.getElementById('replay-event-flags').textContent = [row.shock_annotation_present ? '外生衝擊' : '', row.uncertainty_annotation_present ? 'PIT 不確定窗' : ''].filter(Boolean).join('／') || '無';
         document.getElementById('replay-caveat').textContent = strict && row.strict_abstention_required ? '當月缺少官方 PIT inputs，strict replay 必須 abstain，不能回退 revised。' : (row.strict_evidence_replay_executed ? '已執行 strict evidence replay；不輸出歷史 current phase。回測為固定參數研究，不是動態換倉結果。' : '此模式目前不輸出歷史 phase。');
       }}
       scenarioSelect.addEventListener('change', () => {{ playhead.value = 0; render(); }});
@@ -491,6 +543,16 @@ def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
       render();
     }})();
     """
+
+
+def _scenario_label_zh(scenario_id: str) -> str:
+    return {
+        "dotcom_cycle_2000_2003": "網路泡沫",
+        "global_financial_crisis_2007_2009": "全球金融危機",
+        "covid_recession_2020": "COVID 衰退",
+        "euro_debt_slowdown_2011_2012": "歐債壓力",
+        "late_cycle_2018_2019": "2018–2019 晚期循環",
+    }.get(scenario_id, scenario_id)
 
 
 def _result_range_html(summary: dict[str, Any]) -> str:
@@ -1627,6 +1689,11 @@ def _html_document(
     .priority-indicator span {{ color: var(--muted); font-size: .74rem; }}
     .indicator-name {{ color: var(--ink) !important; font-size: .88rem !important; font-weight: 650; }}
     .health-grid, .summary-grid, .role-grid, .roadmap-grid {{ display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }}
+    .table-scroll {{ overflow-x: auto; margin-top: 12px; border: 1px solid var(--line); border-radius: 6px; }}
+    .research-table {{ width: 100%; min-width: 900px; border-collapse: collapse; font-size: .8rem; background: #fff; }}
+    .research-table th, .research-table td {{ padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }}
+    .research-table th {{ background: #edf2ee; color: var(--muted); font-weight: 700; }}
+    .research-table tbody tr:last-child td {{ border-bottom: 0; }}
     .health-grid article {{ min-height: 92px; padding: 13px 0; border-top: 2px solid var(--line); }}
     .health-grid span, .health-grid strong {{ display: block; }}
     .health-grid span {{ color: var(--muted); font-size: .72rem; }}

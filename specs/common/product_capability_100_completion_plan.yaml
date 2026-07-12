@@ -185,7 +185,7 @@ product_capability_100_completion_plan:
         C3_EXPLAINABILITY_AND_ATTRIBUTION: 100
     - phase_id: 133
       title_zh: 歷史轉折政策時間軸、書籍規則回放與固定權重敏感度
-      execution_status: planned
+      execution_status: completed
       objective_zh: >
         在五個歷史案例逐月標記 governed phase、phase age、watch、confirmation、shock 與
         書籍模板權重；平行比較固定 100/70/50/30 與股票／現金、股票／長債研究，不做事後最佳化推薦。
@@ -215,7 +215,7 @@ product_capability_100_completion_plan:
       target_phase_id: 132
       remaining_gap_zh: governed phase transition、完整資料路由與 phase-aware Dashboard 原子切換
     - capability_id: C2_TRANSITION_RISK_DETECTION
-      current_percent: 99
+      current_percent: 100
       engineering_readiness_target_percent: 100
       target_percent: 100
       target_phase_id: 132
@@ -231,13 +231,13 @@ product_capability_100_completion_plan:
       engineering_readiness_target_percent: 100
       target_percent: 100
       target_phase_id: 133
-      remaining_gap_zh: 歷史事件上的書籍規則權重與固定權重敏感度整合
+      remaining_gap_zh: 工程產品面完成；正式 market benchmark 與 prospective validation 依外部資料 gate 補齊
     - capability_id: C5_HISTORICAL_REPLAY_AND_BACKTEST
-      current_percent: 96
+      current_percent: 100
       engineering_readiness_target_percent: 100
       target_percent: 100
       target_phase_id: 133
-      remaining_gap_zh: 三個 partial PIT 情境、governed transition events 與政策時間軸
+      remaining_gap_zh: 工程產品面完成；三個 partial PIT 情境維持 explicit blocker 並等待官方 archive
     - capability_id: C6_SAFE_OUTPUT_GOVERNANCE
       current_percent: 100
       engineering_readiness_target_percent: 100

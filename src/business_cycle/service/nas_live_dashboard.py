@@ -219,9 +219,9 @@ def build_nas_live_dashboard_runtime(
         }
     )
     shell["nas_page_completeness"] = page_scan
-    shell["phase"] = "132"
-    shell["phase_id"] = 132
-    shell["artifact_id"] = "phase132_phase_aware_dashboard_runtime"
+    shell["phase"] = "133"
+    shell["phase_id"] = 133
+    shell["artifact_id"] = "phase133_historical_policy_timeline_runtime"
     shell["governed_cycle_transition"] = governed_transition_status
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
@@ -466,8 +466,8 @@ def build_nas_live_dashboard_runtime(
         ]["source_blocked_with_supporting_context_count"],
     }
     runtime: dict[str, Any] = {
-        "phase": 132,
-        "artifact_id": "phase132_phase_aware_dashboard_runtime",
+        "phase": 133,
+        "artifact_id": "phase133_historical_policy_timeline_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,

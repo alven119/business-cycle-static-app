@@ -15,6 +15,9 @@ from business_cycle.portfolio.policy_research_baseline import (
 from business_cycle.portfolio.full_cycle_transition_policy import (
     build_full_cycle_portfolio_transition_research,
 )
+from business_cycle.portfolio.historical_transition_policy_timeline import (
+    build_historical_transition_policy_timeline,
+)
 from business_cycle.render.portfolio_policy_replay_research_surface import (
     build_portfolio_policy_replay_research_surface_view_model,
 )
@@ -70,18 +73,23 @@ def build_nas_portfolio_replay_lab(
     phase125_execution = snapshot.get("source_release_diagnostics", {}).get(
         "strict_replay_backtest_status", {}
     )
+    historical_policy = build_historical_transition_policy_timeline(
+        phase125_execution
+    )
     portfolio = _portfolio_view(
         contract=contract,
         declared=declared,
         live_transition_evidence=live_transition_evidence,
         phase125_execution=phase125_execution,
         phase_context=phase_context,
+        historical_policy=historical_policy,
     )
     replay = _replay_view(
         contract=contract,
         snapshot=snapshot,
         phase125_execution=phase125_execution,
         phase_context=phase_context,
+        historical_policy=historical_policy,
     )
     artifact: dict[str, Any] = {
         "artifact_id": "phase124_nas_portfolio_replay_lab_v1",
@@ -133,6 +141,16 @@ def build_nas_portfolio_replay_lab(
         "phase125_evidence_replay_output_count": int(
             phase125_execution.get("evidence_replay_output_count", 0)
         ),
+        "phase133_historical_policy_timeline_connected": historical_policy[
+            "result"
+        ]
+        == "passed",
+        "phase133_monthly_annotation_count": historical_policy[
+            "monthly_annotation_count"
+        ],
+        "phase133_fixed_weight_sensitivity_result_count": historical_policy[
+            "fixed_weight_sensitivity_result_count"
+        ],
         "candidate_phase_emitted": False,
         "current_phase_emitted": False,
         "production_behavior_change_count": 0,
@@ -178,6 +196,7 @@ def _portfolio_view(
     live_transition_evidence: dict[str, Any] | None,
     phase125_execution: dict[str, Any],
     phase_context: dict[str, Any],
+    historical_policy: dict[str, Any],
 ) -> dict[str, Any]:
     baseline = summarize_portfolio_policy_research_baseline()
     surface = build_portfolio_policy_replay_research_surface_view_model()
@@ -280,6 +299,26 @@ def _portfolio_view(
         "dynamic_transition_policy_execution_count": int(
             phase125_execution.get("dynamic_transition_policy_execution_count", 0)
         ),
+        "historical_policy_timeline_summary": {
+            "scenario_count": historical_policy["scenario_count"],
+            "monthly_annotation_count": historical_policy[
+                "monthly_annotation_count"
+            ],
+            "book_policy_annotation_month_count": historical_policy[
+                "book_policy_annotation_month_count"
+            ],
+            "strict_complete_scenario_count": historical_policy[
+                "strict_complete_scenario_count"
+            ],
+            "explicit_pit_blocked_scenario_count": historical_policy[
+                "explicit_pit_blocked_scenario_count"
+            ],
+        },
+        "fixed_weight_sensitivity_rows": historical_policy[
+            "fixed_weight_sensitivity_rows"
+        ],
+        "fixed_weight_results_used_for_rule_tuning": False,
+        "best_historical_result_selected": False,
         "research_only": True,
     }
 
@@ -290,6 +329,7 @@ def _replay_view(
     snapshot: dict[str, Any],
     phase125_execution: dict[str, Any],
     phase_context: dict[str, Any],
+    historical_policy: dict[str, Any],
 ) -> dict[str, Any]:
     manifest = load_historical_validation_scenario_manifest()
     scenario_display = contract["replay_policy"]["scenario_display"]
@@ -308,6 +348,10 @@ def _replay_view(
     governed_registry = build_historical_pit_transition_event_registry(
         evidence_rows=list(phase125_execution.get("evidence_replay_rows", []))
     )
+    policy_by_key = {
+        (str(row["scenario_id"]), str(row["as_of"])): row
+        for row in historical_policy["monthly_annotations"]
+    }
     events_by_scenario: dict[str, list[dict[str, Any]]] = {}
     for event in governed_registry["event_rows"]:
         events_by_scenario.setdefault(str(event["scenario_id"]), []).append(event)
@@ -352,6 +396,7 @@ def _replay_view(
         for month_end in months:
             strict = strict_by_key.get((scenario_id, month_end))
             evidence = evidence_by_key.get((scenario_id, month_end))
+            policy_annotation = policy_by_key[(scenario_id, month_end)]
             playhead_rows.append(
                 {
                     "scenario_id": scenario_id,
@@ -381,6 +426,33 @@ def _replay_view(
                     "strict_role_states": (
                         dict(evidence["role_states"]) if evidence else {}
                     ),
+                    "reference_cycle_state": policy_annotation[
+                        "reference_cycle_state"
+                    ],
+                    "reference_phase_age_month": policy_annotation[
+                        "reference_phase_age_month"
+                    ],
+                    "book_policy_requirement_id": policy_annotation[
+                        "book_policy_requirement_id"
+                    ],
+                    "book_policy_equity_parameter_percent": policy_annotation[
+                        "book_policy_equity_parameter_percent"
+                    ],
+                    "historical_annotation_reason_zh": policy_annotation[
+                        "annotation_reason_zh"
+                    ],
+                    "transition_watch_annotations": policy_annotation[
+                        "transition_watch_annotations"
+                    ],
+                    "transition_confirmation_annotations": policy_annotation[
+                        "transition_confirmation_annotations"
+                    ],
+                    "shock_annotation_present": policy_annotation[
+                        "shock_annotation_present"
+                    ],
+                    "uncertainty_annotation_present": policy_annotation[
+                        "uncertainty_annotation_present"
+                    ],
                     "model_executed": evidence is not None,
                     "backtest_executed": bool(scenario_results),
                     "candidate_phase_emitted": False,
@@ -431,6 +503,15 @@ def _replay_view(
         "governed_event_count": len(governed_registry["event_rows"]),
         "pit_gap_series_count": governed_registry["pit_gap_series_count"],
         "revised_pit_visual_separation_ready": True,
+        "historical_policy_timeline_ready": historical_policy["result"]
+        == "passed",
+        "historical_policy_monthly_annotation_count": historical_policy[
+            "monthly_annotation_count"
+        ],
+        "historical_policy_scenario_rows": historical_policy["scenario_rows"],
+        "historical_label_runtime_usage_count": historical_policy[
+            "historical_label_runtime_usage_count"
+        ],
     }
 
 

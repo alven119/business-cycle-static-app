@@ -1,0 +1,36 @@
+phase133_historical_transition_policy_timeline_closure:
+  version: "1.0"
+  phase_id: 133
+  status: closed_historical_policy_timeline_and_fixed_weight_sensitivity_ready
+  hard_gates:
+    phase133_closure_ready: true
+    historical_transition_policy_timeline_ready: true
+    scenario_count: 5
+    monthly_annotation_count: 156
+    scenario_with_annotation_or_blocker_count: 5
+    strict_complete_scenario_count: 2
+    explicit_pit_blocked_scenario_count: 3
+    nber_recession_annotation_month_count: 28
+    book_policy_annotation_month_count: 28
+    fixed_weight_sensitivity_result_count: 12
+    cash_flow_metric_provenance_complete_count: 12
+    recovery_cost_result_count: 6
+    false_derisk_cost_result_count: 6
+    dashboard_surface_render_count: 2
+    policy_timeline_visible_count: 2
+    private_nas_mobile_acceptance_passed: true
+    book_policy_state_transition_cause_count: 0
+    fixed_weight_result_rule_tuning_count: 0
+    best_historical_result_selected_count: 0
+    historical_label_runtime_usage_count: 0
+    personalized_instruction_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    standalone_classifier_added_count: 0
+    phase_rank_or_score_added_count: 0
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    prospective_registry_record_count: 0
+    real_registry_write_attempt_count: 0
+    development_next_phase: PROSPECTIVE_CALENDAR_GATE
+    phase133_closure_status: closed_historical_policy_timeline_and_fixed_weight_sensitivity_ready

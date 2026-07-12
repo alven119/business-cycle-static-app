@@ -464,8 +464,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase132-phase-aware-dashboard"
-    assert worker["image"] == "business-cycle-nas-app:phase132-phase-aware-dashboard"
+    assert app["image"] == "business-cycle-nas-app:phase133-historical-policy-timeline"
+    assert worker["image"] == "business-cycle-nas-app:phase133-historical-policy-timeline"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -904,7 +904,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
     assert status["source_refresh_health_status"] == "healthy"
-    assert runtime["phase"] == 132
+    assert runtime["phase"] == 133
     assert runtime["full_cycle_revised_data_readiness"][
         "all_automated_revised_inputs_in_postgres"
     ] is True
@@ -927,7 +927,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert "榮景 → 衰退" in overview
     assert "轉折風險雷達" in overview
     assert overview.count('data-transition-lane="') == 4
-    assert "live evidence 已接線" in overview
+    assert "live evaluator 已接線" in overview
     assert "本期優先觀察" in overview
     assert "初領失業救濟金 U 型走勢" in overview
     assert "研究判讀，不是 declared state 改判" in overview

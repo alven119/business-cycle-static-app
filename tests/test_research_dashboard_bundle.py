@@ -81,6 +81,9 @@ from business_cycle.audits.phase126_nas_v1_operational_acceptance_closure import
 from business_cycle.audits.phase127_prospective_calendar_gate_closure import (
     summarize_phase127_prospective_calendar_gate_closure,
 )
+from business_cycle.audits.phase133_historical_transition_policy_timeline_closure import (
+    summarize_phase133_historical_transition_policy_timeline_closure,
+)
 from business_cycle.render.nas_service_dashboard import (
     render_historical_replay_page,
     render_portfolio_research_page,
@@ -246,16 +249,23 @@ def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces
     assert artifact["book_benchmark_result_count"] == 0
     assert lab["phase125_execution_connected"] is True
     assert lab["phase125_research_backtest_result_count"] == 16
+    assert lab["phase133_historical_policy_timeline_connected"] is True
+    assert lab["phase133_monthly_annotation_count"] == 156
+    assert lab["phase133_fixed_weight_sensitivity_result_count"] == 12
     assert lab["portfolio_research"]["full_cycle_policy_context_ready"] is True
     assert len(lab["portfolio_research"]["full_cycle_policy_rows"]) == 4
     assert lab["portfolio_research"]["quantitative_template_result_count"] == 6
     assert lab["portfolio_research"]["evidence_context_only_template_count"] == 2
     assert "16 組" in portfolio_html
     assert "年化 TWR" in portfolio_html
+    assert "歷史固定權重敏感度" in portfolio_html
+    assert "不排序、不挑選歷史最佳結果" in portfolio_html
     assert "四階段轉折與配置研究時機" in portfolio_html
     assert "尚待 Phase 125" not in portfolio_html
     assert "Phase 125 結果" not in portfolio_html
     assert "Strict evidence" in replay_html
+    assert "事後週期註解" in replay_html
+    assert "書籍政策回放" in replay_html
     assert "固定參數 sensitivity" in replay_html
     assert "Strict PIT 與 revised 比較不混用" in replay_html
     assert "事件與 provenance" in replay_html
@@ -265,6 +275,35 @@ def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces
     assert artifact["current_phase_emitted"] is False
 
 
+def test_phase133_historical_annotations_and_sensitivity_preserve_doctrine() -> None:
+    summary = summarize_phase133_historical_transition_policy_timeline_closure()
+    timeline = summary["timeline"]
+
+    assert summary["result"] == "passed"
+    assert summary["scenario_count"] == 5
+    assert summary["monthly_annotation_count"] == 156
+    assert summary["nber_recession_annotation_month_count"] == 28
+    assert summary["fixed_weight_sensitivity_result_count"] == 12
+    assert summary["cash_flow_metric_provenance_complete_count"] == 12
+    assert summary["recovery_cost_result_count"] == 6
+    assert summary["false_derisk_cost_result_count"] == 6
+    assert summary["private_nas_mobile_acceptance_passed"] is True
+    assert summary["book_policy_state_transition_cause_count"] == 0
+    assert summary["fixed_weight_result_rule_tuning_count"] == 0
+    assert summary["best_historical_result_selected_count"] == 0
+    assert summary["historical_label_runtime_usage_count"] == 0
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+    assert all(
+        row["reference_phase_age_month"] is None
+        for row in timeline["monthly_annotations"]
+        if row["reference_cycle_state"] != "recession"
+    )
+    assert all(
+        row["result_used_for_rule_tuning"] is False
+        and row["selected_as_best_historical_result"] is False
+        for row in timeline["fixed_weight_sensitivity_rows"]
+    )
 def test_phase126_private_nas_v1_operational_acceptance_is_complete_but_not_economic_validation() -> None:
     summary = summarize_phase126_nas_v1_operational_acceptance_closure()
     artifact = summary["artifact"]
