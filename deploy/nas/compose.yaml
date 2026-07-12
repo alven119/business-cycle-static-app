@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase127-prospective-calendar-wait
+    image: business-cycle-nas-app:phase128-full-cycle-portfolio-pages
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -86,7 +86,7 @@ services:
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase127-prospective-calendar-wait
+    image: business-cycle-nas-app:phase128-full-cycle-portfolio-pages
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas

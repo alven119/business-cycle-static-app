@@ -1,0 +1,39 @@
+nas_page_completeness_audit:
+  version: "1.0"
+  phase_id: 128
+  required_html_routes:
+    - /
+    - /indicators
+    - /technology-cycle
+    - /portfolio-research
+    - /historical-replay
+    - /cycle-state
+    - /source-operations
+    - /prospective-monitoring
+  prohibited_unfinished_markers:
+    - TODO
+    - FIXME
+    - 尚待 Phase 125
+    - Phase 125 結果
+    - 尚無可安全執行結果
+  disclosed_gap_registry:
+    "/": [declared_phase_start_context_unconfirmed, prospective_validation_calendar_pending]
+    "/indicators": [two_source_limited_roles_disclosed]
+    "/technology-cycle": [nominal_price_exchange_rate_base_effect_risk_disclosed]
+    "/portfolio-research": [formal_market_benchmark_source_gap, dynamic_transition_policy_timeline_gap]
+    "/historical-replay": [three_early_pit_scenarios_incomplete]
+    "/cycle-state": [user_declared_start_confirmation_required]
+    "/source-operations": [broader_early_pit_and_exact_release_timestamp_gap]
+    "/prospective-monitoring": [calendar_and_unseen_event_accumulation_pending]
+  hard_gates:
+    required_page_count: 8
+    scanned_page_count: 8
+    missing_page_count: 0
+    non_traditional_chinese_page_count: 0
+    unexplained_unfinished_marker_count: 0
+    prohibited_action_text_count: 0
+    page_with_research_boundary_count: 8
+    page_with_disclosed_gap_count: 8
+    software_placeholder_gap_count: 0
+    unclassified_gap_count: 0
+    page_scan_ready: true

@@ -446,8 +446,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase127-prospective-calendar-wait"
-    assert worker["image"] == "business-cycle-nas-app:phase127-prospective-calendar-wait"
+    assert app["image"] == "business-cycle-nas-app:phase128-full-cycle-portfolio-pages"
+    assert worker["image"] == "business-cycle-nas-app:phase128-full-cycle-portfolio-pages"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",

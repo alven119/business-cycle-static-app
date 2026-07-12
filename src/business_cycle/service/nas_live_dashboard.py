@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from business_cycle.audits.nas_page_completeness import scan_nas_page_completeness
 from business_cycle.cycle_state.nas_declared_phase_start_registry import (
     DEFAULT_ACTIVE_REGISTRY_PATH,
     build_nas_declared_phase_start_status,
@@ -17,6 +18,12 @@ from business_cycle.render.nas_service_dashboard import (
 )
 from business_cycle.render.nas_prospective_validation import (
     render_nas_prospective_validation_page,
+)
+from business_cycle.render.nas_declared_phase_start import (
+    render_nas_declared_phase_start_page,
+)
+from business_cycle.render.nas_source_operations import (
+    render_nas_source_operations_page,
 )
 from business_cycle.service.nas_app_shell import build_nas_app_shell
 from business_cycle.service.nas_scheduled_revised_refresh import (
@@ -183,9 +190,29 @@ def build_nas_live_dashboard_runtime(
         prospective_wait_state,
         navigation=dashboard["command_center"]["navigation"],
     )
-    shell["phase"] = "127"
-    shell["phase_id"] = 127
-    shell["artifact_id"] = "phase127_prospective_calendar_wait_runtime"
+    page_scan = scan_nas_page_completeness(
+        {
+            **{
+                str(route["path"]): str(route["body"])
+                for route in shell["routes"]
+                if str(route["content_type"]).startswith("text/html")
+            },
+            "/technology-cycle": shell["technology_manufacturing_cycle_html"],
+            "/portfolio-research": shell["portfolio_research_html"],
+            "/historical-replay": shell["historical_replay_html"],
+            "/cycle-state": render_nas_declared_phase_start_page(
+                status=declared_cycle_state
+            ),
+            "/source-operations": render_nas_source_operations_page(
+                snapshot["source_release_diagnostics"]
+            ),
+            "/prospective-monitoring": shell["prospective_validation_html"],
+        }
+    )
+    shell["nas_page_completeness"] = page_scan
+    shell["phase"] = "128"
+    shell["phase_id"] = 128
+    shell["artifact_id"] = "phase128_full_cycle_portfolio_page_runtime"
     shell["output_mode"] = "research_only_private_nas_live_postgres_dashboard"
     shell["live_db_connection_attempt_count"] = 1
     shell["postgres_write_attempt_count"] = 0
@@ -291,6 +318,17 @@ def build_nas_live_dashboard_runtime(
         "prospective_validation_seal_ready": prospective_wait_state[
             "prospective_validation_seal_ready"
         ],
+        "nas_page_scan_ready": page_scan["page_scan_ready"],
+        "nas_scanned_page_count": page_scan["scanned_page_count"],
+        "nas_unfinished_marker_count": page_scan[
+            "unexplained_unfinished_marker_count"
+        ],
+        "nas_software_placeholder_gap_count": page_scan[
+            "software_placeholder_gap_count"
+        ],
+        "nas_disclosed_gap_page_count": page_scan[
+            "page_with_disclosed_gap_count"
+        ],
         "postgres_write_attempted": False,
         "current_phase_inference_enabled": False,
         "candidate_phase_selection_enabled": False,
@@ -360,10 +398,21 @@ def build_nas_live_dashboard_runtime(
         "real_registry_write_attempt_count": prospective_wait_state[
             "real_registry_write_attempt_count"
         ],
+        "nas_page_scan_ready": page_scan["page_scan_ready"],
+        "nas_scanned_page_count": page_scan["scanned_page_count"],
+        "nas_unfinished_marker_count": page_scan[
+            "unexplained_unfinished_marker_count"
+        ],
+        "nas_software_placeholder_gap_count": page_scan[
+            "software_placeholder_gap_count"
+        ],
+        "nas_disclosed_gap_page_count": page_scan[
+            "page_with_disclosed_gap_count"
+        ],
     }
     runtime: dict[str, Any] = {
-        "phase": 127,
-        "artifact_id": "phase127_prospective_calendar_wait_runtime",
+        "phase": 128,
+        "artifact_id": "phase128_full_cycle_portfolio_page_runtime",
         "snapshot": snapshot,
         "dashboard_bundle": dashboard,
         "nas_app_shell": shell,
@@ -386,6 +435,7 @@ def build_nas_live_dashboard_runtime(
         "strict_replay_retention_preview": strict_replay_retention,
         "nas_v1_operational_acceptance_status": v1_acceptance_status,
         "prospective_validation_wait_state": prospective_wait_state,
+        "nas_page_completeness": page_scan,
         "refresh_state": refresh_status["refresh_state"],
         "source_refresh_health_status": snapshot["source_refresh_health_status"],
         "source_release_diagnostics": snapshot["source_release_diagnostics"],

@@ -288,6 +288,21 @@ def build_runtime_response(
                 "prospective_validation_seal_ready": bool(
                     trust.get("prospective_validation_seal_ready", False)
                 ),
+                "nas_page_scan_ready": bool(
+                    trust.get("nas_page_scan_ready", False)
+                ),
+                "nas_scanned_page_count": int(
+                    trust.get("nas_scanned_page_count", 0)
+                ),
+                "nas_unfinished_marker_count": int(
+                    trust.get("nas_unfinished_marker_count", 0)
+                ),
+                "nas_software_placeholder_gap_count": int(
+                    trust.get("nas_software_placeholder_gap_count", 0)
+                ),
+                "nas_disclosed_gap_page_count": int(
+                    trust.get("nas_disclosed_gap_page_count", 0)
+                ),
                 "release_family_count": trust.get("release_family_count", 0),
                 "research_only": True,
                 "public_exposure": False,
@@ -445,7 +460,7 @@ def _build_startup_shell() -> dict[str, Any]:
 
 
 class _RuntimeHandler(BaseHTTPRequestHandler):
-    server_version = "BusinessCycleNAS/phase127"
+    server_version = "BusinessCycleNAS/phase128"
 
     def do_GET(self) -> None:  # noqa: N802
         response = build_runtime_response(

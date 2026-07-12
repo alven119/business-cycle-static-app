@@ -12,6 +12,9 @@ import yaml
 from business_cycle.portfolio.policy_research_baseline import (
     summarize_portfolio_policy_research_baseline,
 )
+from business_cycle.portfolio.full_cycle_transition_policy import (
+    build_full_cycle_portfolio_transition_research,
+)
 from business_cycle.render.portfolio_policy_replay_research_surface import (
     build_portfolio_policy_replay_research_surface_view_model,
 )
@@ -184,20 +187,25 @@ def _portfolio_view(
             relevance = "legal_next_recession_research"
         else:
             relevance = "future_cycle_research"
+        result_summary = _template_result_summary(template_id, execution_results)
         cards.append(
             {
                 **row,
                 "relevance_status": relevance,
                 "book_or_modern_classification": row["template_family"],
                 "research_parameter_levels_percent": parameters.get(template_id, []),
-                "research_parameter_label_zh": _parameter_label(template_id),
-                "research_result_summary": _template_result_summary(
-                    template_id, execution_results
+                "research_parameter_label_zh": _parameter_label(
+                    template_id, result_summary
                 ),
+                "research_result_summary": result_summary,
                 "current_allocation_recommendation_allowed": False,
                 "personalized_trade_instruction_allowed": False,
             }
         )
+    full_cycle = build_full_cycle_portfolio_transition_research(
+        declared_phase=str(declared.get("declared_current_phase", "boom")),
+        live_lanes=live_transition_evidence["lanes"],
+    )
     return {
         "view_id": "nas_portfolio_policy_research",
         "declared_current_phase": declared.get("declared_current_phase", "boom"),
@@ -210,6 +218,10 @@ def _portfolio_view(
         ),
         "default_research_template_id": policy["default_research_template_id"],
         "template_cards": cards,
+        "full_cycle_policy_rows": full_cycle["phase_rows"],
+        "full_cycle_policy_context_ready": full_cycle[
+            "full_cycle_portfolio_transition_research_ready"
+        ],
         "live_transition_lane_context": {
             lane_id: {
                 "lane_status": lane["lane_status"],
@@ -229,6 +241,14 @@ def _portfolio_view(
             "result", "not_started"
         ),
         "research_backtest_result_count": len(execution_results),
+        "quantitative_template_result_count": sum(
+            row["research_result_summary"]["result_count"] > 0 for row in cards
+        ),
+        "evidence_context_only_template_count": sum(
+            row["research_result_summary"]["result_availability_status"]
+            == "evidence_context_only_no_book_numeric_weight"
+            for row in cards
+        ),
         "market_data_lineage": list(
             phase125_execution.get("market_data_lineage", [])
         ),
@@ -370,6 +390,10 @@ def _template_result_summary(
     results: list[dict[str, Any]],
 ) -> dict[str, Any]:
     rows = [row for row in results if row["policy_template_id"] == template_id]
+    context_only = template_id in {
+        "recession_defense_research_template",
+        "recovery_re_risk_research_template",
+    }
     return {
         "result_count": len(rows),
         "scenario_count": len({row["scenario_id"] for row in rows}),
@@ -380,6 +404,11 @@ def _template_result_summary(
             [row["metrics"]["max_drawdown_on_unitized_nav"] for row in rows]
         ),
         "result_scope": "constant_parameter_sensitivity_only",
+        "result_availability_status": (
+            "evidence_context_only_no_book_numeric_weight"
+            if context_only
+            else "quantitative_strict_research_results_available"
+        ),
     }
 
 
@@ -417,10 +446,14 @@ def _template_parameters() -> dict[str, list[int]]:
     return rows
 
 
-def _parameter_label(template_id: str) -> str:
+def _parameter_label(template_id: str, result: dict[str, Any]) -> str:
     if template_id == "boom_70_50_30_template":
         return "書籍榮景股票曝險研究參數（backtest-only）"
-    return "研究模板參數（尚未執行回測）"
+    if result["result_availability_status"] == (
+        "evidence_context_only_no_book_numeric_weight"
+    ):
+        return "轉折時機研究模板；書中未另訂此模板的精確權重"
+    return "已執行的固定參數研究模板（backtest-only）"
 
 
 def _month_ends(start: str, end: str) -> list[str]:

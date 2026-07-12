@@ -1,0 +1,87 @@
+full_cycle_portfolio_transition_research:
+  version: "1.0"
+  status: active_research_context
+  phase_id: 128
+  contract_id: full_cycle_portfolio_transition_research_v1
+  book_reference: 約第 77-90 頁
+  ordered_cycle: [recession, recovery, growth, boom]
+  output_policy:
+    research_only: true
+    personalized_instruction_allowed: false
+    automatic_allocation_action_allowed: false
+    watch_as_action_allowed: false
+    confirmation_as_action_allowed: false
+  phase_rows:
+    - phase_id: recession
+      phase_label_zh: 衰退
+      legal_next_phase: recovery
+      legal_next_phase_label_zh: 復甦
+      book_policy_requirement_ids: [recession_stock_weight_100]
+      book_policy_context_zh: 書籍基準在衰退期維持 100% 股票曝險；這是歷史研究規則，不是目前配置指令。
+      early_attention_lane_id: trough_watch
+      early_attention_label_zh: 景氣落底觀察
+      confirmation_lane_id: recovery_confirmation
+      confirmation_label_zh: 復甦確認
+      timing_priority: high
+      timing_interpretation_zh: 資本市場常早於總體確認反應，因此落底 watch 對錯失復甦成本特別重要；policy easing 不能單獨確認。
+      research_template_ids: [recovery_re_risk_research_template, passive_all_stock_baseline]
+      numeric_policy_status: book_phase_rule_available_transition_template_has_no_extra_weight
+    - phase_id: recovery
+      phase_label_zh: 復甦
+      legal_next_phase: growth
+      legal_next_phase_label_zh: 成長
+      book_policy_requirement_ids: [recovery_stock_weight_100]
+      book_policy_context_zh: 書籍基準在復甦期維持 100% 股票曝險；主要任務是確認復甦廣度與成長接棒。
+      early_attention_lane_id: growth_transition_watch
+      early_attention_label_zh: 成長接棒觀察
+      confirmation_lane_id: growth_confirmation_readiness
+      confirmation_label_zh: 成長確認準備
+      timing_priority: medium
+      timing_interpretation_zh: 復甦到成長通常不改變書籍股票比例，重點是確認所得、消費、就業與投資能否持續。
+      research_template_ids: [passive_all_stock_baseline]
+      numeric_policy_status: book_phase_rule_available
+    - phase_id: growth
+      phase_label_zh: 成長
+      legal_next_phase: boom
+      legal_next_phase_label_zh: 榮景
+      book_policy_requirement_ids: [growth_stock_weight_100]
+      book_policy_context_zh: 書籍基準在成長期維持 100% 股票曝險；接近榮景時應提前準備去風險研究，而非等衰退。
+      early_attention_lane_id: overheating_watch
+      early_attention_label_zh: 過熱與榮景觀察
+      confirmation_lane_id: boom_transition_confirmation
+      confirmation_label_zh: 榮景轉折確認
+      timing_priority: high
+      timing_interpretation_zh: 榮景一旦成為 governed declared state，書籍配置規則開始降低股票曝險，因此 growth-to-boom 的確認具有配置研究意義。
+      research_template_ids: [boom_70_50_30_template, stock_cash_advanced, stock_long_treasury_advanced]
+      numeric_policy_status: book_phase_rule_available
+    - phase_id: boom
+      phase_label_zh: 榮景
+      legal_next_phase: recession
+      legal_next_phase_label_zh: 衰退
+      book_policy_requirement_ids:
+        - boom_basic_stock_weight_50
+        - boom_advanced_year_1_stock_weight_70
+        - boom_advanced_year_2_stock_weight_50
+        - boom_advanced_year_3_stock_weight_30
+        - boom_advanced_year_4_plus_stock_weight_30
+        - boom_two_year_minimum_stock_weight_50
+      book_policy_context_zh: 書籍基準在榮景期已先降低股票曝險；不應等到衰退確認才開始注意資本市場風險。
+      early_attention_lane_id: boom_ending_watch
+      early_attention_label_zh: 榮景結束觀察
+      confirmation_lane_id: recession_confirmation
+      confirmation_label_zh: 衰退確認
+      timing_priority: highest
+      timing_interpretation_zh: 榮景結束 watch 用於提前管理研究風險；衰退確認較晚，只能作後續狀態確認，兩者都不自動產生交易動作。
+      research_template_ids: [boom_70_50_30_template, stock_cash_initial, stock_cash_advanced, stock_long_treasury_initial, stock_long_treasury_advanced, recession_defense_research_template]
+      numeric_policy_status: book_basic_and_phase_age_schedule_available
+  hard_gates:
+    full_cycle_portfolio_transition_research_ready: true
+    phase_row_count: 4
+    legal_transition_row_count: 4
+    phase_with_early_attention_count: 4
+    phase_with_confirmation_count: 4
+    phase_with_book_policy_context_count: 4
+    watch_promoted_to_action_count: 0
+    confirmation_promoted_to_action_count: 0
+    personalized_instruction_count: 0
+    legal_transition_semantics_preserved: true

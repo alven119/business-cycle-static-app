@@ -131,11 +131,11 @@ def build_nas_service_dashboard_bundle(
     )
     progress = summarize_product_capability_progress()
     bundle: dict[str, Any] = {
-        "phase": "127" if runtime_live_mode else "95",
-        "phase_id": 127 if runtime_live_mode else 95,
+        "phase": "128" if runtime_live_mode else "95",
+        "phase_id": 128 if runtime_live_mode else 95,
         "phase_label": contract["phase_label"],
         "artifact_id": (
-            "phase127_prospective_calendar_wait_renderer"
+            "phase128_full_cycle_portfolio_page_renderer"
             if runtime_live_mode
             else "phase95_nas_service_dashboard_renderer"
         ),
@@ -298,6 +298,9 @@ def render_portfolio_research_page(
     """Render declared-phase-linked research templates without advice wording."""
 
     cards = "".join(_portfolio_template_card(row) for row in view["template_cards"])
+    cycle_rows = "".join(
+        _full_cycle_policy_row(row) for row in view["full_cycle_policy_rows"]
+    )
     lane_rows = "".join(
         f"<li><strong>{escape(str(lane_id))}</strong>"
         f"<span>{escape(str(row['lane_status']))}</span></li>"
@@ -323,9 +326,15 @@ def render_portfolio_research_page(
         <h2>目前 evidence 如何限制配置研究</h2></div></div>
         <ul class="lane-evidence-items">{lane_rows}</ul>
         <p class="boundary-note">Watch 不等於 confirmation；即使 confirmation evidence 到位，也不會自動觸發配置動作。</p></section>
+        <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Ordered-cycle policy timing</p>
+        <h2>四階段轉折與配置研究時機</h2></div></div>
+        <p>配置研究不能只看榮景轉衰退。衰退落底可能早於復甦確認，成長進入榮景則是書籍開始去風險研究的重要邊界。</p>
+        <div class="role-grid">{cycle_rows}</div></section>
         <section class="content-band"><div class="section-heading"><div><p class="section-kicker">Eight governed templates</p>
         <h2>書籍基準與研究替代方案</h2></div></div><div class="role-grid">{cards}</div></section>
-        <p class="boundary-note">Phase 125 結果僅為固定參數 sensitivity；NASDAQ-100 總報酬偏重科技，長債為 DGS10 duration model，均不得稱為書籍 benchmark。research-only、backtest-only，不構成投資建議。</p>
+        <p class="boundary-note">目前已有 {int(view['research_backtest_result_count'])} 組 strict 固定參數 sensitivity，涵蓋 {int(view['quantitative_template_result_count'])} 個具數值參數模板；
+        另有 {int(view['evidence_context_only_template_count'])} 個轉折時機模板因書中沒有額外精確權重而刻意不硬造數值。NASDAQ-100 偏重科技，長債為 DGS10 duration model，均不得稱為書籍正式 benchmark。
+        research-only、backtest-only，不構成投資建議。</p>
         """,
     )
 
@@ -381,7 +390,7 @@ def render_historical_replay_page(
 
 def _portfolio_template_card(row: dict[str, Any]) -> str:
     levels = row.get("research_parameter_levels_percent", [])
-    level_html = "".join(f"<span>{int(value)}%</span>" for value in levels) or "<span>尚待 Phase 125 運算</span>"
+    level_html = "".join(f"<span>{int(value)}%</span>" for value in levels) or "<span>時機研究，不硬造權重</span>"
     relevance = {
         "declared_boom_primary_research": "Declared 榮景主要研究",
         "declared_boom_alternative_research": "Declared 榮景替代研究",
@@ -397,7 +406,7 @@ def _portfolio_template_card(row: dict[str, Any]) -> str:
       <p>{escape(str(row['research_parameter_label_zh']))}</p><div class="parameter-levels">{level_html}</div>
       <dl><dt>資產範圍</dt><dd>{escape(' / '.join(row['asset_universe']))}</dd>
       <dt>分類</dt><dd>{escape(str(row['book_or_modern_classification']))}</dd>
-      <dt>Phase 125 結果</dt><dd>{result_html}</dd></dl>
+      <dt>Strict PIT 研究結果</dt><dd>{result_html}</dd></dl>
       <p class="boundary-note">backtest-only；不是目前配置建議。</p></article>
     """
 
@@ -458,7 +467,7 @@ def _replay_interaction_script(default_scenario: str, default_mode: str) -> str:
 
 def _result_range_html(summary: dict[str, Any]) -> str:
     if not summary["result_count"]:
-        return "尚無可安全執行結果"
+        return "轉折 evidence context 已接線；書中未另訂此模板的精確權重，故不產生虛構績效"
     return (
         f"{int(summary['result_count'])} 組；"
         + _ratio_range_zh(summary["annualized_twr_range"], "年化 TWR")
@@ -473,6 +482,24 @@ def _ratio_range_zh(value_range: dict[str, float] | None, label: str) -> str:
     minimum = float(value_range["minimum"]) * 100.0
     maximum = float(value_range["maximum"]) * 100.0
     return f"{label} {minimum:.1f}%～{maximum:.1f}%"
+
+
+def _full_cycle_policy_row(row: dict[str, Any]) -> str:
+    priority = {
+        "highest": "最高",
+        "high": "高",
+        "medium": "中",
+    }.get(str(row["timing_priority"]), str(row["timing_priority"]))
+    return f"""
+    <article class="role-card"><p class="eyebrow">{escape(str(row['phase_label_zh']))} → {escape(str(row['legal_next_phase_label_zh']))}</p>
+      <h3>{escape(str(row['early_attention_label_zh']))}／{escape(str(row['confirmation_label_zh']))}</h3>
+      <p>{escape(str(row['book_policy_context_zh']))}</p>
+      <dl><dt>投資時機重要度</dt><dd>{escape(priority)}</dd>
+      <dt>早期觀察</dt><dd>{escape(str(row['early_attention_live_status']))}</dd>
+      <dt>確認狀態</dt><dd>{escape(str(row['confirmation_live_status']))}</dd></dl>
+      <p>{escape(str(row['timing_interpretation_zh']))}</p>
+      <p class="boundary-note">只提供配置研究脈絡，不自動產生配置動作。</p></article>
+    """
 
 
 def _technology_cycle_card(row: dict[str, Any]) -> str:

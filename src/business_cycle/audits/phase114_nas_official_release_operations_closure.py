@@ -33,7 +33,7 @@ def summarize_phase114_nas_official_release_operations_closure(
     ]
     observed = payload["observed_live_acceptance"]
     contract = summarize_nas_official_release_calendar_contract()
-    diagnostics = _fixture_diagnostics()
+    diagnostics = build_phase114_fixture_diagnostics()
     html = render_nas_source_operations_page(diagnostics)
     progress = summarize_product_capability_progress()
     summary: dict[str, Any] = {
@@ -106,7 +106,7 @@ def summarize_phase114_nas_official_release_operations_closure(
     return summary
 
 
-def _fixture_diagnostics() -> dict[str, Any]:
+def build_phase114_fixture_diagnostics() -> dict[str, Any]:
     series_ids = load_nas_postgres_live_revised_import_contract()[
         "source_policy"
     ]["direct_series_ids"]

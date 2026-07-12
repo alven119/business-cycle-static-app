@@ -1,8 +1,12 @@
 product_capability_100_completion_plan:
   version: "2.0"
   status: active_completion_planning_contract
-  baseline_phase_id: 127
-  baseline_phase_label: prospective_calendar_wait_state
+  baseline_phase_id: 128
+  baseline_phase_label: full_cycle_portfolio_timing_and_page_completion
+  post_plan_remediation:
+    phase_id: 128
+    reason_zh: 使用者要求清除配置頁過期 Phase125 placeholder，並補齊全循環轉折與配置研究時機。
+    calendar_validation_gate_unchanged: true
   objective_zh: >
     以最少工程 Phase 完成私人 NAS v1.0 所需的資料、判讀、轉折、配置、重播、
     回測與操作能力，再以不可跳過的 prospective calendar gate 完成正式 production
@@ -124,13 +128,13 @@ product_capability_100_completion_plan:
         - F2_MODEL_GOVERNANCE_AND_PROSPECTIVE_VALIDATION
   capability_targets:
     - capability_id: C1_BUSINESS_CYCLE_PHASE_ASSESSMENT
-      current_percent: 95
+      current_percent: 96
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
       remaining_gap_zh: 配置／replay product integration、strict PIT 與 economic/prospective validation
     - capability_id: C2_TRANSITION_RISK_DETECTION
-      current_percent: 98
+      current_percent: 99
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127
@@ -142,7 +146,7 @@ product_capability_100_completion_plan:
       target_phase_id: 127
       remaining_gap_zh: 配置、replay/backtest 與正式結果的完整 drill-down
     - capability_id: C4_PORTFOLIO_POLICY_RESEARCH
-      current_percent: 98
+      current_percent: 99
       engineering_readiness_target_percent: 99
       target_percent: 100
       target_phase_id: 127

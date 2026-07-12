@@ -188,8 +188,15 @@ def test_phase125_strict_replay_and_backtest_results_reach_existing_nas_surfaces
     assert artifact["book_benchmark_result_count"] == 0
     assert lab["phase125_execution_connected"] is True
     assert lab["phase125_research_backtest_result_count"] == 16
+    assert lab["portfolio_research"]["full_cycle_policy_context_ready"] is True
+    assert len(lab["portfolio_research"]["full_cycle_policy_rows"]) == 4
+    assert lab["portfolio_research"]["quantitative_template_result_count"] == 6
+    assert lab["portfolio_research"]["evidence_context_only_template_count"] == 2
     assert "16 組" in portfolio_html
     assert "年化 TWR" in portfolio_html
+    assert "四階段轉折與配置研究時機" in portfolio_html
+    assert "尚待 Phase 125" not in portfolio_html
+    assert "Phase 125 結果" not in portfolio_html
     assert "Strict evidence" in replay_html
     assert "固定參數 sensitivity" in replay_html
     assert artifact["candidate_phase_emitted"] is False

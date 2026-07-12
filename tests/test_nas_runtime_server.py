@@ -51,6 +51,11 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
                 "prospective_registry_record_count": 0,
                 "real_registry_write_attempt_count": 0,
                 "prospective_validation_seal_ready": False,
+                "nas_page_scan_ready": True,
+                "nas_scanned_page_count": 8,
+                "nas_unfinished_marker_count": 0,
+                "nas_software_placeholder_gap_count": 0,
+                "nas_disclosed_gap_page_count": 8,
             },
         },
     )
@@ -61,6 +66,10 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
     assert '"nas_v1_operational_acceptance_passed": true' in live_ready.body
     assert '"prospective_wait_state": "awaiting_canonical_as_of"' in live_ready.body
     assert '"prospective_registry_record_count": 0' in live_ready.body
+    assert '"nas_page_scan_ready": true' in live_ready.body
+    assert '"nas_scanned_page_count": 8' in live_ready.body
+    assert '"nas_software_placeholder_gap_count": 0' in live_ready.body
+    assert '"nas_disclosed_gap_page_count": 8' in live_ready.body
 
 
 def test_runtime_prospective_wait_routes_are_private_metadata_only() -> None:

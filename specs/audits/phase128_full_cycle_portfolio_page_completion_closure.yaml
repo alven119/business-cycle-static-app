@@ -1,0 +1,27 @@
+phase128_full_cycle_portfolio_page_completion_closure:
+  version: "1.0"
+  phase_id: 128
+  hard_gates:
+    full_cycle_portfolio_transition_research_ready: true
+    legal_transition_row_count: 4
+    phase_with_early_attention_count: 4
+    phase_with_confirmation_count: 4
+    quantitative_template_result_count: 6
+    evidence_context_only_template_count: 2
+    strict_research_result_count: 16
+    stale_phase125_user_copy_count: 0
+    page_scan_ready: true
+    scanned_page_count: 8
+    page_with_disclosed_gap_count: 8
+    software_placeholder_gap_count: 0
+    unclassified_gap_count: 0
+    unexplained_unfinished_marker_count: 0
+    personalized_instruction_count: 0
+    watch_promoted_to_action_count: 0
+    confirmation_promoted_to_action_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    product_doctrine_alignment_status: aligned
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    phase128_closure_status: closed_full_cycle_portfolio_timing_and_page_completeness_ready
