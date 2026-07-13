@@ -1,0 +1,128 @@
+nyfed_sce_dashboard_integration:
+  version: "1.0"
+  status: active_private_nas_supporting_context_surface
+  phase_id: 138
+  phase_label: nyfed_sce_explorer_release_calendar_incident_drilldown
+  depends_on:
+    - specs/common/nyfed_sce_component_adapter.yaml
+    - specs/common/nas_live_postgres_dashboard_contract.yaml
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/common/nas_source_incident_center_contract.yaml
+    - specs/common/nas_portfolio_replay_lab_contract.yaml
+  evidence_boundary:
+    classification: official_modern_supporting_context
+    exact_book_role: boom_consumer_confidence
+    exact_book_source: Conference Board Consumer Confidence Index
+    book_core_replacement_allowed: false
+    phase_evidence_emission_allowed: false
+    transition_confirmation_allowed: false
+    component_composite_allowed: false
+    data_mode: revised_supporting_only
+  indicator_explorer_policy:
+    component_series_count: 11
+    chart_periods: [ytd, trailing_1y, trailing_5y]
+    direct_measure_only: true
+    traditional_chinese_title_required: true
+    high_low_learning_semantics_required: true
+    touch_date_value_tooltip_required: true
+    source_lineage_required: true
+    missing_component_must_remain_unavailable: true
+  release_family:
+    release_family_id: nyfed_survey_of_consumer_expectations
+    parent_source_series_id: NYFED_SCE_CONTEXT
+    title_zh: 紐約聯準銀行消費者預期調查
+    agency_zh: 紐約聯邦準備銀行消費者預期調查
+    calendar_precision: exact_schedule
+    publication_time_zone: America/New_York
+    official_calendar_url: https://www.newyorkfed.org/research/calendars/i-jul26.html
+    official_cmd_calendar_url: https://www.newyorkfed.org/microeconomics/calendar.html
+    release_evidence:
+      - source_url: https://www.newyorkfed.org/research/calendars/i-jul26.html
+        release_date: "2026-07-07"
+        reference_period: "2026-06"
+        release_time: "11:00"
+      - source_url: https://www.newyorkfed.org/research/calendars/i-aug26.html
+        release_date: "2026-08-07"
+        reference_period: "2026-07"
+        release_time: "11:00"
+    schedule_caveat_zh: 官方日曆註明日期與時間可能即時變更；每日排程仍須重新核對來源狀態。
+  incident_drilldown_policy:
+    parent_incident_series_id: NYFED_SCE_CONTEXT
+    component_incident_fanout_allowed: false
+    affected_component_list_required: true
+    affected_component_count: 11
+    parent_workbook_failure_must_not_be_hidden: true
+  portfolio_research_limitations:
+    - limitation_id: governed_phase_transition_required
+      limitation_class: governance
+      title_zh: 景氣階段切換必須受治理確認
+      reason_zh: 轉折證據只會提高觀察或確認狀態，不會自行改寫 declared phase 或配置研究位置。
+      removable: false
+      next_action_zh: 由使用者在景氣階段治理頁 preview、確認並保留 receipt。
+    - limitation_id: book_template_not_personal_risk_profile
+      limitation_class: suitability
+      title_zh: 書籍比例不是個人風險適配結果
+      reason_zh: 70／50／30 是書籍研究模板，系統沒有把你的現金流、持有成本、風險承受度與投資期限當成自動選擇依據。
+      removable: false
+      next_action_zh: 用固定比例敏感度比較取捨，由使用者自行決定研究參數。
+    - limitation_id: strict_pit_scenario_coverage_partial
+      limitation_class: temporal_data
+      title_zh: 早期 strict PIT 情境仍不完整
+      reason_zh: 五個情境中目前只有 COVID 與 2018–2019 具備完整的當時資料；revised 資料增加不等於早期 vintage 已存在。
+      removable: true
+      next_action_zh: 持續補官方 realtime archive；缺漏月份維持 abstain，不以 revised 回填。
+    - limitation_id: market_proxies_not_book_benchmarks
+      limitation_class: market_data
+      title_zh: 回測資產仍含研究替代
+      reason_zh: NASDAQ-100 是科技偏重股票替代，DGS10 duration model 是長債研究替代，均非正式書籍 benchmark total-return source。
+      removable: true
+      next_action_zh: 取得可合法重現的 broad-equity 與 long-Treasury total-return 來源。
+    - limitation_id: prospective_validation_incomplete
+      limitation_class: validation
+      title_zh: 前瞻驗證尚未累積完成
+      reason_zh: 歷史敏感度能說明取捨，但不能證明未見資料上的經濟有效性或未來績效。
+      removable: true
+      next_action_zh: 依前瞻日曆累積完整月份並完成獨立驗證。
+    - limitation_id: automatic_trade_execution_prohibited
+      limitation_class: safety
+      title_zh: 不自動下單或執行配置
+      reason_zh: 產品提供研究位置、書籍模板與歷史代價，不持有券商權限，也不輸出買賣動作。
+      removable: false
+      next_action_zh: 保持研究與交易執行分離。
+  strict_pit_reassessment:
+    scenario_count: 5
+    strict_complete_scenario_count: 2
+    strict_blocked_scenario_count: 3
+    complete_scenario_ids: [covid_recession_2020, late_cycle_2018_2019]
+    revised_sce_changes_strict_status: false
+    reason_zh: NY Fed SCE workbook 提供 2013 年起 revised history，未提供各歷史 as-of 的 vintage availability interval。
+  prohibited_outputs:
+    - exact_conference_board_evidence
+    - component_composite_score
+    - phase_score
+    - phase_rank
+    - candidate_phase
+    - current_phase
+    - personalized_allocation
+    - trade_action
+  hard_gates:
+    nyfed_sce_dashboard_integration_contract_ready: true
+    supporting_indicator_count: 11
+    chart_period_count: 3
+    supporting_indicator_with_complete_learning_semantics_count: 11
+    supporting_indicator_promoted_to_book_core_count: 0
+    release_family_extension_count: 1
+    exact_release_event_count: 2
+    incident_component_drilldown_count: 11
+    portfolio_research_limitation_count: 6
+    strict_replay_scenario_count: 5
+    strict_replay_complete_scenario_count: 2
+    strict_replay_blocked_scenario_count: 3
+    revised_data_mislabeled_as_pit_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 139

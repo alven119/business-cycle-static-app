@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase137-nyfed-sce-components
+    image: business-cycle-nas-app:phase138-nyfed-dashboard
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -88,7 +88,7 @@ services:
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase137-nyfed-sce-components
+    image: business-cycle-nas-app:phase138-nyfed-dashboard
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas

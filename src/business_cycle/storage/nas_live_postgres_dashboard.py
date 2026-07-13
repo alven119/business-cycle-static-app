@@ -43,6 +43,13 @@ from business_cycle.service.nas_source_retry_restore import (
 from business_cycle.service.nas_source_incident_center import (
     build_source_incident_center,
 )
+from business_cycle.service.nas_nyfed_sce_components import (
+    load_nyfed_sce_component_contract,
+)
+from business_cycle.service.nas_nyfed_sce_dashboard import (
+    augment_nyfed_sce_release_diagnostics,
+    enrich_nyfed_sce_incident_center,
+)
 from business_cycle.service.nas_consumer_confidence_sources import (
     build_consumer_confidence_source_lanes,
 )
@@ -338,7 +345,7 @@ def build_nas_live_postgres_dashboard_snapshot(
         "active_registry_override_present": False,
         "current_data_used_to_infer_declared_phase_count": 0,
     }
-    series_release_inputs = _series_release_inputs(
+    all_series_release_inputs = _series_release_inputs(
         series_rows=series_rows,
         observations_by_series=observations_by_series,
         as_of=date.fromisoformat(resolved_as_of),
@@ -351,12 +358,18 @@ def build_nas_live_postgres_dashboard_snapshot(
     )
     series_release_inputs = [
         row
-        for row in series_release_inputs
+        for row in all_series_release_inputs
         if row["series_id"] in canonical_release_series_ids
     ]
     source_release_diagnostics = build_nas_official_release_diagnostics(
         as_of=resolved_as_of,
         series_inputs=series_release_inputs,
+        refresh_status=resolved_refresh_status,
+    )
+    source_release_diagnostics = augment_nyfed_sce_release_diagnostics(
+        source_release_diagnostics,
+        as_of=resolved_as_of,
+        series_inputs=all_series_release_inputs,
         refresh_status=resolved_refresh_status,
     )
     resolved_source_operations_status = (
@@ -374,7 +387,9 @@ def build_nas_live_postgres_dashboard_snapshot(
     source_release_diagnostics["full_cycle_data_readiness"] = (
         full_cycle_readiness
     )
-    source_incident_center = build_source_incident_center()
+    source_incident_center = enrich_nyfed_sce_incident_center(
+        build_source_incident_center()
+    )
     source_release_diagnostics["source_incident_center"] = source_incident_center
     failed_confidence_source_ids = {
         str(row["source_series_id"])
@@ -386,6 +401,14 @@ def build_nas_live_postgres_dashboard_snapshot(
             observations_by_series=observations_by_series,
             failed_source_ids=failed_confidence_source_ids,
         )
+    )
+    nyfed_supporting_indicators = build_nyfed_sce_supporting_indicator_snapshots(
+        observations_by_series=observations_by_series,
+        series_rows=series_rows,
+        artifact_rows=artifact_rows,
+        as_of=resolved_as_of,
+        contract=contract,
+        release_diagnostics=source_release_diagnostics,
     )
     source_health_metadata_checks, source_health_artifact_checks = (
         _source_health_validation_rows(
@@ -407,6 +430,7 @@ def build_nas_live_postgres_dashboard_snapshot(
         "research_only": True,
         "data_mode": "revised_diagnostic",
         "role_snapshots": role_snapshots,
+        "supporting_indicator_snapshots": nyfed_supporting_indicators,
         "series_snapshots": list(series_rows.values()),
         "source_artifact_snapshots": list(artifact_rows.values()),
         "technology_series_observations": {
@@ -414,6 +438,11 @@ def build_nas_live_postgres_dashboard_snapshot(
             for series_id in sorted(technology_series_ids)
         },
         "role_snapshot_count": len(role_snapshots),
+        "supporting_indicator_snapshot_count": len(nyfed_supporting_indicators),
+        "supporting_indicator_chart_available_count": sum(
+            row["chart_payload_detail"]["chart_available"]
+            for row in nyfed_supporting_indicators
+        ),
         "role_with_revised_snapshot_count": len(available_roles),
         "role_without_revised_snapshot_count": len(role_snapshots) - len(available_roles),
         "series_snapshot_count": len(series_rows),
@@ -511,6 +540,7 @@ def build_nas_live_postgres_dashboard_snapshot(
                 "database_latest_observation_date"
             ],
             "role_snapshots": role_snapshots,
+            "supporting_indicator_snapshots": nyfed_supporting_indicators,
             "observation_revised_total_count": snapshot[
                 "observation_revised_total_count"
             ],
@@ -520,6 +550,166 @@ def build_nas_live_postgres_dashboard_snapshot(
     )
     snapshot["result"] = "passed"
     return snapshot
+
+
+def build_nyfed_sce_supporting_indicator_snapshots(
+    *,
+    observations_by_series: dict[str, list[dict[str, Any]]],
+    series_rows: dict[str, dict[str, Any]],
+    artifact_rows: dict[str, dict[str, Any]],
+    as_of: str,
+    contract: dict[str, Any],
+    release_diagnostics: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Build direct NY Fed component cards without promoting them to book core."""
+
+    component_contract = load_nyfed_sce_component_contract()
+    diagnostics = {
+        str(row["series_id"]): row
+        for row in release_diagnostics.get("series_refresh_diagnostics", [])
+    }
+    snapshots = []
+    for definition in component_contract["component_series"]:
+        series_id = str(definition["series_id"])
+        context = _materialize_display_series(
+            series_id,
+            observations_by_series=observations_by_series,
+            series_rows=series_rows,
+            artifact_rows=artifact_rows,
+            derived={},
+        )
+        source_diagnostic = diagnostics.get(series_id, {})
+        chart_series = (
+            _direct_supporting_chart_payload(
+                context,
+                as_of=as_of,
+                contract=contract,
+                freshness=source_diagnostic,
+            )
+            if context is not None
+            else None
+        )
+        latest = [context["latest_observation"]] if context is not None else []
+        snapshots.append(
+            {
+                "supporting_indicator_id": series_id,
+                "series_id": series_id,
+                "display_name_zh": str(definition["title_zh"]),
+                "conceptual_group": str(definition["conceptual_group"]),
+                "source_classification": "official_modern_supporting_context",
+                "source_agency_zh": "紐約聯邦準備銀行",
+                "source_mode": "live_postgres_read_only",
+                "snapshot_status": (
+                    "revised_supporting_snapshot_ready"
+                    if context is not None
+                    else "unavailable"
+                ),
+                "data_mode": (
+                    "revised_supporting_only"
+                    if context is not None
+                    else "unavailable"
+                ),
+                "latest_revised_observations": latest,
+                "freshness_status": source_diagnostic.get(
+                    "freshness_status", "unavailable"
+                ),
+                "high_meaning_zh": str(definition["high_meaning_zh"]),
+                "low_meaning_zh": str(definition["low_meaning_zh"]),
+                "statistic": str(definition["statistic"]),
+                "units": str(definition["units"]),
+                "source_lineage": (
+                    [context["source_lineage"]] if context is not None else []
+                ),
+                "blocked_reason_codes": (
+                    []
+                    if context is not None
+                    else ["nyfed_sce_component_data_unavailable"]
+                ),
+                "chart_payload_detail": {
+                    "chart_payload_id": f"nyfed_sce_supporting_chart:{series_id}",
+                    "snapshot_as_of": as_of,
+                    "chart_data_mode": "live_postgres_revised_supporting_only",
+                    "chart_available": bool(
+                        chart_series and chart_series["series_chart_available"]
+                    ),
+                    "series_chart_count": int(chart_series is not None),
+                    "series_charts": [chart_series] if chart_series else [],
+                    "unavailable_reason": (
+                        None
+                        if chart_series
+                        else "nyfed_sce_component_data_unavailable"
+                    ),
+                    "missing_value_treated_as_neutral": False,
+                    "unavailable_chart_treated_as_zero": False,
+                    "allowed_periods": ["ytd", "trailing_1y", "trailing_5y"],
+                    "primary_display_transform": "direct_official_measure",
+                    "raw_source_value_preserved": True,
+                    "interpretation_promoted_to_phase_evidence": False,
+                },
+                "book_core_replacement_allowed": False,
+                "phase_evidence_emission_allowed": False,
+                "transition_confirmation_allowed": False,
+                "candidate_selection_eligible": False,
+                "formal_current_output_allowed": False,
+            }
+        )
+    return snapshots
+
+
+def _direct_supporting_chart_payload(
+    context: dict[str, Any],
+    *,
+    as_of: str,
+    contract: dict[str, Any],
+    freshness: dict[str, Any],
+) -> dict[str, Any]:
+    periods = [
+        _period_payload(
+            row["period_id"],
+            row["label_zh"],
+            observations=context["observations"],
+            as_of=date.fromisoformat(as_of),
+        )
+        for row in contract["data_policy"]["chart_periods"]
+    ]
+    latest = context["latest_observation"]
+    return {
+        "series_id": context["series_id"],
+        "source_series_ids": context["component_series_ids"],
+        "provider": "postgres_revised_warehouse",
+        "source_unit": context["unit"],
+        "unit": context["unit"],
+        "interpretation_unit_zh": "官方發布百分比",
+        "display_transform": "direct_official_measure",
+        "display_transform_label_zh": "官方直接元件值",
+        "display_transform_formula": "display_value = official_component_value",
+        "interpretation_name_zh": "NY Fed SCE 官方旁證元件",
+        "latest_interpretation": {
+            "observation_date": latest["observation_date"],
+            "value_numeric": latest.get("value_numeric"),
+            "unit": context["unit"],
+            "source_series_ids": context["component_series_ids"],
+            "display_transform": "direct_official_measure",
+            "display_only": True,
+            "phase_support_allowed": False,
+        },
+        "series_chart_available": any(
+            row["chart_status"] == "available" for row in periods
+        ),
+        "freshness": {
+            "freshness_status": freshness.get("freshness_status", "unavailable"),
+            "freshness_reason_code": freshness.get("freshness_reason_code"),
+            "latest_observation_date": freshness.get("latest_observation_date"),
+            "reference_period_end_date": freshness.get(
+                "reference_period_end_date"
+            ),
+            "release_family_id": freshness.get("release_family_id"),
+            "calendar_precision": freshness.get("calendar_precision"),
+        },
+        "periods": periods,
+        "raw_source_value_preserved": True,
+        "phase_support_allowed": False,
+    }
 
 
 def _series_release_inputs(

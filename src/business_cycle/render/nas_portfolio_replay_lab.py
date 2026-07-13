@@ -30,6 +30,9 @@ from business_cycle.validation.historical_validation_manifest import (
 from business_cycle.validation.historical_pit_transition_events import (
     build_historical_pit_transition_event_registry,
 )
+from business_cycle.service.nas_nyfed_sce_dashboard import (
+    build_portfolio_research_limitations,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_portfolio_replay_lab_contract.yaml"
@@ -272,6 +275,12 @@ def _portfolio_view(
         phase_context=phase_context,
     )
     sensitivity_rows = historical_policy["fixed_weight_sensitivity_rows"]
+    scenario_count = int(historical_policy["scenario_count"])
+    strict_complete = int(historical_policy["strict_complete_scenario_count"])
+    active_limitations = build_portfolio_research_limitations(
+        strict_complete_scenario_count=strict_complete,
+        scenario_count=scenario_count,
+    )
     return {
         "view_id": "nas_portfolio_policy_research",
         "declared_current_phase": declared.get("declared_current_phase", "boom"),
@@ -340,16 +349,14 @@ def _portfolio_view(
             phase125_execution.get("dynamic_transition_policy_execution_count", 0)
         ),
         "historical_policy_timeline_summary": {
-            "scenario_count": historical_policy["scenario_count"],
+            "scenario_count": scenario_count,
             "monthly_annotation_count": historical_policy[
                 "monthly_annotation_count"
             ],
             "book_policy_annotation_month_count": historical_policy[
                 "book_policy_annotation_month_count"
             ],
-            "strict_complete_scenario_count": historical_policy[
-                "strict_complete_scenario_count"
-            ],
+            "strict_complete_scenario_count": strict_complete,
             "explicit_pit_blocked_scenario_count": historical_policy[
                 "explicit_pit_blocked_scenario_count"
             ],
@@ -361,6 +368,13 @@ def _portfolio_view(
         "role_labels": role_labels,
         "fixed_weight_results_used_for_rule_tuning": False,
         "best_historical_result_selected": False,
+        "active_research_limitations": active_limitations,
+        "active_research_limitation_count": len(active_limitations),
+        "strict_coverage_explanation_zh": (
+            f"目前 {strict_complete}／{scenario_count} 個情境可完整使用當時資料。"
+            "新架構已擴充 current/revised 資料與 PostgreSQL 保存，但 revised history "
+            "不會自動變成早期 PIT vintage，因此網路泡沫、GFC 與歐債仍依法 abstain。"
+        ),
         "research_only": True,
     }
 

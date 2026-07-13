@@ -182,6 +182,13 @@ def build_nas_service_dashboard_bundle(
         "api_payload_count": len(api_payloads),
         "html_page_count": len(html_pages),
         "role_card_count": len(snapshot["role_snapshots"]),
+        "supporting_indicator_count": len(
+            snapshot.get("supporting_indicator_snapshots", [])
+        ),
+        "supporting_indicator_chart_available_count": sum(
+            row.get("chart_payload_detail", {}).get("chart_available", False)
+            for row in snapshot.get("supporting_indicator_snapshots", [])
+        ),
         "indicator_snapshot_api_role_count": len(
             api_payloads["indicator_snapshot"]["roles"],
         ),
@@ -322,6 +329,10 @@ def render_portfolio_research_page(
     )
     timeline = view["historical_policy_timeline_summary"]
     policy = view["current_policy_context"]
+    limitation_rows = "".join(
+        _portfolio_limitation_row(row)
+        for row in view["active_research_limitations"]
+    )
     return _html_document(
         title="配置研究",
         active_nav_id="portfolio_research",
@@ -352,7 +363,7 @@ def render_portfolio_research_page(
         <p class="boundary-note">觀察訊號用來提早注意風險；確認證據用來準備受治理的階段切換。兩者都不會自動改變持股。</p></section>
         <section class="content-band"><div class="section-heading"><div><p class="section-kicker">歷史資料能回答的問題</p>
         <h2>防守能降低多少風險，又可能錯過多少報酬？</h2></div></div>
-        <p>目前只有 COVID 與 2018–2019 具備完整的當時資料，可以比較固定比例。其他三個事件保留在歷史重播頁說明資料缺口，不拿修訂值假裝當時已知。</p>
+        <p>{escape(str(view['strict_coverage_explanation_zh']))}</p>
         <div class="insight-grid">{scenario_summaries}</div>
         <div class="metric-guide"><strong>怎麼讀：</strong><span><b>最大回撤</b> 看過程最深跌幅</span><span><b>恢復時間</b> 看回到前高花多久</span><span><b>機會成本</b> 看防守後少參與的漲幅</span><span><b>換手／成本</b> 看執行摩擦</span></div>
         <details class="detail-panel"><summary>查看 12 組固定參數的完整結果</summary>
@@ -364,9 +375,31 @@ def render_portfolio_research_page(
         <div class="role-grid">{cycle_rows}</div></details></section>
         <section class="content-band"><details class="detail-panel"><summary>查看全部八個研究模板與技術限制</summary>
         <div class="role-grid">{cards}</div></details></section>
+        <section class="content-band"><details class="detail-panel"><summary>為什麼系統不自動替我選配置比例？目前 {int(view['active_research_limitation_count'])} 項邊界</summary>
+        <p>系統已提供 declared 階段對應的書籍研究方向、70／50／30 固定比例與歷史風險代價；
+        沒有自動選定單一比例，是因為資料完整性、資產替代、前瞻驗證與個人適配仍是不同問題。</p>
+        <div class="role-grid">{limitation_rows}</div></details></section>
         <p class="boundary-note">所有比例與結果均為 research-only、backtest-only，不構成投資建議，也不代表未來績效。</p>
         """,
     )
+
+
+def _portfolio_limitation_row(row: dict[str, Any]) -> str:
+    current = row.get("current_state_zh")
+    current_html = (
+        f"<p><strong>目前狀態：</strong>{escape(str(current))}</p>"
+        if current
+        else ""
+    )
+    return f"""
+    <article class="role-card" data-portfolio-research-limitation="true">
+      <p class="eyebrow">{escape(str(row['limitation_class']))}</p>
+      <h3>{escape(str(row['title_zh']))}</h3>
+      <p>{escape(str(row['reason_zh']))}</p>
+      {current_html}
+      <p><strong>處理方式：</strong>{escape(str(row['next_action_zh']))}</p>
+    </article>
+    """
 
 
 def render_historical_replay_page(
@@ -852,6 +885,10 @@ def _api_payloads(
         _role_api_row(row, display_name_zh=role_labels[row["role_id"]])
         for row in snapshot["role_snapshots"]
     ]
+    supporting = [
+        _supporting_indicator_api_row(row)
+        for row in snapshot.get("supporting_indicator_snapshots", [])
+    ]
     return {
         "indicator_snapshot": {
             "payload_id": "nas_indicator_snapshot_api_v1",
@@ -865,6 +902,8 @@ def _api_payloads(
             ),
             "role_count": len(roles),
             "roles": roles,
+            "supporting_indicator_count": len(supporting),
+            "supporting_indicators": supporting,
             "allowed_uses": contract["allowed_uses"],
             "prohibited_uses": contract["prohibited_uses"],
             "trust_metadata": snapshot["trust_metadata"],
@@ -930,6 +969,24 @@ def _api_payloads(
                 }
                 for row in roles
             ],
+            "supporting_indicator_count": len(supporting),
+            "supporting_indicators": [
+                {
+                    "supporting_indicator_id": row["supporting_indicator_id"],
+                    "display_name_zh": row["display_name_zh"],
+                    "conceptual_group": row["conceptual_group"],
+                    "snapshot_status": row["snapshot_status"],
+                    "freshness_status": row["freshness_status"],
+                    "chart_available": row["chart_payload_detail"][
+                        "chart_available"
+                    ],
+                    "detail_anchor": (
+                        f"#supporting-{row['supporting_indicator_id']}"
+                    ),
+                    "book_core_replacement_allowed": False,
+                }
+                for row in supporting
+            ],
         },
     }
 
@@ -971,6 +1028,32 @@ def _role_api_row(
         "strict_point_in_time_result": False,
         "candidate_selection_eligible": False,
         "formal_current_output_allowed": False,
+    }
+
+
+def _supporting_indicator_api_row(row: dict[str, Any]) -> dict[str, Any]:
+    latest = list(row.get("latest_revised_observations", []))
+    latest_display = latest[0] if latest else {}
+    return {
+        "supporting_indicator_id": row["supporting_indicator_id"],
+        "display_name_zh": row["display_name_zh"],
+        "conceptual_group": row["conceptual_group"],
+        "source_classification": row["source_classification"],
+        "source_agency_zh": row["source_agency_zh"],
+        "snapshot_status": row["snapshot_status"],
+        "data_mode": row["data_mode"],
+        "latest_observation_date": latest_display.get("observation_date"),
+        "latest_value": latest_display.get("value_numeric"),
+        "latest_unit": latest_display.get("unit"),
+        "freshness_status": row["freshness_status"],
+        "high_meaning_zh": row["high_meaning_zh"],
+        "low_meaning_zh": row["low_meaning_zh"],
+        "source_lineage": row["source_lineage"],
+        "blocked_reason_codes": row["blocked_reason_codes"],
+        "chart_payload_detail": row["chart_payload_detail"],
+        "book_core_replacement_allowed": False,
+        "phase_evidence_emission_allowed": False,
+        "transition_confirmation_allowed": False,
     }
 
 
@@ -1122,6 +1205,26 @@ def _indicator_index_html(
     caveats = "\n".join(
         f"<li>{escape(item)}</li>" for item in _mobile_trust_caveats()
     )
+    supporting_rows = list(snapshot.get("supporting_indicator_snapshots", []))
+    supporting_cards = "\n".join(
+        _supporting_indicator_card(row) for row in supporting_rows
+    )
+    supporting_section = (
+        f"""
+        <section class="content-band" aria-labelledby="supporting-heading">
+          <div class="section-heading"><div>
+            <p class="section-kicker">Official supporting context</p>
+            <h2 id="supporting-heading">NY Fed 家庭預期旁證</h2>
+          </div><span class="status-note">{len(supporting_rows)} 項官方直接元件</span></div>
+          <p class="section-intro">這些元件幫助理解家庭對就業、所得支出、信用與財務狀況的預期。
+          它們是 revised supporting-only 脈絡，不是書中 Conference Board 消費者信心的 exact evidence，
+          不會合成分數，也不會單獨形成 watch 或 confirmation。</p>
+          <div class="role-grid">{supporting_cards}</div>
+        </section>
+        """
+        if supporting_rows
+        else ""
+    )
     return _html_document(
         title="指標總覽",
         active_nav_id="indicators",
@@ -1142,6 +1245,7 @@ def _indicator_index_html(
           <ul>{caveats}</ul>
         </section>
         <section class="role-grid">{cards}</section>
+        {supporting_section}
         """,
     )
 
@@ -1381,6 +1485,39 @@ def _role_card(
       {interpretation_html}
       {learning_html}
       {chart_html}
+    </article>
+    """
+
+
+def _supporting_indicator_card(row: dict[str, Any]) -> str:
+    latest = list(row.get("latest_revised_observations", []))
+    latest_display = latest[0] if latest else {}
+    observation_date = latest_display.get("observation_date") or "尚無數值"
+    value = latest_display.get("value_numeric")
+    value_display = value if value is not None else "unavailable"
+    unit = latest_display.get("unit") or row.get("units") or "未提供"
+    blocked = "、".join(row.get("blocked_reason_codes", [])) or "無"
+    return f"""
+    <article id="supporting-{escape(str(row['supporting_indicator_id']))}"
+      class="role-card" data-supporting-indicator-card="true"
+      data-source-classification="official-modern-supporting-context">
+      <p class="eyebrow">官方旁證，不取代書籍 exact evidence</p>
+      <h3>{escape(str(row['display_name_zh']))}</h3>
+      <p class="technical-id">技術識別：<code>{escape(str(row['series_id']))}</code></p>
+      <p class="meta">{escape(str(row['conceptual_group']))} / NY Fed SCE</p>
+      <dl>
+        <dt>快照狀態</dt><dd>{escape(str(row['snapshot_status']))}</dd>
+        <dt>最新 revised 日期</dt><dd>{escape(str(observation_date))}</dd>
+        <dt>官方直接值</dt><dd>{escape(str(value_display))} {escape(str(unit))}</dd>
+        <dt>資料新鮮度</dt><dd>{escape(_freshness_label_zh(str(row['freshness_status'])))}</dd>
+        <dt>缺口</dt><dd>{escape(blocked)}</dd>
+      </dl>
+      <div class="learning-panel" data-indicator-learning-semantics="true">
+        <p><strong>數值較高：</strong>{escape(str(row['high_meaning_zh']))}</p>
+        <p><strong>數值較低：</strong>{escape(str(row['low_meaning_zh']))}</p>
+        <p><strong>證據邊界：</strong>只作家庭預期解釋，不取代 Conference Board，不進 phase evidence。</p>
+      </div>
+      {_chart_details_html(row.get('chart_payload_detail', {}))}
     </article>
     """
 

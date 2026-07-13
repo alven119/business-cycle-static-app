@@ -64,6 +64,9 @@ from business_cycle.audits.phase137_nyfed_sce_components_closure import (
     build_offline_nyfed_sce_fixture,
     summarize_phase137_nyfed_sce_components_closure,
 )
+from business_cycle.audits.phase138_nyfed_sce_dashboard_integration_closure import (
+    summarize_phase138_nyfed_sce_dashboard_integration_closure,
+)
 from business_cycle.validation.historical_pit_transition_events import (
     build_historical_pit_transition_event_registry,
 )
@@ -76,6 +79,9 @@ from business_cycle.data_sources.alfred_provider import AlfredObservation
 from business_cycle.service.nas_live_dashboard import build_nas_live_dashboard_runtime
 from business_cycle.render.nas_source_operations import (
     render_nas_source_operations_page,
+)
+from business_cycle.render.nas_service_dashboard import (
+    build_nas_service_dashboard_bundle,
 )
 from business_cycle.service.nas_official_release_calendar import (
     build_nas_official_release_diagnostics,
@@ -124,6 +130,7 @@ from business_cycle.service.nas_consumer_confidence_sources import (
 from business_cycle.service.nas_nyfed_sce_components import (
     CONFIRMATION as NYFED_SCE_CONFIRMATION,
     NyfedSceSourceError,
+    load_nyfed_sce_component_contract,
     parse_nyfed_sce_workbook,
     run_nyfed_sce_component_import,
     summarize_nyfed_sce_component_contract,
@@ -498,8 +505,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase137-nyfed-sce-components"
-    assert worker["image"] == "business-cycle-nas-app:phase137-nyfed-sce-components"
+    assert app["image"] == "business-cycle-nas-app:phase138-nyfed-dashboard"
+    assert worker["image"] == "business-cycle-nas-app:phase138-nyfed-dashboard"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -977,7 +984,8 @@ def test_phase122_supplementary_series_do_not_pollute_book_core_release_diagnost
 
     assert snapshot["series_snapshot_count"] == 30
     assert snapshot["technology_series_observations"]["A34SNO"]
-    assert snapshot["source_release_diagnostics"]["release_family_count"] == 13
+    assert snapshot["source_release_diagnostics"]["release_family_count"] == 14
+    assert snapshot["source_release_diagnostics"]["book_core_release_family_count"] == 13
 
 
 def test_phase111_live_runtime_renders_private_chinese_chart_surface(
@@ -2193,6 +2201,135 @@ def test_phase137_nyfed_sce_components_are_direct_supporting_only_and_closed(
     )
     assert "offline_fixture_component_series_count=11" in completed.stdout
     assert "phase137_closure_ready=true" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+def test_phase138_nyfed_sce_dashboard_calendar_and_limits_are_integrated() -> None:
+    payload = _live_dashboard_fixture_payload()
+    component_contract = load_nyfed_sce_component_contract()
+    for index, component in enumerate(
+        component_contract["component_series"],
+        start=1,
+    ):
+        series_id = str(component["series_id"])
+        artifact_id = f"phase138-artifact::{series_id}"
+        payload["series_registry_rows"].append(
+            {
+                "series_key": series_id,
+                "source_family": "Federal Reserve Bank of New York",
+                "source_series_id": series_id,
+                "source_title": str(component["title_zh"]),
+                "units": str(component["units"]),
+                "frequency": "monthly",
+                "seasonal_adjustment": "not_applicable_survey_measure",
+                "geographic_scope": "United States",
+                "source_url_without_secret": (
+                    "https://www.newyorkfed.org/microeconomics/databank"
+                ),
+                "source_identity_status": "verified_official_supporting_only",
+                "updated_at_utc": "2026-07-08T12:00:00Z",
+            }
+        )
+        payload["source_artifact_rows"].append(
+            {
+                "artifact_id": artifact_id,
+                "source_family": "Federal Reserve Bank of New York",
+                "source_url_without_secret": (
+                    "https://www.newyorkfed.org/microeconomics/databank"
+                ),
+                "source_series_or_release_id": series_id,
+                "fetched_at_utc": "2026-07-08T12:00:00Z",
+                "content_hash": f"phase138-hash-{index}",
+                "adapter_id": "nyfed_sce_official_workbook_phase137",
+                "parser_version": "1.0",
+                "validation_status": "validated",
+            }
+        )
+        payload["observation_rows"].extend(
+            {
+                "series_key": series_id,
+                "observation_date": observation_date,
+                "value_numeric": str(index + offset / 10),
+                "value_text": None,
+                "unit": str(component["units"]),
+                "data_mode": "revised",
+                "source_artifact_id": artifact_id,
+                "provenance_hash": f"phase138-{series_id}-{offset}",
+            }
+            for offset, observation_date in enumerate(
+                ("2021-07-01", "2025-06-01", "2026-01-01", "2026-06-01")
+            )
+        )
+
+    class Phase138Executor:
+        def query_json(self, sql: str) -> dict[str, object]:
+            assert sql == DASHBOARD_READ_SQL
+            return payload
+
+    snapshot = build_nas_live_postgres_dashboard_snapshot(
+        executor=Phase138Executor(),
+        snapshot_as_of="2026-07-13",
+        refresh_status={
+            "refresh_state": "succeeded",
+            "last_completed_at_utc": "2026-07-08T12:00:00Z",
+            "series_refresh_results": [
+                {"series_id": "NYFED_SCE_CONTEXT", "status": "imported"}
+            ],
+        },
+    )
+    bundle = build_nas_service_dashboard_bundle(
+        snapshot_manifest=snapshot,
+        runtime_live_mode=True,
+    )
+    indicator_html = next(
+        row["html"] for row in bundle["html_pages"] if row["path"] == "/indicators"
+    )
+    supporting = bundle["api_payloads"]["indicator_snapshot"][
+        "supporting_indicators"
+    ]
+    release = snapshot["source_release_diagnostics"]
+    family = next(
+        row
+        for row in release["release_families"]
+        if row["release_family_id"] == "nyfed_survey_of_consumer_expectations"
+    )
+    portfolio = bundle["portfolio_replay_lab"]["portfolio_research"]
+    closure = summarize_phase138_nyfed_sce_dashboard_integration_closure()
+
+    assert snapshot["supporting_indicator_snapshot_count"] == 11
+    assert snapshot["supporting_indicator_chart_available_count"] == 11
+    assert len(supporting) == 11
+    assert all(
+        [row["period_id"] for row in item["chart_payload_detail"]["series_charts"][0]["periods"]]
+        == ["ytd", "trailing_1y", "trailing_5y"]
+        for item in supporting
+    )
+    assert all(item["book_core_replacement_allowed"] is False for item in supporting)
+    assert indicator_html.count('data-supporting-indicator-card="true"') == 11
+    assert "NY Fed 家庭預期旁證" in indicator_html
+    assert "數值較高" in indicator_html and "數值較低" in indicator_html
+    assert release["release_family_count"] == 14
+    assert release["book_core_release_family_count"] == 13
+    assert release["supporting_release_series_count"] == 11
+    assert family["last_official_release"]["release_date"] == "2026-07-07"
+    assert family["next_official_release"]["release_date"] == "2026-08-07"
+    assert portfolio["active_research_limitation_count"] == 6
+    assert portfolio["historical_policy_timeline_summary"][
+        "strict_complete_scenario_count"
+    ] == 2
+    assert closure["result"] == "passed"
+    assert closure["incident_component_drilldown_count"] == 11
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase138_nyfed_sce_dashboard_integration_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase138_closure_ready=true" in completed.stdout
+    assert "supporting_indicator_count=11" in completed.stdout
     assert "result=passed" in completed.stdout
 
 

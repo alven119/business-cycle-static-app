@@ -229,6 +229,23 @@ def _incident_card(row: dict[str, Any]) -> str:
     roles = "、".join(str(value) for value in row.get("affected_role_ids", [])) or "尚無 role mapping"
     lanes = "、".join(str(value) for value in row.get("affected_cycle_lanes", [])) or "尚無 lane mapping"
     fallback_ids = "、".join(str(value) for value in row.get("fallback_series_ids", [])) or "無"
+    component_rows = "".join(
+        "<li><code>"
+        + escape(str(component.get("series_id")))
+        + "</code>："
+        + escape(str(component.get("title_zh")))
+        + "</li>"
+        for component in row.get("affected_component_series", [])
+    )
+    component_drilldown = (
+        "<details><summary>查看受影響的 "
+        f"{int(row.get('affected_component_count', 0))} 個 NY Fed 元件</summary>"
+        f"<ul>{component_rows}</ul>"
+        "<p class=\"meta\">這是一個父 workbook 事故，不拆成 11 筆事故；"
+        "所有元件維持 supporting-only。</p></details>"
+        if component_rows
+        else ""
+    )
     return f"""
     <article class="operation {escape(severity)}">
       <h3>{escape(str(row.get('source_series_id')))} · {escape(_incident_type_zh(str(row.get('incident_type'))))}</h3>
@@ -243,6 +260,7 @@ def _incident_card(row: dict[str, Any]) -> str:
         <dt>旁證序列</dt><dd>{escape(fallback_ids)}</dd>
         <dt>下一步</dt><dd>{escape(str(row.get('next_action_zh') or '等待 operator 處理'))}</dd>
       </dl>
+      {component_drilldown}
     </article>"""
 
 

@@ -1,0 +1,29 @@
+phase138_nyfed_sce_dashboard_integration_closure:
+  version: "1.0"
+  status: active_phase138_closure
+  phase_id: 138
+  phase_label: nyfed_sce_explorer_release_calendar_incident_drilldown
+  hard_gates:
+    phase138_closure_ready: true
+    nyfed_sce_dashboard_integration_contract_ready: true
+    supporting_indicator_count: 11
+    chart_period_count: 3
+    supporting_indicator_with_complete_learning_semantics_count: 11
+    supporting_indicator_promoted_to_book_core_count: 0
+    release_family_extension_count: 1
+    exact_release_event_count: 2
+    incident_component_drilldown_count: 11
+    portfolio_research_limitation_count: 6
+    strict_replay_scenario_count: 5
+    strict_replay_complete_scenario_count: 2
+    strict_replay_blocked_scenario_count: 3
+    revised_data_mislabeled_as_pit_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    test_file_delta: 0
+    development_next_phase: 139
+    phase138_closure_status: closed_nyfed_sce_explorer_calendar_incident_drilldown_supporting_only

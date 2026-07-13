@@ -31,6 +31,14 @@ Traditional Chinese with high/low interpretation. They remain separate
 observations: no composite confidence score is created, and the Conference
 Board exact role remains access-limited.
 
+Phase 138 carries those 11 direct components into the private NAS indicator
+explorer with YTD, trailing-one-year, and trailing-five-year interactive charts,
+Traditional-Chinese higher/lower interpretation, one official NY Fed release
+family, and parent-workbook incident drill-down. It also makes the six active
+portfolio-research limitations explicit and reaffirms that only COVID and
+2018-2019 currently have complete strict point-in-time scenario inputs. See
+[`docs/source_reliability_resilience_extension_phase138.md`](docs/source_reliability_resilience_extension_phase138.md).
+
 Phase 126 accepts the private NAS v1.0 research service operationally. It
 verifies deterministic strict-replay reruns, immutable checksummed artifact
 retention, isolated PostgreSQL/source-artifact restore, actual container
