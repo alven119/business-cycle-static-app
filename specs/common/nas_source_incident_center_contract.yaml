@@ -1,0 +1,115 @@
+nas_source_incident_center_contract:
+  version: "1.0"
+  status: active_private_nas_source_health_contract
+  phase_id: 135
+  phase_label: source_health_incident_center_and_governed_fallbacks
+  depends_on:
+    - specs/common/release_aware_freshness_source_identity_remediation.yaml
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/common/nas_source_retry_restore_contract.yaml
+    - specs/common/full_cycle_revised_data_readiness_contract.yaml
+  persistence_policy:
+    registry_path: /var/lib/business-cycle/source-artifacts/phase135/source-incidents.json
+    atomic_write_required: true
+    append_only_recovery_receipts: true
+    open_incident_survives_restart: true
+    repository_output_allowed: false
+    secret_fields_allowed: false
+  incident_types:
+    - source_fetch_failure
+    - not_attempted_after_prior_failure
+    - authentication_or_rate_limit
+    - schema_or_parser_drift
+    - identity_unit_frequency_drift
+    - checksum_validation_failure
+    - series_discontinued
+    - release_due_local_stale
+  incident_required_fields:
+    - incident_id
+    - incident_key
+    - incident_type
+    - incident_status
+    - severity
+    - source_series_id
+    - affected_role_ids
+    - affected_cycle_lanes
+    - first_detected_at_utc
+    - last_detected_at_utc
+    - last_good_observation_date
+    - expected_release_at
+    - attempt_count
+    - fallback_status
+    - fallback_series_ids
+    - next_action_zh
+    - recovery_receipt_id
+    - no_silent_substitution
+  detection_policy:
+    source_fetch_failure_detected: true
+    schema_drift_detected: true
+    identity_unit_frequency_drift_detected: true
+    discontinued_series_detected: true
+    authentication_rate_limit_detected: true
+    parser_checksum_failure_detected: true
+    release_due_local_stale_requires_exact_schedule: true
+    cadence_only_never_claims_official_delay: true
+    healthy_series_required_before_resolution: true
+  fallback_policy:
+    allowed_states:
+      - abstain_required
+      - retry_pending
+      - supporting_only_visible
+      - exact_source_recovered
+    default_core_failure_state: abstain_required
+    supporting_source_may_replace_book_core: false
+    fallback_may_emit_phase_evidence: false
+    fallback_may_confirm_transition: false
+    fallback_must_be_pre_reviewed: true
+    reviewed_supporting_fallbacks:
+      ADPMNUSNERSA:
+        supporting_series_ids: [PAYEMS]
+        affected_role_id: growth_adp_employment
+        state: supporting_only_visible
+        substitution_degree: supporting_only_not_adp
+      UMCSENT:
+        supporting_series_ids: []
+        affected_role_id: boom_consumer_confidence
+        state: abstain_required
+        substitution_degree: supporting_source_itself_not_exact_conference_board
+  dashboard_policy:
+    source_operations_page_path: /source-operations
+    source_operations_api_path: /api/source-operations.json
+    open_incident_summary_visible: true
+    role_and_cycle_lane_impact_visible: true
+    last_good_observation_visible: true
+    expected_release_visible: true
+    retry_attempt_visible: true
+    fallback_status_visible: true
+    next_action_visible: true
+    recovery_receipt_visible: true
+    browser_mutation_allowed: false
+  prohibited_outputs:
+    - candidate_phase
+    - current_phase
+    - phase_score
+    - phase_rank
+    - phase_winner
+    - trade_action
+    - personalized_allocation
+    - public_output
+  hard_gates:
+    nas_source_incident_center_contract_ready: true
+    incident_type_count: 8
+    persistent_registry_ready: true
+    atomic_write_ready: true
+    recovery_receipt_ready: true
+    affected_role_attribution_ready: true
+    affected_cycle_lane_attribution_ready: true
+    governed_fallback_state_count: 4
+    supporting_source_promoted_to_core_count: 0
+    silent_substitution_count: 0
+    browser_write_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 136

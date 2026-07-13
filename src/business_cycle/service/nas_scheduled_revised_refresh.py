@@ -108,6 +108,7 @@ def run_scheduled_refresh_once(
     technology_import_runner: Callable[..., dict[str, Any]] = (
         run_technology_manufacturing_import
     ),
+    source_incident_reconciler: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Run one mutually exclusive refresh and preserve a redacted latest status."""
 
@@ -197,6 +198,21 @@ def run_scheduled_refresh_once(
                 "error_message_redacted": "refresh_execution_failed",
             }
         _atomic_json_write(status_path, status)
+        if _source_incident_reconciliation_enabled() or source_incident_reconciler:
+            reconciler = source_incident_reconciler or _reconcile_live_source_incidents
+            try:
+                incident_center = reconciler(status)
+                status["source_incident_reconciliation_state"] = "succeeded"
+                status["open_source_incident_count"] = int(
+                    incident_center["open_incident_count"]
+                )
+                status["source_incident_reconciliation_error_class"] = None
+            except Exception as exc:  # noqa: BLE001 - refresh status must stay available
+                status["source_incident_reconciliation_state"] = "failed"
+                status["source_incident_reconciliation_error_class"] = (
+                    exc.__class__.__name__
+                )
+            _atomic_json_write(status_path, status)
         return status
 
 
@@ -290,10 +306,27 @@ def _base_status(state: str) -> dict[str, Any]:
         "technology_refresh_enabled": _technology_refresh_enabled(),
         "technology_refresh_result": "not_run",
         "technology_completed_series_count": 0,
+        "source_incident_reconciliation_state": "disabled",
+        "source_incident_reconciliation_error_class": None,
+        "open_source_incident_count": 0,
         "candidate_phase_emitted": False,
         "current_phase_emitted": False,
         "secret_value_recorded": False,
     }
+
+
+def _source_incident_reconciliation_enabled() -> bool:
+    return os.environ.get(
+        "BUSINESS_CYCLE_SOURCE_INCIDENT_RECONCILIATION_ENABLED", "false"
+    ).lower() in {"1", "true", "yes", "on"}
+
+
+def _reconcile_live_source_incidents(status: dict[str, Any]) -> dict[str, Any]:
+    from business_cycle.service.nas_source_incident_center import (
+        reconcile_live_source_incidents,
+    )
+
+    return reconcile_live_source_incidents(status)
 
 
 def _technology_refresh_enabled() -> bool:

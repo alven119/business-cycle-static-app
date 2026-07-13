@@ -54,6 +54,9 @@ from business_cycle.audits.phase131_historical_pit_transition_events_closure imp
 from business_cycle.audits.phase132_phase_aware_dashboard_closure import (
     summarize_phase132_phase_aware_dashboard_closure,
 )
+from business_cycle.audits.phase135_source_incident_center_closure import (
+    summarize_phase135_source_incident_center_closure,
+)
 from business_cycle.validation.historical_pit_transition_events import (
     build_historical_pit_transition_event_registry,
 )
@@ -93,6 +96,13 @@ from business_cycle.service.nas_source_retry_restore import (
     execute_governed_source_retry,
     run_private_backup_restore_drill,
     summarize_nas_source_retry_restore_contract,
+)
+from business_cycle.service.nas_source_incident_center import (
+    build_source_incident_candidates,
+    build_source_incident_center,
+    load_source_incident_registry,
+    reconcile_source_incidents,
+    summarize_nas_source_incident_center_contract,
 )
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DASHBOARD_READ_SQL,
@@ -464,8 +474,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase133-historical-policy-timeline"
-    assert worker["image"] == "business-cycle-nas-app:phase133-historical-policy-timeline"
+    assert app["image"] == "business-cycle-nas-app:phase135-source-incident-center"
+    assert worker["image"] == "business-cycle-nas-app:phase135-source-incident-center"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -475,6 +485,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert app["environment"]["BUSINESS_CYCLE_PHASE_TRANSITION_ACTIVATION_ENABLED"] == "true"
     assert "BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH" in app["environment"]
+    assert "BUSINESS_CYCLE_SOURCE_INCIDENT_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH" in app["environment"]
@@ -482,6 +493,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "BUSINESS_CYCLE_V1_ACCEPTANCE_STATUS_PATH" in app["environment"]
     assert "phase125" in artifact_init["command"][0]
     assert "phase126" in artifact_init["command"][0]
+    assert "phase135" in artifact_init["command"][0]
     assert "BUSINESS_CYCLE_STRICT_REPLAY_TIMELINE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
@@ -508,6 +520,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "BUSINESS_CYCLE_PIT_BACKFILL_OPERATOR_CONFIRMATION" in worker["environment"]
     assert "BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION" in worker["environment"]
     assert worker["environment"]["BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED"] == "true"
+    assert worker["environment"]["BUSINESS_CYCLE_SOURCE_INCIDENT_RECONCILIATION_ENABLED"] == "true"
+    assert "BUSINESS_CYCLE_SOURCE_INCIDENT_PATH" in worker["environment"]
     assert "BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION" in (
         worker["environment"]
     )
@@ -563,6 +577,23 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
     assert json.loads((tmp_path / "refresh-status.json").read_text()) == status
     assert calls[0]["retry_count"] == 3
     assert calls[0]["resume"] is False
+
+    reconciled_statuses: list[dict[str, object]] = []
+
+    def reconcile_incidents(refresh_status: dict[str, object]) -> dict[str, object]:
+        reconciled_statuses.append(refresh_status)
+        return {"open_incident_count": 0}
+
+    incident_status = run_scheduled_refresh_once(
+        artifact_root=tmp_path / "incident-schedule",
+        operator_confirmation=CONFIRMATION,
+        import_runner=successful_import,
+        source_incident_reconciler=reconcile_incidents,
+        now=lambda: datetime(2026, 7, 10, 1, tzinfo=timezone.utc),
+    )
+    assert incident_status["source_incident_reconciliation_state"] == "succeeded"
+    assert incident_status["open_source_incident_count"] == 0
+    assert len(reconciled_statuses) == 1
 
     technology_calls: list[dict[str, object]] = []
 
@@ -654,17 +685,17 @@ class _FakeDashboardReadExecutor:
 def _live_dashboard_fixture_payload() -> dict[str, object]:
     direct_series = automated_revised_series_ids()
     quarterly = {
-        "BUSINV",
         "CBIC1",
         "DRBLACBS",
         "DRCLACBS",
         "FPIC1",
+        "PNFIC1",
         "PRFIC1",
         "SLCEC1",
         "W006RC1Q027SBEA",
     }
     weekly = {"CCSA", "ICSA"}
-    daily = {"AAA", "BAA", "FEDFUNDS"}
+    daily = {"FEDFUNDS"}
     series_rows = []
     artifact_rows = []
     observation_rows = []
@@ -1849,6 +1880,80 @@ def test_phase115_source_retry_restore_closure_and_script_pass() -> None:
     )
     assert "phase115_closure_ready=true" in completed.stdout
     assert "backup_restore_state=succeeded" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+def test_phase135_source_incidents_persist_recover_and_never_promote_fallback(
+    tmp_path: Path,
+) -> None:
+    contract = summarize_nas_source_incident_center_contract()
+    registry_path = tmp_path / "source-incidents.json"
+    refresh = {
+        "last_run_state": "failed",
+        "series_refresh_results": [
+            {
+                "series_id": "ADPMNUSNERSA",
+                "status": "failed",
+                "error_class": "TimeoutError",
+                "attempt_count": 3,
+            }
+        ],
+    }
+    candidates = build_source_incident_candidates(
+        refresh_status=refresh,
+        metadata_checks=[
+            {
+                "series_id": "PNFIC1",
+                "expected_frequency": "quarterly",
+                "actual_frequency": "monthly",
+            }
+        ],
+    )
+    opened = reconcile_source_incidents(
+        candidates=candidates,
+        evaluated_series_ids={"ADPMNUSNERSA", "PNFIC1"},
+        healthy_series_ids=set(),
+        registry_path=registry_path,
+        now=lambda: datetime(2026, 7, 13, 1, tzinfo=timezone.utc),
+    )
+    reloaded = load_source_incident_registry(registry_path)
+    recovered = reconcile_source_incidents(
+        candidates=[],
+        evaluated_series_ids={"ADPMNUSNERSA", "PNFIC1"},
+        healthy_series_ids={"ADPMNUSNERSA", "PNFIC1"},
+        registry_path=registry_path,
+        now=lambda: datetime(2026, 7, 13, 2, tzinfo=timezone.utc),
+    )
+
+    assert contract["result"] == "passed"
+    assert opened["open_incident_count"] == 2
+    assert opened["fallback_active_count"] == 1
+    assert len(reloaded["incidents"]) == 2
+    assert recovered["open_incident_count"] == 0
+    assert recovered["recovery_receipt_count"] == 2
+    assert recovered["supporting_source_promoted_to_core_count"] == 0
+    assert recovered["silent_substitution_count"] == 0
+    assert build_source_incident_center(registry_path=registry_path)[
+        "recovery_receipt_count"
+    ] == 2
+
+
+def test_phase135_source_incident_closure_and_script_pass() -> None:
+    summary = summarize_phase135_source_incident_center_closure()
+
+    assert summary["result"] == "passed"
+    assert summary["deterministic_incident_candidate_count"] == 8
+    assert summary["persistent_open_incident_count"] == 8
+    assert summary["recovery_receipt_count"] == 8
+    assert summary["supporting_source_promoted_to_core_count"] == 0
+    completed = subprocess.run(
+        [sys.executable, "scripts/show_phase135_source_incident_center_closure.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase135_closure_ready=true" in completed.stdout
+    assert "deterministic_incident_candidate_count=8" in completed.stdout
     assert "result=passed" in completed.stdout
 
 

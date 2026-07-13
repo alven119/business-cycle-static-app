@@ -6,6 +6,7 @@ source_reliability_resilience_roadmap:
   phases:
     - phase_id: 134
       label: release_aware_freshness_and_source_identity_remediation
+      execution_status: completed
       depends_on: [phase133]
       deliverables:
         - reference_period_end_freshness
@@ -19,6 +20,7 @@ source_reliability_resilience_roadmap:
         - governed_fallback_recovery_receipts
     - phase_id: 135
       label: source_health_incident_center_and_governed_fallbacks
+      execution_status: completed
       depends_on: [phase134]
       deliverables:
         - persistent_source_incident_registry
@@ -31,6 +33,7 @@ source_reliability_resilience_roadmap:
         - source_failure_acceptance_drills
     - phase_id: 136
       label: consumer_confidence_resolution_and_source_failure_drills
+      execution_status: planned
       depends_on: [phase135]
       deliverables:
         - exact_conference_board_access_gap_preserved

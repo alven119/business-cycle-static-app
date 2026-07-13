@@ -127,6 +127,12 @@ def build_nas_official_release_diagnostics(
         ),
         "family_due_or_missing_refresh_count": len(due),
         "series_with_failure_reason_count": len(failed),
+        "source_incident_reconciliation_state": refresh_status.get(
+            "source_incident_reconciliation_state", "not_started"
+        ),
+        "source_incident_reconciliation_error_class": refresh_status.get(
+            "source_incident_reconciliation_error_class"
+        ),
         "official_source_delay_confirmed_count": 0,
         "observation_date_assumed_release_date_count": 0,
         "refresh_failure_separated_from_source_delay": True,

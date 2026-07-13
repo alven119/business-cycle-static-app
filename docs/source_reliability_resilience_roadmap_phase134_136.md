@@ -9,6 +9,8 @@ phase, or turning supporting sources into silent book-core substitutes.
 
 ## Phase 134: Release-Aware Freshness And Source Identity Remediation
 
+Status: completed in Phase 134.
+
 - Judge freshness from the end of the source reference period and the latest
   registered official release, rather than from an observation-period start
   date alone.
@@ -26,6 +28,8 @@ phase, or turning supporting sources into silent book-core substitutes.
 
 ## Phase 135: Source Health Incident Center And Governed Fallbacks
 
+Status: completed in Phase 135.
+
 - Add persistent, operator-readable source incidents for fetch failures,
   schema drift, identity/unit/frequency changes, discontinued series,
   authentication/rate limits, parser/checksum failures, and a release that is
@@ -34,6 +38,8 @@ phase, or turning supporting sources into silent book-core substitutes.
   attempts, fallback status, next action, and recovery receipt.
 - Permit only pre-reviewed fallback states. A fallback may be supporting-only
   and must never silently replace a required book-core source.
+- Persist incidents and append-only recovery receipts under the private NAS
+  source-artifact volume; browser routes remain read-only.
 
 ## Phase 136: Consumer Confidence Resolution And Failure Drills
 

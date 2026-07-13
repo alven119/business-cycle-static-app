@@ -40,9 +40,13 @@ from business_cycle.service.nas_source_retry_restore import (
     build_source_retry_preview,
     default_source_operations_status,
 )
+from business_cycle.service.nas_source_incident_center import (
+    build_source_incident_center,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_live_postgres_dashboard_contract.yaml"
+SERIES_RELEASE_REGISTRY_PATH = ROOT / "specs/common/series_release_lag_registry.yaml"
 
 MUTATING_SQL_RE = re.compile(
     r"\b(insert|update|delete|merge|alter|create|drop|truncate|grant|revoke|copy)\b",
@@ -367,6 +371,15 @@ def build_nas_live_postgres_dashboard_snapshot(
     source_release_diagnostics["full_cycle_data_readiness"] = (
         full_cycle_readiness
     )
+    source_incident_center = build_source_incident_center()
+    source_release_diagnostics["source_incident_center"] = source_incident_center
+    source_health_metadata_checks, source_health_artifact_checks = (
+        _source_health_validation_rows(
+            series_rows=series_rows,
+            artifact_rows=artifact_rows,
+            observations_by_series=observations_by_series,
+        )
+    )
     snapshot: dict[str, Any] = {
         "artifact_id": "phase111_nas_live_postgres_dashboard_snapshot",
         "artifact_version": contract["version"],
@@ -409,8 +422,11 @@ def build_nas_live_postgres_dashboard_snapshot(
         "source_refresh_health_status": _source_refresh_health_status(
             resolved_refresh_status,
             available_series_count=len(series_rows),
+            incident_center=source_incident_center,
         ),
         "source_release_diagnostics": source_release_diagnostics,
+        "source_health_metadata_checks": source_health_metadata_checks,
+        "source_health_artifact_checks": source_health_artifact_checks,
         "full_cycle_revised_data_readiness": full_cycle_readiness,
         "declared_cycle_state": resolved_declared_cycle_state,
         "live_db_connection_attempt_count": 1,
@@ -446,6 +462,7 @@ def build_nas_live_postgres_dashboard_snapshot(
             "source_refresh_health_status": _source_refresh_health_status(
                 resolved_refresh_status,
                 available_series_count=len(series_rows),
+                incident_center=source_incident_center,
             ),
             "release_calendar_runtime_ready": source_release_diagnostics[
                 "release_calendar_runtime_ready"
@@ -456,6 +473,12 @@ def build_nas_live_postgres_dashboard_snapshot(
             "retry_candidate_count": source_release_diagnostics[
                 "source_retry_preview"
             ]["retry_candidate_count"],
+            "open_source_incident_count": source_incident_center[
+                "open_incident_count"
+            ],
+            "source_recovery_receipt_count": source_incident_center[
+                "recovery_receipt_count"
+            ],
             "backup_restore_state": resolved_source_operations_status[
                 "backup_restore_state"
             ],
@@ -933,7 +956,13 @@ def _source_refresh_health_status(
     refresh_status: dict[str, Any],
     *,
     available_series_count: int,
+    incident_center: dict[str, Any] | None = None,
 ) -> str:
+    incidents = incident_center or {"critical_open_incident_count": 0, "open_incident_count": 0}
+    if int(incidents.get("critical_open_incident_count", 0)) > 0:
+        return "degraded_source_incident"
+    if int(incidents.get("open_incident_count", 0)) > 0:
+        return "attention_required_source_incident"
     state = refresh_status.get("refresh_state")
     last_run_state = refresh_status.get("last_run_state")
     if (
@@ -945,6 +974,72 @@ def _source_refresh_health_status(
     if available_series_count > 0:
         return "baseline_loaded_waiting_for_scheduled_refresh"
     return "unavailable"
+
+
+def _source_health_validation_rows(
+    *,
+    series_rows: dict[str, dict[str, Any]],
+    artifact_rows: dict[str, dict[str, Any]],
+    observations_by_series: dict[str, list[dict[str, Any]]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    payload = yaml.safe_load(SERIES_RELEASE_REGISTRY_PATH.read_text(encoding="utf-8"))
+    expected = {
+        str(row["series_id"]): dict(row)
+        for row in payload["series_release_lag_registry"]["series"]
+    }
+    metadata: list[dict[str, Any]] = []
+    for series_id, row in sorted(series_rows.items()):
+        observation_units = {
+            str(item.get("unit"))
+            for item in observations_by_series.get(series_id, [])
+            if item.get("unit") is not None
+        }
+        registry_units = str(row.get("units"))
+        actual_units = (
+            next(iter(observation_units))
+            if len(observation_units) == 1
+            else "__inconsistent_observation_units__"
+            if len(observation_units) > 1
+            else registry_units
+        )
+        expected_row = expected.get(series_id, {})
+        metadata.append(
+            {
+                "series_id": series_id,
+                "expected_source_identity": series_id,
+                "actual_source_identity": row.get("source_series_id"),
+                "expected_frequency": expected_row.get("frequency"),
+                "actual_frequency": row.get("frequency"),
+                "expected_units": registry_units,
+                "actual_units": actual_units,
+                "schema_valid": all(
+                    row.get(field) is not None
+                    for field in (
+                        "source_family",
+                        "source_series_id",
+                        "frequency",
+                        "source_url_without_secret",
+                        "source_identity_status",
+                    )
+                ),
+                "parser_valid": True,
+                "series_discontinued": str(
+                    row.get("source_identity_status", "")
+                ).lower()
+                in {"discontinued", "deprecated_without_reviewed_successor"},
+            }
+        )
+    artifacts = [
+        {
+            "series_id": str(row.get("source_series_or_release_id", "")),
+            "checksum_valid": bool(row.get("content_hash"))
+            and str(row.get("validation_status", "")).lower()
+            not in {"checksum_failed", "corrupt"},
+        }
+        for row in artifact_rows.values()
+        if row.get("source_series_or_release_id")
+    ]
+    return metadata, artifacts
 
 
 def _period_start(period_id: str, as_of: date) -> date:

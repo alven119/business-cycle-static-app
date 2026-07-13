@@ -249,6 +249,15 @@ def build_nas_live_dashboard_runtime(
         "retry_candidate_count": snapshot["source_release_diagnostics"][
             "source_retry_preview"
         ]["retry_candidate_count"],
+        "open_source_incident_count": snapshot["source_release_diagnostics"][
+            "source_incident_center"
+        ]["open_incident_count"],
+        "critical_open_source_incident_count": snapshot["source_release_diagnostics"][
+            "source_incident_center"
+        ]["critical_open_incident_count"],
+        "source_recovery_receipt_count": snapshot["source_release_diagnostics"][
+            "source_incident_center"
+        ]["recovery_receipt_count"],
         "backup_restore_state": source_operations_status["backup_restore_state"],
         "fixed_daily_refresh_local_time": (
             f"{release_aware_status['fixed_daily_local_time']} "
@@ -394,6 +403,15 @@ def build_nas_live_dashboard_runtime(
         "retry_candidate_count": snapshot["source_release_diagnostics"][
             "source_retry_preview"
         ]["retry_candidate_count"],
+        "open_source_incident_count": snapshot["source_release_diagnostics"][
+            "source_incident_center"
+        ]["open_incident_count"],
+        "critical_open_source_incident_count": snapshot["source_release_diagnostics"][
+            "source_incident_center"
+        ]["critical_open_incident_count"],
+        "source_recovery_receipt_count": snapshot["source_release_diagnostics"][
+            "source_incident_center"
+        ]["recovery_receipt_count"],
         "backup_restore_state": source_operations_status["backup_restore_state"],
         "fixed_daily_refresh_local_time": (
             f"{release_aware_status['fixed_daily_local_time']} "

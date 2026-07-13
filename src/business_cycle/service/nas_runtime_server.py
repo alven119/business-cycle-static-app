@@ -257,6 +257,17 @@ def build_runtime_response(
                     "source_refresh_health_status",
                     "not_configured",
                 ),
+                "open_source_incident_count": int(
+                    trust.get("open_source_incident_count", 0)
+                ),
+                "critical_open_source_incident_count": int(
+                    trust.get("critical_open_source_incident_count", 0)
+                ),
+                "source_recovery_receipt_count": int(
+                    trust.get("source_recovery_receipt_count", 0)
+                ),
+                "candidate_phase_emitted": False,
+                "current_phase_emitted": False,
                 "dashboard_snapshot_status": trust.get(
                     "dashboard_snapshot_status",
                     "current_cached_snapshot",

@@ -66,6 +66,11 @@ def test_runtime_health_and_ready_endpoints_do_not_require_secret() -> None:
     assert '"live_db_connected": true' in live_ready.body
     assert '"dashboard_data_source": "live_postgres_read_only"' in live_ready.body
     assert '"source_operations_route_count": 2' in live_ready.body
+    assert '"open_source_incident_count": 0' in live_ready.body
+    assert '"critical_open_source_incident_count": 0' in live_ready.body
+    assert '"source_recovery_receipt_count": 0' in live_ready.body
+    assert '"candidate_phase_emitted": false' in live_ready.body
+    assert '"current_phase_emitted": false' in live_ready.body
     assert '"release_family_count": 12' in live_ready.body
     assert '"nas_v1_operational_acceptance_passed": true' in live_ready.body
     assert '"prospective_wait_state": "awaiting_canonical_as_of"' in live_ready.body
@@ -570,6 +575,35 @@ def test_phase115_source_operations_routes_are_private_and_traditional_chinese()
             "series_refresh_results": [],
         },
     )
+    diagnostics["source_incident_center"] = {
+        "open_incident_count": 1,
+        "critical_open_incident_count": 0,
+        "warning_open_incident_count": 1,
+        "affected_role_count": 1,
+        "affected_cycle_lane_count": 1,
+        "recovery_receipt_count": 1,
+        "open_incidents": [
+            {
+                "source_series_id": "ADPMNUSNERSA",
+                "incident_type": "source_fetch_failure",
+                "severity": "warning",
+                "affected_role_ids": ["growth_adp_employment"],
+                "affected_cycle_lanes": ["growth::growth_presence"],
+                "last_good_observation_date": "2026-06-01",
+                "expected_release_at": None,
+                "attempt_count": 3,
+                "fallback_status": "supporting_only_visible",
+                "fallback_series_ids": ["PAYEMS"],
+                "next_action_zh": "受治理重試",
+            }
+        ],
+        "recent_recovery_receipts": [
+            {
+                "source_series_id": "ICSA",
+                "recovered_at_utc": "2026-07-10T12:00:00Z",
+            }
+        ],
+    }
     shell = {"source_release_diagnostics": diagnostics}
     unauthorized = build_runtime_response(
         path="/source-operations",
@@ -603,10 +637,15 @@ def test_phase115_source_operations_routes_are_private_and_traditional_chinese()
     assert "私人 NAS v1.0 操作驗收" in page.body
     assert "不代表模型已完成經濟或前瞻驗證" in page.body
     assert "歷史資料模式完整度" in page.body
+    assert "資料來源事故中心" in page.body
+    assert "growth_adp_employment" in page.body
+    assert "僅顯示已審核旁證" in page.body
+    assert "來源恢復 receipts" in page.body
     assert "PIT 只代表 ALFRED realtime interval 已保存" in page.body
     assert api.status_code == 200
     assert api.route_id == "nas_source_operations_api"
-    assert '"release_family_count": 12' in api.body
+    assert '"release_family_count": 13' in api.body
+    assert '"open_incident_count": 1' in api.body
     assert '"candidate_phase_emitted": false' in api.body
 
 

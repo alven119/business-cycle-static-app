@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase133-historical-policy-timeline
+    image: business-cycle-nas-app:phase135-source-incident-center
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -48,6 +48,7 @@ services:
       BUSINESS_CYCLE_REFRESH_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase112/refresh-status.json
       BUSINESS_CYCLE_DECLARED_CYCLE_STATE_PATH: /var/lib/business-cycle/cycle-state/declared_cycle_state_registry.yaml
       BUSINESS_CYCLE_SOURCE_OPERATIONS_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase115/operations-status.json
+      BUSINESS_CYCLE_SOURCE_INCIDENT_PATH: /var/lib/business-cycle/source-artifacts/phase135/source-incidents.json
       BUSINESS_CYCLE_RELEASE_AWARE_SCHEDULE_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase116/schedule-status.json
       BUSINESS_CYCLE_PIT_BACKFILL_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase117/latest-backfill-report.json
       BUSINESS_CYCLE_BROADER_PIT_STATUS_PATH: /var/lib/business-cycle/source-artifacts/phase118/latest-broader-pit-report.json
@@ -80,14 +81,14 @@ services:
       - sh
       - -c
     command:
-      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/source-artifacts/phase119 /var/lib/business-cycle/source-artifacts/phase125/runs /var/lib/business-cycle/source-artifacts/phase126 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
+      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/source-artifacts/phase119 /var/lib/business-cycle/source-artifacts/phase125/runs /var/lib/business-cycle/source-artifacts/phase126 /var/lib/business-cycle/source-artifacts/phase135 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
       - cycle_state_config:/var/lib/business-cycle/cycle-state
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase133-historical-policy-timeline
+    image: business-cycle-nas-app:phase135-source-incident-center
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -104,6 +105,8 @@ services:
       BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_MIGRATES_CALENDAR_AND_WRITES_BROADER_ALFRED_PIT
       BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED: "true"
       BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_OFFICIAL_TECHNOLOGY_DATA_AND_WRITES_NAS_POSTGRES
+      BUSINESS_CYCLE_SOURCE_INCIDENT_RECONCILIATION_ENABLED: "true"
+      BUSINESS_CYCLE_SOURCE_INCIDENT_PATH: /var/lib/business-cycle/source-artifacts/phase135/source-incidents.json
       FRED_API_KEY: ${FRED_API_KEY}
     command:
       - python

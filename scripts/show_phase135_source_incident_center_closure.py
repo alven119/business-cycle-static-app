@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+"""Show Phase 135 source incident center closure."""
+
+from __future__ import annotations
+
+from business_cycle.audits.phase135_source_incident_center_closure import (
+    summarize_phase135_source_incident_center_closure,
+)
+
+
+def main() -> int:
+    summary = summarize_phase135_source_incident_center_closure()
+    for key, value in summary.items():
+        print(f"{key}={str(value).lower() if isinstance(value, bool) else value}")
+    return 0 if summary["result"] == "passed" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

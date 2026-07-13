@@ -33,6 +33,9 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     full_cycle = diagnostics.get(
         "full_cycle_data_readiness", _default_full_cycle_data_readiness()
     )
+    incidents = diagnostics.get(
+        "source_incident_center", _default_source_incident_center()
+    )
     retry_rows = "".join(
         f"<li><code>{escape(str(row['series_id']))}</code>："
         f"{escape(_retry_reason_zh(str(row['reason_code'])))}</li>"
@@ -47,6 +50,13 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
         for row in full_cycle["role_rows"]
         if str(row["runtime_revised_status"]).startswith("source_blocked")
     )
+    incident_rows = "".join(
+        _incident_card(row) for row in incidents.get("open_incidents", [])
+    ) or "<article class=\"operation\"><h3>目前沒有未解事故</h3><p>最近來源狀態正常；系統仍會保留已恢復事故的 receipt。</p></article>"
+    recovery_rows = "".join(
+        _recovery_row(row)
+        for row in incidents.get("recent_recovery_receipts", [])
+    ) or "<li>目前尚無來源恢復 receipt。</li>"
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -69,6 +79,8 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     .warning {{ color: #8b3f18; }}
     .operations {{ display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }}
     .operation {{ background: white; border-left: 4px solid #28794b; padding: 14px; }}
+    .operation.critical {{ border-left-color: #a5261f; }}
+    .operation.warning {{ border-left-color: #b56a13; }}
     .operation h3 {{ margin: 0 0 8px; }}
     ul {{ padding-left: 20px; }}
     details {{ background: white; border: 1px solid #d8dee5; border-radius: 8px; padding: 12px; }}
@@ -90,11 +102,20 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     <article><strong>{int(diagnostics['family_due_or_missing_refresh_count'])}</strong><span>待更新／需查核</span></article>
     <article><strong>{int(diagnostics['series_with_failure_reason_count'])}</strong><span>有失敗原因序列</span></article>
     <article><strong>{int(retry['retry_candidate_count'])}</strong><span>受治理重試候選</span></article>
+    <article><strong>{int(incidents['open_incident_count'])}</strong><span>未解來源事故</span></article>
+    <article><strong>{int(incidents['affected_role_count'])}</strong><span>受影響 book roles</span></article>
+    <article><strong>{int(incidents['recovery_receipt_count'])}</strong><span>來源恢復 receipts</span></article>
     <article><strong>{escape(_backup_state_zh(str(backup['backup_restore_state'])))}</strong><span>最近備份還原演練</span></article>
     <article><strong>{int(full_cycle['automated_revised_series_available_count'])}/{int(full_cycle['automated_revised_series_count'])}</strong><span>四階段自動化 revised inputs</span></article>
     <article><strong>{int(full_cycle['core_revised_ready_role_count'])}/39</strong><span>book-core 經濟角色資料就緒</span></article>
   </section>
   <p><a href="/">返回總覽</a> · <a href="/api/source-operations.json">查看 JSON</a></p>
+  <h2>資料來源事故中心</h2>
+  <p>事故會跨重啟保留，並列出受影響角色、循環 evidence lane、最後良好觀測、官方預期發布、重試次數與下一步。
+  旁證只能標示為 supporting-only；它不會填補 book-core、確認轉折或改變 declared phase。</p>
+  <p class="meta">最近事故 reconciliation：{escape(_incident_reconciliation_zh(str(diagnostics.get('source_incident_reconciliation_state', 'not_started'))))}。</p>
+  <section class="operations">{incident_rows}</section>
+  <details><summary>查看最近來源恢復 receipts</summary><ul>{recovery_rows}</ul></details>
   <h2>受治理重試與備份還原</h2>
   <section class="operations">
     <article class="operation">
@@ -187,6 +208,36 @@ def build_nas_source_operations_api(diagnostics: dict[str, Any]) -> str:
     return json.dumps(diagnostics, ensure_ascii=False, sort_keys=True)
 
 
+def _incident_card(row: dict[str, Any]) -> str:
+    severity = str(row.get("severity", "warning"))
+    roles = "、".join(str(value) for value in row.get("affected_role_ids", [])) or "尚無 role mapping"
+    lanes = "、".join(str(value) for value in row.get("affected_cycle_lanes", [])) or "尚無 lane mapping"
+    fallback_ids = "、".join(str(value) for value in row.get("fallback_series_ids", [])) or "無"
+    return f"""
+    <article class="operation {escape(severity)}">
+      <h3>{escape(str(row.get('source_series_id')))} · {escape(_incident_type_zh(str(row.get('incident_type'))))}</h3>
+      <dl>
+        <dt>嚴重度</dt><dd>{escape(_severity_zh(severity))}</dd>
+        <dt>受影響角色</dt><dd>{escape(roles)}</dd>
+        <dt>循環 evidence lanes</dt><dd>{escape(lanes)}</dd>
+        <dt>最後良好觀測</dt><dd>{escape(str(row.get('last_good_observation_date') or '尚無可確認日期'))}</dd>
+        <dt>預期發布</dt><dd>{escape(str(row.get('expected_release_at') or '無精確官方日期'))}</dd>
+        <dt>累計嘗試</dt><dd>{int(row.get('attempt_count', 0))}</dd>
+        <dt>fallback 狀態</dt><dd>{escape(_fallback_state_zh(str(row.get('fallback_status'))))}</dd>
+        <dt>旁證序列</dt><dd>{escape(fallback_ids)}</dd>
+        <dt>下一步</dt><dd>{escape(str(row.get('next_action_zh') or '等待 operator 處理'))}</dd>
+      </dl>
+    </article>"""
+
+
+def _recovery_row(row: dict[str, Any]) -> str:
+    return (
+        f"<li><code>{escape(str(row.get('source_series_id')))}</code>："
+        f"{escape(str(row.get('recovered_at_utc') or '未知時間'))} 恢復；"
+        "exact source 已重新通過 health evaluation。</li>"
+    )
+
+
 def _family_card(row: dict[str, Any]) -> str:
     last_release = _release_display(row.get("last_official_release"), "尚無已登錄日期")
     next_release = _release_display(row.get("next_official_release"), "日曆尚未提供")
@@ -247,6 +298,56 @@ def _release_display(value: Any, fallback: str) -> str:
 
 def _default_retry_preview() -> dict[str, Any]:
     return {"retry_candidate_count": 0, "retry_candidates": []}
+
+
+def _default_source_incident_center() -> dict[str, Any]:
+    return {
+        "open_incident_count": 0,
+        "critical_open_incident_count": 0,
+        "warning_open_incident_count": 0,
+        "affected_role_count": 0,
+        "affected_cycle_lane_count": 0,
+        "recovery_receipt_count": 0,
+        "open_incidents": [],
+        "recent_recovery_receipts": [],
+    }
+
+
+def _incident_type_zh(value: str) -> str:
+    return {
+        "source_fetch_failure": "官方來源擷取失敗",
+        "not_attempted_after_prior_failure": "前序失敗後尚未執行",
+        "authentication_or_rate_limit": "授權或流量限制",
+        "schema_or_parser_drift": "Schema／parser 漂移",
+        "identity_unit_frequency_drift": "系列身分／單位／頻率漂移",
+        "checksum_validation_failure": "來源檔 checksum 驗證失敗",
+        "series_discontinued": "官方序列停止",
+        "release_due_local_stale": "官方已發布但本機仍過期",
+    }.get(value, value)
+
+
+def _severity_zh(value: str) -> str:
+    return {"critical": "嚴重：停止使用受影響 evidence", "warning": "警告：需要處理"}.get(
+        value, value
+    )
+
+
+def _fallback_state_zh(value: str) -> str:
+    return {
+        "abstain_required": "必須 abstain，不使用替代值",
+        "retry_pending": "等待受治理重試",
+        "supporting_only_visible": "僅顯示已審核旁證，不替代核心",
+        "exact_source_recovered": "exact source 已恢復",
+    }.get(value, value)
+
+
+def _incident_reconciliation_zh(value: str) -> str:
+    return {
+        "not_started": "尚未由 worker 執行",
+        "disabled": "尚未啟用",
+        "succeeded": "已完成並持久保存",
+        "failed": "事故 registry 更新失敗，需查看 worker log",
+    }.get(value, value)
 
 
 def _default_backup_status() -> dict[str, Any]:
