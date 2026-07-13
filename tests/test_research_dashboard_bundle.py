@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from functools import lru_cache
 
 import pytest
@@ -83,6 +84,13 @@ from business_cycle.audits.phase127_prospective_calendar_gate_closure import (
 )
 from business_cycle.audits.phase133_historical_transition_policy_timeline_closure import (
     summarize_phase133_historical_transition_policy_timeline_closure,
+)
+from business_cycle.audits.phase134_release_aware_source_identity_closure import (
+    summarize_phase134_release_aware_source_identity_closure,
+)
+from business_cycle.service.nas_release_aware_freshness import (
+    build_release_aware_freshness,
+    role_series_overrides,
 )
 from business_cycle.render.nas_service_dashboard import (
     render_historical_replay_page,
@@ -311,6 +319,51 @@ def test_phase133_historical_annotations_and_sensitivity_preserve_doctrine() -> 
         and row["selected_as_best_historical_result"] is False
         for row in timeline["fixed_weight_sensitivity_rows"]
     )
+
+
+def test_phase134_release_aware_freshness_and_source_identity_are_integrated() -> None:
+    windows = {
+        "daily": 10,
+        "weekly": 21,
+        "monthly": 75,
+        "quarterly": 180,
+        "annual": 550,
+    }
+    monthly = build_release_aware_freshness(
+        series_id="BUSINV",
+        latest_observation_date=date(2026, 4, 1),
+        as_of=date(2026, 7, 13),
+        frequency="monthly",
+        freshness_windows=windows,
+    )
+    quarterly = build_release_aware_freshness(
+        series_id="PNFIC1",
+        latest_observation_date=date(2026, 1, 1),
+        as_of=date(2026, 7, 13),
+        frequency="quarterly",
+        freshness_windows=windows,
+    )
+    overrides = role_series_overrides()
+    summary = summarize_phase134_release_aware_source_identity_closure()
+
+    assert monthly["freshness_status"] == "fresh"
+    assert monthly["reference_period_end_date"] == "2026-04-30"
+    assert monthly["expected_reference_period"] == "2026-04"
+    assert quarterly["freshness_status"] == "fresh"
+    assert quarterly["reference_period_end_date"] == "2026-03-31"
+    assert overrides["growth_adp_employment"] == ["ADPMNUSNERSA"]
+    assert overrides["growth_private_nonresidential_fixed_investment"] == [
+        "PNFIC1"
+    ]
+    assert overrides["growth_real_disposable_income_vs_consumption"] == [
+        "DSPIC96",
+        "PCEC96",
+    ]
+    assert summary["result"] == "passed"
+    assert summary["candidate_phase_emitted"] is False
+    assert summary["current_phase_emitted"] is False
+
+
 def test_phase126_private_nas_v1_operational_acceptance_is_complete_but_not_economic_validation() -> None:
     summary = summarize_phase126_nas_v1_operational_acceptance_closure()
     artifact = summary["artifact"]

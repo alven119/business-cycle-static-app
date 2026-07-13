@@ -32,7 +32,9 @@ def summarize_phase110_nas_postgres_live_revised_import_closure(
         "baseline_backup_ready": observed["baseline_backup_ready"],
         "schema_migration_executed": observed["schema_table_count"] == 11,
         "schema_table_count": observed["schema_table_count"],
-        "requested_series_count": implementation["direct_series_count"],
+        # Phase 110 is an immutable live-acceptance receipt. Later active import
+        # contracts may add series without rewriting what this run requested.
+        "requested_series_count": observed["series_registry_row_count"],
         "completed_series_count": observed["series_registry_row_count"],
         "failed_series_count": observed["failed_series_count"],
         "series_registry_row_count": observed["series_registry_row_count"],

@@ -6,7 +6,7 @@ series_release_lag_registry:
   series:
   - series_id: AAA
     source: FRED/ALFRED
-    frequency: daily
+    frequency: monthly
     release_family: Moody AAA corporate yield via FRED
     release_source: Moody AAA corporate yield via FRED
     availability_mode: alfred_vintage
@@ -50,9 +50,35 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Candidate ADP payroll series requires non-FRED/provider-specific vintage
       contract before strict PIT use.
+  - series_id: ADPMNUSNERSA
+    source: FRED/ALFRED
+    frequency: monthly
+    release_family: ADP National Employment Report via FRED
+    release_source: Automatic Data Processing, Inc. via FRED
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: ADP monthly release via FRED; ALFRED realtime interval required
+      for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: '2010-01-01'
+    earliest_vintage_date: not_verified_in_repo
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '2010-01-01'
+    scenario_coverage_end: '2026-12-31'
+    temporal_status: revised_ready_pit_requires_coverage_audit
+    point_in_time_eligible: false
+    known_revision_behavior: annual QCEW rebenchmarking; January history is revised
+      on the scheduled annual cycle
+    official_metadata_source: FRED ADPMNUSNERSA series metadata and ADP National
+      Employment Report notes
+    caveats: Private copyrighted source distributed by FRED; citation is required.
+      Revised current research is allowed on the private NAS. PAYEMS remains a
+      separate BLS role and may not replace ADP.
   - series_id: BAA
     source: FRED/ALFRED
-    frequency: daily
+    frequency: monthly
     release_family: Moody BAA corporate yield via FRED
     release_source: Moody BAA corporate yield via FRED
     availability_mode: alfred_vintage
@@ -463,6 +489,31 @@ series_release_lag_registry:
     official_metadata_source: FRED series metadata and source release documentation
     caveats: Metadata completeness does not imply local vintage cache coverage; release
       calendars are not inferred from observation_date.
+  - series_id: PNFIC1
+    source: FRED/ALFRED
+    frequency: quarterly
+    release_family: BEA NIPA GDP release
+    release_source: BEA NIPA GDP release
+    availability_mode: alfred_vintage
+    availability_precision: day
+    release_lag_rule: official_release_calendar_required_for_tradeability; ALFRED
+      realtime interval required for strict selection
+    release_lag_days_if_fixed: null
+    vintage_query_supported: true
+    initial_release_query_supported: true
+    earliest_observation_date: '2007-01-01'
+    earliest_vintage_date: not_verified_in_repo
+    latest_verified_vintage_date: not_verified_in_repo
+    scenario_coverage_start: '2007-01-01'
+    scenario_coverage_end: '2026-12-31'
+    temporal_status: revised_ready_pit_requires_coverage_audit
+    point_in_time_eligible: false
+    known_revision_behavior: BEA quarterly and benchmark revisions; strict selection
+      requires ALFRED realtime intervals
+    official_metadata_source: BEA Real Private Nonresidential Fixed Investment
+      PNFIC1 metadata via FRED
+    caveats: Exact nonresidential scope for recovery and growth roles. FPIC1 is
+      broader total private fixed investment and may not silently replace it.
   - series_id: ICNSA
     source: FRED/ALFRED
     frequency: weekly

@@ -29,6 +29,7 @@ from business_cycle.storage.nas_transition_pit_backfill import (
     SqlExecutor,
     TransitionVintageProvider,
     import_alfred_pit_series,
+    load_nas_transition_pit_backfill_contract,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -63,6 +64,10 @@ def build_revision_aware_release_calendar_plan(
 
     contract = load_nas_broader_pit_release_replay_contract(contract_path)
     source = load_nas_official_release_calendar_contract()
+    prior_contract = load_nas_transition_pit_backfill_contract()
+    series_scope = set(
+        prior_contract["transition_scope"]["transition_series_ids"]
+    ) | set(contract["broader_pit_scope"]["broader_series_ids"])
     weekly_rules = contract["weekly_reference_period_policy"]["series_rules"]
     rows: list[dict[str, Any]] = []
     exact_families = [
@@ -73,6 +78,8 @@ def build_revision_aware_release_calendar_plan(
     for family in exact_families:
         for event in family["scheduled_releases"]:
             for series_id in family["series_ids"]:
+                if series_id not in series_scope:
+                    continue
                 period = _reference_period(
                     label=str(event["reference_period"]),
                     release_date=str(event["release_date"]),

@@ -84,6 +84,10 @@ def build_normalized_release_calendar_plan() -> dict[str, Any]:
     """Normalize only reference periods that the official contract identifies."""
 
     source = load_nas_official_release_calendar_contract()
+    contract = load_nas_transition_pit_backfill_contract()
+    series_scope = set(
+        contract["release_calendar_normalization"]["frozen_direct_series_scope"]
+    )
     candidates: list[dict[str, Any]] = []
     blocked: list[dict[str, Any]] = []
     source_row_count = 0
@@ -95,6 +99,8 @@ def build_normalized_release_calendar_plan() -> dict[str, Any]:
     for family in exact_families:
         for event in family["scheduled_releases"]:
             for series_id in family["series_ids"]:
+                if series_id not in series_scope:
+                    continue
                 source_row_count += 1
                 period = _reference_period(str(event["reference_period"]))
                 if period is None:

@@ -299,9 +299,9 @@ def test_phase110_live_revised_import_contract_is_complete() -> None:
     assert summary["result"] == "passed"
     assert summary["nas_postgres_live_revised_import_contract_ready"] is True
     assert summary["postgres_schema_contract_ready"] is True
-    assert summary["direct_series_count"] == 26
+    assert summary["direct_series_count"] == 28
     assert summary["supporting_context_series_count"] == 1
-    assert summary["automated_revised_series_count"] == 27
+    assert summary["automated_revised_series_count"] == 29
     assert summary["derived_role_count"] == 4
     assert summary["checkpoint_resume_ready"] is True
     assert summary["candidate_phase_emitted"] is False
@@ -333,17 +333,17 @@ def test_phase110_live_import_is_operator_gated_and_imports_each_series(
     )
 
     assert report["result"] == "passed"
-    assert report["requested_series_count"] == 27
-    assert report["completed_series_count"] == 27
+    assert report["requested_series_count"] == 29
+    assert report["completed_series_count"] == 29
     assert report["failed_series_count"] == 0
-    assert report["observation_revised_row_count_planned"] == 54
-    assert len(provider.calls) == 27
-    assert len(executor.statements) == 28
+    assert report["observation_revised_row_count_planned"] == 58
+    assert len(provider.calls) == 29
+    assert len(executor.statements) == 30
     assert "CREATE SCHEMA IF NOT EXISTS macro" in executor.statements[0]
     assert all("ON CONFLICT" in sql for sql in executor.statements[1:])
     assert (tmp_path / "checkpoint.json").is_file()
     assert (tmp_path / "latest-import-report.json").is_file()
-    assert len(list((tmp_path / "fred").glob("*.csv"))) == 27
+    assert len(list((tmp_path / "fred").glob("*.csv"))) == 29
 
 
 def test_phase110_live_import_resumes_without_refetching(tmp_path: Path) -> None:
@@ -421,7 +421,7 @@ def test_show_phase110_live_revised_import_script() -> None:
     )
 
     assert "nas_postgres_live_revised_import_contract_ready=true" in completed.stdout
-    assert "direct_series_count=26" in completed.stdout
+    assert "direct_series_count=28" in completed.stdout
     assert "result=passed" in completed.stdout
 
 
@@ -531,10 +531,10 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
         series_ids = automated_revised_series_ids()
         return {
             "result": "passed",
-            "requested_series_count": 27,
-            "completed_series_count": 27,
+            "requested_series_count": 29,
+            "completed_series_count": 29,
             "failed_series_count": 0,
-            "source_artifact_count": 27,
+            "source_artifact_count": 29,
             "results": [
                 {
                     "series_id": series_id,
@@ -553,11 +553,11 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
     )
 
     assert summary["result"] == "passed"
-    assert summary["direct_series_count"] == 26
-    assert summary["automated_revised_series_count"] == 27
+    assert summary["direct_series_count"] == 28
+    assert summary["automated_revised_series_count"] == 29
     assert status["refresh_state"] == "succeeded"
-    assert status["completed_series_count"] == 27
-    assert len(status["series_refresh_results"]) == 27
+    assert status["completed_series_count"] == 29
+    assert len(status["series_refresh_results"]) == 29
     assert status["candidate_phase_emitted"] is False
     assert status["current_phase_emitted"] is False
     assert json.loads((tmp_path / "refresh-status.json").read_text()) == status
@@ -788,11 +788,11 @@ def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage(
 
     assert executor.queries == [DASHBOARD_READ_SQL]
     assert snapshot["role_snapshot_count"] == 39
-    assert snapshot["role_with_revised_snapshot_count"] == 37
-    assert snapshot["role_without_revised_snapshot_count"] == 2
-    assert snapshot["chart_available_role_count"] == 37
-    assert snapshot["series_snapshot_count"] == 27
-    assert snapshot["source_artifact_snapshot_count"] == 27
+    assert snapshot["role_with_revised_snapshot_count"] == 38
+    assert snapshot["role_without_revised_snapshot_count"] == 1
+    assert snapshot["chart_available_role_count"] == 38
+    assert snapshot["series_snapshot_count"] == 29
+    assert snapshot["source_artifact_snapshot_count"] == 29
     assert snapshot["observation_revised_total_count"] == 22131
     assert snapshot["observation_vintage_row_count"] == 0
     assert snapshot["trust_metadata"]["transaction_read_only"] is True
@@ -808,17 +808,21 @@ def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage(
     assert durable["latest_revised_observations"][0]["unit"] == "Index"
     assert durable["learning_semantics"]["phase_support_allowed"] is False
     assert roles["boom_consumer_confidence"]["snapshot_status"] == "blocked"
-    assert roles["growth_adp_employment"]["snapshot_status"] == "blocked"
+    assert roles["growth_adp_employment"]["snapshot_status"] == "revised_snapshot_ready"
+    assert roles["growth_adp_employment"]["official_series_ids"] == [
+        "ADPMNUSNERSA"
+    ]
     readiness = snapshot["full_cycle_revised_data_readiness"]
     assert readiness["all_automated_revised_inputs_in_postgres"] is True
-    assert readiness["core_revised_ready_role_count"] == 37
-    assert readiness["source_blocked_with_supporting_context_count"] == 2
+    assert readiness["core_revised_ready_role_count"] == 38
+    assert readiness["source_blocked_with_supporting_context_count"] == 1
     source_operations_html = render_nas_source_operations_page(
         snapshot["source_release_diagnostics"]
     )
     assert "四階段資料完整性" in source_operations_html
     assert "UMCSENT" in source_operations_html
-    assert "不能冒充 ADP" in source_operations_html
+    assert "ADPMNUSNERSA" in source_operations_html
+    assert "保持獨立 BLS 非農就業角色" in source_operations_html
 
 
 def test_phase122_supplementary_series_do_not_pollute_book_core_release_diagnostics() -> None:
@@ -860,9 +864,9 @@ def test_phase122_supplementary_series_do_not_pollute_book_core_release_diagnost
         snapshot_as_of="2026-07-11",
     )
 
-    assert snapshot["series_snapshot_count"] == 28
+    assert snapshot["series_snapshot_count"] == 30
     assert snapshot["technology_series_observations"]["A34SNO"]
-    assert snapshot["source_release_diagnostics"]["release_family_count"] == 12
+    assert snapshot["source_release_diagnostics"]["release_family_count"] == 13
 
 
 def test_phase111_live_runtime_renders_private_chinese_chart_surface(
@@ -875,8 +879,8 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
                 "refresh_state": "succeeded",
                 "last_completed_at_utc": "2026-07-10T01:00:00Z",
                 "next_scheduled_at_utc": "2026-07-11T01:00:00Z",
-                "requested_series_count": 27,
-                "completed_series_count": 27,
+                "requested_series_count": 29,
+                "completed_series_count": 29,
                 "failed_series_count": 0,
             },
         ),
@@ -898,8 +902,8 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
 
     assert runtime["result"] == "passed"
     assert runtime["nas_live_postgres_dashboard_runtime_ready"] is True
-    assert runtime["live_data_role_count"] == 37
-    assert runtime["chart_available_role_count"] == 37
+    assert runtime["live_data_role_count"] == 38
+    assert runtime["chart_available_role_count"] == 38
     assert status["dashboard_data_source"] == "live_postgres_read_only"
     assert status["live_db_connected"] is True
     assert status["refresh_status"]["refresh_state"] == "succeeded"
@@ -940,7 +944,7 @@ def test_phase111_live_runtime_renders_private_chinese_chart_surface(
     assert runtime["live_ordered_cycle_evidence"]["evaluated_role_count"] == 5
     assert command_center["transition_conclusion_output_count"] == 0
     assert command_center["current_phase_emitted"] is False
-    assert html.count("<details>") == 37
+    assert html.count("<details>") == 38
     assert "查看今年／過去 1 年／過去 5 年走勢" in html
     assert 'class="interactive-chart"' in html
     assert "data-chart-points=" in html
@@ -967,12 +971,12 @@ def test_phase121_transformation_learning_audit_and_closure_pass() -> None:
 
     assert audit["result"] == "passed"
     assert audit["audited_role_count"] == 39
-    assert audit["raw_level_mismatch_before_count"] == 31
+    assert audit["raw_level_mismatch_before_count"] == 32
     assert audit["raw_level_mismatch_after_count"] == 0
-    assert audit["yoy_display_role_count"] == 23
+    assert audit["yoy_display_role_count"] == 24
     assert audit["moving_average_display_role_count"] == 8
     assert audit["level_display_role_count"] == 6
-    assert audit["unavailable_display_role_count"] == 2
+    assert audit["unavailable_display_role_count"] == 1
     assert audit["smoothing_promoted_to_phase_support_count"] == 0
     assert audit["sustainable_inflation_false_confirmation_count"] == 0
     assert closure["result"] == "passed"
@@ -1053,10 +1057,10 @@ def test_phase114_release_calendar_and_failure_drilldown_are_source_specific() -
     )
 
     assert summary["result"] == "passed"
-    assert summary["release_family_count"] == 12
+    assert summary["release_family_count"] == 13
     assert summary["exact_schedule_family_count"] == 9
     assert diagnostics["release_calendar_runtime_ready"] is True
-    assert diagnostics["series_diagnostic_count"] == 26
+    assert diagnostics["series_diagnostic_count"] == 28
     assert diagnostics["official_source_delay_confirmed_count"] == 0
     assert diagnostics["observation_date_assumed_release_date_count"] == 0
     cadence = next(
@@ -1094,7 +1098,7 @@ def test_phase114_release_calendar_and_failure_drilldown_are_source_specific() -
     assert aaa["failure_reason_codes"] == ["source_fetch_failed"]
     assert aaa["error_class"] == "TimeoutError"
     assert baa["failure_reason_codes"] == ["not_attempted_after_prior_failure"]
-    assert failed["series_with_failure_reason_count"] == 26
+    assert failed["series_with_failure_reason_count"] == 28
     assert failed["refresh_failure_separated_from_source_delay"] is True
 
 
@@ -1103,8 +1107,8 @@ def test_phase114_source_operations_closure_and_script_pass() -> None:
 
     assert summary["result"] == "passed"
     assert summary["phase114_closure_ready"] is True
-    assert summary["release_family_count"] == 12
-    assert summary["series_diagnostic_count"] == 26
+    assert summary["release_family_count"] == 13
+    assert summary["series_diagnostic_count"] == 28
     assert summary["source_operations_page_authenticated_access"] is True
     assert summary["source_operations_api_authenticated_access"] is True
     assert summary["candidate_phase_emitted"] is False
@@ -1153,7 +1157,8 @@ def test_phase115_retry_preview_token_and_worker_subset_gate(tmp_path: Path) -> 
     assert summary["result"] == "passed"
     assert preview["retry_eligible"] is True
     assert preview["retry_candidate_count"] == len(series_ids) - 1
-    assert preview["retry_series_ids"][0] == "BAA"
+    assert "BAA" in preview["retry_series_ids"]
+    assert "ADPMNUSNERSA" in preview["retry_series_ids"]
     with pytest.raises(SourceRetryRestoreError, match="stale or mismatched"):
         execute_governed_source_retry(
             preview_token="stale",
@@ -1282,7 +1287,7 @@ def test_phase116_fixed_daily_and_release_aware_schedule_are_deterministic(
     assert daily["next_job"]["scheduled_at_local"].startswith(
         "2026-07-12T03:30:00+08:00"
     )
-    assert daily["next_job"]["series_count"] == 27
+    assert daily["next_job"]["series_count"] == 29
     assert release["next_job"]["trigger_kind"] == "official_release_followup"
     assert release["next_job"]["release_family_id"] == (
         "bls_consumer_price_index"
@@ -1321,7 +1326,7 @@ def test_phase116_fixed_daily_and_release_aware_schedule_are_deterministic(
     )
     assert sleeps == [70200.0]
     assert len(calls) == 1
-    assert len(calls[0]["series_ids"]) == 27
+    assert len(calls[0]["series_ids"]) == 29
     status = load_release_aware_schedule_status(
         tmp_path / "phase116" / "schedule-status.json"
     )
@@ -1879,10 +1884,10 @@ def test_phase130_full_cycle_revised_data_matrix_and_closure_pass() -> None:
     assert summary["canonical_requirement_count"] == 40
     assert summary["economic_indicator_role_count"] == 39
     assert summary["methodology_requirement_count"] == 1
-    assert summary["automated_revised_series_count"] == 27
-    assert summary["core_revised_ready_role_count"] == 37
-    assert summary["source_blocked_core_role_count"] == 2
-    assert summary["source_blocked_with_supporting_context_count"] == 2
+    assert summary["automated_revised_series_count"] == 29
+    assert summary["core_revised_ready_role_count"] == 38
+    assert summary["source_blocked_core_role_count"] == 1
+    assert summary["source_blocked_with_supporting_context_count"] == 1
     assert summary["umcsent_supporting_only_ready"] is True
     assert summary["payems_not_adp_substitution"] is True
     assert summary["derived_or_composite_lineage_missing_count"] == 0
@@ -1896,8 +1901,8 @@ def test_phase130_full_cycle_revised_data_matrix_and_closure_pass() -> None:
         capture_output=True,
         text=True,
     )
-    assert "automated_revised_series_count=27" in matrix_cli.stdout
-    assert "source_blocked_core_role_count=2" in matrix_cli.stdout
+    assert "automated_revised_series_count=29" in matrix_cli.stdout
+    assert "source_blocked_core_role_count=1" in matrix_cli.stdout
     closure_cli = subprocess.run(
         [sys.executable, "scripts/show_phase130_full_cycle_revised_data_closure.py"],
         check=True,

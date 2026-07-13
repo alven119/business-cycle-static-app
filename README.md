@@ -9,6 +9,12 @@ historical replay/backtest research surfaces. GitHub Pages deployment has been
 retired; the GitHub repository may remain as source control and CI during the
 NAS migration, but it is no longer the user-facing deployment target.
 
+The active source-reliability sequence is recorded in
+[`docs/source_reliability_resilience_roadmap_phase134_136.md`](docs/source_reliability_resilience_roadmap_phase134_136.md).
+Phase 134 corrects source identity and release-aware freshness, Phase 135 adds
+persistent source incidents and governed fallback states, and Phase 136 resolves
+consumer-confidence alternatives and source-failure drills.
+
 Phase 126 accepts the private NAS v1.0 research service operationally. It
 verifies deterministic strict-replay reruns, immutable checksummed artifact
 retention, isolated PostgreSQL/source-artifact restore, actual container

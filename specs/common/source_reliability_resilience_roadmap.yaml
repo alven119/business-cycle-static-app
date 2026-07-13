@@ -1,0 +1,59 @@
+source_reliability_resilience_roadmap:
+  version: "1.0"
+  status: active_through_phase136
+  roadmap_id: source_reliability_resilience_phase134_136
+  phase_order: [134, 135, 136]
+  phases:
+    - phase_id: 134
+      label: release_aware_freshness_and_source_identity_remediation
+      depends_on: [phase133]
+      deliverables:
+        - reference_period_end_freshness
+        - official_release_aware_freshness_reason
+        - aaa_baa_monthly_frequency_correction
+        - pnfici_nonresidential_role_wiring
+        - monthly_real_income_consumption_alignment
+        - adpmnusa_public_fred_distribution_wiring
+      deferred_to_next_phase:
+        - persistent_source_incident_center
+        - governed_fallback_recovery_receipts
+    - phase_id: 135
+      label: source_health_incident_center_and_governed_fallbacks
+      depends_on: [phase134]
+      deliverables:
+        - persistent_source_incident_registry
+        - schema_identity_unit_frequency_drift_detection
+        - release_due_but_stale_incident
+        - affected_role_and_cycle_lane_attribution
+        - governed_fallback_state_and_recovery_receipt
+      deferred_to_next_phase:
+        - consumer_confidence_multi_lane_resolution
+        - source_failure_acceptance_drills
+    - phase_id: 136
+      label: consumer_confidence_resolution_and_source_failure_drills
+      depends_on: [phase135]
+      deliverables:
+        - exact_conference_board_access_gap_preserved
+        - oecd_directional_near_equivalent_lane
+        - umich_independent_proxy_lane
+        - nyfed_sce_explanatory_components
+        - deterministic_source_failure_and_recovery_drills
+  safety:
+    revised_mislabeled_as_point_in_time_count: 0
+    silent_substitution_count: 0
+    arbitrary_composite_score_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    declared_cycle_state_modified: false
+    personalized_portfolio_instruction_count: 0
+    public_output_count: 0
+    paid_portal_runtime_dependency_count: 0
+  hard_gates:
+    roadmap_ready: true
+    roadmap_phase_count: 3
+    dependency_order_valid: true
+    phase134_scope_recorded: true
+    phase135_scope_recorded: true
+    phase136_scope_recorded: true
+    semantic_drift_count: 0
+    production_behavior_change_count: 0

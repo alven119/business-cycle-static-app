@@ -10,6 +10,7 @@ full_cycle_revised_data_readiness_contract:
     live_import: specs/common/nas_postgres_live_revised_import_contract.yaml
     live_dashboard: specs/common/nas_live_postgres_dashboard_contract.yaml
     low_cost_sources: specs/common/low_cost_macro_source_completion.yaml
+    phase134_source_remediation: specs/common/release_aware_freshness_source_identity_remediation.yaml
   matrix_policy:
     canonical_requirement_included: true
     methodology_requirement_separate_from_indicator_denominator: true
@@ -51,10 +52,12 @@ full_cycle_revised_data_readiness_contract:
       blocker: no_public_official_equivalent
       user_impact_zh: 可觀察密大消費者信心作旁證，但不能稱為書中 Conference Board 消費者信心。
       next_action_zh: 未來可由使用者提供合法授權資料；在此之前維持 book-core blocked。
+  remediated_core_roles:
     - role_id: growth_adp_employment
-      blocker: proprietary_access_required
-      user_impact_zh: 可觀察官方非農就業作旁證，但不能稱為 ADP 私部門就業。
-      next_action_zh: 未來可由使用者提供合法授權 ADP 資料；在此之前維持 book-core blocked。
+      series_id: ADPMNUSNERSA
+      source_status: private_copyrighted_source_distributed_by_fred
+      user_impact_zh: 可在私人 NAS 顯示 ADP 私部門就業 revised 歷史，但須保留引用、年度重設基準與非 PIT 風險。
+      prohibited_substitution_zh: PAYEMS 保持獨立 BLS 非農就業角色，不作 ADP 替代。
   allowed_uses:
     - private_nas_full_cycle_data_readiness
     - revised_history_and_current_chart_inputs
@@ -75,11 +78,11 @@ full_cycle_revised_data_readiness_contract:
     economic_indicator_role_count: 39
     methodology_requirement_count: 1
     phase_count: 4
-    canonical_direct_input_series_count: 26
+    canonical_direct_input_series_count: 28
     supplemental_automated_series_count: 1
-    automated_revised_series_count: 27
-    core_revised_ready_role_count: 37
-    source_blocked_core_role_count: 2
+    automated_revised_series_count: 29
+    core_revised_ready_role_count: 38
+    source_blocked_core_role_count: 1
     supporting_proxy_role_count: 2
     derived_or_composite_role_count: 7
     derived_or_composite_lineage_missing_count: 0

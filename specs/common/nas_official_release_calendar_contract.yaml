@@ -33,6 +33,15 @@ nas_official_release_calendar_contract:
       official_calendar_url: https://fred.stlouisfed.org/
       cadence_rule: 美國營業日更新；精確 FRED 入庫時間不作官方發布日承諾
       scheduled_releases: []
+    - release_family_id: adp_national_employment_report_via_fred
+      title_zh: ADP 全美就業報告（經 FRED）
+      agency_zh: Automatic Data Processing, Inc.／聖路易聯準銀行 FRED
+      series_ids: [ADPMNUSNERSA]
+      calendar_precision: cadence_only
+      publication_time_zone: America/New_York
+      official_calendar_url: https://adpemploymentreport.com/
+      cadence_rule: 每月發布；FRED 入庫時間不作精確官方 availability 承諾，年度 QCEW 重設基準須顯示
+      scheduled_releases: []
     - release_family_id: census_manufacturing_trade_inventories_sales
       title_zh: 製造與商業存貨及銷售
       agency_zh: 美國普查局
@@ -48,7 +57,7 @@ nas_official_release_calendar_contract:
     - release_family_id: bea_nipa_gdp
       title_zh: BEA 國民所得與生產帳 GDP
       agency_zh: 美國經濟分析局
-      series_ids: [CBIC1, EXPGS, FPIC1, IMPGS, PRFIC1, SLCEC1, W006RC1Q027SBEA]
+      series_ids: [CBIC1, EXPGS, FPIC1, IMPGS, PNFIC1, PRFIC1, SLCEC1, W006RC1Q027SBEA]
       calendar_precision: exact_schedule
       publication_time_zone: America/New_York
       official_calendar_url: https://www.bea.gov/news/schedule/
@@ -175,10 +184,10 @@ nas_official_release_calendar_contract:
     - trade_action
   hard_gates:
     nas_official_release_calendar_contract_ready: true
-    direct_series_count: 26
-    release_family_count: 12
+    direct_series_count: 28
+    release_family_count: 13
     exact_schedule_family_count: 9
-    cadence_only_family_count: 2
+    cadence_only_family_count: 3
     reference_only_family_count: 1
     series_without_release_family_count: 0
     duplicate_series_mapping_count: 0

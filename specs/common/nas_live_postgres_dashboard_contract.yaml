@@ -1,5 +1,5 @@
 nas_live_postgres_dashboard_contract:
-  version: "1.1"
+  version: "1.2"
   status: active_private_nas_runtime_contract
   phase_id: 111
   phase_label: nas_dashboard_live_postgres_read_path
@@ -8,6 +8,7 @@ nas_live_postgres_dashboard_contract:
     - specs/common/nas_service_dashboard_contract.yaml
     - specs/common/book_core_role_display_labels_zh.yaml
     - specs/common/indicator_transformation_learning_semantics.yaml
+    - specs/common/release_aware_freshness_source_identity_remediation.yaml
     - specs/common/postgres_macro_warehouse_contract.yaml
   database_read_policy:
     database_url_env: BUSINESS_CYCLE_DATABASE_URL
@@ -50,6 +51,11 @@ nas_live_postgres_dashboard_contract:
     monthly: 75
     quarterly: 180
     annual: 550
+  active_role_series_overrides:
+    growth_adp_employment: [ADPMNUSNERSA]
+    growth_private_nonresidential_fixed_investment: [PNFIC1]
+    recovery_private_nonresidential_fixed_investment: [PNFIC1]
+    growth_real_disposable_income_vs_consumption: [DSPIC96, PCEC96]
   derived_display_series:
     credit_spread_baa_aaa:
       component_series_ids: [BAA, AAA]
@@ -91,7 +97,7 @@ nas_live_postgres_dashboard_contract:
     live_snapshot_materializer_ready: true
     live_runtime_wiring_ready: true
     role_count: 39
-    source_blocked_role_count: 2
+    source_blocked_role_count: 1
     derived_display_role_count: 4
     chart_period_count: 3
     interactive_chart_tooltip_ready: true

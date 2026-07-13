@@ -142,12 +142,12 @@ indicator_transformation_learning_semantics:
       declared_boom_context_zh: 榮景後期支出降溫是廣度脈絡，不能單獨確認衰退。
       caveat_zh: 支出與政府收入是不同角色，不能互相替代。
     growth_adp_employment:
-      transform_profile_id: unavailable
-      interpretation_name_zh: ADP 私部門就業（授權缺口）
-      high_or_rising_meaning_zh: 若取得合法資料，成長增加通常表示私部門聘僱較強。
-      low_or_falling_meaning_zh: 若取得合法資料，成長放緩通常表示聘僱動能轉弱。
-      declared_boom_context_zh: 目前維持 proprietary access blocked，不用 PAYEMS 冒充 ADP。
-      caveat_zh: 無合法可重現來源時不產生圖表。
+      transform_profile_id: year_over_year_percent_change
+      interpretation_name_zh: ADP 私部門就業年增率
+      high_or_rising_meaning_zh: 年增率升高通常表示私部門聘僱動能增強。
+      low_or_falling_meaning_zh: 年增率放緩或轉負通常表示私部門聘僱動能轉弱。
+      declared_boom_context_zh: 榮景後期 ADP 就業動能回落可作勞動需求降溫脈絡；不能單獨確認衰退。
+      caveat_zh: ADPMNUSNERSA 是私人著作權來源經 FRED 散布，年度 QCEW 重設基準會修訂歷史；PAYEMS 不是替代品。
     growth_core_cpi:
       transform_profile_id: year_over_year_percent_change
       interpretation_name_zh: 核心 CPI 年增率
@@ -189,7 +189,7 @@ indicator_transformation_learning_semantics:
       high_or_rising_meaning_zh: 升高代表企業資本支出與擴產意願增強。
       low_or_falling_meaning_zh: 放緩或轉負代表企業投資意願弱化。
       declared_boom_context_zh: 榮景後期投資動能回落可提示成本、利率或需求壓力。
-      caveat_zh: 現有 FPIC1 涵蓋範圍較廣，頁面必須保留 source-scope 風險。
+      caveat_zh: 使用 BEA PNFIC1 的實質民間非住宅範圍；季資料仍受例行與 benchmark revision 影響。
     growth_real_disposable_income_vs_consumption:
       transform_profile_id: year_over_year_percent_change
       interpretation_name_zh: 實質可支配所得與實質消費年增率
@@ -280,7 +280,7 @@ indicator_transformation_learning_semantics:
       high_or_rising_meaning_zh: 回升表示企業投資活動改善。
       low_or_falling_meaning_zh: 持續下滑表示企業資本支出仍弱。
       declared_boom_context_zh: 榮景期同一序列轉弱屬投資降溫脈絡，不自動切換 phase。
-      caveat_zh: 季資料及涵蓋範圍風險需保留。
+      caveat_zh: 使用 BEA PNFIC1 的實質民間非住宅範圍；季資料及 revision 風險需保留。
     recovery_real_pce_durable_goods:
       transform_profile_id: year_over_year_percent_change
       interpretation_name_zh: 實質耐久財消費年增率
@@ -343,11 +343,11 @@ indicator_transformation_learning_semantics:
     audited_role_count: 39
     role_without_transform_count: 0
     role_without_learning_semantics_count: 0
-    yoy_display_role_count: 23
+    yoy_display_role_count: 24
     moving_average_display_role_count: 8
     level_display_role_count: 6
-    unavailable_display_role_count: 2
-    raw_level_mismatch_before_count: 31
+    unavailable_display_role_count: 1
+    raw_level_mismatch_before_count: 32
     raw_level_mismatch_after_count: 0
     nominal_real_mislabel_count: 0
     smoothing_promoted_to_phase_support_count: 0

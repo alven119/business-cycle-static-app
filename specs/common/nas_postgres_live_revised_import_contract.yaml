@@ -15,6 +15,7 @@ nas_postgres_live_revised_import_contract:
     database_url_env: BUSINESS_CYCLE_DATABASE_URL
     direct_series_ids:
       - AAA
+      - ADPMNUSNERSA
       - BAA
       - BUSINV
       - CBIC1
@@ -34,6 +35,7 @@ nas_postgres_live_revised_import_contract:
       - PCEC96
       - PCEDGC96
       - PCEPILFE
+      - PNFIC1
       - PRFIC1
       - PSAVERT
       - RRSFS
@@ -82,9 +84,9 @@ nas_postgres_live_revised_import_contract:
   hard_gates:
     nas_postgres_live_revised_import_contract_ready: true
     postgres_schema_contract_ready: true
-    direct_series_count: 26
+    direct_series_count: 28
     supporting_context_series_count: 1
-    automated_revised_series_count: 27
+    automated_revised_series_count: 29
     derived_role_count: 4
     full_history_requested: true
     migration_idempotent: true

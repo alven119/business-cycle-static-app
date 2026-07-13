@@ -168,13 +168,15 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     <table><thead><tr><th>書籍角色</th><th>核心狀態</th><th>可用旁證</th><th>不可混用原因</th></tr></thead>
       <tbody>{blocked_context_rows}</tbody></table>
     <p class="meta"><code>UMCSENT</code> 由 FRED 提供但依來源要求延遲一個月；它是密大消費者信心，
-    不是 Conference Board Consumer Confidence。<code>PAYEMS</code> 是 BLS 非農就業，不能冒充 ADP。</p>
+    不是 Conference Board Consumer Confidence。ADP 角色使用 FRED 公開散布的
+    <code>ADPMNUSNERSA</code>，但仍標示私人著作權、年度 QCEW 重設基準與 revised-only 風險；
+    <code>PAYEMS</code> 保持獨立 BLS 非農就業角色。</p>
   </details>
   <h2>每個官方發布來源</h2>
   <section class="families">{families}</section>
   <h2>逐序列 refresh drilldown</h2>
   <details><summary>展開 {int(diagnostics['series_diagnostic_count'])} 個序列</summary>
-    <table><thead><tr><th>序列</th><th>發布家族</th><th>最新觀察</th><th>新鮮度</th><th>最近 refresh</th><th>原因</th></tr></thead>
+    <table><thead><tr><th>序列</th><th>發布家族</th><th>觀察日／參考期末</th><th>新鮮度</th><th>最近 refresh</th><th>原因</th></tr></thead>
     <tbody>{series_rows}</tbody></table>
   </details>
   <p class="meta">此頁不執行 refresh、不提供交易或配置指示，也不會由發布狀態推論目前景氣階段。</p>
@@ -212,12 +214,21 @@ def _family_card(row: dict[str, Any]) -> str:
 
 
 def _series_row(row: dict[str, Any]) -> str:
-    reasons = ", ".join(row.get("failure_reason_codes", [])) or "無"
+    reasons = ", ".join(
+        [
+            *row.get("failure_reason_codes", []),
+            str(row.get("freshness_reason_code") or ""),
+        ]
+    ).strip(", ") or "無"
+    observation_context = (
+        f"{row.get('latest_observation_date') or '無'} / "
+        f"{row.get('reference_period_end_date') or '無'}"
+    )
     return (
         "<tr>"
         f"<td><code>{escape(str(row['series_id']))}</code></td>"
         f"<td>{escape(str(row['release_family_id']))}</td>"
-        f"<td>{escape(str(row.get('latest_observation_date') or '無'))}</td>"
+        f"<td>{escape(observation_context)}</td>"
         f"<td>{escape(str(row['freshness_status']))}</td>"
         f"<td>{escape(str(row['last_refresh_result']))}</td>"
         f"<td>{escape(reasons)}</td>"
@@ -306,7 +317,7 @@ def _default_warehouse_mode_counts() -> dict[str, int]:
 
 def _default_full_cycle_data_readiness() -> dict[str, Any]:
     return {
-        "automated_revised_series_count": 27,
+        "automated_revised_series_count": 29,
         "automated_revised_series_available_count": 0,
         "core_revised_ready_role_count": 0,
         "phase_rows": [
@@ -346,12 +357,10 @@ def _phase_readiness_row(row: dict[str, Any]) -> str:
 def _blocked_context_row(row: dict[str, Any]) -> str:
     role_labels = {
         "boom_consumer_confidence": "消費者信心（Conference Board 概念）",
-        "growth_adp_employment": "ADP 私部門就業",
     }
     supporting = ", ".join(row["available_supporting_series_ids"]) or "尚未入庫"
     reason = {
         "boom_consumer_confidence": "密大 sentiment 只作旁證，調查設計與 Conference Board 不同。",
-        "growth_adp_employment": "PAYEMS 是官方非農就業，但不是 ADP 私部門就業報告。",
     }.get(str(row["role_id"]), "替代來源不得靜默升格為 book-core。")
     return (
         "<tr>"

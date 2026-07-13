@@ -21,6 +21,7 @@ from business_cycle.storage.nas_postgres_live_revised_import import (
     automated_revised_series_ids,
     load_nas_postgres_live_revised_import_contract,
 )
+from business_cycle.service.nas_release_aware_freshness import role_series_overrides
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = (
@@ -53,6 +54,7 @@ def build_full_cycle_role_data_matrix(
         str(row["role_id"]): row for row in build_book_phase_evidence_rule_rows()
     }
     derived = _derived_display_series()
+    active_overrides = role_series_overrides()
     supporting = _supporting_by_role(contract)
     rows: list[dict[str, Any]] = []
     for role_type in build_book_core_role_type_rows():
@@ -60,16 +62,16 @@ def build_full_cycle_role_data_matrix(
         methodology = not bool(role_type["counts_in_indicator_denominator"])
         card = cards.get(role_id)
         rule = rules.get(role_id)
-        official_ids = list(card["official_series_ids"]) if card else []
+        official_ids = active_overrides.get(
+            role_id,
+            list(card["official_series_ids"]) if card else [],
+        )
         raw_ids = _raw_input_series_ids(official_ids, derived)
         derived_or_composite = bool(
             any(series_id in derived for series_id in official_ids)
             or len(official_ids) > 1
         )
-        source_blocked = role_id in {
-            "boom_consumer_confidence",
-            "growth_adp_employment",
-        }
+        source_blocked = role_id == "boom_consumer_confidence"
         rows.append(
             {
                 "role_id": role_id,
@@ -111,11 +113,18 @@ def build_full_cycle_role_data_matrix(
                 "source_risk_level": (
                     "not_applicable_methodology"
                     if methodology
+                    else "medium"
+                    if role_id == "growth_adp_employment"
                     else str(card["data_risk_level"])
                 ),
                 "source_risk_label_zh": (
                     "發布時差屬時間完整性要求，不是數值指標。"
                     if methodology
+                    else (
+                        "中：ADP 私人來源由 FRED 公開散布；需保留著作權引用、"
+                        "年度 QCEW 重設基準與 revised-only 風險。"
+                    )
+                    if role_id == "growth_adp_employment"
                     else str(card["source_risk_label_zh"])
                 ),
                 "supporting_proxy_only": source_blocked,

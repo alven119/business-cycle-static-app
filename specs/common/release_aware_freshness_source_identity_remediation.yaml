@@ -1,0 +1,72 @@
+release_aware_freshness_source_identity_remediation:
+  version: "1.0"
+  status: active_private_nas_runtime_remediation
+  phase_id: 134
+  phase_label: release_aware_freshness_and_source_identity_remediation
+  depends_on:
+    - specs/common/source_reliability_resilience_roadmap.yaml
+    - specs/common/nas_postgres_live_revised_import_contract.yaml
+    - specs/common/nas_official_release_calendar_contract.yaml
+    - specs/common/series_release_lag_registry.yaml
+  freshness_policy:
+    preserve_observation_date: true
+    reference_period_end_required: true
+    exact_release_schedule_preferred: true
+    exact_release_reference_must_not_be_newer_than_as_of: true
+    fallback_to_frequency_window_allowed: true
+    observation_period_start_may_not_create_false_stale: true
+    observation_date_may_not_equal_release_date: true
+  source_identity_remediations:
+    - role_ids: [growth_adp_employment]
+      series_ids: [ADPMNUSNERSA]
+      source_family: ADP National Employment Report via FRED
+      source_scope: private_nonfarm_payroll_employment
+      equivalence_status: direct_book_concept_revised_only
+      risk_level: medium
+      risk_notes:
+        - private_source_copyright_citation_required
+        - annual_qcew_rebenchmarking
+        - revised_history_not_strict_point_in_time
+        - PAYEMS_is_not_a_substitute
+    - role_ids:
+        - growth_private_nonresidential_fixed_investment
+        - recovery_private_nonresidential_fixed_investment
+      series_ids: [PNFIC1]
+      source_family: BEA NIPA GDP via FRED
+      source_scope: real_private_nonresidential_fixed_investment
+      equivalence_status: verified_direct
+      risk_level: low
+      risk_notes:
+        - quarterly_revised_series
+        - FPIC1_is_broader_private_fixed_investment
+    - role_ids: [growth_real_disposable_income_vs_consumption]
+      series_ids: [DSPIC96, PCEC96]
+      source_family: BEA Personal Income and Outlays via FRED
+      source_scope: same_as_of_real_monthly_cross_series_relation
+      equivalence_status: verified_derived_inputs
+      risk_level: low_medium
+      risk_notes:
+        - relation_rule_remains_separate_from_source_readiness
+        - PCECC96_may_not_be_used_for_monthly_alignment
+  unresolved_exact_source_roles:
+    - boom_consumer_confidence
+  prohibited_substitutions:
+    - PAYEMS_for_ADPMNUSNERSA
+    - FPIC1_for_nonresidential_scope
+    - PCECC96_for_monthly_PCEC96_relation
+    - generic_sentiment_for_conference_board_confidence
+  hard_gates:
+    release_aware_freshness_contract_ready: true
+    source_identity_remediation_count: 3
+    remediated_role_count: 4
+    exact_source_blocked_role_count: 1
+    aaa_baa_frequency_corrected_count: 2
+    false_resolution_count: 0
+    silent_substitution_count: 0
+    revised_mislabeled_as_point_in_time_count: 0
+    current_data_used_to_infer_declared_phase_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    development_next_phase: 135

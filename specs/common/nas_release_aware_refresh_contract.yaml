@@ -38,9 +38,9 @@ nas_release_aware_refresh_contract:
     automatic_deletion_enabled: false
     operator_delete_gate_deferred: true
   completeness_policy:
-    direct_revised_series_count: 26
+    direct_revised_series_count: 28
     supporting_context_series_count: 1
-    automated_revised_series_count: 27
+    automated_revised_series_count: 29
     direct_revised_history_loaded: true
     derived_roles_materialized_on_read: true
     vintage_history_loaded: false
@@ -77,9 +77,9 @@ nas_release_aware_refresh_contract:
     canonical_subset_enforced: true
     backup_retention_preview_ready: true
     backup_retention_automatic_delete_count: 0
-    direct_revised_series_count: 26
+    direct_revised_series_count: 28
     supporting_context_series_count: 1
-    automated_revised_series_count: 27
+    automated_revised_series_count: 29
     macro_history_all_modes_complete: false
     candidate_phase_emitted: false
     current_phase_emitted: false

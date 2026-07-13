@@ -49,7 +49,7 @@ phase116_nas_release_aware_refresh_closure:
     backup_retention_preview_ready: true
     backup_retention_automatic_delete_count: 0
     retention_delete_execution_count: 0
-    direct_revised_series_count: 26
+    direct_revised_series_count: 28
     revised_direct_source_scope_complete: true
     observation_revised_row_count_positive: true
     observation_vintage_row_count: 0

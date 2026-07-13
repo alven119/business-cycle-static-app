@@ -518,9 +518,9 @@ def build_nas_live_dashboard_runtime(
     runtime["nas_live_postgres_dashboard_runtime_ready"] = (
         dashboard["nas_service_dashboard_ready"] is True
         and runtime["role_count"] == 39
-        and runtime["live_data_role_count"] == 37
-        and runtime["source_blocked_role_count"] == 2
-        and runtime["chart_available_role_count"] == 37
+        and runtime["live_data_role_count"] == 38
+        and runtime["source_blocked_role_count"] == 1
+        and runtime["chart_available_role_count"] == 38
         and runtime["source_release_diagnostics"]["release_calendar_runtime_ready"]
         is True
         and runtime["dashboard_bundle"]["command_center"][
@@ -535,11 +535,11 @@ def build_nas_live_dashboard_runtime(
         and runtime["full_cycle_revised_data_readiness"][
             "core_revised_ready_role_count"
         ]
-        == 37
+        == 38
         and runtime["full_cycle_revised_data_readiness"][
             "source_blocked_core_role_count"
         ]
-        == 2
+        == 1
         and runtime["transaction_read_only_enforced"] is True
         and runtime["postgres_write_attempt_count"] == 0
         and runtime["candidate_phase_emitted"] is False

@@ -62,6 +62,33 @@ nas_transition_pit_backfill_contract:
     duplicate_primary_key_policy: retain_earliest_registered_event_and_defer_revisions
     actual_release_at_utc_policy: null_until_verified
     observation_date_as_release_date_allowed: false
+    frozen_direct_series_scope:
+      - AAA
+      - BAA
+      - BUSINV
+      - CBIC1
+      - CCSA
+      - CPILFESL
+      - DGORDER
+      - DRBLACBS
+      - DRCLACBS
+      - DSPIC96
+      - EXPGS
+      - FEDFUNDS
+      - FPIC1
+      - ICSA
+      - IMPGS
+      - INDPRO
+      - PAYEMS
+      - PCEC96
+      - PCEDGC96
+      - PCEPILFE
+      - PRFIC1
+      - PSAVERT
+      - RRSFS
+      - SLCEC1
+      - UEMPLT5
+      - W006RC1Q027SBEA
   execution_policy:
     explicit_operator_confirmation_required: true
     checkpoint_after_each_series: true

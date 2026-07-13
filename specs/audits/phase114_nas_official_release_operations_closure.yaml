@@ -23,9 +23,9 @@ phase114_nas_official_release_operations_closure:
     refresh_status_per_series_results_ready: true
     source_operations_renderer_ready: true
     private_source_operations_route_count: 2
-    direct_series_count: 26
-    release_family_count: 12
-    series_diagnostic_count: 26
+    direct_series_count: 28
+    release_family_count: 13
+    series_diagnostic_count: 28
     exact_schedule_family_count: 9
     source_operations_page_authenticated_access: true
     source_operations_api_authenticated_access: true

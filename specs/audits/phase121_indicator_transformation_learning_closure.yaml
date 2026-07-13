@@ -16,11 +16,11 @@ phase121_indicator_transformation_learning_closure:
     audited_role_count: 39
     role_without_transform_count: 0
     role_without_learning_semantics_count: 0
-    yoy_display_role_count: 23
+    yoy_display_role_count: 24
     moving_average_display_role_count: 8
     level_display_role_count: 6
-    unavailable_display_role_count: 2
-    raw_level_mismatch_before_count: 31
+    unavailable_display_role_count: 1
+    raw_level_mismatch_before_count: 32
     raw_level_mismatch_after_count: 0
     chart_source_lookback_years: 6
     raw_source_value_preserved: true

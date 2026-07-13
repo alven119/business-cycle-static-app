@@ -20,19 +20,19 @@ phase130_full_cycle_revised_data_closure:
     economic_indicator_role_count: 39
     methodology_requirement_count: 1
     phase_count: 4
-    canonical_direct_input_series_count: 26
+    canonical_direct_input_series_count: 28
     supplemental_automated_series_count: 1
-    automated_revised_series_count: 27
+    automated_revised_series_count: 29
     all_automated_revised_inputs_in_postgres_contract_ready: true
-    core_revised_ready_role_count: 37
-    source_blocked_core_role_count: 2
-    source_blocked_with_supporting_context_count: 2
+    core_revised_ready_role_count: 38
+    source_blocked_core_role_count: 1
+    source_blocked_with_supporting_context_count: 1
     umcsent_supporting_only_ready: true
     payems_not_adp_substitution: true
     generic_sentiment_not_consumer_confidence_substitution: true
     derived_or_composite_lineage_missing_count: 0
     release_delay_risk_visible: true
-    fixed_daily_automated_series_count: 27
+    fixed_daily_automated_series_count: 29
     source_operations_matrix_ready: true
     silent_substitution_count: 0
     supporting_proxy_promoted_to_core_count: 0

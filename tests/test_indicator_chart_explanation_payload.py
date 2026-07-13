@@ -135,7 +135,7 @@ def test_phase121_display_transformations_are_causal_role_specific_and_audited()
 
     assert audit["result"] == "passed"
     assert audit["audited_role_count"] == 39
-    assert audit["raw_level_mismatch_before_count"] == 31
+    assert audit["raw_level_mismatch_before_count"] == 32
     assert audit["raw_level_mismatch_after_count"] == 0
     assert audit["role_without_learning_semantics_count"] == 0
     assert yoy_rows[-1]["value_numeric"] == "10"

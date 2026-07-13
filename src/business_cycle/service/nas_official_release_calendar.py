@@ -143,8 +143,8 @@ def build_nas_official_release_diagnostics(
         "prohibited_uses": contract["prohibited_outputs"],
     }
     diagnostics["release_calendar_runtime_ready"] = (
-        len(family_rows) == 12
-        and len(series_rows) == 26
+        len(family_rows) == len(contract["release_families"])
+        and len(series_rows) == len(expected)
         and diagnostics["observation_date_assumed_release_date_count"] == 0
         and diagnostics["official_source_delay_confirmed_count"] == 0
     )
@@ -291,7 +291,9 @@ def _series_diagnostic(
         "release_family_id": family["release_family_id"],
         "calendar_precision": family["calendar_precision"],
         "latest_observation_date": source_input.get("latest_observation_date"),
+        "reference_period_end_date": source_input.get("reference_period_end_date"),
         "freshness_status": source_input.get("freshness_status", "unavailable"),
+        "freshness_reason_code": source_input.get("freshness_reason_code"),
         "last_refresh_result": state,
         "error_class": error_class,
         "failure_reason_codes": reason_codes,

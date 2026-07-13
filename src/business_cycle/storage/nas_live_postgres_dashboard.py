@@ -32,6 +32,10 @@ from business_cycle.storage.nas_postgres_live_revised_import import (
 from business_cycle.service.nas_official_release_calendar import (
     build_nas_official_release_diagnostics,
 )
+from business_cycle.service.nas_release_aware_freshness import (
+    build_release_aware_freshness,
+    summarize_release_aware_freshness_source_identity_remediation,
+)
 from business_cycle.service.nas_source_retry_restore import (
     build_source_retry_preview,
     default_source_operations_status,
@@ -196,6 +200,7 @@ def summarize_nas_live_postgres_dashboard_contract(
 ) -> dict[str, Any]:
     contract = load_nas_live_postgres_dashboard_contract(path)
     baseline = build_nas_indicator_snapshot_manifest()
+    remediation = summarize_release_aware_freshness_source_identity_remediation()
     derived = contract["derived_display_series"]
     summary = {
         "phase": 111,
@@ -204,7 +209,7 @@ def summarize_nas_live_postgres_dashboard_contract(
         "live_snapshot_materializer_ready": True,
         "live_runtime_wiring_ready": _runtime_wiring_ready(),
         "role_count": baseline["role_snapshot_count"],
-        "source_blocked_role_count": baseline["role_without_revised_snapshot_count"],
+        "source_blocked_role_count": remediation["exact_source_blocked_role_count"],
         "derived_display_role_count": len(derived),
         "chart_period_count": len(contract["data_policy"]["chart_periods"]),
         "interactive_chart_tooltip_ready": all(
@@ -492,11 +497,12 @@ def _series_release_inputs(
         observations = observations_by_series.get(series_id, [])
         latest = date.fromisoformat(observations[-1]["observation_date"]) if observations else None
         freshness = (
-            _freshness(
-                latest_date=latest,
+            build_release_aware_freshness(
+                series_id=series_id,
+                latest_observation_date=latest,
                 as_of=as_of,
                 frequency=str(series_rows[series_id].get("frequency", "")),
-                windows=freshness_windows,
+                freshness_windows=freshness_windows,
             )
             if latest is not None
             else {"freshness_status": "unavailable"}
@@ -507,6 +513,10 @@ def _series_release_inputs(
                 "frequency": series_rows[series_id].get("frequency"),
                 "latest_observation_date": latest.isoformat() if latest else None,
                 "freshness_status": freshness["freshness_status"],
+                "freshness_reason_code": freshness.get("freshness_reason_code"),
+                "reference_period_end_date": freshness.get(
+                    "reference_period_end_date"
+                ),
             }
         )
     return rows
@@ -523,6 +533,15 @@ def _live_role_snapshot(
     contract: dict[str, Any],
     learning_contract: dict[str, Any],
 ) -> dict[str, Any]:
+    active_overrides = {
+        str(key): [str(value) for value in values]
+        for key, values in contract.get("active_role_series_overrides", {}).items()
+    }
+    role_id = str(baseline["role_id"])
+    active_series_ids = active_overrides.get(
+        role_id,
+        list(baseline["official_series_ids"]),
+    )
     series_contexts = [
         _materialize_display_series(
             series_id,
@@ -531,7 +550,7 @@ def _live_role_snapshot(
             artifact_rows=artifact_rows,
             derived=derived,
         )
-        for series_id in baseline["official_series_ids"]
+        for series_id in active_series_ids
     ]
     series_contexts = [row for row in series_contexts if row is not None]
     chart_series = [
@@ -554,14 +573,20 @@ def _live_role_snapshot(
         if row.get("latest_interpretation") is not None
     ]
     latest = [row["latest_observation"] for row in series_contexts]
-    source_blocked = not baseline["official_series_ids"]
+    source_blocked = not active_series_ids
     available = bool(latest) and not source_blocked
-    blocked_reasons = list(baseline["blocked_reason_codes"])
+    blocked_reasons = _active_blocked_reasons(
+        list(baseline["blocked_reason_codes"]),
+        override_applied=role_id in active_overrides,
+        available=available,
+    )
     if not available and not blocked_reasons:
         blocked_reasons.append("live_postgres_series_unavailable")
     freshness_rows = [row["freshness"] for row in chart_series]
     return {
         **baseline,
+        "official_series_ids": active_series_ids,
+        "active_source_identity_remediation_applied": role_id in active_overrides,
         "snapshot_status": "revised_snapshot_ready" if available else "blocked",
         "data_mode": "revised_diagnostic" if available else "unavailable",
         "latest_revised_observations": latest,
@@ -772,11 +797,12 @@ def _series_chart_payload(
         for row in contract["data_policy"]["chart_periods"]
     ]
     latest_date = date.fromisoformat(context["latest_observation"]["observation_date"])
-    freshness = _freshness(
-        latest_date=latest_date,
+    freshness = build_release_aware_freshness(
+        series_id=str(context["component_series_ids"][0]),
+        latest_observation_date=latest_date,
         as_of=as_of_date,
         frequency=context["frequency"],
-        windows=contract["freshness_windows_days"],
+        freshness_windows=contract["freshness_windows_days"],
     )
     return {
         "series_id": context["series_id"],
@@ -849,39 +875,6 @@ def _period_payload(
     }
 
 
-def _freshness(
-    *,
-    latest_date: date,
-    as_of: date,
-    frequency: str,
-    windows: dict[str, Any],
-) -> dict[str, Any]:
-    normalized = str(frequency).strip().lower()
-    aliases = {
-        "daily": "daily",
-        "weekly": "weekly",
-        "monthly": "monthly",
-        "quarterly": "quarterly",
-        "annual": "annual",
-    }
-    family = next((value for key, value in aliases.items() if key in normalized), None)
-    if family is None:
-        return {
-            "freshness_status": "unknown_frequency",
-            "latest_observation_date": latest_date.isoformat(),
-            "age_days": (as_of - latest_date).days,
-            "stale_after_days": None,
-        }
-    age_days = max(0, (as_of - latest_date).days)
-    stale_after = int(windows[family])
-    return {
-        "freshness_status": "fresh" if age_days <= stale_after else "stale",
-        "latest_observation_date": latest_date.isoformat(),
-        "age_days": age_days,
-        "stale_after_days": stale_after,
-    }
-
-
 def _role_freshness_status(rows: list[dict[str, Any]]) -> str:
     if not rows:
         return "unavailable"
@@ -889,6 +882,29 @@ def _role_freshness_status(rows: list[dict[str, Any]]) -> str:
     if len(statuses) == 1:
         return next(iter(statuses))
     return "mixed"
+
+
+def _active_blocked_reasons(
+    reasons: list[str],
+    *,
+    override_applied: bool,
+    available: bool,
+) -> list[str]:
+    if not override_applied or not available:
+        return reasons
+    source_fragments = (
+        "source",
+        "access",
+        "license",
+        "authorized",
+        "proprietary",
+        "official_series",
+    )
+    return [
+        reason
+        for reason in reasons
+        if not any(fragment in str(reason).lower() for fragment in source_fragments)
+    ]
 
 
 def _observations_by_series(rows: Any) -> dict[str, list[dict[str, Any]]]:

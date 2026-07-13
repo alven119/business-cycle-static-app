@@ -216,8 +216,11 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase133_historical_transition_policy_timeline_closure.py" in (
+    assert "scripts/show_phase134_release_aware_source_identity_closure.py" in (
         FULL_CLOSURE_SCRIPTS
+    )
+    assert "scripts/show_phase133_historical_transition_policy_timeline_closure.py" in (
+        NIGHTLY_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase129_governed_cycle_transition_closure.py" in (
         NIGHTLY_CLOSURE_SCRIPTS
