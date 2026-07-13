@@ -60,6 +60,10 @@ from business_cycle.audits.phase135_source_incident_center_closure import (
 from business_cycle.audits.phase136_consumer_confidence_sources_closure import (
     summarize_phase136_consumer_confidence_sources_closure,
 )
+from business_cycle.audits.phase137_nyfed_sce_components_closure import (
+    build_offline_nyfed_sce_fixture,
+    summarize_phase137_nyfed_sce_components_closure,
+)
 from business_cycle.validation.historical_pit_transition_events import (
     build_historical_pit_transition_event_registry,
 )
@@ -116,6 +120,13 @@ from business_cycle.service.nas_consumer_confidence_sources import (
     parse_oecd_consumer_confidence_csv,
     run_oecd_consumer_confidence_import,
     summarize_consumer_confidence_source_contract,
+)
+from business_cycle.service.nas_nyfed_sce_components import (
+    CONFIRMATION as NYFED_SCE_CONFIRMATION,
+    NyfedSceSourceError,
+    parse_nyfed_sce_workbook,
+    run_nyfed_sce_component_import,
+    summarize_nyfed_sce_component_contract,
 )
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DASHBOARD_READ_SQL,
@@ -487,8 +498,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase136-consumer-confidence-sources"
-    assert worker["image"] == "business-cycle-nas-app:phase136-consumer-confidence-sources"
+    assert app["image"] == "business-cycle-nas-app:phase137-nyfed-sce-components"
+    assert worker["image"] == "business-cycle-nas-app:phase137-nyfed-sce-components"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -508,6 +519,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "phase126" in artifact_init["command"][0]
     assert "phase135" in artifact_init["command"][0]
     assert "phase136" in artifact_init["command"][0]
+    assert "phase137" in artifact_init["command"][0]
     assert "BUSINESS_CYCLE_STRICT_REPLAY_TIMELINE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
@@ -539,6 +551,10 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "BUSINESS_CYCLE_CONSUMER_CONFIDENCE_OPERATOR_CONFIRMATION" in (
         worker["environment"]
     )
+    assert worker["environment"]["BUSINESS_CYCLE_NYFED_SCE_REFRESH_ENABLED"] == (
+        "true"
+    )
+    assert "BUSINESS_CYCLE_NYFED_SCE_OPERATOR_CONFIRMATION" in worker["environment"]
     assert "BUSINESS_CYCLE_SOURCE_INCIDENT_PATH" in worker["environment"]
     assert "BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION" in (
         worker["environment"]
@@ -2103,6 +2119,80 @@ def test_phase136_consumer_confidence_lanes_adapter_drills_and_closure(
     )
     assert "phase136_closure_ready=true" in completed.stdout
     assert "source_failure_drill_pass_count=4" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+def test_phase137_nyfed_sce_components_are_direct_supporting_only_and_closed(
+    tmp_path: Path,
+) -> None:
+    contract = summarize_nyfed_sce_component_contract()
+    fixture = build_offline_nyfed_sce_fixture()
+    parsed = parse_nyfed_sce_workbook(fixture)
+    executor = _Phase136SqlRecorder()
+    report = run_nyfed_sce_component_import(
+        execute_live=True,
+        operator_confirmation=NYFED_SCE_CONFIRMATION,
+        artifact_dir=tmp_path / "phase137",
+        executor=executor,
+        fetcher=lambda *args, **kwargs: type(
+            "Response",
+            (),
+            {"content": fixture, "raise_for_status": lambda self: None},
+        )(),
+    )
+    lanes = build_consumer_confidence_source_lanes(
+        observations_by_series={
+            series_id: [
+                {"observation_date": row.date, "value_numeric": row.value}
+                for row in rows
+            ]
+            for series_id, rows in parsed.items()
+        }
+    )
+    nyfed_lane = next(
+        row
+        for row in lanes["lanes"]
+        if row["source_series_id"] == "NYFED_SCE_CONTEXT"
+    )
+    closure = summarize_phase137_nyfed_sce_components_closure()
+
+    assert contract["result"] == "passed"
+    assert contract["component_series_count"] == 11
+    assert contract["derived_measure_count"] == 0
+    assert len(parsed) == 11
+    assert sum(len(rows) for rows in parsed.values()) == 33
+    assert report["result"] == "passed"
+    assert report["component_series_count"] == 11
+    assert report["observation_count"] == 33
+    assert executor.statements and "phase137_nyfed_sce_import" in executor.statements[0]
+    assert nyfed_lane["lane_status"] == "available_supporting_only"
+    assert nyfed_lane["available_component_series_count"] == 11
+    assert nyfed_lane["latest_value"] is None
+    assert lanes["book_core_status"] == "exact_access_blocked"
+    assert lanes["arbitrary_composite_score_created"] is False
+    with pytest.raises(NyfedSceSourceError, match="header changed"):
+        parse_nyfed_sce_workbook(
+            build_offline_nyfed_sce_fixture(bad_header=True)
+        )
+    with pytest.raises(NyfedSceSourceError, match="explicit confirmation"):
+        run_nyfed_sce_component_import(
+            execute_live=False,
+            operator_confirmation=None,
+            artifact_dir=tmp_path / "rejected",
+        )
+    assert closure["result"] == "passed"
+    assert closure["incident_failure_drill_passed"] is True
+    assert closure["recovery_receipt_drill_passed"] is True
+    assert closure["candidate_phase_emitted"] is False
+    assert closure["current_phase_emitted"] is False
+    completed = subprocess.run(
+        [sys.executable, "scripts/show_phase137_nyfed_sce_components_closure.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "offline_fixture_component_series_count=11" in completed.stdout
+    assert "phase137_closure_ready=true" in completed.stdout
     assert "result=passed" in completed.stdout
 
 

@@ -22,6 +22,15 @@ and NAS worker hook. None of these alternatives is silently promoted to the
 book-core Conference Board role, and deterministic exact/near-equivalent/proxy/
 unavailable failure drills all preserve abstention and incident lineage.
 
+Phase 137 extends that completed roadmap with an official NY Fed SCE workbook
+adapter, documented in
+[`docs/source_reliability_resilience_extension_phase137.md`](docs/source_reliability_resilience_extension_phase137.md).
+Eleven direct household-finance, labor, income/spending, credit and delinquency
+components are stored as revised supporting-only PostgreSQL series and shown in
+Traditional Chinese with high/low interpretation. They remain separate
+observations: no composite confidence score is created, and the Conference
+Board exact role remains access-limited.
+
 Phase 126 accepts the private NAS v1.0 research service operationally. It
 verifies deterministic strict-replay reruns, immutable checksummed artifact
 retention, isolated PostgreSQL/source-artifact restore, actual container

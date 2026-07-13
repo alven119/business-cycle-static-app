@@ -97,6 +97,7 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
         "show_product_capability_95_roadmap.py",
         "show_product_capability_completion_sprint.py",
         "show_github_actions_test_efficiency.py",
+        "show_phase137_nyfed_sce_components_closure.py",
         "show_phase133_historical_transition_policy_timeline_closure.py",
         "show_phase132_phase_aware_dashboard_closure.py",
         "show_phase131_historical_pit_transition_events_closure.py",
@@ -216,8 +217,11 @@ def test_ci_closure_helper_contains_expected_closure_bundles() -> None:
 
     assert len(FULL_CLOSURE_SCRIPTS) <= 12
     assert len(NIGHTLY_CLOSURE_SCRIPTS) > len(FULL_CLOSURE_SCRIPTS)
-    assert "scripts/show_phase136_consumer_confidence_sources_closure.py" in (
+    assert "scripts/show_phase137_nyfed_sce_components_closure.py" in (
         FULL_CLOSURE_SCRIPTS
+    )
+    assert "scripts/show_phase136_consumer_confidence_sources_closure.py" in (
+        NIGHTLY_CLOSURE_SCRIPTS
     )
     assert "scripts/show_phase135_source_incident_center_closure.py" in (
         NIGHTLY_CLOSURE_SCRIPTS

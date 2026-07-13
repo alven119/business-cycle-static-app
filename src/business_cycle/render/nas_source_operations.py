@@ -89,6 +89,9 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     .operation.critical {{ border-left-color: #a5261f; }}
     .operation.warning {{ border-left-color: #b56a13; }}
     .operation h3 {{ margin: 0 0 8px; }}
+    .confidence-component {{ border-top: 1px solid #e2e6eb; padding: 10px 0; }}
+    .confidence-component h4 {{ margin: 0 0 5px; font-size: .95rem; }}
+    .confidence-component p {{ margin: 5px 0; }}
     ul {{ padding-left: 20px; }}
     details {{ background: white; border: 1px solid #d8dee5; border-radius: 8px; padding: 12px; }}
     summary {{ cursor: pointer; color: #0b5cab; font-weight: 700; }}
@@ -264,6 +267,16 @@ def _confidence_lane_card(row: dict[str, Any]) -> str:
         _confidence_component_zh(str(value))
         for value in row.get("explanatory_components", [])
     ) or "不適用"
+    component_rows = "".join(
+        _confidence_component_observation(component)
+        for component in row.get("component_observations", [])
+    )
+    component_details = (
+        "<details><summary>查看 11 項 NY Fed 官方元件與高低意涵</summary>"
+        f"{component_rows}</details>"
+        if component_rows
+        else ""
+    )
     return f"""
     <article class="operation">
       <h3>{escape(_confidence_lane_type_zh(str(row['lane_type'])))}</h3>
@@ -277,8 +290,24 @@ def _confidence_lane_card(row: dict[str, Any]) -> str:
         <dt>解釋 components</dt><dd>{escape(components)}</dd>
         <dt>資料風險</dt><dd>{escape(str(row['risk_note_zh']))}</dd>
       </dl>
+      {component_details}
       <a href="{escape(str(row['source_url']), quote=True)}" rel="noreferrer">官方來源</a>
     </article>"""
+
+
+def _confidence_component_observation(row: dict[str, Any]) -> str:
+    latest = (
+        f"{row['latest_observation_date']} · {row['latest_value']} {row['units']}"
+        if row.get("latest_observation_date")
+        else "本機尚無數值"
+    )
+    return f"""
+      <section class="confidence-component">
+        <h4>{escape(str(row['title_zh']))}</h4>
+        <p class="meta"><code>{escape(str(row['series_id']))}</code> · {escape(latest)}</p>
+        <p><strong>數值較高：</strong>{escape(str(row['high_meaning_zh']))}</p>
+        <p><strong>數值較低：</strong>{escape(str(row['low_meaning_zh']))}</p>
+      </section>"""
 
 
 def _family_card(row: dict[str, Any]) -> str:
@@ -380,6 +409,7 @@ def _confidence_lane_status_zh(value: str) -> str:
         "access_limited": "授權受限，book-core 維持 blocked",
         "available_supporting_only": "本機資料可用，但僅作 supporting-only",
         "source_failed_unavailable": "來源失效，本 lane 必須 unavailable",
+        "partial_supporting_components": "僅部分官方元件已入庫，不完整且不得升格",
         "official_context_contract_ready_no_local_values": "官方 components 已定義，本機尚未載入數值",
         "not_yet_loaded": "adapter 已定義，本機尚未完成首次載入",
     }.get(value, value)

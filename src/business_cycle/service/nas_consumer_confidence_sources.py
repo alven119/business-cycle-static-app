@@ -19,6 +19,9 @@ import requests
 import yaml
 
 from business_cycle.data_sources import SeriesObservation
+from business_cycle.service.nas_nyfed_sce_components import (
+    load_nyfed_sce_component_contract,
+)
 from business_cycle.storage.nas_postgres_live_revised_import import (
     PsqlSubprocessExecutor,
 )
@@ -116,16 +119,57 @@ def build_consumer_confidence_source_lanes(
     """Build independent source lanes without emitting a combined score."""
 
     contract = load_consumer_confidence_source_contract()
+    nyfed_contract = load_nyfed_sce_component_contract()
+    nyfed_components = list(nyfed_contract["component_series"])
+    nyfed_component_ids = {str(row["series_id"]) for row in nyfed_components}
     observations = observations_by_series or {}
     failed = {str(value) for value in failed_source_ids or []}
     rows = []
     for source in contract["source_lanes"]:
         series_id = str(source["source_series_id"])
         series_rows = list(observations.get(series_id, []))
+        component_observations: list[dict[str, Any]] = []
+        if source["lane_type"] == "explanatory_context":
+            for component in nyfed_components:
+                component_rows = list(
+                    observations.get(str(component["series_id"]), [])
+                )
+                latest_component = _latest_observation(component_rows)
+                component_observations.append(
+                    dict(component)
+                    | {
+                        "latest_observation_date": (
+                            latest_component.get("observation_date")
+                            if latest_component
+                            else None
+                        ),
+                        "latest_value": (
+                            latest_component.get("value_numeric")
+                            if latest_component
+                            else None
+                        ),
+                        "data_mode": "revised_supporting_only",
+                    }
+                )
         if source["lane_type"] == "exact_book_core":
-            status = "exact_available" if exact_authorized and series_rows else "access_limited"
-        elif series_id in failed:
+            status = (
+                "exact_available"
+                if exact_authorized and series_rows
+                else "access_limited"
+            )
+        elif series_id in failed or (
+            source["lane_type"] == "explanatory_context"
+            and bool(failed & nyfed_component_ids)
+        ):
             status = "source_failed_unavailable"
+        elif source["lane_type"] == "explanatory_context" and all(
+            row["latest_observation_date"] for row in component_observations
+        ):
+            status = "available_supporting_only"
+        elif source["lane_type"] == "explanatory_context" and any(
+            row["latest_observation_date"] for row in component_observations
+        ):
+            status = "partial_supporting_components"
         elif series_rows:
             status = "available_supporting_only"
         elif source["lane_type"] == "explanatory_context":
@@ -133,6 +177,17 @@ def build_consumer_confidence_source_lanes(
         else:
             status = "not_yet_loaded"
         latest = _latest_observation(series_rows)
+        if source["lane_type"] == "explanatory_context":
+            latest_component_dates = [
+                str(row["latest_observation_date"])
+                for row in component_observations
+                if row["latest_observation_date"]
+            ]
+            latest = (
+                {"observation_date": max(latest_component_dates)}
+                if latest_component_dates
+                else None
+            )
         directional = (
             build_causal_direction_and_turning_point(series_rows)
             if source["lane_type"] == "near_equivalent_transformed"
@@ -142,16 +197,28 @@ def build_consumer_confidence_source_lanes(
             dict(source)
             | {
                 "lane_status": status,
-                "latest_observation_date": latest.get("observation_date") if latest else None,
-                "latest_value": latest.get("value_numeric") if latest else None,
+                "latest_observation_date": (
+                    latest.get("observation_date") if latest else None
+                ),
+                "latest_value": (
+                    latest.get("value_numeric")
+                    if latest and source["lane_type"] != "explanatory_context"
+                    else None
+                ),
                 "directional_observation": directional,
+                "component_observations": component_observations,
+                "component_series_count": len(component_observations),
+                "available_component_series_count": sum(
+                    bool(row["latest_observation_date"])
+                    for row in component_observations
+                ),
                 "book_core_replacement": False,
                 "phase_evidence_emitted": False,
                 "transition_confirmation_emitted": False,
             }
         )
     return {
-        "view_model_version": "phase136_consumer_confidence_lanes_v1",
+        "view_model_version": "phase137_consumer_confidence_lanes_v2",
         "role_id": contract["role_id"],
         "book_core_status": (
             "exact_authorized_available" if exact_authorized else "exact_access_blocked"
@@ -159,9 +226,15 @@ def build_consumer_confidence_source_lanes(
         "source_lane_count": len(rows),
         "lanes": rows,
         "visible_available_lane_count": sum(
-            row["lane_status"] in {"exact_available", "available_supporting_only"}
+            row["lane_status"]
+            in {
+                "exact_available",
+                "available_supporting_only",
+                "partial_supporting_components",
+            }
             for row in rows
         ),
+        "nyfed_component_series_count": len(nyfed_components),
         "arbitrary_composite_score_created": False,
         "supporting_source_promoted_to_core_count": 0,
         "candidate_phase_emitted": False,

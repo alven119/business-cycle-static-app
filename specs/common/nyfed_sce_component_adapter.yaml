@@ -1,0 +1,194 @@
+nyfed_sce_component_adapter:
+  version: "1.0"
+  status: active_private_nas_supporting_only_adapter
+  phase_id: 137
+  phase_label: nyfed_sce_component_adapter_and_cross_source_health_drills
+  parent_source_series_id: NYFED_SCE_CONTEXT
+  source:
+    family: Federal Reserve Bank of New York
+    title: Survey of Consumer Expectations Chart Data
+    workbook_url: https://www.newyorkfed.org/medialibrary/interactives/sce/sce/downloads/data/frbny-sce-data.xlsx
+    landing_page_url: https://www.newyorkfed.org/microeconomics/sce
+    data_bank_url: https://www.newyorkfed.org/microeconomics/databank
+    faq_url: https://www.newyorkfed.org/microeconomics/sce/sce-faq
+    release_calendar_url: https://www.newyorkfed.org/microeconomics/calendar.html
+    license_url: https://www.newyorkfed.org/microeconomics/confirm_download.html?v=2
+    attribution: Federal Reserve Bank of New York Survey of Consumer Expectations
+    publication_frequency: monthly
+    observation_start: 2013-06
+    data_mode: revised_supporting_only
+    historical_point_in_time_claim_allowed: false
+  workbook_contract:
+    date_column: A
+    date_format: YYYYMM
+    header_row: 4
+    first_data_row: 5
+    direct_measure_only: true
+    arbitrary_component_aggregation_allowed: false
+  conceptual_groups:
+    - labor_expectations
+    - income_and_spending_expectations
+    - credit_and_delinquency_expectations
+    - household_financial_situation_expectations
+  component_series:
+    - series_id: NYFED_SCE_JOB_LOSS_PROB
+      conceptual_group: labor_expectations
+      sheet_name: Job separation expectation
+      value_column: B
+      expected_header: Mean probability of losing a job
+      title_zh: 未來一年失去工作的平均機率
+      units: percent
+      statistic: mean_probability
+      high_meaning_zh: 數值升高表示受訪者對失業風險更擔憂，家庭與勞動市場預期偏弱。
+      low_meaning_zh: 數值降低表示受訪者感受到的失業風險較低，但不能單獨確認景氣轉折。
+    - series_id: NYFED_SCE_JOB_FINDING_PROB
+      conceptual_group: labor_expectations
+      sheet_name: Job finding expectations
+      value_column: B
+      expected_header: Mean probability of finding a job in the next three months if one loses a job today
+      title_zh: 失業後三個月內找到工作的平均機率
+      units: percent
+      statistic: mean_probability
+      high_meaning_zh: 數值升高表示受訪者認為再就業較容易，勞動市場信心相對較強。
+      low_meaning_zh: 數值降低表示再就業信心轉弱，可作勞動風險旁證但不是衰退確認。
+    - series_id: NYFED_SCE_HH_INCOME_GROWTH
+      conceptual_group: income_and_spending_expectations
+      sheet_name: HH Income Change
+      value_column: B
+      expected_header: Median point prediction
+      title_zh: 未來一年家庭所得成長預期中位數
+      units: percent_growth
+      statistic: median_point_prediction
+      high_meaning_zh: 數值升高表示家庭所得成長預期改善，通常有利消費能力，但仍需與實際所得資料分開。
+      low_meaning_zh: 數值降低表示家庭所得成長預期轉弱，可能壓抑未來消費。
+    - series_id: NYFED_SCE_HH_SPENDING_GROWTH
+      conceptual_group: income_and_spending_expectations
+      sheet_name: HH Spending Change
+      value_column: B
+      expected_header: Median point prediction
+      title_zh: 未來一年家庭支出成長預期中位數
+      units: percent_growth
+      statistic: median_point_prediction
+      high_meaning_zh: 數值升高表示家庭預期支出成長較快，也可能反映物價與必要支出壓力，需搭配所得與通膨解讀。
+      low_meaning_zh: 數值降低表示家庭支出成長預期轉弱，消費動能可能降溫。
+    - series_id: NYFED_SCE_DELINQUENCY_PROB
+      conceptual_group: credit_and_delinquency_expectations
+      sheet_name: Delinquency expectations
+      value_column: B
+      expected_header: Mean probability of missing minimum debt payment over the next three months
+      title_zh: 未來三個月漏繳最低債務付款的平均機率
+      units: percent
+      statistic: mean_probability
+      high_meaning_zh: 數值升高表示家庭債務壓力與信用風險預期上升。
+      low_meaning_zh: 數值降低表示家庭預期的短期債務壓力較低，但不能取代實際逾期率。
+    - series_id: NYFED_SCE_CREDIT_MUCH_HARDER_YAHEAD
+      conceptual_group: credit_and_delinquency_expectations
+      sheet_name: Credit availability
+      scope_row: 3
+      scope_column: G
+      expected_scope: Year ahead
+      value_column: G
+      expected_header: Much harder
+      title_zh: 預期一年後取得信用困難許多的占比
+      units: percent
+      statistic: respondent_share
+      high_meaning_zh: 占比升高表示家庭預期信用條件明顯收緊，對消費與融資環境偏不利。
+      low_meaning_zh: 占比降低表示預期大幅緊縮信用的人較少，不等於信用環境已全面寬鬆。
+    - series_id: NYFED_SCE_CREDIT_SOMEWHAT_HARDER_YAHEAD
+      conceptual_group: credit_and_delinquency_expectations
+      sheet_name: Credit availability
+      scope_row: 3
+      scope_column: G
+      expected_scope: Year ahead
+      value_column: H
+      expected_header: Somewhat harder
+      title_zh: 預期一年後取得信用稍微困難的占比
+      units: percent
+      statistic: respondent_share
+      high_meaning_zh: 占比升高表示較多家庭預期信用取得逐步轉緊。
+      low_meaning_zh: 占比降低表示預期小幅收緊的人較少，仍需觀察其他信用選項的分布。
+    - series_id: NYFED_SCE_FINANCIAL_MUCH_WORSE_YAHEAD
+      conceptual_group: household_financial_situation_expectations
+      sheet_name: Household financial situation
+      scope_row: 3
+      scope_column: G
+      expected_scope: Year ahead
+      value_column: G
+      expected_header: Much worse off
+      title_zh: 預期一年後家庭財務差很多的占比
+      units: percent
+      statistic: respondent_share
+      high_meaning_zh: 占比升高表示家庭財務悲觀明顯增加，可能削弱消費意願。
+      low_meaning_zh: 占比降低表示極度悲觀家庭較少，但不是整體信心改善的充分條件。
+    - series_id: NYFED_SCE_FINANCIAL_SOMEWHAT_WORSE_YAHEAD
+      conceptual_group: household_financial_situation_expectations
+      sheet_name: Household financial situation
+      scope_row: 3
+      scope_column: G
+      expected_scope: Year ahead
+      value_column: H
+      expected_header: Somewhat worse off
+      title_zh: 預期一年後家庭財務稍差的占比
+      units: percent
+      statistic: respondent_share
+      high_meaning_zh: 占比升高表示家庭財務預期普遍轉弱，可能對消費形成壓力。
+      low_meaning_zh: 占比降低表示溫和悲觀者減少，需與改善選項及實際所得交叉判讀。
+    - series_id: NYFED_SCE_FINANCIAL_SOMEWHAT_BETTER_YAHEAD
+      conceptual_group: household_financial_situation_expectations
+      sheet_name: Household financial situation
+      scope_row: 3
+      scope_column: G
+      expected_scope: Year ahead
+      value_column: J
+      expected_header: Somewhat better off
+      title_zh: 預期一年後家庭財務稍好的占比
+      units: percent
+      statistic: respondent_share
+      high_meaning_zh: 占比升高表示溫和樂觀家庭增加，通常有利消費信心。
+      low_meaning_zh: 占比降低表示家庭財務改善預期減弱。
+    - series_id: NYFED_SCE_FINANCIAL_MUCH_BETTER_YAHEAD
+      conceptual_group: household_financial_situation_expectations
+      sheet_name: Household financial situation
+      scope_row: 3
+      scope_column: G
+      expected_scope: Year ahead
+      value_column: K
+      expected_header: Much better off
+      title_zh: 預期一年後家庭財務好很多的占比
+      units: percent
+      statistic: respondent_share
+      high_meaning_zh: 占比升高表示強烈樂觀家庭增加，但仍只是家庭預期脈絡。
+      low_meaning_zh: 占比降低表示強烈樂觀者減少，不應單獨判為景氣轉弱。
+  runtime_policy:
+    parent_lane_type: explanatory_context
+    book_core_replacement_allowed: false
+    component_composite_score_allowed: false
+    phase_evidence_emission_allowed: false
+    transition_confirmation_allowed: false
+    current_phase_inference_allowed: false
+    candidate_phase_inference_allowed: false
+    source_failure_parent_incident_id: NYFED_SCE_CONTEXT
+    artifacts_must_remain_outside_repository: true
+  prohibited_outputs:
+    - composite_consumer_confidence_score
+    - phase_score
+    - phase_rank
+    - phase_winner
+    - candidate_phase
+    - current_phase
+    - trade_action
+    - personalized_allocation
+  hard_gates:
+    nyfed_sce_component_adapter_contract_ready: true
+    component_series_count: 11
+    conceptual_group_count: 4
+    direct_measure_count: 11
+    derived_measure_count: 0
+    arbitrary_composite_score_count: 0
+    attribution_contract_ready: true
+    official_release_calendar_contract_ready: true
+    book_core_replacement_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

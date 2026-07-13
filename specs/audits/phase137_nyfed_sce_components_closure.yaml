@@ -1,0 +1,41 @@
+phase137_nyfed_sce_components_closure:
+  version: "1.0"
+  status: active_phase137_closure
+  phase_id: 137
+  phase_label: nyfed_sce_component_adapter_and_cross_source_health_drills
+  required_artifacts:
+    - specs/common/nyfed_sce_component_adapter.yaml
+    - src/business_cycle/service/nas_nyfed_sce_components.py
+    - src/business_cycle/service/nas_consumer_confidence_sources.py
+    - src/business_cycle/service/nas_scheduled_revised_refresh.py
+    - src/business_cycle/render/nas_source_operations.py
+    - deploy/nas/compose.yaml
+  scope:
+    source_lane: NYFED_SCE_CONTEXT
+    evidence_class: explanatory_context_supporting_only
+    exact_book_core_role: boom_consumer_confidence
+    exact_book_core_status: access_blocked_without_authorized_conference_board_data
+    historical_data_mode: revised_supporting_only
+  hard_gates:
+    phase137_closure_ready: true
+    nyfed_sce_component_adapter_contract_ready: true
+    official_workbook_parser_ready: true
+    offline_fixture_component_series_count: 11
+    offline_fixture_observation_count: 33
+    schema_drift_rejected: true
+    postgres_import_contract_ready: true
+    scheduled_refresh_wiring_ready: true
+    incident_failure_drill_passed: true
+    recovery_receipt_drill_passed: true
+    dashboard_component_explanation_ready: true
+    exact_conference_board_access_blocked: true
+    book_core_replacement_count: 0
+    arbitrary_composite_score_count: 0
+    numeric_weight_added_count: 0
+    arbitrary_threshold_added_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0
+    test_file_delta: 0
+    development_next_phase: 138

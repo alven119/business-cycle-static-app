@@ -21,7 +21,7 @@ services:
       retries: 5
 
   business_cycle_app:
-    image: business-cycle-nas-app:phase136-consumer-confidence-sources
+    image: business-cycle-nas-app:phase137-nyfed-sce-components
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -81,14 +81,14 @@ services:
       - sh
       - -c
     command:
-      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/source-artifacts/phase119 /var/lib/business-cycle/source-artifacts/phase125/runs /var/lib/business-cycle/source-artifacts/phase126 /var/lib/business-cycle/source-artifacts/phase135 /var/lib/business-cycle/source-artifacts/phase136 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
+      - mkdir -p /var/lib/business-cycle/source-artifacts/phase112 /var/lib/business-cycle/source-artifacts/phase118 /var/lib/business-cycle/source-artifacts/phase119 /var/lib/business-cycle/source-artifacts/phase125/runs /var/lib/business-cycle/source-artifacts/phase126 /var/lib/business-cycle/source-artifacts/phase135 /var/lib/business-cycle/source-artifacts/phase136 /var/lib/business-cycle/source-artifacts/phase137 /var/lib/business-cycle/cycle-state && chown -R 1000:1000 /var/lib/business-cycle/source-artifacts /var/lib/business-cycle/cycle-state
     volumes:
       - macro_source_artifacts:/var/lib/business-cycle/source-artifacts
       - cycle_state_config:/var/lib/business-cycle/cycle-state
     network_mode: none
 
   macro_refresh_worker:
-    image: business-cycle-nas-app:phase136-consumer-confidence-sources
+    image: business-cycle-nas-app:phase137-nyfed-sce-components
     build:
       context: /volume2/docker/business-cycle/app
       dockerfile: Dockerfile.nas
@@ -109,6 +109,8 @@ services:
       BUSINESS_CYCLE_SOURCE_INCIDENT_PATH: /var/lib/business-cycle/source-artifacts/phase135/source-incidents.json
       BUSINESS_CYCLE_CONSUMER_CONFIDENCE_REFRESH_ENABLED: "true"
       BUSINESS_CYCLE_CONSUMER_CONFIDENCE_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_OECD_AND_WRITES_NAS_POSTGRES
+      BUSINESS_CYCLE_NYFED_SCE_REFRESH_ENABLED: "true"
+      BUSINESS_CYCLE_NYFED_SCE_OPERATOR_CONFIRMATION: I_UNDERSTAND_THIS_FETCHES_NYFED_SCE_AND_WRITES_NAS_POSTGRES
       FRED_API_KEY: ${FRED_API_KEY}
     command:
       - python

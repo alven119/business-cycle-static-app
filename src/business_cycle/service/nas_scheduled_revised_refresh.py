@@ -28,6 +28,10 @@ from business_cycle.service.nas_consumer_confidence_sources import (
     CONFIRMATION as OECD_CONFIDENCE_CONFIRMATION,
     run_oecd_consumer_confidence_import,
 )
+from business_cycle.service.nas_nyfed_sce_components import (
+    CONFIRMATION as NYFED_SCE_CONFIRMATION,
+    run_nyfed_sce_component_import,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_scheduled_revised_refresh_contract.yaml"
@@ -115,6 +119,9 @@ def run_scheduled_refresh_once(
     consumer_confidence_import_runner: Callable[..., dict[str, Any]] = (
         run_oecd_consumer_confidence_import
     ),
+    nyfed_sce_import_runner: Callable[..., dict[str, Any]] = (
+        run_nyfed_sce_component_import
+    ),
     source_incident_reconciler: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Run one mutually exclusive refresh and preserve a redacted latest status."""
@@ -166,6 +173,16 @@ def run_scheduled_refresh_once(
                     ),
                     artifact_dir=root.parent / "phase136" / "runs" / run_id,
                 )
+            nyfed_sce_report: dict[str, Any] | None = None
+            if _nyfed_sce_refresh_enabled() and _is_full_daily_refresh(series_ids):
+                nyfed_sce_report = nyfed_sce_import_runner(
+                    execute_live=True,
+                    operator_confirmation=os.environ.get(
+                        "BUSINESS_CYCLE_NYFED_SCE_OPERATOR_CONFIRMATION",
+                        NYFED_SCE_CONFIRMATION,
+                    ),
+                    artifact_dir=root.parent / "phase137" / "runs" / run_id,
+                )
             completed = clock()
             succeeded = report.get("result") == "passed" and int(
                 report.get("failed_series_count", 0)
@@ -175,6 +192,9 @@ def run_scheduled_refresh_once(
             ) and (
                 confidence_report is None
                 or confidence_report.get("result") == "passed"
+            ) and (
+                nyfed_sce_report is None
+                or nyfed_sce_report.get("result") == "passed"
             )
             confidence_requested = int(confidence_report is not None)
             confidence_completed = int(
@@ -185,6 +205,15 @@ def run_scheduled_refresh_once(
                 confidence_report is not None
                 and confidence_report.get("result") != "passed"
             )
+            nyfed_requested = int(nyfed_sce_report is not None)
+            nyfed_completed = int(
+                nyfed_sce_report is not None
+                and nyfed_sce_report.get("result") == "passed"
+            )
+            nyfed_failed = int(
+                nyfed_sce_report is not None
+                and nyfed_sce_report.get("result") != "passed"
+            )
             status = _base_status("succeeded" if succeeded else "failed") | {
                 "last_run_state": "succeeded" if succeeded else "failed",
                 "run_id": run_id,
@@ -193,15 +222,22 @@ def run_scheduled_refresh_once(
                 "next_scheduled_at_utc": _iso(completed + timedelta(days=1)),
                 "requested_series_count": int(
                     report.get("requested_series_count", 0)
-                ) + confidence_requested,
+                )
+                + confidence_requested
+                + nyfed_requested,
                 "completed_series_count": int(
                     report.get("completed_series_count", 0)
-                ) + confidence_completed,
+                )
+                + confidence_completed
+                + nyfed_completed,
                 "failed_series_count": int(report.get("failed_series_count", 0))
-                + confidence_failed,
+                + confidence_failed
+                + nyfed_failed,
                 "source_artifact_count": int(
                     report.get("source_artifact_count", 0)
-                ) + confidence_completed,
+                )
+                + confidence_completed
+                + nyfed_completed,
                 "report_path": str(run_root / "latest-import-report.json"),
                 "error_class": None if succeeded else "RefreshReportFailed",
                 "error_message_redacted": None
@@ -210,6 +246,7 @@ def run_scheduled_refresh_once(
                 "series_refresh_results": [
                     *_redacted_series_refresh_results(report),
                     *_redacted_external_series_refresh_results(confidence_report),
+                    *_redacted_external_series_refresh_results(nyfed_sce_report),
                 ],
                 "technology_refresh_enabled": _technology_refresh_enabled(),
                 "technology_refresh_result": (
@@ -229,6 +266,16 @@ def run_scheduled_refresh_once(
                     else "not_run_for_subset_or_disabled"
                 ),
                 "consumer_confidence_completed_series_count": confidence_completed,
+                "nyfed_sce_refresh_enabled": _nyfed_sce_refresh_enabled(),
+                "nyfed_sce_refresh_result": (
+                    nyfed_sce_report.get("result")
+                    if nyfed_sce_report is not None
+                    else "not_run_for_subset_or_disabled"
+                ),
+                "nyfed_sce_completed_source_count": nyfed_completed,
+                "nyfed_sce_component_series_count": int(
+                    (nyfed_sce_report or {}).get("component_series_count", 0)
+                ),
             }
         except Exception as exc:  # noqa: BLE001 - status must survive failure
             completed = clock()
@@ -355,6 +402,10 @@ def _base_status(state: str) -> dict[str, Any]:
         ),
         "consumer_confidence_refresh_result": "not_run",
         "consumer_confidence_completed_series_count": 0,
+        "nyfed_sce_refresh_enabled": _nyfed_sce_refresh_enabled(),
+        "nyfed_sce_refresh_result": "not_run",
+        "nyfed_sce_completed_source_count": 0,
+        "nyfed_sce_component_series_count": 0,
         "source_incident_reconciliation_state": "disabled",
         "source_incident_reconciliation_error_class": None,
         "open_source_incident_count": 0,
@@ -387,6 +438,12 @@ def _technology_refresh_enabled() -> bool:
 def _consumer_confidence_refresh_enabled() -> bool:
     return os.environ.get(
         "BUSINESS_CYCLE_CONSUMER_CONFIDENCE_REFRESH_ENABLED", "false"
+    ).lower() in {"1", "true", "yes", "on"}
+
+
+def _nyfed_sce_refresh_enabled() -> bool:
+    return os.environ.get(
+        "BUSINESS_CYCLE_NYFED_SCE_REFRESH_ENABLED", "false"
     ).lower() in {"1", "true", "yes", "on"}
 
 
