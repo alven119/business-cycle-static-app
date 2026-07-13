@@ -11,10 +11,16 @@ NAS migration, but it is no longer the user-facing deployment target.
 
 The active source-reliability sequence is recorded in
 [`docs/source_reliability_resilience_roadmap_phase134_136.md`](docs/source_reliability_resilience_roadmap_phase134_136.md).
-Phase 134 corrected source identity and release-aware freshness. Phase 135 now
+Phase 134 corrected source identity and release-aware freshness. Phase 135
 persists typed source incidents, affected role/lane attribution, governed
 supporting-only fallback state, and append-only recovery receipts on the NAS.
-Phase 136 resolves consumer-confidence alternatives and source-failure drills.
+Phase 136 completes this roadmap with four separated consumer-confidence lanes:
+authorized Conference Board exact data, OECD official directional/turning-point
+near-equivalent data, one-month-delayed `UMCSENT` proxy data, and New York Fed
+SCE explanatory components. The OECD lane has an offline-tested SDMX adapter
+and NAS worker hook. None of these alternatives is silently promoted to the
+book-core Conference Board role, and deterministic exact/near-equivalent/proxy/
+unavailable failure drills all preserve abstention and incident lineage.
 
 Phase 126 accepts the private NAS v1.0 research service operationally. It
 verifies deterministic strict-replay reruns, immutable checksummed artifact

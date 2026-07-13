@@ -43,6 +43,8 @@ Status: completed in Phase 135.
 
 ## Phase 136: Consumer Confidence Resolution And Failure Drills
 
+Status: completed in Phase 136.
+
 - Preserve the exact Conference Board Consumer Confidence Index as an
   access-limited book-core concept unless authorized data is supplied.
 - Add an OECD directional/turning-point lane as a near-equivalent transformed
@@ -52,6 +54,14 @@ Status: completed in Phase 135.
   composite score.
 - Run deterministic source-failure and recovery drills covering exact,
   near-equivalent, proxy, and unavailable states.
+
+Phase 136 records four independent lanes. The Conference Board index remains
+the access-limited exact book concept. The official OECD SDMX `USA.M.CCICP`
+selection is automated into the private NAS as revised supporting-only data and
+is interpreted only by causal direction and turning point. `UMCSENT` remains a
+separate one-month-delayed proxy. New York Fed SCE household-finance, labor,
+spending, credit-access, and delinquency components remain explanatory context.
+No composite confidence score or silent book-core substitution is created.
 
 ## Dependency And Safety Rules
 

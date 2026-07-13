@@ -204,7 +204,8 @@ def summarize_release_aware_freshness_source_identity_remediation(
     phase_ids = [int(row["phase_id"]) for row in roadmap["phases"]]
     summary = {
         "phase": 134,
-        "roadmap_ready": roadmap["status"] == "active_through_phase136",
+        "roadmap_ready": roadmap["status"]
+        in {"active_through_phase136", "completed_through_phase136"},
         "roadmap_phase_count": len(phase_ids),
         "dependency_order_valid": phase_ids == [134, 135, 136],
         "phase134_scope_recorded": 134 in phase_ids,

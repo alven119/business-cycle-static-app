@@ -43,6 +43,9 @@ from business_cycle.service.nas_source_retry_restore import (
 from business_cycle.service.nas_source_incident_center import (
     build_source_incident_center,
 )
+from business_cycle.service.nas_consumer_confidence_sources import (
+    build_consumer_confidence_source_lanes,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_live_postgres_dashboard_contract.yaml"
@@ -373,6 +376,17 @@ def build_nas_live_postgres_dashboard_snapshot(
     )
     source_incident_center = build_source_incident_center()
     source_release_diagnostics["source_incident_center"] = source_incident_center
+    failed_confidence_source_ids = {
+        str(row["source_series_id"])
+        for row in source_incident_center.get("open_incidents", [])
+        if "boom_consumer_confidence" in row.get("affected_role_ids", [])
+    }
+    source_release_diagnostics["consumer_confidence_source_lanes"] = (
+        build_consumer_confidence_source_lanes(
+            observations_by_series=observations_by_series,
+            failed_source_ids=failed_confidence_source_ids,
+        )
+    )
     source_health_metadata_checks, source_health_artifact_checks = (
         _source_health_validation_rows(
             series_rows=series_rows,

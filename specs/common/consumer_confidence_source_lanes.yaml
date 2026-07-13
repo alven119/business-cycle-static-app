@@ -1,0 +1,138 @@
+consumer_confidence_source_lanes:
+  version: "1.0"
+  status: active_private_nas_consumer_confidence_source_contract
+  phase_id: 136
+  phase_label: consumer_confidence_resolution_and_source_failure_drills
+  role_id: boom_consumer_confidence
+  major_group_id: consumer_confidence
+  depends_on:
+    - specs/common/source_reliability_resilience_roadmap.yaml
+    - specs/common/nas_source_incident_center_contract.yaml
+    - specs/audits/book_core_official_source_identity_contract.yaml
+    - specs/audits/book_core_source_equivalence_reviews.yaml
+  source_lanes:
+    - lane_id: conference_board_exact_book_core
+      lane_type: exact_book_core
+      source_family: The Conference Board
+      source_title: Consumer Confidence Index
+      source_series_id: CONFERENCE_BOARD_CCI
+      source_url: https://www.conference-board.org/data/datadetail.cfm?dataid=ceoconf%2CExtURL
+      concept_scope: current_business_and_labor_conditions_plus_short_term_income_business_and_labor_expectations
+      units: index_1985_equals_100
+      frequency: monthly
+      seasonal_adjustment: seasonally_adjusted
+      release_semantics: last_tuesday_of_month_10am_america_new_york_subject_to_official_calendar
+      access_status: subscription_or_authorized_private_input_required
+      automation_status: blocked_without_authorized_input
+      substitution_degree: exact_book_concept
+      core_evidence_eligible: false
+      directional_or_context_only: false
+      risk_level: high_access_and_redistribution_restriction
+      risk_note_zh: 完整歷史與 underlying components 需訂閱或明確授權；新聞稿數值不得被自動爬取成未授權資料庫。
+    - lane_id: oecd_directional_near_equivalent
+      lane_type: near_equivalent_transformed
+      source_family: OECD
+      source_title: Consumer opinion surveys - Composite consumer confidence, United States
+      source_series_id: OECD_US_CCICP
+      source_url: https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CS,4.0/USA.M.CCICP......
+      concept_scope: composite_consumer_confidence_for_household_consumption_and_saving_outlook
+      units: percentage_balance_calendar_and_seasonally_adjusted
+      frequency: monthly
+      seasonal_adjustment: calendar_and_seasonally_adjusted
+      release_semantics: oecd_data_explorer_monthly_dataset_update_no_exact_date_claim
+      access_status: public_official_api_rate_limited
+      automation_status: automated_official_sdmx_worker
+      substitution_degree: near_equivalent_direction_and_turning_point_only
+      core_evidence_eligible: false
+      directional_or_context_only: true
+      transformation:
+        direction_rule: compare_latest_with_immediately_prior_month_without_threshold
+        turning_point_rule: causal_three_observation_local_reversal
+        insufficient_history_behavior: abstain
+      risk_level: medium
+      risk_note_zh: 調查定義與量尺不等同 Conference Board；只看方向與因果轉折，不能填補 book-core exact role。
+    - lane_id: umich_independent_proxy
+      lane_type: independent_proxy
+      source_family: University of Michigan via FRED
+      source_title: University of Michigan Consumer Sentiment
+      source_series_id: UMCSENT
+      source_url: https://fred.stlouisfed.org/series/UMCSENT
+      concept_scope: consumer_sentiment_and_future_spending_saving_proxy
+      units: index_1966_q1_equals_100
+      frequency: monthly
+      seasonal_adjustment: not_seasonally_adjusted
+      release_semantics: fred_redistribution_delayed_one_month_at_source_request
+      access_status: public_fred_redistribution_with_citation
+      automation_status: automated_revised_fred
+      substitution_degree: independent_proxy_not_conference_board_confidence
+      core_evidence_eligible: false
+      directional_or_context_only: true
+      risk_level: medium_high
+      risk_note_zh: 問卷設計、量尺與公布時點不同，且 FRED 依來源要求延遲一個月；僅作獨立旁證。
+    - lane_id: nyfed_sce_explanatory_context
+      lane_type: explanatory_context
+      source_family: Federal Reserve Bank of New York
+      source_title: Survey of Consumer Expectations
+      source_series_id: NYFED_SCE_CONTEXT
+      source_url: https://www.newyorkfed.org/microeconomics/sce
+      concept_scope: household_finance_labor_spending_credit_and_delinquency_expectations
+      units: component_specific_percent_or_percentage_point
+      frequency: monthly_core_with_lower_frequency_modules
+      seasonal_adjustment: survey_component_specific
+      release_semantics: monthly_core_release_with_official_calendar_and_download
+      access_status: public_official_download
+      automation_status: official_component_contract_ready_not_combined
+      substitution_degree: explanatory_components_only
+      core_evidence_eligible: false
+      directional_or_context_only: true
+      explanatory_components:
+        - household_financial_situation_year_ahead_and_year_ago
+        - job_loss_and_job_finding_expectations
+        - household_income_and_spending_growth_expectations
+        - credit_availability_and_debt_delinquency_expectations
+      risk_level: medium
+      risk_note_zh: 2013 年起的官方月度調查可解釋家庭預期，但不是 Conference Board 指數，也不得任意合成單一分數。
+  lane_policy:
+    exact_source_remains_blocked_without_authorization: true
+    near_equivalent_may_replace_exact_book_core: false
+    independent_proxy_may_replace_exact_book_core: false
+    explanatory_context_may_replace_exact_book_core: false
+    arbitrary_composite_allowed: false
+    source_lane_visible_independently: true
+    source_failure_makes_affected_lane_unavailable: true
+    unavailable_never_treated_as_neutral: true
+    source_readiness_never_becomes_phase_evidence: true
+    revised_never_mislabeled_point_in_time: true
+  failure_drill_states:
+    - exact
+    - near_equivalent
+    - proxy
+    - unavailable
+  prohibited_outputs:
+    - candidate_phase
+    - current_phase
+    - phase_score
+    - phase_rank
+    - phase_winner
+    - composite_consumer_confidence_score
+    - trade_action
+    - personalized_allocation
+    - public_output
+  hard_gates:
+    consumer_confidence_source_lane_contract_ready: true
+    source_lane_count: 4
+    exact_book_core_lane_count: 1
+    near_equivalent_lane_count: 1
+    independent_proxy_lane_count: 1
+    explanatory_context_lane_count: 1
+    exact_source_access_blocked_count: 1
+    official_automated_alternative_count: 2
+    nyfed_explanatory_component_count: 4
+    source_failure_drill_state_count: 4
+    exact_book_core_replacement_count: 0
+    arbitrary_composite_score_count: 0
+    revised_mislabeled_as_point_in_time_count: 0
+    candidate_phase_emitted: false
+    current_phase_emitted: false
+    production_behavior_change_count: 0
+    semantic_drift_count: 0

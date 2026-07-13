@@ -7,9 +7,6 @@ from typing import Any
 
 import yaml
 
-from business_cycle.audits.product_capability_progress import (
-    summarize_product_capability_progress,
-)
 from business_cycle.storage.nas_strict_replay_input_timeline import (
     summarize_nas_strict_replay_input_timeline_contract,
 )
@@ -28,7 +25,6 @@ def summarize_phase119_private_login_strict_replay_ux_closure(
     ]
     observed = payload["observed_live_acceptance"]
     contract = summarize_nas_strict_replay_input_timeline_contract()
-    progress = summarize_product_capability_progress()
     compose = yaml.safe_load(COMPOSE_PATH.read_text(encoding="utf-8"))
     app = compose["services"]["business_cycle_app"]
     env = app["environment"]
@@ -95,7 +91,7 @@ def summarize_phase119_private_login_strict_replay_ux_closure(
         "prospective_registry_write_count": observed[
             "prospective_registry_write_count"
         ],
-        "production_readiness_rebaseline_required": progress[
+        "production_readiness_rebaseline_required": payload["hard_gates"][
             "production_readiness_rebaseline_required"
         ],
         "average_product_capability_progress_percent": payload["hard_gates"][

@@ -1,6 +1,6 @@
 source_reliability_resilience_roadmap:
   version: "1.0"
-  status: active_through_phase136
+  status: completed_through_phase136
   roadmap_id: source_reliability_resilience_phase134_136
   phase_order: [134, 135, 136]
   phases:
@@ -33,7 +33,7 @@ source_reliability_resilience_roadmap:
         - source_failure_acceptance_drills
     - phase_id: 136
       label: consumer_confidence_resolution_and_source_failure_drills
-      execution_status: planned
+      execution_status: completed
       depends_on: [phase135]
       deliverables:
         - exact_conference_board_access_gap_preserved
@@ -41,6 +41,9 @@ source_reliability_resilience_roadmap:
         - umich_independent_proxy_lane
         - nyfed_sce_explanatory_components
         - deterministic_source_failure_and_recovery_drills
+      deferred_to_next_phase:
+        - authorized_conference_board_private_input_if_user_supplies_license
+        - prospective_validation_accumulation
   safety:
     revised_mislabeled_as_point_in_time_count: 0
     silent_substitution_count: 0

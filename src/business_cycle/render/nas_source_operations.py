@@ -36,6 +36,10 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     incidents = diagnostics.get(
         "source_incident_center", _default_source_incident_center()
     )
+    confidence = diagnostics.get(
+        "consumer_confidence_source_lanes",
+        _default_consumer_confidence_source_lanes(),
+    )
     retry_rows = "".join(
         f"<li><code>{escape(str(row['series_id']))}</code>："
         f"{escape(_retry_reason_zh(str(row['reason_code'])))}</li>"
@@ -57,6 +61,9 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
         _recovery_row(row)
         for row in incidents.get("recent_recovery_receipts", [])
     ) or "<li>目前尚無來源恢復 receipt。</li>"
+    confidence_rows = "".join(
+        _confidence_lane_card(row) for row in confidence.get("lanes", [])
+    )
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -105,6 +112,7 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
     <article><strong>{int(incidents['open_incident_count'])}</strong><span>未解來源事故</span></article>
     <article><strong>{int(incidents['affected_role_count'])}</strong><span>受影響 book roles</span></article>
     <article><strong>{int(incidents['recovery_receipt_count'])}</strong><span>來源恢復 receipts</span></article>
+    <article><strong>{int(confidence['visible_available_lane_count'])}/{int(confidence['source_lane_count'])}</strong><span>消費者信心可見 lanes</span></article>
     <article><strong>{escape(_backup_state_zh(str(backup['backup_restore_state'])))}</strong><span>最近備份還原演練</span></article>
     <article><strong>{int(full_cycle['automated_revised_series_available_count'])}/{int(full_cycle['automated_revised_series_count'])}</strong><span>四階段自動化 revised inputs</span></article>
     <article><strong>{int(full_cycle['core_revised_ready_role_count'])}/39</strong><span>book-core 經濟角色資料就緒</span></article>
@@ -116,6 +124,11 @@ def render_nas_source_operations_page(diagnostics: dict[str, Any]) -> str:
   <p class="meta">最近事故 reconciliation：{escape(_incident_reconciliation_zh(str(diagnostics.get('source_incident_reconciliation_state', 'not_started'))))}。</p>
   <section class="operations">{incident_rows}</section>
   <details><summary>查看最近來源恢復 receipts</summary><ul>{recovery_rows}</ul></details>
+  <h2>消費者信心：exact 與替代來源分層</h2>
+  <p>書籍角色仍以 Conference Board Consumer Confidence 為 exact concept。下列 OECD、密大與
+  NY Fed SCE 只提供方向／轉折、獨立 proxy 或家庭預期解釋；彼此不合成分數，也不會填補 book-core
+  或直接確認榮景轉折。</p>
+  <section class="operations">{confidence_rows}</section>
   <h2>受治理重試與備份還原</h2>
   <section class="operations">
     <article class="operation">
@@ -238,6 +251,36 @@ def _recovery_row(row: dict[str, Any]) -> str:
     )
 
 
+def _confidence_lane_card(row: dict[str, Any]) -> str:
+    latest = (
+        f"{row.get('latest_observation_date')} · {row.get('latest_value')}"
+        if row.get("latest_observation_date")
+        else "本機尚無數值"
+    )
+    directional = row.get("directional_observation") or {}
+    direction = _confidence_direction_zh(str(directional.get("direction") or ""))
+    turning = _confidence_turning_zh(str(directional.get("turning_point") or ""))
+    components = "、".join(
+        _confidence_component_zh(str(value))
+        for value in row.get("explanatory_components", [])
+    ) or "不適用"
+    return f"""
+    <article class="operation">
+      <h3>{escape(_confidence_lane_type_zh(str(row['lane_type'])))}</h3>
+      <p><strong>{escape(str(row['source_title']))}</strong></p>
+      <dl>
+        <dt>目前狀態</dt><dd>{escape(_confidence_lane_status_zh(str(row['lane_status'])))}</dd>
+        <dt>最新本機資料</dt><dd>{escape(latest)}</dd>
+        <dt>方向／轉折</dt><dd>{escape(f'{direction}；{turning}')}</dd>
+        <dt>替代程度</dt><dd>{escape(_confidence_substitution_zh(str(row['substitution_degree'])))}</dd>
+        <dt>頻率／單位</dt><dd>{escape(str(row['frequency']))}／{escape(str(row['units']))}</dd>
+        <dt>解釋 components</dt><dd>{escape(components)}</dd>
+        <dt>資料風險</dt><dd>{escape(str(row['risk_note_zh']))}</dd>
+      </dl>
+      <a href="{escape(str(row['source_url']), quote=True)}" rel="noreferrer">官方來源</a>
+    </article>"""
+
+
 def _family_card(row: dict[str, Any]) -> str:
     last_release = _release_display(row.get("last_official_release"), "尚無已登錄日期")
     next_release = _release_display(row.get("next_official_release"), "日曆尚未提供")
@@ -311,6 +354,70 @@ def _default_source_incident_center() -> dict[str, Any]:
         "open_incidents": [],
         "recent_recovery_receipts": [],
     }
+
+
+def _default_consumer_confidence_source_lanes() -> dict[str, Any]:
+    return {
+        "book_core_status": "exact_access_blocked",
+        "source_lane_count": 4,
+        "visible_available_lane_count": 0,
+        "lanes": [],
+    }
+
+
+def _confidence_lane_type_zh(value: str) -> str:
+    return {
+        "exact_book_core": "書籍 exact：Conference Board",
+        "near_equivalent_transformed": "近似官方：OECD 方向／轉折",
+        "independent_proxy": "獨立 proxy：密大消費者信心",
+        "explanatory_context": "解釋脈絡：NY Fed SCE",
+    }.get(value, value)
+
+
+def _confidence_lane_status_zh(value: str) -> str:
+    return {
+        "exact_available": "已提供合法授權 exact data",
+        "access_limited": "授權受限，book-core 維持 blocked",
+        "available_supporting_only": "本機資料可用，但僅作 supporting-only",
+        "source_failed_unavailable": "來源失效，本 lane 必須 unavailable",
+        "official_context_contract_ready_no_local_values": "官方 components 已定義，本機尚未載入數值",
+        "not_yet_loaded": "adapter 已定義，本機尚未完成首次載入",
+    }.get(value, value)
+
+
+def _confidence_substitution_zh(value: str) -> str:
+    return {
+        "exact_book_concept": "概念直接，但需合法授權才可使用",
+        "near_equivalent_direction_and_turning_point_only": "只近似方向與轉折，不等價",
+        "independent_proxy_not_conference_board_confidence": "獨立旁證，不等價",
+        "explanatory_components_only": "只解釋家庭預期，不是單一信心指數",
+    }.get(value, value)
+
+
+def _confidence_direction_zh(value: str) -> str:
+    return {
+        "rising": "最新月方向上升",
+        "falling": "最新月方向下降",
+        "unchanged": "最新月持平",
+        "": "不適用或資料不足",
+    }.get(value, value)
+
+
+def _confidence_turning_zh(value: str) -> str:
+    return {
+        "causal_low_reversal": "三期因果低點反轉",
+        "causal_high_reversal": "三期因果高點反轉",
+        "": "尚無三期轉折",
+    }.get(value, value)
+
+
+def _confidence_component_zh(value: str) -> str:
+    return {
+        "household_financial_situation_year_ahead_and_year_ago": "家庭財務現況與一年後預期",
+        "job_loss_and_job_finding_expectations": "失業與再就業預期",
+        "household_income_and_spending_growth_expectations": "所得與支出成長預期",
+        "credit_availability_and_debt_delinquency_expectations": "信用取得與逾期預期",
+    }.get(value, value)
 
 
 def _incident_type_zh(value: str) -> str:

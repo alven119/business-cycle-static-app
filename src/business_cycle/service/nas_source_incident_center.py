@@ -436,6 +436,10 @@ def _series_attribution() -> dict[str, dict[str, list[str]]]:
     for current in result.values():
         current["role_ids"].sort()
         current["cycle_lanes"].sort()
+    result["CONFERENCE_BOARD_CCI"] = {
+        "role_ids": ["boom_consumer_confidence"],
+        "cycle_lanes": ["boom::boom"],
+    }
     return result
 
 

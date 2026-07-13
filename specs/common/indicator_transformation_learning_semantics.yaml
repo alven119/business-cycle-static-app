@@ -73,11 +73,11 @@ indicator_transformation_learning_semantics:
       caveat_zh: 必須配合消費與更廣的就業確認證據。
     boom_consumer_confidence:
       transform_profile_id: unavailable
-      interpretation_name_zh: 消費者信心（缺授權直接來源）
-      high_or_rising_meaning_zh: 若未來取得書中概念等價資料，上升通常表示家庭預期改善。
-      low_or_falling_meaning_zh: 若未來取得等價資料，下降通常表示消費意願與預期轉弱。
-      declared_boom_context_zh: 目前維持 source blocked，不以 generic sentiment 替代。
-      caveat_zh: 缺少授權直接來源，不能產生數值圖或 phase evidence。
+      interpretation_name_zh: 消費者信心（exact blocked；替代 lanes 分開觀察）
+      high_or_rising_meaning_zh: Conference Board exact 或各 supporting lane 上升通常表示家庭現況／預期改善，但不同調查量尺不可互相比值。
+      low_or_falling_meaning_zh: 持續下降可提示消費意願與預期轉弱；OECD 只看方向／轉折，密大與 NY Fed components 只作旁證。
+      declared_boom_context_zh: 榮景期用信心轉弱協助理解消費降溫風險，但 source readiness 不等於 phase evidence 或轉折確認。
+      caveat_zh: Conference Board 完整歷史需授權；OECD、UMCSENT、NY Fed SCE 都不能替代 book-core exact role，也不得合成任意分數。
     boom_corporate_delinquency_or_default:
       transform_profile_id: level
       interpretation_name_zh: 企業逾期率水準

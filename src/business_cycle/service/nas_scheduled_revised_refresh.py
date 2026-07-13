@@ -24,6 +24,10 @@ from business_cycle.storage.nas_postgres_live_revised_import import (
 from business_cycle.storage.nas_technology_manufacturing_import import (
     run_technology_manufacturing_import,
 )
+from business_cycle.service.nas_consumer_confidence_sources import (
+    CONFIRMATION as OECD_CONFIDENCE_CONFIRMATION,
+    run_oecd_consumer_confidence_import,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONTRACT_PATH = ROOT / "specs/common/nas_scheduled_revised_refresh_contract.yaml"
@@ -108,6 +112,9 @@ def run_scheduled_refresh_once(
     technology_import_runner: Callable[..., dict[str, Any]] = (
         run_technology_manufacturing_import
     ),
+    consumer_confidence_import_runner: Callable[..., dict[str, Any]] = (
+        run_oecd_consumer_confidence_import
+    ),
     source_incident_reconciler: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Run one mutually exclusive refresh and preserve a redacted latest status."""
@@ -147,12 +154,36 @@ def run_scheduled_refresh_once(
                     ),
                     artifact_dir=root.parent / "phase122" / "runs" / run_id,
                 )
+            confidence_report: dict[str, Any] | None = None
+            if _consumer_confidence_refresh_enabled() and _is_full_daily_refresh(
+                series_ids
+            ):
+                confidence_report = consumer_confidence_import_runner(
+                    execute_live=True,
+                    operator_confirmation=os.environ.get(
+                        "BUSINESS_CYCLE_CONSUMER_CONFIDENCE_OPERATOR_CONFIRMATION",
+                        OECD_CONFIDENCE_CONFIRMATION,
+                    ),
+                    artifact_dir=root.parent / "phase136" / "runs" / run_id,
+                )
             completed = clock()
             succeeded = report.get("result") == "passed" and int(
                 report.get("failed_series_count", 0)
             ) == 0 and (
                 technology_report is None
                 or technology_report.get("result") == "passed"
+            ) and (
+                confidence_report is None
+                or confidence_report.get("result") == "passed"
+            )
+            confidence_requested = int(confidence_report is not None)
+            confidence_completed = int(
+                confidence_report is not None
+                and confidence_report.get("result") == "passed"
+            )
+            confidence_failed = int(
+                confidence_report is not None
+                and confidence_report.get("result") != "passed"
             )
             status = _base_status("succeeded" if succeeded else "failed") | {
                 "last_run_state": "succeeded" if succeeded else "failed",
@@ -162,20 +193,24 @@ def run_scheduled_refresh_once(
                 "next_scheduled_at_utc": _iso(completed + timedelta(days=1)),
                 "requested_series_count": int(
                     report.get("requested_series_count", 0)
-                ),
+                ) + confidence_requested,
                 "completed_series_count": int(
                     report.get("completed_series_count", 0)
-                ),
-                "failed_series_count": int(report.get("failed_series_count", 0)),
+                ) + confidence_completed,
+                "failed_series_count": int(report.get("failed_series_count", 0))
+                + confidence_failed,
                 "source_artifact_count": int(
                     report.get("source_artifact_count", 0)
-                ),
+                ) + confidence_completed,
                 "report_path": str(run_root / "latest-import-report.json"),
                 "error_class": None if succeeded else "RefreshReportFailed",
                 "error_message_redacted": None
                 if succeeded
                 else "one_or_more_sources_failed",
-                "series_refresh_results": _redacted_series_refresh_results(report),
+                "series_refresh_results": [
+                    *_redacted_series_refresh_results(report),
+                    *_redacted_external_series_refresh_results(confidence_report),
+                ],
                 "technology_refresh_enabled": _technology_refresh_enabled(),
                 "technology_refresh_result": (
                     technology_report.get("result")
@@ -185,6 +220,15 @@ def run_scheduled_refresh_once(
                 "technology_completed_series_count": int(
                     (technology_report or {}).get("completed_series_count", 0)
                 ),
+                "consumer_confidence_refresh_enabled": (
+                    _consumer_confidence_refresh_enabled()
+                ),
+                "consumer_confidence_refresh_result": (
+                    confidence_report.get("result")
+                    if confidence_report is not None
+                    else "not_run_for_subset_or_disabled"
+                ),
+                "consumer_confidence_completed_series_count": confidence_completed,
             }
         except Exception as exc:  # noqa: BLE001 - status must survive failure
             completed = clock()
@@ -306,6 +350,11 @@ def _base_status(state: str) -> dict[str, Any]:
         "technology_refresh_enabled": _technology_refresh_enabled(),
         "technology_refresh_result": "not_run",
         "technology_completed_series_count": 0,
+        "consumer_confidence_refresh_enabled": (
+            _consumer_confidence_refresh_enabled()
+        ),
+        "consumer_confidence_refresh_result": "not_run",
+        "consumer_confidence_completed_series_count": 0,
         "source_incident_reconciliation_state": "disabled",
         "source_incident_reconciliation_error_class": None,
         "open_source_incident_count": 0,
@@ -335,6 +384,12 @@ def _technology_refresh_enabled() -> bool:
     }
 
 
+def _consumer_confidence_refresh_enabled() -> bool:
+    return os.environ.get(
+        "BUSINESS_CYCLE_CONSUMER_CONFIDENCE_REFRESH_ENABLED", "false"
+    ).lower() in {"1", "true", "yes", "on"}
+
+
 def _is_full_daily_refresh(series_ids: list[str] | None) -> bool:
     if series_ids is None:
         return True
@@ -356,6 +411,38 @@ def _redacted_series_refresh_results(report: dict[str, Any]) -> list[dict[str, A
                 "series_id": str(raw["series_id"]),
                 "status": status if status in allowed_statuses else "unknown",
                 "observation_count": int(raw.get("observation_count", 0)),
+                "error_class": (
+                    str(raw["error_class"])
+                    if status == "failed" and raw.get("error_class")
+                    else None
+                ),
+                "error_reason_code": (
+                    "source_fetch_failed" if status == "failed" else None
+                ),
+            }
+        )
+    return results
+
+
+def _redacted_external_series_refresh_results(
+    report: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    if report is None:
+        return []
+    rows = report.get("series_refresh_results", [])
+    if not isinstance(rows, list):
+        return []
+    results = []
+    for raw in rows:
+        if not isinstance(raw, dict) or not raw.get("series_id"):
+            continue
+        status = str(raw.get("status", "unknown"))
+        results.append(
+            {
+                "series_id": str(raw["series_id"]),
+                "status": status if status in {"imported", "failed"} else "unknown",
+                "observation_count": int(raw.get("observation_count", 0)),
+                "attempt_count": int(raw.get("attempt_count", 1)),
                 "error_class": (
                     str(raw["error_class"])
                     if status == "failed" and raw.get("error_class")

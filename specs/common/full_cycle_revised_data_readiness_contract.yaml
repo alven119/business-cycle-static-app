@@ -22,6 +22,18 @@ full_cycle_revised_data_readiness_contract:
     missing_input_never_zero_filled: true
     proxy_never_silently_replaces_book_core: true
   supporting_context_series:
+    - series_id: OECD_US_CCICP
+      supports_role_id: boom_consumer_confidence
+      source_family: OECD Data Explorer
+      source_title: Consumer opinion surveys - Composite consumer confidence, United States
+      substitution_degree: near_equivalent_direction_and_turning_point_only
+      automation_status: automated_official_sdmx_worker_phase136
+      frequency: monthly
+      units: percentage_balance
+      seasonal_adjustment: calendar_and_seasonally_adjusted
+      schedule_precision: monthly_dataset_update_no_exact_date_claim
+      source_risk_level: medium
+      official_series_url: https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CS,4.0/USA.M.CCICP......
     - series_id: UMCSENT
       supports_role_id: boom_consumer_confidence
       source_family: University of Michigan via FRED
@@ -35,6 +47,18 @@ full_cycle_revised_data_readiness_contract:
       schedule_precision: cadence_only_for_fred_redistribution
       source_risk_level: medium_high
       official_series_url: https://fred.stlouisfed.org/series/UMCSENT
+    - series_id: NYFED_SCE_CONTEXT
+      supports_role_id: boom_consumer_confidence
+      source_family: Federal Reserve Bank of New York
+      source_title: Survey of Consumer Expectations explanatory components
+      substitution_degree: explanatory_context_only
+      automation_status: official_component_contract_ready_not_combined
+      frequency: monthly_core_with_lower_frequency_modules
+      units: component_specific
+      seasonal_adjustment: component_specific
+      schedule_precision: official_monthly_calendar
+      source_risk_level: medium
+      official_series_url: https://www.newyorkfed.org/microeconomics/sce
     - series_id: PAYEMS
       supports_role_id: growth_adp_employment
       source_family: BLS via FRED
@@ -50,7 +74,7 @@ full_cycle_revised_data_readiness_contract:
   blocked_core_roles:
     - role_id: boom_consumer_confidence
       blocker: no_public_official_equivalent
-      user_impact_zh: 可觀察密大消費者信心作旁證，但不能稱為書中 Conference Board 消費者信心。
+      user_impact_zh: 可分別觀察 OECD 方向／轉折、密大 sentiment 與 NY Fed 家庭預期 components，但都不能稱為書中 Conference Board 消費者信心。
       next_action_zh: 未來可由使用者提供合法授權資料；在此之前維持 book-core blocked。
   remediated_core_roles:
     - role_id: growth_adp_employment

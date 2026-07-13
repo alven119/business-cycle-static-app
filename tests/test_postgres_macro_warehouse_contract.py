@@ -57,6 +57,9 @@ from business_cycle.audits.phase132_phase_aware_dashboard_closure import (
 from business_cycle.audits.phase135_source_incident_center_closure import (
     summarize_phase135_source_incident_center_closure,
 )
+from business_cycle.audits.phase136_consumer_confidence_sources_closure import (
+    summarize_phase136_consumer_confidence_sources_closure,
+)
 from business_cycle.validation.historical_pit_transition_events import (
     build_historical_pit_transition_event_registry,
 )
@@ -103,6 +106,16 @@ from business_cycle.service.nas_source_incident_center import (
     load_source_incident_registry,
     reconcile_source_incidents,
     summarize_nas_source_incident_center_contract,
+)
+from business_cycle.service.nas_consumer_confidence_sources import (
+    CONFIRMATION as OECD_CONFIDENCE_CONFIRMATION,
+    OECD_SERIES_ID,
+    ConsumerConfidenceSourceError,
+    build_consumer_confidence_failure_drills,
+    build_consumer_confidence_source_lanes,
+    parse_oecd_consumer_confidence_csv,
+    run_oecd_consumer_confidence_import,
+    summarize_consumer_confidence_source_contract,
 )
 from business_cycle.storage.nas_live_postgres_dashboard import (
     DASHBOARD_READ_SQL,
@@ -474,8 +487,8 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     worker = compose["services"]["macro_refresh_worker"]
     dockerfile = Path("Dockerfile.nas").read_text(encoding="utf-8")
 
-    assert app["image"] == "business-cycle-nas-app:phase135-source-incident-center"
-    assert worker["image"] == "business-cycle-nas-app:phase135-source-incident-center"
+    assert app["image"] == "business-cycle-nas-app:phase136-consumer-confidence-sources"
+    assert worker["image"] == "business-cycle-nas-app:phase136-consumer-confidence-sources"
     assert app["ports"] == [
         "127.0.0.1:18080:8000",
         "${BUSINESS_CYCLE_LAN_BIND_IP:-192.168.1.116}:18080:8000",
@@ -494,6 +507,7 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "phase125" in artifact_init["command"][0]
     assert "phase126" in artifact_init["command"][0]
     assert "phase135" in artifact_init["command"][0]
+    assert "phase136" in artifact_init["command"][0]
     assert "BUSINESS_CYCLE_STRICT_REPLAY_TIMELINE_STATUS_PATH" in app["environment"]
     assert "BUSINESS_CYCLE_DATABASE_URL" in app["environment"]
     assert artifact_init["user"] == "0:0"
@@ -521,6 +535,10 @@ def test_nas_compose_schedules_governed_refresh_and_keeps_https_private() -> Non
     assert "BUSINESS_CYCLE_PHASE118_OPERATOR_CONFIRMATION" in worker["environment"]
     assert worker["environment"]["BUSINESS_CYCLE_TECHNOLOGY_REFRESH_ENABLED"] == "true"
     assert worker["environment"]["BUSINESS_CYCLE_SOURCE_INCIDENT_RECONCILIATION_ENABLED"] == "true"
+    assert worker["environment"]["BUSINESS_CYCLE_CONSUMER_CONFIDENCE_REFRESH_ENABLED"] == "true"
+    assert "BUSINESS_CYCLE_CONSUMER_CONFIDENCE_OPERATOR_CONFIRMATION" in (
+        worker["environment"]
+    )
     assert "BUSINESS_CYCLE_SOURCE_INCIDENT_PATH" in worker["environment"]
     assert "BUSINESS_CYCLE_TECHNOLOGY_REFRESH_OPERATOR_CONFIRMATION" in (
         worker["environment"]
@@ -619,6 +637,49 @@ def test_phase112_scheduled_refresh_is_atomic_bounded_and_redacted(
     assert len(technology_calls) == 1
     assert str(technology_calls[0]["artifact_dir"]).endswith(
         "phase122/runs/20260710T000000Z"
+    )
+
+    confidence_calls: list[dict[str, object]] = []
+
+    def successful_confidence_import(**kwargs: object) -> dict[str, object]:
+        confidence_calls.append(kwargs)
+        return {
+            "result": "passed",
+            "requested_series_count": 1,
+            "completed_series_count": 1,
+            "failed_series_count": 0,
+            "source_artifact_count": 1,
+            "series_refresh_results": [
+                {
+                    "series_id": OECD_SERIES_ID,
+                    "status": "imported",
+                    "observation_count": 12,
+                    "attempt_count": 1,
+                }
+            ],
+        }
+
+    monkeypatch.setenv("BUSINESS_CYCLE_CONSUMER_CONFIDENCE_REFRESH_ENABLED", "true")
+    monkeypatch.setenv(
+        "BUSINESS_CYCLE_CONSUMER_CONFIDENCE_OPERATOR_CONFIRMATION",
+        OECD_CONFIDENCE_CONFIRMATION,
+    )
+    confidence_status = run_scheduled_refresh_once(
+        artifact_root=tmp_path / "confidence-schedule",
+        operator_confirmation=CONFIRMATION,
+        import_runner=successful_import,
+        technology_import_runner=successful_technology_import,
+        consumer_confidence_import_runner=successful_confidence_import,
+        now=lambda: datetime(2026, 7, 10, tzinfo=timezone.utc),
+    )
+    assert confidence_status["consumer_confidence_refresh_result"] == "passed"
+    assert confidence_status["consumer_confidence_completed_series_count"] == 1
+    assert confidence_status["requested_series_count"] == 30
+    assert confidence_status["completed_series_count"] == 30
+    assert confidence_status["series_refresh_results"][-1]["series_id"] == OECD_SERIES_ID
+    assert len(confidence_calls) == 1
+    assert str(confidence_calls[0]["artifact_dir"]).endswith(
+        "phase136/runs/20260710T000000Z"
     )
 
     schedule_root = tmp_path / "schedule"
@@ -852,6 +913,9 @@ def test_phase111_live_postgres_snapshot_materializes_values_charts_and_lineage(
     )
     assert "四階段資料完整性" in source_operations_html
     assert "UMCSENT" in source_operations_html
+    assert "消費者信心：exact 與替代來源分層" in source_operations_html
+    assert "OECD 方向／轉折" in source_operations_html
+    assert "NY Fed SCE" in source_operations_html
     assert "ADPMNUSNERSA" in source_operations_html
     assert "保持獨立 BLS 非農就業角色" in source_operations_html
 
@@ -1954,6 +2018,91 @@ def test_phase135_source_incident_closure_and_script_pass() -> None:
     )
     assert "phase135_closure_ready=true" in completed.stdout
     assert "deterministic_incident_candidate_count=8" in completed.stdout
+    assert "result=passed" in completed.stdout
+
+
+class _Phase136Response:
+    content = (
+        b"REF_AREA,FREQ,MEASURE,TIME_PERIOD,OBS_VALUE\n"
+        b"USA,M,CCICP,2026-04,-12.0\n"
+        b"USA,M,CCICP,2026-05,-13.0\n"
+        b"USA,M,CCICP,2026-06,-11.5\n"
+    )
+
+    def raise_for_status(self) -> None:
+        return None
+
+
+class _Phase136SqlRecorder:
+    def __init__(self) -> None:
+        self.statements: list[str] = []
+
+    def execute(self, sql: str) -> str:
+        self.statements.append(sql)
+        return ""
+
+
+def test_phase136_consumer_confidence_lanes_adapter_drills_and_closure(
+    tmp_path: Path,
+) -> None:
+    contract = summarize_consumer_confidence_source_contract()
+    parsed = parse_oecd_consumer_confidence_csv(_Phase136Response.content)
+    lanes = build_consumer_confidence_source_lanes(
+        observations_by_series={
+            OECD_SERIES_ID: [
+                {"observation_date": row.date, "value_numeric": row.value}
+                for row in parsed
+            ]
+        }
+    )
+    drills = build_consumer_confidence_failure_drills()
+    executor = _Phase136SqlRecorder()
+    report = run_oecd_consumer_confidence_import(
+        execute_live=True,
+        operator_confirmation=OECD_CONFIDENCE_CONFIRMATION,
+        artifact_dir=tmp_path,
+        executor=executor,
+        fetcher=lambda *args, **kwargs: _Phase136Response(),
+    )
+    closure = summarize_phase136_consumer_confidence_sources_closure()
+
+    assert contract["result"] == "passed"
+    assert contract["source_lane_count"] == 4
+    assert contract["exact_source_access_blocked_count"] == 1
+    assert len(parsed) == 3
+    assert lanes["book_core_status"] == "exact_access_blocked"
+    assert lanes["supporting_source_promoted_to_core_count"] == 0
+    assert lanes["lanes"][1]["directional_observation"]["turning_point"] == (
+        "causal_low_reversal"
+    )
+    assert drills["drill_state_count"] == drills["drill_pass_count"] == 4
+    assert report["result"] == "passed"
+    assert report["completed_series_count"] == 1
+    assert executor.statements and "verified_near_equivalent_supporting_only" in (
+        executor.statements[0]
+    )
+    assert (tmp_path / "latest-oecd-confidence-report.json").exists()
+    with pytest.raises(ConsumerConfidenceSourceError, match="explicit confirmation"):
+        run_oecd_consumer_confidence_import(
+            execute_live=False,
+            operator_confirmation=None,
+            artifact_dir=tmp_path,
+        )
+    assert closure["result"] == "passed"
+    assert closure["source_failure_drill_pass_count"] == 4
+    assert closure["source_failure_recovery_receipt_count"] == 3
+    assert closure["exact_book_core_replacement_count"] == 0
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/show_phase136_consumer_confidence_sources_closure.py",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "phase136_closure_ready=true" in completed.stdout
+    assert "source_failure_drill_pass_count=4" in completed.stdout
     assert "result=passed" in completed.stdout
 
 

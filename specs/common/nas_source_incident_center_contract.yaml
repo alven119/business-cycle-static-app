@@ -71,10 +71,20 @@ nas_source_incident_center_contract:
         state: supporting_only_visible
         substitution_degree: supporting_only_not_adp
       UMCSENT:
+        supporting_series_ids: [NYFED_SCE_CONTEXT]
+        affected_role_id: boom_consumer_confidence
+        state: supporting_only_visible
+        substitution_degree: supporting_source_itself_not_exact_conference_board
+      OECD_US_CCICP:
+        supporting_series_ids: [UMCSENT]
+        affected_role_id: boom_consumer_confidence
+        state: supporting_only_visible
+        substitution_degree: independent_proxy_not_near_equivalent_replacement
+      NYFED_SCE_CONTEXT:
         supporting_series_ids: []
         affected_role_id: boom_consumer_confidence
         state: abstain_required
-        substitution_degree: supporting_source_itself_not_exact_conference_board
+        substitution_degree: explanatory_context_no_numeric_replacement
   dashboard_policy:
     source_operations_page_path: /source-operations
     source_operations_api_path: /api/source-operations.json

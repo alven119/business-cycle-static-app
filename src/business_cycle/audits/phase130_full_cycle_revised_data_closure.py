@@ -36,8 +36,7 @@ def summarize_phase130_full_cycle_revised_data_closure(
     release = summarize_nas_release_aware_refresh_contract()
     contract = load_full_cycle_revised_data_readiness_contract()
     supporting = {
-        str(row["supports_role_id"]): row
-        for row in contract["supporting_context_series"]
+        str(row["series_id"]): row for row in contract["supporting_context_series"]
     }
     renderer = (ROOT / "src/business_cycle/render/nas_source_operations.py").read_text(
         encoding="utf-8"
@@ -73,13 +72,13 @@ def summarize_phase130_full_cycle_revised_data_closure(
             "source_blocked_with_supporting_context_count"
         ],
         "umcsent_supporting_only_ready": (
-            supporting["boom_consumer_confidence"]["series_id"] == "UMCSENT"
-            and supporting["boom_consumer_confidence"]["substitution_degree"]
+            supporting["UMCSENT"]["supports_role_id"] == "boom_consumer_confidence"
+            and supporting["UMCSENT"]["substitution_degree"]
             == "supporting_only_not_conference_board_confidence"
         ),
         "payems_not_adp_substitution": (
-            supporting["growth_adp_employment"]["series_id"] == "PAYEMS"
-            and supporting["growth_adp_employment"]["substitution_degree"]
+            supporting["PAYEMS"]["supports_role_id"] == "growth_adp_employment"
+            and supporting["PAYEMS"]["substitution_degree"]
             == "supporting_only_not_adp"
         ),
         "generic_sentiment_not_consumer_confidence_substitution": True,
@@ -87,7 +86,7 @@ def summarize_phase130_full_cycle_revised_data_closure(
             "derived_or_composite_lineage_missing_count"
         ],
         "release_delay_risk_visible": (
-            supporting["boom_consumer_confidence"]["redistribution_delay"]
+            supporting["UMCSENT"]["redistribution_delay"]
             == "one_month_at_source_request"
         ),
         "fixed_daily_automated_series_count": release[
